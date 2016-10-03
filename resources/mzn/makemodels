@@ -1,0 +1,8 @@
+#!/bin/sh
+
+for SUITE in tests examples benchmarks
+do
+    cd $SUITE
+    ./makemodels
+    cd ..
+done

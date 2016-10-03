@@ -1,0 +1,7 @@
+----------
+production planning (FD version)
+             	kluski		fettucine	capellini
+make inside: 	40		0		0
+make outside: 	60		200		300
+=== NO BETTER SOLUTIONS ===
+Search complete: the last solution is optimal.

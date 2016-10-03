@@ -1,0 +1,11 @@
+----------
+Cost = 4
+Pieces = 
+	[1, 1, 0, 0, 1, 1, 0, 0]
+Items = 
+	1 0 0 0 1 0 0 0
+	0 0 0 0 0 2 0 0
+	1 2 0 0 1 0 0 0
+	
+=== NO BETTER SOLUTIONS ===
+Search complete: the last solution is optimal.

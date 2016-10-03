@@ -1,0 +1,40 @@
+Yuck (https://github.com/informarte/yuck) is provided under the terms
+of the Mozilla Public License 2.0.
+
+Some global constraint definitions (in /usr/share/yuck/mzn) reuse
+bits and pieces from the default definitions that come with the
+MiniZinc 2.0.x distributions (https://github.com/MiniZinc/libminizinc)
+which are used under the terms of the Mozilla Public License 2.0.
+
+Yuck directly and transitively depends on some libraries, see the jar
+files in /usr/share/yuck/lib.
+
+The following libraries are used under the terms of the revised BSD
+license:
+
+* The Scala Library
+  (http://www.scala-lang.org)
+* The Scala Standard Parser Combinators Library
+  (https://github.com/scala/scala-parser-combinators)
+* The SBT test interface
+  (https://github.com/sbt/test-interface)
+
+The following libraries are used under the terms of a license that
+blends the revised BSD license with the ISC license:
+
+* ScalaCheck
+  (http://www.scalacheck.org)
+
+The following libraries are used under the terms of the MIT license:
+
+* The scopt library for parsing command line options
+  (https://github.com/scopt/scopt)
+
+The following libraries are used under the terms of the Apache
+Software License 2.0:
+
+* Graph for Scala
+  (http://www.scala-graph.org)
+
+Please see the folder licenses/ for all copyright statements and the
+licenses.

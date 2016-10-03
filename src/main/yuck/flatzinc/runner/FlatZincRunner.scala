@@ -1,0 +1,109 @@
+package yuck.flatzinc.runner
+
+import java.io.IOException
+
+import scala.math.max
+
+import scopt._
+
+import yuck.flatzinc.FlatZincSolverConfiguration
+import yuck.flatzinc.compiler.InconsistentProblemException
+import yuck.flatzinc.parser._
+import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
+
+object FlatZincRunner {
+
+    val nativeLogger = java.util.logging.Logger.getLogger(this.getClass.getName)
+    val logger = new yuck.util.logging.LazyLogger(nativeLogger)
+    val defaultCfg = new FlatZincSolverConfiguration(maybeRuntimeLimitInSeconds = None)
+
+    class CommandLineParser extends OptionParser[FlatZincSolverConfiguration]("yuck") {
+        var flatZincFilePath = ""
+        head("Yuck FlatZinc frontend")
+        help("help").abbr("h").text("Show this help message")
+        opt[Int]('p', "number-of-virtual-cores")
+            .text("Default value is %s".format(defaultCfg.numberOfVirtualCores))
+            .action((x, c) => c.copy(numberOfVirtualCores = max(1, x)))
+        opt[Int]('r', "seed")
+            .text("Default value is %s".format(defaultCfg.seed))
+            .action((x, c) => c.copy(seed = x))
+        opt[Int]("number-of-restarts")
+            .text("Default value is %s".format(defaultCfg.numberOfRestarts))
+            .action((x, c) => c.copy(numberOfRestarts = max(1, x)))
+        opt[Int]("optimum")
+            .action((x, c) => c.copy(maybeOptimum = Some(x)))
+        opt[Int]("round-limit")
+            .action((x, c) => c.copy(maybeRoundLimit = Some(max(0, x))))
+        opt[Int]("runtime-limit")
+            .action((x, c) => c.copy(maybeRuntimeLimitInSeconds = Some(max(0, x))))
+            .text("Runtime limit in seconds")
+        arg[String]("FlatZinc file")
+            .required()
+            .hidden()
+            .action((x, c) => {flatZincFilePath = x; c})
+        override def usageExample =
+            "%s <JVM option>* -- <Yuck option>* <FlatZinc file>".format(programName)
+    }
+
+    def main(args: Array[String]) {
+        val parser = new CommandLineParser
+        val maybeCfg = parser.parse(args, new FlatZincSolverConfiguration)
+        if (maybeCfg.isEmpty) {
+            System.exit(1)
+        }
+        val cfg = maybeCfg.get
+        val problemPath = parser.flatZincFilePath
+        java.util.logging.LogManager.getLogManager.reset // remove handlers
+        val consoleHandler = new java.util.logging.ConsoleHandler() {
+            override def publish(record: java.util.logging.LogRecord) {
+                synchronized {
+                    super.publish(record)
+                    flush
+                }
+            }
+        }
+        consoleHandler.setFormatter(new java.util.logging.Formatter {
+            override def format(logRecord: java.util.logging.LogRecord) =
+                "%s\n".format(logRecord.getMessage)
+        })
+        nativeLogger.addHandler(consoleHandler)
+        logger.setThresholdLogLevel(yuck.util.logging.NoLogging)
+        try {
+            trySolve(problemPath, cfg)
+        }
+        catch {
+            case error: Throwable => handleException(findUltimateCause(error))
+        }
+    }
+
+    def trySolve(problemPath: String, cfg: FlatZincSolverConfiguration) {
+        val file = new java.io.File(problemPath)
+        val reader = new java.io.InputStreamReader(new java.io.FileInputStream(file))
+        val ast = FlatZincParser.parse(reader)
+        val monitor = new FlatZincSolverMonitor
+        val solver = new FlatZincSolverGenerator(ast, cfg, logger, monitor).call
+        val result = solver.call
+        if (result == null || ! result.isSolution) {
+            println(FLATZINC_NO_SOLUTION_FOUND_INDICATOR)
+        }
+    }
+
+    private def handleException(error: Throwable) = error match {
+        case error: IOException =>
+            nativeLogger.severe(error.getMessage)
+        case error: FlatZincParserException =>
+            nativeLogger.severe(error.getMessage)
+        case error: VariableWithInfiniteDomainException =>
+            nativeLogger.severe(error.getMessage)
+        case error: InconsistentProblemException =>
+            nativeLogger.fine(error.getMessage)
+            println(FLATZINC_INCONSISTENT_PROBLEM_INDICATOR)
+        case error: Throwable =>
+            // JVM will print error
+            throw error
+    }
+
+    private def findUltimateCause(error: Throwable): Throwable =
+        if (error.getCause == null) error else findUltimateCause(error.getCause)
+
+}

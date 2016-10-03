@@ -1,0 +1,6 @@
+----------
+oss:
+makespan = 1168
+start = [ (1, 1):333, (1, 2):1162, (1, 3):0, (2, 1):1000, (2, 2):0, (2, 3):657, (3, 1):0, (3, 2):657, (3, 3):333 ]
+=== NO BETTER SOLUTIONS ===
+Search complete: the last solution is optimal.

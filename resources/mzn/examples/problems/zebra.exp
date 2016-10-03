@@ -1,0 +1,6 @@
+animal = array1d(0..4, [4, 1, 2, 5, 3]);
+colour = array1d(0..4, [3, 5, 4, 1, 2]);
+drink = array1d(0..4, [5, 2, 3, 4, 1]);
+nation = array1d(0..4, [3, 4, 2, 1, 5]);
+smoke = array1d(0..4, [3, 1, 2, 4, 5]);
+----------

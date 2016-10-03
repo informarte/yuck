@@ -1,0 +1,9 @@
+mzn2fzn:
+  error: 
+  grocery.mzn:30 
+  In constraint. 
+  In '/\' expression. 
+  In '=' expression. 
+  In '*' expression. 
+  the bounds on this expression exceed what can be represented on a 32 bit 
+  machine.

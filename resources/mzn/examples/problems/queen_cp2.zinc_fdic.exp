@@ -1,0 +1,13 @@
+----------
+8 queens, CP version:
+Q . . . . . . . 
+. . . . Q . . . 
+. . . . . . . Q 
+. . . . . Q . . 
+. . Q . . . . . 
+. . . . . . Q . 
+. Q . . . . . . 
+. . . Q . . . . 
+=== NO MORE SOLUTIONS ===
+Search incomplete:
+  queen_cp2: commit to first solution

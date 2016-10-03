@@ -1,0 +1,13 @@
+----------
+0 0 0 1 0 0 0 1 0
+1 0 0 0 0 0 0 2 0
+2 0 0 0 1 0 0 3 0
+0 0 1 0 2 0 0 0 0
+0 0 2 0 0 0 0 0 1
+0 0 3 0 0 0 0 0 0
+1 0 0 0 0 1 2 3 4
+2 0 0 0 0 0 0 0 0
+0 0 0 1 0 1 0 0 0
+=== NO MORE SOLUTIONS ===
+Search incomplete:
+  battleships_1: commit to first solution

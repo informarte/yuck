@@ -1,0 +1,13 @@
+----------
+8 queens, IP version:
+. . . . . . . Q 
+. . . Q . . . . 
+Q . . . . . . . 
+. . Q . . . . . 
+. . . . . Q . . 
+. Q . . . . . . 
+. . . . . . Q . 
+. . . . Q . . . 
+=== NO MORE SOLUTIONS ===
+Search incomplete:
+  queen_ip: commit to first solution

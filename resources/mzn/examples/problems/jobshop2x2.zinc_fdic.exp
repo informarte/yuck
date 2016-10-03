@@ -1,0 +1,6 @@
+----------
+jobshop2x2
+s[1..2, 1..2] = [0 2
+                 2 7]
+=== NO BETTER SOLUTIONS ===
+Search complete: the last solution is optimal.

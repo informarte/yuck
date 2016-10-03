@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# This script generates FlatZinc models for a whole benchmark suite.
+# The benchmark suite is expected to reside in a folder called 'problems'
+# and the script expects invocation in the parent of this folder.
+# The suite folder is expected to contain a folder for each problem.
+# For problems without MiniZinc data files, the MiniZinc model files may be
+# organized into sub-folders.
+# For problems with MiniZinc data files, the data files may be organized
+# into sub-folders but the MiniZinc model files are expected to reside
+# on top level.
+# The script will generate a folder called 'models' the structure of which
+# will reflect the structure of the suite, i.e. there will be folder for
+# each problem, and so on.
+# For problems with MiniZinc data files, there will a folder for each
+# MiniZinc model, even when there is only one MiniZinc model. (This way
+# the folder structure does not depend on the number of MiniZinc models
+# and adding or deleting MiniZinc models will not change the folder
+# structure.)
+
+MAX_PROCS=4
+NAME=$1
+
+# Find out where this script is located.
+# (http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in)
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+
+WORK_DIR=$PWD
+
+MZN_LIB_DIR=$SCRIPT_DIR/../lib/yuck/
+
+pushd problems
+if [ -z "$NAME" ]
+then
+    # Add ! -name <pattern> to exclude problems that do not compile for whatever reason
+    PROBLEMS=$(find . -mindepth 1 -maxdepth 1 -type d ! -name .git ! -name 2DBinPacking ! -name QCP ! -name carseq ! -name golfers ! -name search_stress2)
+else
+    PROBLEMS=$(find . -mindepth 1 -maxdepth 1 -type d -name $NAME)
+fi
+echo $PROBLEMS
+popd
+
+for PROBLEM in $PROBLEMS
+do
+    echo $PROBLEM
+    pushd problems/$PROBLEM
+    INSTANCE_FILES=$(find . -iname '*.dzn')
+    if [ -z "$INSTANCE_FILES" ]
+    then
+       INSTANCE_FILES=$(find . -iname '*.mzn')
+       TARGET_DIR=$WORK_DIR/models/$PROBLEM
+       mkdir -p $TARGET_DIR
+       echo $INSTANCE_FILES | xargs -t --max-args=1 --max-procs=$MAX_PROCS nice $SCRIPT_DIR/runmzn2fzn $MZN_LIB_DIR $TARGET_DIR
+    else
+       MODEL_FILES=$(find . -mindepth 1 -maxdepth 1 -iname '*.mzn')
+       for MODEL_FILE in $MODEL_FILES
+       do
+            TARGET_DIR=$WORK_DIR/models/$PROBLEM/${MODEL_FILE%%.mzn}
+            mkdir -p $TARGET_DIR
+            echo $INSTANCE_FILES | xargs -t --max-args=1 --max-procs=$MAX_PROCS nice $SCRIPT_DIR/rundzn2fzn $MZN_LIB_DIR $TARGET_DIR $MODEL_FILE
+       done
+    fi
+    popd
+done
