@@ -1,13 +1,13 @@
 Yuck (https://github.com/informarte/yuck) is provided under the terms
 of the Mozilla Public License 2.0.
 
-Some global constraint definitions (in /usr/share/yuck/mzn) reuse
+Some global constraint definitions (in the mzn/ folder) reuse
 bits and pieces from the default definitions that come with the
 MiniZinc 2.0.x distributions (https://github.com/MiniZinc/libminizinc)
 which are used under the terms of the Mozilla Public License 2.0.
 
 Yuck directly and transitively depends on some libraries, see the jar
-files in /usr/share/yuck/lib.
+files in the lib/ folder.
 
 The following libraries are used under the terms of the revised BSD
 license:

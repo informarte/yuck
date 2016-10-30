@@ -48,27 +48,17 @@ mainClass in (Compile, run) := Some("yuck.flatzinc.runner.FlatZincRunner")
 mainClass in (Compile, packageBin) := Some("yuck.flatzinc.runner.FlatZincRunner")
 
 enablePlugins(JavaAppPackaging)
-enablePlugins(DebianPlugin)
+enablePlugins(UniversalPlugin)
 
-debianNativeBuildOptions in Debian := Nil // dpkg-deb's default compression (currently xz)
-
-debianPackageDependencies in Debian ++= Seq("openjdk-6-jre | java6-runtime", "bash (>= 2.05a-11)")
-linuxPackageMappings in Debian +=
-    packageMapping(
-        baseDirectory.value / "Debian" / "changelog" -> "/usr/share/doc/yuck/changelog.gz",
-        baseDirectory.value / "Debian" / "changelog.Debian" -> "/usr/share/doc/yuck/changelog.Debian.gz")
-    .withPerms("0644")
-    .gzipped
-linuxPackageMappings in Debian +=
-    packageMapping(baseDirectory.value / "Debian" / "copyright" -> "/usr/share/doc/yuck/copyright")
-    .withPerms("0644")
-linuxPackageMappings in Debian ++=
-    (baseDirectory.value / "licenses")
+mappings in Universal +=
+    (baseDirectory.value / "doc" / "copyright" -> "doc/copyright")
+mappings in Universal ++=
+    (baseDirectory.value / "doc" / "licenses")
     .listFiles
     .toStream
-    .map(file => packageMapping(file -> ("/usr/share/doc/yuck/licenses/" + file.getName)).withPerms("0644"))
-linuxPackageMappings in Debian ++=
+    .map(file => file -> ("doc/licenses/" + file.getName))
+mappings in Universal ++=
     (baseDirectory.value / "resources" / "mzn" / "lib" / "yuck")
     .listFiles
     .toStream
-    .map(file => packageMapping(file -> ("/usr/share/yuck/mzn/" + file.getName)).withPerms("0644"))
+    .map(file => file -> ("mzn/" + file.getName))
