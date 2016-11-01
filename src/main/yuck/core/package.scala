@@ -65,6 +65,6 @@ package object core {
 
     val DEFAULT_SEED = 5489 // Boost Mersenne Twister default seed
 
-    val DEFAULT_NUMBER_OF_RESTARTS = 100
+    val DEFAULT_RESTART_LIMIT = 100
 
 }

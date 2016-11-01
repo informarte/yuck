@@ -53,11 +53,11 @@ final class FlatZincSolverGenerator
     override def call = {
         val randomGenerator = new JavaRandomGenerator(cfg.seed)
         var solver: Solver = null
-        if (cfg.numberOfRestarts == 1) {
+        if (cfg.restartLimit == 1) {
             solver = new BaseSolverGenerator(randomGenerator.nextGen, "SA-1").call
         } else {
             val solvers =
-                for (i <- 1 to max(1, cfg.numberOfRestarts)) yield
+                for (i <- 1 to max(1, cfg.restartLimit)) yield
                     new OnDemandGeneratedSolver(
                         new BaseSolverGenerator(randomGenerator.nextGen, "SA-%d".format(i)),
                         logger)

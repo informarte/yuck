@@ -63,13 +63,34 @@ When used as a FlatZinc interpreter, Yuck proceeds as follows:
 * It uses restarting to increase robustness: When a solver terminates without having reached its objective, it gets replaced by a new one starting out from another random assignment.
 * When Yuck is configured to use multiple threads, restarting turns into parallel solving: Given a thread pool and a stream of solvers with a common objective, Yuck submits the solvers to the thread pool and, when one of the solvers provides a solution that satisfies the objective, Yuck discards all running and pending solvers.
 
-## Installation and MiniZinc IDE integration
+## Download and installation
 
 Yuck requires a Java 6 (or higher) runtime environment.
 
-This is the latest Yuck package: [yuck_20161030.zip](https://drive.google.com/open?id=0B3cKM2FQLv9vUS1lSUVKeU1YdkU).
+This is the latest Yuck package: [yuck_20161101.zip](https://drive.google.com/open?id=0B3cKM2FQLv9vd1NVeGpWVWhMTUU).
 
 Unzip the package in a suitable location and change to the resulting folder. The start scripts reside in the `bin` subfolder; you can run Yuck with either `./bin/yuck` (on UNIX-based systems) or `bin\yuck.bat` (on Windows). Yuck's MiniZinc library resides in the `mzn` subfolder.
+
+## Command-line interface
+
+To solve a problem with Yuck, invoke Yuck with the FlatZinc file on the command line, for example:
+
+```
+yuck zebra.fzn
+
+animal = array1d(0..4, [4, 1, 2, 5, 3]);
+colour = array1d(0..4, [3, 5, 4, 1, 2]);
+drink = array1d(0..4, [5, 2, 3, 4, 1]);
+nation = array1d(0..4, [3, 4, 2, 1, 5]);
+smoke = array1d(0..4, [3, 1, 2, 4, 5]);
+----------
+```
+
+Yuck's output complies to the requirements of the [FlatZinc 1.6 specification](http://www.minizinc.org/downloads/doc-1.6/flatzinc-spec.pdf) (see section 6).
+
+Use the `--help` option to obtain a list of all options.
+
+## MiniZinc IDE integration
 
 To configure Yuck as a backend for the [MiniZinc IDE](http://www.minizinc.org/ide/index.html), proceed as follows:
 
@@ -85,7 +106,7 @@ To configure Yuck as a backend for the [MiniZinc IDE](http://www.minizinc.org/id
 * Switch from **Default behavior** to **User-defined behavior** and do NOT tick **Print all solutions**.
 * If your hardware allows, increase the number of threads.
 
-(Tested on Ubuntu, Linux Mint, and Windows 10.)
+(Tested on Ubuntu and Windows 10.)
 
 ## Future work
 
@@ -177,7 +198,7 @@ In addition, the following rules apply:
   * Lines should not be much longer than 120 characters.
   * Don't give a result type when overriding a definition.
 
-# References
+## References
 
 [BMFP15] G. Björdal, J.-N. Monette, P. Flener, and J. Pearson. A Constraint-Based Local Search Backend for MiniZinc. Constraints, 20(3):325-345, 2015. 
 
