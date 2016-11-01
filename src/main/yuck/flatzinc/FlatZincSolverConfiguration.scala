@@ -1,7 +1,7 @@
 package yuck.flatzinc
 
 import yuck.annealing.{DEFAULT_MOVE_SIZE_DISTRIBUTION, DEFAULT_PROBABILITY_OF_FAIR_CHOICE_IN_PERCENT}
-import yuck.core.{DEFAULT_SEED, DEFAULT_NUMBER_OF_RESTARTS, Distribution}
+import yuck.core.{DEFAULT_SEED, DEFAULT_RESTART_LIMIT, Distribution}
 
 /**
  * @author Michael Marte
@@ -9,7 +9,7 @@ import yuck.core.{DEFAULT_SEED, DEFAULT_NUMBER_OF_RESTARTS, Distribution}
  */
 case class FlatZincSolverConfiguration(
     val seed: Int = DEFAULT_SEED,
-    val numberOfRestarts: Int = DEFAULT_NUMBER_OF_RESTARTS,
+    val restartLimit: Int = DEFAULT_RESTART_LIMIT,
     val numberOfVirtualCores: Int = Runtime.getRuntime.availableProcessors,
     val maybeRoundLimit: Option[Int] = None,
     val maybeRuntimeLimitInSeconds: Option[Int] = Some(300),

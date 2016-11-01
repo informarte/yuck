@@ -70,7 +70,7 @@ class Queens extends IntegrationTest {
         val space = new Space
         val randomGenerator = new JavaRandomGenerator(29071972)
         val solvers =
-            (1 to DEFAULT_NUMBER_OF_RESTARTS).map(
+            (1 to DEFAULT_RESTART_LIMIT).map(
                 i => new OnDemandGeneratedSolver(new QueensGenerator(n, i, randomGenerator.nextInt), logger))
         val solver = new ParallelSolver(solvers, Runtime.getRuntime.availableProcessors, "Queens", logger)
         val result = solver.call

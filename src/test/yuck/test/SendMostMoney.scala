@@ -89,7 +89,7 @@ class SendMostMoney extends IntegrationTest {
     def sendMostMoney {
         val randomGenerator = new JavaRandomGenerator(29071972)
         val solvers =
-            (1 to DEFAULT_NUMBER_OF_RESTARTS).toList.map(
+            (1 to DEFAULT_RESTART_LIMIT).toList.map(
                 i => new OnDemandGeneratedSolver(new SendMostMoneyGenerator(i, randomGenerator.nextInt), logger))
         val solver = new ParallelSolver(solvers, Runtime.getRuntime.availableProcessors, "SendMostMoney", logger)
         val result = solver.call
