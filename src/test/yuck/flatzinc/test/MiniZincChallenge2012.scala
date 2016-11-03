@@ -15,7 +15,7 @@ import yuck.flatzinc.test.util._
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 class MiniZincChallenge2012 extends MiniZincTestSuite {
 
-    val task = MiniZincTestTask(directoryLayout = MiniZincBenchmarksLayout, relativeSuitePath = "resources/mzn/benchmarks", suiteName = "mznc12")
+    val task = MiniZincTestTask(directoryLayout = StandardMiniZincBenchmarksLayout, suitePath = "resources/mzn/benchmarks", suiteName = "mznc12")
 
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasCountConstraint]))
@@ -86,7 +86,7 @@ class MiniZincChallenge2012 extends MiniZincTestSuite {
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def project_planning_12_8 {
-        solve(task.copy(directoryLayout = NonStandardMiniZincChallengeLayout, problemName = "project-planning", instanceName = "ProjectPlannertest_12_8"))
+        solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "project-planning", instanceName = "ProjectPlannertest_12_8"))
     }
 
     @Test

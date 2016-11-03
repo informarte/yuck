@@ -11,8 +11,8 @@ object MiniZincChallengeRunner extends MiniZincTestSuite {
     def main(args: Array[String]) {
         val task =
             MiniZincTestTask(
-                directoryLayout = StandardMiniZincChallengeLayout,
-                relativeSuitePath = args(0),
+                directoryLayout = StandardMiniZincBenchmarksLayout,
+                suitePath = args(0),
                 problemName = args(1),
                 instanceName = args(2),
                 solverConfiguration = FlatZincSolverConfiguration(stopOnFirstSolution = true))

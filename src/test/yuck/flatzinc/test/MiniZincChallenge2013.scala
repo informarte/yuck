@@ -15,7 +15,7 @@ import yuck.flatzinc.test.util._
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 class MiniZincChallenge2013 extends MiniZincTestSuite {
 
-    val task = MiniZincTestTask(directoryLayout = MiniZincBenchmarksLayout, relativeSuitePath = "resources/mzn/benchmarks", suiteName = "mznc13")
+    val task = MiniZincTestTask(directoryLayout = StandardMiniZincBenchmarksLayout, suitePath = "resources/mzn/benchmarks", suiteName = "mznc13")
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint], classOf[HasTableConstraint]))
@@ -56,7 +56,7 @@ class MiniZincChallenge2013 extends MiniZincTestSuite {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasElementConstraint]))
     def java_routing_trip_6_3 {
-        solve(task.copy(directoryLayout = NonStandardMiniZincChallengeLayout, problemName = "java-routing", instanceName = "trip_6_3", maybeOptimum = Some(67)))
+        solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "java-routing", instanceName = "trip_6_3", maybeOptimum = Some(67)))
     }
 
     @Test
@@ -128,7 +128,7 @@ class MiniZincChallenge2013 extends MiniZincTestSuite {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def rubik_4_cube {
-        solve(task.copy(directoryLayout = NonStandardMiniZincChallengeLayout, problemName = "rubik", instanceName = "4-cube"))
+        solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "rubik", instanceName = "4-cube"))
     }
 
     @Test

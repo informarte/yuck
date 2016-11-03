@@ -9,13 +9,14 @@ import yuck.flatzinc.ast._
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.flatzinc.runner._
 import yuck.util.logging.LazyLogger
+import yuck.util.testing.ProcessRunner
 
 /**
  * @author Michael Marte
  *
  */
 class MiniZincSolutionVerifier(
-    task: MiniZincTestTask, result: Result, timeStamp: String, logger: LazyLogger)
+    task: MiniZincTestTask, result: Result, logger: LazyLogger)
     extends Callable[Boolean]
 {
 
@@ -28,10 +29,10 @@ class MiniZincSolutionVerifier(
     private def checkExpectations: Boolean = {
         val (searchPath, instanceName) = task.directoryLayout match {
             case MiniZincExamplesLayout =>
-                ("%s/problems".format(task.relativeSuitePath),
+                ("%s/problems".format(task.suitePath),
                  task.problemName)
             case _ =>
-                ("%s/problems/%s".format(task.relativeSuitePath, task.problemName),
+                ("%s/problems/%s".format(task.suitePath, task.problemName),
                  task.instanceName)
         }
         val expectationFiles =
@@ -59,32 +60,31 @@ class MiniZincSolutionVerifier(
     // the .mzn file.
     // The solution files are not deleted to allow for manual re-checking.
     private def consultMiniZinc: Boolean = {
-        val suiteName = if (task.suiteName.isEmpty) new java.io.File(task.relativeSuitePath).getName else task.suiteName
-        val (includePath, modelFileName, dataFileName, solutionFileName) = task.directoryLayout match {
+        val suitePath = task.suitePath
+        val suiteName = if (task.suiteName.isEmpty) new java.io.File(suitePath).getName else task.suiteName
+        val problemName = task.problemName
+        val modelName = if (task.modelName.isEmpty) problemName else task.modelName
+        val instanceName = task.instanceName
+        val (includePath, mznFileName, dznFileName, outputDirectoryPath) = task.directoryLayout match {
             case MiniZincExamplesLayout =>
-                ("../%s/problems".format(task.relativeSuitePath),
-                 "%s.mzn".format(task.problemName),
+                ("%s/problems".format(suitePath),
+                 "%s.mzn".format(problemName),
                  "",
-                 "%s-%s.mzn".format(task.problemName, timeStamp))
-            case StandardMiniZincChallengeLayout =>
-                ("../%s/problems/%s".format(task.relativeSuitePath, task.problemName),
-                 "%s.mzn".format(task.problemName),
-                 "%s.dzn".format(task.instanceName),
-                 "%s-%s-%s-%s.mzn".format(suiteName, task.problemName, task.instanceName, timeStamp))
-            case NonStandardMiniZincChallengeLayout =>
-                ("../%s/problems/%s".format(task.relativeSuitePath, task.problemName),
-                 "%s.mzn".format(task.instanceName),
-                 "",
-                 "%s-%s-%s-%s.mzn".format(suiteName, task.problemName, task.instanceName, timeStamp))
-            case MiniZincBenchmarksLayout => {
-                val modelName = if (task.modelName.isEmpty) task.problemName else task.modelName
-                ("../%s/problems/%s".format(task.relativeSuitePath, task.problemName),
+                 "tmp/%s/%s".format(suiteName, problemName))
+            case StandardMiniZincBenchmarksLayout =>
+                ("%s/problems/%s".format(suitePath, problemName),
                  "%s.mzn".format(modelName),
-                 "%s.dzn".format(task.instanceName),
-                 "%s-%s-%s-%s.mzn".format(suiteName, task.problemName, task.instanceName.replace('/', '-'), timeStamp))
-            }
+                 "%s.dzn".format(instanceName),
+                 "tmp/%s/%s/%s/%s".format(suiteName, problemName, modelName, instanceName))
+            case NonStandardMiniZincBenchmarksLayout =>
+                ("%s/problems/%s".format(suitePath, problemName),
+                 "%s.mzn".format(instanceName),
+                 "",
+                 "tmp/%s/%s/%s".format(suiteName, problemName, instanceName))
         }
-        val solutionWriter = new java.io.FileWriter("tmp/%s".format(solutionFileName), false /* do not append */)
+        new java.io.File(outputDirectoryPath).mkdirs
+        val solutionFilePath = "%s/solution.mzn".format(outputDirectoryPath)
+        val solutionWriter = new java.io.FileWriter(solutionFilePath, false /* do not append */)
         val solutionFormatter = new FlatZincResultFormatter(result)
         val solution = solutionFormatter.call
         for (assignment <- solution.toIterator.takeWhile(_ != FLATZINC_SOLUTION_SEPARATOR)) {
@@ -92,27 +92,26 @@ class MiniZincSolutionVerifier(
         }
         // We include the MiniZinc model in the end because a few of them don't have a semicolon
         // after the last line.
-        solutionWriter.write("include \"%s\";".format(modelFileName));
+        solutionWriter.write("include \"%s\";".format(mznFileName));
         solutionWriter.close
-        val flattenedSolutionFileName = solutionFileName.replace(".mzn", ".fzn")
+        val flattenedSolutionFilePath = solutionFilePath.replace(".mzn", ".fzn")
         val mzn2fznCommand = mutable.ArrayBuffer(
             "mzn2fzn",
             "-I", includePath,
             // To facilitate the verification of solutions found by Yuck, the following directory
             // contains a redefinitions file that causes mzn2fzn to ignore redundant constraints.
-            "-I", "../resources/mzn/lib/std",
+            "-I", "resources/mzn/lib/std",
             "--globals-dir", "g12_fd",
-            "--no-output-ozn", "--output-fzn-to-file", flattenedSolutionFileName)
-        mzn2fznCommand += solutionFileName
-        if (! dataFileName.isEmpty) mzn2fznCommand += "%s/%s".format(includePath, dataFileName)
-        val flatzincCommand = List("flatzinc", "--backend", "fd", "--solver-stats", flattenedSolutionFileName)
+            "--no-output-ozn", "--output-fzn-to-file", flattenedSolutionFilePath)
+        mzn2fznCommand += solutionFilePath
+        if (! dznFileName.isEmpty) mzn2fznCommand += "%s/%s".format(includePath, dznFileName)
+        val flatzincCommand = List("flatzinc", "--backend", "fd", "--solver-stats", flattenedSolutionFilePath)
         val verified =
             checkIndicators(solution) &&
-            runZincProcess(mzn2fznCommand)._2.isEmpty && {
-                val (outputLines, errorLines) = runZincProcess(flatzincCommand)
+            new ProcessRunner(logger, mzn2fznCommand).call._2.isEmpty && {
+                val (outputLines, errorLines) = new ProcessRunner(logger, flatzincCommand).call
                 checkObjective(outputLines)
             }
-        new java.io.File("tmp/" + flattenedSolutionFileName).delete
         verified
     }
 
@@ -191,21 +190,6 @@ class MiniZincSolutionVerifier(
             }
         }
         maybeName
-    }
-
-    private def runZincProcess(commands: Seq[String]): (List[String], List[String]) = {
-        val processBuilder = new java.lang.ProcessBuilder(JavaConversions.seqAsJavaList(commands))
-        processBuilder.directory(new java.io.File("tmp"))
-        logger.log(JavaConversions.asScalaBuffer(processBuilder.command).toIterator.mkString(" "))
-        val process = processBuilder.start
-        val stdout = scala.io.Source.fromInputStream(process.getInputStream)
-        val stderr = scala.io.Source.fromInputStream(process.getErrorStream)
-        val outputLines = stdout.mkString.lines.toList
-        val (errorLines, warningLines) = stderr.mkString.lines.toList.partition(_.toLowerCase.startsWith("error"))
-        outputLines.foreach(logger.log(_))
-        warningLines.foreach(logger.log(_))
-        errorLines.foreach(logger.log(_))
-        (outputLines, errorLines)
     }
 
 }

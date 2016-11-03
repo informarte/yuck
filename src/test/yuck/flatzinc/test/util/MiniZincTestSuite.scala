@@ -10,7 +10,7 @@ import yuck.core._
 import yuck.flatzinc.compiler.InconsistentProblemException
 import yuck.flatzinc.parser._
 import yuck.flatzinc.runner._
-import yuck.util.testing.IntegrationTest
+import yuck.util.testing.{ProcessRunner, IntegrationTest}
 import yuck.util.arm.using
 
 /**
@@ -30,26 +30,42 @@ class MiniZincTestSuite extends IntegrationTest {
     }
 
     private def trySolve(task: MiniZincTestTask): Result = {
-        val timeStamp = new java.text.SimpleDateFormat("yyyy-MM-dd-HH:mm:ss").format(new java.util.Date);
-        val suiteName = if (task.suiteName.isEmpty) new java.io.File(task.relativeSuitePath).getName else task.suiteName
-        val (fznFilePath, logFilePath) = task.directoryLayout match {
+        val suitePath = task.suitePath
+        val suiteName = if (task.suiteName.isEmpty) new java.io.File(suitePath).getName else task.suiteName
+        val problemName = task.problemName
+        val modelName = if (task.modelName.isEmpty) problemName else task.modelName
+        val instanceName = task.instanceName
+        val (mznFilePath, dznFilePath, outputDirectoryPath) = task.directoryLayout match {
             case MiniZincExamplesLayout =>
-                ("%s/models/%s.fzn".format(task.relativeSuitePath, task.problemName),
-                 "tmp/%s-%s.log".format(task.problemName, timeStamp))
-            case StandardMiniZincChallengeLayout | NonStandardMiniZincChallengeLayout =>
-                ("%s/models/%s/%s.fzn".format(task.relativeSuitePath, task.problemName, task.instanceName),
-                 "tmp/%s-%s-%s-%s.log".format(suiteName, task.problemName, task.instanceName, timeStamp))
-            case MiniZincBenchmarksLayout => {
-                val modelName = if (task.modelName.isEmpty) task.problemName else task.modelName
-                ("%s/models/%s/%s/%s.fzn".format(task.relativeSuitePath, task.problemName, modelName, task.instanceName),
-                 "tmp/%s-%s-%s-%s.log".format(suiteName, task.problemName, task.instanceName.replace('/', '-'), timeStamp))
-            }
+                ("%s/problems/%s.mzn".format(suitePath, problemName),
+                 "",
+                 "tmp/%s/%s".format(suiteName, problemName))
+            case StandardMiniZincBenchmarksLayout =>
+                ("%s/problems/%s/%s.mzn".format(suitePath, problemName, modelName),
+                 "%s/problems/%s/%s.dzn".format(suitePath, problemName, instanceName),
+                 "tmp/%s/%s/%s/%s".format(suiteName, problemName, modelName, instanceName))
+            case NonStandardMiniZincBenchmarksLayout =>
+                ("%s/problems/%s/%s.mzn".format(suitePath, problemName, instanceName),
+                 "",
+                 "tmp/%s/%s/%s".format(suiteName, problemName, instanceName))
         }
+        new java.io.File(outputDirectoryPath).mkdirs
+        val fznFilePath = "%s/problem.fzn".format(outputDirectoryPath)
+        val logFilePath = "%s/yuck.log".format(outputDirectoryPath)
         val logFileHandler = new java.util.logging.FileHandler(logFilePath)
         logFileHandler.setFormatter(formatter)
         nativeLogger.addHandler(logFileHandler)
-        logger.log("Processing %s".format(fznFilePath))
+        logger.log("Processing %s".format(mznFilePath))
         logger.log("Logging into %s".format(logFilePath))
+        val mzn2fznCommand = mutable.ArrayBuffer(
+            "mzn2fzn",
+            "-I", "resources/mzn/lib/yuck",
+            "--no-output-ozn", "--output-fzn-to-file", fznFilePath)
+        mzn2fznCommand += mznFilePath
+        if (! dznFilePath.isEmpty) mzn2fznCommand += dznFilePath
+        logger.withTimedLogScope("Flattening MiniZinc model") {
+            new ProcessRunner(logger, mzn2fznCommand).call
+        }
         val file = new java.io.File(fznFilePath)
         val reader = new java.io.InputStreamReader(new java.io.FileInputStream(file))
         val ast = logger.withTimedLogScope("Parsing FlatZinc file")(FlatZincParser.parse(reader))
@@ -101,7 +117,7 @@ class MiniZincTestSuite extends IntegrationTest {
         logger.withTimedLogScope("Verifying solution") {
             Assert.assertTrue(
                 "Solution not verified",
-                new MiniZincSolutionVerifier(task, result, timeStamp, logger).call)
+                new MiniZincSolutionVerifier(task, result, logger).call)
         }
         result
     }

@@ -200,20 +200,4 @@ class FlatZincParserTest extends UnitTest {
           }
     }
 
-    @Test
-    def parseFlatZincExamples {
-        List("resources/mzn/examples/models").foreach(parseFlatZincExamples)
-    }
-    def parseFlatZincExamples(path: String) {
-        val MAX_FILE_SIZE = 100000
-        Assert.assertTrue(
-            new java.io.File(path)
-            .listFiles
-            .filter(file => file.getName.endsWith(".fzn") &&
-                            ! file.getName.startsWith("grocery") && // "255551481441" causes overflow
-                            file.length < MAX_FILE_SIZE)
-            .map(parseFlatZincFile)
-            .min)
-    }
-
 }

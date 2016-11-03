@@ -154,13 +154,7 @@ Yuck tests are based on [JUnit 4](http://junit.org/junit4/) and
 * `make minizinc-examples` exercises Yuck on a subset of the MiniZinc 1.6 examples.
 * `make tests` runs all tests.
 
-FlatZinc generation is not fully automated; to generate the FlatZinc
-models, execute the following commands in your Yuck folder:
-
-```
-pushd resources/mzn/tests/; ./makemodels; popd
-pushd resources/mzn/examples/; ./makemodels; popd
-```
+FlatZinc generation is fully automated and happens on the fly.
 
 All test cases other than unit tests leave a log in the local ```tmp```
 folder.

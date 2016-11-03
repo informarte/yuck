@@ -20,7 +20,7 @@ import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 class MiniZincTests extends MiniZincTestSuite {
 
-    val task = MiniZincTestTask(directoryLayout = MiniZincExamplesLayout, relativeSuitePath = "resources/mzn/tests")
+    val task = MiniZincTestTask(directoryLayout = MiniZincExamplesLayout, suitePath = "resources/mzn/tests")
 
     implicit def createTask(problemName: String): MiniZincTestTask = task.copy(problemName = problemName)
 

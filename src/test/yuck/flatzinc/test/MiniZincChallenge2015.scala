@@ -15,7 +15,7 @@ import yuck.flatzinc.test.util._
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 class MiniZincChallenge2015 extends MiniZincTestSuite {
 
-    val task = MiniZincTestTask(directoryLayout = MiniZincBenchmarksLayout, relativeSuitePath = "resources/mzn/benchmarks", suiteName = "mznc15")
+    val task = MiniZincTestTask(directoryLayout = StandardMiniZincBenchmarksLayout, suitePath = "resources/mzn/benchmarks", suiteName = "mznc15")
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
@@ -99,7 +99,7 @@ class MiniZincChallenge2015 extends MiniZincTestSuite {
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def project_planning_12_7 {
-        solve(task.copy(directoryLayout = NonStandardMiniZincChallengeLayout, problemName = "project-planning", instanceName = "ProjectPlannertest_12_7", maybeOptimum = Some(17)))
+        solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "project-planning", instanceName = "ProjectPlannertest_12_7", maybeOptimum = Some(17)))
     }
 
     @Test
@@ -137,7 +137,7 @@ class MiniZincChallenge2015 extends MiniZincTestSuite {
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def zephyrus_5_4 {
-        solve(task.copy(directoryLayout = NonStandardMiniZincChallengeLayout, problemName = "zephyrus", instanceName = "zephyrus_5_4", maybeOptimum = Some(18)))
+        solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "zephyrus", instanceName = "zephyrus_5_4", maybeOptimum = Some(18)))
     }
 
 }

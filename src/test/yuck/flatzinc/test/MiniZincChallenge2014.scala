@@ -15,7 +15,7 @@ import yuck.flatzinc.test.util._
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 class MiniZincChallenge2014 extends MiniZincTestSuite {
 
-    val task = MiniZincTestTask(directoryLayout = MiniZincBenchmarksLayout, relativeSuitePath = "resources/mzn/benchmarks", suiteName = "mznc14")
+    val task = MiniZincTestTask(directoryLayout = StandardMiniZincBenchmarksLayout, suitePath = "resources/mzn/benchmarks", suiteName = "mznc14")
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
@@ -50,7 +50,7 @@ class MiniZincChallenge2014 extends MiniZincTestSuite {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint], classOf[HasAlldifferentExcept0Constraint]))
     def liner_sf_repositioning_tp7_0 {
-        solve(task.copy(directoryLayout = NonStandardMiniZincChallengeLayout, problemName = "liner-sf-repositioning", instanceName = "tp7_0", maybeOptimum = Some(125988)))
+        solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "liner-sf-repositioning", instanceName = "tp7_0", maybeOptimum = Some(125988)))
     }
 
     @Test
@@ -116,13 +116,13 @@ class MiniZincChallenge2014 extends MiniZincTestSuite {
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def stochastic_fjsp_a1_s4_fjsp_t8_j2_m3_a1_det {
-        solve(task.copy(directoryLayout = NonStandardMiniZincChallengeLayout, problemName = "stochastic-fjsp", instanceName = "fjsp-a1-s4_fjsp-t8-j2-m3-a1_det", maybeOptimum = Some(242)))
+        solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "stochastic-fjsp", instanceName = "fjsp-a1-s4_fjsp-t8-j2-m3-a1_det", maybeOptimum = Some(242)))
     }
 
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint]))
     def stochastic_vrp_s2_v2_c7_vrp_v2_c7_det {
-        solve(task.copy(directoryLayout = NonStandardMiniZincChallengeLayout, problemName = "stochastic-vrp", instanceName = "vrp-s2-v2-c7_vrp-v2-c7_det", maybeOptimum = Some(160)))
+        solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "stochastic-vrp", instanceName = "vrp-s2-v2-c7_vrp-v2-c7_det", maybeOptimum = Some(160)))
     }
 
     @Test
