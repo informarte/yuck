@@ -16,6 +16,7 @@ packageDescription := description.value
 
 EclipseKeys.withSource := true
 EclipseKeys.withJavadoc := true
+EclipseKeys.eclipseOutput := Some("target/eclipse")
 
 scalaVersion := "2.11.8"
 
