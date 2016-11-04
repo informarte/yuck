@@ -19,6 +19,7 @@ trait HasDisjunctiveConstraint extends HasGlobalConstraint
 trait HasElementConstraint extends HasGlobalConstraint
 trait HasExactlyConstraint extends HasGlobalConstraint
 trait HasGlobalCardinalityConstraint extends HasGlobalConstraint
+trait HasIncreasingConstraint extends HasGlobalConstraint
 trait HasInverseConstraint extends HasGlobalConstraint
 trait HasKnapsackConstraint extends HasGlobalConstraint
 trait HasLexLessConstraint extends HasGlobalConstraint
