@@ -15,4 +15,4 @@ constraint alldifferent(x);
 
 solve satisfy;
 
-output [show(x)];
+output ["x = ", show(x)];

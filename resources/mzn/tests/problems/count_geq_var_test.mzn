@@ -8,4 +8,6 @@ constraint count_geq(x, y, 1);
 
 solve satisfy;
 
-output [show(x), "\n", show(y)];
+output [
+    "x = ", show(x), "\n",
+    "y = ", show(y)];

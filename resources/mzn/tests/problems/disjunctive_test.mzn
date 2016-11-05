@@ -19,4 +19,4 @@ constraint disjunctive(s, d);
 
 solve satisfy;
 
-output [show(s[i]) | i in index_set(s)];
+output ["s = ", show(s)];

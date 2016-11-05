@@ -4,4 +4,4 @@ constraint min(x) = 10;
 
 solve satisfy;
 
-output [show(x)];
+output ["x = ", show(x)];

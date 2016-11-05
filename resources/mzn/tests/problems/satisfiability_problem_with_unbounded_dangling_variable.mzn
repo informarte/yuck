@@ -5,4 +5,6 @@ constraint x[0] + x[1] = x[2];
 
 solve satisfy;
 
-output [show(x), show(y)];
+output [
+    "x = ", show(x), "\n",
+    "y = ", show(y)]

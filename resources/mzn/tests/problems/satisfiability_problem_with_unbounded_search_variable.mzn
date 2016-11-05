@@ -4,4 +4,4 @@ constraint x[0] + x[1] = x[2];
 
 solve satisfy;
 
-output [show(x)];
+output ["x = ", show(x)];

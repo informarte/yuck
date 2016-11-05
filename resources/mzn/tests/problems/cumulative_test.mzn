@@ -18,4 +18,7 @@ constraint cumulative(o, d, h, 5);
 
 solve satisfy;
 
-output [show(o), show(d), show(h)];
+output [
+    "o = ", show(o), "\n",
+    "d = ", show(d), "\n",
+    "h = ", show(h)];

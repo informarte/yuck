@@ -14,4 +14,4 @@ output [
     "j = ", show(j), "\n",
     "k = ", show(k), "\n",
     "p = ", show(p), "\n",
-    "x = ", show(x), "\n"];
+    "x = ", show(x)];

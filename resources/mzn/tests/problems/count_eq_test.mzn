@@ -13,4 +13,7 @@ constraint sum(c) = 10;
 
 solve satisfy;
 
-output [show(x), show(y), show(c)];
+output [
+    "x = ", show(x), "\n",
+    "y = ", show(y), "\n",
+    "c = ", show(c)];

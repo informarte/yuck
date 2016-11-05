@@ -5,4 +5,4 @@ constraint at_most(1, x, 2);
 
 solve satisfy;
 
-output [show(x)];
+output ["x = ", show(x)];

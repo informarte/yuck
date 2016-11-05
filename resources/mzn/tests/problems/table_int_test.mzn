@@ -15,4 +15,4 @@ constraint table(x, t);
 
 solve satisfy;
 
-output [show(x)];
+output ["x = ", show(x)];

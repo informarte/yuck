@@ -8,4 +8,6 @@ constraint count_eq(x, y, 9);
 
 solve satisfy;
 
-output [show(x), "\n", show(y)];
+output [
+    "x = ", show(x), "\n",
+    "y = ", show(y)];

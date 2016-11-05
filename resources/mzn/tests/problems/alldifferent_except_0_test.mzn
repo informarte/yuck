@@ -14,4 +14,4 @@ constraint alldifferent_except_0(x);
 
 solve satisfy;
 
-output [show(x)];
+output ["x = ", show(x)];

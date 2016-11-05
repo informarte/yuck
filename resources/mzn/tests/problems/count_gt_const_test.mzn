@@ -6,4 +6,4 @@ constraint count_gt(x, 2, 1);
 
 solve satisfy;
 
-output [show(x)];
+output ["x = ", show(x)];

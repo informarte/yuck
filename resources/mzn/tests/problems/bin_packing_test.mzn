@@ -11,4 +11,4 @@ constraint bin_packing(c, bin, w);
 
 solve satisfy;
 
-output [show(bin[i]) | i in index_set(bin)];
+output ["bin = ", show(bin)];

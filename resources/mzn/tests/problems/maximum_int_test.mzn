@@ -4,4 +4,4 @@ constraint max(x) = 1;
 
 solve satisfy;
 
-output [show(x)];
+output ["x = ", show(x)];

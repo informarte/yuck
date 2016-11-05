@@ -7,4 +7,4 @@ solve satisfy;
 
 output [
     "p = ", show(p), "\n",
-    "x = ", show(x), "\n"];
+    "x = ", show(x)];

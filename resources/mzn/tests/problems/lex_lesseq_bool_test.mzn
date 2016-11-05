@@ -11,4 +11,6 @@ constraint forall (i in 1..m)(x[i] = true);
 
 solve satisfy;
 
-output [show(x), show(y)];
+output [
+    "x = ", show(x), "\n",
+    "y = ", show(y)]

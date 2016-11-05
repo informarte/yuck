@@ -12,4 +12,6 @@ constraint inverse(f, g);
 
 solve satisfy;
 
-output [show(f), "\n", show(g)];
+output [
+    "f = ", show(f), "\n",
+    "g = ", show(g)];

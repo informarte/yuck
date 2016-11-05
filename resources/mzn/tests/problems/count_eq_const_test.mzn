@@ -6,4 +6,4 @@ constraint count_eq(x, 1, 9);
 
 solve satisfy;
 
-output [show(x)];
+output ["x = ", show(x)];

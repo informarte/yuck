@@ -13,4 +13,6 @@ constraint nvalue(n, x);
 
 solve maximize n;
 
-output [show(x), show(n)];
+output [
+    "x = ", show(x), "\n",
+    "n = ", show(n)];

@@ -16,4 +16,6 @@ constraint bin_packing_load(load, bin, w);
 
 solve satisfy;
 
-output [show(bin[i]) ++ " " ++ show(load[i]) | i in index_set(bin)];
+output [
+    " bin = ", show(bin), "\n",
+    "load = ", show(load)]

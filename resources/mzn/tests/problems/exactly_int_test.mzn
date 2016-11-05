@@ -6,4 +6,4 @@ constraint exactly(10, x, 1);
 
 solve satisfy;
 
-output [show(x)];
+output ["x = ", show(x)];
