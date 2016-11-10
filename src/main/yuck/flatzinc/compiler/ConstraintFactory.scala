@@ -544,37 +544,31 @@ final class ConstraintFactory
             val costs = createNonNegativeChannel[IntegerValue]
             space.post(new Inverse(nextConstraintId, goal, f, fOffset, g, gOffset, costs))
             List(costs)
-        case Constraint("yuck_bin_packing", List(loads0, bins0, weights0), _) =>
+        case Constraint("yuck_bin_packing", List(loads0, bins0, weights0, IntConst(minLoadIndex)), _) =>
             val loads1 = getArrayElems(loads0).toIndexedSeq
             val bins1 = getArrayElems(bins0).toIndexedSeq
             val loads = compileArray[IntegerValue](loads0)
             val bins = compileArray[IntegerValue](bins0)
             val weights = compileArray[IntegerValue](weights0)
             require(bins.size == weights.size)
-            val binRange =
-                bins1
-                .toIterator
-                .map(cc.domains(_).asInstanceOf[IntegerDomain])
-                .foldLeft(EmptyIntegerDomain)((d, e) => d.unite(e))
-            require(loads.size == binRange.size)
             val itemGenerator =
                 for ((bin, weight) <- bins.toIterator.zip(weights.toIterator)) yield
                     new BinPackingItem(bin, weight.domain.singleValue)
             val items = itemGenerator.toIndexedSeq
             val loadGenerator = {
                 val definedVars = new mutable.HashSet[Variable[IntegerValue]]
-                for (i <- (0 until binRange.size).toIterator) yield
-                    (binRange.lb.value + i,
-                     if (! definedVars.contains(loads(i)) && definesVar(constraint, bins, loads1(i))) {
-                         definedVars += loads(i)
-                         loads(i)
-                     }
-                     else createNonNegativeChannel[IntegerValue])
+                for (i <- 0 until loads.size) yield
+                    if (! definedVars.contains(loads(i)) && definesVar(constraint, bins, loads1(i))) {
+                        definedVars += loads(i)
+                        loads(i)
+                    }
+                    else createNonNegativeChannel[IntegerValue]
             }
-            val loads2 = loadGenerator.toMap
-            space.post(new BinPacking(nextConstraintId, goal, items, loads2))
+            val loads2 = loadGenerator.toSeq
+            val loads3 = (minLoadIndex until minLoadIndex + loads.size).toIterator.zip(loads2.toIterator).toMap
+            space.post(new BinPacking(nextConstraintId, goal, items, loads3))
             val deltaGenerator =
-                for ((load, load2) <- loads.toIterator.zip(loads2.valuesIterator) if load != load2) yield {
+                for ((load, load2) <- loads.toIterator.zip(loads2.toIterator) if load != load2) yield {
                     val delta = createNonNegativeChannel[IntegerValue]
                     space.post(new NumEq(nextConstraintId, goal, load, load2, delta))
                     delta

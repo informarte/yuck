@@ -1,7 +1,8 @@
 predicate yuck_bin_packing(
     array[int] of var int: load,
     array[int] of var int: bin,
-    array[int] of int: w);
+    array[int] of int: w,
+    int: minLoadIndex);
 
 predicate safe_bin_packing_load(
     array[int] of var int: load,
@@ -22,4 +23,7 @@ predicate bin_packing_load(
     array[int] of int: w) =
     safe_bin_packing_load(
         load, bin, w,
-        sum(load) = sum(w) /\  yuck_bin_packing(load, bin, w));
+        forall (i in index_set(bin)) (
+            min(index_set(load)) <= bin[i] /\ bin[i] <= max(index_set(load))
+        ) /\
+        yuck_bin_packing(load, bin, w, min(index_set(load))));

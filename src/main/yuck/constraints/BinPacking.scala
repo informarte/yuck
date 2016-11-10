@@ -19,8 +19,9 @@ final class BinPackingItem
  *
  * Maintains the loads for a given set of bins.
  *
- * @author Michael Marte
+ * Ignores tasks assigned to bins other than the given bins.
  *
+ * @author Michael Marte
  */
 final class BinPacking
     [Load <: NumericalValue[Load]]
@@ -34,7 +35,7 @@ final class BinPacking
     require(loads.valuesIterator.toSet.size == loads.size)
 
     override def toString =
-        "bin_packing([%s], [%s])".format(items.mkString(", "), loads.valuesIterator.mkString(", "))
+        "bin_packing([%s], [%s])".format(items.mkString(", "), loads.mkString(", "))
     override def inVariables = items.toIterator.map(_.bin)
     override def outVariables = loads.valuesIterator
 
@@ -46,11 +47,15 @@ final class BinPacking
         (for ((i, load) <- loads) yield i -> new ReusableEffectWithFixedVariable[Load](load)).toMap
 
     override def initialize(now: SearchState) = {
+        currentLoads.clear
         for (i <- loads.keysIterator) {
             currentLoads(i) = valueTraits.zero
         }
         for (item <- items) {
-            currentLoads(now.value(item.bin).value) += item.weight
+            val i = now.value(item.bin).value
+            if (currentLoads.contains(i)) {
+                currentLoads(i) += item.weight
+            }
         }
         for (i <- loads.keysIterator) {
             val effect = effects(i)
