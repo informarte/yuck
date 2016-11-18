@@ -101,14 +101,17 @@ final class ConstraintFactory
 
     private def compileConstraint
         (goal: Goal, constraint: yuck.flatzinc.ast.Constraint):
-        TraversableOnce[Variable[IntegerValue]] =
+        Iterable[Variable[IntegerValue]] =
     {
         if (impliedConstraints.contains(constraint)) {
             logger.logg("Skipping %s".format(constraint))
             Nil
         } else {
             logger.logg("Compiling %s".format(constraint))
-            scoped(new LogScope(logger))(compileConstraint1(goal, constraint))
+            scoped(new LogScope(logger)) {
+                // toList enforces constraint generation in this log scope
+                compileConstraint1(goal, constraint).toList
+            }
         }
     }
 
@@ -545,35 +548,24 @@ final class ConstraintFactory
             space.post(new Inverse(nextConstraintId, goal, f, fOffset, g, gOffset, costs))
             List(costs)
         case Constraint("yuck_bin_packing", List(loads0, bins0, weights0, IntConst(minLoadIndex)), _) =>
-            val loads1 = getArrayElems(loads0).toIndexedSeq
-            val bins1 = getArrayElems(bins0).toIndexedSeq
-            val loads = compileArray[IntegerValue](loads0)
             val bins = compileArray[IntegerValue](bins0)
-            val weights = compileArray[IntegerValue](weights0)
+            val weights = getArrayElems(weights0).map(getConst[IntegerValue](_))
             require(bins.size == weights.size)
             val itemGenerator =
                 for ((bin, weight) <- bins.toIterator.zip(weights.toIterator)) yield
-                    new BinPackingItem(bin, weight.domain.singleValue)
+                    new BinPackingItem(bin, weight)
             val items = itemGenerator.toIndexedSeq
-            val loadGenerator = {
-                val definedVars = new mutable.HashSet[Variable[IntegerValue]]
-                for (i <- 0 until loads.size) yield
-                    if (! definedVars.contains(loads(i)) && definesVar(constraint, bins, loads1(i))) {
-                        definedVars += loads(i)
-                        loads(i)
-                    }
-                    else createNonNegativeChannel[IntegerValue]
-            }
-            val loads2 = loadGenerator.toSeq
-            val loads3 = (minLoadIndex until minLoadIndex + loads.size).toIterator.zip(loads2.toIterator).toMap
-            space.post(new BinPacking(nextConstraintId, goal, items, loads3))
-            val deltaGenerator =
-                for ((load, load2) <- loads.toIterator.zip(loads2.toIterator) if load != load2) yield {
-                    val delta = createNonNegativeChannel[IntegerValue]
-                    space.post(new NumEq(nextConstraintId, goal, load, load2, delta))
-                    delta
-                }
-            deltaGenerator
+            val loads1 = getArrayElems(loads0)
+            val loads = (minLoadIndex until minLoadIndex + loads1.size).toIterator.zip(loads1.toIterator).toMap
+            compileBinPackingConstraint(goal, constraint, items, loads)
+        case Constraint("yuck_global_cardinality", List(xs0, cover0, counts0), _) =>
+            val xs = compileArray[IntegerValue](xs0)
+            val items = xs.map(new BinPackingItem(_, One))
+            val cover = getArrayElems(cover0).map(getConst[IntegerValue](_).value)
+            val counts = getArrayElems(counts0)
+            require(cover.size == counts.size)
+            val loads = cover.toIterator.zip(counts.toIterator).toMap
+            compileBinPackingConstraint(goal, constraint, items, loads)
         case Constraint("lex_less_int", List(as, bs), _) =>
             val xs = compileArray[IntegerValue](as)
             val ys = compileArray[IntegerValue](bs)
@@ -686,6 +678,35 @@ final class ConstraintFactory
         }
     }
 
+    private def compileBinPackingConstraint
+        [Load <: NumericalValue[Load]]
+        (goal: Goal, constraint: yuck.flatzinc.ast.Constraint,
+         items: immutable.Seq[BinPackingItem[Load]],
+         loads: immutable.Map[Int, Expr]) // bin -> load
+        (implicit valueTraits: NumericalValueTraits[Load]):
+        Iterable[Variable[Load]] =
+    {
+        val loadGenerator = {
+            val bins = items.map(_.bin)
+            val definedVars = new mutable.HashSet[Expr]
+            for ((bin, load) <- loads) yield
+                if (! definedVars.contains(load) && definesVar(constraint, bins, loads(bin))) {
+                    definedVars += load
+                    bin -> compileExpr[Load](load)
+                }
+                else bin -> createNonNegativeChannel[Load]
+        }
+        val loads1 = loadGenerator.toMap
+        space.post(new BinPacking[Load](nextConstraintId, goal, items, loads1))
+        val deltaGenerator =
+            for ((bin, load) <- loads.toIterator if compileExpr[Load](load) != loads1(bin)) yield {
+                val delta = createNonNegativeChannel[Load]
+                space.post(new NumEq[Load](nextConstraintId, goal, load, loads1(bin), delta))
+                delta
+            }
+        deltaGenerator.toSeq
+    }
+
     private def compileLinearCombination
         [Value <: NumericalValue[Value]]
         (goal: Goal,
@@ -729,7 +750,7 @@ final class ConstraintFactory
         List[Variable[IntegerValue]] =
         constraint match
     {
-        case Constraint(_, List(as, a, m), _) if a.isConst =>
+        case Constraint(_, List(as, a, m), _) if compilesToConst(a) =>
             val xs = compileArray[Value](as)
             val y = compileExpr[Value](a).domain.singleValue
             if (definesVar(constraint, xs, m)) {

@@ -120,6 +120,8 @@ class DependencyFinder
                 addDefinesVarAnnotation(constraint, n)
             case Constraint("yuck_bin_packing", List(loads, _, _, _), _) =>
                 getArrayElems(loads).toIterator.filter(isPotentialChannel).foldLeft(constraint)(addDefinesVarAnnotation)
+            case Constraint("yuck_global_cardinality", List(_, _, counts), _) =>
+                getArrayElems(counts).toIterator.filter(isPotentialChannel).foldLeft(constraint)(addDefinesVarAnnotation)
             case Constraint(name, args, annotations) if args.size > 1 && isPotentialChannel(args.last) =>
                addDefinesVarAnnotation(constraint, args.last)
             case _ =>

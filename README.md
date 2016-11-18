@@ -34,6 +34,7 @@ Yuck provides dedicated solvers for the following global MiniZinc constraints:
 * cumulative
 * disjunctive
 * exactly
+* global_cardinality and friends
 * inverse
 * lex_less, lex_lesseq
 * maximum
@@ -49,7 +50,6 @@ For the following global MiniZinc constraints, the standard decompositions are s
 * decreasing
 * element
 * increasing
-* global_cardinality, global_cardinality_closed
 * knapsack
 * network_flow, network_flow_cost
 

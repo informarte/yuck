@@ -133,6 +133,12 @@ class MiniZincTests extends MiniZincTestSuite {
     }
 
     @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
+    def testGlobalCardinality {
+        solve(task.copy(problemName = "global_cardinality_test"))
+    }
+
+    @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseWithBoundedSearchVariables {
         solve(task.copy(problemName = "inverse_test_with_bounded_search_variables"))
