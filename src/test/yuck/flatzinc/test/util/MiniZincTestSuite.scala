@@ -64,7 +64,8 @@ class MiniZincTestSuite extends IntegrationTest {
         mzn2fznCommand += mznFilePath
         if (! dznFilePath.isEmpty) mzn2fznCommand += dznFilePath
         logger.withTimedLogScope("Flattening MiniZinc model") {
-            new ProcessRunner(logger, mzn2fznCommand).call
+            val (_, errorLines) = new ProcessRunner(logger, mzn2fznCommand).call
+            Predef.assert(errorLines.isEmpty, "Flattening failed")
         }
         val file = new java.io.File(fznFilePath)
         val reader = new java.io.InputStreamReader(new java.io.FileInputStream(file))

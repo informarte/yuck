@@ -18,7 +18,7 @@ class ProcessRunner(logger: LazyLogger, commandLine: Seq[String]) extends Callab
         val stdout = scala.io.Source.fromInputStream(process.getInputStream)
         val stderr = scala.io.Source.fromInputStream(process.getErrorStream)
         val outputLines = stdout.mkString.lines.toList
-        val (errorLines, warningLines) = stderr.mkString.lines.toList.partition(_.toLowerCase.startsWith("error"))
+        val (errorLines, warningLines) = stderr.mkString.lines.toList.partition(_.toLowerCase.contains("error"))
         outputLines.foreach(logger.log(_))
         warningLines.foreach(logger.log(_))
         errorLines.foreach(logger.log(_))
