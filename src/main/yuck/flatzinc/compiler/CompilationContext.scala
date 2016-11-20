@@ -17,7 +17,7 @@ final class CompilationContext(
     val logger: LazyLogger)
 {
     val declaredVars = new mutable.HashSet[Expr]
-    val equalVars = new mutable.HashMap[Expr, mutable.Set[Expr] /* head = representative */]
+    val equalVars = new mutable.HashMap[Expr, mutable.TreeSet[Expr] /* head = representative */]
     val space = new Space(logger)
     val consts = new mutable.HashMap[Expr, AnyVariable] // holds unnamed inline constants
     val arrayConsts = new mutable.HashMap[Expr, immutable.IndexedSeq[AnyVariable]] // holds unnamed inline arrays

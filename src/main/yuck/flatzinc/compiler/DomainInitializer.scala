@@ -21,6 +21,19 @@ final class DomainInitializer
     private val equalVars = cc.equalVars
     private val domains = cc.domains
 
+    // puts problem variables before variables introduced by mzn2fzn
+    private object ProblemVariablesFirstOrdering extends Ordering[Expr] {
+        override def compare(a: Expr, b: Expr) = {
+            val aWasIntroduced = a.toString.startsWith("X_INTRODUCED")
+            val bWasIntroduced = b.toString.startsWith("X_INTRODUCED")
+            if (aWasIntroduced) {
+                if (bWasIntroduced) a.toString.compare(b.toString) else 1
+            } else {
+                if (bWasIntroduced) -1 else a.toString.compare(b.toString)
+            }
+        }
+    }
+
     override def run {
         initializeDomains
     }
@@ -34,7 +47,9 @@ final class DomainInitializer
                         val a = ArrayAccess(decl.id, IntConst(idx))
                         declaredVars += a
                         domains += a -> domain
-                        equalVars += a -> mutable.Set(a)
+                        val set = new mutable.TreeSet[Expr]()(ProblemVariablesFirstOrdering)
+                        set += a
+                        equalVars += a -> set
                     }
                     decl.optionalValue match {
                         case Some(Term(rhsId, Nil)) =>
@@ -57,7 +72,9 @@ final class DomainInitializer
                     val a = Term(decl.id, Nil)
                     declaredVars += a
                     domains += a -> domain
-                    equalVars += a -> mutable.Set(a)
+                    val set = new mutable.TreeSet[Expr]()(ProblemVariablesFirstOrdering)
+                    set += a
+                    equalVars += a -> set
                     if (decl.optionalValue.isDefined) {
                         val b = decl.optionalValue.get
                         propagateEquality(a, b)

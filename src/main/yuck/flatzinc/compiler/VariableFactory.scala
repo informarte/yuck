@@ -105,8 +105,9 @@ class VariableFactory
         (key: Expr, varType: Type, factory: (Expr, Type) => Variable[Value]):
         Variable[Value] =
     {
-        if (equalVars.contains(key)) {
-            val representative = equalVars(key).head
+        val maybeEqualVars = equalVars.get(key)
+        if (maybeEqualVars.isDefined) {
+            val representative = maybeEqualVars.get.head
             if (! vars.contains(representative)) {
                 vars += representative -> factory(representative, varType)
             }
