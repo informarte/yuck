@@ -74,12 +74,6 @@ abstract class CompilationPhase(
     protected final def createIntegerDomain(set: Set[Int]): IntegerDomain =
         new IntegerDomain(set.map(IntegerValue.get(_)))
 
-    protected final def definesVar(annotations: List[Annotation], a: Expr): Boolean =
-        annotations.contains(Annotation(Term("defines_var", List(a))))
-
-    protected def definesVar(constraint: yuck.flatzinc.ast.Constraint, a: Expr): Boolean =
-        definesVar(constraint.annotations, a)
-
     implicit protected final def compileArray
         [Value <: AnyValue]
         (expr: Expr)

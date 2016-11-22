@@ -49,24 +49,33 @@ final class ConstraintFactory
     }
 
     private def definesVar(
-        constraint: yuck.flatzinc.ast.Constraint, in: Seq[AnyVariable], out: Expr): Boolean =
+        constraint: yuck.flatzinc.ast.Constraint, out: AnyVariable): Boolean =
     {
-        val x = compileAnyExpr(out)
-        super.definesVar(constraint, out) &&
-        space.definingConstraint(x).isEmpty &&
-        ! space.wouldIntroduceCycle(new DummyConstraint(in, x))
+        constraint
+        .annotations
+        .toIterator
+        .map(_.term)
+        .map(_ match {case Term("defines_var", List(a)) => Some(compileAnyExpr(a)); case _ => None})
+        .contains(Some(out))
+    }
+
+    private def definesVar(
+        constraint: yuck.flatzinc.ast.Constraint, in: Seq[AnyVariable], out: AnyVariable): Boolean =
+    {
+        ! out.domain.isSingleton &&
+        ! cc.searchVars.contains(out) &&
+        (definesVar(constraint, out) || ! cc.channelVars.contains(out)) &&
+        space.definingConstraint(out).isEmpty &&
+        ! space.wouldIntroduceCycle(new DummyConstraint(in, out))
     }
 
     private def definesVar(
         constraint: yuck.flatzinc.ast.Constraint, in: List[Expr], out: Expr): Boolean =
-        definesVar(constraint, in.map(compileAnyExpr(_)), out)
+        definesVar(constraint, in.map(compileAnyExpr), compileAnyExpr(out))
 
     private def definesVar(
         constraint: yuck.flatzinc.ast.Constraint, in: Expr, out: Expr): Boolean =
-        definesVar(constraint, compileAnyArray(in), out)
-
-    override protected def definesVar(constraint: yuck.flatzinc.ast.Constraint, a: Expr) =
-        definesVar(constraint, List[AnyVariable](), a)
+        definesVar(constraint, compileAnyArray(in), compileAnyExpr(out))
 
     private type UnaryConstraintFactory
         [InputValue <: AnyValue, OutputValue <: AnyValue] =
@@ -123,7 +132,6 @@ final class ConstraintFactory
         // TODO Implement other direction!?
         case Constraint("bool2int", List(a, b), _) =>
             if (definesVar(constraint, List(a), b)) {
-                assert(! definesVar(constraint, a))
                 space.post(new Bool2Int1(nextConstraintId, goal, a, b))
                 Nil
             } else {
@@ -163,12 +171,13 @@ final class ConstraintFactory
             Nil
         case Constraint("bool_xor", _, _) =>
             compileBinaryConstraint[IntegerValue](new BoolNe(_, _, _, _, _), boolEqFactory, goal, constraint)
-        case Constraint("array_bool_and", List(as, r), _) =>
+        case Constraint("array_bool_and", List(as, b), _) =>
             val as1 = ArrayConst(getArrayElems(as).toIterator.filter(a => ! compilesToConst(a, True)).toList)
             val as2 = if (as1.value.isEmpty) ArrayConst(List(BoolConst(true))) else as1
             val xs = compileArray[IntegerValue](as2)
-            if (definesVar(constraint, xs, r)) {
-                val costs = r
+            val y = compileExpr[IntegerValue](b)
+            if (definesVar(constraint, xs, y)) {
+                val costs = y
                 if (xs.size == 2) {
                     space.post(new Plus[IntegerValue](nextConstraintId, goal, xs(0), xs(1), costs))
                 } else {
@@ -182,13 +191,13 @@ final class ConstraintFactory
                 } else if (xs.size > 2) {
                     space.post(new Sum[IntegerValue](nextConstraintId, goal, xs, costs))
                 }
-                r match {
+                b match {
                     case a if compilesToConst(a, True) =>
                         // exists clause
                         List(costs)
                     case _ =>
                         val result = createNonNegativeChannel[IntegerValue]
-                        space.post(new BoolEq(nextConstraintId, goal, costs, r, result))
+                        space.post(new BoolEq(nextConstraintId, goal, costs, y, result))
                         List(result)
                 }
             }
@@ -197,25 +206,26 @@ final class ConstraintFactory
             val trueCount = createNonNegativeChannel[IntegerValue]
             space.post(new CountConst[IntegerValue](nextConstraintId, goal, xs, Zero, trueCount))
             List(trueCount)
-        case Constraint("array_bool_or", List(as, r), _) =>
+        case Constraint("array_bool_or", List(as, b), _) =>
             val as1 = ArrayConst(getArrayElems(as).toIterator.filter(a => ! compilesToConst(a, False)).toList)
             val as2 = if (as1.value.isEmpty) ArrayConst(List(BoolConst(false))) else as1
             val xs = compileArray[IntegerValue](as2)
-            if (definesVar(constraint, xs, r)) {
-                space.post(new Disjunction(nextConstraintId, goal, xs, r))
+            val y = compileExpr[IntegerValue](b)
+            if (definesVar(constraint, xs, y)) {
+                space.post(new Disjunction(nextConstraintId, goal, xs, y))
                 Nil
             } else {
                 val costs = if (xs.size == 1) xs(0) else createNonNegativeChannel[IntegerValue]
                 if (xs.size > 1) {
                     space.post(new Disjunction(nextConstraintId, goal, xs, costs))
                 }
-                r match {
+                b match {
                     case a if compilesToConst(a, True) =>
                         // exists clause
                         List(costs)
                     case _ =>
                         val result = createNonNegativeChannel[IntegerValue]
-                        space.post(new BoolEq(nextConstraintId, goal, costs, r, result))
+                        space.post(new BoolEq(nextConstraintId, goal, costs, y, result))
                         List(result)
                 }
             }
@@ -321,9 +331,12 @@ final class ConstraintFactory
             compileConstraint(goal, Constraint("int_" + name, x :: y :: t, annotations))
         case Constraint(
             "int_lin_eq",
-            List(ArrayConst(as), ArrayConst(bs), c), annotations) if bs.exists(b => definesVar(constraint, b)) =>
+            List(ArrayConst(as), ArrayConst(bs), c), annotations)
+            if (! definesVar(constraint, bs, c) &&
+                as.toIterator.zip(bs.toIterator).exists{
+                    case ((IntConst(a), b)) => (a == -1 || a == 1) && definesVar(constraint, bs.filter(_ != b), b)}) =>
             val abs = as.zip(bs)
-            val (a, b) = abs.find{case (_, b) => definesVar(constraint, b)}.get
+            val (a, b) = abs.find{case ((IntConst(a), b)) => (a == -1 || a == 1) && definesVar(constraint, bs.filter(_ != b), b)}.get
             a match {
                 case IntConst(1) =>
                     // b1 + a2 b2 + ... = c
@@ -340,8 +353,7 @@ final class ConstraintFactory
                     compileConstraint(goal, Constraint("int_lin_eq", List(ArrayConst(as), ArrayConst(bs1), b), annotations))
             }
         case Constraint("int_lin_eq", List(as, bs, c), _) =>
-            val ys = compileArray[IntegerValue](bs)
-            if (definesVar(constraint, ys, c)) {
+            if (definesVar(constraint, bs, c)) {
                 compileLinearCombination[IntegerValue](goal, as, bs, Some(c))
                 Nil
             } else {
@@ -374,26 +386,28 @@ final class ConstraintFactory
             Nil
         case Constraint("array_int_maximum", List(b, as), _) =>
             val xs = compileArray[IntegerValue](as)
-            if (definesVar(constraint, xs, b)) {
-                space.post(new Maximum[IntegerValue](nextConstraintId, goal, xs, b))
+            val y = compileExpr[IntegerValue](b)
+            if (definesVar(constraint, xs, y)) {
+                space.post(new Maximum[IntegerValue](nextConstraintId, goal, xs, y))
                 Nil
             } else {
                 val max = createChannel[IntegerValue]
                 space.post(new Maximum[IntegerValue](nextConstraintId, goal, xs, max))
                 val costs = createNonNegativeChannel[IntegerValue]
-                space.post(new NumEq[IntegerValue](nextConstraintId, goal, max, b, costs))
+                space.post(new NumEq[IntegerValue](nextConstraintId, goal, max, y, costs))
                 List(costs)
             }
         case Constraint("array_int_minimum", List(b, as), _) =>
             val xs = compileArray[IntegerValue](as)
-            if (definesVar(constraint, xs, b)) {
-                space.post(new Minimum[IntegerValue](nextConstraintId, goal, xs, b))
+            val y = compileExpr[IntegerValue](b)
+            if (definesVar(constraint, xs, y)) {
+                space.post(new Minimum[IntegerValue](nextConstraintId, goal, xs, y))
                 Nil
             } else {
                 val max = createChannel[IntegerValue]
                 space.post(new Minimum[IntegerValue](nextConstraintId, goal, xs, max))
                 val costs = createNonNegativeChannel[IntegerValue]
-                space.post(new NumEq[IntegerValue](nextConstraintId, goal, max, b, costs))
+                space.post(new NumEq[IntegerValue](nextConstraintId, goal, max, y, costs))
                 List(costs)
             }
         case Constraint("array_var_bool_element", params, annotations) =>
@@ -471,8 +485,9 @@ final class ConstraintFactory
             val costs = createNonNegativeChannel[IntegerValue]
             space.post(new AlldistinctExceptZero(nextConstraintId, goal, xs, costs))
             List(costs)
-        case Constraint("nvalue", List(n, as), _) =>
+        case Constraint("nvalue", List(n0, as), _) =>
             val xs = compileArray[IntegerValue](as)
+            val n = compileExpr[IntegerValue](n0)
             if (definesVar(constraint, xs, n)) {
                 space.post(new NumberOfDistinctValues[IntegerValue](nextConstraintId, goal, xs, n))
                 Nil
@@ -555,14 +570,14 @@ final class ConstraintFactory
                 for ((bin, weight) <- bins.toIterator.zip(weights.toIterator)) yield
                     new BinPackingItem(bin, weight)
             val items = itemGenerator.toIndexedSeq
-            val loads1 = getArrayElems(loads0)
+            val loads1 = compileArray[IntegerValue](loads0)
             val loads = (minLoadIndex until minLoadIndex + loads1.size).toIterator.zip(loads1.toIterator).toMap
             compileBinPackingConstraint(goal, constraint, items, loads)
         case Constraint("yuck_global_cardinality", List(xs0, cover0, counts0), _) =>
             val xs = compileArray[IntegerValue](xs0)
             val items = xs.map(new BinPackingItem(_, One))
             val cover = getArrayElems(cover0).map(getConst[IntegerValue](_).value)
-            val counts = getArrayElems(counts0)
+            val counts = compileArray[IntegerValue](counts0)
             require(cover.size == counts.size)
             val loads = cover.toIterator.zip(counts.toIterator).toMap
             compileBinPackingConstraint(goal, constraint, items, loads)
@@ -604,33 +619,33 @@ final class ConstraintFactory
             List(costs)
         case Constraint(Reif(name), params, annotations) =>
             val reifiedConstraint = Constraint(name, params.take(params.size - 1), annotations)
-            val r = params.last
-            if (compilesToConst(r, True)) {
+            val satisfied = compileExpr[IntegerValue](params.last)
+            if (compilesToConst(params.last, True)) {
                 if (impliedConstraints.contains(reifiedConstraint)) Nil
                 else compileConstraint(goal, reifiedConstraint)
             } else if (impliedConstraints.contains(reifiedConstraint)) {
-                if (definesVar(constraint, r)) {
-                    space.post(new Plus[IntegerValue](nextConstraintId, goal, IntConst(0), IntConst(0), r))
+                if (definesVar(constraint, Nil, params.last)) {
+                    space.post(new Sum[IntegerValue](nextConstraintId, goal, Nil, satisfied))
                     Nil
                 } else {
-                    List(r)
+                    List(satisfied)
                 }
             } else {
                 val costs0 = compileConstraint(goal, reifiedConstraint).toList
-                val costs1 =
-                    if (costs0.size == 1)
-                        costs0.head
-                    else {
-                        val sum = createNonNegativeChannel[IntegerValue]
-                        space.post(new Sum(nextConstraintId, goal, costs0, sum))
-                        sum
-                    }
-                if (definesVar(constraint, costs0, r)) {
-                    space.post(new NumEq[IntegerValue](nextConstraintId, goal, costs1, IntConst(0), r))
+                if (definesVar(constraint, costs0, satisfied)) {
+                    space.post(new Sum(nextConstraintId, goal, costs0, satisfied))
                     Nil
                 } else {
+                    val costs1 =
+                        if (costs0.size == 1)
+                            costs0.head
+                        else {
+                            val sum = createNonNegativeChannel[IntegerValue]
+                            space.post(new Sum(nextConstraintId, goal, costs0, sum))
+                            sum
+                        }
                     val costs = createNonNegativeChannel[IntegerValue]
-                    space.post(new BoolEq(nextConstraintId, goal, costs1, r, costs))
+                    space.post(new BoolEq(nextConstraintId, goal, costs1, satisfied, costs))
                     List(costs)
                 }
             }
@@ -682,24 +697,24 @@ final class ConstraintFactory
         [Load <: NumericalValue[Load]]
         (goal: Goal, constraint: yuck.flatzinc.ast.Constraint,
          items: immutable.Seq[BinPackingItem[Load]],
-         loads: immutable.Map[Int, Expr]) // bin -> load
+         loads: immutable.Map[Int, Variable[Load]]) // bin -> load
         (implicit valueTraits: NumericalValueTraits[Load]):
         Iterable[Variable[Load]] =
     {
         val loadGenerator = {
             val bins = items.map(_.bin)
-            val definedVars = new mutable.HashSet[Expr]
+            val definedVars = new mutable.HashSet[Variable[Load]]
             for ((bin, load) <- loads) yield
                 if (! definedVars.contains(load) && definesVar(constraint, bins, loads(bin))) {
                     definedVars += load
-                    bin -> compileExpr[Load](load)
+                    bin -> load
                 }
                 else bin -> createNonNegativeChannel[Load]
         }
         val loads1 = loadGenerator.toMap
         space.post(new BinPacking[Load](nextConstraintId, goal, items, loads1))
         val deltaGenerator =
-            for ((bin, load) <- loads.toIterator if compileExpr[Load](load) != loads1(bin)) yield {
+            for ((bin, load) <- loads if load != loads1(bin)) yield {
                 val delta = createNonNegativeChannel[Load]
                 space.post(new NumEq[Load](nextConstraintId, goal, load, loads1(bin), delta))
                 delta

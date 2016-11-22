@@ -36,7 +36,7 @@ final class FlatZincCompiler
         run(new DomainInitializer(cc, randomGenerator.nextGen))
         run(new DomainPruner(cc, randomGenerator.nextGen))
         run(new VariableFactory(cc, randomGenerator.nextGen))
-        run(new DependencyFinder(cc, randomGenerator.nextGen))
+        run(new VariableClassifier(cc, randomGenerator.nextGen))
         run(new ConstraintFactory(cc, randomGenerator.nextGen))
         run(new DomainEnforcer(cc, randomGenerator.nextGen))
         run(new ObjectiveFactory(cc, randomGenerator.nextGen))
