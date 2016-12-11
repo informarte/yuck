@@ -1,5 +1,7 @@
 package yuck.flatzinc.compiler
 
+import scala.collection._
+
 import yuck.constraints._
 import yuck.core._
 
@@ -22,7 +24,8 @@ final class DomainEnforcer
     }
 
     private def enforceDomains {
-        for ((key, x) <- cc.vars) {
+        val done = new mutable.HashSet[AnyVariable]
+        for ((key, x) <- cc.vars if ! done.contains(x)) {
             val dx = cc.domains(key)
             val tx = dx.valueType
             if (tx == BooleanValue.Traits.valueType) {
@@ -33,6 +36,7 @@ final class DomainEnforcer
                 enforceIntegerSetDomain(IntegerSetValue.Traits.staticCast(x), dx.asInstanceOf[IntegerPowersetDomain])
             }
             cc.logger.logg("Domain of %s is %s".format(x, x.domain))
+            done += x
         }
     }
 
