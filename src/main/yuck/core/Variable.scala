@@ -27,6 +27,11 @@ final class Variable
         }
     }
 
+    /** Turns the variable into a channel by removing all constraints from its domain. */
+    def turnIntoChannel(valueTraits: AnyValueTraits[Value]) {
+        currentDomain = valueTraits.unboundedDomain
+    }
+
     override def domain: Domain[Value] = currentDomain
 
     override def nextMove(space: Space, randomGenerator: RandomGenerator) =

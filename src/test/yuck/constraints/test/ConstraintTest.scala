@@ -630,7 +630,7 @@ class ConstraintTest extends UnitTest {
     }
 
     @Test
-    def testIntegerTable {
+    def testIntegerTable1 {
         val space = new Space
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
@@ -680,6 +680,36 @@ class ConstraintTest extends UnitTest {
         }
         space.initialize
         assertEq(now.value(costs), One)
+    }
+
+    // This test considers a situation that caused problems due to a bug in the
+    // deletion of infeasible table rows.
+    @Test
+    def testIntegerTable2 {
+        val space = new Space
+        val s = space.createVariable("s", new IntegerDomain(Two, Five))
+        val t = space.createVariable("t", new IntegerDomain(Two))
+        val costs = space.createVariable("costs", NonNegativeIntegerDomain)
+        val rows =
+            immutable.IndexedSeq(
+                0, 0,
+                1, 0, 1, 1, 1, 4,
+                2, 0, 2, 2,
+                3, 0, 3, 3,
+                4, 0, 4, 4,
+                5, 0, 5, 1, 5, 2, 5, 3, 5, 4)
+            .grouped(2).toIndexedSeq
+        val c = new IntegerTable(space.constraintIdFactory.nextId, null, immutable.IndexedSeq(s, t), rows, costs)
+        space.post(c).setValue(s, Two).setValue(t, Two).initialize
+        assertEq(space.searchVariables, Set(s))
+        val now = space.searchState
+        assertEq(now.value(costs), Zero)
+        space.setValue(s, Three).initialize
+        assertEq(now.value(costs), One)
+        space.setValue(s, Four).initialize
+        assertEq(now.value(costs), One)
+        space.setValue(s, Five).initialize
+        assertEq(now.value(costs), Zero)
     }
 
     @Test

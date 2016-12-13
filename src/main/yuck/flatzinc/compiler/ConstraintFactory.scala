@@ -824,7 +824,7 @@ final class ConstraintFactory
                 if (! indexRange.contains(getConst[IntegerValue](b))) {
                     throw new InconsistentConstraintException(constraint)
                 }
-            } else if (! domain[IntegerValue](b).asInstanceOf[IntegerDomain].isSubsetOf(indexRange)) {
+            } else if (! y.domain.asInstanceOf[IntegerDomain].isSubsetOf(indexRange)) {
                 // The index may be out of range, so we have to add a check, as required by the FlatZinc spec.
                 val delta = createNonNegativeChannel[IntegerValue]
                 space.post(new SetIn(nextConstraintId, goal, y, indexRange, delta))

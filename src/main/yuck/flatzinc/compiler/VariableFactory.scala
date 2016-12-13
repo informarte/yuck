@@ -29,6 +29,7 @@ class VariableFactory
     extends CompilationPhase(cc, randomGenerator)
 {
 
+    private val domains = cc.domains
     private val vars = cc.vars
     private val equalVars = cc.equalVars
     private val arrays = cc.arrays
@@ -124,21 +125,25 @@ class VariableFactory
 
     private def createBooleanVariable(key: Expr, varType: Type): Variable[IntegerValue] = {
         val name = key.toString
-        val x = space.createVariable(name, NonNegativeIntegerDomain)
+        val x = space.createVariable(name, ZeroOneIntegerDomain)
+        val dx = BooleanValue.Traits.dynamicCast(domains(key))
+        if (dx.isSingleton) {
+            x.pruneDomain(if (dx.singleValue == True) ZeroIntegerDomain else OneIntegerDomain)
+        }
         vars += key -> x
         x
     }
 
     private def createIntegerVariable(key: Expr, varType: Type): Variable[IntegerValue] = {
         val name = key.toString
-        val x = space.createVariable(name, UnboundedIntegerDomain)
+        val x = space.createVariable(name, IntegerValue.Traits.dynamicCast(domains(key)))
         vars += key -> x
         x
     }
 
     private def createIntegerSetVariable(key: Expr, varType: Type): Variable[IntegerSetValue] = {
         val name = key.toString
-        val x = space.createVariable(name, UnboundedIntegerSetDomain)
+        val x = space.createVariable(name, IntegerSetValue.Traits.dynamicCast(domains(key)))
         vars += key -> x
         x
     }

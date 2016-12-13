@@ -164,31 +164,4 @@ abstract class CompilationPhase(
         immutable.IndexedSeq[AX[Value]] =
         for (x <- xs) yield new AX(valueTraits.one, x)
 
-    // As domains of problem variables are unbounded until they get pruned by DomainEnforcer,
-    // the method Variable[Value]#domain cannot be used to retrieve a variable's domain;
-    // instead CompilationContext#domains has to be consulted.
-    // The opposite is true for variables resulting from compiling constant expressions:
-    // their domains are not tracked in CompilationContext#domains, so Variable[Value]#domain
-    // has to be used.
-    // This method hides all these technicalities.
-    protected final def domain
-        [Value <: AnyValue]
-        (expr: Expr)
-        (implicit valueTraits: AnyValueTraits[Value]):
-        Domain[Value] =
-    {
-        cc.domains.get(expr).map(valueTraits.dynamicCast(_)).getOrElse(compileExpr[Value](expr).domain)
-    }
-
-    // Use this method to retrieve the ordered domain associated with an expression.
-    // For the details, see the comment on domain.
-    protected final def orderedDomain
-        [Value <: OrderedValue[Value]]
-        (expr: Expr)
-        (implicit valueTraits: OrderedValueTraits[Value]):
-        OrderedDomain[Value] =
-    {
-        valueTraits.staticCast(domain(expr))
-    }
-
 }
