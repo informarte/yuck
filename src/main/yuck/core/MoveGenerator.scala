@@ -10,7 +10,7 @@ import scala.collection._
 abstract class MoveGenerator {
 
     /** Returns the variables that may occur in the moves produced by this generator. */
-    val xs: immutable.IndexedSeq[AnyVariable]
+    def searchVariables: TraversableOnce[AnyVariable]
 
     /** Creates a move. */
     def nextMove: Move

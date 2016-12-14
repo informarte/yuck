@@ -1,18 +1,13 @@
-package yuck.annealing
+package yuck.core
 
 import scala.collection._
 import scala.math._
 
-import yuck.core._
-
 /**
  * Generates random moves of random size.
  *
- * Chooses a sequence of variables and proposes to swap the variable's values
- * pair-wise.
- *
- * The variables are constrained to have equal domains such that swapping values
- * is a safe operation.
+ * For each chosen variable, a value that differs from its current value is
+ * randomly chosen from its domain.
  *
  * Choosing the number of variables involved in a move is guided by the given
  * move-size distribution.
@@ -29,10 +24,9 @@ import yuck.core._
  *
  * @author Michael Marte
  */
-final class RandomCircularSwapGenerator
-    [Value <: AnyValue]
+final class RandomReassignmentGenerator
     (space: Space,
-     override val xs: immutable.IndexedSeq[Variable[Value]],
+     xs: immutable.IndexedSeq[AnyVariable],
      randomGenerator: RandomGenerator,
      moveSizeDistribution: Distribution,
      hotSpotDistribution: Distribution,
@@ -41,35 +35,24 @@ final class RandomCircularSwapGenerator
 {
 
     private val n = xs.size
-    require(n > 1)
-    for (i <- 0 until n) {
-        require(! xs(i).isParameter)
-        require(i == 0 || xs(i - 1).domain == xs(i).domain)
-    }
+    require(n > 0)
+    require(n == xs.toSet.size)
+    require(xs.forall(_.domain.isFinite))
+    require(xs.forall(! _.isParameter))
     require(moveSizeDistribution.frequency(0) == 0)
     require(moveSizeDistribution.volume > 0)
     require((0 to 100).contains(probabilityOfFairChoiceInPercent))
     private val uniformDistribution = DistributionFactory.createDistribution(n)
     (0 until n).foreach(i => uniformDistribution.setFrequency(i, 1))
+    require(uniformDistribution.volume > 0)
     private val s = moveSizeDistribution.size
-    private val effects = for (i <- 1 until s) yield new ReusableEffect[Value]
-    private val swaps = for (n <- 1 until s) yield effects.take(n)
+    private val effectsByMoveSize = for (n <- 1 until s) yield new Array[AnyEffect](n)
     private val frequencyRestorers = for (i <- 1 until s) yield new FrequencyRestorer
-    @inline private def fillEffect(effect: ReusableEffect[Value], x: Variable[Value]) {
-        effect.x = x
-        effect.a = space.searchState.value(x)
+    @inline private def fillEffect(effects: Array[AnyEffect], i: Int, x: AnyVariable) {
+        effects.update(i, x.nextRandomEffect(space, randomGenerator))
     }
-    private def swapValues(swap: IndexedSeq[ReusableEffect[Value]]) {
-        // x <- y <- z <- x
-        val m = swap.size
-        val a0 = swap(0).a
-        var i = 1
-        while (i < m) {
-            swap(i - 1).a = swap(i).a
-            i += 1
-        }
-        swap(m - 1).a = a0
-    }
+
+    override def searchVariables = xs
 
     override def nextMove = {
         val useUniformDistribution =
@@ -80,49 +63,48 @@ final class RandomCircularSwapGenerator
         val priorityDistribution = if (useUniformDistribution) uniformDistribution else hotSpotDistribution
         val m =
             scala.math.min(
-                scala.math.max(2, scala.math.min(moveSizeDistribution.nextIndex(randomGenerator), n)),
+                moveSizeDistribution.nextIndex(randomGenerator),
                 priorityDistribution.numberOfAlternatives)
-        assert(m > 1)
-        val swap = swaps(m - 1)
+        assert(m > 0)
+        val effects = effectsByMoveSize(m - 1)
+        var i = 0
         if (useUniformDistribution && m < 4) {
             val i = randomGenerator.nextInt(n)
-            fillEffect(swap(0), xs(i))
+            fillEffect(effects, 0, xs(i))
             if (m > 1) {
                 val j = {
                     val k = randomGenerator.nextInt(n - 1)
                     if (k < i) k else k + 1
                 }
-                fillEffect(swap(1), xs(j))
+                fillEffect(effects, 1, xs(j))
                 if (m > 2) {
                     val k = {
                         var l = randomGenerator.nextInt(n - 2)
                         if (l < min(i, j)) l else if (l > max(i, j) - 2) l + 2 else l + 1
                     }
-                    fillEffect(swap(2), xs(k))
+                    fillEffect(effects, 2, xs(k))
                 }
             }
-            swapValues(swap)
         } else {
-            var i = 0
-            while (i < m) {
+            while (i < m && priorityDistribution.volume > 0) {
                 val j = priorityDistribution.nextIndex(randomGenerator)
-                fillEffect(swap(i), xs(j))
+                fillEffect(effects, i, xs(j))
                 if (i < m - 1) {
                     frequencyRestorers(i).store(j, priorityDistribution.frequency(j))
                     priorityDistribution.setFrequency(j, 0)
                 }
                 i += 1
             }
-            swapValues(swap)
             if (m > 1) {
-                var i = 0
+                i = 0
                 while (i < m - 1) {
                     frequencyRestorers(i).restore(priorityDistribution)
                     i += 1
                 }
             }
         }
-        new ChangeValues(space.moveIdFactory.nextId, swap)
+        val result = new ChangeAnyValues(space.moveIdFactory.nextId, effects)
+        result
     }
 
 }

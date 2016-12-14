@@ -89,8 +89,8 @@ class MiniZincTestSuite extends IntegrationTest {
         Assert.assertNotNull("Solver returned no proposal", result)
         logger.log("Quality of best proposal: %s".format(result.costsOfBestProposal))
         logger.log("Best proposal was produced by: %s".format(result.solverName))
-        logger.withLogScope("%s statistics".format(result.solverName)) {
-            if (result.isInstanceOf[AnnealingResult]) {
+        if (result.isInstanceOf[AnnealingResult]) {
+            logger.withLogScope("%s statistics".format(result.solverName)) {
                 val annealingResult = result.asInstanceOf[AnnealingResult]
                 logger.log("Number of rounds: %d".format(annealingResult.roundLogs.size))
                 if (annealingResult.roundLogs.size > 0) {

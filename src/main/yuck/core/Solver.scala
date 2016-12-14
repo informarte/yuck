@@ -46,7 +46,7 @@ trait SolverLifecycle {
  */
 abstract class Solver extends Callable[Result] with SolverLifecycle {
 
-    /** Return the solver's name. */
+    /** Returns the solver's name. */
     def name: String = this.getClass.getName
 
     /**

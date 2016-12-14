@@ -91,6 +91,42 @@ class ConstraintTest extends UnitTest {
     }
 
     @Test
+    def testAlldistinctWithImplicitSolving {
+        val space = new Space
+        val d = new IntegerDomain(Zero, Two)
+        val s = space.createVariable("s", d)
+        val t = space.createVariable("t", d)
+        val u = space.createVariable("u", d)
+        val costs = space.createVariable("costs", NonNegativeIntegerDomain)
+        val c = new Alldistinct(space.constraintIdFactory.nextId, null, List(s, t, u), costs)
+        space
+            .post(c)
+            .setValue(s, One)
+            .setValue(t, One)
+            .setValue(u, One)
+            .initialize
+        val now = space.searchState
+        assertEq(now.value(costs), Two)
+        val maybeMoveGenerator =
+            c.prepareForImplicitSolving(space, new JavaRandomGenerator, DEFAULT_MOVE_SIZE_DISTRIBUTION, _ => None, 0)
+        assert(maybeMoveGenerator.isDefined)
+        val moveGenerator = maybeMoveGenerator.get
+        assertNe(now.value(s), now.value(t))
+        assertNe(now.value(s), now.value(u))
+        assertNe(now.value(t), now.value(u))
+        assertEq(now.value(costs), Zero)
+        space.initialize
+        for (i <- 1 to 10000) {
+            val move = moveGenerator.nextMove
+            val after = space.consult(move, false)
+            assert(List(s, t, u).exists(x => now.value(x) != after.value(x)))
+            assertNe(after.value(s), after.value(t))
+            assertNe(after.value(s), after.value(u))
+            assertNe(after.value(t), after.value(u))
+        }
+    }
+
+    @Test
     def testAlldistinctExceptZero {
         val space = new Space
         val d = new IntegerDomain(Zero, Nine)

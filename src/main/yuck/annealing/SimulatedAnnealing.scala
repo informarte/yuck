@@ -28,6 +28,8 @@ final class SimulatedAnnealing(
     with StandardSolverInterruptionSupport
 {
 
+    require(moveGenerator.searchVariables.toSet == space.searchVariables)
+
     private var roundCount = 0
     private var temperature = 0.0
     private var heatingPhase = false
@@ -182,34 +184,31 @@ final class SimulatedAnnealing(
         while (numberOfMonteCarloAttempts > 0 && ! wasInterrupted && ! result.isGoodEnough) {
             val move = moveGenerator.nextMove
             val before = space.searchState
-            val numberOfConsultationsBeforeMove = space.numberOfConsultations
             val after = space.consult(move, checkConstraintPropagation)
-            if (numberOfConsultationsBeforeMove < space.numberOfConsultations) {
-                val delta = objective.assessMove(before, after)
-                if (delta <= 0 || randomGenerator.nextProbability <= scala.math.exp(-delta / temperature)) {
-                    space.commit(move, checkConstraintPropagation)
-                    costsOfCurrentProposal = objective.costs(currentProposal)
-                    if (delta > 0) {
-                        roundLog.numberOfAcceptedUphillMoves += 1
-                    } else {
-                        if (objective.isLowerThan(costsOfCurrentProposal, roundLog.costsOfBestProposal)) {
-                            roundLog.costsOfBestProposal = costsOfCurrentProposal
-                        }
-                        if (objective.isLowerThan(costsOfCurrentProposal, result.costsOfBestProposal)) {
-                            roundLog.bestProposalWasImproved = true
-                            result.costsOfBestProposal = costsOfCurrentProposal
-                            result.indexOfRoundWithBestProposal = result.roundLogs.length - 1
-                            result.bestProposal = currentProposal.clone
-                            if (monitor != null) {
-                                monitor.onBetterProposal(result)
-                            }
+            val delta = objective.assessMove(before, after)
+            if (delta <= 0 || randomGenerator.nextProbability <= scala.math.exp(-delta / temperature)) {
+                space.commit(move, checkConstraintPropagation)
+                costsOfCurrentProposal = objective.costs(currentProposal)
+                if (delta > 0) {
+                    roundLog.numberOfAcceptedUphillMoves += 1
+                } else {
+                    if (objective.isLowerThan(costsOfCurrentProposal, roundLog.costsOfBestProposal)) {
+                        roundLog.costsOfBestProposal = costsOfCurrentProposal
+                    }
+                    if (objective.isLowerThan(costsOfCurrentProposal, result.costsOfBestProposal)) {
+                        roundLog.bestProposalWasImproved = true
+                        result.costsOfBestProposal = costsOfCurrentProposal
+                        result.indexOfRoundWithBestProposal = result.roundLogs.length - 1
+                        result.bestProposal = currentProposal.clone
+                        if (monitor != null) {
+                            monitor.onBetterProposal(result)
                         }
                     }
-                } else {
-                    roundLog.numberOfRejectedMoves += 1
                 }
-                numberOfMonteCarloAttempts -= 1
+            } else {
+                roundLog.numberOfRejectedMoves += 1
             }
+            numberOfMonteCarloAttempts -= 1
         }
     }
 

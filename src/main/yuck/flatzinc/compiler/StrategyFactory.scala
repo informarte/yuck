@@ -8,12 +8,11 @@ import yuck.constraints.DistributionMaintainer
 import yuck.core._
 import yuck.flatzinc.ast.Minimize
 import yuck.flatzinc.ast.Maximize
-import yuck.annealing.RandomReassignmentGenerator
 
 /**
  * Customizable factory for creating a strategy (a move generator) for the problem at hand.
  *
- * The default implementation creates a [[yuck.annealing.RandomReassignmentGenerator
+ * The default implementation creates a [[yuck.core.RandomReassignmentGenerator
  * RandomReassignmentGenerator]] instance on the involved search variables.
  * This behaviour can be customized via three hooks:
  * createMoveGeneratorFor{Satisfaction, Minimization, Maximization}Goal.
@@ -36,6 +35,7 @@ class StrategyFactory
     protected val logger = cc.logger
     protected val ast = cc.ast
     protected val space = cc.space
+    protected val variablesToIgnore = new mutable.HashSet[AnyVariable]
 
     override def run {
         cc.strategy = createMoveGenerator
@@ -125,18 +125,16 @@ class StrategyFactory
         }
     }
 
-    final def createMoveGeneratorOnInvolvedSearchVariables(x: Variable[IntegerValue]): Option[MoveGenerator] = {
-        val xs = (if (space.isSearchVariable(x)) Set(x) else space.involvedSearchVariables(x)).toIndexedSeq
+    protected final def createMoveGeneratorOnInvolvedSearchVariables(x: Variable[IntegerValue]): Option[MoveGenerator] = {
+        val xs =
+            (if (space.isSearchVariable(x)) Set(x.asInstanceOf[AnyVariable]) else space.involvedSearchVariables(x)) --
+            variablesToIgnore
         if (xs.isEmpty) {
             None
         } else {
             logger.logg("Adding exchange generator on %s".format(xs))
-            Some(new RandomReassignmentGenerator(space, xs, randomGenerator, cfg.moveSizeDistribution, null, 0))
+            Some(new RandomReassignmentGenerator(space, xs.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, null, 0))
         }
     }
-
-    protected final def isTightAlldistinctConstraint(constraint: Constraint): Boolean =
-        constraint.isInstanceOf[Alldistinct[_]] &&
-        constraint.asInstanceOf[Alldistinct[_]].isTight(space)
 
 }

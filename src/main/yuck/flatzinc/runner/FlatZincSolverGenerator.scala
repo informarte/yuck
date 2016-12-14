@@ -8,7 +8,7 @@ import yuck.annealing._
 import yuck.core._
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.FlatZincAST
-import yuck.flatzinc.compiler.FlatZincCompiler
+import yuck.flatzinc.compiler.{FlatZincCompiler, FlatZincCompilerResult}
 import yuck.util.logging.LazyLogger
 
 /**
@@ -20,12 +20,34 @@ final class FlatZincSolverGenerator
     extends SolverGenerator
 {
 
-    override def solverName = "FlatZincSolver"
+    override def solverName = "FZS"
+
+    private final class SolverForProblemWithoutStrategy
+        (override val name: String, compilerResult: FlatZincCompilerResult)
+        extends Solver
+        with StandardSolverInterruptionSupport
+    {
+        require(compilerResult.strategy == null)
+        private val space = compilerResult.space
+        private val objective = compilerResult.objective
+        private var finished = false
+        space.initialize
+        override def hasFinished = finished
+        override def call = {
+            require(! finished)
+            val result = new Result(name, space, objective, compilerResult)
+            result.bestProposal = space.searchState
+            result.costsOfBestProposal = objective.costs(result.bestProposal)
+            finished = true
+            result
+        }
+    }
 
     private final class BaseSolverGenerator
-        (randomGenerator: RandomGenerator, override val solverName: String)
+        (randomGenerator: RandomGenerator, solverIndex: Int)
         extends SolverGenerator
     {
+        override def solverName = "FZS-%d".format(solverIndex)
         override def call = {
             val compiler = new FlatZincCompiler(ast, cfg, randomGenerator.nextGen, logger)
             val compilerResult = compiler.call
@@ -33,8 +55,10 @@ final class FlatZincSolverGenerator
             // The initializer will respect existing value assignments.
             val initializer = new RandomInitializer(space, randomGenerator.nextGen)
             initializer.run
-            val schedule = new StandardAnnealingScheduleFactory(space.searchVariables.size, randomGenerator.nextGen).call
-            val solver =
+            if (compilerResult.strategy == null) {
+                new SolverForProblemWithoutStrategy(solverName, compilerResult)
+            } else {
+                val schedule = new StandardAnnealingScheduleFactory(space.searchVariables.size, randomGenerator.nextGen).call
                 new SimulatedAnnealing(
                     solverName,
                     space,
@@ -46,7 +70,7 @@ final class FlatZincSolverGenerator
                     monitor,
                     compilerResult,
                     cfg.checkConstraintPropagation)
-            solver
+            }
         }
     }
 
@@ -54,12 +78,12 @@ final class FlatZincSolverGenerator
         val randomGenerator = new JavaRandomGenerator(cfg.seed)
         var solver: Solver = null
         if (cfg.restartLimit == 1) {
-            solver = new BaseSolverGenerator(randomGenerator.nextGen, "SA-1").call
+            solver = new BaseSolverGenerator(randomGenerator.nextGen, 1).call
         } else {
             val solvers =
                 for (i <- 1 to max(1, cfg.restartLimit)) yield
                     new OnDemandGeneratedSolver(
-                        new BaseSolverGenerator(randomGenerator.nextGen, "SA-%d".format(i)),
+                        new BaseSolverGenerator(randomGenerator.nextGen, i),
                         logger)
             val numberOfThreads = cfg.numberOfVirtualCores match {
                 case 4 | 8 => 4 // use 4 threads on both i5 and i7, also avoids fan noise on i7

@@ -17,7 +17,7 @@ import yuck.core._
 final class Alldistinct
     [Value <: AnyValue]
     (id: Id[Constraint], goal: Goal,
-     val xs: immutable.Seq[Variable[Value]], costs: Variable[IntegerValue])
+     xs: immutable.Seq[Variable[Value]], costs: Variable[IntegerValue])
     (implicit valueTraits: AnyValueTraits[Value])
     extends ValueFrequencyTracker[Value, IntegerValue](
         id, goal, xs, costs,
@@ -34,13 +34,39 @@ final class Alldistinct
      * We call an Alldistinct constraint ''tight'' when all its variables (excluding parameters)
      * are search variables, they have the same domain, and the domain size equals the number of variables.
      */
-    def isTight(space: Space): Boolean = {
+    private def isTight(space: Space): Boolean = {
         val xs = this.xs.filter(_.isVariable)
         xs.size > 1 &&
-        xs.forall(x => space.isSearchVariable(x)) &&
+        xs.forall(x => ! space.isChannelVariable(x)) &&
         {
             val domain = xs.head.domain
             domain.isFinite && domain.size == xs.size && xs.forall(_.domain == domain)
+        }
+    }
+
+    override def isCandidateForImplicitSolving(space: Space) =
+        isTight(space)
+
+    override def prepareForImplicitSolving(
+        space: Space,
+        randomGenerator: RandomGenerator,
+        moveSizeDistribution: Distribution,
+        hotSpotDistributionFactory: immutable.Seq[AnyVariable] => Option[Distribution],
+        probabilityOfFairChoiceInPercent: Int):
+        Option[MoveGenerator] =
+    {
+        if (isTight(space)) {
+            val xs1 = xs.filter(_.isVariable)
+            val domain = xs1.head.domain
+            for ((x, a) <- xs1.toIterator.zip(randomGenerator.shuffle(domain.values).toIterator)) {
+                space.setValue(x, a)
+            }
+            space.setValue(costs, Zero)
+            val xs2 = xs1.toIndexedSeq
+            val hotSpotDistribution = hotSpotDistributionFactory(xs2).getOrElse(null)
+            Some(new RandomCircularSwapGenerator(space, xs2, randomGenerator, moveSizeDistribution, hotSpotDistribution, probabilityOfFairChoiceInPercent))
+        } else {
+            None
         }
     }
 

@@ -29,6 +29,10 @@ final class Space(
     private val inVariables = new mutable.HashSet[AnyVariable] // maintained by post
     private val outVariables = new mutable.HashSet[AnyVariable] // maintained by post
 
+    private val impliedConstraints = new mutable.BitSet // indexed by constraint id
+    @inline private def isImpliedConstraint(constraint: Constraint) =
+        impliedConstraints.contains(constraint.id.rawId)
+
     private type InflowModel = mutable.HashMap[AnyVariable, mutable.HashSet[Constraint]]
     private val inflowModel = new InflowModel // maintained by post
     private def registerInflow(x: AnyVariable, constraint: Constraint) {
@@ -260,6 +264,17 @@ final class Space(
     }
 
     /**
+     * Marks the given constraint as implied;
+     * implied constraints will not be initialized and they will never be consulted.
+     */
+    def markAsImplied(constraint: Constraint): Space = {
+        logger.loggg("Marking %s as implied".format(constraint))
+        impliedConstraints += constraint.id.rawId
+        constraintOrder = null
+        this
+    }
+
+    /**
      * Initializes the constraint network for local search.
      *
      * The caller has to assign values to all search variables before initializing!
@@ -267,7 +282,7 @@ final class Space(
     def initialize: Space = {
         require(constraintQueue.isEmpty)
         sortConstraintsTopologically
-        constraintQueue ++= constraints
+        constraintQueue ++= constraints.toIterator.filterNot(isImpliedConstraint)
         while (! constraintQueue.isEmpty) {
             constraintQueue.dequeue.initialize(assignment).foreach(_.setValue(assignment))
         }
@@ -298,7 +313,7 @@ final class Space(
             if (assignment.anyValue(effect.anyVariable) != effect.anyValue) {
                 val maybeAffectedConstraints = inflowModel.get(effect.anyVariable)
                 if (maybeAffectedConstraints.isDefined) {
-                    for (constraint <- maybeAffectedConstraints.get) {
+                    for (constraint <- maybeAffectedConstraints.get if ! isImpliedConstraint(constraint)) {
                         val diff = diffs.getOrElseUpdate(constraint, new BulkMove(move.id))
                         if (diff.isEmpty) {
                             constraintQueue += constraint

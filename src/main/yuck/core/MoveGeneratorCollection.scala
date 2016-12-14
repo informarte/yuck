@@ -30,9 +30,9 @@ final class MoveGeneratorCollection(
     extends MoveGenerator
 {
     require((0 to 100).contains(probabilityOfFairChoiceInPercent))
-    override val xs = moveGenerators.map(_.xs).flatten
+    override def searchVariables = moveGenerators.toIterator.map(_.searchVariables).flatten.toSet
     private val sizeDistribution = DistributionFactory.createDistribution(moveGenerators.size)
-    (0 until moveGenerators.size).foreach(i => sizeDistribution.setFrequency(i, moveGenerators(i).xs.size))
+    (0 until moveGenerators.size).foreach(i => sizeDistribution.setFrequency(i, moveGenerators(i).searchVariables.size))
     override def nextMove = {
         val useSizeDistribution =
             hotSpotDistribution == null ||

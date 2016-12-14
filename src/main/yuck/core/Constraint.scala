@@ -52,4 +52,33 @@ abstract class Constraint
     def commit(before: SearchState, after: SearchState, move: Move): TraversableOnce[AnyEffect] =
         consult(before, after, move)
 
+    /**
+     * Returns true if this constraint is a candidate for implicit solving
+     * with respect to the given space.
+     *
+     * The default implementation returns false.
+     */
+    def isCandidateForImplicitSolving(space: Space): Boolean = false
+
+    /**
+     * Prepares the grounds for solving this constraint implicitly.
+     *
+     * 1. Assigns values to the constraint's search variables such that the
+     *    assignment satisfies the constraint.
+     * 2. Assigns zero to the constraint's cost variable.
+     * 3. Creates and returns a move generator that maintains feasibility.
+     *
+     * The implementation should not assume that this constraint has been posted.
+     *
+     * The default implementation does nothing and returns None.
+     */
+    def prepareForImplicitSolving(
+        space: Space,
+        randomGenerator: RandomGenerator,
+        moveSizeDistribution: Distribution,
+        hotSpotDistributionFactory: immutable.Seq[AnyVariable] => Option[Distribution],
+        probabilityOfFairChoiceInPercent: Int):
+        Option[MoveGenerator] =
+        None
+
 }

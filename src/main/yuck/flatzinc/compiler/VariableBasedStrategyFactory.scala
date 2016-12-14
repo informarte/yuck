@@ -2,13 +2,10 @@ package yuck.flatzinc.compiler
 
 import scala.collection._
 
-import yuck.annealing.RandomReassignmentGenerator
-import yuck.annealing.RandomCircularSwapGenerator
 import yuck.constraints.DistributionMaintainer
 import yuck.constraints.LinearCombination
 import yuck.constraints.Sum
 import yuck.core._
-import yuck.flatzinc.ast.Constraint
 import yuck.flatzinc.ast.IntConst
 import yuck.constraints.Alldistinct
 
@@ -35,74 +32,42 @@ final class VariableBasedStrategyFactory
 {
 
     private lazy val searchVariables = space.searchVariables
-    private val variablesToIgnore = new mutable.HashSet[AnyVariable]
 
     protected override def createMoveGeneratorForSatisfactionGoal(x: Variable[IntegerValue]) =
         createMoveGeneratorForMinimizationGoal(x)
 
     protected override def createMoveGeneratorForMinimizationGoal(x: Variable[IntegerValue]) = {
         val threadId = Thread.currentThread.getId
-        val hotSpotIndicators = createHotSpotIndicators(x)
-        // Primary swap generators are produced from tight Alldistinct constraints.
-        // As such a primary swap generator will be the only generator to propose a move
-        // involving its variables.
-        val primarySwapGenerators = new mutable.ArrayBuffer[MoveGenerator]
-        val secondarySwapGenerators = new mutable.ArrayBuffer[MoveGenerator]
-        val constraints = space.involvedConstraints(x).toSeq // create sequence for shuffling
-        val (tightAlldistinctConstraints, otherConstraints) = constraints.partition(isTightAlldistinctConstraint)
-        // The creation of overlapping swap generators was abandoned because this deteriorated the solver's performance.
-        // As a consequence, the order of processing tight Alldistinct constraints now plays a role.
-        for (constraint <- randomGenerator.shuffle(tightAlldistinctConstraints)) constraint match {
-            case alldistinct: Alldistinct[_] if (alldistinct.xs.toSet & variablesToIgnore).isEmpty =>
-                val xs = alldistinct.xs.toIterator.filter(_.isVariable).toIndexedSeq
-                val domain = xs.head.domain
-                for ((x, a) <- xs.zip(randomGenerator.shuffle(domain.values.toIndexedSeq))) {
-                    space.setValue(x, a)
-                }
-                variablesToIgnore ++= xs
-                val hotSpotDistribution = DistributionFactory.createDistribution(xs.size)
-                space.post(
-                    new DistributionMaintainer(nextConstraintId, null, xs.map(hotSpotIndicators(_)), hotSpotDistribution))
-                primarySwapGenerators +=
-                    new RandomCircularSwapGenerator(
-                        space, xs, randomGenerator,
-                        cfg.moveSizeDistribution, hotSpotDistribution, cfg.probabilityOfFairChoiceInPercent)
-                variablesToIgnore ++= xs
-                logger.logg("Added swap generator for tight %s".format(constraint))
-            case _ =>
-        }
-        /*
-         Here we used to generate secondary swap generators from arrays: Each array's
-         variables were partitioned by domain and for each array and domain a swap generator
-         was created.
-         However, as a consequence of domain pruning, the number of secondary swap generators
-         had increased, their size had decreased (there were many with only two variables),
-         and the number of variables without partner for swapping had increased, too.
-         So the neighbourhood had changed dramatically in two ways:
-         (1) As the swap generators were disjoint, many combinations of variables
-             in the same move were not possible any more.
-         (2) As many variables had no partner for swapping any more, they ended up
-             in a SimpleMoveGenerator which can only change one value at a time.
-         So secondary swap generators were abandoned.
-        */
-        val remainingVariables =
-            hotSpotIndicators.keys.toSet --
-            variablesToIgnore --
-            secondarySwapGenerators.map(_.xs).flatten
+        val hotSpotIndicators =
+            logger.withTimedLogScope("Creating hot-spot indicators for %s".format(x)) {
+                createHotSpotIndicators(x)
+            }
         val moveGenerators = new mutable.ArrayBuffer[MoveGenerator]
+        for (constraint <- randomGenerator.shuffle(space.involvedConstraints(x).toSeq)) {
+            val xs = constraint.inVariables.toIterator.filter(space.isSearchVariable).toSet
+            if ((xs & variablesToIgnore).isEmpty) {
+                val maybeMoveGenerator =
+                    constraint.prepareForImplicitSolving(
+                        space, randomGenerator, cfg.moveSizeDistribution,
+                        createHotSpotDistribution(hotSpotIndicators), cfg.probabilityOfFairChoiceInPercent)
+                if (maybeMoveGenerator.isDefined) {
+                    variablesToIgnore ++= xs
+                    logger.logg("Adding move generator for implicit constraint %s".format(constraint))
+                    moveGenerators += maybeMoveGenerator.get
+                    space.markAsImplied(constraint)
+                }
+            }
+        }
+        val remainingVariables = hotSpotIndicators.keys.toSet -- variablesToIgnore
         if (! remainingVariables.isEmpty) {
             val xs = remainingVariables.toIndexedSeq
-            val hotSpotDistribution = DistributionFactory.createDistribution(xs.size)
-            space.post(
-                new DistributionMaintainer(nextConstraintId, null, xs.map(hotSpotIndicators(_)), hotSpotDistribution))
+            val hotSpotDistribution = createHotSpotDistribution(hotSpotIndicators)(xs).get
+            logger.logg("Adding exchange generator on %s".format(xs))
             moveGenerators +=
                 new RandomReassignmentGenerator(
                     space, xs, randomGenerator,
                     cfg.moveSizeDistribution, hotSpotDistribution, cfg.probabilityOfFairChoiceInPercent)
-            logger.logg("Added exchange generator on %s".format(xs))
         }
-        moveGenerators ++= primarySwapGenerators
-        moveGenerators ++= secondarySwapGenerators
         if (moveGenerators.size < 2) {
             moveGenerators.headOption
         } else {
@@ -135,7 +100,6 @@ final class VariableBasedStrategyFactory
     // 3. All other cases.
     //    (Maybe there is only a single soft constraint.)
     private def createHotSpotIndicators(x: AnyVariable): Map[AnyVariable, Variable[IntegerValue]] = {
-        logger.logg("Now creating hot-spot indicators")
         val zs = new mutable.HashMap[AnyVariable, mutable.ArrayBuffer[AX[IntegerValue]]]
         if (space.isSearchVariable(x)) {
             zs += x -> new mutable.ArrayBuffer[AX[IntegerValue]]
@@ -148,14 +112,14 @@ final class VariableBasedStrategyFactory
             constraint match {
                 case lc: LinearCombination[IntegerValue @ unchecked] =>
                     for (ax <- lc.axs
-                         if ax.a.value >= 0 && ax.x.domain.asInstanceOf[IntegerDomain].maybeLb.exists(_.value >= 0))
+                         if ax.a.value >= 0 && IntegerValue.Traits.staticCast(ax.x.domain).maybeLb.exists(_.value >= 0))
                     {
                         for (y <- space.involvedSearchVariables(ax.x)) {
                             zs(y) += ax
                         }
                     }
                 case sum: Sum[IntegerValue @ unchecked] =>
-                    for (x <- sum.xs if x.domain.asInstanceOf[IntegerDomain].maybeLb.exists(_.value >= 0)) {
+                    for (x <- sum.xs if IntegerValue.Traits.staticCast(x.domain).maybeLb.exists(_.value >= 0)) {
                         for (y <- space.involvedSearchVariables(x)) {
                             zs(y) += new AX(One, x)
                         }
@@ -176,6 +140,17 @@ final class VariableBasedStrategyFactory
             }
         }
         s
+    }
+
+    private def createHotSpotDistribution
+        (hotSpotIndicators: Map[AnyVariable, Variable[IntegerValue]])
+        (xs: immutable.Seq[AnyVariable]):
+        Option[Distribution] =
+    {
+        val hotSpotDistribution = DistributionFactory.createDistribution(xs.size)
+        val weightedIndicators = xs.map(x => new AX(One, hotSpotIndicators(x)))
+        space.post(new DistributionMaintainer(nextConstraintId, null, weightedIndicators, hotSpotDistribution))
+        Some(hotSpotDistribution)
     }
 
 }

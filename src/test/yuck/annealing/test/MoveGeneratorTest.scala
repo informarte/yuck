@@ -4,7 +4,6 @@ import org.junit._
 
 import scala.collection._
 
-import yuck.annealing.SimpleRandomMoveGenerator
 import yuck.core._
 import yuck.util.testing.UnitTest
 

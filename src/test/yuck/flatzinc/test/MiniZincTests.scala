@@ -8,6 +8,7 @@ import org.junit.experimental.categories.Categories._
 import org.junit.runner.RunWith
 import org.junit.runners.Suite.SuiteClasses
 
+import yuck.annealing.AnnealingResult
 import yuck.flatzinc.test.util._
 import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
 
@@ -264,6 +265,26 @@ class MiniZincTests extends MiniZincTestSuite {
         assertEx(
             solve(task.copy(problemName = "satisfiability_problem_with_unbounded_search_variable")),
             classOf[VariableWithInfiniteDomainException])
+    }
+
+    @Test
+    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint]))
+    def testMinimizationProblemWithImplicitlyConstrainedObjectiveVariable {
+        val result = solve(task.copy(problemName = "minimization_problem_with_implicitly_constrained_objective_variable"))
+        assertEq(result.asInstanceOf[AnnealingResult].consultationsPerMove, 0)
+    }
+
+    @Test
+    @Category(Array(classOf[MaximizationProblem], classOf[HasAlldifferentConstraint]))
+    def testMaximizationProblemWithImplicitlyConstrainedObjectiveVariable {
+        val result = solve(task.copy(problemName = "maximization_problem_with_implicitly_constrained_objective_variable"))
+        assertEq(result.asInstanceOf[AnnealingResult].consultationsPerMove, 0)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testEmptySatisfiabilityProblem {
+        solve(task.copy(problemName = "empty_satisfiability_problem"))
     }
 
 }

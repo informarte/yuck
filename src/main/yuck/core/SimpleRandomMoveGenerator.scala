@@ -1,8 +1,6 @@
-package yuck.annealing
+package yuck.core
 
 import scala.collection._
-
-import yuck.core._
 
 /**
  * Generates random moves involving one variable.
@@ -11,11 +9,15 @@ import yuck.core._
  */
 final class SimpleRandomMoveGenerator
     (space: Space,
-     override val xs: immutable.IndexedSeq[AnyVariable],
+     xs: immutable.IndexedSeq[AnyVariable],
      randomGenerator: RandomGenerator)
     extends MoveGenerator
 {
     require(! xs.isEmpty)
+    require(xs.size == xs.toSet.size)
+    require(xs.forall(_.domain.isFinite))
+    require(xs.forall(! _.isParameter))
+    override def searchVariables = xs
     override def nextMove =
         xs
         .apply(randomGenerator.nextInt(xs.length))
