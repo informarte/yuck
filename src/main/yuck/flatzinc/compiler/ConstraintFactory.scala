@@ -733,7 +733,11 @@ final class ConstraintFactory
         val xs = compileArray[Value](as)
         val ys = compileArray[Value](bs)
         require(xs.size == ys.size)
-        val axs = AX.compact(for ((x, y) <- xs.zip(ys)) yield new AX[Value](x.domain.singleValue, y))
+        val axs =
+          AX.compact(
+              for ((x, y) <- xs.toIterator.zip(ys.toIterator)
+              if x.domain.singleValue != valueTraits.zero && (! y.domain.isSingleton || y.domain.singleValue != valueTraits.zero))
+                  yield new AX[Value](x.domain.singleValue, y))
         axs match {
             case List(AX(One, x)) if maybeChannel.isEmpty =>
                 x
