@@ -10,23 +10,23 @@ import yuck.flatzinc.ast.Minimize
 import yuck.flatzinc.ast.Maximize
 
 /**
- * Customizable factory for creating a strategy (a move generator) for the problem at hand.
+ * Customizable factory for creating a neighbourhood for the problem at hand.
  *
  * The default implementation creates a [[yuck.core.RandomReassignmentGenerator
  * RandomReassignmentGenerator]] instance on the involved search variables.
  * This behaviour can be customized via three hooks:
- * createMoveGeneratorFor{Satisfaction, Minimization, Maximization}Goal.
+ * createNeighbourhoodFor{Satisfaction, Minimization, Maximization}Goal.
  *
- * In case we end up with two move generators (one for the satisfaction goal and another
- * for the optimization goal), these generators will be stacked by creating an instance
- * of [[yuck.core.MoveGeneratorCollection MoveGeneratorCollection]] instrumented to
+ * In case we end up with two neighbourhoods (one for the satisfaction goal and another
+ * for the optimization goal), these neighbourhoods will be stacked by creating an instance
+ * of [[yuck.core.NeighbourhoodCollection NeighbourhoodCollection]] instrumented to
  * focus on the satisfaction goal in case hard constraints are violated. To this end,
  * we keep track of goal satisfaction by means of a dynamic distribution (maintained by
  * an instance of [[yuck.constraints.DistributionMaintainer DistributionMaintainer]]).
  *
  * @author Michael Marte
  */
-class StrategyFactory
+class NeighbourhoodFactory
     (cc: CompilationContext, randomGenerator: RandomGenerator)
     extends CompilationPhase(cc, randomGenerator)
 {
@@ -38,41 +38,41 @@ class StrategyFactory
     protected val variablesToIgnore = new mutable.HashSet[AnyVariable]
 
     override def run {
-        cc.strategy = createMoveGenerator
+        cc.neighbourhood = createNeighbourhood
     }
 
-    private final def createMoveGenerator: MoveGenerator = {
-        val maybeMoveGenerator0 =
-            logger.withTimedLogScope("Creating a move generator for solving hard constraints") {
-                createMoveGeneratorForSatisfactionGoal(cc.costVar)
+    private final def createNeighbourhood: Neighbourhood = {
+        val maybeNeighbourhood0 =
+            logger.withTimedLogScope("Creating a neighbourhood for solving hard constraints") {
+                createNeighbourhoodForSatisfactionGoal(cc.costVar)
             }
         cc.ast.solveGoal match {
             case Minimize(a, _) =>
-                val maybeMoveGenerator1 =
-                    logger.withTimedLogScope("Creating a move generator for minimizing %s".format(a)) {
-                        createMoveGeneratorForMinimizationGoal(a)
+                val maybeNeighbourhood1 =
+                    logger.withTimedLogScope("Creating a neighbourhood for minimizing %s".format(a)) {
+                        createNeighbourhoodForMinimizationGoal(a)
                     }
-                stackMoveGenerators(cc.costVar, maybeMoveGenerator0, a, maybeMoveGenerator1)
+                stackNeighbourhoods(cc.costVar, maybeNeighbourhood0, a, maybeNeighbourhood1)
             case Maximize(a, _) =>
-                val maybeMoveGenerator1 =
-                    logger.withTimedLogScope("Creating a move generator for maximizing %s".format(a)) {
-                        createMoveGeneratorForMaximizationGoal(a)
+                val maybeNeighbourhood1 =
+                    logger.withTimedLogScope("Creating a neighbourhood for maximizing %s".format(a)) {
+                        createNeighbourhoodForMaximizationGoal(a)
                     }
-                stackMoveGenerators(cc.costVar, maybeMoveGenerator0, a, maybeMoveGenerator1)
+                stackNeighbourhoods(cc.costVar, maybeNeighbourhood0, a, maybeNeighbourhood1)
             case _ =>
-                maybeMoveGenerator0.getOrElse(null)
+                maybeNeighbourhood0.getOrElse(null)
         }
     }
 
-    private def stackMoveGenerators(
-        costs0: Variable[IntegerValue], maybeMoveGenerator0: Option[MoveGenerator],
-        costs1: Variable[IntegerValue], maybeMoveGenerator1: Option[MoveGenerator]): MoveGenerator =
+    private def stackNeighbourhoods(
+        costs0: Variable[IntegerValue], maybeNeighbourhood0: Option[Neighbourhood],
+        costs1: Variable[IntegerValue], maybeNeighbourhood1: Option[Neighbourhood]): Neighbourhood =
     {
-        (maybeMoveGenerator0, maybeMoveGenerator1) match {
+        (maybeNeighbourhood0, maybeNeighbourhood1) match {
             case (None, None) => null
-            case (Some(moveGenerator0), None) => moveGenerator0
-            case (None, Some(moveGenerator1)) => moveGenerator1
-            case (Some(moveGenerator0), Some(moveGenerator1)) =>
+            case (Some(neighbourhood0), None) => neighbourhood0
+            case (None, Some(neighbourhood1)) => neighbourhood1
+            case (Some(neighbourhood0), Some(neighbourhood1)) =>
                 val List(objective0, objective1) = cc.objective.asInstanceOf[HierarchicalObjective].objectives
                 val weight0 = createNonNegativeChannel[IntegerValue]
                 space.post(new LevelWeightMaintainer(nextConstraintId, null, costs0, weight0, objective0, Ten))
@@ -82,8 +82,8 @@ class StrategyFactory
                 space.post(
                     new DistributionMaintainer(
                         nextConstraintId, null, List(weight0, weight1).toIndexedSeq, hotSpotDistribution))
-                new MoveGeneratorCollection(
-                    immutable.IndexedSeq(moveGenerator0, moveGenerator1), randomGenerator, hotSpotDistribution, 0)
+                new NeighbourhoodCollection(
+                    immutable.IndexedSeq(neighbourhood0, neighbourhood1), randomGenerator, hotSpotDistribution, 0)
         }
     }
 
@@ -100,39 +100,39 @@ class StrategyFactory
         override def op(costs: IntegerValue) = if (objective.isGoodEnough(costs)) One else gain
     }
 
-    protected def createMoveGeneratorForSatisfactionGoal(x: Variable[IntegerValue]): Option[MoveGenerator] =
-        createMoveGeneratorOnInvolvedSearchVariables(x)
+    protected def createNeighbourhoodForSatisfactionGoal(x: Variable[IntegerValue]): Option[Neighbourhood] =
+        createNeighbourhoodOnInvolvedSearchVariables(x)
 
-    protected def createMoveGeneratorForMinimizationGoal(x: Variable[IntegerValue]): Option[MoveGenerator] = {
+    protected def createNeighbourhoodForMinimizationGoal(x: Variable[IntegerValue]): Option[Neighbourhood] = {
         if (space.isDanglingVariable(x) && x.domain.asInstanceOf[IntegerDomain].maybeLb.isDefined) {
             val a = x.domain.asInstanceOf[IntegerDomain].maybeLb.get
             logger.logg("Assigning %s to dangling objective variable %s".format(a, x))
             space.setValue(x, a)
             None
         } else {
-            createMoveGeneratorOnInvolvedSearchVariables(x)
+            createNeighbourhoodOnInvolvedSearchVariables(x)
         }
     }
 
-    protected def createMoveGeneratorForMaximizationGoal(x: Variable[IntegerValue]): Option[MoveGenerator] = {
+    protected def createNeighbourhoodForMaximizationGoal(x: Variable[IntegerValue]): Option[Neighbourhood] = {
         if (space.isDanglingVariable(x) && x.domain.asInstanceOf[IntegerDomain].maybeUb.isDefined) {
             val a = x.domain.asInstanceOf[IntegerDomain].maybeUb.get
             logger.logg("Assigning %s to dangling objective variable %s".format(a, x))
             space.setValue(x, a)
             None
         } else {
-            createMoveGeneratorOnInvolvedSearchVariables(x)
+            createNeighbourhoodOnInvolvedSearchVariables(x)
         }
     }
 
-    protected final def createMoveGeneratorOnInvolvedSearchVariables(x: Variable[IntegerValue]): Option[MoveGenerator] = {
+    protected final def createNeighbourhoodOnInvolvedSearchVariables(x: Variable[IntegerValue]): Option[Neighbourhood] = {
         val xs =
             (if (space.isSearchVariable(x)) Set(x.asInstanceOf[AnyVariable]) else space.involvedSearchVariables(x)) --
             variablesToIgnore
         if (xs.isEmpty) {
             None
         } else {
-            logger.logg("Adding exchange generator on %s".format(xs))
+            logger.logg("Adding a neighbourhood over %s".format(xs))
             Some(new RandomReassignmentGenerator(space, xs.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, null, 0))
         }
     }

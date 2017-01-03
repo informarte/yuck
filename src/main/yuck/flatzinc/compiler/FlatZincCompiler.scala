@@ -40,12 +40,12 @@ final class FlatZincCompiler
         run(new ConstraintFactory(cc, randomGenerator.nextGen))
         run(new DomainEnforcer(cc, randomGenerator.nextGen))
         run(new ObjectiveFactory(cc, randomGenerator.nextGen))
-        run(new ConstraintBasedStrategyFactory(cc, randomGenerator.nextGen))
+        run(new ConstraintDrivenNeighbourhoodFactory(cc, randomGenerator.nextGen))
         assignValuesToDanglingVariables
         logger.loggg("Search variables: %s".format(cc.space.searchVariables))
         val vars = (for ((key, x) <- cc.vars) yield key.toString -> x).toMap
         val arrays = (for ((key, array) <- cc.arrays) yield key.toString -> array).toMap
-        new FlatZincCompilerResult(cc.ast, cc.space, vars, arrays, cc.objective, cc.strategy)
+        new FlatZincCompilerResult(cc.ast, cc.space, vars, arrays, cc.objective, cc.neighbourhood)
     }
 
     private def assignValuesToDanglingVariables {

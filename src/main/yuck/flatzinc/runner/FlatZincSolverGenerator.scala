@@ -22,12 +22,12 @@ final class FlatZincSolverGenerator
 
     override def solverName = "FZS"
 
-    private final class SolverForProblemWithoutStrategy
+    private final class SolverForProblemWithoutNeighbourhood
         (override val name: String, compilerResult: FlatZincCompilerResult)
         extends Solver
         with StandardSolverInterruptionSupport
     {
-        require(compilerResult.strategy == null)
+        require(compilerResult.neighbourhood == null)
         private val space = compilerResult.space
         private val objective = compilerResult.objective
         private var finished = false
@@ -55,15 +55,15 @@ final class FlatZincSolverGenerator
             // The initializer will respect existing value assignments.
             val initializer = new RandomInitializer(space, randomGenerator.nextGen)
             initializer.run
-            if (compilerResult.strategy == null) {
-                new SolverForProblemWithoutStrategy(solverName, compilerResult)
+            if (compilerResult.neighbourhood == null) {
+                new SolverForProblemWithoutNeighbourhood(solverName, compilerResult)
             } else {
                 val schedule = new StandardAnnealingScheduleFactory(space.searchVariables.size, randomGenerator.nextGen).call
                 new SimulatedAnnealing(
                     solverName,
                     space,
                     schedule,
-                    compilerResult.strategy,
+                    compilerResult.neighbourhood,
                     randomGenerator.nextGen,
                     compilerResult.objective,
                     cfg.maybeRoundLimit,

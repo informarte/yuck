@@ -4,7 +4,7 @@ import yuck.core._
 
 /**
  * Executes the search strategy defined by the given annealing schedule
- * and the given move generator.
+ * and the given neighbourhood.
  *
  * Terminates when the given objective is reached, the given annealing schedule
  * freezes up, or when the optional round limit is reached.
@@ -17,7 +17,7 @@ final class SimulatedAnnealing(
     override val name: String,
     space: Space,
     schedule: AnnealingSchedule,
-    moveGenerator: MoveGenerator,
+    neighbourhood: Neighbourhood,
     randomGenerator: RandomGenerator,
     objective: AnyObjective,
     maybeRoundLimit: Option[Int],
@@ -28,7 +28,7 @@ final class SimulatedAnnealing(
     with StandardSolverInterruptionSupport
 {
 
-    require(moveGenerator.searchVariables.toSet == space.searchVariables)
+    require(neighbourhood.searchVariables.toSet == space.searchVariables)
 
     private var roundCount = 0
     private var temperature = 0.0
@@ -182,7 +182,7 @@ final class SimulatedAnnealing(
     private def monteCarloSimulation {
         val roundLog = result.roundLogs.last
         while (numberOfMonteCarloAttempts > 0 && ! wasInterrupted && ! result.isGoodEnough) {
-            val move = moveGenerator.nextMove
+            val move = neighbourhood.nextMove
             val before = space.searchState
             val after = space.consult(move, checkConstraintPropagation)
             val delta = objective.assessMove(before, after)

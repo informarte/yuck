@@ -70,7 +70,7 @@ class SendMostMoney extends IntegrationTest {
                     solverName,
                     space,
                     createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen),
-                    new SimpleRandomMoveGenerator(space, space.searchVariables.toIndexedSeq, randomGenerator.nextGen),
+                    new SimpleRandomReassignmentGenerator(space, space.searchVariables.toIndexedSeq, randomGenerator.nextGen),
                     randomGenerator.nextGen,
                     // cf. http://gecoder.rubyforge.org/examples/send-most-money.html
                     new HierarchicalObjective(

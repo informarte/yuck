@@ -3,11 +3,11 @@ package yuck.core
 import scala.collection._
 
 /**
- * Provides move generation.
+ * Defines a neighbourhood for local search.
  *
  * @author Michael Marte
  */
-abstract class MoveGenerator {
+abstract class Neighbourhood {
 
     /** Returns the variables that may occur in the moves produced by this generator. */
     def searchVariables: TraversableOnce[AnyVariable]

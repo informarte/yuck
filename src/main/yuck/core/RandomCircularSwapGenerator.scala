@@ -35,7 +35,7 @@ final class RandomCircularSwapGenerator
      moveSizeDistribution: Distribution,
      hotSpotDistribution: Distribution,
      probabilityOfFairChoiceInPercent: Int)
-    extends MoveGenerator
+    extends Neighbourhood
 {
 
     private val n = xs.size

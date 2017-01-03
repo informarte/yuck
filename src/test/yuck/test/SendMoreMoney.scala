@@ -84,7 +84,7 @@ class SendMoreMoney extends IntegrationTest {
                 "SA",
                 space,
                 createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen),
-                new SimpleRandomMoveGenerator(space, space.searchVariables.toIndexedSeq, randomGenerator.nextGen),
+                new SimpleRandomReassignmentGenerator(space, space.searchVariables.toIndexedSeq, randomGenerator.nextGen),
                 randomGenerator.nextGen,
                 new MinimizationObjective(costs, Zero),
                 None,

@@ -66,7 +66,7 @@ abstract class Constraint
      * 1. Assigns values to the constraint's search variables such that the
      *    assignment satisfies the constraint.
      * 2. Assigns zero to the constraint's cost variable.
-     * 3. Creates and returns a move generator that maintains feasibility.
+     * 3. Creates and returns a neighbourhood that maintains feasibility.
      *
      * The implementation should not assume that this constraint has been posted.
      *
@@ -78,7 +78,7 @@ abstract class Constraint
         moveSizeDistribution: Distribution,
         hotSpotDistributionFactory: immutable.Seq[AnyVariable] => Option[Distribution],
         probabilityOfFairChoiceInPercent: Int):
-        Option[MoveGenerator] =
+        Option[Neighbourhood] =
         None
 
 }

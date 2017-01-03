@@ -31,7 +31,7 @@ final class RandomReassignmentGenerator
      moveSizeDistribution: Distribution,
      hotSpotDistribution: Distribution,
      probabilityOfFairChoiceInPercent: Int)
-    extends MoveGenerator
+    extends Neighbourhood
 {
 
     private val n = xs.size

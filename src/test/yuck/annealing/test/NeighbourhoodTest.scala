@@ -13,18 +13,18 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class MoveGeneratorTest extends UnitTest {
+class NeighbourhoodTest extends UnitTest {
 
     @Test
-    def testSimpleRandomMoveGenerator {
+    def testSimpleRandomNeighbourhood {
         val space = new Space
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
         space.setValue(s, Zero)
         val xs = immutable.IndexedSeq(s)
-        val moveGenerator = new SimpleRandomMoveGenerator(space, xs, new JavaRandomGenerator)
+        val neighbourhood = new SimpleRandomReassignmentGenerator(space, xs, new JavaRandomGenerator)
         for (i <- 1 to 10000) {
-            val effects = moveGenerator.nextMove.effects
+            val effects = neighbourhood.nextMove.effects
             assert(effects.toIterator.hasNext)
             val effect = effects.toIterator.next
             assertEq(effect.anyVariable, s)

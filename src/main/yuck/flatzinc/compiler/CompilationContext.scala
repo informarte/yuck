@@ -30,5 +30,5 @@ final class CompilationContext(
     val costVars = new mutable.ArrayBuffer[Variable[IntegerValue]]
     var costVar: Variable[IntegerValue] = null
     var objective: AnyObjective = null
-    var strategy: MoveGenerator = null
+    var neighbourhood: Neighbourhood = null
 }

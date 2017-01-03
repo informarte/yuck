@@ -107,17 +107,17 @@ class ConstraintTest extends UnitTest {
             .initialize
         val now = space.searchState
         assertEq(now.value(costs), Two)
-        val maybeMoveGenerator =
+        val maybeNeighbourhood =
             c.prepareForImplicitSolving(space, new JavaRandomGenerator, DEFAULT_MOVE_SIZE_DISTRIBUTION, _ => None, 0)
-        assert(maybeMoveGenerator.isDefined)
-        val moveGenerator = maybeMoveGenerator.get
+        assert(maybeNeighbourhood.isDefined)
+        val neighbourhood = maybeNeighbourhood.get
         assertNe(now.value(s), now.value(t))
         assertNe(now.value(s), now.value(u))
         assertNe(now.value(t), now.value(u))
         assertEq(now.value(costs), Zero)
         space.initialize
         for (i <- 1 to 10000) {
-            val move = moveGenerator.nextMove
+            val move = neighbourhood.nextMove
             val after = space.consult(move, false)
             assert(List(s, t, u).exists(x => now.value(x) != after.value(x)))
             assertNe(after.value(s), after.value(t))

@@ -53,7 +53,7 @@ final class Alldistinct
         moveSizeDistribution: Distribution,
         hotSpotDistributionFactory: immutable.Seq[AnyVariable] => Option[Distribution],
         probabilityOfFairChoiceInPercent: Int):
-        Option[MoveGenerator] =
+        Option[Neighbourhood] =
     {
         if (isTight(space)) {
             val xs1 = xs.filter(_.isVariable)

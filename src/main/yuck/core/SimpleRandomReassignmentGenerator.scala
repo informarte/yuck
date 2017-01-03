@@ -7,11 +7,11 @@ import scala.collection._
  *
  * @author Michael Marte
  */
-final class SimpleRandomMoveGenerator
+final class SimpleRandomReassignmentGenerator
     (space: Space,
      xs: immutable.IndexedSeq[AnyVariable],
      randomGenerator: RandomGenerator)
-    extends MoveGenerator
+    extends Neighbourhood
 {
     require(! xs.isEmpty)
     require(xs.size == xs.toSet.size)

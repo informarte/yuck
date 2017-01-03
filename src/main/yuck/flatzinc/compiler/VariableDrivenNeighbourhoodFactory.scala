@@ -10,14 +10,14 @@ import yuck.flatzinc.ast.IntConst
 import yuck.constraints.Alldistinct
 
 /**
- * Generates focused move generators for satisfaction and minimization goals.
+ * Generates focused neighbourhoods for satisfaction and minimization goals.
  *
- * The generation of a focused move generator departs from the variable x to minimize.
+ * The generation of a focused neighbourhood departs from the variable x to minimize.
  * Say Y is the set of search variables involved in the minimization of x.
  * For each y in Y, a so-called hot-spot indicator variable h(y) is created that reflects
  * the influence of y on x, see createHotSpotIndicators.
  *
- * Given some subset Z of Y, a move generator over Z is assembled on the basis of a distribution
+ * Given some subset Z of Y, a neighbourhood over Z is assembled on the basis of a distribution
  * of size |Z| the frequencies of which will be kept in sync with the values of the h(z), z in Z.
  *
  * To decouple this factory from the compiler, we preserve the order of variables in arrays.
@@ -26,35 +26,35 @@ import yuck.constraints.Alldistinct
  *
  * @author Michael Marte
  */
-final class VariableBasedStrategyFactory
+final class VariableDrivenNeighbourhoodFactory
     (cc: CompilationContext, randomGenerator: RandomGenerator)
-    extends StrategyFactory(cc, randomGenerator)
+    extends NeighbourhoodFactory(cc, randomGenerator)
 {
 
     private lazy val searchVariables = space.searchVariables
 
-    protected override def createMoveGeneratorForSatisfactionGoal(x: Variable[IntegerValue]) =
-        createMoveGeneratorForMinimizationGoal(x)
+    protected override def createNeighbourhoodForSatisfactionGoal(x: Variable[IntegerValue]) =
+        createNeighbourhoodForMinimizationGoal(x)
 
-    protected override def createMoveGeneratorForMinimizationGoal(x: Variable[IntegerValue]) = {
+    protected override def createNeighbourhoodForMinimizationGoal(x: Variable[IntegerValue]) = {
         val threadId = Thread.currentThread.getId
         val hotSpotIndicators =
             logger.withTimedLogScope("Creating hot-spot indicators for %s".format(x)) {
                 createHotSpotIndicators(x)
             }
-        val moveGenerators = new mutable.ArrayBuffer[MoveGenerator]
+        val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
         for (constraint <- randomGenerator.shuffle(space.involvedConstraints(x).toSeq)) {
             val xs = constraint.inVariables.toIterator.filter(space.isSearchVariable).toSet
             if ((xs & variablesToIgnore).isEmpty) {
-                val maybeMoveGenerator =
+                val maybeNeighbourhood =
                     constraint.prepareForImplicitSolving(
                         space, randomGenerator, cfg.moveSizeDistribution,
                         createHotSpotDistribution(hotSpotIndicators), cfg.probabilityOfFairChoiceInPercent)
-                if (maybeMoveGenerator.isDefined) {
+                if (maybeNeighbourhood.isDefined) {
                     variablesToIgnore ++= xs
-                    logger.logg("Adding move generator for implicit constraint %s".format(constraint))
-                    moveGenerators += maybeMoveGenerator.get
                     space.markAsImplied(constraint)
+                    logger.logg("Adding a neighbourhood for implicit constraint %s".format(constraint))
+                    neighbourhoods += maybeNeighbourhood.get
                 }
             }
         }
@@ -62,16 +62,16 @@ final class VariableBasedStrategyFactory
         if (! remainingVariables.isEmpty) {
             val xs = remainingVariables.toIndexedSeq
             val hotSpotDistribution = createHotSpotDistribution(hotSpotIndicators)(xs).get
-            logger.logg("Adding exchange generator on %s".format(xs))
-            moveGenerators +=
+            logger.logg("Adding a neighbourhood over %s".format(xs))
+            neighbourhoods +=
                 new RandomReassignmentGenerator(
                     space, xs, randomGenerator,
                     cfg.moveSizeDistribution, hotSpotDistribution, cfg.probabilityOfFairChoiceInPercent)
         }
-        if (moveGenerators.size < 2) {
-            moveGenerators.headOption
+        if (neighbourhoods.size < 2) {
+            neighbourhoods.headOption
         } else {
-            Some(new MoveGeneratorCollection(moveGenerators.toIndexedSeq, randomGenerator, null, 0))
+            Some(new NeighbourhoodCollection(neighbourhoods.toIndexedSeq, randomGenerator, null, 0))
         }
     }
 
@@ -80,8 +80,8 @@ final class VariableBasedStrategyFactory
     // A hot-spot indicator h(y) is a variable that reflects the influence of y on x.
     // (More precisely, the higher the influence of y's value on the value of x,
     // the higher the value of h(y).)
-    // The resulting hot-spot indicators are for defining hot-spot aware move generators
-    // via generator-specific distributions.
+    // The resulting hot-spot indicators are for defining hot-spot aware neighbourhoods
+    // via neighbourhood-specific distributions.
     // (As distributions can only handle integer frequencies, it does not make sense to
     // generalize this function to numerical values.)
     // To avoid runtime errors in move generation as well as local optima, we make sure that

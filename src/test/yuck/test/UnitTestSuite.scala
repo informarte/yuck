@@ -19,7 +19,7 @@ import yuck.flatzinc.parser.test._
         classOf[FenwickTreeTest],
         classOf[DistributionTest],
         classOf[ConstraintTest],
-        classOf[MoveGeneratorTest],
+        classOf[NeighbourhoodTest],
         classOf[Queens],
         classOf[SendMoreMoney],
         classOf[SendMostMoney],
