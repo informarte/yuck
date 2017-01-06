@@ -33,7 +33,7 @@ final class RandomCircularSwapGenerator
      xs: immutable.IndexedSeq[Variable[Value]],
      randomGenerator: RandomGenerator,
      moveSizeDistribution: Distribution,
-     hotSpotDistribution: Distribution,
+     maybeHotSpotDistribution: Option[Distribution],
      probabilityOfFairChoiceInPercent: Int)
     extends Neighbourhood
 {
@@ -75,11 +75,11 @@ final class RandomCircularSwapGenerator
 
     override def nextMove = {
         val useUniformDistribution =
-            hotSpotDistribution == null ||
-            hotSpotDistribution.volume == 0 ||
+            maybeHotSpotDistribution.isEmpty ||
+            maybeHotSpotDistribution.get.volume == 0 ||
             probabilityOfFairChoiceInPercent == 100 ||
             (probabilityOfFairChoiceInPercent > 0 && randomGenerator.nextInt(100) < probabilityOfFairChoiceInPercent)
-        val priorityDistribution = if (useUniformDistribution) uniformDistribution else hotSpotDistribution
+        val priorityDistribution = if (useUniformDistribution) uniformDistribution else maybeHotSpotDistribution.get
         val m =
             scala.math.min(
                 scala.math.max(2, scala.math.min(moveSizeDistribution.nextIndex(randomGenerator), n)),

@@ -26,7 +26,7 @@ import scala.collection._
 final class NeighbourhoodCollection(
     neighbourhoods: immutable.IndexedSeq[Neighbourhood],
     randomGenerator: RandomGenerator,
-    hotSpotDistribution: Distribution,
+    maybeHotSpotDistribution: Option[Distribution],
     probabilityOfFairChoiceInPercent: Int)
     extends Neighbourhood
 {
@@ -36,11 +36,11 @@ final class NeighbourhoodCollection(
     (0 until neighbourhoods.size).foreach(i => sizeDistribution.setFrequency(i, neighbourhoods(i).searchVariables.size))
     override def nextMove = {
         val useSizeDistribution =
-            hotSpotDistribution == null ||
-            hotSpotDistribution.volume == 0 ||
+            maybeHotSpotDistribution.isEmpty ||
+            maybeHotSpotDistribution.get.volume == 0 ||
             probabilityOfFairChoiceInPercent == 100 ||
             (probabilityOfFairChoiceInPercent > 0 && randomGenerator.nextInt(100) < probabilityOfFairChoiceInPercent)
-        val priorityDistribution = if (useSizeDistribution) sizeDistribution else hotSpotDistribution
+        val priorityDistribution = if (useSizeDistribution) sizeDistribution else maybeHotSpotDistribution.get
         val i = priorityDistribution.nextIndex(randomGenerator)
         neighbourhoods(i).nextMove
     }

@@ -63,8 +63,9 @@ final class Alldistinct
             }
             space.setValue(costs, Zero)
             val xs2 = xs1.toIndexedSeq
-            val hotSpotDistribution = hotSpotDistributionFactory(xs2).getOrElse(null)
-            Some(new RandomCircularSwapGenerator(space, xs2, randomGenerator, moveSizeDistribution, hotSpotDistribution, probabilityOfFairChoiceInPercent))
+            Some(new RandomCircularSwapGenerator(
+                    space, xs2, randomGenerator, moveSizeDistribution,
+                    hotSpotDistributionFactory(xs2), probabilityOfFairChoiceInPercent))
         } else {
             None
         }

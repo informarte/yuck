@@ -44,7 +44,7 @@ trait SolverLifecycle {
  * @author Michael Marte
  *
  */
-abstract class Solver extends Callable[Result] with SolverLifecycle {
+abstract class Solver extends Callable[Option[Result]] with SolverLifecycle {
 
     /** Returns the solver's name. */
     def name: String = this.getClass.getName
@@ -59,7 +59,7 @@ abstract class Solver extends Callable[Result] with SolverLifecycle {
      *
      * call shall not be used on finished solvers.
      */
-    override def call: Result
+    override def call: Option[Result]
 
 }
 
@@ -118,7 +118,7 @@ final object FinishedSolver extends Solver with StandardSolverInterruptionSuppor
     override def hasFinished = true
     override def call = {
         require(! hasFinished, "Use a new solver")
-        null
+        None
     }
 }
 
@@ -164,13 +164,13 @@ final class TimeboxedSolver(
                 }
             }
         }
-        val result =
+        val maybeResult =
             scoped(new TransientThreadRenaming(watchdogThread, "watchdog for %s".format(solver.name))) {
                 scoped(new ManagedThread(watchdogThread, logger)) {
                     solver.call
                 }
             }
-        result
+        maybeResult
     }
 
     override def interrupt {
@@ -211,7 +211,6 @@ final class OnDemandGeneratedSolver(
 
     override def call = {
         require(! hasFinished)
-        var result: Result = null
         if (solver == null) {
             if (wasInterrupted) {
                 logger.loggg("Interrupted, not generating solver")
@@ -221,8 +220,10 @@ final class OnDemandGeneratedSolver(
                 }
             }
         }
-        if (! wasInterrupted) {
-            result =
+        if (wasInterrupted) {
+            None
+        } else {
+            val maybeResult =
                 logger.withTimedLogScope("Running solver") {
                     solver.call
                 }
@@ -230,8 +231,8 @@ final class OnDemandGeneratedSolver(
                 // replace solver by mock to free memory
                 solver = FinishedSolver
             }
+            maybeResult
         }
-        result
     }
 
     override def interrupt {
@@ -271,12 +272,12 @@ final class ParallelSolver(
     require(! solvers.isEmpty)
     assert(threadPoolSize > 0)
 
-    private var bestResult: Result = null
+    private var maybeBestResult: Option[Result] = None
     private val lock = new locks.ReentrantLock
     private val indentation = logger.currentIndentation
 
     override def hasFinished =
-        (bestResult != null && bestResult.isGoodEnough) || solvers.forall(_.hasFinished)
+        (maybeBestResult.isDefined && maybeBestResult.get.isGoodEnough) || solvers.forall(_.hasFinished)
 
     private class SolverRunner(child: Solver) extends Runnable {
         override def run {
@@ -284,12 +285,12 @@ final class ParallelSolver(
                 scoped(new TransientThreadRenaming(Thread.currentThread, child.name)) {
                     scoped(new LogScope(logger, indentation)) {
                         logger.withTimedLogScope("Running child") {
-                            val result = child.call
-                            if (result != null) {
+                            val maybeResult = child.call
+                            if (maybeResult.isDefined) {
                                 criticalSection(lock) {
-                                    if (bestResult == null || result.isBetterThan(bestResult)) {
-                                        bestResult = result
-                                        if (bestResult.isGoodEnough) {
+                                    if (maybeBestResult.isEmpty || maybeResult.get.isBetterThan(maybeBestResult.get)) {
+                                        maybeBestResult = maybeResult
+                                        if (maybeBestResult.get.isGoodEnough) {
                                             logger.log("Objective achieved")
                                             interruptSolvers
                                         }
@@ -319,7 +320,7 @@ final class ParallelSolver(
                 }
             }
         }
-        bestResult
+        maybeBestResult
     }
 
     override def interrupt {

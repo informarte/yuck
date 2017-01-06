@@ -61,17 +61,16 @@ final class VariableDrivenNeighbourhoodFactory
         val remainingVariables = hotSpotIndicators.keys.toSet -- variablesToIgnore
         if (! remainingVariables.isEmpty) {
             val xs = remainingVariables.toIndexedSeq
-            val hotSpotDistribution = createHotSpotDistribution(hotSpotIndicators)(xs).get
             logger.logg("Adding a neighbourhood over %s".format(xs))
             neighbourhoods +=
                 new RandomReassignmentGenerator(
-                    space, xs, randomGenerator,
-                    cfg.moveSizeDistribution, hotSpotDistribution, cfg.probabilityOfFairChoiceInPercent)
+                    space, xs, randomGenerator, cfg.moveSizeDistribution,
+                    createHotSpotDistribution(hotSpotIndicators)(xs), cfg.probabilityOfFairChoiceInPercent)
         }
         if (neighbourhoods.size < 2) {
             neighbourhoods.headOption
         } else {
-            Some(new NeighbourhoodCollection(neighbourhoods.toIndexedSeq, randomGenerator, null, 0))
+            Some(new NeighbourhoodCollection(neighbourhoods.toIndexedSeq, randomGenerator, None, 0))
         }
     }
 

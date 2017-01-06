@@ -20,14 +20,14 @@ class SolverTest extends UnitTest {
         override def hasFinished = finished
         override def call = {
             if (wasInterrupted) {
-                null
+                None
             } else {
                 Thread.sleep(sleepTimeInSeconds * 1000)
                 if (wasInterrupted) {
-                    null
+                    None
                 } else {
                     finished = true
-                    result
+                    Some(result)
                 }
             }
         }
@@ -87,7 +87,7 @@ class SolverTest extends UnitTest {
         val solver = new OnDemandGeneratedSolver(solverGenerator, logger)
         assert(! solver.hasFinished)
         assert(! solver.wasInterrupted)
-        assertEq(solver.call.solverName, result.solverName)
+        assertEq(solver.call.get.solverName, result.solverName)
         assert(solver.hasFinished)
         assert(! solver.wasInterrupted)
         assertEx(solver.resume, classOf[IllegalArgumentException])
@@ -115,7 +115,9 @@ class SolverTest extends UnitTest {
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = if (i == 8) Zero else One)
         val solvers = results.map(result => new GoodSolver(result, 1))
         val solver = new ParallelSolver(solvers, 4, "Test", logger)
-        val result = solver.call
+        val maybeResult = solver.call
+        assert(maybeResult.isDefined)
+        val result = maybeResult.get
         assertEq(result.solverName, "8")
         assertEq(result.costsOfBestProposal, Zero)
         assert(result.isSolution)
@@ -138,7 +140,9 @@ class SolverTest extends UnitTest {
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = One)
         val solvers = results.map(result => new GoodSolver(result, 0))
         val solver = new ParallelSolver(solvers, 4, "Test", logger)
-        val result = solver.call
+        val maybeResult = solver.call
+        assert(maybeResult.isDefined)
+        val result = maybeResult.get
         assertEq(result.costsOfBestProposal, One)
         assert(! result.isSolution)
         for (solver <- solvers) {
@@ -182,11 +186,13 @@ class SolverTest extends UnitTest {
         }
         val solvers = results.map(result => new OnDemandGeneratedSolver(new GoodSolverGenerator(result), logger))
         val solver = new ParallelSolver(solvers, 4, "Test", logger)
-        assertEq(new TimeboxedSolver(solver, 0, logger).call, null)
+        assertEq(new TimeboxedSolver(solver, 0, logger).call, None)
         assert(solver.wasInterrupted)
         assert(! solver.hasFinished)
         solver.resume
-        val result = new TimeboxedSolver(solver, 8, logger).call
+        val maybeResult = new TimeboxedSolver(solver, 8, logger).call
+        assert(maybeResult.isDefined)
+        val result = maybeResult.get
         assertEq(result.solverName, "8")
         assertEq(result.costsOfBestProposal, Zero)
         assert(result.isSolution)

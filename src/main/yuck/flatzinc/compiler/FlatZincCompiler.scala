@@ -45,7 +45,7 @@ final class FlatZincCompiler
         logger.loggg("Search variables: %s".format(cc.space.searchVariables))
         val vars = (for ((key, x) <- cc.vars) yield key.toString -> x).toMap
         val arrays = (for ((key, array) <- cc.arrays) yield key.toString -> array).toMap
-        new FlatZincCompilerResult(cc.ast, cc.space, vars, arrays, cc.objective, cc.neighbourhood)
+        new FlatZincCompilerResult(cc.ast, cc.space, vars, arrays, cc.objective, cc.maybeNeighbourhood)
     }
 
     private def assignValuesToDanglingVariables {

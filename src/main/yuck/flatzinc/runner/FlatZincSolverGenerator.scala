@@ -27,7 +27,7 @@ final class FlatZincSolverGenerator
         extends Solver
         with StandardSolverInterruptionSupport
     {
-        require(compilerResult.neighbourhood == null)
+        require(compilerResult.maybeNeighbourhood.isEmpty)
         private val space = compilerResult.space
         private val objective = compilerResult.objective
         private var finished = false
@@ -35,11 +35,11 @@ final class FlatZincSolverGenerator
         override def hasFinished = finished
         override def call = {
             require(! finished)
-            val result = new Result(name, space, objective, compilerResult)
+            val result = new Result(name, space, objective, Some(compilerResult))
             result.bestProposal = space.searchState
             result.costsOfBestProposal = objective.costs(result.bestProposal)
             finished = true
-            result
+            Some(result)
         }
     }
 
@@ -55,7 +55,7 @@ final class FlatZincSolverGenerator
             // The initializer will respect existing value assignments.
             val initializer = new RandomInitializer(space, randomGenerator.nextGen)
             initializer.run
-            if (compilerResult.neighbourhood == null) {
+            if (compilerResult.maybeNeighbourhood.isEmpty) {
                 new SolverForProblemWithoutNeighbourhood(solverName, compilerResult)
             } else {
                 val schedule = new StandardAnnealingScheduleFactory(space.searchVariables.size, randomGenerator.nextGen).call
@@ -63,12 +63,12 @@ final class FlatZincSolverGenerator
                     solverName,
                     space,
                     schedule,
-                    compilerResult.neighbourhood,
+                    compilerResult.maybeNeighbourhood.get,
                     randomGenerator.nextGen,
                     compilerResult.objective,
                     cfg.maybeRoundLimit,
-                    monitor,
-                    compilerResult,
+                    Some(monitor),
+                    Some(compilerResult),
                     cfg.checkConstraintPropagation)
             }
         }

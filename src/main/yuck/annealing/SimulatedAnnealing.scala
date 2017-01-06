@@ -21,8 +21,8 @@ final class SimulatedAnnealing(
     randomGenerator: RandomGenerator,
     objective: AnyObjective,
     maybeRoundLimit: Option[Int],
-    monitor: AnnealingMonitor,
-    userData: Object,
+    maybeMonitor: Option[AnnealingMonitor],
+    maybeUserData: Option[Object],
     checkConstraintPropagation: Boolean)
     extends Solver
     with StandardSolverInterruptionSupport
@@ -37,7 +37,7 @@ final class SimulatedAnnealing(
     private val currentProposal = space.searchState
     private var proposalBeforeSuspension: SearchState = null
     private var costsOfCurrentProposal: Costs = null
-    private val result = new AnnealingResult(name, space, objective, userData)
+    private val result = new AnnealingResult(name, space, objective, maybeUserData)
 
     {
         space.initialize
@@ -54,21 +54,22 @@ final class SimulatedAnnealing(
 
     override def call  =
         if (hasFinished) {
-            if (roundCount == 0 && monitor != null) {
+            if (roundCount == 0 && maybeMonitor.isDefined) {
                 // The given, initial assignment is good enough and hence no search is necessary.
                 // In this case, notify the monitor about the initial assignment.
+                val monitor = maybeMonitor.get
                 monitor.onSolverLaunched(result)
                 monitor.onBetterProposal(result)
                 monitor.onSolverFinished(result)
             }
-            result
+            Some(result)
         }
-        else if (proposalBeforeSuspension != null) continue
-        else start
+        else if (proposalBeforeSuspension != null) Some(continue)
+        else Some(start)
 
     private def start: AnnealingResult = {
-        if (monitor != null) {
-            monitor.onSolverLaunched(result)
+        if (maybeMonitor.isDefined) {
+            maybeMonitor.get.onSolverLaunched(result)
         }
         anneal
         result
@@ -77,8 +78,8 @@ final class SimulatedAnnealing(
     private def continue: AnnealingResult = {
         space.initialize(proposalBeforeSuspension)
         costsOfCurrentProposal = objective.costs(currentProposal)
-        if (monitor != null) {
-            monitor.onSolverResumed(result)
+        if (maybeMonitor.isDefined) {
+            maybeMonitor.get.onSolverResumed(result)
         }
         anneal
         result
@@ -106,11 +107,11 @@ final class SimulatedAnnealing(
         }
 
         // public relations
-        if (monitor != null) {
+        if (maybeMonitor.isDefined) {
             if (hasFinished) {
-                monitor.onSolverFinished(result)
+                maybeMonitor.get.onSolverFinished(result)
             } else {
-                monitor.onSolverSuspended(result)
+                maybeMonitor.get.onSolverSuspended(result)
             }
         }
 
@@ -124,14 +125,14 @@ final class SimulatedAnnealing(
                 if (schedule.temperature <= temperature) {
                     if (heatingPhase) {
                         heatingPhase = false
-                        if (monitor != null) {
-                            monitor.onReheatingFinished(result)
+                        if (maybeMonitor.isDefined) {
+                            maybeMonitor.get.onReheatingFinished(result)
                         }
                     }
                 } else if (! heatingPhase) {
                     heatingPhase = true
-                    if (monitor != null) {
-                        monitor.onReheatingStarted(result)
+                    if (maybeMonitor.isDefined) {
+                        maybeMonitor.get.onReheatingStarted(result)
                     }
                 }
             }
@@ -170,8 +171,8 @@ final class SimulatedAnnealing(
                 ! objective.isLowerThan(
                     roundLog.costsOfBestProposal,
                     result.roundLogs.apply(roundCount - 1).costsOfBestProposal)
-            if (monitor != null) {
-                monitor.onNextRound(result)
+            if (maybeMonitor.isDefined) {
+                maybeMonitor.get.onNextRound(result)
             }
             schedule.nextRound(roundLog)
             roundCount += 1
@@ -200,8 +201,8 @@ final class SimulatedAnnealing(
                         result.costsOfBestProposal = costsOfCurrentProposal
                         result.indexOfRoundWithBestProposal = result.roundLogs.length - 1
                         result.bestProposal = currentProposal.clone
-                        if (monitor != null) {
-                            monitor.onBetterProposal(result)
+                        if (maybeMonitor.isDefined) {
+                            maybeMonitor.get.onBetterProposal(result)
                         }
                     }
                 }

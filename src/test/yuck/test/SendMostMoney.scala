@@ -78,8 +78,8 @@ class SendMostMoney extends IntegrationTest {
                              new MaximizationObjective(rhs, new IntegerValue(10876))),
                         false),
                     None,
-                    null,
-                    new ModelData(LHS, RHS),
+                    None,
+                    Some(new ModelData(LHS, RHS)),
                     false)
             solver
         }
@@ -92,9 +92,11 @@ class SendMostMoney extends IntegrationTest {
             (1 to DEFAULT_RESTART_LIMIT).toList.map(
                 i => new OnDemandGeneratedSolver(new SendMostMoneyGenerator(i, randomGenerator.nextInt), logger))
         val solver = new ParallelSolver(solvers, Runtime.getRuntime.availableProcessors, "SendMostMoney", logger)
-        val result = solver.call
+        val maybeResult = solver.call
+        assert(maybeResult.isDefined)
+        val result = maybeResult.get
         if (result.isSolution) {
-            val modelData = result.userData.asInstanceOf[ModelData]
+            val modelData = result.maybeUserData.get.asInstanceOf[ModelData]
             assertEq(
                 modelData.LHS. /:(0){case (y, (a, x)) => y + a * result.bestProposal.value(x).value},
                 modelData.RHS. /:(0){case (y, (a, x)) => y + a * result.bestProposal.value(x).value})

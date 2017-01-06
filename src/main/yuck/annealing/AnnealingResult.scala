@@ -12,8 +12,8 @@ final class AnnealingResult(
     solverName: String,
     space: Space,
     objective: AnyObjective,
-    userData: Object)
-    extends Result(solverName, space, objective, userData)
+    maybeUserData: Option[Object])
+    extends Result(solverName, space, objective, maybeUserData)
 {
     override def toString = roundLogs.map(_.toString).mkString("\n")
     var costsOfInitialProposal: Costs = null

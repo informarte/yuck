@@ -20,7 +20,7 @@ class MiniZincSolutionVerifier(
     extends Callable[Boolean]
 {
 
-    val compilerResult = result.userData.asInstanceOf[FlatZincCompilerResult]
+    private val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
 
     override def call = checkExpectations || consultMiniZinc
 
@@ -177,7 +177,6 @@ class MiniZincSolutionVerifier(
     // Notice that in some problems (like jobshop2x2 and perfsq), the objective variable was not declared
     // as output variable.
     private def findOutputVariableName(x: AnyVariable): Option[String] = {
-        val compilerResult = result.userData.asInstanceOf[FlatZincCompilerResult]
         var sortedMap = new immutable.TreeMap[String, String]() // id -> value
         var maybeName: Option[String] = None
         for (decl <- compilerResult.ast.varDecls if maybeName.isEmpty) {

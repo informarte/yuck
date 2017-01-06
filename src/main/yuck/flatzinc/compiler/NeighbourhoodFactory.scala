@@ -38,10 +38,10 @@ class NeighbourhoodFactory
     protected val variablesToIgnore = new mutable.HashSet[AnyVariable]
 
     override def run {
-        cc.neighbourhood = createNeighbourhood
+        cc.maybeNeighbourhood = createNeighbourhood
     }
 
-    private final def createNeighbourhood: Neighbourhood = {
+    private final def createNeighbourhood: Option[Neighbourhood] = {
         val maybeNeighbourhood0 =
             logger.withTimedLogScope("Creating a neighbourhood for solving hard constraints") {
                 createNeighbourhoodForSatisfactionGoal(cc.costVar)
@@ -60,18 +60,19 @@ class NeighbourhoodFactory
                     }
                 stackNeighbourhoods(cc.costVar, maybeNeighbourhood0, a, maybeNeighbourhood1)
             case _ =>
-                maybeNeighbourhood0.getOrElse(null)
+                maybeNeighbourhood0
         }
     }
 
     private def stackNeighbourhoods(
         costs0: Variable[IntegerValue], maybeNeighbourhood0: Option[Neighbourhood],
-        costs1: Variable[IntegerValue], maybeNeighbourhood1: Option[Neighbourhood]): Neighbourhood =
+        costs1: Variable[IntegerValue], maybeNeighbourhood1: Option[Neighbourhood]):
+        Option[Neighbourhood] =
     {
         (maybeNeighbourhood0, maybeNeighbourhood1) match {
-            case (None, None) => null
-            case (Some(neighbourhood0), None) => neighbourhood0
-            case (None, Some(neighbourhood1)) => neighbourhood1
+            case (None, None) => None
+            case (Some(neighbourhood0), None) => Some(neighbourhood0)
+            case (None, Some(neighbourhood1)) => Some(neighbourhood1)
             case (Some(neighbourhood0), Some(neighbourhood1)) =>
                 val List(objective0, objective1) = cc.objective.asInstanceOf[HierarchicalObjective].objectives
                 val weight0 = createNonNegativeChannel[IntegerValue]
@@ -82,8 +83,8 @@ class NeighbourhoodFactory
                 space.post(
                     new DistributionMaintainer(
                         nextConstraintId, null, List(weight0, weight1).toIndexedSeq, hotSpotDistribution))
-                new NeighbourhoodCollection(
-                    immutable.IndexedSeq(neighbourhood0, neighbourhood1), randomGenerator, hotSpotDistribution, 0)
+                Some(new NeighbourhoodCollection(
+                        immutable.IndexedSeq(neighbourhood0, neighbourhood1), randomGenerator, Some(hotSpotDistribution), 0))
         }
     }
 
@@ -133,7 +134,7 @@ class NeighbourhoodFactory
             None
         } else {
             logger.logg("Adding a neighbourhood over %s".format(xs))
-            Some(new RandomReassignmentGenerator(space, xs.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, null, 0))
+            Some(new RandomReassignmentGenerator(space, xs.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, None, 0))
         }
     }
 

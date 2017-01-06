@@ -84,8 +84,8 @@ object FlatZincRunner {
         val ast = FlatZincParser.parse(reader)
         val monitor = new FlatZincSolverMonitor
         val solver = new FlatZincSolverGenerator(ast, cfg, logger, monitor).call
-        val result = solver.call
-        if (result == null || ! result.isSolution) {
+        val maybeResult = solver.call
+        if (maybeResult.isEmpty || ! maybeResult.get.isSolution) {
             println(FLATZINC_NO_SOLUTION_FOUND_INDICATOR)
         }
     }

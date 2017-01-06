@@ -88,12 +88,14 @@ class SendMoreMoney extends IntegrationTest {
                 randomGenerator.nextGen,
                 new MinimizationObjective(costs, Zero),
                 None,
-                null,
-                new ModelData(LHS, RHS),
+                None,
+                Some(new ModelData(LHS, RHS)),
                 false)
-        val result = solver.call
+        val maybeResult = solver.call
+        assert(maybeResult.isDefined)
+        val result = maybeResult.get
         if (result.isSolution) {
-            val modelData = result.userData.asInstanceOf[ModelData]
+            val modelData = result.maybeUserData.get.asInstanceOf[ModelData]
             assertEq(
                 modelData.LHS. /:(0){case (y, (a, x)) => y + a * space.searchState.value(x).value},
                 modelData.RHS. /:(0){case (y, (a, x)) => y + a * space.searchState.value(x).value})

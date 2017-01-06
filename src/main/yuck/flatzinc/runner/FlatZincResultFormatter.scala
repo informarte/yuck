@@ -14,7 +14,7 @@ import yuck.flatzinc.compiler.FlatZincCompilerResult
  */
 final class FlatZincResultFormatter(result: Result) extends Callable[Seq[String]] {
 
-    private val compilerResult = result.userData.asInstanceOf[FlatZincCompilerResult]
+    private val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
 
     override def call = {
         var sortedMap = new immutable.TreeMap[String, String]() // id -> value

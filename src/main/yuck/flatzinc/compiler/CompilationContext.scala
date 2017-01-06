@@ -19,7 +19,7 @@ final class CompilationContext(
     val declaredVars = new mutable.HashSet[Expr]
     val equalVars = new mutable.HashMap[Expr, mutable.TreeSet[Expr] /* head = representative */]
     val impliedConstraints = new mutable.HashSet[yuck.flatzinc.ast.Constraint]
-    val space = new Space(logger)
+    val space = new Space(Some(logger))
     val consts = new mutable.HashMap[Expr, AnyVariable] // holds unnamed inline constants
     val arrayConsts = new mutable.HashMap[Expr, immutable.IndexedSeq[AnyVariable]] // holds unnamed inline arrays
     val vars = new mutable.HashMap[Expr, AnyVariable] // also holds named parameters
@@ -30,5 +30,5 @@ final class CompilationContext(
     val costVars = new mutable.ArrayBuffer[Variable[IntegerValue]]
     var costVar: Variable[IntegerValue] = null
     var objective: AnyObjective = null
-    var neighbourhood: Neighbourhood = null
+    var maybeNeighbourhood: Option[Neighbourhood] = null
 }

@@ -82,11 +82,12 @@ class MiniZincTestSuite extends IntegrationTest {
             task.solverConfiguration.copy(
                 maybeOptimum = task.maybeOptimum,
                 maybeQualityTolerance = task.maybeQualityTolerance)
-        val result =
+        val maybeResult =
             using(new StandardAnnealingMonitor(logger))(
                 monitor => new FlatZincSolverGenerator(ast, cfg, logger, monitor).call.call
             )
-        Assert.assertNotNull("Solver returned no proposal", result)
+        Assert.assertTrue("Solver returned no proposal", maybeResult.isDefined)
+        val result = maybeResult.get
         logger.log("Quality of best proposal: %s".format(result.costsOfBestProposal))
         logger.log("Best proposal was produced by: %s".format(result.solverName))
         if (result.isInstanceOf[AnnealingResult]) {

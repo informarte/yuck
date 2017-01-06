@@ -9,7 +9,7 @@ class Result(
     val solverName: String,
     val space: Space,
     val objective: AnyObjective,
-    val userData: Object)
+    val maybeUserData: Option[Object])
 {
     var bestProposal: SearchState = null
     var costsOfBestProposal: Costs = null

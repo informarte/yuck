@@ -15,5 +15,5 @@ final class FlatZincCompilerResult(
     val vars: immutable.Map[String, AnyVariable], // also holds named parameters
     val arrays: immutable.Map[String, immutable.IndexedSeq[AnyVariable]],
     val objective: AnyObjective,
-    val neighbourhood: Neighbourhood
+    val maybeNeighbourhood: Option[Neighbourhood]
 )

@@ -22,7 +22,7 @@ import yuck.util.logging.LazyLogger
  * @author Michael Marte
  */
 final class Space(
-    logger: LazyLogger = null)
+    maybeLogger: Option[LazyLogger] = None)
 {
 
     private val constraints = new mutable.ArrayBuffer[Constraint] // maintained by post
@@ -236,8 +236,8 @@ final class Space(
      * Throws when adding the constraint would create a cycle in the network.
      */
     def post(newcomer: Constraint): Space = {
-        if (logger != null) {
-            logger.loggg("Adding %s".format(newcomer))
+        if (maybeLogger.isDefined) {
+            maybeLogger.get.loggg("Adding %s".format(newcomer))
         }
         require(
             ! newcomer.outVariables.exists(outVariables.contains(_)),

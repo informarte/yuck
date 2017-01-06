@@ -95,7 +95,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                         logger.logg("%s contributes a neighbourhood over %s".format(constraint, xs))
                         val neighbourhood =
                             new RandomReassignmentGenerator(
-                                space, xs.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, null,
+                                space, xs.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, None,
                                 cfg.probabilityOfFairChoiceInPercent)
                         Some(OtherNeighbourhood(neighbourhood))
                     }
@@ -122,7 +122,8 @@ final class ConstraintDrivenNeighbourhoodFactory
                         None
                     } else {
                         logger.logg("Adding a neighbourhood over %s".format(ax.x))
-                        Some(OtherNeighbourhood(new SimpleRandomReassignmentGenerator(space, immutable.IndexedSeq(ax.x), randomGenerator)))
+                        Some(OtherNeighbourhood(
+                                new SimpleRandomReassignmentGenerator(space, immutable.IndexedSeq(ax.x), randomGenerator)))
                     }
                 )
             }
@@ -149,7 +150,8 @@ final class ConstraintDrivenNeighbourhoodFactory
                     space.post(new DistributionMaintainer(nextConstraintId, null, weights, hotSpotDistribution))
                     neighbourhoods +=
                         new NeighbourhoodCollection(
-                            otherNeighbourhoods, randomGenerator, hotSpotDistribution, cfg.probabilityOfFairChoiceInPercent)
+                            otherNeighbourhoods, randomGenerator, Some(hotSpotDistribution),
+                            cfg.probabilityOfFairChoiceInPercent)
                 }
             }
             if (neighbourhoods.size < 2) {
@@ -157,7 +159,9 @@ final class ConstraintDrivenNeighbourhoodFactory
                 .headOption
                 .map(if (otherWeightedNeighbourhoods.isEmpty) ImplicitConstraintMaintainer else OtherNeighbourhood)
             } else {
-                Some(OtherNeighbourhood(new NeighbourhoodCollection(neighbourhoods.toIndexedSeq, randomGenerator, null, cfg.probabilityOfFairChoiceInPercent)))
+                Some(OtherNeighbourhood(
+                        new NeighbourhoodCollection(
+                            neighbourhoods.toIndexedSeq, randomGenerator, None, cfg.probabilityOfFairChoiceInPercent)))
             }
         }
     }
