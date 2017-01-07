@@ -18,7 +18,7 @@ class Queens extends IntegrationTest {
     private final class QueensGenerator(n: Int, i: Int, seed: Int) extends SolverGenerator {
         override def solverName = "SA-%d".format(i)
         override def call = {
-            val space = new Space
+            val space = new Space(logger)
             val d = new IntegerDomain(Zero, new IntegerValue(n - 1))
             var rows = new Array[Variable[IntegerValue]](n)
             var rowsMinusI = new Array[Variable[IntegerValue]](n)
@@ -68,7 +68,7 @@ class Queens extends IntegrationTest {
     }
 
     private def queens(n: Int) {
-        val space = new Space
+        val space = new Space(logger)
         val randomGenerator = new JavaRandomGenerator(29071972)
         val solvers =
             (1 to DEFAULT_RESTART_LIMIT).map(

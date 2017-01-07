@@ -42,7 +42,18 @@ final class FlatZincCompiler
         run(new ObjectiveFactory(cc, randomGenerator.nextGen))
         run(new ConstraintDrivenNeighbourhoodFactory(cc, randomGenerator.nextGen))
         assignValuesToDanglingVariables
-        logger.loggg("Search variables: %s".format(cc.space.searchVariables))
+        logger.criticalSection {
+            logger.withLogScope("Yuck model statistics") {
+                logger.logg("Search variables: %s".format(cc.space.searchVariables))
+                logger.log("%d search variables".format(cc.space.searchVariables.size))
+                logger.log("%d channel variables".format(cc.space.channelVariables.size))
+                val danglingVariables = cc.vars.valuesIterator.toSet.filter(cc.space.isDanglingVariable(_))
+                logger.logg("Dangling variables: %s".format(danglingVariables))
+                logger.log("%d dangling variables".format(danglingVariables.size))
+                logger.log("%d constraints".format(cc.space.numberOfConstraints))
+                logger.log("%d implied constraints".format(cc.space.numberOfImpliedConstraints))
+            }
+        }
         val vars = (for ((key, x) <- cc.vars) yield key.toString -> x).toMap
         val arrays = (for ((key, array) <- cc.arrays) yield key.toString -> array).toMap
         new FlatZincCompilerResult(cc.ast, cc.space, vars, arrays, cc.objective, cc.maybeNeighbourhood)

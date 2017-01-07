@@ -96,7 +96,7 @@ class DistributionTest(df: Int => Distribution) extends UnitTest {
     @Test
     def testDistributionMaintainer {
         val d = df(3)
-        val space = new Space
+        val space = new Space(logger)
         val vr = new IntegerDomain(Zero, new IntegerValue(100))
         val x1 = space.createVariable("x1", vr)
         val x2 = space.createVariable("x2", vr)

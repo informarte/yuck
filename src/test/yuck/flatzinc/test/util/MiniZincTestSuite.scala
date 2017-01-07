@@ -70,13 +70,11 @@ class MiniZincTestSuite extends IntegrationTest {
         val file = new java.io.File(fznFilePath)
         val reader = new java.io.InputStreamReader(new java.io.FileInputStream(file))
         val ast = logger.withTimedLogScope("Parsing FlatZinc file")(FlatZincParser.parse(reader))
-        logger.withRootLogLevel(yuck.util.logging.FineLogLevel) {
-            logger.withLogScope("AST statistics") {
-                logger.log("%d predicate declarations".format(ast.predDecls.size))
-                logger.log("%d parameter declarations".format(ast.paramDecls.size))
-                logger.log("%d variable declarations".format(ast.varDecls.size))
-                logger.log("%d constraints".format(ast.constraints.size))
-            }
+        logger.withLogScope("FlatZinc model statistics") {
+            logger.log("%d predicate declarations".format(ast.predDecls.size))
+            logger.log("%d parameter declarations".format(ast.paramDecls.size))
+            logger.log("%d variable declarations".format(ast.varDecls.size))
+            logger.log("%d constraints".format(ast.constraints.size))
         }
         val cfg =
             task.solverConfiguration.copy(
@@ -90,19 +88,6 @@ class MiniZincTestSuite extends IntegrationTest {
         val result = maybeResult.get
         logger.log("Quality of best proposal: %s".format(result.costsOfBestProposal))
         logger.log("Best proposal was produced by: %s".format(result.solverName))
-        if (result.isInstanceOf[AnnealingResult]) {
-            logger.withLogScope("%s statistics".format(result.solverName)) {
-                val annealingResult = result.asInstanceOf[AnnealingResult]
-                logger.log("Number of rounds: %d".format(annealingResult.roundLogs.size))
-                if (annealingResult.roundLogs.size > 0) {
-                    logger.log("Moves per second: %d".format(annealingResult.movesPerSecond))
-                    logger.log("Consultations per second: %d".format(annealingResult.consultationsPerSecond))
-                    logger.log("Consultations per move: %d".format(annealingResult.consultationsPerMove))
-                    logger.log("Commitments per second: %d".format(annealingResult.commitmentsPerSecond))
-                    logger.log("Commitments per move: %d".format(annealingResult.commitmentsPerMove))
-                }
-            }
-        }
         if (! result.isSolution) {
             logger.withRootLogLevel(yuck.util.logging.FinerLogLevel) {
                 logger.withLogScope("Violated constraints") {

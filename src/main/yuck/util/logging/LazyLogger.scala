@@ -1,5 +1,6 @@
 package yuck.util.logging
 
+import java.util.concurrent.locks.ReentrantLock
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -28,6 +29,8 @@ import yuck.util.arm.scoped
  * @author Michael Marte
  */
 final class LazyLogger(logger: Logger) {
+
+    private val lock = new ReentrantLock
 
     private var thresholdLogLevel: LogLevel = InfoLogLevel
 
@@ -155,6 +158,14 @@ final class LazyLogger(logger: Logger) {
         scoped(new TransientLogLevelReduction(this, InfoLogLevel.intValue - rootLogLevel.intValue)) {
             operation
         }
+    }
+
+    /** Provides exclusive access to this logger. */
+    def criticalSection
+        [Result]
+        (operation: => Result): Result =
+    {
+        yuck.util.arm.criticalSection(lock)(operation)
     }
 
 }

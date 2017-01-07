@@ -17,7 +17,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testAlldistinct {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -50,7 +50,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testAlldistinctWithAVariableOccuringTwice {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -92,7 +92,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testAlldistinctWithImplicitSolving {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Two)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -128,7 +128,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testAlldistinctExceptZero {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -183,7 +183,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testAlldistinctExceptZeroWithAVariableOccuringTwice {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -247,7 +247,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testElement {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -294,7 +294,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testCountConst {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -325,7 +325,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testCountVar {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -371,7 +371,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testMinimum {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -415,7 +415,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testMaximum {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -459,7 +459,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testReification {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val x = space.createVariable("x", new IntegerDomain(Zero, Nine))
         val b = space.createVariable("b", new BooleanDomain(true, true))
@@ -487,7 +487,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testPlus {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -521,7 +521,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testLinearCombination {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, new IntegerValue(100))
         val x1 = space.createVariable("x1", d)
         val x2 = space.createVariable("x2", d)
@@ -552,7 +552,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testSum {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, new IntegerValue(100))
         val x1 = space.createVariable("x1", d)
         val x2 = space.createVariable("x2", d)
@@ -580,7 +580,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testCumulative {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val s0 = space.createVariable("s0", d)
         val d0 = space.createVariable("d0", d)
@@ -667,7 +667,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testIntegerTable1 {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -722,7 +722,7 @@ class ConstraintTest extends UnitTest {
     // deletion of infeasible table rows.
     @Test
     def testIntegerTable2 {
-        val space = new Space
+        val space = new Space(logger)
         val s = space.createVariable("s", new IntegerDomain(Two, Five))
         val t = space.createVariable("t", new IntegerDomain(Two))
         val costs = space.createVariable("costs", NonNegativeIntegerDomain)
@@ -750,7 +750,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testLexLess {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -801,7 +801,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testLexLessEq {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -852,7 +852,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testInverseWithIdenticalOffsets {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(One, Three)
         val f1 = space.createVariable("f1", d)
         val f2 = space.createVariable("f2", d)
@@ -971,7 +971,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testInverseWithDifferentOffsets {
-        val space = new Space
+        val space = new Space(logger)
         val fd = new IntegerDomain(Zero, Two)
         val gd = new IntegerDomain(One, Three)
         val f1 = space.createVariable("f1", fd)
@@ -1043,7 +1043,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testRegular {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(One, Two)
         val xs = for (i <- 1 to 10) yield space.createVariable("x[%d]".format(i), d)
         val Q = 6
@@ -1115,7 +1115,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testNumberOfDistinctValues {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(One, Two)
         val xs = for (i <- 1 to 3) yield space.createVariable("x[%d]".format(i), d)
         val m = space.createVariable("m", NonNegativeIntegerDomain)
@@ -1165,7 +1165,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testCostsOr {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -1220,7 +1220,7 @@ class ConstraintTest extends UnitTest {
 
     @Test
     def testBinPacking {
-        val space = new Space
+        val space = new Space(logger)
         // We start with 1 because we want to test the handling of a bin range that does not start at 0.
         val binDomain = new IntegerDomain(One, Three)
         val items =

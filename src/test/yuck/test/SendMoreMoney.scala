@@ -36,7 +36,7 @@ class SendMoreMoney extends IntegrationTest {
         val RHS: List[(Int, Variable[IntegerValue])])
 
     def sendMoreMoney(seed: Int): Boolean = {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val d1 = new IntegerDomain(One, Nine)
         val S = space.createVariable("S", d1)

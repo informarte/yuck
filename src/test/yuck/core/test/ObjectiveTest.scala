@@ -14,7 +14,7 @@ class ObjectiveTest extends UnitTest {
 
     @Test
     def testMinimizationObjective {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val x = space.createVariable("x", d)
         val a = new Assignment
@@ -42,7 +42,7 @@ class ObjectiveTest extends UnitTest {
 
     @Test
     def testMaximizationObjective {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val x = space.createVariable("x", d)
         val a = new Assignment
@@ -68,7 +68,7 @@ class ObjectiveTest extends UnitTest {
 
     @Test
     def testHierarchicalObjective {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val x = space.createVariable("x", d)
         val y = space.createVariable("y", d)

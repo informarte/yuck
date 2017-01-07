@@ -49,7 +49,10 @@ final class StandardAnnealingMonitor(
         if (result.roundLogs.isEmpty) {
             logger.log("Suspended solver before first round")
         } else {
-            logger.log("Suspended solver in round %d".format(result.roundLogs.size - 1))
+            logger.criticalSection {
+                logger.log("Suspended solver in round %d".format(result.roundLogs.size - 1))
+                logStatistics(result)
+            }
         }
     }
 
@@ -68,25 +71,33 @@ final class StandardAnnealingMonitor(
         require(solverState.get == SolverIsRunning)
         close
         solverState.set(ThreadIsIdle)
-        logger.log(
-            "Solver finished with proposal of quality %s in round %d".format(
-                result.costsOfBestProposal, result.roundLogs.size - 1))
+        logger.criticalSection {
+            logger.log(
+                "Solver finished with proposal of quality %s in round %d".format(
+                    result.costsOfBestProposal, result.roundLogs.size - 1))
+            logStatistics(result)
+        }
     }
 
     override def onNextRound(result: AnnealingResult) {
-        logger.logg("%s".format(result.roundLogs.last.toString))
+        logger.loggg("%s".format(result.roundLogs.last.toString))
     }
 
     override def onBetterProposal(result: AnnealingResult) {
         synchronized {
-            if (result.isSolution &&
-                (costsOfBestSolution == null ||
-                 result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestSolution)))
-            {
-                costsOfBestSolution = result.costsOfBestProposal
-                logger.log(
-                    "Improved solution quality to %s in round %d".format(
-                        costsOfBestSolution, result.roundLogs.size - 1))
+            if (result.isSolution) {
+                if (costsOfBestSolution == null ||
+                    result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestSolution))
+                {
+                    costsOfBestSolution = result.costsOfBestProposal
+                    logger.log(
+                        "Improved global solution quality to %s in round %d".format(
+                            costsOfBestSolution, result.roundLogs.size - 1))
+                } else {
+                    logger.logg(
+                        "Improved local solution quality to %s in round %d".format(
+                            result.costsOfBestProposal, result.roundLogs.size - 1))
+                }
             }
         }
     }
@@ -103,6 +114,19 @@ final class StandardAnnealingMonitor(
         logger.logg(
             "Reheating finished after round %d with uphill acceptance ratio %1.6f at temperature %3.6f".format(
                 result.roundLogs.size - 1, roundLog.uphillAcceptanceRatio, roundLog.temperature))
+    }
+
+    private def logStatistics(result: AnnealingResult) {
+        logger.withLogScope("Solver statistics".format(result.solverName)) {
+            logger.log("Number of rounds: %d".format(result.roundLogs.size))
+            if (result.roundLogs.size > 0) {
+                logger.log("Moves per second: %d".format(result.movesPerSecond))
+                logger.log("Consultations per second: %d".format(result.consultationsPerSecond))
+                logger.log("Consultations per move: %d".format(result.consultationsPerMove))
+                logger.log("Commitments per second: %d".format(result.commitmentsPerSecond))
+                logger.log("Commitments per move: %d".format(result.commitmentsPerMove))
+            }
+        }
     }
 
 }

@@ -22,7 +22,7 @@ class SendMostMoney extends IntegrationTest {
     private final class SendMostMoneyGenerator(i: Int, seed: Int) extends SolverGenerator {
         override def solverName = "SA-%d".format(i)
         override def call = {
-            val space = new Space
+            val space = new Space(logger)
             val d = new IntegerDomain(Zero, Nine)
             val d1 = new IntegerDomain(One, Nine)
             val S = space.createVariable("S", d1)

@@ -21,9 +21,7 @@ import yuck.util.logging.LazyLogger
  *
  * @author Michael Marte
  */
-final class Space(
-    maybeLogger: Option[LazyLogger] = None)
-{
+final class Space(logger: LazyLogger) {
 
     private val constraints = new mutable.ArrayBuffer[Constraint] // maintained by post
     private val inVariables = new mutable.HashSet[AnyVariable] // maintained by post
@@ -57,7 +55,7 @@ final class Space(
                 }
             }
         }
-        constraintOrder = new Array[Int](constraints.map(_.id).max.rawId + 1)
+        constraintOrder = new Array[Int](constraints.toIterator.map(_.id).max.rawId + 1)
         constraintNetwork.topologicalSort match {
             case Left(witness) =>
                 assert(false, "Input graph has cycle %s".format(witness.findCycle.get))
@@ -236,9 +234,7 @@ final class Space(
      * Throws when adding the constraint would create a cycle in the network.
      */
     def post(newcomer: Constraint): Space = {
-        if (maybeLogger.isDefined) {
-            maybeLogger.get.loggg("Adding %s".format(newcomer))
-        }
+        logger.loggg("Adding %s".format(newcomer))
         require(
             ! newcomer.outVariables.exists(outVariables.contains(_)),
             "%s shares out-variables with the following constraints:\n%s".format(
@@ -263,6 +259,9 @@ final class Space(
         this
     }
 
+    /** Returns the number of constraints that were posted. */
+    def numberOfConstraints: Int = constraints.size
+
     /**
      * Marks the given constraint as implied;
      * implied constraints will not be initialized and they will never be consulted.
@@ -274,6 +273,9 @@ final class Space(
         this
     }
 
+    /** Returns the number of constraints that were posted and later marked as implied. */
+    def numberOfImpliedConstraints: Int = impliedConstraints.size
+ 
     /**
      * Initializes the constraint network for local search.
      *

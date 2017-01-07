@@ -59,6 +59,7 @@ final class FlatZincSolverGenerator
                 new SolverForProblemWithoutNeighbourhood(solverName, compilerResult)
             } else {
                 val schedule = new StandardAnnealingScheduleFactory(space.searchVariables.size, randomGenerator.nextGen).call
+                logger.log("Start temperature: %s".format(schedule.temperature))
                 new SimulatedAnnealing(
                     solverName,
                     space,

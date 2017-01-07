@@ -31,7 +31,7 @@ class SpaceTest extends YuckTest {
          *
          * with variables s, ..., z and constraint c, d, and e.
          */
-        val space = new Space
+        val space = new Space(logger)
         def domain(name: Char) = if (name =='v') ZeroIntegerDomain else UnboundedIntegerDomain
         val vars @ IndexedSeq(s, t, u, v, w, x, y, z): IndexedSeq[AnyVariable] =
             for (name <- 's' to 'z') yield space.createVariable(name.toString, domain(name))
@@ -98,7 +98,7 @@ class SpaceTest extends YuckTest {
 
     @Test
     def testCycleDetection1 {
-        val space = new Space
+        val space = new Space(logger)
         val x = space.createVariable("x", UnboundedIntegerDomain)
         val c = new DummyConstraint(space.constraintIdFactory.nextId, List(x, x), List(x))
         assert(space.wouldIntroduceCycle(c))
@@ -107,7 +107,7 @@ class SpaceTest extends YuckTest {
 
     @Test
     def testCycleDetection2 {
-        val space = new Space
+        val space = new Space(logger)
         val x = space.createVariable("x", UnboundedIntegerDomain)
         val y = space.createVariable("y", UnboundedIntegerDomain)
         val z = space.createVariable("z", UnboundedIntegerDomain)

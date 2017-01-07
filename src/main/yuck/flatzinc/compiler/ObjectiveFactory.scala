@@ -28,7 +28,7 @@ final class ObjectiveFactory
                     .orElse(cc.domains(a).asInstanceOf[IntegerDomain].maybeLb.map(_.value))
                     .getOrElse(Int.MinValue)
                     .+(cfg.maybeQualityTolerance.getOrElse(0))
-                cc.logger.log("Target objective value for minimization is %s".format(lb))
+                cc.logger.log("Target objective value for minimization: %s".format(lb))
                 cc.objective =
                     new HierarchicalObjective(
                         List(cc.objective, new MinimizationObjective[IntegerValue](a, IntegerValue.get(lb))),
@@ -39,7 +39,7 @@ final class ObjectiveFactory
                     .orElse(cc.domains(a).asInstanceOf[IntegerDomain].maybeUb.map(_.value))
                     .getOrElse(Int.MaxValue)
                     .-(cfg.maybeQualityTolerance.getOrElse(0))
-                cc.logger.log("Target objective value for maximization is %s".format(ub))
+                cc.logger.log("Target objective value for maximization: %s".format(ub))
                 cc.objective =
                     new HierarchicalObjective(
                         List(cc.objective, new MaximizationObjective[IntegerValue](a, IntegerValue.get(ub))),

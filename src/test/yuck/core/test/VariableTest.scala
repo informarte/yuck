@@ -14,7 +14,7 @@ class VariableTest extends UnitTest {
 
     @Test
     def testVariableEquality {
-        val space = new Space
+        val space = new Space(logger)
         val d = new IntegerDomain(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -25,7 +25,7 @@ class VariableTest extends UnitTest {
 
     @Test
     def testVariableCasting {
-        val space = new Space
+        val space = new Space(logger)
         val b = space.createVariable("b", UnboundedBooleanDomain)
         val i = space.createVariable("i", UnboundedIntegerDomain)
         BooleanValue.Traits.staticCast(b)
