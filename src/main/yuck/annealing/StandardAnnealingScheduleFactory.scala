@@ -18,7 +18,7 @@ final class StandardAnnealingScheduleFactory
 {
 
     private val numberOfMovesPerVariableAndRound =
-        numberOfSearchVariables * (256.0 / (log(numberOfSearchVariables) * log(2))).toInt
+        (numberOfSearchVariables * 256.0 / (log(numberOfSearchVariables) * log(2))).toInt
     private val finalTemperature = 0.0001
     private val maximumUphillAcceptanceRatio = 0.15
     private val minimumUphillAcceptanceRatio = 0.0001
