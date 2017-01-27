@@ -27,9 +27,9 @@ final class Space(logger: LazyLogger) {
     private val inVariables = new mutable.HashSet[AnyVariable] // maintained by post
     private val outVariables = new mutable.HashSet[AnyVariable] // maintained by post
 
-    private val impliedConstraints = new mutable.BitSet // indexed by constraint id
-    @inline private def isImpliedConstraint(constraint: Constraint) =
-        impliedConstraints.contains(constraint.id.rawId)
+    private val implicitConstraints = new mutable.BitSet // indexed by constraint id
+    @inline private def isImplicitConstraint(constraint: Constraint) =
+        implicitConstraints.contains(constraint.id.rawId)
 
     private type InflowModel = mutable.HashMap[AnyVariable, mutable.HashSet[Constraint]]
     private val inflowModel = new InflowModel // maintained by post
@@ -123,6 +123,10 @@ final class Space(logger: LazyLogger) {
     /** Decides whether the given variable is a dangling variable. */
     def isDanglingVariable(x: AnyVariable): Boolean =
         ! isProblemParameter(x) && ! isSearchVariable(x) && ! isChannelVariable(x)
+
+    /** Returns the set of constraints directly affected by changing the value of the given variable. */
+    def directlyAffectedConstraints(x: AnyVariable): Set[Constraint] =
+        return inflowModel.get(x).getOrElse(Set.empty)
 
     /**
      * Finds the search variables involved in computing the value of given variable
@@ -263,19 +267,27 @@ final class Space(logger: LazyLogger) {
     def numberOfConstraints: Int = constraints.size
 
     /**
-     * Marks the given constraint as implied;
-     * implied constraints will not be initialized and they will never be consulted.
+     * Marks the given constraint as implicit.
+     *
+     * Implicit constraints will not be initialized and they will never be consulted.
      */
-    def markAsImplied(constraint: Constraint): Space = {
-        logger.loggg("Marking %s as implied".format(constraint))
-        impliedConstraints += constraint.id.rawId
+    def markAsImplicit(constraint: Constraint): Space = {
+        logger.loggg("Marking %s as implicit".format(constraint))
+        implicitConstraints += constraint.id.rawId
         constraintOrder = null
         this
     }
 
-    /** Returns the number of constraints that were posted and later marked as implied. */
-    def numberOfImpliedConstraints: Int = impliedConstraints.size
- 
+    /** Returns true iff the given constraint was marked as implicit. */
+    def isImplicit(constraint: Constraint): Boolean =
+        implicitConstraints.contains(constraint.id.rawId)
+
+    /** Returns the number of constraints that were posted and later marked as implicit. */
+    def numberOfImplicitConstraints: Int = implicitConstraints.size
+
+    /** Counts how often Constraint.initialize was called. */
+    var numberOfInitializations = 0
+
     /**
      * Initializes the constraint network for local search.
      *
@@ -284,9 +296,10 @@ final class Space(logger: LazyLogger) {
     def initialize: Space = {
         require(constraintQueue.isEmpty)
         sortConstraintsTopologically
-        constraintQueue ++= constraints.toIterator.filterNot(isImpliedConstraint)
+        constraintQueue ++= constraints.toIterator.filterNot(isImplicitConstraint)
         while (! constraintQueue.isEmpty) {
             constraintQueue.dequeue.initialize(assignment).foreach(_.setValue(assignment))
+            numberOfInitializations += 1
         }
         this
     }
@@ -315,7 +328,7 @@ final class Space(logger: LazyLogger) {
             if (assignment.anyValue(effect.anyVariable) != effect.anyValue) {
                 val maybeAffectedConstraints = inflowModel.get(effect.anyVariable)
                 if (maybeAffectedConstraints.isDefined) {
-                    for (constraint <- maybeAffectedConstraints.get if ! isImpliedConstraint(constraint)) {
+                    for (constraint <- maybeAffectedConstraints.get if ! isImplicitConstraint(constraint)) {
                         val diff = diffs.getOrElseUpdate(constraint, new BulkMove(move.id))
                         if (diff.isEmpty) {
                             constraintQueue += constraint
@@ -405,7 +418,7 @@ final class Space(logger: LazyLogger) {
      * the current search state.
      *
      * The move must involve search variables only!
-     * (For efficieny reasons, this requirement is not enforced.)
+     * (For efficiency reasons, this requirement is not enforced.)
      */
     def consult(move: Move, checkConstraintPropagation: Boolean = false): SearchState = {
         idOfMostRecentlyAssessedMove = move.id

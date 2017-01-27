@@ -35,7 +35,7 @@ class NeighbourhoodFactory
     protected val logger = cc.logger
     protected val ast = cc.ast
     protected val space = cc.space
-    protected val variablesToIgnore = new mutable.HashSet[AnyVariable]
+    protected val implicitlyConstrainedVars = cc.implicitlyConstrainedVars
 
     override def run {
         cc.maybeNeighbourhood = createNeighbourhood
@@ -129,7 +129,7 @@ class NeighbourhoodFactory
     protected final def createNeighbourhoodOnInvolvedSearchVariables(x: Variable[IntegerValue]): Option[Neighbourhood] = {
         val xs =
             (if (space.isSearchVariable(x)) Set(x.asInstanceOf[AnyVariable]) else space.involvedSearchVariables(x)) --
-            variablesToIgnore
+            implicitlyConstrainedVars
         if (xs.isEmpty) {
             None
         } else {

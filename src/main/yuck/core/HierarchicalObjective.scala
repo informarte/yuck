@@ -45,6 +45,17 @@ final class HierarchicalObjective(
                 if (delta == 0) assessMove(t, before, after) else delta
             }
         }
-    override def topLevelGoalVariable =
-        objectives.head.topLevelGoalVariable
+    override def tighten(space: Space, rootObjective: AnyObjective) =
+        tighten(space, objectives, rootObjective)
+    private def tighten
+        (space: Space, objectives: List[AnyObjective], rootObjective: AnyObjective):
+        (SearchState, Option[AnyVariable]) =
+    {
+        objectives match {
+            case Nil => (space.searchState, None)
+            case (h :: t) =>
+                if (h.isGoodEnough(h.costs(space.searchState))) tighten(space, t, rootObjective)
+                else h.tighten(space, rootObjective)
+        }
+    }
 }

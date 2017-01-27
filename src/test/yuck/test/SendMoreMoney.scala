@@ -74,7 +74,7 @@ class SendMoreMoney extends IntegrationTest {
             new LinearCombination(
                 space.constraintIdFactory.nextId, null,
                 new AX(new IntegerValue(100), numberOfMissingValues) :: new AX(One, delta) :: Nil, costs))
-        var objective = new MinimizationObjective(costs, Zero)
+        var objective = new MinimizationObjective(costs, Zero, None)
         assertEq(space.searchVariables, Set(S, E, N, D, M, O, R, E, M, O, N, E, Y))
         val randomGenerator = new JavaRandomGenerator(seed)
         val initializer = new RandomInitializer(space, randomGenerator.nextGen)
@@ -86,7 +86,7 @@ class SendMoreMoney extends IntegrationTest {
                 createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen),
                 new SimpleRandomReassignmentGenerator(space, space.searchVariables.toIndexedSeq, randomGenerator.nextGen),
                 randomGenerator.nextGen,
-                new MinimizationObjective(costs, Zero),
+                new MinimizationObjective(costs, Zero, None),
                 None,
                 None,
                 Some(new ModelData(LHS, RHS)),

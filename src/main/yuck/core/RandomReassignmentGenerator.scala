@@ -38,7 +38,6 @@ final class RandomReassignmentGenerator
     require(n > 0)
     require(n == xs.toSet.size)
     require(xs.forall(_.domain.isFinite))
-    require(xs.forall(! _.isParameter))
     require(moveSizeDistribution.frequency(0) == 0)
     require(moveSizeDistribution.volume > 0)
     require((0 to 100).contains(probabilityOfFairChoiceInPercent))
@@ -52,7 +51,7 @@ final class RandomReassignmentGenerator
         effects.update(i, x.nextRandomEffect(space, randomGenerator))
     }
 
-    override def searchVariables = xs
+    override def searchVariables = xs.toSet
 
     override def nextMove = {
         val useUniformDistribution =

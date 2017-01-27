@@ -58,7 +58,7 @@ class Queens extends IntegrationTest {
                     new RandomCircularSwapGenerator(
                         space, rows.toIndexedSeq, randomGenerator.nextGen, DEFAULT_MOVE_SIZE_DISTRIBUTION, None, 0),
                     randomGenerator.nextGen,
-                    new MinimizationObjective(conflicts, Zero),
+                    new MinimizationObjective(conflicts, Zero, None),
                     None,
                     None,
                     None,

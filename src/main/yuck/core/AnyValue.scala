@@ -32,9 +32,6 @@ trait AnyValueTraits[Value <: AnyValue] {
     /** Returns the largest domain over Value. */
     val unboundedDomain: Domain[Value]
 
-    /** Decides whether lhs is a subset of rhs. */
-    def isSubsetOf(lhs: Domain[Value], rhs: Domain[Value]): Boolean
-
     /** Throws when the type of the given value differs from Value. */
     final def checkType(a: AnyValue) {
         assert(

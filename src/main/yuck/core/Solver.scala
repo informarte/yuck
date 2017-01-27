@@ -107,6 +107,7 @@ class SolverMonitor[ResultImpl <: Result] {
     def onSolverResumed(result: ResultImpl) {}
     def onSolverFinished(result: ResultImpl) {}
     def onBetterProposal(result: ResultImpl) {}
+    def onObjectiveTightened(x: AnyVariable) {}
 }
 
 /**
@@ -291,7 +292,6 @@ final class ParallelSolver(
                                     if (maybeBestResult.isEmpty || maybeResult.get.isBetterThan(maybeBestResult.get)) {
                                         maybeBestResult = maybeResult
                                         if (maybeBestResult.get.isGoodEnough) {
-                                            logger.log("Objective achieved")
                                             interruptSolvers
                                         }
                                     }

@@ -232,17 +232,13 @@ class MiniZincTests extends MiniZincTestSuite {
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def testMinimizationProblemWithUnboundedDanglingObjectiveVariable {
-        assertEx(
-            solve(task.copy(problemName = "minimization_problem_with_unbounded_dangling_objective_variable")),
-            classOf[VariableWithInfiniteDomainException])
+        solve(task.copy(problemName = "minimization_problem_with_unbounded_dangling_objective_variable"))
     }
 
     @Test
     @Category(Array(classOf[MaximizationProblem]))
     def testMaximizationProblemWithUnboundedDanglingObjectiveVariable {
-        assertEx(
-            solve(task.copy(problemName = "maximization_problem_with_unbounded_dangling_objective_variable")),
-            classOf[VariableWithInfiniteDomainException])
+        solve(task.copy(problemName = "maximization_problem_with_unbounded_dangling_objective_variable"))
     }
 
     @Test

@@ -44,8 +44,17 @@ final object IntegerValue {
         override val nonNegativeDomain = NonNegativeIntegerDomain
         override val zero = Zero
         override val one = One
-        override def isSubsetOf(lhs: Domain[IntegerValue], rhs: Domain[IntegerValue]) =
-            lhs.asInstanceOf[IntegerDomain].isSubsetOf(rhs.asInstanceOf[IntegerDomain])
+        def isSubsetOf(lhs: Domain[IntegerValue], rhs: Domain[IntegerValue]): Boolean =
+            (lhs, rhs) match {
+                case (lhs: IntegerRange, rhs: IntegerRange) =>
+                    lhs.isSubsetOf(rhs)
+                case (lhs: IntegerDomain, rhs: IntegerDomain) =>
+                    lhs.isSubsetOf(rhs)
+                case (lhs: IntegerRange, rhs: IntegerDomain) =>
+                    new IntegerDomain(Vector(lhs)).isSubsetOf(rhs)
+                case (lhs: IntegerDomain, rhs: IntegerRange) =>
+                    lhs.isSubsetOf(new IntegerDomain(Vector(rhs)))
+            }
     }
 
     private val VALUE_RANGE = new Range(-10000, 10000, 1)

@@ -34,10 +34,12 @@ abstract class AnyVariable
     def assignRandomValue(space: Space, randomGenerator: RandomGenerator): Space
 
     /**
-     * Returns an effect for assigning the variable a random value that differs from
-     * its current value.
+     * Returns an effect for assigning the variable a random value.
      *
-     * Throws when the domain is infinite or has less than two elements.
+     * If the variable's domain has at least two elements, the proposed value is
+     * guaranteed to differ from the variable's current value.
+     *
+     * Throws when the domain is empty or infinite.
      *
      * For the sake of efficiency, implementations should use and reuse an instance of
      * [[yuck.core.ReusableEffectWithFixedVariable ReusableEffectWithFixedVariable]].
@@ -45,9 +47,12 @@ abstract class AnyVariable
     def nextRandomEffect(space: Space, randomGenerator: RandomGenerator): AnyEffect
 
     /**
-     * Creates a random move that changes the value of the variable.
+     * Creates a random move that involves only the variable.
      *
-     * Throws when the domain is infinite or has less than two elements.
+     * If the variable's domain has at least two elements, the proposed move is
+     * guaranteed to change the variable's assignment.
+     *
+     * Throws when the domain is empty or infinite.
      */
     def nextMove(space: Space, randomGenerator: RandomGenerator): Move
 

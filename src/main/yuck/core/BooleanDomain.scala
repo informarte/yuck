@@ -40,13 +40,12 @@ final class BooleanDomain
         }
     }
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: BooleanValue) = {
-        require(size > 1)
-        if (currentValue.value) False else True
+        require(! isEmpty)
+        if (isSingleton) singleValue else if (currentValue.value) False else True
     }
     override def isBounded = true
     override def lb = if (containsFalse) False else True
     override def ub = if (containsTrue) True else False
     override def hull = this
-    /** Decides whether this is a subset of that. */
-    def isSubsetOf(that: BooleanDomain): Boolean = this.values.forall(a => that.contains(a))
+    override def isSubsetOf(that: Domain[BooleanValue]) = this.values.forall(a => that.contains(a))
 }

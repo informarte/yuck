@@ -35,10 +35,13 @@ final class FlatZincSolverGenerator
         override def hasFinished = finished
         override def call = {
             require(! finished)
-            val result = new Result(name, space, objective, Some(compilerResult))
+            val result = new AnnealingResult(name, space, objective, Some(compilerResult))
             result.bestProposal = space.searchState
             result.costsOfBestProposal = objective.costs(result.bestProposal)
+            monitor.onSolverLaunched(result)
+            monitor.onBetterProposal(result)
             finished = true
+            monitor.onSolverFinished(result)
             Some(result)
         }
     }
@@ -58,13 +61,14 @@ final class FlatZincSolverGenerator
             if (compilerResult.maybeNeighbourhood.isEmpty) {
                 new SolverForProblemWithoutNeighbourhood(solverName, compilerResult)
             } else {
-                val schedule = new StandardAnnealingScheduleFactory(space.searchVariables.size, randomGenerator.nextGen).call
+                val neighbourhood = compilerResult.maybeNeighbourhood.get
+                val schedule = new StandardAnnealingScheduleFactory(neighbourhood.searchVariables.size, randomGenerator.nextGen).call
                 logger.log("Start temperature: %s".format(schedule.temperature))
                 new SimulatedAnnealing(
                     solverName,
                     space,
                     schedule,
-                    compilerResult.maybeNeighbourhood.get,
+                    neighbourhood,
                     randomGenerator.nextGen,
                     compilerResult.objective,
                     cfg.maybeRoundLimit,

@@ -16,7 +16,7 @@ import scala.math._
  */
 final class IntegerRange(
     override val lb: IntegerValue, override val ub: IntegerValue)
-    extends OrderedDomain[IntegerValue]
+    extends NumericalDomain[IntegerValue]
 {
     override def hashCode = 3 * (3 + lb.hashCode) + ub.hashCode
     override def equals(that: Any) = that match {
@@ -68,6 +68,8 @@ final class IntegerRange(
     override def maybeLb = if (lb == null) None else Some(lb)
     override def maybeUb = if (ub == null) None else Some(ub)
     override def hull = this
+    override def isSubsetOf(that: Domain[IntegerValue]) =
+        valueTraits.isSubsetOf(this, that)
     def isSubsetOf(that: IntegerRange): Boolean = {
         val lhs = this
         var rhs = that
@@ -125,5 +127,13 @@ final class IntegerRange(
     def maybeIntersectionSize(that: IntegerRange): Option[Int] = {
         val tmp = intersect(that)
         if (tmp.isInfinite) None else Some(tmp.size)
+    }
+    override def boundFromBelow(lb: IntegerValue) = this.intersect(new IntegerRange(lb, null))
+    override def boundFromAbove(ub: IntegerValue) = this.intersect(new IntegerRange(null, ub))
+    override def bisect = {
+        require(! isEmpty)
+        require(isFinite)
+        val mid = lb + ((ub - lb + One) / Two)
+        (this.intersect(new IntegerRange(lb, mid - One)), this.intersect(new IntegerRange(mid, ub)))
     }
 }

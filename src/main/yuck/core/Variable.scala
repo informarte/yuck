@@ -21,7 +21,7 @@ final class Variable
     def pruneDomain(newDomain: Domain[Value]) {
         if (newDomain != currentDomain) {
             require(
-                newDomain.valueTraits.isSubsetOf(newDomain, currentDomain),
+                newDomain.isSubsetOf(currentDomain),
                 "%s is not a subset of %s".format(newDomain, currentDomain))
             currentDomain = newDomain
         }

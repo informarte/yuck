@@ -38,16 +38,6 @@ final class ConstraintFactory
     private val impliedConstraints = cc.impliedConstraints
     private val logger = cc.logger
 
-    private final class DummyConstraint
-        (in: Seq[AnyVariable], out: AnyVariable)
-        extends yuck.core.Constraint(new Id[yuck.core.Constraint](-1), null)
-    {
-        override def inVariables = in
-        override def outVariables = List(out)
-        override def initialize(now: SearchState) = Nil
-        override def consult(before: SearchState, after: SearchState, move: Move) = Nil
-    }
-
     private def definesVar(
         constraint: yuck.flatzinc.ast.Constraint, out: AnyVariable): Boolean =
     {
@@ -59,6 +49,8 @@ final class ConstraintFactory
         .contains(Some(out))
     }
 
+    private val fakeConstraintId = new Id[yuck.core.Constraint](-1)
+
     private def definesVar(
         constraint: yuck.flatzinc.ast.Constraint, in: Seq[AnyVariable], out: AnyVariable): Boolean =
     {
@@ -66,7 +58,7 @@ final class ConstraintFactory
         ! cc.searchVars.contains(out) &&
         (definesVar(constraint, out) || ! cc.channelVars.contains(out)) &&
         space.definingConstraint(out).isEmpty &&
-        ! space.wouldIntroduceCycle(new DummyConstraint(in, out))
+        ! space.wouldIntroduceCycle(new DummyConstraint(fakeConstraintId, in, List(out)))
     }
 
     private def definesVar(

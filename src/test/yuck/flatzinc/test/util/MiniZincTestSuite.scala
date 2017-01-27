@@ -7,7 +7,7 @@ import org.junit._
 
 import yuck.annealing._
 import yuck.core._
-import yuck.flatzinc.compiler.InconsistentProblemException
+import yuck.flatzinc.compiler.{FlatZincCompilerResult, InconsistentProblemException}
 import yuck.flatzinc.parser._
 import yuck.flatzinc.runner._
 import yuck.util.testing.{ProcessRunner, IntegrationTest}
@@ -111,7 +111,8 @@ class MiniZincTestSuite extends IntegrationTest {
 
     private def logViolatedConstraints(result: Result) {
         val visited = new mutable.HashSet[AnyVariable]
-        result.space.definingConstraint(result.objective.topLevelGoalVariable).get match {
+        val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
+        result.space.definingConstraint(compilerResult.costVar).get match {
             case sum: yuck.constraints.Sum[IntegerValue @ unchecked] =>
                 for (x <- sum.xs if result.space.searchState.value(x) > Zero) {
                     logViolatedConstraints(result, x, visited)

@@ -110,7 +110,7 @@ class SolverTest extends UnitTest {
 
     @Test
     def testParallelSolvingWithSolution {
-        val objective = new MinimizationObjective(null, Zero)
+        val objective = new MinimizationObjective(null, Zero, None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = if (i == 8) Zero else One)
         val solvers = results.map(result => new GoodSolver(result, 1))
@@ -135,7 +135,7 @@ class SolverTest extends UnitTest {
 
     @Test
     def testParallelSolvingWithoutSolution {
-        val objective = new MinimizationObjective(null, Zero)
+        val objective = new MinimizationObjective(null, Zero, None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = One)
         val solvers = results.map(result => new GoodSolver(result, 0))
@@ -157,7 +157,7 @@ class SolverTest extends UnitTest {
 
     @Test
     def testParallelSolvingWithException {
-        val objective = new MinimizationObjective(null, Zero)
+        val objective = new MinimizationObjective(null, Zero, None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = One)
         val solvers = (0 until results.size).map(i => if (i == 8) new BadSolver else new GoodSolver(results(i), 1))
@@ -177,7 +177,7 @@ class SolverTest extends UnitTest {
     // Tests on-demand solver generation, parallel solving, timeboxing, and resumption after timeout
     @Test
     def testPracticalSetting {
-        val objective = new MinimizationObjective(null, Zero)
+        val objective = new MinimizationObjective(null, Zero, None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = if (i == 8) Zero else One)
         class GoodSolverGenerator(result: Result) extends SolverGenerator {

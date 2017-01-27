@@ -47,7 +47,30 @@ abstract class AnyObjective {
     /** Compares the given costs and decides whether lhs is higher than rhs. */
     @inline final def isHigherThan(lhs: Costs, rhs: Costs): Boolean = compareCosts(lhs, rhs) > 0
 
-    /** Returns the top-level goal in terms of the variable that is subject to optimization. */
-    def topLevelGoalVariable: AnyVariable
+    /**
+     * Tries to tighten this objective such that search states worse than or equivalent
+     * (in cost) to the current one become infeasible.
+     *
+     * Tightening only applies when the underlying objective variable x is a search
+     * variable not constrained implicitly.
+     *
+     * The first step of tightening is to find the best objective value a that is compatible
+     * with the current search state (in the sense that its assignment to x does not impair
+     * the solution quality), to assign a to x, and to prune all values worse than a from
+     * the domain of x.
+     *
+     * The second step of tightening is to reduce the domain of x in accordance with the
+     * purpose of this method (unless this step would wipe out the domain of x) and includes,
+     * as a prerequisite, assigning to x the worst value of the reduced domain.
+     *
+     * The result of this method is twofold:
+     * 1. The search state resulting from the first step.
+     * 2. Some(x) if the domain of x was reduced in the process, and None otherwise.
+     *
+     * Only if the domain of x was reduced, the ownership of the returned search state lies
+     * with the caller.
+     */
+    final def tighten(space: Space): (SearchState, Option[AnyVariable]) = tighten(space, this)
 
+    def tighten(space: Space, topLevelObjective: AnyObjective): (SearchState, Option[AnyVariable])
 }

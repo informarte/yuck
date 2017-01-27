@@ -28,10 +28,16 @@ abstract class Domain[Value <: AnyValue] extends AnyDomain {
     def randomValue(randomGenerator: RandomGenerator): Value
 
     /**
-     * Returns a random value from the domain that differs from the given value.
+     * Returns a random value from the domain.
      *
-     * Throws when the domain is infinite or has less than two elements.
+     * If the domain has at least two elements, the return value is guaranteed to differ
+     * from the given value.
+     *
+     * Throws when the domain is empty or infinite.
      */
     def nextRandomValue(randomGenerator: RandomGenerator, currentValue: Value): Value
+
+    /** Decides whether this is a subset of that. */
+    def isSubsetOf(that: Domain[Value]): Boolean
 
 }

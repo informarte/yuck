@@ -10,7 +10,7 @@ import scala.collection._
 abstract class Neighbourhood {
 
     /** Returns the variables that may occur in the moves produced by this generator. */
-    def searchVariables: TraversableOnce[AnyVariable]
+    def searchVariables: Set[AnyVariable]
 
     /** Creates a move. */
     def nextMove: Move

@@ -45,20 +45,20 @@ final class VariableDrivenNeighbourhoodFactory
         val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
         for (constraint <- randomGenerator.shuffle(space.involvedConstraints(x).toSeq)) {
             val xs = constraint.inVariables.toIterator.filter(space.isSearchVariable).toSet
-            if ((xs & variablesToIgnore).isEmpty) {
+            if ((xs & implicitlyConstrainedVars).isEmpty) {
                 val maybeNeighbourhood =
                     constraint.prepareForImplicitSolving(
                         space, randomGenerator, cfg.moveSizeDistribution,
                         createHotSpotDistribution(hotSpotIndicators), cfg.probabilityOfFairChoiceInPercent)
                 if (maybeNeighbourhood.isDefined) {
-                    variablesToIgnore ++= xs
-                    space.markAsImplied(constraint)
+                    implicitlyConstrainedVars ++= xs
+                    space.markAsImplicit(constraint)
                     logger.logg("Adding a neighbourhood for implicit constraint %s".format(constraint))
                     neighbourhoods += maybeNeighbourhood.get
                 }
             }
         }
-        val remainingVariables = hotSpotIndicators.keys.toSet -- variablesToIgnore
+        val remainingVariables = hotSpotIndicators.keys.toSet -- implicitlyConstrainedVars
         if (! remainingVariables.isEmpty) {
             val xs = remainingVariables.toIndexedSeq
             logger.logg("Adding a neighbourhood over %s".format(xs))

@@ -17,4 +17,6 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         }
         case _ => false
     }
+    final override def isSubsetOf(that: Domain[IntegerSetValue]) =
+        valueTraits.isSubsetOf(this, that)
 }

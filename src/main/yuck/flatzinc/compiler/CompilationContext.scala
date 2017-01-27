@@ -30,5 +30,6 @@ final class CompilationContext(
     val costVars = new mutable.ArrayBuffer[Variable[IntegerValue]]
     var costVar: Variable[IntegerValue] = null
     var objective: AnyObjective = null
+    val implicitlyConstrainedVars = new mutable.HashSet[AnyVariable]
     var maybeNeighbourhood: Option[Neighbourhood] = null
 }

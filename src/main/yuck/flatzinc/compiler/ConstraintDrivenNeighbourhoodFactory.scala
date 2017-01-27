@@ -44,7 +44,7 @@ final class ConstraintDrivenNeighbourhoodFactory
             super.createNeighbourhoodForMinimizationGoal(x)
         }
         else if (space.isSearchVariable(x)) {
-            // There are hard constraints on x, so no need to add a generator for minimizing x.
+            // There are no hard constraints on x, so no need to add a generator for minimizing x.
             None
         }
         else if (space.isChannelVariable(x)) {
@@ -75,20 +75,20 @@ final class ConstraintDrivenNeighbourhoodFactory
             case _ => {
                 val xs = constraint.inVariables.toIterator.filter(space.isSearchVariable).toSet
                 val maybeNeighbourhood =
-                    if ((xs & variablesToIgnore).isEmpty) {
+                    if ((xs & implicitlyConstrainedVars).isEmpty) {
                         constraint.prepareForImplicitSolving(space, randomGenerator, cfg.moveSizeDistribution, _ => None, 0)
                     } else {
                         None
                     }
                 if (maybeNeighbourhood.isDefined) {
-                    variablesToIgnore ++= xs
-                    space.markAsImplied(constraint)
+                    implicitlyConstrainedVars ++= xs
+                    space.markAsImplicit(constraint)
                     () => {
                         logger.logg("Adding a neighbourhood for implicit constraint %s".format(constraint))
                         maybeNeighbourhood.map(ImplicitConstraintMaintainer)
                     }
                 } else () => {
-                    val xs = cc.space.involvedSearchVariables(constraint) -- variablesToIgnore
+                    val xs = cc.space.involvedSearchVariables(constraint) -- implicitlyConstrainedVars
                     if (xs.isEmpty) {
                         None
                     } else {
@@ -118,7 +118,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                 weightedNeighbourhoodFactories += ax -> createNeighbourhoodFactory(maybeConstraint.get)
             } else if (! ax.x.isParameter) {
                 weightedNeighbourhoodFactories += ax -> (() =>
-                    if (variablesToIgnore.contains(ax.x)) {
+                    if (implicitlyConstrainedVars.contains(ax.x)) {
                         None
                     } else {
                         logger.logg("Adding a neighbourhood over %s".format(ax.x))

@@ -9,7 +9,7 @@ import yuck.util.logging.LazyLogger
  *
  * @author Michael Marte
  */
-final class StandardAnnealingMonitor(
+class StandardAnnealingMonitor(
     logger: LazyLogger)
     extends AnnealingMonitor with ManagedResource
 {
@@ -98,6 +98,9 @@ final class StandardAnnealingMonitor(
                         "Improved local solution quality to %s in round %d".format(
                             result.costsOfBestProposal, result.roundLogs.size - 1))
                 }
+                if (result.isGoodEnough) {
+                    logger.log("Objective achieved")
+                }
             }
         }
     }
@@ -114,6 +117,10 @@ final class StandardAnnealingMonitor(
         logger.logg(
             "Reheating finished after round %d with uphill acceptance ratio %1.6f at temperature %3.6f".format(
                 result.roundLogs.size - 1, roundLog.uphillAcceptanceRatio, roundLog.temperature))
+    }
+
+    override def onObjectiveTightened(x: AnyVariable) {
+        logger.logg("Reduced domain of objective variable %s to %s".format(x, x.domain))
     }
 
     private def logStatistics(result: AnnealingResult) {

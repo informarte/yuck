@@ -42,7 +42,6 @@ final class RandomCircularSwapGenerator
     require(n > 1)
     require(n == xs.toSet.size)
     require(xs.forall(_.domain.isFinite))
-    require(xs.forall(! _.isParameter))
     for (i <- 1 until n) {
         require(xs(i - 1).domain == xs(i).domain)
     }
@@ -71,7 +70,7 @@ final class RandomCircularSwapGenerator
         swap(m - 1).a = a0
     }
 
-    override def searchVariables = xs
+    override def searchVariables = xs.toSet
 
     override def nextMove = {
         val useUniformDistribution =

@@ -15,7 +15,7 @@ import scala.annotation.tailrec
  */
 final class IntegerDomain(
     val ranges: immutable.IndexedSeq[IntegerRange])
-    extends OrderedDomain[IntegerValue]
+    extends NumericalDomain[IntegerValue]
 {
 
     for (range <- ranges) {
@@ -79,8 +79,10 @@ final class IntegerDomain(
     }
 
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: IntegerValue) = {
-        require(size > 1)
-        if (size == 2) {
+        require(! isEmpty)
+        if (isSingleton) {
+            singleValue
+        } else if (size == 2) {
             if (currentValue == lb) ub else lb
         } else if (ranges.size == 1) {
             ranges.head.nextRandomValue(randomGenerator, currentValue)
@@ -100,6 +102,9 @@ final class IntegerDomain(
             }
         }
     }
+
+    override def isSubsetOf(that: Domain[IntegerValue]) =
+        valueTraits.isSubsetOf(this, that)
 
     /** Decides whether this is a subset of that. */
     def isSubsetOf(that: IntegerDomain): Boolean = {
@@ -199,6 +204,17 @@ final class IntegerDomain(
         new IntegerDomain(buf.toIndexedSeq)
     }
 
+    override def boundFromBelow(lb: IntegerValue) = this.intersect(new IntegerDomain(lb, null))
+
+    override def boundFromAbove(ub: IntegerValue) = this.intersect(new IntegerDomain(null, ub))
+
+    override def bisect = {
+        require(! isEmpty)
+        require(isFinite)
+        val mid = lb + ((ub - lb + One) / Two)
+        (this.intersect(new IntegerDomain(lb, mid - One)), this.intersect(new IntegerDomain(mid, ub)))
+    }
+
     private def cannotIntersect(that: IntegerDomain): Boolean = {
         this.isEmpty ||
         that.isEmpty ||
@@ -228,7 +244,7 @@ final class IntegerDomain(
         else {
             val mid = start + (end - start + 1) / 2
             if (ranges(mid).contains(a)) mid
-            else if (ranges(mid).lb > a) findIndexOfContainingRange(a, start, mid - 1)
+            else if (mid > 0 && ranges(mid).lb > a) findIndexOfContainingRange(a, start, mid - 1)
             else findIndexOfContainingRange(a, mid + 1, end)
         }
 

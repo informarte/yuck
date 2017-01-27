@@ -13,7 +13,7 @@ abstract class SearchState extends Cloneable[SearchState] {
     def mappedVariables: Set[AnyVariable]
 
     override def toString =
-        mappedVariables.toList.sortBy(_.name).map(x => (x -> anyValue(x)).toString).mkString(", ")
+        "{%s}".format(mappedVariables.toList.sortBy(_.name).map(x => (x -> anyValue(x)).toString).mkString(", "))
 
     /** Returns true iff the given variable has a value assignment. */
     def hasValue(x: AnyVariable): Boolean = maybeAnyValue(x).isDefined
@@ -30,13 +30,17 @@ abstract class SearchState extends Cloneable[SearchState] {
     }
 
     /**
-     * Returns None if the given variable x has no value assignment,
-     * otherwise it returns Some(a) where a is the value assigned to x.
+     * Returns None if the given variable x has no value assignment;
+     * otherwise returns Some(a) where a is the value assigned to x.
      */
     def maybeAnyValue(x: AnyVariable): Option[AnyValue]
 
     /** Typed version of anyValue. */
-    final def value[Value <: AnyValue](x: Variable[Value]): Value = maybeValue(x).get
+    final def value[Value <: AnyValue](x: Variable[Value]): Value = {
+        val maybeA = maybeValue(x)
+        require(maybeA.isDefined, "Variable %s has no value assigned".format(x))
+        maybeA.get
+    }
 
     /** Typed version of maybeAnyValue. */
     final def maybeValue[Value <: AnyValue](x: Variable[Value]): Option[Value] =

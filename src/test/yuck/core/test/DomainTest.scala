@@ -78,7 +78,8 @@ class DomainTest extends UnitTest {
             } else if (d.isSingleton) {
                 assertEq(d.singleValue, if (f) False else True)
                 assertEq(d.randomValue(rg), d.singleValue)
-                assertEx(d.nextRandomValue(rg, False))
+                assertEq(d.nextRandomValue(rg, False), d.singleValue)
+                assertEq(d.nextRandomValue(rg, True), d.singleValue)
                 assertEq(d.lb, d.singleValue)
                 assertEq(d.ub, d.singleValue)
             } else {
@@ -173,6 +174,46 @@ class DomainTest extends UnitTest {
         testLt(d, a)
     }
 
+    private def testBounding(d: IntegerDomain, a: IntegerValue) {
+        val d1 = d.boundFromBelow(a)
+        val d2 = d.boundFromAbove(a)
+        if (! d1.isEmpty) {
+            assertGe(d1.lb, a)
+        }
+        if (! d2.isEmpty) {
+            assertLe(d2.ub, a)
+        }
+        if (d.contains(a)) {
+            assertEq(d1.unite(new IntegerDomain(a)).unite(d2), d)
+        } else if (d.maybeLb.isDefined && a < d.lb) {
+            assertEq(d1, d)
+            assert(d2.isEmpty)
+        } else if (d.maybeUb.isDefined && a > d.ub) {
+            assert(d1.isEmpty)
+            assertEq(d2, d)
+        }
+    }
+
+    private def testBisecting(d: IntegerDomain) {
+        if (d.isEmpty || d.isInfinite) {
+            assertEx(d.bisect)
+        } else {
+            val (d1, d2) = d.bisect
+            assert(d1.isSubsetOf(d))
+            assert(d2.isSubsetOf(d))
+            assert(! d1.intersects(d2))
+            assertEq(d1.unite(d2), d)
+            if (d.size > 1) {
+                assert(! d1.isEmpty)
+                assert(! d2.isEmpty)
+                assertLt(d1.ub, d2.lb)
+            }
+            if ((d.ub - d.lb + One).value == d.size) {
+                assertLe(scala.math.abs(d1.size - d2.size), 1)
+            }
+        }
+    }
+
     private def testOperationsOnFiniteIntegerDomains(rg: RandomGenerator, dl: Seq[IntegerDomain], vl: Seq[IntegerValue]) {
         for (d <- dl) {
             require(d.isFinite)
@@ -189,9 +230,20 @@ class DomainTest extends UnitTest {
                 testDistanceToSet(d, a)
                 testPruning(d, a)
             }
-            if (! d.isEmpty && ! d.isSingleton) {
-                testUniformityOfDistribution(rg, d)
+            if (d.isEmpty) {
+                assert(d.boundFromBelow(Zero).isEmpty)
+                assert(d.boundFromAbove(Zero).isEmpty)
+            } else {
+                testBounding(d, d.randomValue(rg))
+                testBounding(d, d.lb)
+                testBounding(d, d.ub)
+                testBounding(d, d.lb - One)
+                testBounding(d, d.ub + One)
+                if (! d.isSingleton) {
+                    testUniformityOfDistribution(rg, d)
+                }
             }
+            testBisecting(d)
         }
     }
 
@@ -255,7 +307,7 @@ class DomainTest extends UnitTest {
         assert(! b.contains(One))
         assertEq(b.singleValue, Zero)
         assertEq(b.randomValue(rg), Zero)
-        assertEx(b.nextRandomValue(rg, Zero))
+        assertEq(b.nextRandomValue(rg, Zero), Zero)
         assertEq(b.values.toList, List(Zero))
         assert(b.isBounded)
         assert(! b.isUnbounded)
@@ -428,7 +480,9 @@ class DomainTest extends UnitTest {
 
         assert(UnboundedIntegerDomain.contains(MinusOne))
         assert(NegativeIntegerDomain.contains(MinusOne))
+        assert(! NegativeIntegerDomain.contains(Zero))
         assert(! NonNegativeIntegerDomain.contains(MinusOne))
+        assert(NonNegativeIntegerDomain.contains(Zero))
 
         for (d <- List(UnboundedIntegerDomain, NegativeIntegerDomain, NonNegativeIntegerDomain)) {
             assert(EmptyIntegerDomain.isSubsetOf(d))
@@ -512,6 +566,11 @@ class DomainTest extends UnitTest {
         assertEq(
             IntegerDomainPruner.lt(UnboundedIntegerDomain, NonNegativeIntegerDomain),
             (UnboundedIntegerDomain, NonNegativeIntegerDomain))
+
+        for (d <- List(UnboundedIntegerDomain, NegativeIntegerDomain, NonNegativeIntegerDomain)) {
+            testBounding(d, Zero)
+            testBisecting(d)
+        }
 
     }
 

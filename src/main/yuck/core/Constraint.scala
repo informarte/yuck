@@ -40,6 +40,7 @@ abstract class Constraint
      * @param move is the move to be assessed and involves only input variables of the constraint.
      */
     def consult(before: SearchState, after: SearchState, move: Move): TraversableOnce[AnyEffect]
+
     /**
      * Performs the given move by adapting the constraint's internal state accordingly.
      *
