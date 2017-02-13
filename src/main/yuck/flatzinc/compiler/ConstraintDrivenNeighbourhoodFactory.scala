@@ -149,9 +149,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                     val hotSpotDistribution = DistributionFactory.createDistribution(weights.size)
                     space.post(new DistributionMaintainer(nextConstraintId, null, weights, hotSpotDistribution))
                     neighbourhoods +=
-                        new NeighbourhoodCollection(
-                            otherNeighbourhoods, randomGenerator, Some(hotSpotDistribution),
-                            cfg.probabilityOfFairChoiceInPercent)
+                        new NeighbourhoodCollection(otherNeighbourhoods, randomGenerator, Some(hotSpotDistribution), 0)
                 }
             }
             if (neighbourhoods.size < 2) {
