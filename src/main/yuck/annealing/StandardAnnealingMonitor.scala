@@ -22,7 +22,7 @@ class StandardAnnealingMonitor(
     private var solverState = new ThreadLocal[ThreadState] {
         override def initialValue = ThreadIsIdle
     }
-    private var costsOfBestSolution: Costs = null
+    private var costsOfBestProposal: Costs = null
 
     override def open {
         if (solverState.get == SolverIsRunnable) {
@@ -85,22 +85,20 @@ class StandardAnnealingMonitor(
 
     override def onBetterProposal(result: AnnealingResult) {
         synchronized {
-            if (result.isSolution) {
-                if (costsOfBestSolution == null ||
-                    result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestSolution))
-                {
-                    costsOfBestSolution = result.costsOfBestProposal
-                    logger.log(
-                        "Improved global solution quality to %s in round %d".format(
-                            costsOfBestSolution, result.roundLogs.size - 1))
-                } else {
-                    logger.logg(
-                        "Improved local solution quality to %s in round %d".format(
-                            result.costsOfBestProposal, result.roundLogs.size - 1))
-                }
-                if (result.isGoodEnough) {
-                    logger.log("Objective achieved")
-                }
+            if (costsOfBestProposal == null ||
+                result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestProposal))
+            {
+                costsOfBestProposal = result.costsOfBestProposal
+                logger.log(
+                    "Improved global proposal quality to %s in round %d".format(
+                        costsOfBestProposal, result.roundLogs.size - 1))
+            } else {
+                logger.logg(
+                    "Improved local proposal quality to %s in round %d".format(
+                        result.costsOfBestProposal, result.roundLogs.size - 1))
+            }
+            if (result.isGoodEnough) {
+                logger.log("Objective achieved")
             }
         }
     }
