@@ -62,7 +62,7 @@ final class ConstraintFactory
     }
 
     private def definesVar(
-        constraint: yuck.flatzinc.ast.Constraint, in: List[Expr], out: Expr): Boolean =
+        constraint: yuck.flatzinc.ast.Constraint, in: Seq[Expr], out: Expr): Boolean =
         definesVar(constraint, in.map(compileAnyExpr), compileAnyExpr(out))
 
     private def definesVar(
@@ -223,11 +223,20 @@ final class ConstraintFactory
             }
         case Constraint("array_bool_xor", List(as), _) =>
             val xs = compileArray[IntegerValue](as)
-            val trueCount = createNonNegativeChannel[IntegerValue]
-            space.post(new CountConst[IntegerValue](nextConstraintId, goal, xs, Zero, trueCount))
-            val costs = createNonNegativeChannel[IntegerValue]
-            space.post(new Uneven[IntegerValue](nextConstraintId, goal, trueCount, costs))
-            List(costs)
+            val maybeY = xs.toStream.filter(y => definesVar(constraint, xs.filter(_ != y), y)).headOption
+            if (maybeY.isDefined) {
+                val y = maybeY.get
+                val trueCount = createNonNegativeChannel[IntegerValue]
+                space.post(new CountConst[IntegerValue](nextConstraintId, goal, xs.filter(_ != y), Zero, trueCount))
+                space.post(new Even(nextConstraintId, goal, trueCount, y))
+                Nil
+            } else {
+                val trueCount = createNonNegativeChannel[IntegerValue]
+                space.post(new CountConst[IntegerValue](nextConstraintId, goal, xs, Zero, trueCount))
+                val costs = createNonNegativeChannel[IntegerValue]
+                space.post(new Uneven[IntegerValue](nextConstraintId, goal, trueCount, costs))
+                List(costs)
+            }
         case Constraint("bool_clause", List(ArrayConst(List(a)), ArrayConst(List(b))), _) =>
             compileConstraint(goal, Constraint("bool_le", List(b, a), Nil))
         case Constraint("bool_clause", List(as, bs), _) =>
