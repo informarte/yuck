@@ -78,7 +78,7 @@ class MiniZincTestSuite extends IntegrationTest {
         }
         val cfg =
             task.solverConfiguration.copy(
-                maybeOptimum = task.maybeOptimum,
+                maybeTargetObjectiveValue = task.maybeOptimum,
                 maybeQualityTolerance = task.maybeQualityTolerance)
         val maybeResult =
             using(new StandardAnnealingMonitor(logger))(

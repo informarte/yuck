@@ -31,7 +31,7 @@ final class ObjectiveFactory
                 val x = compileExpr[IntegerValue](a)
                 val dx = domains(a).asInstanceOf[IntegerDomain]
                 val lb =
-                    cfg.maybeOptimum
+                    cfg.maybeTargetObjectiveValue
                     .orElse(dx.maybeLb.map(_.value))
                     .getOrElse(Int.MinValue)
                     .+(cfg.maybeQualityTolerance.getOrElse(0))
@@ -65,7 +65,7 @@ final class ObjectiveFactory
                 val x = compileExpr[IntegerValue](a)
                 val dx = domains(a).asInstanceOf[IntegerDomain]
                 val ub =
-                    cfg.maybeOptimum
+                    cfg.maybeTargetObjectiveValue
                     .orElse(dx.maybeUb.map(_.value))
                     .getOrElse(Int.MaxValue)
                     .-(cfg.maybeQualityTolerance.getOrElse(0))

@@ -13,7 +13,7 @@ case class FlatZincSolverConfiguration(
     val numberOfVirtualCores: Int = Runtime.getRuntime.availableProcessors,
     val maybeRoundLimit: Option[Int] = None,
     val maybeRuntimeLimitInSeconds: Option[Int] = Some(300),
-    val maybeOptimum: Option[Int] = None,
+    val maybeTargetObjectiveValue: Option[Int] = None,
     val maybeQualityTolerance: Option[Int] = None,
     val stopOnFirstSolution: Boolean = false,
     val useProgressiveTightening: Boolean = true,

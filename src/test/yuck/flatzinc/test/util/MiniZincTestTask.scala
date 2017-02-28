@@ -26,8 +26,8 @@ case class MiniZincTestTask(
     val modelName: String = "",
     val instanceName: String = "",
     val solverConfiguration: FlatZincSolverConfiguration = new FlatZincSolverConfiguration,
-    val maybeOptimum: Option[Int] = None, // replicated from FlatZincSolverConfiguration for convenience
-    val maybeQualityTolerance: Option[Int] = None, // replicated from FlatZincSolverConfiguration for convenience
+    val maybeOptimum: Option[Int] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
+    val maybeQualityTolerance: Option[Int] = None, // overrules solverConfiguration.maybeQualityTolerance
     val logLevel: yuck.util.logging.LogLevel = yuck.util.logging.InfoLogLevel)
 {
     def effectiveInstanceName: String = if (instanceName.isEmpty) problemName else instanceName
