@@ -31,20 +31,58 @@ final class DomainPruner
         var reduction = false
         var pass = 0
         do {
+            val effects = new mutable.HashMap[Expr, AnyDomain]
             reduction = false
             pass += 1
             logger.withTimedLogScope("Pass %d".format(pass)) {
                 for (constraint <- cc.ast.constraints if ! impliedConstraints.contains(constraint)) {
-                    if (propagateConstraint(constraint)) {
-                        reduction = true
-                    }
+                    propagateConstraint(constraint, effects)
+                    reduction |= propagateEffects(constraint, effects)
                 }
             }
         } while(reduction)
     }
 
-    private def propagateConstraint(constraint: yuck.flatzinc.ast.Constraint): Boolean = {
-        val effects = new mutable.HashMap[Expr, AnyDomain]
+    private def boolDomain(a: Expr): BooleanDomain =
+        domains(a).asInstanceOf[BooleanDomain]
+    private def intDomain(a: Expr): IntegerDomain =
+        domains(a).asInstanceOf[IntegerDomain]
+    private def intSetDomain(a: Expr): IntegerSetDomain =
+        domains(a).asInstanceOf[IntegerSetDomain]
+
+    private def normalizeBool(a: Expr): Expr =
+        tryGetConst[BooleanValue](a).map(_.value).map(BoolConst).getOrElse(a)
+    private def normalizeInt(a: Expr): Expr =
+        tryGetConst[IntegerValue](a).map(_.value).map(IntConst).getOrElse(a)
+    private def normalizeArray(a: Expr): Expr = a match {
+        case ArrayConst(a) => ArrayConst(a)
+        case a => ArrayConst(getArrayElems(a).toList)
+    }
+
+    private def propagateEffects(constraint: yuck.flatzinc.ast.Constraint, effects: mutable.Map[Expr, AnyDomain]): Boolean = {
+        var reduction = false
+        for ((decl, domain) <- effects) {
+            if (domains(decl) != domain) {
+                if (domain.isEmpty) {
+                    throw new DomainWipeOutException(decl)
+                }
+                lazy val growMsg = "Domain %s of %s grew to %s".format(domains(decl), decl, domain)
+                if (domain.isInstanceOf[BooleanDomain]) {
+                    assert(domain.asInstanceOf[BooleanDomain].isSubsetOf(boolDomain(decl)), growMsg)
+                } else if (domain.isInstanceOf[IntegerDomain]) {
+                    assert(domain.asInstanceOf[IntegerDomain].isSubsetOf(intDomain(decl)), growMsg)
+                } else if (domain.isInstanceOf[IntegerSetDomain]) {
+                    assert(domain.asInstanceOf[IntegerSetDomain].isSubsetOf(intSetDomain(decl)), growMsg)
+                }
+                logger.logg("%s reduced domain of %s from %s to %s".format(constraint, decl, domains(decl), domain))
+                domains += decl -> domain
+                reduction = true
+            }
+        }
+        reduction
+    }
+
+    private def propagateConstraint(constraint: yuck.flatzinc.ast.Constraint, effects: mutable.Map[Expr, AnyDomain]) {
         def propagateEquality(a: Expr, b: Expr, d: AnyDomain) {
             val e = equalVars(a)
             val f = equalVars(b)
@@ -85,7 +123,7 @@ final class DomainPruner
             }
         }
         def propagateTranslation(translation: yuck.flatzinc.ast.Constraint) {
-            propagateConstraint(translation)
+            propagateConstraint(translation, effects)
             if (impliedConstraints.contains(translation)) {
                 impliedConstraints += constraint
             }
@@ -97,7 +135,7 @@ final class DomainPruner
         }
         val Reif = "(.*)_reif".r
         constraint match {
-            case Constraint("bool2int", params, _) => params match {
+            case Constraint("bool2int", List(a, b), _) => List(normalizeBool(a), normalizeInt(b)) match {
                 case List(BoolConst(a), IntConst(b)) =>
                     assertConsistency(if (a) b == 1 else b == 0, constraint)
                     impliedConstraints += constraint
@@ -106,16 +144,16 @@ final class DomainPruner
                 // (2) there is no performance penalty for not doing it.
                 case List(a, IntConst(b)) =>
                     assertConsistency(b == 0 || b == 1, constraint)
-                    val da1 = domains(a).asInstanceOf[BooleanDomain]
+                    val da1 = boolDomain(a)
                     val da2 = new BooleanDomain(b == 0 && da1.containsFalse, b == 1 && da1.containsTrue)
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                 case List(BoolConst(a), b) =>
-                    val db1 = domains(b).asInstanceOf[IntegerDomain]
+                    val db1 = intDomain(b)
                     val db2 = IntegerDomainPruner.eq(db1, if (a) One else Zero)
                     if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
                 case List(a, b) =>
-                    val da1 = domains(a).asInstanceOf[BooleanDomain]
-                    val db1 = domains(b).asInstanceOf[IntegerDomain]
+                    val da1 = boolDomain(a)
+                    val db1 = intDomain(b)
                     val da2 =
                         new BooleanDomain(db1.contains(Zero) && da1.containsFalse, db1.contains(One) && da1.containsTrue)
                     val db2 =
@@ -125,47 +163,77 @@ final class DomainPruner
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                     if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
             }
-            case Constraint("bool_eq", params, _) => params match {
+            case Constraint("bool_eq", params, _) => params.map(normalizeBool) match {
                 case List(BoolConst(a), BoolConst(b)) =>
                     assertConsistency(a == b, constraint)
                     impliedConstraints += constraint
                 case List(a, BoolConst(value)) =>
-                    val da1 = domains(a).asInstanceOf[BooleanDomain]
+                    val da1 = boolDomain(a)
                     val da2 = new BooleanDomain(! value && da1.containsFalse, value && da1.containsTrue)
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                     impliedConstraints += constraint
                 case List(BoolConst(value), b) =>
-                    val db1 = domains(b).asInstanceOf[BooleanDomain]
+                    val db1 = boolDomain(b)
                     val db2 = new BooleanDomain(! value && db1.containsFalse, value && db1.containsTrue)
                     if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
                     impliedConstraints += constraint
                 case List(a, b) =>
-                    val da = domains(a).asInstanceOf[BooleanDomain]
-                    val db = domains(b).asInstanceOf[BooleanDomain]
+                    val da = boolDomain(a)
+                    val db = boolDomain(b)
                     val d = new BooleanDomain(da.containsFalse && db.containsFalse, da.containsTrue && db.containsTrue)
                     propagateEquality(a, b, d)
             }
-            case Constraint("bool_le", params, _) => params match {
+            case Constraint("bool_eq_reif", params, _) => params.map(normalizeBool) match {
+                case List(a, b, BoolConst(true)) =>
+                    propagateTranslation(constraint.copy(id = "bool_eq", params = List(a, b)))
+                case List(a, b, BoolConst(false)) =>
+                    propagateTranslation(constraint.copy(id = "bool_not", params = List(a, b)))
+                case List(BoolConst(a), BoolConst(b), r) =>
+                    val dr1 = boolDomain(r)
+                    val dr2 = new BooleanDomain(dr1.containsFalse && a != b, dr1.containsTrue && a == b)
+                    if (dr1 != dr2) equalVars(r).foreach(a => effects += a -> dr2)
+                    impliedConstraints += constraint
+                case _ =>
+            }
+            case Constraint("bool_xor", _, _) =>
+                propagateTranslation(constraint.copy(id = "bool_not_reif"))
+            case Constraint("bool_not", params, _) => params.map(normalizeBool) match {
+                case List(BoolConst(a), BoolConst(b)) =>
+                    assertConsistency(a != b, constraint)
+                    impliedConstraints += constraint
+                case List(a, BoolConst(value)) =>
+                    val da1 = boolDomain(a)
+                    val da2 = new BooleanDomain(value && da1.containsFalse, ! value && da1.containsTrue)
+                    if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
+                    impliedConstraints += constraint
+                case List(BoolConst(value), b) =>
+                    val db1 = boolDomain(b)
+                    val db2 = new BooleanDomain(value && db1.containsFalse, ! value && db1.containsTrue)
+                    if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
+                    impliedConstraints += constraint
+                case List(a, b) =>
+            }
+            case Constraint("bool_le", params, _) => params.map(normalizeBool) match {
                 case List(BoolConst(a), BoolConst(b)) =>
                     assertConsistency(a <= b, constraint)
                     impliedConstraints += constraint
                 case List(BoolConst(false), _) =>
                     impliedConstraints += constraint
                 case List(BoolConst(true), b) =>
-                    val db1 = domains(b).asInstanceOf[BooleanDomain]
+                    val db1 = boolDomain(b)
                     val db2 = new BooleanDomain(false, db1.containsTrue)
                     if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
                     impliedConstraints += constraint
                 case List(_, BoolConst(true)) =>
                     impliedConstraints += constraint
                 case List(a, BoolConst(false)) =>
-                    val da1 = domains(a).asInstanceOf[BooleanDomain]
+                    val da1 = boolDomain(a)
                     val da2 = new BooleanDomain(da1.containsFalse, false)
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                     impliedConstraints += constraint
                 case List(a, b) =>
-                    val da1 = domains(a).asInstanceOf[BooleanDomain]
-                    val db1 = domains(b).asInstanceOf[BooleanDomain]
+                    val da1 = boolDomain(a)
+                    val db1 = boolDomain(b)
                     if (da1.isSingleton && da1.singleValue == True) {
                         val db2 = new BooleanDomain(false, db1.containsTrue)
                         if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
@@ -177,13 +245,13 @@ final class DomainPruner
                         impliedConstraints += constraint
                     }
             }
-            case Constraint("array_bool_and", params, _) => params match {
+            case Constraint("array_bool_and", List(as, b), _) => List(as, normalizeBool(b)) match {
                 case List(as, BoolConst(true)) =>
                     for (a <- getArrayElems(as)) {
                         if (a.isConst) {
                             assertConsistency(a == BoolConst(true), constraint)
                         } else {
-                            val da1 = domains(a).asInstanceOf[BooleanDomain]
+                            val da1 = boolDomain(a)
                             val da2 = new BooleanDomain(false, da1.containsTrue)
                             if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                         }
@@ -198,25 +266,25 @@ final class DomainPruner
                 case List(as0, r) =>
                     val as = getArrayElems(as0)
                     if (as.exists(a => compilesToConst(a, False))) {
-                        val dr1 = domains(r).asInstanceOf[BooleanDomain]
+                        val dr1 = boolDomain(r)
                         val dr2 = new BooleanDomain(dr1.containsFalse, false)
                         if (dr1 != dr2) equalVars(r).foreach(s => effects += s -> dr2)
                         impliedConstraints += constraint
                     }
                     else if (as.forall(a => compilesToConst(a, True))) {
-                        val dr1 = domains(r).asInstanceOf[BooleanDomain]
+                        val dr1 = boolDomain(r)
                         val dr2 = new BooleanDomain(false, dr1.containsTrue)
                         if (dr1 != dr2) equalVars(r).foreach(s => effects += s -> dr2)
                         impliedConstraints += constraint
                     }
             }
-            case Constraint("array_bool_or", params, _) => params match {
+            case Constraint("array_bool_or", List(as, b), _) => List(as, normalizeBool(b)) match {
                 case List(as, BoolConst(false)) =>
                     for (a <- getArrayElems(as)) {
                         if (a.isConst) {
                             assertConsistency(a == BoolConst(false), constraint)
                         } else {
-                            val da1 = domains(a).asInstanceOf[BooleanDomain]
+                            val da1 = boolDomain(a)
                             val da2 = new BooleanDomain(da1.containsFalse, false)
                             if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                         }
@@ -231,19 +299,19 @@ final class DomainPruner
                 case List(as0, r) =>
                     val as = getArrayElems(as0)
                     if (as.exists(a => compilesToConst(a, True))) {
-                        val dr1 = domains(r).asInstanceOf[BooleanDomain]
+                        val dr1 = boolDomain(r)
                         val dr2 = new BooleanDomain(false, dr1.containsTrue)
                         if (dr1 != dr2) equalVars(r).foreach(s => effects += s -> dr2)
                         impliedConstraints += constraint
                     }
                     else if (as.forall(a => compilesToConst(a, False))) {
-                        val dr1 = domains(r).asInstanceOf[BooleanDomain]
+                        val dr1 = boolDomain(r)
                         val dr2 = new BooleanDomain(dr1.containsFalse, false)
                         if (dr1 != dr2) equalVars(r).foreach(s => effects += s -> dr2)
                         impliedConstraints += constraint
                     }
             }
-            case Constraint("bool_clause", params, _) => params match {
+            case Constraint("bool_clause", params, _) => params.map(normalizeArray) match {
                 case List(ArrayConst(List(a)), ArrayConst(List(b))) =>
                     propagateTranslation(Constraint("bool_le", List(b, a), Nil))
                 case List(as0, bs0) =>
@@ -257,100 +325,150 @@ final class DomainPruner
                         case _ =>
                     }
             }
-            case Constraint("int_eq", params, _) => params match {
+            case Constraint("int_eq", params, _) => params.map(normalizeInt) match {
                 case List(IntConst(a), IntConst(b)) =>
                     assertConsistency(a == b, constraint)
                     impliedConstraints += constraint
                 case List(a, IntConst(value)) =>
-                    val da1 = domains(a).asInstanceOf[IntegerDomain]
+                    val da1 = intDomain(a)
                     val da2 = IntegerDomainPruner.eq(da1, IntegerValue.get(value))
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                     impliedConstraints += constraint
                 case List(IntConst(value), b) =>
-                    val db1 = domains(b).asInstanceOf[IntegerDomain]
+                    val db1 = intDomain(b)
                     val db2 = IntegerDomainPruner.eq(db1, IntegerValue.get(value))
                     if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
                     impliedConstraints += constraint
                 case List(a, b) =>
-                    val da = domains(a).asInstanceOf[IntegerDomain]
-                    val db = domains(b).asInstanceOf[IntegerDomain]
+                    val da = intDomain(a)
+                    val db = intDomain(b)
                     val d = IntegerDomainPruner.eq(da, db)
                     propagateEquality(a, b, d)
             }
-            case Constraint("int_ne", params, _) => params match {
+            case Constraint("int_eq_reif", List(a, b, r), _) => List(normalizeInt(a), normalizeInt(b), normalizeBool(r)) match {
+                case List(a, b, BoolConst(true)) =>
+                    propagateTranslation(constraint.copy(id = "int_eq", params = List(a, b)))
+                case List(a, b, BoolConst(false)) =>
+                    propagateTranslation(constraint.copy(id = "int_ne", params = List(a, b)))
+                case List(IntConst(a), IntConst(b), r) =>
+                    val dr1 = boolDomain(r)
+                    val dr2 = new BooleanDomain(dr1.containsFalse && a != b, dr1.containsTrue && a == b)
+                    if (dr1 != dr2) equalVars(r).foreach(a => effects += a -> dr2)
+                    impliedConstraints += constraint
+                case _ =>
+            }
+            case Constraint("int_ne", params, _) => params.map(normalizeInt) match {
                 case List(IntConst(a), IntConst(b)) =>
                     assertConsistency(a != b, constraint)
                     impliedConstraints += constraint
                 case List(a, IntConst(value)) =>
-                    val da1 = domains(a).asInstanceOf[IntegerDomain]
+                    val da1 = intDomain(a)
                     val da2 = IntegerDomainPruner.ne(da1, IntegerValue.get(value))
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                     impliedConstraints += constraint
                 case List(IntConst(value), b) =>
-                    val db1 = domains(b).asInstanceOf[IntegerDomain]
+                    val db1 = intDomain(b)
                     val db2 = IntegerDomainPruner.ne(db1, IntegerValue.get(value))
                     if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
                     impliedConstraints += constraint
             }
-            case Constraint("int_le", params, _) => params match {
+            case Constraint("int_ne_reif", List(a, b, r), _) => List(normalizeInt(a), normalizeInt(b), normalizeBool(r)) match {
+                case List(a, b, BoolConst(true)) =>
+                    propagateTranslation(constraint.copy(id = "int_ne", params = List(a, b)))
+                case List(a, b, BoolConst(false)) =>
+                    propagateTranslation(constraint.copy(id = "int_eq", params = List(a, b)))
+                case List(IntConst(a), IntConst(b), r) =>
+                    val dr1 = boolDomain(r)
+                    val dr2 = new BooleanDomain(dr1.containsFalse && a == b, dr1.containsTrue && a != b)
+                    if (dr1 != dr2) equalVars(r).foreach(a => effects += a -> dr2)
+                    impliedConstraints += constraint
+                case _ =>
+            }
+            case Constraint("int_le", params, _) => params.map(normalizeInt) match {
                 case List(IntConst(a), IntConst(b)) =>
                     assertConsistency(a <= b, constraint)
                     impliedConstraints += constraint
                 case List(a, IntConst(ub)) =>
-                    val da1 = domains(a).asInstanceOf[IntegerDomain]
+                    val da1 = intDomain(a)
                     val da2 = IntegerDomainPruner.le(da1, IntegerValue.get(ub))
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                     impliedConstraints += constraint
                 case List(IntConst(lb), b) =>
-                    val db1 = domains(b).asInstanceOf[IntegerDomain]
+                    val db1 = intDomain(b)
                     val db2 = IntegerDomainPruner.le(IntegerValue.get(lb), db1)
                     if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
                     impliedConstraints += constraint
                  case List(a, b) =>
-                    val da1 = domains(a).asInstanceOf[IntegerDomain]
-                    val db1 = domains(b).asInstanceOf[IntegerDomain]
+                    val da1 = intDomain(a)
+                    val db1 = intDomain(b)
                     val (da2, db2) = IntegerDomainPruner.le(da1, db1)
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                     if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
             }
-            case Constraint("int_lt", params, _) => params match {
+            case Constraint("int_le_reif", List(a, b, r), _) => List(normalizeInt(a), normalizeInt(b), normalizeBool(r)) match {
+                case List(a, b, BoolConst(true)) =>
+                    propagateTranslation(constraint.copy(id = "int_le", params = List(a, b)))
+                case List(a, b, BoolConst(false)) =>
+                    propagateTranslation(constraint.copy(id = "int_lt", params = List(b, a)))
+                case List(IntConst(a), IntConst(b), r) =>
+                    val dr1 = boolDomain(r)
+                    val dr2 = new BooleanDomain(dr1.containsFalse && a > b, dr1.containsTrue && a <= b)
+                    if (dr1 != dr2) equalVars(r).foreach(a => effects += a -> dr2)
+                    impliedConstraints += constraint
+                case _ =>
+            }
+            case Constraint("int_lt", params, _) => params.map(normalizeInt) match {
                 case List(IntConst(a), IntConst(b)) =>
                     assertConsistency(a < b, constraint)
                     impliedConstraints += constraint
                 case List(a, IntConst(ub)) =>
-                    val da1 = domains(a).asInstanceOf[IntegerDomain]
+                    val da1 = intDomain(a)
                     val da2 = IntegerDomainPruner.lt(da1, IntegerValue.get(ub))
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                     impliedConstraints += constraint
                 case List(IntConst(lb), b) =>
-                    val db1 = domains(b).asInstanceOf[IntegerDomain]
+                    val db1 = intDomain(b)
                     val db2 = IntegerDomainPruner.lt(IntegerValue.get(lb), db1)
                     if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
                     impliedConstraints += constraint
                 case List(a, b) =>
-                    val da1 = domains(a).asInstanceOf[IntegerDomain]
-                    val db1 = domains(b).asInstanceOf[IntegerDomain]
+                    val da1 = intDomain(a)
+                    val db1 = intDomain(b)
                     val (da2, db2) = IntegerDomainPruner.lt(da1, db1)
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                     if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
             }
-            case Constraint("int_lin_eq", params, annotations) => params match {
+            case Constraint("int_lt_reif", List(a, b, r), _) => List(normalizeInt(a), normalizeInt(b), normalizeBool(r)) match {
+                case List(a, b, BoolConst(true)) =>
+                    propagateTranslation(constraint.copy(id = "int_lt", params = List(a, b)))
+                case List(a, b, BoolConst(false)) =>
+                    propagateTranslation(constraint.copy(id = "int_le", params = List(b, a)))
+                case List(IntConst(a), IntConst(b), r) =>
+                    val dr1 = boolDomain(r)
+                    val dr2 = new BooleanDomain(dr1.containsFalse && a >= b, dr1.containsTrue && a < b)
+                    if (dr1 != dr2) equalVars(r).foreach(a => effects += a -> dr2)
+                    impliedConstraints += constraint
+                case _ =>
+            }
+            case Constraint("int_lin_eq", List(as, bs, c), annotations) => List(normalizeArray(as), normalizeArray(bs), c) match {
                 case List(ArrayConst(List(IntConst(1))), ArrayConst(List(b)), c) =>
                     propagateTranslation(Constraint("int_eq", List(b, c), annotations))
                 case List(ArrayConst(List(IntConst(-1))), ArrayConst(List(b)), IntConst(c)) =>
                     propagateTranslation(Constraint("int_eq", List(b, IntConst(-c)), annotations))
-                case _ =>
+                case List(ArrayConst(as), bs, IntConst(c)) =>
+                    propagateConstraint(constraint.copy(id = "int_lin_le"), effects)
+                    propagateConstraint(Constraint("int_lin_le", List(ArrayConst(as.map{case IntConst(a) => IntConst(-a)}), bs, IntConst(-c)), annotations), effects)
             }
-            case Constraint("int_lin_ne", _, annotations) => constraint.params match {
+            case Constraint("int_lin_ne", List(as, bs, c), annotations) => List(normalizeArray(as), normalizeArray(bs), c) match {
                 case List(ArrayConst(List(IntConst(1))), ArrayConst(List(b)), c) =>
                     propagateTranslation(Constraint("int_ne", List(b, c), annotations))
                 case List(ArrayConst(List(IntConst(-1))), ArrayConst(List(b)), IntConst(c)) =>
                     propagateTranslation(Constraint("int_ne", List(b, IntConst(-c)), annotations))
                 case _ =>
             }
-            case Constraint("int_lin_le", params, annotations) => params match {
+            case Constraint("int_lin_le", List(as, bs, c), annotations) => List(normalizeArray(as), normalizeArray(bs), c) match {
                 case List(ArrayConst(List(IntConst(a))), ArrayConst(List(b)), IntConst(c)) =>
-                    val db1 = domains(b).asInstanceOf[IntegerDomain]
+                    val db1 = intDomain(b)
                     if (a > 0) {
                         val ub = c / a + (if (c < 0 || c % a == 0) 0 else 1)
                         val db2 = IntegerDomainPruner.le(db1, IntegerValue.get(ub))
@@ -369,58 +487,89 @@ final class DomainPruner
                         assertConsistency(0 <= c, constraint)
                         impliedConstraints += constraint
                     }
-                // precedence constraint
-                // s[i] + d[i] <= s[j] compiles to int_lin_le([1, -1], [s[i], s[j]], -d[i])
-                case List(ArrayConst(List(IntConst(1), IntConst(-1))), ArrayConst(List(a, b)), IntConst(c)) =>
-                    val da1 = domains(a).asInstanceOf[IntegerDomain]
-                    val db1 = domains(b).asInstanceOf[IntegerDomain]
-                    val da2 = IntegerDomainPruner.le(da1, db1.ub - IntegerValue.get(-c))
-                    val db2 = IntegerDomainPruner.le(da1.lb + IntegerValue.get(-c), db1)
-                    if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
-                    if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
-                // precedence constraint
-                case List(ArrayConst(List(IntConst(-1), IntConst(1))), ArrayConst(List(a, b)), c) =>
-                    propagateConstraint(
-                        Constraint(
-                            "int_lin_le",
-                            List(ArrayConst(List(IntConst(1), IntConst(-1))), ArrayConst(List(b, a)), c),
-                            annotations))
-                // int_lin_le normalization
-                case List(a0, b0, c0) =>
-                    val a1 = ArrayConst(getArrayElems(a0).toList)
-                    if (a1.value.size < 3) {
-                        val b1 = ArrayConst(getArrayElems(b0).toList)
-                        val c1 = c0 match {
-                            case IntConst(_) => c0
-                            case _ if domains(c0).isSingleton =>
-                                IntConst(domains(c0).asInstanceOf[IntegerDomain].singleValue.value)
-                            case _ => c0
+                case List(ArrayConst(as), ArrayConst(bs), IntConst(c)) =>
+                    val (pos, neg) = as.zip(bs).toIndexedSeq.map{case (IntConst(a), b) => (a, b)}.partition{case (a, _) => a >= 0}
+                    if (pos.forall{case (_, b) => intDomain(b).maybeLb.isDefined} &&
+                        neg.forall{case (_, b) => intDomain(b).maybeUb.isDefined})
+                    {
+                        if (! pos.isEmpty) {
+                            lazy val negTerm = neg.toIterator.map{case (a, b) => a * intDomain(b).ub.value}.sum
+                            for (j <- 0 until pos.size) {
+                                val posTerm = (0 until pos.size).toIterator.filter(_ != j).map(pos).map{case (a, b) => a * intDomain(b).lb.value}.sum
+                                val (a, b) = pos(j)
+                                val lb = (c - posTerm - negTerm).toDouble / a
+                                val db1 = intDomain(b)
+                                val db2 = IntegerDomainPruner.le(db1, IntegerValue.get(scala.math.floor(lb).toInt))
+                                if (db1 != db2) equalVars(b).foreach(b => effects += b -> db2)
+                            }
                         }
-                        if (a0 != a1 || b0 != b1 || c0 != c1) {
-                            propagateConstraint(Constraint("int_lin_le", List(a1, b1, c1), annotations))
+                        if (! neg.isEmpty) {
+                            lazy val posTerm = pos.toIterator.map{case (a, b) => a * intDomain(b).lb.value}.sum
+                            for (j <- 0 until neg.size) {
+                                val negTerm = (0 until neg.size).toIterator.filter(_ != j).map(neg).map{case (a, b) => a * intDomain(b).ub.value}.sum
+                                val (a, b) = neg(j)
+                                val ub = (-c + posTerm + negTerm).toDouble / -a
+                                val db1 = intDomain(b)
+                                val db2 = IntegerDomainPruner.le(IntegerValue.get(scala.math.ceil(ub).toInt), db1)
+                                if (db1 != db2) equalVars(b).foreach(b => effects += b -> db2)
+                            }
                         }
                     }
+                case _ =>
             }
             case Constraint("set_eq", List(a, b), _) =>
-                val da = domains(a).asInstanceOf[IntegerPowersetDomain]
-                val db = domains(b).asInstanceOf[IntegerPowersetDomain]
+                val da = intSetDomain(a)
+                val db = intSetDomain(b)
                 val d = new IntegerPowersetDomain(IntegerDomainPruner.eq(da.base, db.base))
                 propagateEquality(a, b, d)
-            case Constraint("set_in", List(a, IntSetConst(IntRange(lb, ub))), _) =>
-                val da1 = domains(a).asInstanceOf[IntegerDomain]
-                val db = createIntegerDomain(lb, ub)
-                val da2 = IntegerDomainPruner.eq(da1, db)
-                if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
-                impliedConstraints += constraint
-            case Constraint("set_in", List(a, IntSetConst(IntSet(set))), _) =>
-                val da1 = domains(a).asInstanceOf[IntegerDomain]
-                val db = createIntegerDomain(set)
-                val da2 = IntegerDomainPruner.eq(da1, db)
-                if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
-                impliedConstraints += constraint
+            case Constraint("set_in", List(a, b), _) => List(normalizeInt(a), b) match {
+                case List(IntConst(a), IntSetConst(IntRange(lb, ub))) =>
+                    assertConsistency(a >= lb && a <= ub, constraint)
+                    impliedConstraints += constraint
+                case List(a, IntSetConst(IntRange(lb, ub))) =>
+                    val da1 = intDomain(a)
+                    val db = createIntegerDomain(lb, ub)
+                    val da2 = IntegerDomainPruner.eq(da1, db)
+                    if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
+                    impliedConstraints += constraint
+                case List(IntConst(a), IntSetConst(IntSet(set))) =>
+                    assertConsistency(set.contains(a), constraint)
+                    impliedConstraints += constraint
+                case List(a, IntSetConst(IntSet(set))) =>
+                    val da1 = intDomain(a)
+                    val db = createIntegerDomain(set)
+                    val da2 = IntegerDomainPruner.eq(da1, db)
+                    if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
+                    impliedConstraints += constraint
+                case _ =>
+            }
+            case Constraint("set_in_reif", List(a, b, r), _) => List(normalizeInt(a), b, normalizeBool(r)) match {
+                case List(a, b, BoolConst(true)) =>
+                    propagateTranslation(constraint.copy(id = "set_in", params = List(a, b)))
+                case List(IntConst(a), IntSetConst(IntRange(lb, ub)), BoolConst(false)) =>
+                    assertConsistency(a < lb || a > ub, constraint)
+                    impliedConstraints += constraint
+                case List(a, IntSetConst(IntRange(lb, ub)), BoolConst(false)) =>
+                    val da1 = intDomain(a)
+                    val db = createIntegerDomain(lb, ub)
+                    val da2 = IntegerDomainPruner.ne(da1, db)
+                    if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
+                    impliedConstraints += constraint
+                case List(IntConst(a), IntSetConst(IntSet(set)), BoolConst(false)) =>
+                    assertConsistency(! set.contains(a), constraint)
+                    impliedConstraints += constraint
+                case List(a, IntSetConst(IntSet(set)), BoolConst(false)) =>
+                    val da1 = intDomain(a)
+                    val db = createIntegerDomain(set)
+                    val da2 = IntegerDomainPruner.ne(da1, db)
+                    if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
+                    impliedConstraints += constraint
+                case _ =>
+            }
             case Constraint("all_different_int", _, _) =>
                 val (as, xs) =
                      getArrayElems(constraint.params.head)
+                    .map(normalizeInt)
                     .partition(_ match {case IntConst(_) => true; case _ => false})
                 val ys = xs.filter(domains(_).isSingleton)
                 for (x <- xs) {
@@ -437,14 +586,14 @@ final class DomainPruner
                     }
                 }
             case Constraint("yuck_table_int", List(xs0, t0), _) =>
-                val xs = getArrayElems(xs0).toIndexedSeq
+                val xs = getArrayElems(xs0).toIterator.map(normalizeInt).toIndexedSeq
                 val t = getArrayElems(t0).toIterator.map{case IntConst(a) => a}.toIndexedSeq
                 val n = xs.size // number of columns
                 require(t.size % n == 0)
                 val m = t.size / n // number of rows
                 def f(x: Expr, a: Int) = x match {
                     case IntConst(b) => b == a
-                    case _ => domains(x).asInstanceOf[IntegerDomain].contains(IntegerValue.get(a))
+                    case _ => intDomain(x).contains(IntegerValue.get(a))
                 }
                 val feasibleRows =
                      (0 until n)
@@ -463,30 +612,30 @@ final class DomainPruner
                     }
                 }
             case Constraint("yuck_inverse", List(f, IntConst(foff), g, IntConst(goff)), _) =>
-                propagateConstraint(Constraint("all_different_int", List(f), Nil))
-                propagateConstraint(Constraint("all_different_int", List(g), Nil))
+                propagateConstraint(Constraint("all_different_int", List(f), Nil), effects)
+                propagateConstraint(Constraint("all_different_int", List(g), Nil), effects)
                 val xs = getArrayElems(f).toIndexedSeq
                 val ys = getArrayElems(g).toIndexedSeq
                 assertConsistency(xs.size == ys.size, constraint)
                 propagateInverse(xs, foff, ys, goff)
                 propagateInverse(ys, goff, xs, foff)
-           case Constraint(Reif(name), params, annotations) if (params.last.isConst || domains(params.last).isSingleton) =>
+           case Constraint(Reif(name), params, annotations) if compilesToConst(params.last) =>
                if (params.last.isConst) {
                    logger.logg("Propagating %s".format(constraint))
                } else {
                    logger.logg(
                        "Propagating %s with %s = %s".format(
-                           constraint, params.last, domains(params.last).asInstanceOf[BooleanDomain].singleValue))
+                           constraint, params.last, boolDomain(params.last).singleValue))
                }
                val r = params.last match {
                    case BoolConst(b) => b
-                   case _ => domains(params.last).asInstanceOf[BooleanDomain].singleValue.value
+                   case _ => boolDomain(params.last).singleValue.value
                }
                if (r) {
                    propagateTranslation(Constraint(name, params.take(params.size - 1), annotations))
                } else name match {
-                   case "bool_eq" => propagateTranslation(Constraint("bool_ne", params.take(2), annotations))
-                   case "bool_ne" => propagateTranslation(Constraint("bool_eq", params.take(2), annotations))
+                   case "bool_eq" => propagateTranslation(Constraint("bool_not", params.take(2), annotations))
+                   case "bool_not" => propagateTranslation(Constraint("bool_eq", params.take(2), annotations))
                    case "int_lt" => propagateTranslation(Constraint("int_le", List(params(1), params(0)), annotations))
                    case "int_le" => propagateTranslation(Constraint("int_lt", List(params(1), params(0)), annotations))
                    case "int_eq" => propagateTranslation(Constraint("int_ne", params.take(2), annotations))
@@ -497,27 +646,6 @@ final class DomainPruner
                }
            case _ =>
         }
-        var reduction = false
-        for ((decl, domain) <- effects) {
-            if (domains(decl) != domain) {
-                if (domain.isEmpty) {
-                    throw new DomainWipeOutException(decl)
-                }
-                if (domain.isInstanceOf[BooleanDomain]) {
-                    assert(
-                        domain.asInstanceOf[BooleanDomain].isSubsetOf(domains(decl).asInstanceOf[BooleanDomain]),
-                        "Domain %s of %s grew to %s".format(domains(decl), decl, domain))
-                } else if (domain.isInstanceOf[IntegerDomain]) {
-                    assert(
-                        domain.asInstanceOf[IntegerDomain].isSubsetOf(domains(decl).asInstanceOf[IntegerDomain]),
-                        "Domain %s of %s grew to %s".format(domains(decl), decl, domain))
-                }
-                logger.logg("%s reduced domain of %s from %s to %s".format(constraint, decl, domains(decl), domain))
-                domains += decl -> domain
-                reduction = true
-            }
-        }
-        reduction
     }
 
 }

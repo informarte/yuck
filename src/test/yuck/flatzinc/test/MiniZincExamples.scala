@@ -55,11 +55,11 @@ class MiniZincExamples extends MiniZincTestSuite {
         solve(task.copy(problemName = "blocksworld_instance_2"))
     }
 
-    // Does not compile because search variables item[] do not have a domain!?
+    // Search variables item[] have infinite domains but pruning saves the day.
     @Test
-    @Category(Array(classOf[UnsuitableProblem], classOf[MinimizationProblem]))
+    @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
     def testCutstock {
-        solve("cutstock")
+        solve(task.copy(problemName = "cutstock", maybeOptimum = Some(4)))
     }
 
     @Test
@@ -104,7 +104,7 @@ class MiniZincExamples extends MiniZincTestSuite {
     // Runtime depends strongly on algorithmic details like choice of seed and random generator.
     // Removing the symmetry breaker makes the problem even harder to solve.
     @Test
-    @Category(Array(classOf[MediumInstance], classOf[SatisfiabilityProblem]))
+    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
     def testLangford2 {
         solve("langford2")
     }
@@ -198,7 +198,7 @@ class MiniZincExamples extends MiniZincTestSuite {
 
     // Solved, but not to optimality.
     @Test
-    @Category(Array(classOf[MediumInstance], classOf[MinimizationProblem]))
+    @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
     def testRadiation {
         solve(task.copy(problemName = "radiation", maybeOptimum = Some(553), maybeQualityTolerance = Some(1500)))
     }
@@ -344,6 +344,7 @@ class EasyMiniZincExamples
  * @author Michael Marte
  */
 @Test
+@Ignore("Avoid pointless NoTestsRemainException")
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[MediumInstance]))
 @SuiteClasses(Array(classOf[MiniZincExamples]))

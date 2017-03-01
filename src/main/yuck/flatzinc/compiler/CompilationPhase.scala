@@ -35,7 +35,15 @@ abstract class CompilationPhase(
         (a: Expr)
         (implicit valueTraits: AnyValueTraits[Value]): Value =
     {
-        valueTraits.dynamicCast(getAnyConst(a))
+        tryGetConst(a).get
+    }
+
+    protected final def tryGetConst
+        [Value <: AnyValue]
+        (a: Expr)
+        (implicit valueTraits: AnyValueTraits[Value]): Option[Value] =
+    {
+        tryGetAnyConst(a).map(valueTraits.dynamicCast)
     }
 
     protected final def getAnyConst(a: Expr): AnyValue =
