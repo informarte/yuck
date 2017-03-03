@@ -27,7 +27,7 @@ abstract class CompilationPhase(
         (implicit valueTraits: AnyValueTraits[Value]): Boolean =
     {
         val maybeC = tryGetAnyConst(a)
-        ! maybeC.isEmpty && valueTraits.dynamicCast(maybeC.get) == b
+        ! maybeC.isEmpty && valueTraits.dynamicDowncast(maybeC.get) == b
     }
 
     protected final def getConst
@@ -43,7 +43,7 @@ abstract class CompilationPhase(
         (a: Expr)
         (implicit valueTraits: AnyValueTraits[Value]): Option[Value] =
     {
-        tryGetAnyConst(a).map(valueTraits.dynamicCast)
+        tryGetAnyConst(a).map(valueTraits.dynamicDowncast)
     }
 
     protected final def getAnyConst(a: Expr): AnyValue =
@@ -88,7 +88,7 @@ abstract class CompilationPhase(
         (implicit valueTraits: AnyValueTraits[Value]):
         immutable.IndexedSeq[Variable[Value]] =
     {
-        valueTraits.dynamicCast(compileAnyArray(expr))
+        valueTraits.dynamicDowncast(compileAnyArray(expr))
     }
 
     protected final def compileAnyArray(expr: Expr): immutable.IndexedSeq[AnyVariable] = expr match {
@@ -108,7 +108,7 @@ abstract class CompilationPhase(
         (implicit valueTraits: AnyValueTraits[Value]):
         Variable[Value] =
     {
-        valueTraits.dynamicCast(compileAnyExpr(expr))
+        valueTraits.dynamicDowncast(compileAnyExpr(expr))
     }
 
     protected final def compileAnyExpr(expr: Expr): AnyVariable = expr match {

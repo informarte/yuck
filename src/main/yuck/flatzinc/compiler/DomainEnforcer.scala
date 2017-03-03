@@ -28,12 +28,12 @@ final class DomainEnforcer
         for ((key, x) <- cc.vars if ! done.contains(x)) {
             val dx = cc.domains(key)
             val tx = dx.valueType
-            if (tx == BooleanValue.Traits.valueType) {
-                enforceBooleanDomain(IntegerValue.Traits.staticCast(x), dx.asInstanceOf[BooleanDomain])
-            } else if (tx == IntegerValue.Traits.valueType) {
-                enforceIntegerDomain(IntegerValue.Traits.staticCast(x), dx.asInstanceOf[IntegerDomain])
-            } else if (tx == IntegerSetValue.Traits.valueType) {
-                enforceIntegerSetDomain(IntegerSetValue.Traits.staticCast(x), dx.asInstanceOf[IntegerPowersetDomain])
+            if (tx == BooleanValueTraits.valueType) {
+                enforceBooleanDomain(IntegerValueTraits.staticDowncast(x), dx.asInstanceOf[BooleanDomain])
+            } else if (tx == IntegerValueTraits.valueType) {
+                enforceIntegerDomain(IntegerValueTraits.staticDowncast(x), dx.asInstanceOf[IntegerDomain])
+            } else if (tx == IntegerSetValueTraits.valueType) {
+                enforceIntegerSetDomain(IntegerSetValueTraits.staticDowncast(x), dx.asInstanceOf[IntegerPowersetDomain])
             }
             cc.logger.logg("Domain of %s is %s".format(x, x.domain))
             done += x
@@ -43,7 +43,7 @@ final class DomainEnforcer
     private def enforceBooleanDomain(x: Variable[IntegerValue], dx: BooleanDomain) {
         if (dx.isSingleton) {
             if (cc.space.isChannelVariable(x)) {
-                x.turnIntoChannel(IntegerValue.Traits)
+                x.turnIntoChannel(IntegerValueTraits)
                 x.pruneDomain(NonNegativeIntegerDomain)
                 if (dx.singleValue == True) {
                     cc.costVars += x
@@ -56,7 +56,7 @@ final class DomainEnforcer
                 cc.space.setValue(x, if (dx.singleValue == True) Zero else One)
             }
         } else if (cc.space.isChannelVariable(x)) {
-            x.turnIntoChannel(IntegerValue.Traits)
+            x.turnIntoChannel(IntegerValueTraits)
             x.pruneDomain(NonNegativeIntegerDomain)
         }
     }
@@ -64,7 +64,7 @@ final class DomainEnforcer
     private def enforceIntegerDomain(x: Variable[IntegerValue], dx: IntegerDomain) {
         if (dx.isBounded) {
             if (cc.space.isChannelVariable(x)) {
-                x.turnIntoChannel(IntegerValue.Traits)
+                x.turnIntoChannel(IntegerValueTraits)
                 if (! cc.space.definingConstraint(x).get.isInstanceOf[Bool2Int1] || dx.isSingleton) {
                     val costs = createNonNegativeChannel[IntegerValue]
                     cc.space.post(new SetIn(nextConstraintId, null, x, dx, costs))
@@ -81,7 +81,7 @@ final class DomainEnforcer
     private def enforceIntegerSetDomain(x: Variable[IntegerSetValue], dx: IntegerPowersetDomain) {
         if (dx.isBounded) {
             if (cc.space.isChannelVariable(x)) {
-                x.turnIntoChannel(IntegerSetValue.Traits)
+                x.turnIntoChannel(IntegerSetValueTraits)
                 val costs = createNonNegativeChannel[IntegerValue]
                 cc.space.post(new SetSubset(nextConstraintId, null, x, dx.base, costs))
                 cc.costVars += costs

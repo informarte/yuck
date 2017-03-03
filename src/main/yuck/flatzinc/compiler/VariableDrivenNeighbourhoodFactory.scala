@@ -111,14 +111,14 @@ final class VariableDrivenNeighbourhoodFactory
             constraint match {
                 case lc: LinearCombination[IntegerValue @ unchecked] =>
                     for (ax <- lc.axs
-                         if ax.a.value >= 0 && IntegerValue.Traits.staticCast(ax.x.domain).maybeLb.exists(_.value >= 0))
+                         if ax.a.value >= 0 && IntegerValueTraits.staticDowncast(ax.x.domain).maybeLb.exists(_.value >= 0))
                     {
                         for (y <- space.involvedSearchVariables(ax.x)) {
                             zs(y) += ax
                         }
                     }
                 case sum: Sum[IntegerValue @ unchecked] =>
-                    for (x <- sum.xs if IntegerValue.Traits.staticCast(x.domain).maybeLb.exists(_.value >= 0)) {
+                    for (x <- sum.xs if IntegerValueTraits.staticDowncast(x.domain).maybeLb.exists(_.value >= 0)) {
                         for (y <- space.involvedSearchVariables(x)) {
                             zs(y) += new AX(One, x)
                         }

@@ -23,7 +23,8 @@ abstract class OrderedValue[Value] extends AnyValue with Ordered[Value] {
  */
 trait OrderedValueTraits[Value <: OrderedValue[Value]] extends AnyValueTraits[Value] with Ordering[Value] {
 
-    final def staticCast(x: Domain[Value]): OrderedDomain[Value] =
+    /** Casts the given domain to an ordered domain over Value. */
+    def staticDowncast(x: Domain[Value]): OrderedDomain[Value] =
         x.asInstanceOf[OrderedDomain[Value]]
 
 }

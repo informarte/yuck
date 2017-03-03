@@ -65,11 +65,11 @@ final class ConstraintDrivenNeighbourhoodFactory
     private def createNeighbourhoodFactory(constraint: yuck.core.Constraint): () => Option[AnnotatedNeighbourhood] = {
         constraint match {
             case lc: LinearCombination[IntegerValue @ unchecked]
-            if lc.axs.forall(ax => ax.a.value >= 0 && IntegerValue.Traits.staticCast(ax.x.domain).maybeLb.exists(_.value >= 0)) =>
+            if lc.axs.forall(ax => ax.a.value >= 0 && IntegerValueTraits.staticDowncast(ax.x.domain).maybeLb.exists(_.value >= 0)) =>
                 // might be a minimization goal in terms of non-negative search variables
                 createNeighbourhoodFactory(lc.axs)
             case sum: Sum[IntegerValue @ unchecked]
-            if sum.xs.forall(x => IntegerValue.Traits.staticCast(x.domain).maybeLb.exists(_.value >= 0)) =>
+            if sum.xs.forall(x => IntegerValueTraits.staticDowncast(x.domain).maybeLb.exists(_.value >= 0)) =>
                 // might be a satisfaction goal
                 createNeighbourhoodFactory(sum.xs.map(new AX(One, _)))
             case _ => {

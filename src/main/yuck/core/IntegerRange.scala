@@ -35,7 +35,7 @@ final class IntegerRange(
             "%s..%s".format(
                 if (lb == null) "-inf" else lb.toString,
                 if (ub == null) "+inf" else ub.toString)
-    override def valueTraits = IntegerValue.Traits
+    override def valueTraits = IntegerValueTraits
     override def size = {
         require(isFinite)
         0.max(ub.value - lb.value + 1)

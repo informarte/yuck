@@ -53,7 +53,7 @@ final class FlatZincResultFormatter(result: Result) extends Callable[Seq[String]
 
     private def value(x: AnyVariable, decl: VarDecl): AnyValue = decl.varType match {
         case BoolType | ArrayType(_, BoolType) =>
-            if (result.bestProposal.value(IntegerValue.Traits.staticCast(x)) == Zero) True else False
+            if (result.bestProposal.value(IntegerValueTraits.staticDowncast(x)) == Zero) True else False
         case _ => result.bestProposal.anyValue(x)
     }
 

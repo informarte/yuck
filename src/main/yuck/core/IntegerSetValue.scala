@@ -30,21 +30,28 @@ final class IntegerSetValue(val set: IntegerDomain) extends OrderedValue[Integer
  */
 final object IntegerSetValue {
 
-    final implicit object Traits extends OrderedValueTraits[IntegerSetValue] {
-        override val valueType = classOf[IntegerSetValue]
-        @inline override def compare(x: IntegerSetValue, y: IntegerSetValue) = x.compare(y)
-        override val unboundedDomain = UnboundedIntegerSetDomain
-        def isSubsetOf(lhs: Domain[IntegerSetValue], rhs: Domain[IntegerSetValue]): Boolean =
-            (lhs, rhs) match {
-                case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) =>
-                    lhs.isSubsetOf(rhs)
-                case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowersetDomain) =>
-                    lhs.base.isSubsetOf(rhs.base)
-                case (lhs: IntegerPowersetDomain, rhs: IntegerPowersetDomain) =>
-                    lhs.base.isSubsetOf(rhs.base)
-                case (lhs: IntegerPowersetDomain, rhs: SingletonIntegerSetDomain) =>
-                    false
-        }
-    }
+    implicit def valueTraits = IntegerSetValueTraits
 
+}
+
+/**
+ * Provides traits of integer-set values.
+ *
+ * @author Michael Marte
+ */
+final object IntegerSetValueTraits extends OrderedValueTraits[IntegerSetValue] {
+    override val valueType = classOf[IntegerSetValue]
+    @inline override def compare(x: IntegerSetValue, y: IntegerSetValue) = x.compare(y)
+    override val unboundedDomain = UnboundedIntegerSetDomain
+    def isSubsetOf(lhs: Domain[IntegerSetValue], rhs: Domain[IntegerSetValue]): Boolean =
+        (lhs, rhs) match {
+            case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) =>
+                lhs.isSubsetOf(rhs)
+            case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowersetDomain) =>
+                lhs.base.isSubsetOf(rhs.base)
+            case (lhs: IntegerPowersetDomain, rhs: IntegerPowersetDomain) =>
+                lhs.base.isSubsetOf(rhs.base)
+            case (lhs: IntegerPowersetDomain, rhs: SingletonIntegerSetDomain) =>
+                false
+    }
 }

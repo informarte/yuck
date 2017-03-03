@@ -111,10 +111,10 @@ class ValueTest extends UnitTest {
 
     @Test
     def testValueCasting {
-        BooleanValue.Traits.dynamicCast(False)
-        assertEx(BooleanValue.Traits.dynamicCast(Zero))
-        assertEx(IntegerValue.Traits.dynamicCast(False))
-        IntegerValue.Traits.dynamicCast(Zero)
+        BooleanValueTraits.dynamicDowncast(False)
+        assertEx(BooleanValueTraits.dynamicDowncast(Zero))
+        assertEx(IntegerValueTraits.dynamicDowncast(False))
+        IntegerValueTraits.dynamicDowncast(Zero)
     }
 
 }

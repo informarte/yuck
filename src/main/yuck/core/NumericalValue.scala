@@ -25,7 +25,8 @@ abstract class NumericalValue[Value] extends OrderedValue[Value] {
  */
 trait NumericalValueTraits[Value <: NumericalValue[Value]] extends OrderedValueTraits[Value] {
 
-    final def staticCast(x: OrderedDomain[Value]): NumericalDomain[Value] =
+    /** Casts the given domain to a numerical domain over Value. */
+    override def staticDowncast(x: Domain[Value]): NumericalDomain[Value] =
         x.asInstanceOf[NumericalDomain[Value]]
 
     /** Returns the additive identity. */

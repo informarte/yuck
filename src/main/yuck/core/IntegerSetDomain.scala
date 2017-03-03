@@ -7,7 +7,7 @@ package yuck.core
  * @author Michael Marte
  */
 abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
-    final override def valueTraits = IntegerSetValue.Traits
+    final override def valueTraits = IntegerSetValueTraits
     val base: IntegerDomain
     final override def hashCode = base.hashCode
     final override def equals(that: Any) = that match {

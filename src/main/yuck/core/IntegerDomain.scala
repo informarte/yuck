@@ -49,7 +49,7 @@ final class IntegerDomain(
     }
     override def toString = if (isEmpty) "{}" else ranges.map(_.toString).mkString(" union ")
 
-    override def valueTraits = IntegerValue.Traits
+    override def valueTraits = IntegerValueTraits
     @inline override def isEmpty = ranges.isEmpty
     override lazy val size = ranges.map(_.size).sum
     override def isFinite = isEmpty || (lb != null && ub != null)

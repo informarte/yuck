@@ -28,10 +28,17 @@ final class BooleanValue(val value: Boolean) extends OrderedValue[BooleanValue] 
  */
 final object BooleanValue {
 
-    final implicit object Traits extends OrderedValueTraits[BooleanValue] {
-        override val valueType = classOf[BooleanValue]
-        @inline override def compare(x: BooleanValue, y: BooleanValue) = x.compare(y)
-        override val unboundedDomain = UnboundedBooleanDomain
-    }
+    implicit def valueTraits = BooleanValueTraits
 
+}
+
+/**
+ * Provides traits of Boolean values.
+ *
+ * @author Michael Marte
+ */
+final object BooleanValueTraits extends OrderedValueTraits[BooleanValue] {
+    override val valueType = classOf[BooleanValue]
+    @inline override def compare(x: BooleanValue, y: BooleanValue) = x.compare(y)
+    override val unboundedDomain = UnboundedBooleanDomain
 }

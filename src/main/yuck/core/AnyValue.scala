@@ -20,7 +20,7 @@ abstract class AnyValue {
  * CAUTION!!!
  * Do not use x.isInstanceOf[Variable[Value]] or x.asInstanceOf[Variable[Value]]!
  * It will compile but not work due to type erasure :-(
- * Instead use value traits for type checking and dynamic up-casting!
+ * Instead use value traits for type checking and down-casting!
  *
  * @author Michael Marte
  */
@@ -40,13 +40,13 @@ trait AnyValueTraits[Value <: AnyValue] {
     }
 
     /** Casts the given value to Value. */
-    final def staticCast(a: AnyValue): Value =
+    private final def staticDowncast(a: AnyValue): Value =
         a.asInstanceOf[Value]
 
     /** Tries to cast the given value to Value. */
-    final def dynamicCast(a: AnyValue): Value = {
+    final def dynamicDowncast(a: AnyValue): Value = {
         checkType(a)
-        staticCast(a)
+        staticDowncast(a)
     }
 
     /** Throws when the given domain is not a domain over Value. */
@@ -57,13 +57,13 @@ trait AnyValueTraits[Value <: AnyValue] {
     }
 
     /** Casts the given domain to a domain over Value. */
-    final def staticCast(x: AnyDomain): Domain[Value] =
+    private final def staticDowncast(x: AnyDomain): Domain[Value] =
         x.asInstanceOf[Domain[Value]]
 
     /** Tries to cast the given domain to a domain over Value. */
-    final def dynamicCast(d: AnyDomain): Domain[Value] = {
+    final def dynamicDowncast(d: AnyDomain): Domain[Value] = {
         checkType(d)
-        staticCast(d)
+        staticDowncast(d)
     }
 
     /** Throws when the given variable is not a variable over Value. */
@@ -74,23 +74,23 @@ trait AnyValueTraits[Value <: AnyValue] {
     }
 
     /** Casts the given variable to a variable over Value. */
-    final def staticCast(x: AnyVariable): Variable[Value] =
+    final def staticDowncast(x: AnyVariable): Variable[Value] =
         x.asInstanceOf[Variable[Value]]
 
     /** Casts the given variable collection to a collection of variables over Value. */
-    final def staticCast[CC[X] <: TraversableOnce[X]](xs: CC[AnyVariable]): CC[Variable[Value]] =
+    final def staticDowncast[CC[X] <: TraversableOnce[X]](xs: CC[AnyVariable]): CC[Variable[Value]] =
         xs.asInstanceOf[CC[Variable[Value]]]
 
     /** Tries to cast the given variable to a variable over Value. */
-    final def dynamicCast(x: AnyVariable): Variable[Value] = {
+    final def dynamicDowncast(x: AnyVariable): Variable[Value] = {
         checkType(x)
-        staticCast(x)
+        staticDowncast(x)
     }
 
     /** Tries to cast the given variable collection to a collection of variables over Value. */
-    final def dynamicCast[CC[X] <: TraversableOnce[X]](xs: CC[AnyVariable]): CC[Variable[Value]] = {
-        xs.foreach(x => checkType(x))
-        staticCast(xs)
+    final def dynamicDowncast[CC[X] <: TraversableOnce[X]](xs: CC[AnyVariable]): CC[Variable[Value]] = {
+        xs.foreach(checkType)
+        staticDowncast(xs)
     }
 
 }

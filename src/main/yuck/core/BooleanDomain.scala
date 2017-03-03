@@ -18,7 +18,7 @@ final class BooleanDomain
         }
         case _ => false
     }
-    override def valueTraits = BooleanValue.Traits
+    override def valueTraits = BooleanValueTraits
     override def size = (if (containsFalse) 1 else 0) + (if (containsTrue) 1 else 0)
     override def isFinite = true
     override def values =

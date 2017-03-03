@@ -37,25 +37,7 @@ final object IntegerValue {
 
     def max(a: IntegerValue, b: IntegerValue): IntegerValue = if (a > b) a else b
 
-    final implicit object Traits extends NumericalValueTraits[IntegerValue] {
-        override val valueType = classOf[IntegerValue]
-        @inline override def compare(x: IntegerValue, y: IntegerValue) = x.compare(y)
-        override val unboundedDomain = UnboundedIntegerDomain
-        override val nonNegativeDomain = NonNegativeIntegerDomain
-        override val zero = Zero
-        override val one = One
-        def isSubsetOf(lhs: Domain[IntegerValue], rhs: Domain[IntegerValue]): Boolean =
-            (lhs, rhs) match {
-                case (lhs: IntegerRange, rhs: IntegerRange) =>
-                    lhs.isSubsetOf(rhs)
-                case (lhs: IntegerDomain, rhs: IntegerDomain) =>
-                    lhs.isSubsetOf(rhs)
-                case (lhs: IntegerRange, rhs: IntegerDomain) =>
-                    new IntegerDomain(Vector(lhs)).isSubsetOf(rhs)
-                case (lhs: IntegerDomain, rhs: IntegerRange) =>
-                    lhs.isSubsetOf(new IntegerDomain(Vector(rhs)))
-            }
-    }
+    implicit def valueTraits = IntegerValueTraits
 
     private val VALUE_RANGE = new Range(-10000, 10000, 1)
     private val valueCache = VALUE_RANGE.map(new IntegerValue(_)).toArray
@@ -70,4 +52,29 @@ final object IntegerValue {
     def get(a: Int): IntegerValue =
        if (VALUE_RANGE.contains(a)) valueCache.apply(a - VALUE_RANGE.start) else new IntegerValue(a)
 
+}
+
+/**
+ * Provides traits of integer values.
+ *
+ * @author Michael Marte
+ */
+final object IntegerValueTraits extends NumericalValueTraits[IntegerValue] {
+    override val valueType = classOf[IntegerValue]
+    @inline override def compare(x: IntegerValue, y: IntegerValue) = x.compare(y)
+    override val unboundedDomain = UnboundedIntegerDomain
+    override val nonNegativeDomain = NonNegativeIntegerDomain
+    override val zero = Zero
+    override val one = One
+    def isSubsetOf(lhs: Domain[IntegerValue], rhs: Domain[IntegerValue]): Boolean =
+        (lhs, rhs) match {
+            case (lhs: IntegerRange, rhs: IntegerRange) =>
+                lhs.isSubsetOf(rhs)
+            case (lhs: IntegerDomain, rhs: IntegerDomain) =>
+                lhs.isSubsetOf(rhs)
+            case (lhs: IntegerRange, rhs: IntegerDomain) =>
+                new IntegerDomain(Vector(lhs)).isSubsetOf(rhs)
+            case (lhs: IntegerDomain, rhs: IntegerRange) =>
+                lhs.isSubsetOf(new IntegerDomain(Vector(rhs)))
+        }
 }

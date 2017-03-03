@@ -801,14 +801,14 @@ class DomainTest extends UnitTest {
 
     @Test
     def testDomainCasting {
-        BooleanValue.Traits.staticCast(UnboundedBooleanDomain)
-        BooleanValue.Traits.staticCast(UnboundedIntegerDomain)
-        BooleanValue.Traits.dynamicCast(UnboundedBooleanDomain)
-        assertEx(BooleanValue.Traits.dynamicCast(UnboundedIntegerDomain))
-        assertEx(IntegerValue.Traits.dynamicCast(UnboundedBooleanDomain))
-        IntegerValue.Traits.dynamicCast(UnboundedIntegerDomain)
-        IntegerSetValue.Traits.dynamicCast(new IntegerPowersetDomain(UnboundedIntegerDomain))
-        IntegerSetValue.Traits.dynamicCast(new SingletonIntegerSetDomain(UnboundedIntegerDomain))
+        BooleanValueTraits.staticDowncast(UnboundedBooleanDomain)
+        BooleanValueTraits.dynamicDowncast(UnboundedBooleanDomain)
+        assertEx(BooleanValueTraits.dynamicDowncast(UnboundedIntegerDomain))
+        IntegerValueTraits.staticDowncast(UnboundedIntegerDomain)
+        assertEx(IntegerValueTraits.dynamicDowncast(UnboundedBooleanDomain))
+        IntegerValueTraits.dynamicDowncast(UnboundedIntegerDomain)
+        IntegerSetValueTraits.dynamicDowncast(new IntegerPowersetDomain(UnboundedIntegerDomain))
+        IntegerSetValueTraits.dynamicDowncast(new SingletonIntegerSetDomain(UnboundedIntegerDomain))
     }
 
 }
