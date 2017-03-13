@@ -93,4 +93,7 @@ trait AnyValueTraits[Value <: AnyValue] {
         staticDowncast(xs)
     }
 
+    /** Returns true iff lhs is a subset of rhs. */
+    def isSubsetOf(lhs: Domain[Value], rhs: Domain[Value]): Boolean
+
 }

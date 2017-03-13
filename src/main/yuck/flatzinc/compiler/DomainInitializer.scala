@@ -21,6 +21,13 @@ final class DomainInitializer
     private val equalVars = cc.equalVars
     private val domains = cc.domains
 
+    private def boolDomain(a: Expr): BooleanDomain =
+        domains(a).asInstanceOf[BooleanDomain]
+    private def intDomain(a: Expr): IntegerDomain =
+        domains(a).asInstanceOf[IntegerDomain]
+    private def intSetDomain(a: Expr): IntegerSetDomain =
+        domains(a).asInstanceOf[IntegerSetDomain]
+
     // puts problem variables before variables introduced by mzn2fzn
     private object ProblemVariablesFirstOrdering extends Ordering[Expr] {
         override def compare(a: Expr, b: Expr) = {
@@ -36,6 +43,7 @@ final class DomainInitializer
 
     override def run {
         initializeDomains
+        propagateAssignments
     }
 
     private def initializeDomains {
@@ -51,22 +59,6 @@ final class DomainInitializer
                         set += a
                         equalVars += a -> set
                     }
-                    decl.optionalValue match {
-                        case Some(Term(rhsId, Nil)) =>
-                            val lhsId = decl.id
-                            for (idx <- 1 to n) {
-                                val a = ArrayAccess(lhsId, IntConst(idx))
-                                val b = ArrayAccess(rhsId, IntConst(idx))
-                                propagateEquality(a, b)
-                            }
-                        case Some(ArrayConst(elems)) =>
-                            assert(elems.size == n)
-                            for ((idx, b) <- (1 to n).zip(elems)) {
-                                val a = ArrayAccess(decl.id, IntConst(idx))
-                                propagateEquality(a, b)
-                            }
-                        case _ =>
-                    }
                 case _ => {
                     val domain = createDomain(decl.varType)
                     val a = Term(decl.id, Nil)
@@ -75,24 +67,108 @@ final class DomainInitializer
                     val set = new mutable.TreeSet[Expr]()(ProblemVariablesFirstOrdering)
                     set += a
                     equalVars += a -> set
+                }
+            }
+        }
+    }
+
+    private def propagateAssignments {
+        for (decl <- cc.ast.varDecls) {
+            decl.varType match {
+                case ArrayType(Some(IntRange(1, n)), _) =>
+                    decl.optionalValue match {
+                        case Some(Term(rhsId, Nil)) =>
+                            val lhsId = decl.id
+                            for (idx <- 1 to n) {
+                                val a = ArrayAccess(lhsId, IntConst(idx))
+                                val b = ArrayAccess(rhsId, IntConst(idx))
+                                propagateAssignment(a, b)
+                            }
+                        case Some(ArrayConst(elems)) =>
+                            assert(elems.size == n)
+                            for ((idx, b) <- (1 to n).zip(elems)) {
+                                val a = ArrayAccess(decl.id, IntConst(idx))
+                                propagateAssignment(a, b)
+                            }
+                        case _ =>
+                    }
+                case _ => {
                     if (decl.optionalValue.isDefined) {
+                        val a = Term(decl.id, Nil)
                         val b = decl.optionalValue.get
-                        propagateEquality(a, b)
+                        propagateAssignment(a, b)
                     }
                 }
             }
         }
     }
 
-    private def propagateEquality(a: Expr, b: Expr) {
+    private def propagateAssignment(a: Expr, b: Expr) {
         val exprType = getExprType(a)
         checkTypeCompatibility(exprType, getExprType(b))
-        val id = exprType match {
-            case BoolType => "bool_eq"
-            case IntType(_) => "int_eq"
-            case IntSetType(_) => "set_eq"
+        exprType match {
+            case BoolType => b match {
+                case BoolConst(value) =>
+                    val da1 = boolDomain(a)
+                    val da2 = new BooleanDomain(! value && da1.containsFalse, value && da1.containsTrue)
+                    if (da1 != da2) equalVars(a).foreach(b => reduceDomain(b, da2))
+                case b =>
+                    val da = boolDomain(a)
+                    val db = boolDomain(b)
+                    val d = new BooleanDomain(da.containsFalse && db.containsFalse, da.containsTrue && db.containsTrue)
+                    propagateEquality(a, b, d)
+            }
+            case IntType(_) => b match {
+                case IntConst(value) =>
+                    val da1 = intDomain(a)
+                    val da2 = IntegerDomainPruner.eq(da1, IntegerValue.get(value))
+                    if (da1 != da2) equalVars(a).foreach(b => reduceDomain(b, da2))
+                case b =>
+                    val da = intDomain(a)
+                    val db = intDomain(b)
+                    val d = IntegerDomainPruner.eq(da, db)
+                    propagateEquality(a, b, d)
+            }
+            case IntSetType(_) =>
+                val da = intSetDomain(a)
+                val db = intSetDomain(b)
+                val d = new IntegerPowersetDomain(IntegerDomainPruner.eq(da.base, db.base))
+                propagateEquality(a, b, d)
         }
-        cc.ast = cc.ast.copy(constraints = Constraint(id, List(a, b), Nil) :: cc.ast.constraints)
+    }
+
+    def propagateEquality
+        [Value <: AnyValue]
+        (a: Expr, b: Expr, d: Domain[Value])
+        (implicit valueTraits: AnyValueTraits[Value])
+    {
+        val e = equalVars(a)
+        val f = equalVars(b)
+        if (domains(a) != d) {
+            e.foreach(a => reduceDomain(a, d))
+        }
+        if (domains(b) != d) {
+            f.foreach(a => reduceDomain(a, d))
+        }
+        if (e.size > f.size) {
+            e ++= f
+            f.foreach(a => equalVars += a -> e)
+        } else {
+            f ++= e
+            e.foreach(a => equalVars += a -> f)
+        }
+    }
+
+    private def reduceDomain
+        [Value <: AnyValue]
+        (a: Expr, d: Domain[Value])
+        (implicit valueTraits: AnyValueTraits[Value])
+    {
+        if (d.isEmpty) {
+            throw new DomainWipeOutException(a)
+        }
+        assert(valueTraits.isSubsetOf(d, valueTraits.dynamicDowncast(domains(a))))
+        domains += a -> d
     }
 
     private def getExprType(a: Expr): Type = a match {

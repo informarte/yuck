@@ -66,7 +66,7 @@ final object IntegerValueTraits extends NumericalValueTraits[IntegerValue] {
     override val nonNegativeDomain = NonNegativeIntegerDomain
     override val zero = Zero
     override val one = One
-    def isSubsetOf(lhs: Domain[IntegerValue], rhs: Domain[IntegerValue]): Boolean =
+    override def isSubsetOf(lhs: Domain[IntegerValue], rhs: Domain[IntegerValue]) =
         (lhs, rhs) match {
             case (lhs: IntegerRange, rhs: IntegerRange) =>
                 lhs.isSubsetOf(rhs)

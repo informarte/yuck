@@ -41,4 +41,6 @@ final object BooleanValueTraits extends OrderedValueTraits[BooleanValue] {
     override val valueType = classOf[BooleanValue]
     @inline override def compare(x: BooleanValue, y: BooleanValue) = x.compare(y)
     override val unboundedDomain = UnboundedBooleanDomain
+    override def isSubsetOf(lhs: Domain[BooleanValue], rhs: Domain[BooleanValue]) =
+        lhs.isSubsetOf(rhs)
 }

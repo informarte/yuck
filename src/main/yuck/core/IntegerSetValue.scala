@@ -43,7 +43,7 @@ final object IntegerSetValueTraits extends OrderedValueTraits[IntegerSetValue] {
     override val valueType = classOf[IntegerSetValue]
     @inline override def compare(x: IntegerSetValue, y: IntegerSetValue) = x.compare(y)
     override val unboundedDomain = UnboundedIntegerSetDomain
-    def isSubsetOf(lhs: Domain[IntegerSetValue], rhs: Domain[IntegerSetValue]): Boolean =
+    override def isSubsetOf(lhs: Domain[IntegerSetValue], rhs: Domain[IntegerSetValue]) =
         (lhs, rhs) match {
             case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) =>
                 lhs.isSubsetOf(rhs)
