@@ -12,7 +12,7 @@ import yuck.util.logging.LazyLogger
  *
  */
 final class CompilationContext(
-    var ast: FlatZincAST, // allow for AST transformation
+    var ast: FlatZincAst, // allow for AST transformation
     val cfg: FlatZincSolverConfiguration,
     val logger: LazyLogger)
 {

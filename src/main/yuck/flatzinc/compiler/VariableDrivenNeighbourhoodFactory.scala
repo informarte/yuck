@@ -61,6 +61,9 @@ final class VariableDrivenNeighbourhoodFactory
         val remainingVariables = hotSpotIndicators.keys.toSet -- implicitlyConstrainedVars
         if (! remainingVariables.isEmpty) {
             val xs = remainingVariables.toIndexedSeq
+            for (x <- xs if x.domain.isInfinite) {
+                throw new VariableWithInfiniteDomainException(x)
+            }
             logger.logg("Adding a neighbourhood over %s".format(xs))
             neighbourhoods +=
                 new RandomReassignmentGenerator(

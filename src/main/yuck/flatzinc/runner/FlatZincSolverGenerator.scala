@@ -7,7 +7,7 @@ import scala.math._
 import yuck.annealing._
 import yuck.core._
 import yuck.flatzinc.FlatZincSolverConfiguration
-import yuck.flatzinc.ast.FlatZincAST
+import yuck.flatzinc.ast.FlatZincAst
 import yuck.flatzinc.compiler.{FlatZincCompiler, FlatZincCompilerResult}
 import yuck.util.logging.LazyLogger
 
@@ -16,7 +16,7 @@ import yuck.util.logging.LazyLogger
  *
  */
 final class FlatZincSolverGenerator
-    (ast: FlatZincAST, cfg: FlatZincSolverConfiguration, logger: LazyLogger, monitor: AnnealingMonitor)
+    (ast: FlatZincAst, cfg: FlatZincSolverConfiguration, logger: LazyLogger, monitor: AnnealingMonitor)
     extends SolverGenerator
 {
 

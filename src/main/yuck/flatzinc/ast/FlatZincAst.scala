@@ -1,5 +1,7 @@
 package yuck.flatzinc.ast
 
+import scala.collection._
+
 trait ValueSet[Value]
 final case class IntRange(val lb: Int, val ub: Int) extends ValueSet[Int] {
     override def toString = "[%s, %s]".format(lb, ub)
@@ -80,7 +82,7 @@ final case class Satisfy(override val annotations: List[Annotation]) extends Sol
 final case class Minimize(val objective: Expr, override val annotations: List[Annotation]) extends SolveGoal(annotations)
 final case class Maximize(val objective: Expr, override val annotations: List[Annotation]) extends SolveGoal(annotations)
 
-final case class FlatZincAST(
+final case class FlatZincAst(
     val predDecls: List[PredDecl],
     val predDeclsByName: Map[String, PredDecl],
     val paramDecls: List[ParamDecl],
@@ -89,3 +91,94 @@ final case class FlatZincAST(
     val varDeclsByName: Map[String, VarDecl],
     val constraints: List[Constraint],
     val solveGoal: SolveGoal)
+{
+
+    /** Returns the elements of the given array. */
+    final def getArrayElems(expr: Expr): immutable.Iterable[Expr] = expr match {
+        case ArrayConst(elems) =>
+            elems
+        case Term(id, Nil) if varDeclsByName.contains(id) =>
+            val decl = varDeclsByName(id)
+            if (decl.optionalValue.isDefined) {
+                val ArrayConst(elems) = decl.optionalValue.get
+                elems
+            } else {
+                val ArrayType(Some(IntRange(n, m)), _) = decl.varType
+                (n to m).toStream.map(i => ArrayAccess(id, IntConst(i)))
+            }
+        case Term(id, Nil) if paramDeclsByName.contains(id) =>
+            val ArrayConst(elems) = paramDeclsByName(id).value
+            elems
+    }
+
+    /** Returns the variables involved in the given expression. */
+    def involvedVariables(expr: Expr): immutable.Set[Expr] = expr match {
+        case BoolConst(_) | IntConst(_) | FloatConst(_) | IntSetConst(_) =>
+            immutable.Set()
+        case ArrayConst(elems) =>
+            elems.map(involvedVariables).flatten.toSet
+        case ArrayAccess(id, idx) if varDeclsByName.contains(id) =>
+            val decl = varDeclsByName(id)
+            if (decl.optionalValue.isDefined) {
+                findIndex(idx) match {
+                    case Some(i) =>
+                        val ArrayType(Some(IntRange(n, m)), _) = decl.varType
+                        val ArrayConst(elems) = decl.optionalValue.get
+                        involvedVariables(elems(i - n))
+                    case None =>
+                        immutable.Set(expr)
+                }
+            } else {
+                immutable.Set(expr)
+            }
+        case ArrayAccess(id, _) if paramDeclsByName.contains(id) =>
+            immutable.Set()
+        case Term(id, Nil) if varDeclsByName.contains(id) =>
+            if (varDeclsByName(id).varType.isArrayType) getArrayElems(expr).map(involvedVariables).flatten.toSet
+            else immutable.Set(expr)
+        case Term(id, Nil) if paramDeclsByName.contains(id) =>
+            immutable.Set()
+    }
+
+    private def findIndex(expr: Expr): Option[Int] = expr match {
+        case IntConst(i) =>
+            Some(i)
+        case ArrayAccess(id, idx) if varDeclsByName.contains(id) =>
+            val decl = varDeclsByName(id)
+            if (decl.optionalValue.isDefined) {
+                findIndex(idx) match {
+                    case Some(i) =>
+                        val ArrayType(Some(IntRange(n, _)), _) = decl.varType
+                        val ArrayConst(elems) = decl.optionalValue.get
+                        findIndex(elems(i - n))
+                    case None =>
+                        None
+                }
+            } else {
+                None
+            }
+        case ArrayAccess(id, idx) if paramDeclsByName.contains(id) =>
+            findIndex(idx) match {
+                case Some(i) =>
+                    val decl = paramDeclsByName(id)
+                    val ArrayType(Some(IntRange(n, _)), _) = decl.paramType
+                    val ArrayConst(elems) = decl.value
+                    findIndex(elems(i - n))
+                case None =>
+                    None
+            }
+        case Term(id, Nil) if varDeclsByName.contains(id) =>
+            val decl = varDeclsByName(id)
+            if (decl.optionalValue.isDefined) {
+                findIndex(varDeclsByName(id).optionalValue.get)
+            } else {
+                None
+            }
+        case Term(id, Nil) if paramDeclsByName.contains(id) =>
+            findIndex(paramDeclsByName(id).value)
+    }
+
+    final def involvedVariables(constraint: Constraint): immutable.Set[Expr] =
+        constraint.params.toIterator.map(involvedVariables).flatten.toSet
+
+}

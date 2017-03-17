@@ -5,6 +5,7 @@ import org.junit._
 import yuck.annealing.test._
 import yuck.constraints.test._
 import yuck.core.test._
+import yuck.flatzinc.ast.test._
 import yuck.flatzinc.parser.test._
 
 @runner.RunWith(classOf[runners.Suite])
@@ -24,6 +25,7 @@ import yuck.flatzinc.parser.test._
         classOf[Queens],
         classOf[SendMoreMoney],
         classOf[SendMostMoney],
+        classOf[FlatZincAstTest],
         classOf[FlatZincParserTest]))
 @Test
 class UnitTestSuite {

@@ -60,21 +60,8 @@ abstract class CompilationPhase(
         }
     }
 
-    protected final def getArrayElems(expr: Expr): immutable.Iterable[Expr] = expr match {
-        case ArrayConst(elems) => elems
-        case Term(id, Nil) if cc.ast.varDeclsByName.get(id).isDefined =>
-            val decl = cc.ast.varDeclsByName(id)
-            if (decl.optionalValue.isDefined) {
-                val ArrayConst(elems) = decl.optionalValue.get
-                elems
-            } else {
-                val ArrayType(Some(IntRange(1, n)), IntType(_)) = decl.varType
-                (1 to n).toStream.map(i => ArrayAccess(id, IntConst(i)))
-            }
-        case Term(id, Nil) if cc.ast.paramDeclsByName.get(id).isDefined =>
-            val ArrayConst(elems) = cc.ast.paramDeclsByName(id).value
-            elems
-    }
+    protected final def getArrayElems(expr: Expr): immutable.Iterable[Expr] =
+        cc.ast.getArrayElems(expr)
 
     protected final def createIntegerDomain(lb: Int, ub: Int): IntegerDomain =
         new IntegerDomain(IntegerValue.get(lb), IntegerValue.get(ub))

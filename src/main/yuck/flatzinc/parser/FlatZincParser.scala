@@ -124,10 +124,10 @@ object FlatZincParser extends RegexParsers {
                 case annotations ~ expr => Maximize(expr, annotations)
             }) <~ ";"
 
-    lazy val flatzinc_model: Parser[FlatZincAST] =
+    lazy val flatzinc_model: Parser[FlatZincAst] =
         (pred_decl*)  ~ (param_decl*) ~ (var_decl*) ~ (constraint*)  ~ solve_goal ^^ {
             case predDecls ~ paramDecls ~ varDecls ~ constraints ~ solveGoal =>
-                FlatZincAST(
+                FlatZincAst(
                     predDecls,
                     predDecls.map(decl => (decl.id -> decl)).toMap,
                     paramDecls,
@@ -138,7 +138,7 @@ object FlatZincParser extends RegexParsers {
                     solveGoal)
         }
 
-    def parse(reader: java.io.InputStreamReader): FlatZincAST =
+    def parse(reader: java.io.InputStreamReader): FlatZincAst =
         FlatZincParser.parse(FlatZincParser.flatzinc_model, reader) match {
             case FlatZincParser.Success(ast, rest) => ast
             case FlatZincParser.NoSuccess(msg, _) => throw new FlatZincParserException(msg)

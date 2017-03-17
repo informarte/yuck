@@ -92,6 +92,9 @@ final class ConstraintDrivenNeighbourhoodFactory
                     if (xs.isEmpty) {
                         None
                     } else {
+                        for (x <- xs if x.domain.isInfinite) {
+                            throw new VariableWithInfiniteDomainException(x)
+                        }
                         logger.logg("%s contributes a neighbourhood over %s".format(constraint, xs))
                         val neighbourhood =
                             new RandomReassignmentGenerator(
