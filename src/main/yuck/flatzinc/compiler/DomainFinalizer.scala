@@ -6,41 +6,39 @@ import yuck.constraints._
 import yuck.core._
 
 /**
- * Enforces domains of FlatZinc variables.
- *
- * Domains of search variables are enforced by reducing their domains.
- *
- * Domains of channel variables are enforced by posting appropriate constraints.
+ * Relaxes the domains of FlatZinc variables that were turned into channel variables
+ * (such that they can hold all intermediate values) and enforces their domains by
+ * adding appropriate constraints.
  *
  * @author Michael Marte
  */
-final class DomainEnforcer
+final class DomainFinalizer
     (cc: CompilationContext, randomGenerator: RandomGenerator)
     extends CompilationPhase(cc, randomGenerator)
 {
 
     override def run {
-        enforceDomains
+        finalizeDomains
     }
 
-    private def enforceDomains {
+    private def finalizeDomains {
         val done = new mutable.HashSet[AnyVariable]
         for ((key, x) <- cc.vars if ! done.contains(x)) {
             val dx = cc.domains(key)
             val tx = dx.valueType
             if (tx == BooleanValueTraits.valueType) {
-                enforceBooleanDomain(IntegerValueTraits.staticDowncast(x), dx.asInstanceOf[BooleanDomain])
+                finalizeBooleanDomain(IntegerValueTraits.staticDowncast(x), dx.asInstanceOf[BooleanDomain])
             } else if (tx == IntegerValueTraits.valueType) {
-                enforceIntegerDomain(IntegerValueTraits.staticDowncast(x), dx.asInstanceOf[IntegerDomain])
+                finalizeIntegerDomain(IntegerValueTraits.staticDowncast(x), dx.asInstanceOf[IntegerDomain])
             } else if (tx == IntegerSetValueTraits.valueType) {
-                enforceIntegerSetDomain(IntegerSetValueTraits.staticDowncast(x), dx.asInstanceOf[IntegerPowersetDomain])
+                finalizeIntegerSetDomain(IntegerSetValueTraits.staticDowncast(x), dx.asInstanceOf[IntegerPowersetDomain])
             }
             cc.logger.logg("Domain of %s is %s".format(x, x.domain))
             done += x
         }
     }
 
-    private def enforceBooleanDomain(x: Variable[IntegerValue], dx: BooleanDomain) {
+    private def finalizeBooleanDomain(x: Variable[IntegerValue], dx: BooleanDomain) {
         if (dx.isSingleton) {
             if (cc.space.isChannelVariable(x)) {
                 x.turnIntoChannel(IntegerValueTraits)
@@ -61,7 +59,7 @@ final class DomainEnforcer
         }
     }
 
-    private def enforceIntegerDomain(x: Variable[IntegerValue], dx: IntegerDomain) {
+    private def finalizeIntegerDomain(x: Variable[IntegerValue], dx: IntegerDomain) {
         if (dx.isBounded) {
             if (cc.space.isChannelVariable(x)) {
                 x.turnIntoChannel(IntegerValueTraits)
@@ -78,7 +76,7 @@ final class DomainEnforcer
         }
     }
 
-    private def enforceIntegerSetDomain(x: Variable[IntegerSetValue], dx: IntegerPowersetDomain) {
+    private def finalizeIntegerSetDomain(x: Variable[IntegerSetValue], dx: IntegerPowersetDomain) {
         if (dx.isBounded) {
             if (cc.space.isChannelVariable(x)) {
                 x.turnIntoChannel(IntegerSetValueTraits)

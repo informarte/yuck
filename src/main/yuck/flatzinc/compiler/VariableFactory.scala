@@ -6,19 +6,14 @@ import yuck.flatzinc.ast._
 /**
  * Generates Yuck variables from FlatZinc variable definitions.
  *
- * Boolean FlatZinc variables get translated to integer Yuck variables with infinite,
- * non-negative domains where 0 means true and positive values mean false.
- * (Positive values in the domains of Boolean channel variables will be used to encode
- * the degree of violation of reified constraints.)
- *
- * We generate Yuck variables with unbounded domains and enforce their actual domains
- * (as specified by the FlatZinc model) in a later phase, either by pruning the domain
- * or by means of suitable constraints. In particular, the domains of Boolean search
- * variables will be reduced to {0, 1}.
+ * Boolean FlatZinc variables get translated to integer Yuck variables with {0, 1}
+ * domains where 0 means true and 1 means false. (In a later phase, the domains
+ * of Boolean channel variables will be relaxed to include all positive integer
+ * values to represent the degree of violation of reified constraints.)
  *
  * For each class of FlatZinc variables that, in earlier phases, were identified to
- * be equivalent, a representative is chosen and only for this representative a Yuck variable
- * is introduced.
+ * be equivalent, a representative is chosen and only for this representative a Yuck
+ * variable is introduced.
  *
  * Notice that other phases may introduce additional variables on-the-fly as needed.
  *
