@@ -52,7 +52,7 @@ final class IntegerRange(
         lb
     }
     override def randomValue(randomGenerator: RandomGenerator) = {
-        require(! isEmpty)
+        require(size > 0)
         IntegerValue.get(lb.value + randomGenerator.nextInt(size))
     }
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: IntegerValue) = {

@@ -224,43 +224,9 @@ class MiniZincTests extends MiniZincTestSuite {
     }
 
     @Test
-    @Category(Array(classOf[MaximizationProblem]))
-    def testMaximizationProblemWithBoundedDanglingObjectiveVariable {
-        solve(task.copy(problemName = "maximization_problem_with_bounded_dangling_objective_variable"))
-    }
-
-    @Test
     @Category(Array(classOf[MinimizationProblem]))
     def testMinimizationProblemWithUnboundedDanglingObjectiveVariable {
         solve(task.copy(problemName = "minimization_problem_with_unbounded_dangling_objective_variable"))
-    }
-
-    @Test
-    @Category(Array(classOf[MaximizationProblem]))
-    def testMaximizationProblemWithUnboundedDanglingObjectiveVariable {
-        solve(task.copy(problemName = "maximization_problem_with_unbounded_dangling_objective_variable"))
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem]))
-    def testSatisfiabilityProblemWithBoundedDanglingVariable {
-        solve(task.copy(problemName = "satisfiability_problem_with_bounded_dangling_variable"))
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem]))
-    def testSatisfiabilityProblemWithUnboundedDanglingVariable {
-        assertEx(
-            solve(task.copy(problemName = "satisfiability_problem_with_unbounded_dangling_variable")),
-            classOf[VariableWithInfiniteDomainException])
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem]))
-    def testSatisfiabilityProblemWithUnboundedSearchVariable {
-        assertEx(
-            solve(task.copy(problemName = "satisfiability_problem_with_unbounded_search_variable")),
-            classOf[VariableWithInfiniteDomainException])
     }
 
     @Test
@@ -268,6 +234,18 @@ class MiniZincTests extends MiniZincTestSuite {
     def testMinimizationProblemWithImplicitlyConstrainedObjectiveVariable {
         val result = solve(task.copy(problemName = "minimization_problem_with_implicitly_constrained_objective_variable"))
         assertEq(result.asInstanceOf[AnnealingResult].consultationsPerMove, 0)
+    }
+
+    @Test
+    @Category(Array(classOf[MaximizationProblem]))
+    def testMaximizationProblemWithBoundedDanglingObjectiveVariable {
+        solve(task.copy(problemName = "maximization_problem_with_bounded_dangling_objective_variable"))
+    }
+
+    @Test
+    @Category(Array(classOf[MaximizationProblem]))
+    def testMaximizationProblemWithUnboundedDanglingObjectiveVariable {
+        solve(task.copy(problemName = "maximization_problem_with_unbounded_dangling_objective_variable"))
     }
 
     @Test
@@ -279,8 +257,38 @@ class MiniZincTests extends MiniZincTestSuite {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
-    def testEmptySatisfiabilityProblem {
-        solve(task.copy(problemName = "empty_satisfiability_problem"))
+    def testProblemWithBoundedDanglingVariable {
+        solve(task.copy(problemName = "problem_with_bounded_dangling_variable"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testProblemWithUnboundedDanglingVariable {
+        assertEx(
+            solve(task.copy(problemName = "problem_with_unbounded_dangling_variable")),
+            classOf[VariableWithInfiniteDomainException])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testProblemWithBoundedIrrelevantSearchVariable {
+        solve(task.copy(problemName = "problem_with_bounded_irrelevant_search_variable"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testProblemWithUnboundedIrrelevantSearchVariable {
+        assertEx(
+            solve(task.copy(problemName = "problem_with_unbounded_irrelevant_search_variable")),
+            classOf[VariableWithInfiniteDomainException])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testProblemWithUnboundedRelevantSearchVariable {
+        assertEx(
+            solve(task.copy(problemName = "problem_with_unbounded_relevant_search_variable")),
+            classOf[VariableWithInfiniteDomainException])
     }
 
 }

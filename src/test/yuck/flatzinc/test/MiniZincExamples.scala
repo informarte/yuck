@@ -8,6 +8,7 @@ import org.junit.experimental.categories.Categories._
 import org.junit.runner.RunWith
 import org.junit.runners.Suite.SuiteClasses
 
+import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
 import yuck.flatzinc.test.util._
 
 /**
@@ -189,11 +190,13 @@ class MiniZincExamples extends MiniZincTestSuite {
         solve(task.copy(problemName = "product_fd", maybeOptimum = Some(37200), maybeQualityTolerance = Some(200)))
     }
 
-    // Variables inside and outside do not have domains.
+    // Variables inside and outside do not have infinite domains and pruning cannot make them finite.
     @Test
-    @Category(Array(classOf[UnsuitableProblem], classOf[MinimizationProblem]))
+    @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
     def testProductLp {
-        solve(task.copy(problemName = "product_lp", maybeOptimum = Some(37200)))
+        assertEx(
+            solve(task.copy(problemName = "product_lp", maybeOptimum = Some(37200))),
+            classOf[VariableWithInfiniteDomainException])
     }
 
     // Solved, but not to optimality.

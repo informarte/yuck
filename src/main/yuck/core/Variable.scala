@@ -41,9 +41,6 @@ final class Variable
             domain.nextRandomValue(randomGenerator, space.searchState.value(this)))
 
     override def assignRandomValue(space: Space, randomGenerator: RandomGenerator) = {
-        if (domain.isInfinite) {
-            throw new VariableWithInfiniteDomainException(this)
-        }
         space.setValue(this, domain.randomValue(randomGenerator))
     }
 

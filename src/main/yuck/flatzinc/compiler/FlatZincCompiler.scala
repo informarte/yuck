@@ -36,6 +36,7 @@ final class FlatZincCompiler
                 preferDomainPruningOverImplicitSolving
             }
 
+        checkSearchVariableDomains(cc)
         assignValuesToDanglingVariables(cc)
 
         logger.criticalSection {
@@ -117,6 +118,14 @@ final class FlatZincCompiler
         logger.withRootLogLevel(rootLogLevel) {
             logger.withTimedLogScope("Running %s".format(phase.getClass.getSimpleName)) {
                 phase.run
+            }
+        }
+    }
+
+    private def checkSearchVariableDomains(cc: CompilationContext): Unit = {
+        for (x <- cc.space.searchVariables) {
+            if (x.domain.isInfinite) {
+                throw new VariableWithInfiniteDomainException(x)
             }
         }
     }
