@@ -22,7 +22,9 @@ class MiniZincSolutionVerifier(
 
     private val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
 
-    override def call = checkExpectations || consultMiniZinc
+    override def call =
+        logger.withTimedLogScope("Checking expectations")(checkExpectations) ||
+        logger.withTimedLogScope("Consulting MiniZinc")(consultMiniZinc)
 
     // We compare the solution to the expectations provided by the MiniZinc distribution.
     // Note that some problems have many solutions and only a few are provided in terms of expectations.
@@ -40,11 +42,18 @@ class MiniZincSolutionVerifier(
             .listFiles
             .toList
             .filter(_.getName.matches("%s\\.exp.*".format(instanceName)))
+        logger.log("Found %d expectation files in %s".format(expectationFiles.size, searchPath))
         val actualLines = new FlatZincResultFormatter(result).call
-        val verified = expectationFiles.exists(expectationFile => {
+        val witnessFile = expectationFiles.find(expectationFile => {
             val expectedLines = scala.io.Source.fromFile(expectationFile).mkString.lines.toList
             actualLines.zip(expectedLines).forall {case (a, b) => a == b}
         })
+        val verified = witnessFile.isDefined
+        if (verified) {
+            logger.log("%s matches".format(witnessFile.get.getName))
+        } else {
+            logger.log("No expectation file matches")
+        }
         verified
     }
 
@@ -95,8 +104,10 @@ class MiniZincSolutionVerifier(
         solutionWriter.write("include \"%s\";".format(mznFileName));
         solutionWriter.close
         val flattenedSolutionFilePath = solutionFilePath.replace(".mzn", ".fzn")
+        new ProcessRunner(logger, List("mzn2fzn", "--version")).call
         val mzn2fznCommand = mutable.ArrayBuffer(
             "mzn2fzn",
+            "-v",
             "-I", includePath,
             // To facilitate the verification of solutions found by Yuck, the following directory
             // contains a redefinitions file that causes mzn2fzn to ignore redundant constraints.
@@ -105,6 +116,7 @@ class MiniZincSolutionVerifier(
             "--no-output-ozn", "--output-fzn-to-file", flattenedSolutionFilePath)
         mzn2fznCommand += solutionFilePath
         if (! dznFileName.isEmpty) mzn2fznCommand += "%s/%s".format(includePath, dznFileName)
+        new ProcessRunner(logger, List("flatzinc", "--version")).call
         val flatzincCommand = List("flatzinc", "--backend", "fd", "--solver-stats", flattenedSolutionFilePath)
         val verified =
             checkIndicators(solution) &&
