@@ -4,7 +4,7 @@ import scala.collection._
 
 trait ValueSet[Value]
 final case class IntRange(val lb: Int, val ub: Int) extends ValueSet[Int] {
-    override def toString = "[%s, %s]".format(lb, ub)
+    override def toString = "%s..%s".format(lb, ub)
 }
 final case class IntSet(val value: Set[Int]) extends ValueSet[Int] {
     override def toString =
@@ -13,7 +13,9 @@ final case class IntSet(val value: Set[Int]) extends ValueSet[Int] {
             if (value.size > 10) ", ..." else "")
 }
 // The representation of floats is left to the implementation by the Zinc specification.
-final case class FloatRange(val lb: Double, val ub: Double) extends ValueSet[Double]
+final case class FloatRange(val lb: Double, val ub: Double) extends ValueSet[Double] {
+    override def toString = "%s..%s".format(lb, ub)
+}
 
 trait Expr {
     val isConst = false
@@ -47,12 +49,33 @@ trait Type {
     val isArrayType = false
 }
 trait BaseType extends Type
-final case object BoolType extends BaseType
-final case class IntType(val optionalDomain: Option[ValueSet[Int]]) extends BaseType
-final case class FloatType(val optionalDomain: Option[ValueSet[Double]]) extends BaseType
-final case class IntSetType(val optionalDomain: Option[ValueSet[Int]]) extends BaseType
+final case object BoolType extends BaseType {
+    override def toString = "bool"
+}
+final case class IntType(val optionalDomain: Option[ValueSet[Int]]) extends BaseType {
+    override def toString = optionalDomain match {
+        case Some(domain) => domain.toString
+        case None => "int"
+    }
+}
+final case class FloatType(val optionalDomain: Option[ValueSet[Double]]) extends BaseType {
+    override def toString = optionalDomain match {
+        case Some(domain) => domain.toString
+        case None => "float"
+    }
+}
+final case class IntSetType(val optionalDomain: Option[ValueSet[Int]]) extends BaseType {
+    override def toString = optionalDomain match {
+        case Some(domain) => "set of %s".format(domain.toString)
+        case None => "set of int"
+    }
+}
 final case class ArrayType(val optionalIndexSet: Option[ValueSet[Int]], baseType: BaseType) extends Type {
     override val isArrayType = true
+    override def toString = optionalIndexSet match {
+        case Some(indexSet) => "array [%s] of %s".format(indexSet, baseType)
+        case None => "array of %s".format(baseType)
+    }
 }
 
 final case class PredParam(val id: String, val paramType: Type) {}

@@ -55,6 +55,7 @@ abstract class CompilationPhase(
             case IntConst(a) => Some(IntegerValue.get(a))
             case IntSetConst(IntRange(lb, ub)) => Some(new IntegerSetValue(createIntegerDomain(lb, ub)))
             case IntSetConst(IntSet(set)) => Some(new IntegerSetValue(createIntegerDomain(set)))
+            case FloatConst(_) => throw new UnsupportedFlatZincTypeException(FloatType(None))
             case _ if cc.domains(a).isSingleton => Some(cc.domains(a).singleValue)
             case _ => None
         }
@@ -121,6 +122,8 @@ abstract class CompilationPhase(
             val x = cc.space.createVariable(expr.toString, domain)
             cc.consts += expr -> x
             x
+        case FloatConst(_) =>
+            throw new UnsupportedFlatZincTypeException(FloatType(None))
         case Term(id, Nil) =>
             cc.vars(expr)
         case ArrayAccess(id, IntConst(idx)) =>

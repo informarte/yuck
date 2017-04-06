@@ -175,6 +175,7 @@ final class DomainInitializer
         case BoolConst(_) => BoolType
         case IntConst(_) => IntType(None)
         case IntSetConst(_) => IntSetType(None)
+        case FloatConst(_) => FloatType(None)
         case Term(id, Nil) => cc.ast.varDeclsByName(id).varType
         case ArrayAccess(id, _) => cc.ast.varDeclsByName(id).varType.asInstanceOf[ArrayType].baseType
     }
@@ -183,6 +184,7 @@ final class DomainInitializer
         case (BoolType, BoolType) =>
         case (IntType(_), IntType(_)) =>
         case (IntSetType(_), IntSetType(_)) =>
+        case (FloatType(_), FloatType(_)) =>
         case _ => assert(false, "Types %s and %s are incompatible".format(t, u))
     }
 
@@ -194,6 +196,7 @@ final class DomainInitializer
         case IntSetType(None) => UnboundedIntegerSetDomain
         case IntSetType(Some(IntRange(lb, ub))) => new IntegerPowersetDomain(createIntegerDomain(lb, ub))
         case IntSetType(Some(IntSet(set))) => new IntegerPowersetDomain(createIntegerDomain(set))
+        case other => throw new UnsupportedFlatZincTypeException(other)
     }
 
 }

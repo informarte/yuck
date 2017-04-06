@@ -3,13 +3,10 @@ package yuck.flatzinc.runner
 import java.io.IOException
 
 import scala.math.max
-
 import scopt._
-
 import yuck.flatzinc.FlatZincSolverConfiguration
-import yuck.flatzinc.compiler.InconsistentProblemException
+import yuck.flatzinc.compiler.{InconsistentProblemException, UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
 import yuck.flatzinc.parser._
-import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
 
 object FlatZincRunner {
 
@@ -100,6 +97,8 @@ object FlatZincRunner {
         case error: IOException =>
             nativeLogger.severe(error.getMessage)
         case error: FlatZincParserException =>
+            nativeLogger.severe(error.getMessage)
+        case error: UnsupportedFlatZincTypeException =>
             nativeLogger.severe(error.getMessage)
         case error: VariableWithInfiniteDomainException =>
             nativeLogger.severe(error.getMessage)

@@ -58,6 +58,8 @@ class VariableFactory
                 val array = compileArray[IntegerSetValue](decl.value)
                 assert(array.size == n)
                 arrays += Term(decl.id, Nil) -> array
+            case other =>
+                throw new UnsupportedFlatZincTypeException(other)
         }
     }
 
@@ -93,6 +95,8 @@ class VariableFactory
                         createVariable(key, baseType, createIntegerSetVariable)
                     }
                 arrays += Term(decl.id, Nil) -> array
+            case other =>
+                throw new UnsupportedFlatZincTypeException(other)
         }
     }
 
