@@ -22,8 +22,7 @@ final class SimulatedAnnealing(
     objective: AnyObjective,
     maybeRoundLimit: Option[Int],
     maybeMonitor: Option[AnnealingMonitor],
-    maybeUserData: Option[Object],
-    checkConstraintPropagation: Boolean)
+    maybeUserData: Option[Object])
     extends Solver
     with StandardSolverInterruptionSupport
 {
@@ -98,9 +97,7 @@ final class SimulatedAnnealing(
         if (objective.isLowerThan(result.costsOfBestProposal, result.costsOfFinalProposal)) {
             space.initialize(result.bestProposal)
             costsOfCurrentProposal = objective.costs(currentProposal)
-            if (checkConstraintPropagation) {
-                assert(costsOfCurrentProposal == result.costsOfBestProposal)
-            }
+            assert(costsOfCurrentProposal == result.costsOfBestProposal)
             result.costsOfFinalProposal = result.costsOfBestProposal
         }
 
@@ -183,10 +180,10 @@ final class SimulatedAnnealing(
         while (numberOfMonteCarloAttempts > 0 && ! wasInterrupted && ! result.isGoodEnough) {
             val move = neighbourhood.nextMove
             val before = space.searchState
-            val after = space.consult(move, checkConstraintPropagation)
+            val after = space.consult(move)
             val delta = objective.assessMove(before, after)
             if (delta <= 0 || randomGenerator.nextProbability <= scala.math.exp(-delta / temperature)) {
-                space.commit(move, checkConstraintPropagation)
+                space.commit(move)
                 postprocessMove(roundLog)
             } else {
                 roundLog.numberOfRejectedMoves += 1

@@ -28,7 +28,7 @@ abstract class AnyDomain {
     def isSingleton: Boolean = isFinite && size == 1
 
     /**
-     * Returns an iterator for visiting all values of the domain.
+     * Returns all values of the domain.
      *
      * Throws when the domain is infinite.
      */

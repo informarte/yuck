@@ -61,8 +61,7 @@ class Queens extends IntegrationTest {
                     new MinimizationObjective(conflicts, Zero, None),
                     None,
                     None,
-                    None,
-                    false)
+                    None)
             solver
         }
     }

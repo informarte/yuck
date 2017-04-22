@@ -2,6 +2,8 @@ package yuck.core
 
 import scala.collection._
 
+import yuck.util.logging.LazyLogger
+
 /**
  * Provides the constraint interface for local search.
  *
@@ -64,10 +66,10 @@ abstract class Constraint
     /**
      * Prepares the grounds for solving this constraint implicitly.
      *
-     * 1. Assigns values to the constraint's search variables such that the
+     *  - Assigns values to the constraint's search variables such that the
      *    assignment satisfies the constraint.
-     * 2. Assigns zero to the constraint's cost variable.
-     * 3. Creates and returns a neighbourhood that maintains feasibility.
+     *  - Assigns zero to the constraint's cost variable.
+     *  - Creates and returns a neighbourhood that maintains feasibility.
      *
      * The implementation should not assume that this constraint has been posted.
      *
@@ -77,7 +79,7 @@ abstract class Constraint
         space: Space,
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
-        hotSpotDistributionFactory: immutable.Seq[AnyVariable] => Option[Distribution],
+        hotSpotDistributionFactory: Seq[AnyVariable] => Option[Distribution],
         probabilityOfFairChoiceInPercent: Int):
         Option[Neighbourhood] =
         None

@@ -12,7 +12,7 @@ import yuck.core._
  * The distance of (a[1], ..., a[n]) to (b[1], ..., b[n]) is computed as
  * |[a[1] - b[1]| + ... + |[a[n] - b[n]|.
  *
- * A more generic implementation (based on NumericValue) was up to three times slower.
+ * A more generic implementation (based on NumericalValue) was up to three times slower.
  *
  * @see [[yuck.Notation Notation]]
  *

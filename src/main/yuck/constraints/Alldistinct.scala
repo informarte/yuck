@@ -3,6 +3,7 @@ package yuck.constraints
 import scala.collection._
 
 import yuck.core._
+import yuck.util.logging.LazyLogger
 
 /**
  * Implements the ''all_different_int'' constraint as specified by MiniZinc.
@@ -51,7 +52,7 @@ final class Alldistinct
         space: Space,
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
-        hotSpotDistributionFactory: immutable.Seq[AnyVariable] => Option[Distribution],
+        hotSpotDistributionFactory: Seq[AnyVariable] => Option[Distribution],
         probabilityOfFairChoiceInPercent: Int):
         Option[Neighbourhood] =
     {

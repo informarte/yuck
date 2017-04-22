@@ -32,6 +32,7 @@ final class NeighbourhoodCollection(
 {
     require((0 to 100).contains(probabilityOfFairChoiceInPercent))
     override def searchVariables = neighbourhoods.toIterator.map(_.searchVariables).flatten.toSet
+    override def children = neighbourhoods
     private val sizeDistribution = DistributionFactory.createDistribution(neighbourhoods.size)
     (0 until neighbourhoods.size).foreach(i => sizeDistribution.setFrequency(i, neighbourhoods(i).searchVariables.size))
     override def nextMove = {

@@ -8,7 +8,7 @@ package yuck.core
 abstract class Move(val id: Id[Move]) extends Ordered[Move] {
 
     @inline final override def hashCode = id.hashCode
-    override def toString = effects.toList.sortBy(_.anyVariable.id).toString
+    override def toString = effects.toList.sortBy(_.anyVariable.id).mkString(", ")
     @inline final override def compare(that: Move) = this.id.compare(that.id)
 
     /** Returns the effects of the move. */

@@ -79,8 +79,7 @@ class SendMostMoney extends IntegrationTest {
                         false),
                     None,
                     None,
-                    Some(new ModelData(LHS, RHS)),
-                    false)
+                    Some(new ModelData(LHS, RHS)))
             solver
         }
     }

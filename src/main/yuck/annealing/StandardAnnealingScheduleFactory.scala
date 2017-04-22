@@ -8,13 +8,12 @@ import scala.math._
 import yuck.core._
 
 /**
- * Creates an annealing schedule for a problem of the given size.
+ * Creates annealing schedules for problems of the given size.
  *
  * @author Michael Marte
  */
 final class StandardAnnealingScheduleFactory
     (numberOfSearchVariables: Int, randomGenerator: RandomGenerator)
-    extends Callable[AnnealingSchedule]
 {
 
     private val numberOfMovesPerVariableAndRound =
@@ -38,18 +37,24 @@ final class StandardAnnealingScheduleFactory
            4 / divisor)
     }
 
-    override def call = {
-        val fastSchedule = createAnnealingSchedule(2)
-        val slowSchedule = createAnnealingSchedule(1)
-        val schedule = randomGenerator.nextInt(3) match {
-            case 0 => fastSchedule
-            case 1 => slowSchedule
-            case 2 => new AnnealingScheduleSequence(Vector(fastSchedule, slowSchedule))
-        }
+    def startScheduleWithRandomTemperature(schedule: AnnealingSchedule) {
         def startTemperatures: Stream[Double] = Stream.cons(randomGenerator.nextProbability / 10, startTemperatures)
         val startTemperature = startTemperatures.dropWhile(_ <= finalTemperature).head
         schedule.start(startTemperature, 0)
-        schedule
     }
+
+    def createFastSchedule: AnnealingSchedule = createAnnealingSchedule(2)
+
+    def createSlowSchedule: AnnealingSchedule = createAnnealingSchedule(1)
+
+    def createHybridSchedule: AnnealingSchedule =
+        new AnnealingScheduleSequence(Vector(createFastSchedule, createSlowSchedule))
+
+    def createRandomSchedule: AnnealingSchedule =
+        randomGenerator.nextInt(3) match {
+            case 0 => createFastSchedule
+            case 1 => createSlowSchedule
+            case 2 => createHybridSchedule
+        }
 
 }

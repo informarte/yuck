@@ -89,8 +89,7 @@ class SendMoreMoney extends IntegrationTest {
                 new MinimizationObjective(costs, Zero, None),
                 None,
                 None,
-                Some(new ModelData(LHS, RHS)),
-                false)
+                Some(new ModelData(LHS, RHS)))
         val maybeResult = solver.call
         assert(maybeResult.isDefined)
         val result = maybeResult.get

@@ -63,9 +63,6 @@ final class DomainPruner
         var reduction = false
         for ((decl, domain) <- effects) {
             if (domains(decl) != domain) {
-                if (domain.isEmpty) {
-                    throw new DomainWipeOutException(decl)
-                }
                 lazy val growMsg = "Domain %s of %s grew to %s".format(domains(decl), decl, domain)
                 if (domain.isInstanceOf[BooleanDomain]) {
                     assert(domain.asInstanceOf[BooleanDomain].isSubsetOf(boolDomain(decl)), growMsg)
@@ -75,6 +72,9 @@ final class DomainPruner
                     assert(domain.asInstanceOf[IntegerSetDomain].isSubsetOf(intSetDomain(decl)), growMsg)
                 }
                 logger.logg("%s reduced domain of %s from %s to %s".format(constraint, decl, domains(decl), domain))
+                if (domain.isEmpty) {
+                    throw new DomainWipeOutException(decl)
+                }
                 domains += decl -> domain
                 reduction = true
             }

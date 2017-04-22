@@ -1,9 +1,9 @@
 include "inverse.mzn";
 
-int: n = 10;
+int: N = 10;
 
-array [1..n] of var 0..n-1: f;
-array [0..n-1] of var 1..n: g;
+array [1..N] of var 0..N-1: f;
+array [0..N-1] of var 1..N: g;
 
 constraint inverse(f, g);
 

@@ -73,9 +73,9 @@ final class ConstraintDrivenNeighbourhoodFactory
                 // might be a satisfaction goal
                 createNeighbourhoodFactory(sum.xs.map(new AX(One, _)))
             case _ => {
-                val xs = constraint.inVariables.toIterator.filter(space.isSearchVariable).toSet
+                val xs = constraint.inVariables.toSet
                 val maybeNeighbourhood =
-                    if ((xs & implicitlyConstrainedVars).isEmpty) {
+                    if (constraint.isCandidateForImplicitSolving(space) && (xs & implicitlyConstrainedVars).isEmpty) {
                         constraint.prepareForImplicitSolving(space, randomGenerator, cfg.moveSizeDistribution, _ => None, 0)
                     } else {
                         None

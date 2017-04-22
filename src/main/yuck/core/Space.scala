@@ -21,7 +21,10 @@ import yuck.util.logging.LazyLogger
  *
  * @author Michael Marte
  */
-final class Space(logger: LazyLogger) {
+final class Space(
+    val logger: LazyLogger,
+    val checkConstraintPropagation: Boolean = false)
+{
 
     private val constraints = new mutable.ArrayBuffer[Constraint] // maintained by post
     private val inVariables = new mutable.HashSet[AnyVariable] // maintained by post
@@ -356,7 +359,7 @@ final class Space(logger: LazyLogger) {
     /** Counts how often Constraint.consult was called. */
     var numberOfConsultations = 0
 
-    private class EffectComputer(move: Move, checkConstraintPropagation: Boolean) extends MoveProcessor(move) {
+    private class EffectComputer(move: Move) extends MoveProcessor(move) {
         override def processConstraint(
             constraint: Constraint, before: SearchState, after: SearchState, move: Move) =
         {
@@ -420,12 +423,12 @@ final class Space(logger: LazyLogger) {
      * The move must involve search variables only!
      * (For efficiency reasons, this requirement is not enforced.)
      */
-    def consult(move: Move, checkConstraintPropagation: Boolean = false): SearchState = {
+    def consult(move: Move): SearchState = {
         idOfMostRecentlyAssessedMove = move.id
-        new MoveSimulator(assignment, new EffectComputer(move, checkConstraintPropagation).run)
+        new MoveSimulator(assignment, new EffectComputer(move).run)
     }
 
-    private class EffectPropagator(move: Move, checkConstraintPropagation: Boolean) extends MoveProcessor(move) {
+    private class EffectPropagator(move: Move) extends MoveProcessor(move) {
         override def processConstraint(
             constraint: Constraint, before: SearchState, after: SearchState, move: Move) =
         {
@@ -488,9 +491,9 @@ final class Space(logger: LazyLogger) {
      *
      * Throws when consult was not called before commit.
      */
-    def commit(move: Move, checkConstraintPropagation: Boolean = false): Space = {
+    def commit(move: Move): Space = {
         require(move.id == idOfMostRecentlyAssessedMove)
-        new EffectPropagator(move, checkConstraintPropagation).run.effects.foreach(_.setValue(assignment))
+        new EffectPropagator(move).run.effects.foreach(_.setValue(assignment))
         this
     }
 

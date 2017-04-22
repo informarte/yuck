@@ -22,6 +22,7 @@ class NeighbourhoodTest extends UnitTest {
         val s = space.createVariable("s", d)
         space.setValue(s, Zero)
         val xs = immutable.IndexedSeq(s)
+        space.post(new DummyConstraint(space.constraintIdFactory.nextId, xs, Nil))
         val neighbourhood = new SimpleRandomReassignmentGenerator(space, xs, new JavaRandomGenerator)
         for (i <- 1 to 10000) {
             val effects = neighbourhood.nextMove.effects

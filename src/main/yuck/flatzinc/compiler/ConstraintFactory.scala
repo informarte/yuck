@@ -561,8 +561,10 @@ final class ConstraintFactory
             List(costs)
         case Constraint("yuck_inverse", List(f, IntConst(fOffset), g, IntConst(gOffset)), _) =>
             val costs = createNonNegativeChannel[IntegerValue]
-            space.post(new Inverse(nextConstraintId, goal, f, fOffset, g, gOffset, costs))
-            List(costs)
+            val constraint = new Inverse(nextConstraintId, goal, new InverseFunction(f, fOffset), new InverseFunction(g, gOffset), costs)
+            val constraints = constraint.decompose(space)
+            constraints.foreach(space.post)
+            constraints.map(_.outVariables).flatten
         case Constraint("yuck_bin_packing", List(loads0, bins0, weights0, IntConst(minLoadIndex)), _) =>
             val bins = compileArray[IntegerValue](bins0)
             val weights = getArrayElems(weights0).map(getConst[IntegerValue](_))

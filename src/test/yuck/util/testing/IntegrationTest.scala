@@ -9,7 +9,11 @@ import yuck.core._
  */
 class IntegrationTest extends YuckTest {
 
-    def createAnnealingSchedule(numberOfSearchVariables: Int, randomGenerator: RandomGenerator): AnnealingSchedule =
-        new StandardAnnealingScheduleFactory(numberOfSearchVariables, randomGenerator).call
+    def createAnnealingSchedule(numberOfSearchVariables: Int, randomGenerator: RandomGenerator): AnnealingSchedule = {
+        val scheduleFactory = new StandardAnnealingScheduleFactory(numberOfSearchVariables, randomGenerator.nextGen)
+        val schedule = scheduleFactory.createRandomSchedule
+        scheduleFactory.startScheduleWithRandomTemperature(schedule)
+        schedule
+    }
 
 }

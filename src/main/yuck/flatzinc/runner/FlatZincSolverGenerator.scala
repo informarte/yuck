@@ -62,7 +62,10 @@ final class FlatZincSolverGenerator
                 new SolverForProblemWithoutNeighbourhood(solverName, compilerResult)
             } else {
                 val neighbourhood = compilerResult.maybeNeighbourhood.get
-                val schedule = new StandardAnnealingScheduleFactory(neighbourhood.searchVariables.size, randomGenerator.nextGen).call
+                val n = neighbourhood.searchVariables.size
+                val scheduleFactory = new StandardAnnealingScheduleFactory(n, randomGenerator.nextGen)
+                val schedule = scheduleFactory.createRandomSchedule
+                scheduleFactory.startScheduleWithRandomTemperature(schedule)
                 logger.log("Start temperature: %s".format(schedule.temperature))
                 new SimulatedAnnealing(
                     solverName,
@@ -73,8 +76,7 @@ final class FlatZincSolverGenerator
                     compilerResult.objective,
                     cfg.maybeRoundLimit,
                     Some(monitor),
-                    Some(compilerResult),
-                    cfg.checkConstraintPropagation)
+                    Some(compilerResult))
             }
         }
     }
@@ -83,7 +85,9 @@ final class FlatZincSolverGenerator
         val randomGenerator = new JavaRandomGenerator(cfg.seed)
         var solver: Solver = null
         if (cfg.restartLimit == 1) {
-            solver = new BaseSolverGenerator(randomGenerator.nextGen, 1).call
+            solver = logger.withTimedLogScope("Generating solver") {
+                new BaseSolverGenerator(randomGenerator.nextGen, 1).call
+            }
         } else {
             val solvers =
                 for (i <- 1 to max(1, cfg.restartLimit)) yield

@@ -51,8 +51,7 @@ class ProgressiveTighteningTest extends IntegrationTest {
             objective,
             Some(1),
             Some(tighteningCounter),
-            None,
-            false)
+            None)
     }
 
     @Test

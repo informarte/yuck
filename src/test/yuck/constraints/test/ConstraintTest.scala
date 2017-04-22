@@ -118,7 +118,7 @@ class ConstraintTest extends UnitTest {
         space.initialize
         for (i <- 1 to 10000) {
             val move = neighbourhood.nextMove
-            val after = space.consult(move, false)
+            val after = space.consult(move)
             assert(List(s, t, u).exists(x => now.value(x) != after.value(x)))
             assertNe(after.value(s), after.value(t))
             assertNe(after.value(s), after.value(u))
@@ -863,7 +863,7 @@ class ConstraintTest extends UnitTest {
         val costs = space.createVariable("costs", NonNegativeIntegerDomain)
         val f = immutable.IndexedSeq(f1, f2, f3)
         val g = immutable.IndexedSeq(g1, g2, g3)
-        val c = new Inverse(space.constraintIdFactory.nextId, null, f, 1, g, 1, costs)
+        val c = new Inverse(space.constraintIdFactory.nextId, null, new InverseFunction(f, 1), new InverseFunction(g, 1), costs)
         // 3 1 2
         // 3 1 2
         space
@@ -983,7 +983,7 @@ class ConstraintTest extends UnitTest {
         val costs = space.createVariable("costs", NonNegativeIntegerDomain)
         val f = immutable.IndexedSeq(f1, f2, f3)
         val g = immutable.IndexedSeq(g1, g2, g3)
-        val c = new Inverse(space.constraintIdFactory.nextId, null, f, 1, g, 0, costs)
+        val c = new Inverse(space.constraintIdFactory.nextId, null, new InverseFunction(f, 1), new InverseFunction(g, 0), costs)
         // 2 0 1
         // 3 1 2
         space

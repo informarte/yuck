@@ -55,4 +55,8 @@ final class ReusableEffect
     override def anyValue = a
     override def setValue(assignment: Assignment) = assignment.setValue(x, a)
     override def clone = new ImmutableEffect(x, a)
+    @inline def set(x: Variable[Value], a: Value) {
+        this.x = x
+        this.a = a
+    }
 }

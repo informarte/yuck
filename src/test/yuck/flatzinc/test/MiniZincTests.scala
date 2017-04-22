@@ -1,16 +1,19 @@
 package yuck.flatzinc.test
 
-import scala.language.implicitConversions
-
 import org.junit._
 import org.junit.experimental.categories._
 import org.junit.experimental.categories.Categories._
 import org.junit.runner.RunWith
 import org.junit.runners.Suite.SuiteClasses
 
+import scala.language.implicitConversions
+
 import yuck.annealing.AnnealingResult
+import yuck.constraints.{GeneralInverseNeighbourhood, SelfInverseNeighbourhood, SimpleInverseNeighbourhood}
+import yuck.core._
+import yuck.flatzinc.FlatZincSolverConfiguration
+import yuck.flatzinc.compiler.{FlatZincCompilerResult, VariableWithInfiniteDomainException}
 import yuck.flatzinc.test.util._
-import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
 
 /**
  * Additional tests that cover features not exercised by the MiniZinc examples.
@@ -21,7 +24,21 @@ import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 class MiniZincTests extends MiniZincTestSuite {
 
-    val task = MiniZincTestTask(directoryLayout = MiniZincExamplesLayout, suitePath = "resources/mzn/tests")
+    val task =
+        MiniZincTestTask(
+            directoryLayout = MiniZincExamplesLayout,
+            suitePath = "resources/mzn/tests",
+            solverConfiguration = (new FlatZincSolverConfiguration).copy(restartLimit = 1))
+
+    val taskWithImplicitSolving =
+        task.copy(
+            solverConfiguration =
+                task.solverConfiguration.copy(
+                    preferImplicitSolvingOverDomainPruning = false,
+                    maybeRoundLimit = Some(1)))
+
+    def neighbourhood(result: Result): Neighbourhood =
+        result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult].maybeNeighbourhood.get
 
     implicit def createTask(problemName: String): MiniZincTestTask = task.copy(problemName = problemName)
 
@@ -155,6 +172,35 @@ class MiniZincTests extends MiniZincTestSuite {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseWithChannelVariables {
         solve(task.copy(problemName = "inverse_test_with_channel_variables"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
+    def testInverseWithUnrestrictedPairing {
+        val result = solve(taskWithImplicitSolving.copy(problemName = "inverse_test_with_unrestricted_pairing"))
+        assert(neighbourhood(result).isInstanceOf[SimpleInverseNeighbourhood])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
+    def testInverseWithRestrictedPairing {
+        val result = solve(taskWithImplicitSolving.copy(problemName = "inverse_test_with_restricted_pairing"))
+        assert(neighbourhood(result).isInstanceOf[GeneralInverseNeighbourhood])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
+    def testInverseWithOneFunction {
+        val result = solve(taskWithImplicitSolving.copy(problemName = "inverse_test_with_one_function"))
+        assert(neighbourhood(result).isInstanceOf[SelfInverseNeighbourhood])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
+    def testInverseDecomposition {
+        val result = solve(taskWithImplicitSolving.copy(problemName = "inverse_decomposition_test"))
+        assert(neighbourhood(result).isInstanceOf[NeighbourhoodCollection])
+        assert(neighbourhood(result).asInstanceOf[NeighbourhoodCollection].children.forall(_.isInstanceOf[SimpleInverseNeighbourhood]))
     }
 
     @Test

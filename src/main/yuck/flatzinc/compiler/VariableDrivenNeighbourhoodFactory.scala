@@ -44,8 +44,8 @@ final class VariableDrivenNeighbourhoodFactory
             }
         val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
         for (constraint <- randomGenerator.shuffle(space.involvedConstraints(x).toSeq)) {
-            val xs = constraint.inVariables.toIterator.filter(space.isSearchVariable).toSet
-            if ((xs & implicitlyConstrainedVars).isEmpty) {
+            val xs = constraint.inVariables.toSet
+            if (constraint.isCandidateForImplicitSolving(space) && (xs & implicitlyConstrainedVars).isEmpty) {
                 val maybeNeighbourhood =
                     constraint.prepareForImplicitSolving(
                         space, randomGenerator, cfg.moveSizeDistribution,
@@ -146,11 +146,11 @@ final class VariableDrivenNeighbourhoodFactory
 
     private def createHotSpotDistribution
         (hotSpotIndicators: Map[AnyVariable, Variable[IntegerValue]])
-        (xs: immutable.Seq[AnyVariable]):
+        (xs: Seq[AnyVariable]):
         Option[Distribution] =
     {
         val hotSpotDistribution = DistributionFactory.createDistribution(xs.size)
-        val weightedIndicators = xs.map(x => new AX(One, hotSpotIndicators(x)))
+        val weightedIndicators = xs.toIterator.map(x => new AX(One, hotSpotIndicators(x))).toIndexedSeq
         space.post(new DistributionMaintainer(nextConstraintId, null, weightedIndicators, hotSpotDistribution))
         Some(hotSpotDistribution)
     }
