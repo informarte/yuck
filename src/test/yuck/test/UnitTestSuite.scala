@@ -11,6 +11,7 @@ import yuck.flatzinc.parser.test._
 @runner.RunWith(classOf[runners.Suite])
 @runners.Suite.SuiteClasses(
     Array(
+        classOf[RandomGeneratorTest],
         classOf[ValueTest],
         classOf[DomainTest],
         classOf[VariableTest],

@@ -132,6 +132,7 @@ class MiniZincChallenge2014 extends MiniZincTestSuite {
     }
 
     @Test
+    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint], classOf[HasRegularConstraint]))
     def traveling_tppv_circ8bbal {
         solve(task.copy(problemName = "traveling-tppv", modelName = "ttppv", instanceName = "circ8bbal", maybeOptimum = Some(80)))
     }

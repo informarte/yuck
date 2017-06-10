@@ -99,7 +99,7 @@ final class RandomCircularSwapGenerator
                 fillEffect(swap(1), xs(j))
                 if (m > 2) {
                     val k = {
-                        var l = randomGenerator.nextInt(n - 2)
+                        val l = randomGenerator.nextInt(n - 2)
                         if (l < min(i, j)) l else if (l > max(i, j) - 2) l + 2 else l + 1
                     }
                     fillEffect(swap(2), xs(k))

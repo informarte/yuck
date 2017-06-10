@@ -23,7 +23,7 @@ class ConstraintTest extends UnitTest {
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
         val costs = space.createVariable("costs", NonNegativeIntegerDomain)
-        val c = new Alldistinct(space.constraintIdFactory.nextId, null, List(s, t, u), costs)
+        val c = new Alldistinct(space.constraintIdFactory.nextId, null, Vector(s, t, u), costs)
         space
             .post(c)
             .setValue(s, One)
@@ -55,7 +55,7 @@ class ConstraintTest extends UnitTest {
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val costs = space.createVariable("costs", NonNegativeIntegerDomain)
-        val c = new Alldistinct(space.constraintIdFactory.nextId, null, List(s, t, t), costs)
+        val c = new Alldistinct(space.constraintIdFactory.nextId, null, Vector(s, t, t), costs)
         space
             .post(c)
             .setValue(s, One)
@@ -98,7 +98,7 @@ class ConstraintTest extends UnitTest {
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
         val costs = space.createVariable("costs", NonNegativeIntegerDomain)
-        val c = new Alldistinct(space.constraintIdFactory.nextId, null, List(s, t, u), costs)
+        val c = new Alldistinct(space.constraintIdFactory.nextId, null, Vector(s, t, u), costs)
         space
             .post(c)
             .setValue(s, One)

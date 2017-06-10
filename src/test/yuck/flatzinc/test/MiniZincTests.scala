@@ -7,9 +7,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.Suite.SuiteClasses
 
 import scala.language.implicitConversions
-
 import yuck.annealing.AnnealingResult
-import yuck.constraints.{GeneralInverseNeighbourhood, SelfInverseNeighbourhood, SimpleInverseNeighbourhood}
+import yuck.constraints.{AlldistinctNeighbourhood, GeneralInverseNeighbourhood, SelfInverseNeighbourhood, SimpleInverseNeighbourhood}
 import yuck.core._
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.{FlatZincCompilerResult, VariableWithInfiniteDomainException}
@@ -44,8 +43,30 @@ class MiniZincTests extends MiniZincTestSuite {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testAlldifferent {
-        solve(task.copy(problemName = "alldifferent_int_test"))
+    def testAlldifferentWithEqualDomains {
+        val result = solve(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_equal_domains"))
+        assert(neighbourhood(result).isInstanceOf[AlldistinctNeighbourhood[_]])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    def testAlldifferentWithEqualDomainsAndMoreValuesThanVariables {
+        val result = solve(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_equal_domains_and_more_values_than_variables"))
+        assert(neighbourhood(result).isInstanceOf[AlldistinctNeighbourhood[_]])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    def testAlldifferentWithDifferentDomains {
+        val result = solve(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_different_domains"))
+        assert(neighbourhood(result).isInstanceOf[AlldistinctNeighbourhood[_]])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    def testAlldifferentWithDifferentDomainsAndMoreValuesThanVariables {
+        val result = solve(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_different_domains_and_more_values_than_variables"))
+        assert(neighbourhood(result).isInstanceOf[AlldistinctNeighbourhood[_]])
     }
 
     @Test

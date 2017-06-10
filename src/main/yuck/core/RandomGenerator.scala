@@ -27,13 +27,13 @@ abstract class RandomGenerator {
     def nextGen: RandomGenerator
 
     /**
-     * Retrieves all elements from the given source collection, shuffles them,
+     * Retrieves all elements from the given collection, shuffles them,
      * and returns the resulting sequence.
      *
      * Implements the Fisher-Yates algorithm, see: http://en.wikipedia.org/wiki/Fisher–Yates_shuffle.
      */
-    def shuffle
-        [T, From[X] <: TraversableOnce[X], To[X] <: Seq[X]]
+    final def shuffle
+        [T, From[T] <: TraversableOnce[T], To[T] <: Seq[T]]
         (source: From[T])
         (implicit cbf: CanBuildFrom[_, T, To[T]]): To[T] =
     {
@@ -46,5 +46,32 @@ abstract class RandomGenerator {
         }
         (cbf() ++= buf).result
     }
+
+    private final class LazyShuffleIterator[T](source: IndexedSeq[T]) extends Iterator[T] {
+        private var n = source.size
+        private val buf = Array.tabulate(n)(identity)
+        @inline override def hasNext = n > 0
+        override def next = {
+            require(hasNext)
+            val i = nextInt(n)
+            n -= 1
+            val a = source(buf(i))
+            if (i < n) buf.update(i, buf(n))
+            a
+        }
+    }
+
+
+    /**
+     * Shuffles the given collection lazily.
+     *
+     * Time and space complexity for creating the iterator are O(n).
+     * In case not all elements are needed, lazyShuffle is more efficient than
+     * shuffle because less random numbers are generated.
+     */
+    @inline final def lazyShuffle[T](source: IndexedSeq[T]): Iterator[T] =
+        if (source.isEmpty) Iterator.empty
+        else if (source.size == 1) source.toIterator
+        else new LazyShuffleIterator[T](source)
 
 }

@@ -45,13 +45,13 @@ class MiniZincExamples extends MiniZincTestSuite {
     }
 
     @Test
-    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
+    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testBlocksworld1 {
         solve(task.copy(problemName = "blocksworld_instance_1"))
     }
 
     @Test
-    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
+    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testBlocksworld2 {
         solve(task.copy(problemName = "blocksworld_instance_2"))
     }
@@ -410,3 +410,14 @@ class TractableMinimizationExamples
 @IncludeCategory(Array(classOf[MaximizationProblem]))
 @SuiteClasses(Array(classOf[TractableMiniZincExamples]))
 class TractableMaximizationExamples
+
+/**
+ * Tractable examples with alldifferent_int constraints
+ *
+ * @author Michael Marte
+ */
+@Test
+@RunWith(classOf[Categories])
+@IncludeCategory(Array(classOf[HasAlldifferentConstraint]))
+@SuiteClasses(Array(classOf[TractableMiniZincExamples]))
+class TractableAlldistinctExamples

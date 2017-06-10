@@ -54,7 +54,7 @@ class MiniZincChallenge2013 extends MiniZincTestSuite {
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasElementConstraint]))
+    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint], classOf[HasElementConstraint]))
     def java_routing_trip_6_3 {
         solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "java-routing", instanceName = "trip_6_3", maybeOptimum = Some(67)))
     }
