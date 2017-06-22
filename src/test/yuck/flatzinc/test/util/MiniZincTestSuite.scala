@@ -72,12 +72,6 @@ class MiniZincTestSuite extends IntegrationTest {
         val file = new java.io.File(fznFilePath)
         val reader = new java.io.InputStreamReader(new java.io.FileInputStream(file))
         val ast = logger.withTimedLogScope("Parsing FlatZinc file")(FlatZincParser.parse(reader))
-        logger.withLogScope("FlatZinc model statistics") {
-            logger.log("%d predicate declarations".format(ast.predDecls.size))
-            logger.log("%d parameter declarations".format(ast.paramDecls.size))
-            logger.log("%d variable declarations".format(ast.varDecls.size))
-            logger.log("%d constraints".format(ast.constraints.size))
-        }
         val cfg =
             task.solverConfiguration.copy(
                 maybeTargetObjectiveValue = task.maybeOptimum,

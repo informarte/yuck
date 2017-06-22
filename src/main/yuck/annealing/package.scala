@@ -2,6 +2,10 @@ package yuck
 
 import yuck.core.DistributionFactory
 
+/**
+ * @author Michael Marte
+ *
+ */
 package object annealing {
 
     val DEFAULT_PROBABILITY_OF_FAIR_CHOICE_IN_PERCENT = 3
