@@ -398,11 +398,11 @@ final class Space(
                 println("after = %s".format(after))
                 println("move = %s".format(move))
                 println("constraint = %s".format(constraint))
-                println("constraint.initialize(before) = %s".format(constraint.initialize(before)))
+                println("constraint.initialize(before) = %s".format(constraint.initialize(before).toList))
                 // Should the output from the following statement be inconsistent with the error message, then
                 // a likely cause is a buggy commit implementation that fails to maintain the constraint's state.
-                println("constraint.consult(before, after, move) = %s".format(constraint.consult(before, after, move)))
-                println("constraint.initialize(after) = %s".format(constraint.initialize(after)))
+                println("constraint.consult(before, after, move) = %s".format(constraint.consult(before, after, move).toList))
+                println("constraint.initialize(after) = %s".format(constraint.initialize(after).toList))
             }
             for (x <- constraint.outVariables) {
                 assert(
@@ -468,9 +468,9 @@ final class Space(
                 println("move = %s".format(move))
                 println("constraint = %s".format(constraint))
                 println("constraint.initialize(before) = %s".format(constraint.initialize(before)))
-                println("constraint.consult(before, after, move) = %s".format(constraint.consult(before, after, move)))
-                println("constraint.commit(before, after, move) = %s".format(constraint.commit(before, after, move)))
-                println("constraint.initialize(after) = %s".format(constraint.initialize(after)))
+                println("constraint.consult(before, after, move) = %s".format(constraint.consult(before, after, move).toList))
+                println("constraint.commit(before, after, move) = %s".format(constraint.commit(before, after, move).toList))
+                println("constraint.initialize(after) = %s".format(constraint.initialize(after).toList))
             }
             for (x <- constraint.outVariables) {
                 assert(

@@ -101,14 +101,20 @@ class MiniZincTests extends MiniZincTestSuite {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
-    def testBinPackingLoad1 {
-        solve(task.copy(problemName = "bin_packing_load_test1"))
+    def testBinPackingLoadWithUnboundedLoadVariables {
+        solve(task.copy(problemName = "bin_packing_load_test_with_unbounded_load_variables"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
-    def testBinPackingLoad2 {
-        solve(task.copy(problemName = "bin_packing_load_test2"))
+    def testBinPackingLoadWithEqualLoadVariables {
+        solve(task.copy(problemName = "bin_packing_load_test_with_equal_load_variables"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    def testBinPackingLoadWithDuplicateBinVariables {
+        solve(task.copy(problemName = "bin_packing_load_test_with_duplicate_bin_variables"))
     }
 
     @Test

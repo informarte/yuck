@@ -704,8 +704,17 @@ final class ConstraintFactory
         (implicit valueTraits: NumericalValueTraits[Load]):
         Iterable[Variable[Load]] =
     {
+        val bin2Weight = new mutable.HashMap[Variable[IntegerValue], Load]
+        for (item <- items) {
+            require(item.weight >= valueTraits.zero)
+            bin2Weight += item.bin -> (bin2Weight.getOrElse(item.bin, valueTraits.zero) + item.weight)
+        }
+        val itemGenerator =
+            for ((bin, weight) <- bin2Weight.toIterator if weight > valueTraits.zero)
+                yield new BinPackingItem(bin, weight)
+        val items1 = itemGenerator.toIndexedSeq
         val loadGenerator = {
-            val bins = items.map(_.bin)
+            val bins = items1.map(_.bin)
             val definedVars = new mutable.HashSet[Variable[Load]]
             for ((bin, load) <- loads) yield
                 if (! definedVars.contains(load) && definesVar(constraint, bins, loads(bin))) {
@@ -715,7 +724,7 @@ final class ConstraintFactory
                 else bin -> createNonNegativeChannel[Load]
         }
         val loads1 = loadGenerator.toMap
-        space.post(new BinPacking[Load](nextConstraintId, goal, items, loads1))
+        space.post(new BinPacking[Load](nextConstraintId, goal, items1, loads1))
         val deltaGenerator =
             for ((bin, load) <- loads if load != loads1(bin)) yield {
                 val delta = createNonNegativeChannel[Load]

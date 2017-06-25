@@ -10,7 +10,8 @@ import yuck.core._
  */
 final class BinPackingItem
     [Weight <: NumericalValue[Weight]]
-    (val bin: Variable[IntegerValue], val weight: Weight) {
+    (val bin: Variable[IntegerValue], val weight: Weight)
+{
     override def toString = "(%s, %s)".format(bin, weight)
 }
 
@@ -32,11 +33,13 @@ final class BinPacking
     extends Constraint(id, goal)
 {
 
+    require(items.forall(_.weight >= valueTraits.zero))
     require(loads.valuesIterator.toSet.size == loads.size)
+    require(items.toIterator.map(_.bin).toSet.size == items.size)
 
     override def toString =
         "bin_packing([%s], [%s])".format(items.mkString(", "), loads.mkString(", "))
-    override def inVariables = items.toIterator.map(_.bin)
+    override def inVariables = items.toIterator.filter(_.weight > valueTraits.zero).map(_.bin)
     override def outVariables = loads.valuesIterator
 
     private val x2Item =
