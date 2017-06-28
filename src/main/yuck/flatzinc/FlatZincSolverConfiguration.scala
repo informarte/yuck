@@ -17,7 +17,7 @@ case class FlatZincSolverConfiguration(
     val maybeQualityTolerance: Option[Int] = None,
     val stopOnFirstSolution: Boolean = false,
     val useProgressiveTightening: Boolean = true,
-    val preferImplicitSolvingOverDomainPruning: Boolean = true,
+    val preferImplicitSolvingOverDomainPruning: Boolean = false,
     val checkConstraintPropagation: Boolean = false,
     val moveSizeDistribution: Distribution = DEFAULT_MOVE_SIZE_DISTRIBUTION,
     val probabilityOfFairChoiceInPercent: Int = DEFAULT_PROBABILITY_OF_FAIR_CHOICE_IN_PERCENT)
