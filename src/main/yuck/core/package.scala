@@ -15,6 +15,8 @@ package object core {
 
     val EmptyBooleanDomain = new BooleanDomain(false, false)
     val UnboundedBooleanDomain = new BooleanDomain(true, true)
+    val FalseDomain = new BooleanDomain(true, false)
+    val TrueDomain = new BooleanDomain(false, true)
 
     val MinusThree = IntegerValue.get(-3)
     val MinusTwo = IntegerValue.get(-2)
@@ -31,6 +33,9 @@ package object core {
     val Nine = IntegerValue.get(9)
     val Ten = IntegerValue.get(10)
     val Eleven = IntegerValue.get(11)
+
+    val EmptyIntegerRange = new IntegerRange(One, Zero)
+    val UnboundedIntegerRange = new IntegerRange(null, null)
 
     val EmptyIntegerDomain = new IntegerDomain()
     val UnboundedIntegerDomain = new IntegerDomain(null, null)

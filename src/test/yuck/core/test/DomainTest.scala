@@ -91,8 +91,14 @@ class DomainTest extends UnitTest {
                 assertEq(d.ub, True)
             }
         }
+        assert(! FalseDomain.isSubsetOf(EmptyBooleanDomain))
+        assert(! TrueDomain.isSubsetOf(EmptyBooleanDomain))
         assert(! UnboundedBooleanDomain.isSubsetOf(EmptyBooleanDomain))
+        assert(! FalseDomain.isSubsetOf(TrueDomain))
+        assert(! TrueDomain.isSubsetOf(FalseDomain))
         assert(EmptyBooleanDomain.isSubsetOf(UnboundedBooleanDomain))
+        assert(FalseDomain.isSubsetOf(UnboundedBooleanDomain))
+        assert(TrueDomain.isSubsetOf(UnboundedBooleanDomain))
     }
 
     private def testSetSize(d: IntegerDomain) {

@@ -20,6 +20,7 @@ abstract class NumericalObjective
     private var deltaScale = 0.0
     private var sampleSize = 0.0
     protected def computeDelta(before: SearchState, after: SearchState): Value
+
     override final def assessMove(before: SearchState, after: SearchState) = {
         var delta = computeDelta(before, after).toDouble
         if (delta != 0) {

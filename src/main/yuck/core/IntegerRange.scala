@@ -136,4 +136,55 @@ final class IntegerRange(
         val mid = lb + ((ub - lb + One) / Two)
         (this.intersect(new IntegerRange(lb, mid - One)), this.intersect(new IntegerRange(mid, ub)))
     }
+    /**
+     * Implements range multiplication as described in:
+     * K. R. Apt, Principles of Constraint Programming, p. 221
+     */
+    def mult(that: IntegerRange): IntegerRange = {
+        require(this.isFinite)
+        require(that.isFinite)
+        val a = this.lb
+        val b = this.ub
+        val c = that.lb
+        val d = that.ub
+        val A = List(a * c, a * d, b * c, b * d)
+        new IntegerRange(A.min, A.max)
+    }
+    /**
+     * Implements range division as described in:
+     * K. R. Apt, Principles of Constraint Programming, p. 221
+     */
+    def div(that: IntegerRange): IntegerRange = {
+        require(this.isFinite)
+        require(that.isFinite)
+        val a = this.lb
+        val b = this.ub
+        val c = that.lb
+        val d = that.ub
+        if (this.contains(Zero) && that.contains(Zero)) {
+            // case 1
+            UnboundedIntegerRange
+        } else if (! this.contains(Zero) && c == Zero && d == Zero) {
+            // case 2
+            EmptyIntegerRange
+        } else if (! this.contains(Zero) && c < Zero && Zero < d) {
+            // case 3
+            val e = IntegerValueTraits.max(a.abs, b.abs)
+            new IntegerRange(MinusOne * e, e)
+        } else if (! this.contains(Zero) && c < Zero && d == Zero) {
+            // case 4a
+            this.div(new IntegerRange(c, MinusOne))
+        } else if (! this.contains(Zero) && c == Zero && Zero < d) {
+            // case 4b
+            this.div(new IntegerRange(One, d))
+        } else if (! that.contains(Zero)) {
+            // case 5
+            // approximation (6.14)
+            val A = List(a.toDouble / c.toDouble, a.toDouble / d.toDouble, b.toDouble / c.toDouble, b.toDouble / d.toDouble)
+            new IntegerRange(IntegerValue.get(A.min.ceil.toInt), IntegerValue.get(A.max.floor.toInt))
+        } else {
+            // Must not occur since the preceding case distinction covers all cases.
+            ???
+        }
+    }
 }

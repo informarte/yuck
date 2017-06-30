@@ -43,12 +43,20 @@ final class DomainPruner
         } while(reduction)
     }
 
-    private def boolDomain(a: Expr): BooleanDomain =
-        domains(a).asInstanceOf[BooleanDomain]
-    private def intDomain(a: Expr): IntegerDomain =
-        domains(a).asInstanceOf[IntegerDomain]
-    private def intSetDomain(a: Expr): IntegerSetDomain =
-        domains(a).asInstanceOf[IntegerSetDomain]
+    private def boolDomain(a: Expr): BooleanDomain = a match {
+        case BoolConst(false) => FalseDomain
+        case BoolConst(true) => TrueDomain
+        case _ => domains(a).asInstanceOf[BooleanDomain]
+    }
+    private def intDomain(a: Expr): IntegerDomain = a match {
+        case IntConst(a) => new IntegerDomain(IntegerValue.get(a))
+        case _ => domains(a).asInstanceOf[IntegerDomain]
+    }
+    private def intSetDomain(a: Expr): IntegerSetDomain = a match {
+        case IntSetConst(IntRange(lb, ub)) => new SingletonIntegerSetDomain(createIntegerDomain(lb, ub))
+        case IntSetConst(IntSet(set)) => new SingletonIntegerSetDomain(createIntegerDomain(set))
+        case _ => domains(a).asInstanceOf[IntegerSetDomain]
+    }
 
     private def normalizeBool(a: Expr): Expr =
         tryGetConst[BooleanValue](a).map(_.value).map(BoolConst).getOrElse(a)
@@ -58,6 +66,9 @@ final class DomainPruner
         case ArrayConst(a) => ArrayConst(a)
         case a => ArrayConst(getArrayElems(a).toList)
     }
+
+    private def union(domains: TraversableOnce[IntegerDomain]): IntegerDomain =
+        domains.foldLeft(EmptyIntegerDomain)((a, b) => a.unite(b))
 
     private def propagateEffects(constraint: yuck.flatzinc.ast.Constraint, effects: mutable.Map[Expr, AnyDomain]): Boolean = {
         var reduction = false
@@ -450,6 +461,37 @@ final class DomainPruner
                     impliedConstraints += constraint
                 case _ =>
             }
+            case Constraint("int_times", List(a, b, c), _) =>
+                // see K. R. Apt, Principles of Constraint Programming, p. 217
+                val da1 = intDomain(a)
+                val db1 = intDomain(b)
+                val dc1 = intDomain(c)
+                // MULTIPLICATION 1
+                val dc2 =
+                    if (da1.isFinite && db1.isFinite) {
+                        dc1.intersect(new IntegerDomain(Vector(da1.hull.mult(db1.hull))))
+                    } else {
+                        dc1
+                    }
+                // MULTIPLICATION 2
+                val da2 =
+                    if (db1.isFinite && dc1.isFinite) {
+                        da1.intersect(new IntegerDomain(Vector(dc1.hull.div(db1.hull))))
+                    } else {
+                        da1
+                    }
+                // MULTIPLICATION 3
+                val db2 =
+                    if (da1.isFinite && dc1.isFinite) {
+                        db1.intersect(new IntegerDomain(Vector(dc1.hull.div(da1.hull))))
+                    } else {
+                        db1
+                    }
+                // publish results
+                for ((a, da1, da2) <- List((a, da1, da2), (b, db1, db2), (c, dc1, dc2))) {
+                    assertConsistency(! a.isConst || ! da2.isEmpty, constraint)
+                    if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
+                }
             case Constraint("int_lin_eq", List(as, bs, c), annotations) => List(normalizeArray(as), normalizeArray(bs), c) match {
                 case List(ArrayConst(List(IntConst(1))), ArrayConst(List(b)), c) =>
                     propagateTranslation(Constraint("int_eq", List(b, c), annotations))
@@ -488,6 +530,7 @@ final class DomainPruner
                         impliedConstraints += constraint
                     }
                 case List(ArrayConst(as), ArrayConst(bs), IntConst(c)) =>
+                    // see K. R. Apt, Principles of Constraint Programming, p. 194
                     val (pos, neg) = as.zip(bs).toIndexedSeq.map{case (IntConst(a), b) => (a, b)}.partition{case (a, _) => a >= 0}
                     if (pos.forall{case (_, b) => intDomain(b).maybeLb.isDefined} &&
                         neg.forall{case (_, b) => intDomain(b).maybeUb.isDefined})
@@ -517,6 +560,10 @@ final class DomainPruner
                     }
                 case _ =>
             }
+            case Constraint("int_min", List(a, b, c), annotations) =>
+                propagateTranslation(Constraint("array_int_minimum", List(c, ArrayConst(List(a, b))), annotations))
+            case Constraint("int_max", List(a, b, c), annotations) =>
+                propagateTranslation(Constraint("array_int_maximum", List(c, ArrayConst(List(a, b))), annotations))
             case Constraint("set_eq", List(a, b), _) =>
                 val da = intSetDomain(a)
                 val db = intSetDomain(b)
@@ -566,6 +613,39 @@ final class DomainPruner
                     impliedConstraints += constraint
                 case _ =>
             }
+            case Constraint("array_int_element", _, _) =>
+                propagateTranslation(constraint.copy(id = "array_var_int_element"))
+            case Constraint("array_var_int_element", List(b, as, c), _) =>
+                val das = getArrayElems(as).toIterator.map(intDomain).toIndexedSeq
+                val db1 = intDomain(b)
+                val db2 = IntegerDomainPruner.eq(db1, new IntegerDomain(One, IntegerValue.get(das.size)))
+                val dc1 = intDomain(c)
+                val dc2 = IntegerDomainPruner.eq(dc1, union(db2.values.toIterator.map(i => das(i.value - 1))))
+                val db3 = new IntegerDomain(db2.values.toIterator.filter(i => das(i.value - 1).intersects(dc2)).toSet)
+                assertConsistency(! b.isConst || ! db3.isEmpty, constraint)
+                if (db1 != db3) equalVars(b).foreach(x => effects += x -> db3)
+                assertConsistency(! c.isConst || ! dc2.isEmpty, constraint)
+                if (dc1 != dc2) equalVars(c).foreach(x => effects += x -> dc2)
+            case Constraint("array_int_minimum", List(b, as), _) =>
+                val db1 = intDomain(b)
+                for (a <- getArrayElems(as) if ! a.isConst) {
+                    val da1 = intDomain(a)
+                    val (_, da2) = IntegerDomainPruner.le(db1, da1)
+                    if (da1 != da2) equalVars(a).foreach(x => effects += x -> da2)
+                }
+                val (_, db2) = IntegerDomainPruner.le(union(getArrayElems(as).toIterator.map(intDomain)), db1)
+                assertConsistency(! b.isConst || ! db2.isEmpty, constraint)
+                if (db1 != db2) equalVars(b).foreach(x => effects += x -> db2)
+            case Constraint("array_int_maximum", List(b, as), _) =>
+                val db1 = intDomain(b)
+                for (a <- getArrayElems(as) if ! a.isConst) {
+                    val da1 = intDomain(a)
+                    val (da2, _) = IntegerDomainPruner.le(da1, db1)
+                    if (da1 != da2) equalVars(a).foreach(x => effects += x -> da2)
+                }
+                val (db2, _) = IntegerDomainPruner.le(db1, union(getArrayElems(as).toIterator.map(intDomain)))
+                assertConsistency(! b.isConst || ! db2.isEmpty, constraint)
+                if (db1 != db2) equalVars(b).foreach(x => effects += x -> db2)
             case Constraint("all_different_int", _, _) =>
                 val (as, xs) =
                      getArrayElems(constraint.params.head)
