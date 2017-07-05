@@ -103,7 +103,7 @@ To configure Yuck as a backend for the [MiniZinc IDE](http://www.minizinc.org/id
   * MiniZinc library path: Give the full path to Yuck's MiniZinc library, see above, and prefix it with `-I`. (There must NOT be a space between `-I` and the path.)
 * Then press the **Add** button.
 * Back on the **Configuration** tab, select **Yuck** from the dropdown list.
-* Switch from **Default behavior** to **User-defined behavior** and do NOT tick **Print all solutions**.
+* Switch from **Default behavior** to **User-defined behavior**.
 * If your hardware allows, increase the number of threads.
 
 (Tested on Ubuntu and Windows 10.)
