@@ -7,7 +7,7 @@ import yuck.util.arm.ManagedResource
  *
  * @author Michael Marte
  */
-class DurationLogger(logger: LazyLogger, operationName: String) extends ManagedResource {
+final class DurationLogger(logger: LazyLogger, operationName: String) extends ManagedResource {
 
     private var startTime = 0l
 

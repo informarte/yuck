@@ -7,6 +7,7 @@ import yuck.constraints.LinearCombination
 import yuck.constraints.Sum
 import yuck.core._
 
+
 /**
  * Generates focused neighbourhoods for satisfaction and minimization goals.
  *
@@ -31,7 +32,7 @@ import yuck.core._
  * @author Michael Marte
  */
 final class ConstraintDrivenNeighbourhoodFactory
-    (cc: CompilationContext, randomGenerator: RandomGenerator)
+    (cc: CompilationContext, randomGenerator: RandomGenerator, sigint: Sigint)
     extends NeighbourhoodFactory(cc, randomGenerator)
 {
 
@@ -76,7 +77,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                 val xs = constraint.inVariables.toSet
                 val maybeNeighbourhood =
                     if (constraint.isCandidateForImplicitSolving(space) && (xs & implicitlyConstrainedVars).isEmpty) {
-                        constraint.prepareForImplicitSolving(space, randomGenerator, cfg.moveSizeDistribution, _ => None, 0)
+                        constraint.prepareForImplicitSolving(space, randomGenerator, cfg.moveSizeDistribution, _ => None, 0, sigint)
                     } else {
                         None
                     }
@@ -116,6 +117,9 @@ final class ConstraintDrivenNeighbourhoodFactory
             axs.partition(ax => cc.space.definingConstraint(ax.x).exists(_.isCandidateForImplicitSolving(space)))
         val axs2 = randomGenerator.shuffle(axs0) ++ axs1
         for (ax <- axs2) {
+            if (sigint.isSet) {
+                throw new FlatZincCompilerInterruptedException
+            }
             val maybeConstraint = space.definingConstraint(ax.x)
             if (maybeConstraint.isDefined) {
                 weightedNeighbourhoodFactories += ax -> createNeighbourhoodFactory(maybeConstraint.get)

@@ -19,7 +19,7 @@ class SendMostMoney extends IntegrationTest {
         val LHS: List[(Int, Variable[IntegerValue])],
         val RHS: List[(Int, Variable[IntegerValue])])
 
-    private final class SendMostMoneyGenerator(i: Int, seed: Int) extends SolverGenerator {
+    private final class SendMostMoneyGenerator(i: Int, seed: Int, sigint: Sigint) extends SolverGenerator {
         override def solverName = "SA-%d".format(i)
         override def call = {
             val space = new Space(logger)
@@ -79,7 +79,8 @@ class SendMostMoney extends IntegrationTest {
                         false),
                     None,
                     None,
-                    Some(new ModelData(LHS, RHS)))
+                    Some(new ModelData(LHS, RHS)),
+                    sigint)
             solver
         }
     }
@@ -87,13 +88,12 @@ class SendMostMoney extends IntegrationTest {
     @Test
     def sendMostMoney {
         val randomGenerator = new JavaRandomGenerator(29071972)
+        val sigint = new SettableSigint
         val solvers =
             (1 to DEFAULT_RESTART_LIMIT).toList.map(
-                i => new OnDemandGeneratedSolver(new SendMostMoneyGenerator(i, randomGenerator.nextInt), logger))
-        val solver = new ParallelSolver(solvers, Runtime.getRuntime.availableProcessors, "SendMostMoney", logger)
-        val maybeResult = solver.call
-        assert(maybeResult.isDefined)
-        val result = maybeResult.get
+                i => new OnDemandGeneratedSolver(new SendMostMoneyGenerator(i, randomGenerator.nextInt, sigint), logger, sigint))
+        val solver = new ParallelSolver(solvers, Runtime.getRuntime.availableProcessors, "SendMostMoney", logger, sigint)
+        val result = solver.call
         if (result.isSolution) {
             val modelData = result.maybeUserData.get.asInstanceOf[ModelData]
             assertEq(

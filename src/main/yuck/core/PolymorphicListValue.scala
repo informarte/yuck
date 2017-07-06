@@ -1,12 +1,12 @@
 package yuck.core
 
 /**
- * @author Michael Marte
- *
  * PolymorphicListValue instances are to be produced by HierarchicalObjective.costs and
  * to be compared by HierarchicalObjective.compareCosts.
- * 
- * @see HierarchicalObjective 
+ *
+ * @see [[yuck.core.HierarchicalObjective]]
+ *
+ * @author Michael Marte
  */
 final class PolymorphicListValue(val value: List[AnyValue]) extends AnyValue {
     override def hashCode = value.hashCode

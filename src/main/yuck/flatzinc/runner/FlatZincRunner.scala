@@ -1,22 +1,35 @@
 package yuck.flatzinc.runner
 
 import java.io.IOException
+import java.util.concurrent.{Callable, CancellationException, Executors}
 
 import scala.math.max
+
 import scopt._
+
+import yuck.core.SettableSigint
 import yuck.flatzinc.FlatZincSolverConfiguration
+import yuck.flatzinc.ast.FlatZincAst
 import yuck.flatzinc.compiler.{InconsistentProblemException, UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
 import yuck.flatzinc.parser._
+import yuck.util.arm._
 
+
+/**
+ * @author Michael Marte
+ *
+ */
 object FlatZincRunner {
 
+    System.setProperty("java.util.logging.manager", classOf[yuck.util.logging.ManagedLogManager].getName)
+    val logManager = java.util.logging.LogManager.getLogManager.asInstanceOf[yuck.util.logging.ManagedLogManager]
     val nativeLogger = java.util.logging.Logger.getLogger(this.getClass.getName)
     val logger = new yuck.util.logging.LazyLogger(nativeLogger)
 
     case class CommandLine(
         val logLevel: yuck.util.logging.LogLevel = yuck.util.logging.NoLogging,
         val logFilePath: String = "",
-        val problemPath: String = "",
+        val fznFilePath: String = "",
         val cfg: FlatZincSolverConfiguration =
             new FlatZincSolverConfiguration(
                 // The parser expects the following values to be undefined!
@@ -68,7 +81,7 @@ object FlatZincRunner {
         arg[String]("FlatZinc file")
             .required()
             .hidden()
-            .action((x, cl) => cl.copy(problemPath = x))
+            .action((x, cl) => cl.copy(fznFilePath = x))
         override def usageExample =
             "%s <JVM option>* -- <Yuck option>* <FlatZinc file>".format(programName)
     }
@@ -80,13 +93,27 @@ object FlatZincRunner {
             System.exit(1)
         }
         val cl = maybeCl.get
-        setupLogging(cl)
-        solve(cl)
+        try {
+            // We use an empty, managed shutdown hook to enforce the completion of a shutdown
+            // initiated upon interrupt.
+            // (Without it, the JVM would already exit when the inner, managed shutdown hook
+            // deployed by trySolve goes out of scope.)
+            scoped(new ManagedShutdownHook({})) {
+                scoped(logManager) {
+                    setupLogging(cl)
+                    solve(cl)
+                    logger.log("Shutdown complete, exiting")
+                }
+            }
+        }
+        catch {
+            case error: ShutdownInProgressException =>
+        }
     }
 
-    private def setupLogging(cl: CommandLine): Unit = {
+    private def setupLogging(cl: CommandLine) {
         try {
-            trySetup(cl)
+            trySetupLogging(cl)
         }
         catch {
             case error: Throwable =>
@@ -95,18 +122,11 @@ object FlatZincRunner {
         }
     }
 
-    private def trySetup(cl: CommandLine) {
-        java.util.logging.LogManager.getLogManager.reset // remove handlers
+    private def trySetupLogging(cl: CommandLine) {
+        nativeLogger.setUseParentHandlers(false); // otherwise our console handler would remain unused
         val formatter = new yuck.util.logging.Formatter
         if (cl.logFilePath.isEmpty) {
-            val consoleHandler = new java.util.logging.ConsoleHandler {
-                override def publish(record: java.util.logging.LogRecord) {
-                    synchronized {
-                        super.publish(record)
-                        flush
-                    }
-                }
-            }
+            val consoleHandler = new java.util.logging.ConsoleHandler
             consoleHandler.setFormatter(formatter)
             nativeLogger.addHandler(consoleHandler)
         } else {
@@ -115,7 +135,6 @@ object FlatZincRunner {
             nativeLogger.addHandler(logFileHandler)
         }
         logger.setThresholdLogLevel(cl.logLevel)
-
     }
 
     private def reportLoggingProblem(error: Throwable) = error match {
@@ -139,27 +158,34 @@ object FlatZincRunner {
             trySolve(cl)
         }
         catch {
+            case error: CancellationException =>
+            case error: InterruptedException =>
+            case error: ShutdownInProgressException =>
             case error: Throwable => reportSolverError(findUltimateCause(error))
         }
     }
 
     private def trySolve(cl: CommandLine) {
-        logger.log("Processing %s".format(cl.problemPath))
-        val file = new java.io.File(cl.problemPath)
-        val reader = new java.io.InputStreamReader(new java.io.FileInputStream(file))
-        val ast = FlatZincParser.parse(reader)
+        logger.log("Processing %s".format(cl.fznFilePath))
+        val ast =
+            logger.withTimedLogScope("Parsing FlatZinc file") {
+                new FlatZincFileParser(cl.fznFilePath, logger).call
+            }
         val monitor = new FlatZincSolverMonitor(logger)
-        val solver = new FlatZincSolverGenerator(ast, cl.cfg, logger, monitor).call
-        val maybeResult = solver.call
-        if (maybeResult.isEmpty || ! maybeResult.get.isSolution) {
-            println(FLATZINC_NO_SOLUTION_FOUND_INDICATOR)
-        } else {
-            logger.criticalSection {
-                logger.withLogScope("Solution") {
-                    new FlatZincResultFormatter(maybeResult.get).call.foreach(logger.log(_))
+        val sigint = new SettableSigint
+        scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set})) {
+            val solverGenerator = new FlatZincSolverGenerator(ast, cl.cfg, logger, monitor, sigint)
+            val solver = solverGenerator.call
+            val result = solver.call
+            if (! result.isSolution) {
+                println(FLATZINC_NO_SOLUTION_FOUND_INDICATOR)
+            } else {
+                logger.criticalSection {
+                    logger.withLogScope("Solution") {
+                        new FlatZincResultFormatter(result).call.foreach(logger.log(_))
+                    }
                 }
             }
-
         }
     }
 

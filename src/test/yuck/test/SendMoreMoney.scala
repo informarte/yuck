@@ -37,6 +37,7 @@ class SendMoreMoney extends IntegrationTest {
 
     def sendMoreMoney(seed: Int): Boolean = {
         val space = new Space(logger)
+        val sigint = new SettableSigint
         val d = new IntegerDomain(Zero, Nine)
         val d1 = new IntegerDomain(One, Nine)
         val S = space.createVariable("S", d1)
@@ -89,10 +90,9 @@ class SendMoreMoney extends IntegrationTest {
                 new MinimizationObjective(costs, Zero, None),
                 None,
                 None,
-                Some(new ModelData(LHS, RHS)))
-        val maybeResult = solver.call
-        assert(maybeResult.isDefined)
-        val result = maybeResult.get
+                Some(new ModelData(LHS, RHS)),
+                sigint)
+        val result = solver.call
         if (result.isSolution) {
             val modelData = result.maybeUserData.get.asInstanceOf[ModelData]
             assertEq(

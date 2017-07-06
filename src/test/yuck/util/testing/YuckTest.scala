@@ -12,31 +12,35 @@ import org.junit.rules.TestName
  */
 class YuckTest {
 
+    System.setProperty("java.util.logging.manager", classOf[yuck.util.logging.ManagedLogManager].getName)
+    private val logManager = java.util.logging.LogManager.getLogManager.asInstanceOf[yuck.util.logging.ManagedLogManager]
     val nativeLogger = java.util.logging.Logger.getLogger(this.getClass.getName)
     val logger = new yuck.util.logging.LazyLogger(nativeLogger)
     val formatter = new yuck.util.logging.Formatter
-
-    {
-        java.util.logging.LogManager.getLogManager().reset() // remove handlers
-        nativeLogger.setLevel(java.util.logging.Level.ALL)
-        val consoleHandler = new java.util.logging.ConsoleHandler
-        consoleHandler.setFormatter(formatter)
-        nativeLogger.addHandler(consoleHandler)
-        logger.setThresholdLogLevel(yuck.util.logging.FineLogLevel)
-    }
+    nativeLogger.setUseParentHandlers(false); // otherwise our console handler would remain unused
+    nativeLogger.setLevel(java.util.logging.Level.ALL)
+    private val consoleHandler = new java.util.logging.ConsoleHandler
+    consoleHandler.setFormatter(formatter)
+    nativeLogger.addHandler(consoleHandler)
+    logger.setThresholdLogLevel(yuck.util.logging.FineLogLevel)
 
     val testName = new TestName
 
     @(Rule @getter)
-    val runtimeMeasurementAndLogScoping =
+    val environmentManagement =
         RuleChain
         .outerRule(testName)
+        // For the case that the test method under execution initiates a shutdown upon interrupt,
+        // we deploy an empty, managed shutdown hook to enforce the completion of the shutdown.
+        // (Without it, the JVM would already exit after running the test method's JVM shutdown hook(s).)
+        // However, as a side effect, test methods without interrupt handling (e.g. typical unit tests)
+        // will ignore interrupts.
+        .around(new ManagedResourceAsTestRule(new yuck.util.arm.ManagedShutdownHook({})))
+        .around(new ManagedResourceAsTestRule(logManager))
         .around(
             new ManagedResourceAsTestRule(
                 new yuck.util.logging.DurationLogger(logger, "Running %s".format(testName.getMethodName))))
-        .around(
-            new ManagedResourceAsTestRule(
-                new yuck.util.logging.LogScope(logger)))
+        .around(new ManagedResourceAsTestRule(new yuck.util.logging.LogScope(logger)))
 
     def assert(b: Boolean) {
         Assert.assertTrue(b)

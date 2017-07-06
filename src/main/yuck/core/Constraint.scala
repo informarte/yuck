@@ -2,15 +2,15 @@ package yuck.core
 
 import scala.collection._
 
-import yuck.util.logging.LazyLogger
-
 /**
  * Provides the constraint interface for local search.
  *
- * Regarding the input variables, there are two things to keep in mind
- * when implementing a constraint: They may get pruned between construction
- * and initialization and there may be channel variables among them with
- * infinite domains.
+ * Regarding the input variables, there are three things to keep in mind
+ * when implementing a constraint:
+ *
+ *  - They may get pruned between construction and initialization.
+ *  - There may be channel variables among them with infinite domains.
+ *  - There may be duplicate variables.
  *
  * @author Michael Marte
  */
@@ -80,7 +80,8 @@ abstract class Constraint
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
         hotSpotDistributionFactory: Seq[AnyVariable] => Option[Distribution],
-        probabilityOfFairChoiceInPercent: Int):
+        probabilityOfFairChoiceInPercent: Int,
+        sigint: Sigint):
         Option[Neighbourhood] =
         None
 

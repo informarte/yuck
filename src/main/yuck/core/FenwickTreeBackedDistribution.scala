@@ -3,7 +3,7 @@ package yuck.core
 /**
  * Implements discrete distributions based on Fenwick trees.
  *
- * @see [[yuck.core.FenwickTree FenwickTree]]
+ * @see [[yuck.core.FenwickTree]]
  *
  * @author Michael Marte
  */

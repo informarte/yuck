@@ -13,7 +13,7 @@ import yuck.flatzinc.ast._
  * @author Michael Marte
  */
 final class DomainPruner
-    (cc: CompilationContext, randomGenerator: RandomGenerator)
+    (cc: CompilationContext, randomGenerator: RandomGenerator, sigint: Sigint)
     extends CompilationPhase(cc, randomGenerator)
 {
 
@@ -31,6 +31,9 @@ final class DomainPruner
         var reduction = false
         var pass = 0
         do {
+            if (sigint.isSet) {
+                throw new FlatZincCompilerInterruptedException
+            }
             val effects = new mutable.HashMap[Expr, AnyDomain]
             reduction = false
             pass += 1

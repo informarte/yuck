@@ -8,6 +8,7 @@ import yuck.flatzinc.ast._
 import yuck.util.arm.scoped
 import yuck.util.logging.LogScope
 
+
 /**
  * Compiles FlatZinc constraints to Yuck constraints.
  *
@@ -30,7 +31,7 @@ import yuck.util.logging.LogScope
  * @author Michael Marte
  */
 final class ConstraintFactory
-    (cc: CompilationContext, randomGenerator: RandomGenerator)
+    (cc: CompilationContext, randomGenerator: RandomGenerator, sigint: Sigint)
     extends CompilationPhase(cc, randomGenerator)
 {
 
@@ -104,6 +105,9 @@ final class ConstraintFactory
         (goal: Goal, constraint: yuck.flatzinc.ast.Constraint):
         Iterable[Variable[IntegerValue]] =
     {
+        if (sigint.isSet) {
+            throw new FlatZincCompilerInterruptedException
+        }
         if (impliedConstraints.contains(constraint)) {
             logger.logg("Skipping %s".format(constraint))
             Nil

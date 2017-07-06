@@ -8,43 +8,55 @@ import yuck.util.arm._
 import yuck.util.logging._
 
 /**
- * @author Michael Marte
+ * Provides a read-only channel for interrupt signals.
  *
+ * (The Java interrupt mechanism (Thread.interrupt, Future.cancel) is not suitable
+ * for anytime algorithms: When a Future gets cancelled in one way or another, it
+ * will yield no result, even when the interrupted computation has provided one.
+ * Therefore we have to provide and use our own interruption mechanism.)
+ *
+ * @author Michael Marte
  */
-trait SolverLifecycle {
+abstract class Sigint {
+    protected var interrupted = false
+    @inline final def isSet: Boolean = interrupted
+}
 
-    /**
-     * Asks the solver to suspend itself and return the best result found so far.
-     *
-     * Interrupting interrupted or finished solvers is allowed.
-     *
-     * (The Java interrupt mechanism (Thread.interrupt, Future.cancel) is not suitable
-     * for anytime algorithms: When a Future gets cancelled in one way or another, it
-     * will yield no result, even when the interrupted computation has provided one.
-     * Therefore we have to provide and use our own interruption mechanism.)
-     */
-    def interrupt: Unit
+/**
+ * Provides a means to interrupt a computation (by sending a signal).
+ *
+ * @author Michael Marte
+ */
+class SettableSigint extends Sigint {
+    final def set: Unit = {
+        interrupted = true
+    }
+}
 
-    /**
-     * To be called before resuming the solver (by means of call).
-     *
-     * The solver must have been interrupted and must not have finished.
-     */
-    def resume: Unit
-
-    /** Returns true when the solver was interrupted and has not yet been resumed. */
-    def wasInterrupted: Boolean
-
-    /** Do not call on a running solver! */
-    def hasFinished: Boolean
-
+/**
+ * Provides a means to interrupt a computation (by sending a signal)
+ * and to later resume the computation (by revoking the signal).
+ *
+ * @author Michael Marte
+ */
+final class RevocableSigint extends SettableSigint {
+    def revoke: Unit = {
+        interrupted = false
+    }
 }
 
 /**
  * @author Michael Marte
  *
  */
-abstract class Solver extends Callable[Option[Result]] with SolverLifecycle {
+final class SolverInterruptedException
+extends InterruptedException("Solver was interrupted")
+
+/**
+ * @author Michael Marte
+ *
+ */
+abstract class Solver extends Callable[Result] {
 
     /** Returns the solver's name. */
     def name: String = this.getClass.getName
@@ -52,37 +64,20 @@ abstract class Solver extends Callable[Option[Result]] with SolverLifecycle {
     /**
      * Runs the solver and returns the best result it came across.
      *
-     * When the solver gets interrupted, call shall terminate asap with or without result.
-     *
      * When the solver finds a solution that is good enough (according to its objective),
-     * call shall immediately return it.
+     * call immediately returns it.
      *
-     * call shall not be used on finished solvers.
+     * When the solver gets interrupted in some way, call terminates asap.
+     * In case a result is not yet available, call throws an InterruptedException.
+     *
+     * call is able to resume an unfinished solver which previously got interrupted.
+     *
+     * call must not be used on finished solvers.
      */
-    override def call: Option[Result]
+    override def call: Result
 
-}
-
-/**
- * Implements basic support for dealing with interrupts.
- *
- * @author Michael Marte
- */
-trait StandardSolverInterruptionSupport extends SolverLifecycle {
-
-    private var interrupted = false
-
-    override def interrupt {
-        interrupted = true
-    }
-
-    override def resume {
-        require(! hasFinished)
-        require(wasInterrupted)
-        interrupted = false
-    }
-
-    override def wasInterrupted = interrupted
+    /** Do not call on a running solver! */
+    def hasFinished: Boolean
 
 }
 
@@ -115,11 +110,11 @@ class SolverMonitor[ResultImpl <: Result] {
  *
  * @author Michael Marte
  */
-final object FinishedSolver extends Solver with StandardSolverInterruptionSupport {
+final object FinishedSolver extends Solver {
     override def hasFinished = true
     override def call = {
         require(! hasFinished, "Use a new solver")
-        None
+        null
     }
 }
 
@@ -133,7 +128,8 @@ final object FinishedSolver extends Solver with StandardSolverInterruptionSuppor
 final class TimeboxedSolver(
     solver: Solver,
     runtimeInSeconds: Int,
-    logger: LazyLogger)
+    logger: LazyLogger,
+    sigint: SettableSigint)
     extends Solver
 {
 
@@ -161,28 +157,18 @@ final class TimeboxedSolver(
                 }
                 if (remainingRuntimeInMillis <= 0) {
                     logger.log("Out of time, asking %s to stop".format(solver.name))
-                    solver.interrupt
+                    sigint.set
                 }
             }
         }
-        val maybeResult =
-            scoped(new TransientThreadRenaming(watchdogThread, "watchdog for %s".format(solver.name))) {
+        val result =
+            scoped(new TransientThreadRenaming(watchdogThread, "%s-watchdog".format(solver.name))) {
                 scoped(new ManagedThread(watchdogThread, logger)) {
                     solver.call
                 }
             }
-        maybeResult
+        result
     }
-
-    override def interrupt {
-        solver.interrupt
-    }
-
-    override def resume {
-        solver.resume
-    }
-
-    override def wasInterrupted = solver.wasInterrupted
 
 }
 
@@ -193,15 +179,13 @@ final class TimeboxedSolver(
  *
  * When the solver has finished, it gets replaced by a mock to free memory.
  *
- * Notice that the generation part cannot be interrupted.
- *
  * @author Michael Marte
  */
 final class OnDemandGeneratedSolver(
     solverGenerator: SolverGenerator,
-    logger: LazyLogger)
+    logger: LazyLogger,
+    sigint: Sigint)
     extends Solver
-    with StandardSolverInterruptionSupport
 {
 
     private var solver: Solver = null
@@ -213,18 +197,24 @@ final class OnDemandGeneratedSolver(
     override def call = {
         require(! hasFinished)
         if (solver == null) {
-            if (wasInterrupted) {
+            if (sigint.isSet) {
                 logger.loggg("Interrupted, not generating solver")
             } else {
                 logger.withTimedLogScope("Generating solver") {
-                    solver = solverGenerator.call
+                    try {
+                        solver = solverGenerator.call
+                    }
+                    catch {
+                        case error: InterruptedException =>
+                            logger.log(error.getMessage)
+                    }
                 }
             }
         }
-        if (wasInterrupted) {
-            None
+        if (sigint.isSet) {
+            throw new SolverInterruptedException
         } else {
-            val maybeResult =
+            val result =
                 logger.withTimedLogScope("Running solver") {
                     solver.call
                 }
@@ -232,18 +222,8 @@ final class OnDemandGeneratedSolver(
                 // replace solver by mock to free memory
                 solver = FinishedSolver
             }
-            maybeResult
+            result
         }
-    }
-
-    override def interrupt {
-        super.interrupt
-        if (solver != null) solver.interrupt
-    }
-
-    override def resume {
-        super.resume
-        if (solver != null) solver.resume
     }
 
 }
@@ -265,9 +245,9 @@ final class ParallelSolver(
     solvers: Seq[Solver],
     threadPoolSize: Int,
     override val name: String,
-    logger: LazyLogger)
+    logger: LazyLogger,
+    sigint: SettableSigint)
     extends Solver
-    with StandardSolverInterruptionSupport
 {
 
     require(! solvers.isEmpty)
@@ -282,20 +262,24 @@ final class ParallelSolver(
 
     private class SolverRunner(child: Solver) extends Runnable {
         override def run {
-            if (! child.wasInterrupted) {
+            if (! sigint.isSet) {
                 scoped(new TransientThreadRenaming(Thread.currentThread, child.name)) {
                     scoped(new LogScope(logger, indentation)) {
                         logger.withTimedLogScope("Running child") {
-                            val maybeResult = child.call
-                            if (maybeResult.isDefined) {
+                            try {
+                                val result = child.call
                                 criticalSection(lock) {
-                                    if (maybeBestResult.isEmpty || maybeResult.get.isBetterThan(maybeBestResult.get)) {
-                                        maybeBestResult = maybeResult
+                                    if (maybeBestResult.isEmpty || result.isBetterThan(maybeBestResult.get)) {
+                                        maybeBestResult = Some(result)
                                         if (maybeBestResult.get.isGoodEnough) {
-                                            interruptSolvers
+                                            sigint.set
                                         }
                                     }
                                 }
+                            }
+                            catch {
+                                case error: InterruptedException =>
+                                    logger.log(error.getMessage)
                             }
                         }
                     }
@@ -306,7 +290,7 @@ final class ParallelSolver(
 
     override def call = {
         require(! hasFinished)
-        if (! wasInterrupted) {
+        if (! sigint.isSet) {
             val threadPool = Executors.newFixedThreadPool(threadPoolSize)
             scoped(new ManagedExecutorService(threadPool, logger)) {
                 val futureResults =
@@ -316,31 +300,14 @@ final class ParallelSolver(
                     val results = futureResults.map(_.get)
                 }
                 finally {
-                    interrupt
+                    sigint.set
                 }
             }
         }
-        maybeBestResult
-    }
-
-    override def interrupt {
-        super.interrupt
-        interruptSolvers
-    }
-
-    private def interruptSolvers {
-        logger.log("Interrupting solvers")
-        solvers.foreach(_.interrupt)
-    }
-
-    override def resume {
-        super.resume
-        resumePendingSolvers
-    }
-
-    private def resumePendingSolvers {
-        logger.log("Resuming pending solvers")
-        for (solver <- solvers if ! solver.hasFinished) solver.resume
+        if (maybeBestResult.isEmpty) {
+            throw new SolverInterruptedException
+        }
+        maybeBestResult.get
     }
 
 }

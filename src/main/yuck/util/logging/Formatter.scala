@@ -4,7 +4,7 @@ package yuck.util.logging
  * @author Michael Marte
  *
  */
-class Formatter extends java.util.logging.Formatter {
+final class Formatter extends java.util.logging.Formatter {
 
     private val startTime = new java.util.Date
     private val dateFormat = new java.text.SimpleDateFormat("HH:mm:ss")

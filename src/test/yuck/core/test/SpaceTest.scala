@@ -2,14 +2,14 @@ package yuck.core.test
 
 import org.junit._
 import yuck.core._
-import yuck.util.testing.YuckTest
+import yuck.util.testing.UnitTest
 
 /**
  * @author Michael Marte
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class SpaceTest extends YuckTest {
+class SpaceTest extends UnitTest {
 
     @Test
     def testBasicNetworkManagement {

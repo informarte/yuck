@@ -1,8 +1,10 @@
 package yuck.core.test
 
 import org.junit._
+
 import yuck.core._
 import yuck.util.testing.UnitTest
+
 
 /**
  * @author Michael Marte
@@ -12,22 +14,22 @@ import yuck.util.testing.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 class SolverTest extends UnitTest {
 
-    private class GoodSolver(result: Result, sleepTimeInSeconds: Int)
-    extends Solver with StandardSolverInterruptionSupport
+    private class GoodSolver(result: Result, sleepTimeInSeconds: Int, sigint: Sigint) extends Solver
     {
         override def name = result.solverName
         private var finished = false
+        private def wasInterrupted = sigint.isSet
         override def hasFinished = finished
         override def call = {
             if (wasInterrupted) {
-                None
+                throw new SolverInterruptedException
             } else {
                 Thread.sleep(sleepTimeInSeconds * 1000)
                 if (wasInterrupted) {
-                    None
+                    throw new SolverInterruptedException
                 } else {
                     finished = true
-                    Some(result)
+                    result
                 }
             }
         }
@@ -35,7 +37,7 @@ class SolverTest extends UnitTest {
 
     private class BadSolverException extends RuntimeException
 
-    private class BadSolver extends Solver with StandardSolverInterruptionSupport {
+    private class BadSolver extends Solver {
         override def call = {
             throw new BadSolverException
         }
@@ -44,168 +46,178 @@ class SolverTest extends UnitTest {
 
     @Test
     def testTimeboxingWithTimeout {
+        val sigint = new RevocableSigint
         val result = new Result("0", null, null, null)
-        val solver = new TimeboxedSolver(new GoodSolver(result, 1), 0, logger)
-        solver.call
+        val solver = new TimeboxedSolver(new GoodSolver(result, 1, sigint), 0, logger, sigint)
+        assertEx(solver.call, classOf[SolverInterruptedException])
         assert(! solver.hasFinished)
-        assert(solver.wasInterrupted)
-        solver.resume
-        assert(! solver.wasInterrupted)
-        solver.call
+        assert(sigint.isSet)
+        sigint.revoke
+        assertEx(solver.call, classOf[SolverInterruptedException])
         assert(! solver.hasFinished)
-        assert(solver.wasInterrupted)
+        assert(sigint.isSet)
     }
 
     @Test
     def testTimeboxingWithoutTimeout {
+        val sigint = new SettableSigint
         val result = new Result("0", null, null, null)
-        val solver = new TimeboxedSolver(new GoodSolver(result, 0), 1, logger)
+        val solver = new TimeboxedSolver(new GoodSolver(result, 0, sigint), 1, logger, sigint)
         solver.call
         assert(solver.hasFinished)
-        assert(! solver.wasInterrupted)
-        assertEx(solver.resume, classOf[IllegalArgumentException])
+        assert(! sigint.isSet)
         assertEx(solver.call, classOf[IllegalArgumentException])
+        assert(solver.hasFinished)
+        assert(! sigint.isSet)
     }
 
     @Test
     def testTimeboxingWithException {
-        val solver = new TimeboxedSolver(new BadSolver, 1, logger)
+        val sigint = new SettableSigint
+        val solver = new TimeboxedSolver(new BadSolver, 1, logger, sigint)
         assertEx(solver.call, classOf[BadSolverException])
         assert(! solver.hasFinished)
-        assert(! solver.wasInterrupted)
-        assertEx(solver.resume, classOf[IllegalArgumentException])
+        assert(! sigint.isSet)
         assertEx(solver.call, classOf[BadSolverException])
+        assert(! solver.hasFinished)
+        assert(! sigint.isSet)
     }
 
     @Test
     def testOnDemandGenerationWithResult {
+        val sigint = new SettableSigint
         val result = new Result("0", null, null, null)
         val solverGenerator = new SolverGenerator {
             override def solverName = result.solverName
-            override def call = new GoodSolver(result, 0)
+            override def call = new GoodSolver(result, 0, sigint)
         }
-        val solver = new OnDemandGeneratedSolver(solverGenerator, logger)
+        val solver = new OnDemandGeneratedSolver(solverGenerator, logger, sigint)
         assert(! solver.hasFinished)
-        assert(! solver.wasInterrupted)
-        assertEq(solver.call.get.solverName, result.solverName)
+        assert(! sigint.isSet)
+        assertEq(solver.call.solverName, result.solverName)
         assert(solver.hasFinished)
-        assert(! solver.wasInterrupted)
-        assertEx(solver.resume, classOf[IllegalArgumentException])
+        assert(! sigint.isSet)
         assertEx(solver.call, classOf[IllegalArgumentException])
+        assert(solver.hasFinished)
+        assert(! sigint.isSet)
     }
 
     @Test
     def testOnDemandGenerationWithException {
+        val sigint = new SettableSigint
         val solverGenerator = new SolverGenerator {
             override def solverName = classOf[BadSolver].getSimpleName
             override def call = new BadSolver
         }
-        val solver = new OnDemandGeneratedSolver(solverGenerator, logger)
+        val solver = new OnDemandGeneratedSolver(solverGenerator, logger, sigint)
         assertEx(solver.call, classOf[BadSolverException])
         assert(! solver.hasFinished)
-        assert(! solver.wasInterrupted)
-        assertEx(solver.resume, classOf[IllegalArgumentException])
+        assert(! sigint.isSet)
         assertEx(solver.call, classOf[BadSolverException])
+        assert(! solver.hasFinished)
+        assert(! sigint.isSet)
     }
 
     @Test
     def testParallelSolvingWithSolution {
+        val sigint = new RevocableSigint
         val objective = new MinimizationObjective(null, Zero, None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = if (i == 8) Zero else One)
-        val solvers = results.map(result => new GoodSolver(result, 1))
-        val solver = new ParallelSolver(solvers, 4, "Test", logger)
-        val maybeResult = solver.call
-        assert(maybeResult.isDefined)
-        val result = maybeResult.get
+        val solvers = results.map(result => new GoodSolver(result, 1, sigint))
+        val solver = new ParallelSolver(solvers, 4, "Test", logger, sigint)
+        val result = solver.call
         assertEq(result.solverName, "8")
         assertEq(result.costsOfBestProposal, Zero)
         assert(result.isSolution)
         assert(solvers(8).hasFinished)
         for (i <- 16 until solvers.size) {
             val solver = solvers(i)
-            assert(solver.wasInterrupted)
             assert(! solver.hasFinished)
         }
-        assert(solver.wasInterrupted)
         assert(solver.hasFinished)
-        assertEx(solver.resume, classOf[IllegalArgumentException])
+        assert(sigint.isSet)
+        sigint.revoke
         assertEx(solver.call, classOf[IllegalArgumentException])
+        assert(solver.hasFinished)
+        assert(! sigint.isSet)
     }
 
     @Test
     def testParallelSolvingWithoutSolution {
+        val sigint = new RevocableSigint
         val objective = new MinimizationObjective(null, Zero, None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = One)
-        val solvers = results.map(result => new GoodSolver(result, 0))
-        val solver = new ParallelSolver(solvers, 4, "Test", logger)
-        val maybeResult = solver.call
-        assert(maybeResult.isDefined)
-        val result = maybeResult.get
+        val solvers = results.map(result => new GoodSolver(result, 0, sigint))
+        val solver = new ParallelSolver(solvers, 4, "Test", logger, sigint)
+        val result = solver.call
         assertEq(result.costsOfBestProposal, One)
         assert(! result.isSolution)
         for (solver <- solvers) {
-            assert(solver.wasInterrupted)
             assert(solver.hasFinished)
         }
-        assert(solver.wasInterrupted)
         assert(solver.hasFinished)
-        assertEx(solver.resume, classOf[IllegalArgumentException])
+        assert(sigint.isSet)
+        sigint.revoke
         assertEx(solver.call, classOf[IllegalArgumentException])
+        assert(solver.hasFinished)
+        assert(! sigint.isSet)
     }
 
     @Test
     def testParallelSolvingWithException {
+        val sigint = new RevocableSigint
         val objective = new MinimizationObjective(null, Zero, None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = One)
-        val solvers = (0 until results.size).map(i => if (i == 8) new BadSolver else new GoodSolver(results(i), 1))
-        val solver = new ParallelSolver(solvers, 4, "Test", logger)
+        val solvers = (0 until results.size).map(i => if (i == 8) new BadSolver else new GoodSolver(results(i), 1, sigint))
+        val solver = new ParallelSolver(solvers, 4, "Test", logger, sigint)
         assertEx(solver.call, classOf[BadSolverException])
         for (i <- 16 until solvers.size) {
             val solver = solvers(i)
-            assert(solver.wasInterrupted)
             assert(! solver.hasFinished)
         }
-        assert(solver.wasInterrupted)
         assert(! solver.hasFinished)
-        solver.resume
+        assert(sigint.isSet)
+        sigint.revoke
         assertEx(solver.call, classOf[BadSolverException])
+        assert(! solver.hasFinished)
+        assert(sigint.isSet)
     }
 
     // Tests on-demand solver generation, parallel solving, timeboxing, and resumption after timeout
     @Test
     def testPracticalSetting {
+        val sigint = new RevocableSigint
         val objective = new MinimizationObjective(null, Zero, None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = if (i == 8) Zero else One)
         class GoodSolverGenerator(result: Result) extends SolverGenerator {
             override def solverName = result.solverName
-            override def call = new GoodSolver(result, 1)
+            override def call = new GoodSolver(result, 1, sigint)
         }
-        val solvers = results.map(result => new OnDemandGeneratedSolver(new GoodSolverGenerator(result), logger))
-        val solver = new ParallelSolver(solvers, 4, "Test", logger)
-        assertEq(new TimeboxedSolver(solver, 0, logger).call, None)
-        assert(solver.wasInterrupted)
+        val solvers =
+            results.map(result => new OnDemandGeneratedSolver(new GoodSolverGenerator(result), logger, sigint))
+        val solver = new ParallelSolver(solvers, 4, "Test", logger, sigint)
+        assertEx(operation = new TimeboxedSolver(solver, 0, logger, sigint).call, classOf[SolverInterruptedException])
         assert(! solver.hasFinished)
-        solver.resume
-        val maybeResult = new TimeboxedSolver(solver, 8, logger).call
-        assert(maybeResult.isDefined)
-        val result = maybeResult.get
+        assert(sigint.isSet)
+        sigint.revoke
+        val result = new TimeboxedSolver(solver, 8, logger, sigint).call
         assertEq(result.solverName, "8")
         assertEq(result.costsOfBestProposal, Zero)
         assert(result.isSolution)
         assert(solvers(8).hasFinished)
         for (i <- 16 until solvers.size) {
             val solver = solvers(i)
-            assert(solver.wasInterrupted)
             assert(! solver.hasFinished)
         }
-        assert(solver.wasInterrupted)
         assert(solver.hasFinished)
-        assertEx(solver.resume, classOf[IllegalArgumentException])
+        assert(sigint.isSet)
         assertEx(solver.call, classOf[IllegalArgumentException])
+        assert(solver.hasFinished)
+        assert(sigint.isSet)
     }
 
 }

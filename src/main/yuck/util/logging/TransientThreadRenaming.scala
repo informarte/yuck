@@ -8,7 +8,7 @@ import yuck.util.arm.ManagedResource
  *
  * @author Michael Marte
  */
-class TransientThreadRenaming(thread: Thread, name: String) extends ManagedResource {
+final class TransientThreadRenaming(thread: Thread, name: String) extends ManagedResource {
 
     private var previousName = ""
 

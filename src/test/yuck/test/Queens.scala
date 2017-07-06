@@ -15,7 +15,7 @@ import yuck.util.testing.IntegrationTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 class Queens extends IntegrationTest {
 
-    private final class QueensGenerator(n: Int, i: Int, seed: Int) extends SolverGenerator {
+    private final class QueensGenerator(n: Int, i: Int, seed: Int, sigint: Sigint) extends SolverGenerator {
         override def solverName = "SA-%d".format(i)
         override def call = {
             val space = new Space(logger)
@@ -61,7 +61,8 @@ class Queens extends IntegrationTest {
                     new MinimizationObjective(conflicts, Zero, None),
                     None,
                     None,
-                    None)
+                    None,
+                    sigint)
             solver
         }
     }
@@ -69,13 +70,12 @@ class Queens extends IntegrationTest {
     private def queens(n: Int) {
         val space = new Space(logger)
         val randomGenerator = new JavaRandomGenerator(29071972)
+        val sigint = new SettableSigint
         val solvers =
             (1 to DEFAULT_RESTART_LIMIT).map(
-                i => new OnDemandGeneratedSolver(new QueensGenerator(n, i, randomGenerator.nextInt), logger))
-        val solver = new ParallelSolver(solvers, Runtime.getRuntime.availableProcessors, "Queens", logger)
-        val maybeResult = solver.call
-        assert(maybeResult.isDefined)
-        val result = maybeResult.get
+                i => new OnDemandGeneratedSolver(new QueensGenerator(n, i, randomGenerator.nextInt, sigint), logger, sigint))
+        val solver = new ParallelSolver(solvers, Runtime.getRuntime.availableProcessors, "Queens", logger, sigint)
+        val result = solver.call
         assert(result.isSolution)
     }
 

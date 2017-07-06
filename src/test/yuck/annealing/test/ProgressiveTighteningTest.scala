@@ -2,11 +2,10 @@ package yuck.annealing.test
 
 import org.junit._
 
-import scala.collection._
-
 import yuck.annealing._
 import yuck.core._
 import yuck.util.testing.IntegrationTest
+
 
 /**
  * @author Michael Marte
@@ -51,7 +50,8 @@ class ProgressiveTighteningTest extends IntegrationTest {
             objective,
             Some(1),
             Some(tighteningCounter),
-            None)
+            None,
+            new SettableSigint)
     }
 
     @Test
@@ -62,9 +62,8 @@ class ProgressiveTighteningTest extends IntegrationTest {
                 List(new MinimizationObjective(x, Zero, None), new MinimizationObjective(y, Zero, Some(MinusOne))),
                 false)
         val solver = createSolver(objective)
-        val maybeResult = solver.call
-        assert(maybeResult.isDefined)
-        assert(maybeResult.get.isGoodEnough)
+        val result = solver.call
+        assert(result.isGoodEnough)
         assertEq(tighteningCounter.n, 1)
     }
 
@@ -76,9 +75,8 @@ class ProgressiveTighteningTest extends IntegrationTest {
                 List(new MaximizationObjective(x, Nine, None), new MaximizationObjective(y, Nine, Some(One))),
                 false)
         val solver = createSolver(objective)
-        val maybeResult = solver.call
-        assert(maybeResult.isDefined)
-        assert(maybeResult.get.isGoodEnough)
+        val result = solver.call
+        assert(result.isGoodEnough)
         assertEq(tighteningCounter.n, 1)
     }
 

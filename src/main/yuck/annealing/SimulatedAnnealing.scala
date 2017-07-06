@@ -22,9 +22,9 @@ final class SimulatedAnnealing(
     objective: AnyObjective,
     maybeRoundLimit: Option[Int],
     maybeMonitor: Option[AnnealingMonitor],
-    maybeUserData: Option[Object])
+    maybeUserData: Option[Object],
+    sigint: Sigint)
     extends Solver
-    with StandardSolverInterruptionSupport
 {
 
     private var roundCount = 0
@@ -44,6 +44,8 @@ final class SimulatedAnnealing(
         result.costsOfBestProposal = costsOfCurrentProposal
     }
 
+    private def wasInterrupted = sigint.isSet
+
     override def hasFinished =
         (maybeRoundLimit.isDefined && roundCount >= maybeRoundLimit.get) ||
         schedule.isFrozen ||
@@ -59,10 +61,10 @@ final class SimulatedAnnealing(
                 monitor.onBetterProposal(result)
                 monitor.onSolverFinished(result)
             }
-            Some(result)
+            result
         }
-        else if (proposalBeforeSuspension != null) Some(continue)
-        else Some(start)
+        else if (proposalBeforeSuspension != null) resume
+        else start
 
     private def start: AnnealingResult = {
         if (maybeMonitor.isDefined) {
@@ -72,7 +74,7 @@ final class SimulatedAnnealing(
         result
     }
 
-    private def continue: AnnealingResult = {
+    private def resume: AnnealingResult = {
         space.initialize(proposalBeforeSuspension)
         costsOfCurrentProposal = objective.costs(currentProposal)
         if (maybeMonitor.isDefined) {

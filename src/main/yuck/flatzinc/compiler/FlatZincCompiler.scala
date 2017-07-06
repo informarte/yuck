@@ -15,7 +15,8 @@ final class FlatZincCompiler
     (ast: FlatZincAst,
      cfg: FlatZincSolverConfiguration,
      randomGenerator: RandomGenerator,
-     logger: LazyLogger)
+     logger: LazyLogger,
+     sigint: Sigint)
     extends Callable[FlatZincCompilerResult]
 {
 
@@ -54,7 +55,7 @@ final class FlatZincCompiler
     private def preferDomainPruningOverImplicitSolving: CompilationContext = {
         val cc = new CompilationContext(ast, cfg, logger)
         run(new DomainInitializer(cc, randomGenerator.nextGen))
-        run(new DomainPruner(cc, randomGenerator.nextGen))
+        run(new DomainPruner(cc, randomGenerator.nextGen, sigint))
         finishCompilation(cc)
         cc
     }
@@ -76,7 +77,7 @@ final class FlatZincCompiler
             finishCompilation(cc1)
 
             // stage 2: compute domain reductions
-            run(new DomainPruner(cc1, randomGenerator.nextGen))
+            run(new DomainPruner(cc1, randomGenerator.nextGen, sigint))
 
             // stage 3: build final model, taking domain reductions into account as far as possible without
             // inhibiting implicit solving
@@ -107,14 +108,17 @@ final class FlatZincCompiler
     private def finishCompilation(cc: CompilationContext) {
         run(new VariableFactory(cc, randomGenerator.nextGen))
         run(new VariableClassifier(cc, randomGenerator.nextGen))
-        run(new ConstraintFactory(cc, randomGenerator.nextGen))
+        run(new ConstraintFactory(cc, randomGenerator.nextGen, sigint))
         run(new DomainFinalizer(cc, randomGenerator.nextGen))
         run(new ObjectiveFactory(cc, randomGenerator.nextGen))
-        run(new ConstraintDrivenNeighbourhoodFactory(cc, randomGenerator.nextGen))
+        run(new ConstraintDrivenNeighbourhoodFactory(cc, randomGenerator.nextGen, sigint))
     }
 
     // Use the optional root log level to focus on a particular compilation phase.
     private def run(phase: CompilationPhase, rootLogLevel: yuck.util.logging.LogLevel = yuck.util.logging.FineLogLevel) {
+        if (sigint.isSet) {
+            throw new FlatZincCompilerInterruptedException
+        }
         logger.withRootLogLevel(rootLogLevel) {
             logger.withTimedLogScope("Running %s".format(phase.getClass.getSimpleName)) {
                 phase.run

@@ -7,7 +7,7 @@ import yuck.constraints.LinearCombination
 import yuck.constraints.Sum
 import yuck.core._
 import yuck.flatzinc.ast.IntConst
-import yuck.constraints.Alldistinct
+
 
 /**
  * Generates focused neighbourhoods for satisfaction and minimization goals.
@@ -27,7 +27,7 @@ import yuck.constraints.Alldistinct
  * @author Michael Marte
  */
 final class VariableDrivenNeighbourhoodFactory
-    (cc: CompilationContext, randomGenerator: RandomGenerator)
+    (cc: CompilationContext, randomGenerator: RandomGenerator, sigint: Sigint)
     extends NeighbourhoodFactory(cc, randomGenerator)
 {
 
@@ -49,7 +49,8 @@ final class VariableDrivenNeighbourhoodFactory
                 val maybeNeighbourhood =
                     constraint.prepareForImplicitSolving(
                         space, randomGenerator, cfg.moveSizeDistribution,
-                        createHotSpotDistribution(hotSpotIndicators), cfg.probabilityOfFairChoiceInPercent)
+                        createHotSpotDistribution(hotSpotIndicators), cfg.probabilityOfFairChoiceInPercent,
+                        sigint)
                 if (maybeNeighbourhood.isDefined) {
                     implicitlyConstrainedVars ++= xs
                     space.markAsImplicit(constraint)

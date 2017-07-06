@@ -1,7 +1,9 @@
 package yuck.constraints.test
 
-import scala.collection._
 import org.junit._
+
+import scala.collection._
+
 import yuck.annealing._
 import yuck.constraints._
 import yuck.core._
@@ -108,7 +110,8 @@ class ConstraintTest extends UnitTest {
         val now = space.searchState
         assertEq(now.value(costs), Two)
         val maybeNeighbourhood =
-            c.prepareForImplicitSolving(space, new JavaRandomGenerator, DEFAULT_MOVE_SIZE_DISTRIBUTION, _ => None, 0)
+            c.prepareForImplicitSolving(
+                space, new JavaRandomGenerator, DEFAULT_MOVE_SIZE_DISTRIBUTION, _ => None, 0, new SettableSigint)
         assert(maybeNeighbourhood.isDefined)
         val neighbourhood = maybeNeighbourhood.get
         assertNe(now.value(s), now.value(t))

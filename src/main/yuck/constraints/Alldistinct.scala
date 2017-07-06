@@ -8,6 +8,7 @@ import yuck.core._
 import yuck.util.logging.LazyLogger
 
 
+
 /**
  * Implements the ''all_different_int'' constraint as specified by MiniZinc.
  *
@@ -50,7 +51,8 @@ final class Alldistinct
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
         hotSpotDistributionFactory: Seq[AnyVariable] => Option[Distribution],
-        probabilityOfFairChoiceInPercent: Int):
+        probabilityOfFairChoiceInPercent: Int,
+        sigint: Sigint):
         Option[Neighbourhood] =
     {
         if (isCandidateForImplicitSolving(space)) {
@@ -75,7 +77,7 @@ final class Alldistinct
                 val logger = space.logger
                 val subspace = new Space(logger, space.checkConstraintPropagation)
                 val subxs = xs.map(x => subspace.createVariable(x.name, x.domain))
-                val Some(result) = logger.withTimedLogScope("Solving %s".format(this)) {
+                val result = logger.withTimedLogScope("Solving %s".format(this)) {
                     val subcosts = subspace.createVariable("", IntegerValueTraits.nonNegativeDomain)
                     subspace.post(new Alldistinct(subspace.constraintIdFactory.nextId, goal, subxs, subcosts))
                     val initializer = new RandomInitializer(subspace, randomGenerator.nextGen)
@@ -97,7 +99,8 @@ final class Alldistinct
                             new MinimizationObjective(subcosts, Zero, None),
                             maybeRoundLimit = Some(1000),
                             Some(new StandardAnnealingMonitor(logger)),
-                            maybeUserData = None)
+                            maybeUserData = None,
+                            sigint)
                     solver.call
                 }
                 if (result.isSolution) {

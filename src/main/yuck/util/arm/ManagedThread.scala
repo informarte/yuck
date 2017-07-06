@@ -7,7 +7,7 @@ import yuck.util.logging.LazyLogger
  *
  * @author Michael Marte
  */
-class ManagedThread(thread: Thread, logger: LazyLogger) extends ManagedResource {
+final class ManagedThread(thread: Thread, logger: LazyLogger) extends ManagedResource {
 
     override def open {
         logger.logg("Starting %s".format(thread.getName))

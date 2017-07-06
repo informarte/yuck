@@ -1,7 +1,6 @@
 package yuck.flatzinc.test.util
 
 import scala.collection._
-import scala.math._
 
 import org.junit._
 
@@ -10,8 +9,8 @@ import yuck.core._
 import yuck.flatzinc.compiler.{FlatZincCompilerResult, InconsistentProblemException}
 import yuck.flatzinc.parser._
 import yuck.flatzinc.runner._
-import yuck.util.testing.{ProcessRunner, IntegrationTest}
-import yuck.util.arm.using
+import yuck.util.arm.{ManagedShutdownHook, scoped, using}
+import yuck.util.testing.{IntegrationTest, ProcessRunner}
 
 /**
  * @author Michael Marte
@@ -69,19 +68,21 @@ class MiniZincTestSuite extends IntegrationTest {
             val (_, errorLines) = new ProcessRunner(logger, mzn2fznCommand).call
             Predef.assert(errorLines.isEmpty, "Flattening failed")
         }
-        val file = new java.io.File(fznFilePath)
-        val reader = new java.io.InputStreamReader(new java.io.FileInputStream(file))
-        val ast = logger.withTimedLogScope("Parsing FlatZinc file")(FlatZincParser.parse(reader))
+        val ast =
+            logger.withTimedLogScope("Parsing FlatZinc file") {
+                new FlatZincFileParser(fznFilePath, logger).call
+            }
         val cfg =
             task.solverConfiguration.copy(
                 maybeTargetObjectiveValue = task.maybeOptimum,
                 maybeQualityTolerance = task.maybeQualityTolerance)
-        val maybeResult =
-            using(new StandardAnnealingMonitor(logger))(
-                monitor => new FlatZincSolverGenerator(ast, cfg, logger, monitor).call.call
-            )
-        Assert.assertTrue("Solver returned no proposal", maybeResult.isDefined)
-        val result = maybeResult.get
+        val sigint = new SettableSigint
+        val result =
+            scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set})) {
+                using(new StandardAnnealingMonitor(logger)) {
+                    monitor => new FlatZincSolverGenerator(ast, cfg, logger, monitor, sigint).call.call
+                }
+            }
         logger.log("Quality of best proposal: %s".format(result.costsOfBestProposal))
         logger.log("Best proposal was produced by: %s".format(result.solverName))
         if (! result.isSolution) {

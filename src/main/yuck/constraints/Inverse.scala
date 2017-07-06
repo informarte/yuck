@@ -195,7 +195,8 @@ final class Inverse
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
         hotSpotDistributionFactory: Seq[AnyVariable] => Option[Distribution],
-        probabilityOfFairChoiceInPercent: Int):
+        probabilityOfFairChoiceInPercent: Int,
+        sigint: Sigint):
         Option[Neighbourhood] =
     {
         if (isCandidateForImplicitSolving(space)) {
@@ -218,7 +219,7 @@ final class Inverse
                     val subspace = new Space(logger, space.checkConstraintPropagation)
                     val subf = new InverseFunction(f.xs.map(x => subspace.createVariable(x.name, x.domain)), f.offset)
                     val subg = new InverseFunction(g.xs.map(y => subspace.createVariable(y.name, y.domain)), g.offset)
-                    val Some(result) = logger.withTimedLogScope("Solving %s".format(this)) {
+                    val result = logger.withTimedLogScope("Solving %s".format(this)) {
                         val subcosts = subspace.createVariable("", IntegerValueTraits.nonNegativeDomain)
                         subspace.post(new Inverse(subspace.constraintIdFactory.nextId, goal, subf, subg, subcosts))
                         val initializer = new RandomInitializer(subspace, randomGenerator.nextGen)
@@ -240,7 +241,8 @@ final class Inverse
                                 new MinimizationObjective(subcosts, Zero, None),
                                 maybeRoundLimit = Some(1000),
                                 Some(new StandardAnnealingMonitor(logger)),
-                                maybeUserData = None)
+                                maybeUserData = None,
+                                sigint)
                         solver.call
                     }
                     if (result.isSolution) {
