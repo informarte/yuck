@@ -12,7 +12,7 @@ case class FlatZincSolverConfiguration(
     val restartLimit: Int = DEFAULT_RESTART_LIMIT,
     val numberOfVirtualCores: Int = Runtime.getRuntime.availableProcessors,
     val maybeRoundLimit: Option[Int] = None,
-    val maybeRuntimeLimitInSeconds: Option[Int] = Some(300),
+    val maybeRuntimeLimitInSeconds: Option[Int] = None,
     val maybeTargetObjectiveValue: Option[Int] = None,
     val maybeQualityTolerance: Option[Int] = None,
     val stopOnFirstSolution: Boolean = false,

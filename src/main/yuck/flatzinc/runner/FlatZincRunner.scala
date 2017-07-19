@@ -17,7 +17,12 @@ object FlatZincRunner {
         val logLevel: yuck.util.logging.LogLevel = yuck.util.logging.NoLogging,
         val logFilePath: String = "",
         val problemPath: String = "",
-        val cfg: FlatZincSolverConfiguration = new FlatZincSolverConfiguration)
+        val cfg: FlatZincSolverConfiguration =
+            new FlatZincSolverConfiguration(
+                // The parser expects the following values to be undefined!
+                maybeRoundLimit = None,
+                maybeRuntimeLimitInSeconds = None,
+                maybeTargetObjectiveValue = None))
     {}
 
     class CommandLineParser extends OptionParser[CommandLine]("yuck") {
