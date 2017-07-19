@@ -122,6 +122,20 @@ final class Div
  * @author Michael Marte
  *
  */
+final class Power
+    [Value <: NumericalValue[Value]]
+    (id: Id[Constraint], goal: Goal,
+     x: Variable[Value], y: Variable[Value], z: Variable[Value])
+    extends BinaryConstraint(id, goal, x, y, z)
+{
+    override def toString = "%s = %s ^ %s".format(z, x, y)
+    override def op(a: Value, b: Value) = a ^ b
+}
+
+/**
+ * @author Michael Marte
+ *
+ */
 final class Mod
     [Value <: NumericalValue[Value]]
     (id: Id[Constraint], goal: Goal,

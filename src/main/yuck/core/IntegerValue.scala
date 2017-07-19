@@ -20,6 +20,7 @@ final class IntegerValue(val value: Int) extends NumericalValue[IntegerValue] {
     override def -(that: IntegerValue) = IntegerValue.get(this.value - that.value)
     override def *(that: IntegerValue) = IntegerValue.get(this.value * that.value)
     override def /(that: IntegerValue) = IntegerValue.get(this.value / that.value)
+    override def ^(that: IntegerValue) = IntegerValue.get(scala.math.pow(this.value, that.value).toInt)
     override def %(that: IntegerValue) = IntegerValue.get(this.value % that.value)
     override def abs = if (value < 0) IntegerValue.get(-value) else this
     override def toDouble = value.toDouble

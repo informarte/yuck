@@ -300,6 +300,8 @@ final class ConstraintFactory
             compileBinaryConstraint[IntegerValue](new Times(_, _, _, _, _), intEqFactory, goal, constraint)
         case Constraint("int_div", List(a, b, c), _) =>
             compileBinaryConstraint[IntegerValue](new Div(_, _, _, _, _), intEqFactory, goal, constraint)
+        case Constraint("int_pow", List(a, b, c), _) =>
+            compileBinaryConstraint[IntegerValue](new Power(_, _, _, _, _), intEqFactory, goal, constraint)
         case Constraint("int_mod", List(a, b, c), _) =>
             compileBinaryConstraint[IntegerValue](new Mod(_, _, _, _, _), intEqFactory, goal, constraint)
         case Constraint("int_abs", List(a, b), _) =>

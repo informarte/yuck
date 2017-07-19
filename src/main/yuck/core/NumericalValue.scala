@@ -12,6 +12,7 @@ abstract class NumericalValue[Value] extends OrderedValue[Value] {
     def -(that: Value): Value
     def *(that: Value): Value
     def /(that: Value): Value
+    def ^(that: Value): Value
     def %(that: Value): Value
     def abs: Value
     def toDouble: Double
