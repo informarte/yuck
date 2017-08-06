@@ -1,30 +1,44 @@
 package yuck.flatzinc.test.util.test
 
-import org.junit.*
-
 import scala.jdk.CollectionConverters.*
 
-import yuck.core.{given, *}
+import org.junit.*
+
+import yuck.annealing.AnnealingResult
+import yuck.core.{*, given}
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.test.util.*
+import yuck.util.logging.LazyLogger
+
+/**
+ * @author Michael Marte
+ *
+ */
+class MiniZincSolutionVerifierTestMonitor(task: ZincTestTask, logger: LazyLogger) extends ZincTestMonitor(task, logger) {
+
+    override def onBetterProposal(result: AnnealingResult) = {
+        val varDir = result.bestProposal.mappedVariables.map(x => (x.name, x)).toMap
+        val modifiedSolution = new HashMapBackedAssignment(result.bestProposal)
+        modifiedSolution.setValue(varDir("x").asInstanceOf[IntegerVariable], Ten)
+        modifiedSolution.setValue(varDir("y").asInstanceOf[IntegerVariable], Ten)
+        result.bestProposal = modifiedSolution
+        super.onBetterProposal(result)
+    }
+
+}
 
 /**
  * @author Michael Marte
  *
  */
 @runner.RunWith(classOf[runners.Parameterized])
-class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean) extends ZincBasedTest {
+class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean, verificationFrequency: VerificationFrequency) extends ZincBasedTest {
 
     protected override val logToConsole = false
 
-    protected override def onSolved(result: Result) = {
-        if (simulateBadSolver) {
-            val varDir = result.bestProposal.mappedVariables.map(x => (x.name, x)).toMap
-            val modifiedSolution = new HashMapBackedAssignment(result.bestProposal)
-            modifiedSolution.setValue(varDir("x").asInstanceOf[IntegerVariable], Ten)
-            modifiedSolution.setValue(varDir("y").asInstanceOf[IntegerVariable], Ten)
-            result.bestProposal = modifiedSolution
-        }
+    protected override def createTestMonitor(task: ZincTestTask): ZincTestMonitor = {
+        if (simulateBadSolver) new MiniZincSolutionVerifierTestMonitor(task, logger)
+        else super.createTestMonitor(task)
     }
 
     @Test
@@ -37,8 +51,9 @@ class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean) extends ZincBased
                 solverConfiguration = FlatZincSolverConfiguration(restartLimit = 0, pruneConstraintNetwork = false),
                 maybeRuntimeLimitInSeconds = Some(10),
                 throwWhenUnsolved = true,
-                reusePreviousTestResult = false)
-        if (simulateBadSolver) {
+                reusePreviousTestResult = false,
+                verificationFrequency = verificationFrequency)
+        if (simulateBadSolver && verificationFrequency != NoVerification) {
             assertEx(solve(task), classOf[SolutionNotVerifiedException])
         } else {
             solve(task)
@@ -53,7 +68,12 @@ class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean) extends ZincBased
  */
 object MiniZincSolutionVerifierTest {
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}")
-    def parameters = List(false, true).asJava
+    private def configurations =
+        for (simulateBadSolver <- List(false, true);
+             verificationFrequency <- List(NoVerification, VerifyOnlyLastSolution, VerifyEverySolution))
+        yield Vector(simulateBadSolver, verificationFrequency)
+
+    @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
+    def parameters = configurations.map(_.toArray).asJava
 
 }

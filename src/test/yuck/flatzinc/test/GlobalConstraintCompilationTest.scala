@@ -273,7 +273,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint]))
     def testCircuitReif(): Unit = {
         // Gecode does not provide a decomposition for circuit_reif, so we cannot verify the solution.
-        val result = solveWithResult(task.copy(problemName = "circuit_reif_test", verifySolution = false))
+        val result = solveWithResult(task.copy(problemName = "circuit_reif_test", verificationFrequency = NoVerification))
         assertEq(result.space.numberOfConstraints[Circuit], 2)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
@@ -514,7 +514,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
 
     private def testCount(problemName: String, relation: OrderingRelation, inverseRelation: Boolean = false): Unit = {
         // The MiniZinc library does not support set counting.
-        val result = solveWithResult(task.copy(problemName = problemName, verifySolution = false))
+        val result = solveWithResult(task.copy(problemName = problemName, verificationFrequency = NoVerification))
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 0)
         assertEq(result.space.numberOfConstraints, 6)
         assertEq(result.space.numberOfConstraints[CountConst[_]], 1)
@@ -545,7 +545,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
 
     private def testCountReif(problemName: String, relation: OrderingRelation, inverseRelation: Boolean = false): Unit = {
         // The MiniZinc library does not support set counting.
-        val result = solveWithResult(task.copy(problemName = problemName, verifySolution = false))
+        val result = solveWithResult(task.copy(problemName = problemName, verificationFrequency = NoVerification))
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 0)
         assertEq(result.space.numberOfConstraints, 7)
         assertEq(result.space.numberOfConstraints[CountConst[_]], 1)
@@ -584,7 +584,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
 
     private def testCountFn(problemName: String): Unit = {
         // The MiniZinc library does not support set counting.
-        val result = solveWithResult(task.copy(problemName = problemName, verifySolution = false))
+        val result = solveWithResult(task.copy(problemName = problemName, verificationFrequency = NoVerification))
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 0)
         assertEq(result.space.numberOfConstraints, 6)
         assertEq(result.space.numberOfConstraints[CountConst[_]], 1)
@@ -1047,7 +1047,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasRegularConstraint]))
     def testRegularReif(): Unit = {
         // Gecode does not provide a decomposition for regular_reif, so we cannot verify the solution.
-        val result = solveWithResult(task.copy(problemName = "regular_reif_test", verifySolution = false))
+        val result = solveWithResult(task.copy(problemName = "regular_reif_test", verificationFrequency = NoVerification))
         assertEq(result.space.numberOfConstraints[Regular], 1)
     }
 

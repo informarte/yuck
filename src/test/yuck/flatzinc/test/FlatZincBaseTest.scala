@@ -211,7 +211,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Category(Array(classOf[MinimizationProblem]))
     def testMinimizationProblemWithUnboundedDanglingObjectiveVariable(): Unit = {
         // We cannot verify the solution because Gecode does not support 64 bit integers.
-        val result = solveWithResult(task.copy(problemName = "minimization_problem_with_unbounded_dangling_objective_variable", verifySolution = false))
+        val result = solveWithResult(task.copy(problemName = "minimization_problem_with_unbounded_dangling_objective_variable", verificationFrequency = NoVerification))
         val x = result.objective.objectiveVariables(1).asInstanceOf[IntegerVariable]
         assert(result.space.isDanglingVariable(x))
         assertEq(result.assignment.value(x), IntegerValueTraits.minValue)
@@ -239,7 +239,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Category(Array(classOf[MaximizationProblem]))
     def testMaximizationProblemWithUnboundedDanglingObjectiveVariable(): Unit = {
         // We cannot verify the solution because Gecode does not support 64 bit integers.
-        val result = solveWithResult(task.copy(problemName = "maximization_problem_with_unbounded_dangling_objective_variable", verifySolution = false))
+        val result = solveWithResult(task.copy(problemName = "maximization_problem_with_unbounded_dangling_objective_variable", verificationFrequency = NoVerification))
         val x = result.objective.objectiveVariables(1).asInstanceOf[IntegerVariable]
         assert(result.space.isDanglingVariable(x))
         assertEq(result.assignment.value(x), IntegerValueTraits.maxValue)

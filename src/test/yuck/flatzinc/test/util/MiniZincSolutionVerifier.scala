@@ -4,19 +4,19 @@ import java.util.concurrent.Callable
 
 import scala.collection.*
 
-import yuck.core.{given, *}
+import yuck.core.{*, given}
 import yuck.flatzinc.ast.*
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.flatzinc.runner.*
 import yuck.test.util.{DefaultRuntimeLimitInSeconds, ProcessRunner}
-import yuck.util.logging.LazyLogger
+import yuck.util.logging.{FineLogLevel, LazyLogger}
 
 /**
  * @author Michael Marte
  *
  */
 class MiniZincSolutionVerifier(
-                                  task: ZincTestTask, result: Result, logger: LazyLogger)
+    task: ZincTestTask, result: Result, logger: LazyLogger)
     extends Callable[Boolean]
 {
 
@@ -92,7 +92,7 @@ class MiniZincSolutionVerifier(
                  "tmp/%s/%s/%s".format(suiteName, problemName, instanceName))
         }
         new java.io.File(outputDirectoryPath).mkdirs
-        val solutionFilePath = "%s/solution.mzn".format(outputDirectoryPath)
+        val solutionFilePath = "%s/solution-%s.mzn".format(outputDirectoryPath, Thread.currentThread.getName)
         val solutionWriter = new java.io.FileWriter(solutionFilePath, false /* do not append */)
         val solutionFormatter = new FlatZincResultFormatter(result)
         val solution = solutionFormatter.call()

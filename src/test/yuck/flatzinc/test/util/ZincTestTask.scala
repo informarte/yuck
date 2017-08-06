@@ -16,6 +16,15 @@ case object MiniZinc extends SourceFormat
  * @author Michael Marte
  *
  */
+sealed abstract class VerificationFrequency
+case object NoVerification extends VerificationFrequency
+case object VerifyOnlyLastSolution extends VerificationFrequency
+case object VerifyEverySolution extends VerificationFrequency
+
+/**
+ * @author Michael Marte
+ *
+ */
 sealed abstract class TestDataDirectoryLayout
 // all model (mzn) files in one folder, models contain data
 case object MiniZincExamplesLayout extends TestDataDirectoryLayout
@@ -57,7 +66,7 @@ final case class ZincTestTask(
     logLevel: yuck.util.logging.LogLevel = yuck.util.logging.InfoLogLevel,
     throwWhenUnsolved: Boolean = false,
     reusePreviousTestResult: Boolean = true,
-    verifySolution: Boolean = true,
+    verificationFrequency: VerificationFrequency = VerifyOnlyLastSolution,
     verificationModelName: String = "",
     verificationTool: VerificationTool = Gecode,
     keepFlatZincFile: Boolean = true,

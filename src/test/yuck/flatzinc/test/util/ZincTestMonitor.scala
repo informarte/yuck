@@ -3,12 +3,12 @@ package yuck.flatzinc.test.util
 import scala.collection.mutable
 
 import yuck.annealing.{AnnealingResult, StandardAnnealingMonitor}
-import yuck.core.{NumericalValue, PolymorphicListValue}
-import yuck.util.logging.LazyLogger
+import yuck.core.{NumericalValue, PolymorphicListValue, Result}
+import yuck.util.logging.{FineLogLevel, LazyLogger}
 import yuck.util.DescriptiveStatistics.*
 
 /**
- * Collects statistics about the optimization process for testing purposes.
+ * Collects statistics about the solving process for testing purposes.
  *
  * Assumes that the solver either terminates by itself or gets suspended due
  * to a timeout.
@@ -17,7 +17,7 @@ import yuck.util.DescriptiveStatistics.*
  *
  * @author Michael Marte
  */
-class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(logger) {
+class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAnnealingMonitor(logger) {
 
     final case class QualityImprovement(runtimeInMillis: Long, quality: NumericalValue[_])
 
@@ -85,36 +85,56 @@ class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(l
         synchronized {
             super.onBetterProposal(result)
             if (result.isSolution) {
-                val now = System.currentTimeMillis
-                runtimeInMillis += now - timeStampInMillis
-                if (! maybeSolvingTimeInMillis.isDefined) {
-                    maybeSolvingTimeInMillis = Some(runtimeInMillis)
+                keepRecords()
+            }
+        }
+        if (result.isSolution && task.sourceFormat == MiniZinc && task.verificationFrequency == VerifyEverySolution) {
+            logger.criticalSection {
+                verifySolution(task, result)
+            }
+        }
+    }
+
+    private def keepRecords(): Unit = {
+        val now = System.currentTimeMillis
+        runtimeInMillis += now - timeStampInMillis
+        if (! maybeSolvingTimeInMillis.isDefined) {
+            maybeSolvingTimeInMillis = Some(runtimeInMillis)
+        }
+        maybeRuntimeToBestSolutionInMillis = Some(runtimeInMillis)
+        val problemHasNumericalObjective =
+            costsOfBestProposal match {
+                case value: PolymorphicListValue =>
+                    value.value.size == 2 && value.value(1).isInstanceOf[NumericalValue[_]]
+                case _ => false
+            }
+        if (problemHasNumericalObjective) {
+            val quality = this.quality
+            if (qualityStepFunction.isEmpty || qualityStepFunction.last.quality != quality) {
+                if (maybeTrackArea.isEmpty) {
+                    maybeTrackArea = Some(true)
                 }
-                maybeRuntimeToBestSolutionInMillis = Some(runtimeInMillis)
-                val problemHasNumericalObjective =
-                    costsOfBestProposal match {
-                        case value: PolymorphicListValue =>
-                            value.value.size == 2 && value.value(1).isInstanceOf[NumericalValue[_]]
-                        case _ => false
-                    }
-                if (problemHasNumericalObjective) {
-                    val quality = this.quality
-                    if (qualityStepFunction.isEmpty || qualityStepFunction.last.quality != quality) {
-                        if (maybeTrackArea.isEmpty) {
-                            maybeTrackArea = Some(true)
-                        }
-                        if (maybeTrackArea.get) {
-                            if (quality.toDouble < 0) {
-                                maybeTrackArea = Some(false)
-                            } else {
-                                area += maybePreviousQuality.getOrElse(quality).toDouble * ((now - timeStampInMillis) / 1000.0)
-                                maybePreviousQuality = Some(quality)
-                            }
-                        }
-                        qualityStepFunction += QualityImprovement(runtimeInMillis, quality)
+                if (maybeTrackArea.get) {
+                    if (quality.toDouble < 0) {
+                        maybeTrackArea = Some(false)
+                    } else {
+                        area += maybePreviousQuality.getOrElse(quality).toDouble * ((now - timeStampInMillis) / 1000.0)
+                        maybePreviousQuality = Some(quality)
                     }
                 }
-                timeStampInMillis = now
+                qualityStepFunction += QualityImprovement(runtimeInMillis, quality)
+            }
+        }
+        timeStampInMillis = now
+    }
+
+    private def verifySolution(task: ZincTestTask, result: Result): Unit = {
+        logger.withTimedLogScope("Verifying solution") {
+            logger.withRootLogLevel(FineLogLevel) {
+                val verifier = new MiniZincSolutionVerifier(task, result, logger)
+                if (! verifier.call()) {
+                    throw new SolutionNotVerifiedException
+                }
             }
         }
     }

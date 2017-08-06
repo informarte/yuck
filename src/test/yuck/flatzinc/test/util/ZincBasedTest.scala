@@ -110,32 +110,15 @@ class ZincBasedTest extends IntegrationTest {
         }
     }
 
-    // hook for testing verification
-    protected def onSolved(result: Result): Unit = {}
-
     private def solve(task: ZincTestTask, outputDirectoryPath: String): Result = {
         val fznFilePath = task.sourceFormat match {
-            case FlatZinc => "%s/%s.fzn".format (task.suitePath, task.problemName)
+            case FlatZinc => "%s/%s.fzn".format(task.suitePath, task.problemName)
             case MiniZinc => flatten(task, outputDirectoryPath)
         }
         logger.log("Processing %s".format(fznFilePath))
-        val cfg =
-            task.solverConfiguration.copy(
-                restartLimit =
-                    scala.math.min(
-                        task.solverConfiguration.restartLimit,
-                        task.maybeRestartLimit.getOrElse(Int.MaxValue)),
-                numberOfThreads =
-                    scala.math.min(
-                        task.solverConfiguration.numberOfThreads,
-                        task.maybeMaximumNumberOfThreads.getOrElse(Int.MaxValue)),
-                maybeRoundLimit = task.maybeRoundLimit,
-                maybeRuntimeLimitInSeconds = task.maybeRuntimeLimitInSeconds,
-                maybeTargetObjectiveValue =
-                    if (task.maybeTargetObjectiveValue.isDefined) task.maybeTargetObjectiveValue
-                    else task.maybeOptimum)
+        val cfg = createSolverConfiguration(task)
         logSolverConfiguration(cfg)
-        val monitor = new OptimizationMonitor(logger)
+        val monitor = createTestMonitor(task)
         val result =
             scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set()})) {
                 maybeTimeboxed(cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
@@ -155,13 +138,6 @@ class ZincBasedTest extends IntegrationTest {
             }
         logger.log("Quality of best proposal: %s".format(result.costsOfBestProposal))
         logger.log("Best proposal was produced by: %s".format(result.solverName))
-        if (! result.isSolution) {
-            logger.withRootLogLevel(yuck.util.logging.FinerLogLevel) {
-                logger.withLogScope("Violated constraints") {
-                    logViolatedConstraints(result)
-                }
-            }
-        }
         logger.withLogScope("Best proposal") {
             new FlatZincResultFormatter(result).call().foreach(logger.log(_))
         }
@@ -177,18 +153,15 @@ class ZincBasedTest extends IntegrationTest {
             }
         }
         if (result.isSolution) {
-            onSolved(result)
-            if (task.sourceFormat == MiniZinc && task.verifySolution) {
-                logger.withTimedLogScope("Verifying solution") {
-                    logger.withRootLogLevel(FineLogLevel) {
-                        val verifier = new MiniZincSolutionVerifier(task, result, logger)
-                        if (! verifier.call()) {
-                            throw new SolutionNotVerifiedException
-                        }
-                    }
-                }
+            if (task.sourceFormat == MiniZinc && task.verificationFrequency == VerifyOnlyLastSolution) {
+                verifySolution(task, result)
             }
         } else {
+            logger.withRootLogLevel(yuck.util.logging.FinerLogLevel) {
+                logger.withLogScope("Violated constraints") {
+                    logViolatedConstraints(result)
+                }
+            }
             assert(
                 "No solution found, quality of best proposal was %s".format(result.costsOfBestProposal),
                 ! task.throwWhenUnsolved)
@@ -234,6 +207,38 @@ class ZincBasedTest extends IntegrationTest {
             }
         logMiniZincVersion(outputLines.head)
         fznFilePath
+    }
+
+    private def createSolverConfiguration(task: ZincTestTask): FlatZincSolverConfiguration = {
+        task.solverConfiguration.copy(
+            restartLimit =
+                scala.math.min(
+                    task.solverConfiguration.restartLimit,
+                    task.maybeRestartLimit.getOrElse(Int.MaxValue)),
+            numberOfThreads =
+                scala.math.min(
+                    task.solverConfiguration.numberOfThreads,
+                    task.maybeMaximumNumberOfThreads.getOrElse(Int.MaxValue)),
+            maybeRoundLimit = task.maybeRoundLimit,
+            maybeRuntimeLimitInSeconds = task.maybeRuntimeLimitInSeconds,
+            maybeTargetObjectiveValue =
+                if (task.maybeTargetObjectiveValue.isDefined) task.maybeTargetObjectiveValue
+                else task.maybeOptimum)
+    }
+
+    protected def createTestMonitor(task: ZincTestTask): ZincTestMonitor = {
+        new ZincTestMonitor(task, logger)
+    }
+
+    private def verifySolution(task: ZincTestTask, result: Result): Unit = {
+        logger.withTimedLogScope("Verifying solution") {
+            logger.withRootLogLevel(FineLogLevel) {
+                val verifier = new MiniZincSolutionVerifier(task, result, logger)
+                if (!verifier.call()) {
+                    throw new SolutionNotVerifiedException
+                }
+            }
+        }
     }
 
     private def computeMd5Sum(filePath: String): String = {
@@ -388,7 +393,7 @@ class ZincBasedTest extends IntegrationTest {
         }
     }
 
-    private def logQualityStepFunction(monitor: OptimizationMonitor): Unit = {
+    private def logQualityStepFunction(monitor: ZincTestMonitor): Unit = {
         if (monitor.maybeQualityStepFunction.isDefined) {
             val array =
                 monitor.maybeQualityStepFunction.get.flatMap(
@@ -398,7 +403,7 @@ class ZincBasedTest extends IntegrationTest {
         }
     }
 
-    private def logSolverStatistics(monitor: OptimizationMonitor): Unit = {
+    private def logSolverStatistics(monitor: ZincTestMonitor): Unit = {
         val statsNode =
             if (monitor.wasSearchRequired) {
                 JsSection(
