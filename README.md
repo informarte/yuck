@@ -4,10 +4,10 @@
 
 * Yuck is a constraint solver powered by local search.
 * Yuck's approach to problem solving is comparable to Comet [HM05] and [OscaR](http://oscarlib.bitbucket.org)/CBLS [BMFP15].
-* Yuck has not been designed to compete with highly tuned LP, CP, or SAT solvers, but for cases where the use of such solvers is inappropriate or seems risky, namely when the input data might be inconsistent with the constraints (so the solver is expected to build around what is given), or when the requirements are hard to model and it seems easier to provide domain-specific constraints for local search than for tree search.
 * Yuck can be used as a library or as a [FlatZinc](http://www.minizinc.org/downloads/doc-1.6/flatzinc-spec.pdf) interpreter that integrates with the [MiniZinc IDE](http://www.minizinc.org/ide/index.html).
-* Yuck is written in Scala and exploits the Scala library's immutable collection classes for implementing global constraints.
 * Yuck is provided under the terms of the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0).
+* Yuck's design goal is not to compete with highly tuned LP, CP, or SAT solvers, but to provide an alternative for cases where the use of such solvers is inappropriate or seems risky, namely when the input data might be inconsistent with the constraints (so the solver is expected to build around what is given), or when the requirements are hard to model and it seems easier to provide domain-specific constraints for local search than for tree search.
+* Yuck is written in Scala and exploits the Scala library's immutable collection classes for implementing global constraints.
 
 ## Current state
 
@@ -15,7 +15,8 @@
 * Yuck supports lexicographic cost functions with both minimization and maximization goals.
 * Yuck allows to timebox and parallelize solvers by means of solver combinators.
 * Yuck supports the interruption and the resumption of solvers to facilitate the presentation of intermediate results.
-* Yuck supports boolean, integer, and integer set variables.
+* Yuck implements boolean, integer, and integer set variables.
+* Yuck supports implicit solving by means of constraint-specific neighbourhoods.
 * Yuck's constraint library is far from complete but already provides the most frequently used constraints.
 * Yuck's FlatZinc frontend supports most of FlatZinc and many global MiniZinc constraints, see [FlatZinc support](#flatzinc-support).
 * Yuck is developer-friendly and easy to extend, see [Contributing](#contributing).
@@ -44,14 +45,10 @@ Yuck provides dedicated solvers for the following global MiniZinc constraints:
 * regular
 * table
 
-For the following global MiniZinc constraints, the standard decompositions are suitable for local search:
+Yuck provides dedicated neighbourhoods for the following global MiniZinc constraints:
 
-* all_equal
-* decreasing
-* element
-* increasing
-* knapsack
-* network_flow, network_flow_cost
+* all_different
+* inverse
 
 When used as a FlatZinc interpreter, Yuck proceeds as follows:
 
@@ -67,7 +64,7 @@ When used as a FlatZinc interpreter, Yuck proceeds as follows:
 
 Yuck requires a Java 6 (or higher) runtime environment.
 
-This is the latest Yuck package: [yuck_20170116.zip](https://drive.google.com/open?id=0B3cKM2FQLv9vWlJMM1hvV2xRRVU).
+This is the latest Yuck package: [yuck_20170812.zip](https://drive.google.com/open?id=0B3cKM2FQLv9vMFl0VUp2V2YyTms).
 
 Unzip the package in a suitable location and change to the resulting folder. The start scripts reside in the `bin` subfolder; you can run Yuck with either `./bin/yuck` (on UNIX-based systems) or `bin\yuck.bat` (on Windows). Yuck's MiniZinc library resides in the `mzn` subfolder.
 
@@ -110,12 +107,10 @@ To configure Yuck as a backend for the [MiniZinc IDE](http://www.minizinc.org/id
 
 ## Future work
 
-* Allow for the reification of all global constraints implemented by Yuck
 * Allow for the composition of lexicographic cost functions in
   MiniZinc through constraint and goal annotations
-* Implement tabu search
 * Implement among, diffn, circuit, subcircuit, ...
-* Add support for float variables
+* Provide soft constraints
 * Refactor and improve up-front propagation
 * Reduce dependence on integration testing by adding more unit tests
 
@@ -147,7 +142,7 @@ To build and rebuild Yuck and its documentation, use the sbt standard targets:
 ### Testing
 
 Yuck tests are based on [JUnit 4](http://junit.org/junit4/) and
-[MiniZinc 2.0.x](http://www.minizinc.org/software.html).
+[MiniZinc 2.1.x](http://www.minizinc.org/software.html).
 
 * `make unit-tests` builds and runs all unit tests.
 * `make minizinc-tests` runs all FlatZinc frontend tests.
