@@ -13,7 +13,7 @@ import yuck.util.testing.IntegrationTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class ProgressiveTighteningTest extends IntegrationTest {
+final class ProgressiveTighteningTest extends IntegrationTest {
 
     // To test progressive tightening of objectives, we use:
     // - two variables x and y with d(x) = d(y) = [0, 9]
@@ -22,15 +22,15 @@ class ProgressiveTighteningTest extends IntegrationTest {
     // - a monitor that counts the number of tightening events
     // Minimizing or maximizing (x, y), we expect one tightening event.
 
-    val space = new Space(logger)
-    val d = new IntegerDomain(Zero, Nine)
-    val x = space.createVariable("x", d)
-    val y = space.createVariable("y", d)
-    val randomGenerator = new JavaRandomGenerator(DEFAULT_SEED)
-    val tighteningCounter = new TighteningCounter(y)
+    private val space = new Space(logger)
+    private val d = new IntegerDomain(Zero, Nine)
+    private val x = space.createVariable("x", d)
+    private val y = space.createVariable("y", d)
+    private val randomGenerator = new JavaRandomGenerator(DEFAULT_SEED)
+    private val tighteningCounter = new TighteningCounter(y)
     space.post(new DummyConstraint(space.constraintIdFactory.nextId, List(x, y), Nil))
 
-    final class TighteningCounter(val y: AnyVariable) extends StandardAnnealingMonitor(logger) {
+    private final class TighteningCounter(val y: AnyVariable) extends StandardAnnealingMonitor(logger) {
         var n = 0
         override def onObjectiveTightened(x: AnyVariable) {
             super.onObjectiveTightened(x)

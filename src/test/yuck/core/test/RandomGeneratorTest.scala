@@ -13,7 +13,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class RandomGeneratorTest extends UnitTest {
+final class RandomGeneratorTest extends UnitTest {
 
     private def testShuffling(shuffle: (RandomGenerator, IndexedSeq[Int]) => IndexedSeq[Int]): Unit = {
         val N = 1000

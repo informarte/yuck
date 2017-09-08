@@ -29,7 +29,7 @@ final class Sum
     override def initialize(now: SearchState) = {
         sum = valueTraits.zero
         for (x <- xs) {
-            sum = sum + now.value(x)
+            sum += now.value(x)
         }
         effect.a = sum
         effects
@@ -39,7 +39,7 @@ final class Sum
         effect.a = sum
         for (x <- move.involvedVariables) {
             val y = x.asInstanceOf[Variable[Value]]
-            this.effect.a = this.effect.a + after.value(y) - before.value(y)
+            effect.a += after.value(y) - before.value(y)
         }
         effects
     }

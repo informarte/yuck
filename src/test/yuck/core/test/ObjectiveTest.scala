@@ -1,6 +1,7 @@
 package yuck.core.test
 
 import org.junit._
+
 import yuck.core._
 import yuck.util.testing.UnitTest
 
@@ -10,7 +11,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class ObjectiveTest extends UnitTest {
+final class ObjectiveTest extends UnitTest {
 
     @Test
     def testMinimizationObjective {

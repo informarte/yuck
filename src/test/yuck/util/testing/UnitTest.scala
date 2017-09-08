@@ -4,5 +4,5 @@ package yuck.util.testing
  * @author Michael Marte
  *
  */
-class UnitTest extends YuckTest {
+abstract class UnitTest extends YuckTest {
 }

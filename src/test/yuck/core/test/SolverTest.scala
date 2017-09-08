@@ -12,7 +12,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class SolverTest extends UnitTest {
+final class SolverTest extends UnitTest {
 
     private class GoodSolver(result: Result, sleepTimeInSeconds: Int, sigint: Sigint) extends Solver
     {

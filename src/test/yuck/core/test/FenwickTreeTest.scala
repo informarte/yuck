@@ -11,7 +11,7 @@ import yuck.util.testing.UnitTest
  *
  */
 @FixMethodOrder(org.junit.runners.MethodSorters.NAME_ASCENDING)
-class FenwickTreeTest extends UnitTest {
+final class FenwickTreeTest extends UnitTest {
 
     @Test
     def testAdding {

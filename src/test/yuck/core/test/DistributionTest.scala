@@ -2,7 +2,9 @@ package yuck.core.test
 
 import scala.collection._
 import scala.collection.JavaConverters._
+
 import org.junit._
+
 import yuck.constraints.DistributionMaintainer
 import yuck.core._
 import yuck.util.testing.UnitTest
@@ -14,7 +16,7 @@ import yuck.util.testing.UnitTest
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
-class DistributionTest(df: Int => Distribution) extends UnitTest {
+final class DistributionTest(df: Int => Distribution) extends UnitTest {
 
     @Test
     def testBasics {

@@ -8,7 +8,7 @@ import yuck.core._
  * @author Michael Marte
  */
 final class BoolEq
-    (id: Id[yuck.core.Constraint], goal: Goal,
+    (id: Id[Constraint], goal: Goal,
      x: Variable[IntegerValue], y: Variable[IntegerValue], z: Variable[IntegerValue])
     extends BinaryConstraint(id, goal, x, y, z)
 {
@@ -24,7 +24,7 @@ final class BoolEq
  * @author Michael Marte
  */
 final class BoolNe
-    (id: Id[yuck.core.Constraint], goal: Goal,
+    (id: Id[Constraint], goal: Goal,
      x: Variable[IntegerValue], y: Variable[IntegerValue], z: Variable[IntegerValue])
     extends BinaryConstraint(id, goal, x, y, z)
 {
@@ -41,7 +41,7 @@ final class BoolNe
  * @author Michael Marte
  */
 final class BoolLe
-    (id: Id[yuck.core.Constraint], goal: Goal,
+    (id: Id[Constraint], goal: Goal,
      x: Variable[IntegerValue], y: Variable[IntegerValue], z: Variable[IntegerValue])
     extends BinaryConstraint(id, goal, x, y, z)
 {
@@ -55,7 +55,7 @@ final class BoolLe
  * @author Michael Marte
  */
 final class BoolLt
-    (id: Id[yuck.core.Constraint], goal: Goal,
+    (id: Id[Constraint], goal: Goal,
      x: Variable[IntegerValue], y: Variable[IntegerValue], z: Variable[IntegerValue])
     extends BinaryConstraint(id, goal, x, y, z)
 {

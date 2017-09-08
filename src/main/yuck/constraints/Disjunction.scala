@@ -7,7 +7,7 @@ import yuck.core._
 /**
  * Implements disjunction on cost level (where 0 is true).
  *
- * Roughly speaking, CostsOr(X, y) with X = (x[1], ..., x[n]) computes y
+ * Roughly speaking, Disjunction(X, y) with X = (x[1], ..., x[n]) computes y
  * from X as follows:
  *
  * {{{

@@ -1,7 +1,6 @@
 package yuck.core.test
 
-import org.junit.FixMethodOrder
-import org.junit.Test
+import org.junit._
 
 import yuck.core._
 import yuck.util.testing.UnitTest
@@ -11,9 +10,9 @@ import yuck.util.testing.UnitTest
  *
  */
 @FixMethodOrder(org.junit.runners.MethodSorters.NAME_ASCENDING)
-class IntegerRangeTest extends UnitTest {
+final class IntegerRangeTest extends UnitTest {
 
-    def range(a: Int, b: Int) = new IntegerRange(IntegerValue.get(a), IntegerValue.get(b))
+    private def range(a: Int, b: Int) = new IntegerRange(IntegerValue.get(a), IntegerValue.get(b))
 
     @Test
     def testMultiplication {

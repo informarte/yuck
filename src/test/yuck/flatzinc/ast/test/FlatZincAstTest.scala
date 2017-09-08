@@ -6,7 +6,7 @@ import org.junit.Test
 import yuck.flatzinc.ast._
 import yuck.util.testing.UnitTest
 
-class FlatZincAstTest extends UnitTest {
+final class FlatZincAstTest extends UnitTest {
 
     private val a = ParamDecl("a", ArrayType(Some(IntRange(0, 1)), IntType(None)), ArrayConst(List(IntConst(2), IntConst(3))))
     private val c = ParamDecl("c", IntType(None), IntConst(2))

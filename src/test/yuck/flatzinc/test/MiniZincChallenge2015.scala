@@ -13,9 +13,9 @@ import yuck.flatzinc.test.util._
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class MiniZincChallenge2015 extends MiniZincTestSuite {
+final class MiniZincChallenge2015 extends MiniZincTestSuite {
 
-    val task = MiniZincTestTask(directoryLayout = StandardMiniZincBenchmarksLayout, suitePath = "resources/mzn/benchmarks", suiteName = "mznc15")
+    private val task = MiniZincTestTask(directoryLayout = StandardMiniZincBenchmarksLayout, suitePath = "resources/mzn/benchmarks", suiteName = "mznc15")
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))

@@ -13,7 +13,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class NeighbourhoodTest extends UnitTest {
+final class NeighbourhoodTest extends UnitTest {
 
     @Test
     def testSimpleRandomNeighbourhood {

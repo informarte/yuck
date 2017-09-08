@@ -13,7 +13,7 @@ import yuck.util.testing.IntegrationTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class Queens extends IntegrationTest {
+final class Queens extends IntegrationTest {
 
     private final class QueensGenerator(n: Int, i: Int, seed: Int, sigint: Sigint) extends SolverGenerator {
         override def solverName = "SA-%d".format(i)

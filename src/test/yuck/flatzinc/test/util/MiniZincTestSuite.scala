@@ -18,7 +18,7 @@ import yuck.util.testing.{IntegrationTest, ProcessRunner}
  */
 class MiniZincTestSuite extends IntegrationTest {
 
-    def solve(task: MiniZincTestTask): Result = {
+    protected def solve(task: MiniZincTestTask): Result = {
         logger.setThresholdLogLevel(task.logLevel)
         try {
             trySolve(task)

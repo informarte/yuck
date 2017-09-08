@@ -18,11 +18,11 @@ import yuck.flatzinc.test.util._
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class MiniZincExamples extends MiniZincTestSuite {
+final class MiniZincExamples extends MiniZincTestSuite {
 
-    val task = MiniZincTestTask(directoryLayout = MiniZincExamplesLayout, suitePath = "resources/mzn/examples")
+    private val task = MiniZincTestTask(directoryLayout = MiniZincExamplesLayout, suitePath = "resources/mzn/examples")
 
-    implicit def createTask(problemName: String): MiniZincTestTask = task.copy(problemName = problemName)
+    private implicit def createTask(problemName: String): MiniZincTestTask = task.copy(problemName = problemName)
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))

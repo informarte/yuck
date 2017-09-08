@@ -12,7 +12,7 @@ final class CountVar
     [Value <: AnyValue]
     (id: Id[Constraint], goal: Goal,
      xs: immutable.Seq[Variable[Value]], y: Variable[Value], n: Variable[IntegerValue])
-     (implicit valueTraits: AnyValueTraits[Value])
+    (implicit valueTraits: AnyValueTraits[Value])
     extends ValueFrequencyTracker[Value, IntegerValue](
         id, goal, xs, n,
         immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[Value, Int]())(

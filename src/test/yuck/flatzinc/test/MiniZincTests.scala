@@ -21,25 +21,25 @@ import yuck.flatzinc.test.util._
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class MiniZincTests extends MiniZincTestSuite {
+final class MiniZincTests extends MiniZincTestSuite {
 
-    val task =
+    private val task =
         MiniZincTestTask(
             directoryLayout = MiniZincExamplesLayout,
             suitePath = "resources/mzn/tests",
             solverConfiguration = (new FlatZincSolverConfiguration).copy(restartLimit = 1))
 
-    val taskWithImplicitSolving =
+    private val taskWithImplicitSolving =
         task.copy(
             solverConfiguration =
                 task.solverConfiguration.copy(
                     preferImplicitSolvingOverDomainPruning = false,
                     maybeRoundLimit = Some(1)))
 
-    def neighbourhood(result: Result): Neighbourhood =
+    private def neighbourhood(result: Result): Neighbourhood =
         result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult].maybeNeighbourhood.get
 
-    implicit def createTask(problemName: String): MiniZincTestTask = task.copy(problemName = problemName)
+    private implicit def createTask(problemName: String): MiniZincTestTask = task.copy(problemName = problemName)
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))

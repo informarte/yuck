@@ -11,7 +11,7 @@ import yuck.flatzinc.ast._
 import yuck.flatzinc.parser._
 import yuck.util.testing.UnitTest
 
-class FlatZincParserTest extends UnitTest {
+final class FlatZincParserTest extends UnitTest {
 
     import FlatZincParser._
 

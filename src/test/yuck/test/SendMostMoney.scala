@@ -13,7 +13,7 @@ import yuck.util.testing.IntegrationTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class SendMostMoney extends IntegrationTest {
+final class SendMostMoney extends IntegrationTest {
 
     private final class ModelData(
         val LHS: List[(Int, Variable[IntegerValue])],

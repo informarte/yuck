@@ -12,15 +12,15 @@ import yuck.flatzinc.parser.test._
 @runners.Suite.SuiteClasses(
     Array(
         classOf[RandomGeneratorTest],
-        classOf[ValueTest],
-        classOf[DomainTest],
+        classOf[ValueTestSuite],
+        classOf[DomainTestSuite],
         classOf[VariableTest],
         classOf[SpaceTest],
         classOf[ObjectiveTest],
         classOf[SolverTest],
         classOf[FenwickTreeTest],
         classOf[DistributionTest],
-        classOf[ConstraintTest],
+        classOf[ConstraintTestSuite],
         classOf[NeighbourhoodTest],
         classOf[ProgressiveTighteningTest],
         classOf[Queens],
@@ -29,5 +29,5 @@ import yuck.flatzinc.parser.test._
         classOf[FlatZincAstTest],
         classOf[FlatZincParserTest]))
 @Test
-class UnitTestSuite {
+final class UnitTestSuite {
 }

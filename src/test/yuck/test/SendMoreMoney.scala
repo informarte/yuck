@@ -13,7 +13,7 @@ import yuck.util.testing.IntegrationTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class SendMoreMoney extends IntegrationTest {
+final class SendMoreMoney extends IntegrationTest {
 
     @Test
     def sendMoreMoney {
@@ -35,7 +35,7 @@ class SendMoreMoney extends IntegrationTest {
         val LHS: List[(Int, Variable[IntegerValue])],
         val RHS: List[(Int, Variable[IntegerValue])])
 
-    def sendMoreMoney(seed: Int): Boolean = {
+    private def sendMoreMoney(seed: Int): Boolean = {
         val space = new Space(logger)
         val sigint = new SettableSigint
         val d = new IntegerDomain(Zero, Nine)

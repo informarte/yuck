@@ -1,7 +1,9 @@
 package yuck.core.test
 
 import scala.collection._
+
 import org.junit._
+
 import yuck.core._
 import yuck.util.testing.UnitTest
 
@@ -11,95 +13,9 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class DomainTest extends UnitTest {
+final class IntegerDomainTest extends UnitTest {
 
-    // checks that values are chosen uniformly from the given domain
-    private def testUniformityOfDistribution[Value <: OrderedValue[Value]](
-        rg: RandomGenerator,
-        d: Domain[Value])
-    {
-        val SAMPLE_SIZE = 100000
-        val MAX_ERROR = 0.05
-        def checkDistribution(f: Map[Value, Int]) {
-            for (a <- d.values) {
-                assertGt(f.getOrElse(a, 0), SAMPLE_SIZE / d.size * (1 - MAX_ERROR))
-                assertLt(f.getOrElse(a, 0), SAMPLE_SIZE / d.size * (1 + MAX_ERROR))
-            }
-        }
-        val f1 = new mutable.HashMap[Value, Int]
-        val f2 = new mutable.HashMap[Value, Int]
-        for (i <- 1 to SAMPLE_SIZE) {
-            val a = d.randomValue(rg)
-            assert(d.contains(a))
-            f1.put(a, f1.getOrElse(a, 0) + 1)
-            val b = d.nextRandomValue(rg, a)
-            assert(d.contains(b))
-            assertNe(a, b)
-            f2.put(b, f2.getOrElse(b, 0) + 1)
-        }
-        checkDistribution(f1)
-        checkDistribution(f2)
-    }
-
-    @Test
-    def testBooleanDomain {
-        val rg = new JavaRandomGenerator
-        for ((f, t) <- List((false, false), (true, false), (false, true), (true, true))) {
-            val d = new BooleanDomain(f, t)
-            if (f && t) {
-                assertEq(d.toString, "{false, true}")
-            } else if (f) {
-                assertEq(d.toString, "{false}")
-            } else if (t) {
-                assertEq(d.toString, "{true}")
-            } else {
-                assertEq(d.toString, "{}")
-            }
-            assertNe(d, "")
-            assertEq(d, d)
-            assertNe(d, new BooleanDomain(! f, t))
-            assert(if (f || t) ! d.isEmpty else d.isEmpty)
-            assertEq(d.size, (if (f) 1 else 0) + (if (t) 1 else 0))
-            assertEq(d.size == 1, d.isSingleton)
-            assert(d.isFinite)
-            assert(! d.isInfinite)
-            assertEq(f, d.contains(False))
-            assertEq(t, d.contains(True))
-            assert(d.isBounded)
-            assert(! d.isUnbounded)
-            assertEq(d.maybeLb.get, d.lb)
-            assertEq(d.maybeUb.get, d.ub)
-            assertEq(d.hull, d)
-            if (d.isEmpty) {
-                assertEx(d.singleValue)
-                assertEx(d.randomValue(rg))
-                assertEx(d.nextRandomValue(rg, False))
-                assertLt(d.ub, d.lb)
-            } else if (d.isSingleton) {
-                assertEq(d.singleValue, if (f) False else True)
-                assertEq(d.randomValue(rg), d.singleValue)
-                assertEq(d.nextRandomValue(rg, False), d.singleValue)
-                assertEq(d.nextRandomValue(rg, True), d.singleValue)
-                assertEq(d.lb, d.singleValue)
-                assertEq(d.ub, d.singleValue)
-            } else {
-                assertEx(d.singleValue)
-                assertEq(d.nextRandomValue(rg, False), True)
-                assertEq(d.nextRandomValue(rg, True), False)
-                testUniformityOfDistribution(rg, d)
-                assertEq(d.lb, False)
-                assertEq(d.ub, True)
-            }
-        }
-        assert(! FalseDomain.isSubsetOf(EmptyBooleanDomain))
-        assert(! TrueDomain.isSubsetOf(EmptyBooleanDomain))
-        assert(! UnboundedBooleanDomain.isSubsetOf(EmptyBooleanDomain))
-        assert(! FalseDomain.isSubsetOf(TrueDomain))
-        assert(! TrueDomain.isSubsetOf(FalseDomain))
-        assert(EmptyBooleanDomain.isSubsetOf(UnboundedBooleanDomain))
-        assert(FalseDomain.isSubsetOf(UnboundedBooleanDomain))
-        assert(TrueDomain.isSubsetOf(UnboundedBooleanDomain))
-    }
+    private val helper = new DomainTestHelper[IntegerValue]
 
     private def testSetSize(d: IntegerDomain) {
         assertEq(d.size, d.values.size)
@@ -246,7 +162,7 @@ class DomainTest extends UnitTest {
                 testBounding(d, d.lb - One)
                 testBounding(d, d.ub + One)
                 if (! d.isSingleton) {
-                    testUniformityOfDistribution(rg, d)
+                    helper.testUniformityOfDistribution(rg, d)
                 }
             }
             testBisecting(d)
@@ -581,240 +497,10 @@ class DomainTest extends UnitTest {
     }
 
     @Test
-    def testIntegerPowersetDomain {
-        val rg = new JavaRandomGenerator
-
-        // base domains
-        val ebd  = EmptyIntegerDomain
-        val ubd  = UnboundedIntegerDomain
-        val bd0  = new IntegerDomain(Zero)
-        val bd1  = new IntegerDomain(One)
-        val bd2  = new IntegerDomain(Two)
-        val bd01 = new IntegerDomain(Zero, One)
-        val bd02 = new IntegerDomain(Set(Zero, Two))
-
-        // set domains
-        val esd = new IntegerPowersetDomain(ebd)
-        val usd = new IntegerPowersetDomain(ubd)
-        val sd0 = new IntegerPowersetDomain(bd0)
-        val sd01 = new IntegerPowersetDomain(bd01)
-        val sd02 = new IntegerPowersetDomain(bd02)
-
-        // set values
-        val es  = EmptyIntegerSet
-        val us  = UnboundedIntegerSet
-        val s0  = new IntegerSetValue(bd0)
-        val s1  = new IntegerSetValue(bd1)
-        val s2  = new IntegerSetValue(bd2)
-        val s01 = new IntegerSetValue(bd01)
-        val s02 = new IntegerSetValue(bd02)
-
-        // {}
-        assertNe(esd, "")
-        assertNe(esd, Zero)
-        assertNe(esd, False)
-        assertEq(esd, esd)
-        assertEq(esd.toString, "P({})")
-        assert(! esd.isEmpty)
-        assertEq(esd.size, 1)
-        assert(esd.isFinite)
-        assert(! esd.isInfinite)
-        assert(esd.isSingleton)
-        assert(esd.contains(es))
-        assert(! esd.contains(s0))
-        assertEq(esd.singleValue, es)
-        assertEq(esd.randomValue(rg), es)
-        assertEx(esd.nextRandomValue(rg, es))
-        assertEq(esd.values.toList, List(es))
-        assert(esd.isBounded)
-        assert(! esd.isUnbounded)
-        assert(esd.maybeLb.isDefined)
-        assert(esd.maybeUb.isDefined)
-        assertEq(esd.maybeLb.get, esd.lb)
-        assertEq(esd.maybeUb.get, esd.ub)
-        assertEq(esd.lb, es)
-        assertEq(esd.ub, es)
-        assertEq(esd.hull, esd)
-
-        // {0}
-        assertEq(sd0, sd0)
-        assertEq(sd0.toString, "P({0})")
-        assert(! sd0.isEmpty)
-        assertEq(sd0.size, 2)
-        assert(sd0.isFinite)
-        assert(! sd0.isInfinite)
-        assert(! sd0.isSingleton)
-        assert(sd0.contains(es))
-        assert(sd0.contains(s0))
-        assert(! sd0.contains(s1))
-        assert(! sd0.contains(s01))
-        assertEx(sd0.singleValue)
-        assertEq(sd0.values.toList, List(es, s0))
-        assert(sd0.isBounded)
-        assert(! sd0.isUnbounded)
-        assert(sd0.maybeLb.isDefined)
-        assert(sd0.maybeUb.isDefined)
-        assertEq(sd0.maybeLb.get, sd0.lb)
-        assertEq(sd0.maybeUb.get, sd0.ub)
-        assertEq(sd0.lb, es)
-        assertEq(sd0.ub, s0)
-        assertEq(sd0.hull, sd0)
-        testUniformityOfDistribution(rg, sd0)
-
-        // {0, 1}
-        List(esd, sd0).foreach(s => assertNe(sd01, s))
-        assertEq(sd01, sd01)
-        assertEq(sd01.toString, "P(0..1)")
-        assert(! sd01.isEmpty)
-        assertEq(sd01.size, 4)
-        assert(sd01.isFinite)
-        assert(! sd01.isInfinite)
-        assert(! sd01.isSingleton)
-        List(es, s0, s1, s01).foreach(s => assert(sd01.contains(s)))
-        List(s2, s02).foreach(s => assert(! sd01.contains(s)))
-        assertEx(sd01.singleValue)
-        assertEq(sd01.values.toList, List(es, s0, s1, s01))
-        assert(sd01.isBounded)
-        assert(! sd01.isUnbounded)
-        assert(sd01.maybeLb.isDefined)
-        assert(sd01.maybeUb.isDefined)
-        assertEq(sd01.maybeLb.get, sd01.lb)
-        assertEq(sd01.maybeUb.get, sd01.ub)
-        assertEq(sd01.lb, es)
-        assertEq(sd01.ub, s01)
-        assertEq(sd01.hull, sd01)
-        testUniformityOfDistribution(rg, sd01)
-
-        // {0, 2}
-        List(esd, sd0, sd01).foreach(s => assertNe(sd02, s))
-        assertEq(sd02, sd02)
-        assertEq(sd02.toString, "P({0} union {2})")
-        assert(! sd02.isEmpty)
-        assertEq(sd02.size, 4)
-        assert(sd02.isFinite)
-        assert(! sd02.isInfinite)
-        assert(! sd02.isSingleton)
-        List(es, s0, s2, s02).foreach(s => assert(sd02.contains(s)))
-        List(s1, s01).foreach(s => assert(! sd02.contains(s)))
-        assertEx(sd02.singleValue)
-        assertEq(sd02.values.toList, List(es, s0, s2, s02))
-        assert(sd02.isBounded)
-        assert(! sd02.isUnbounded)
-        assert(sd02.maybeLb.isDefined)
-        assert(sd02.maybeUb.isDefined)
-        assertEq(sd02.maybeLb.get, sd02.lb)
-        assertEq(sd02.maybeUb.get, sd02.ub)
-        assertEq(sd02.lb, es)
-        assertEq(sd02.ub, s02)
-        assertEq(sd02.hull, sd02)
-        testUniformityOfDistribution(rg, sd02)
-
-        // infinite domain
-        List(esd, sd0, sd01, sd02).foreach(s => assertNe(usd, s))
-        assertEq(usd, usd)
-        assertEq(usd.toString, "P(-inf..+inf)")
-        assert(! usd.isEmpty)
-        assertEx(usd.size)
-        assert(! usd.isFinite)
-        assert(usd.isInfinite)
-        assert(! usd.isSingleton)
-        List(es, us, s0, s1, s2, s01, s02).foreach(s => assert(usd.contains(s)))
-        assertEx(usd.singleValue)
-        assertEx(usd.values)
-        assertEx(usd.randomValue(rg))
-        assertEx(usd.nextRandomValue(rg, es))
-        assert(! usd.isBounded)
-        assert(usd.isUnbounded)
-        assert(usd.maybeLb.isDefined)
-        assert(usd.maybeUb.isDefined)
-        assertEq(usd.maybeLb.get, usd.lb)
-        assertEq(usd.maybeUb.get, usd.ub)
-        assertEq(usd.lb, es)
-        assertEq(usd.ub, us)
-        assertEq(usd.hull, usd)
-
-    }
-
-    @Test
-    def testSingletonIntegerSetDomain {
-        val rg = new JavaRandomGenerator
-
-        // base domains
-        val ebd  = EmptyIntegerDomain
-        val ubd  = UnboundedIntegerDomain
-
-        // set domains
-        val esd = new SingletonIntegerSetDomain(ebd)
-        val usd = new SingletonIntegerSetDomain(ubd)
-
-        // set values
-        val es  = EmptyIntegerSet
-        val us  = UnboundedIntegerSet
-
-        // {}
-        assertNe(esd, "")
-        assertNe(esd, Zero)
-        assertNe(esd, False)
-        assertEq(esd, esd)
-        assertEq(esd.toString, "{{}}")
-        assert(! esd.isEmpty)
-        assertEq(esd.size, 1)
-        assert(esd.isFinite)
-        assert(! esd.isInfinite)
-        assert(esd.isSingleton)
-        assert(esd.contains(es))
-        assert(! esd.contains(us))
-        assertEq(esd.singleValue, es)
-        assertEq(esd.randomValue(rg), es)
-        assertEx(esd.nextRandomValue(rg, es))
-        assertEq(esd.values.toList, List(es))
-        assert(esd.isBounded)
-        assert(! esd.isUnbounded)
-        assert(esd.maybeLb.isDefined)
-        assert(esd.maybeUb.isDefined)
-        assertEq(esd.maybeLb.get, esd.lb)
-        assertEq(esd.maybeUb.get, esd.ub)
-        assertEq(esd.lb, es)
-        assertEq(esd.ub, es)
-        assertEq(esd.hull, esd)
-
-        // infinite domain
-        assertNe(usd, esd)
-        assertEq(usd, usd)
-        assertEq(usd.toString, "{-inf..+inf}")
-        assert(! usd.isEmpty)
-        assertEq(usd.size, 1)
-        assert(usd.isFinite)
-        assert(! usd.isInfinite)
-        assert(usd.isSingleton)
-        assert(usd.contains(us))
-        assert(! usd.contains(es))
-        assertEq(usd.singleValue, us)
-        assertEq(usd.values.toList, List(us))
-        assertEq(usd.randomValue(rg), us)
-        assertEx(usd.nextRandomValue(rg, es))
-        assert(usd.isBounded)
-        assert(! usd.isUnbounded)
-        assert(usd.maybeLb.isDefined)
-        assert(usd.maybeUb.isDefined)
-        assertEq(usd.maybeLb.get, usd.lb)
-        assertEq(usd.maybeUb.get, usd.ub)
-        assertEq(usd.lb, us)
-        assertEq(usd.ub, us)
-        assertEq(usd.hull, usd)
-
-    }
-
-    @Test
-    def testDomainCasting {
-        BooleanValueTraits.staticDowncast(UnboundedBooleanDomain)
-        BooleanValueTraits.dynamicDowncast(UnboundedBooleanDomain)
-        assertEx(BooleanValueTraits.dynamicDowncast(UnboundedIntegerDomain))
+    def testCasting {
         IntegerValueTraits.staticDowncast(UnboundedIntegerDomain)
         assertEx(IntegerValueTraits.dynamicDowncast(UnboundedBooleanDomain))
         IntegerValueTraits.dynamicDowncast(UnboundedIntegerDomain)
-        IntegerSetValueTraits.dynamicDowncast(new IntegerPowersetDomain(UnboundedIntegerDomain))
-        IntegerSetValueTraits.dynamicDowncast(new SingletonIntegerSetDomain(UnboundedIntegerDomain))
     }
 
 }
