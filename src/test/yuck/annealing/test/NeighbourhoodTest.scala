@@ -18,7 +18,7 @@ final class NeighbourhoodTest extends UnitTest {
     @Test
     def testSimpleRandomNeighbourhood {
         val space = new Space(logger)
-        val d = new IntegerDomain(Zero, Nine)
+        val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         space.setValue(s, Zero)
         val xs = immutable.IndexedSeq(s)

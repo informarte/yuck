@@ -54,7 +54,7 @@ final class FenwickTreeTest extends UnitTest {
         /* The following facts show how to use the FT in optimization:
          * Given n = 5 variables and given above distribution d with volume v = 10,
          * we can choose a variable i in [0, n[ as follows:
-         * val i = ft(d).find(rg.nextInt(v))
+         * val i = ft(d).find(randomGenerator.nextInt(v))
          * Next is how to update the frequency of variable i:
          * ft.set(i + 1, f')
          */

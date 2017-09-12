@@ -19,7 +19,7 @@ final class LinearCombinationTest extends UnitTest {
     @Test
     def testLinearCombination {
         val space = new Space(logger)
-        val d = new IntegerDomain(Zero, new IntegerValue(100))
+        val d = new IntegerRange(Zero, new IntegerValue(100))
         val x1 = space.createVariable("x1", d)
         val x2 = space.createVariable("x2", d)
         val x3 = space.createVariable("x3", d)

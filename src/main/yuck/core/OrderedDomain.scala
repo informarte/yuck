@@ -10,15 +10,18 @@ package yuck.core
  *
  * @author Michael Marte
  */
-abstract class OrderedDomain[Value <: OrderedValue[Value]] extends Domain[Value] {
+abstract class OrderedDomain[Value <: OrderedValue[Value]] extends Domain[Value] with Ordered[Domain[Value]] {
 
     override def valueTraits: OrderedValueTraits[Value]
 
     /** Returns true iff the domain has a lower or an upper bound. */
     def isBounded: Boolean
 
-    /** Returns true iff the domain has neither a lower nor an upper bound. */
-    def isUnbounded: Boolean = ! isBounded
+    /** Returns true iff the domain has a lower bound. */
+    def hasLb: Boolean = lb != null
+
+    /** Returns true iff the domain has an upper bound. */
+    def hasUb: Boolean = ub != null
 
     /** Provides the domain's lower bound as Option instance. */
     def maybeLb: Option[Value] = Option(lb)
@@ -34,5 +37,11 @@ abstract class OrderedDomain[Value <: OrderedValue[Value]] extends Domain[Value]
 
     /** Returns [lb, ub]. */
     def hull: OrderedDomain[Value]
+
+    override def intersect(that: Domain[Value]): OrderedDomain[Value]
+    override def union(that: Domain[Value]): OrderedDomain[Value]
+    override def diff(that: Domain[Value]): OrderedDomain[Value]
+    override def symdiff(that: Domain[Value]): OrderedDomain[Value] =
+        super.symdiff(that).asInstanceOf[OrderedDomain[Value]]
 
 }

@@ -20,7 +20,7 @@ final class MiniZincChallenge2015 extends MiniZincTestSuite {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def costas_array_16 {
-        solve(task.copy(problemName = "costas-array", modelName = "CostasArray", instanceName = "16"))
+        solve(task.copy(problemName = "costas-array", modelName = "CostasArray", instanceName = "16", maybeRuntimeLimitInSeconds = Some(360)))
     }
 
     @Test
@@ -51,7 +51,7 @@ final class MiniZincChallenge2015 extends MiniZincTestSuite {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint], classOf[HasTableConstraint]))
     def is_jZ9pQqRxJ2 {
-        solve(task.copy(problemName = "is", modelName = "model", instanceName = "jZ9pQqRxJ2", maybeOptimum = Some(210944)))
+        solve(task.copy(problemName = "is", modelName = "model", instanceName = "jZ9pQqRxJ2", maybeOptimum = Some(210944), maybeRuntimeLimitInSeconds = Some(420)))
     }
 
     @Test

@@ -17,9 +17,9 @@ final class NumberOfDistinctValuesTest extends UnitTest {
     @Test
     def testNumberOfDistinctValues {
         val space = new Space(logger)
-        val d = new IntegerDomain(One, Two)
+        val d = new IntegerRange(One, Two)
         val xs = for (i <- 1 to 3) yield space.createVariable("x[%d]".format(i), d)
-        val m = space.createVariable("m", NonNegativeIntegerDomain)
+        val m = space.createVariable("m", NonNegativeIntegerRange)
         val c = new NumberOfDistinctValues(space.constraintIdFactory.nextId, null, xs, m)
         space
             .post(c)

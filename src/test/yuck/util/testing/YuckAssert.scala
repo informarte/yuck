@@ -14,6 +14,10 @@ trait YuckAssert {
 
     protected def assertEq[T](a: T, b: T) {
         Assert.assertTrue("%s (testee) != %s".format(a, b), a == b)
+        Assert.assertTrue("%s (testee) != %s".format(b, a), b == a)
+        if (a != null && b != null) {
+            Assert.assertTrue("%s.hashcode (testee) != %s.hashcode".format(a, b), a.hashCode == b.hashCode)
+        }
     }
 
     protected def assertNe[T](a: T, b: T) {
@@ -50,7 +54,7 @@ trait YuckAssert {
         }
     }
 
-    protected def assertEx(operation: => Unit, expectedExceptionType: Class[_ <: Exception]) {
+    protected def assertEx(operation: => Unit, expectedExceptionType: Class[_ <: Throwable]) {
         var failed = true
         try {
             operation
@@ -67,9 +71,8 @@ trait YuckAssert {
         }
     }
 
-    private def findExceptionType(throwable: Throwable, expectedExceptionType: Class[_ <: Exception]): Boolean =
+    private def findExceptionType(throwable: Throwable, expectedExceptionType: Class[_ <: Throwable]): Boolean =
         throwable.getClass == expectedExceptionType ||
             (throwable.getCause != null && findExceptionType(throwable.getCause, expectedExceptionType))
-
 
 }

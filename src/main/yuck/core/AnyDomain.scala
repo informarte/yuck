@@ -15,11 +15,11 @@ abstract class AnyDomain {
     /** Returns the domain's cardinality. */
     def size: Int
 
+    /** Returns true iff the domain contains all values of the domain's type. */
+    def isComplete: Boolean
+
     /** Returns true iff the domain is finite. */
     def isFinite: Boolean
-
-    /** Returns true iff the domain is infinite. */
-    def isInfinite: Boolean = ! isFinite
 
     /** Returns true iff the domain is empty. */
     def isEmpty: Boolean = isFinite && size == 0

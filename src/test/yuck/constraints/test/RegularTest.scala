@@ -19,14 +19,14 @@ final class RegularTest extends UnitTest {
     @Test
     def testRegular {
         val space = new Space(logger)
-        val d = new IntegerDomain(One, Two)
+        val d = new IntegerRange(One, Two)
         val xs = for (i <- 1 to 10) yield space.createVariable("x[%d]".format(i), d)
         val Q = 6
         val S = 2
         val delta = immutable.IndexedSeq(1, 2, 3, 0, 3, 4, 0, 5, 0, 6, 6, 0).grouped(2).toIndexedSeq
         val q0 = 1
-        val F = new IntegerDomain(Six, Six)
-        val costs = space.createVariable("costs", NonNegativeIntegerDomain)
+        val F = new IntegerRange(Six, Six)
+        val costs = space.createVariable("costs", NonNegativeIntegerRange)
         val c = new Regular(space.constraintIdFactory.nextId, null, xs, Q, S, delta, q0, F, costs)
         space
             .post(c)

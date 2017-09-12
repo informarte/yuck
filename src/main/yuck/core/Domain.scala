@@ -12,6 +12,12 @@ abstract class Domain[Value <: AnyValue] extends AnyDomain {
 
     @inline final override def valueType = valueTraits.valueType
 
+    override def equals(that: Any) = that match {
+        case that: Domain[_] if this.valueType == that.valueType => this.equals(that.asInstanceOf[Domain[Value]])
+        case _ => false
+    }
+    def equals(that: Domain[Value]): Boolean
+
     override def toString = "{%s}".format(values.map(_.toString).mkString(", "))
 
     override def values: TraversableOnce[Value]
@@ -39,5 +45,20 @@ abstract class Domain[Value <: AnyValue] extends AnyDomain {
 
     /** Decides whether this is a subset of that. */
     def isSubsetOf(that: Domain[Value]): Boolean
+
+    /** Decides whether this intersects that. */
+    def intersects(that: Domain[Value]): Boolean
+
+    /** Computes the intersection of this and that. */
+    def intersect(that: Domain[Value]): Domain[Value]
+
+    /** Computes the union of this and that. */
+    def union(that: Domain[Value]): Domain[Value]
+
+    /** Computes this \ that. */
+    def diff(that: Domain[Value]): Domain[Value]
+
+    /** Computes the symmetrical difference of this and that. */
+    def symdiff(that: Domain[Value]): Domain[Value] = this.union(that).diff(this.intersect(that))
 
 }

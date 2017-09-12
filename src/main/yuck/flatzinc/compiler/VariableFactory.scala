@@ -124,10 +124,10 @@ class VariableFactory
 
     private def createBooleanVariable(key: Expr, varType: Type): Variable[IntegerValue] = {
         val name = key.toString
-        val x = space.createVariable(name, ZeroOneIntegerDomain)
-        val dx = BooleanValueTraits.dynamicDowncast(domains(key))
+        val x = space.createVariable(name, ZeroToOneIntegerRange)
+        val dx = BooleanValueTraits.safeDowncast(domains(key))
         if (dx.isSingleton) {
-            x.pruneDomain(if (dx.singleValue == True) ZeroIntegerDomain else OneIntegerDomain)
+            x.pruneDomain(if (dx.singleValue == True) ZeroToZeroIntegerRange else OneToOneIntegerRange)
         }
         vars += key -> x
         x
@@ -135,14 +135,14 @@ class VariableFactory
 
     private def createIntegerVariable(key: Expr, varType: Type): Variable[IntegerValue] = {
         val name = key.toString
-        val x = space.createVariable(name, IntegerValueTraits.dynamicDowncast(domains(key)))
+        val x = space.createVariable(name, IntegerValueTraits.safeDowncast(domains(key)))
         vars += key -> x
         x
     }
 
     private def createIntegerSetVariable(key: Expr, varType: Type): Variable[IntegerSetValue] = {
         val name = key.toString
-        val x = space.createVariable(name, IntegerSetValueTraits.dynamicDowncast(domains(key)))
+        val x = space.createVariable(name, IntegerSetValueTraits.safeDowncast(domains(key)))
         vars += key -> x
         x
     }

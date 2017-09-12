@@ -600,7 +600,7 @@ final class ConstraintFactory
             val xs = compileArray[IntegerValue](as)
             val ys = compileArray[IntegerValue](bs)
             val costs = createNonNegativeChannel[IntegerValue]
-            space.post(new LexLess(nextConstraintId, goal, xs, ys, costs)(createOrderingForTraversableOnce(BooleanOrdering)))
+            space.post(new LexLess(nextConstraintId, goal, xs, ys, costs)(createLexicographicOrderingForTraversableOnce(BooleanOrdering)))
             List(costs)
         case Constraint("lex_less_set", List(as, bs), _) =>
             val xs = compileArray[IntegerSetValue](as)
@@ -618,7 +618,7 @@ final class ConstraintFactory
             val xs = compileArray[IntegerValue](as)
             val ys = compileArray[IntegerValue](bs)
             val costs = createNonNegativeChannel[IntegerValue]
-            space.post(new LexLessEq(nextConstraintId, goal, xs, ys, costs)(createOrderingForTraversableOnce(BooleanOrdering)))
+            space.post(new LexLessEq(nextConstraintId, goal, xs, ys, costs)(createLexicographicOrderingForTraversableOnce(BooleanOrdering)))
             List(costs)
         case Constraint("lex_lesseq_set", List(as, bs), _) =>
             val xs = compileArray[IntegerSetValue](as)
@@ -846,7 +846,7 @@ final class ConstraintFactory
                 if (! indexRange.contains(getConst[IntegerValue](b))) {
                     throw new InconsistentConstraintException(constraint)
                 }
-            } else if (! y.domain.asInstanceOf[IntegerDomain].isSubsetOf(indexRange)) {
+            } else if (! y.domain.isSubsetOf(indexRange)) {
                 // The index may be out of range, so we have to add a check, as required by the FlatZinc spec.
                 val delta = createNonNegativeChannel[IntegerValue]
                 space.post(new SetIn(nextConstraintId, goal, y, indexRange, delta))

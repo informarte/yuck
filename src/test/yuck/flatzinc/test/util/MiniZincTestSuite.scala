@@ -74,6 +74,7 @@ class MiniZincTestSuite extends IntegrationTest {
             }
         val cfg =
             task.solverConfiguration.copy(
+                maybeRuntimeLimitInSeconds = task.maybeRuntimeLimitInSeconds,
                 maybeTargetObjectiveValue = task.maybeOptimum,
                 maybeQualityTolerance = task.maybeQualityTolerance)
         val sigint = new SettableSigint

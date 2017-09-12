@@ -10,8 +10,11 @@ import org.junit._
 @runners.Suite.SuiteClasses(
     Array(
         classOf[BooleanValueTest],
+        classOf[BooleanValueTraitsTest],
         classOf[IntegerValueTest],
+        classOf[IntegerValueTraitsTest],
         classOf[IntegerSetValueTest],
+        classOf[IntegerSetValueTraitsTest],
         classOf[PolymorphicListValueTest]))
 @Test
 final class ValueTestSuite {

@@ -50,7 +50,7 @@ final class MiniZincChallenge2014 extends MiniZincTestSuite {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint], classOf[HasAlldifferentExcept0Constraint]))
     def liner_sf_repositioning_tp7_0 {
-        solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "liner-sf-repositioning", instanceName = "tp7_0", maybeOptimum = Some(125988)))
+        solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "liner-sf-repositioning", instanceName = "tp7_0", maybeOptimum = Some(125988), maybeRuntimeLimitInSeconds = Some(360)))
     }
 
     @Test

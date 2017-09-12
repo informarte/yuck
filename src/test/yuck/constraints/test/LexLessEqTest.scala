@@ -19,12 +19,12 @@ final class LexLessEqTest extends UnitTest {
     @Test
     def testLexLessEq {
         val space = new Space(logger)
-        val d = new IntegerDomain(Zero, Nine)
+        val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
         val v = space.createVariable("v", d)
-        val costs = space.createVariable("costs", NonNegativeIntegerDomain)
+        val costs = space.createVariable("costs", NonNegativeIntegerRange)
         val c =
             new LexLessEq(
                 space.constraintIdFactory.nextId, null,

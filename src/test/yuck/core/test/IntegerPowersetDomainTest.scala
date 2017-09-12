@@ -19,16 +19,16 @@ final class IntegerPowersetDomainTest extends UnitTest {
 
     @Test
     def testBasics {
-        val rg = new JavaRandomGenerator
+        val randomGenerator = new JavaRandomGenerator
 
         // base domains
-        val ebd  = EmptyIntegerDomain
-        val ubd  = UnboundedIntegerDomain
-        val bd0  = new IntegerDomain(Zero)
-        val bd1  = new IntegerDomain(One)
-        val bd2  = new IntegerDomain(Two)
-        val bd01 = new IntegerDomain(Zero, One)
-        val bd02 = new IntegerDomain(Set(Zero, Two))
+        val ebd  = EmptyIntegerRange
+        val ubd  = CompleteIntegerRange
+        val bd0  = new IntegerRange(Zero, Zero)
+        val bd1  = new IntegerRange(One, One)
+        val bd2  = new IntegerRange(Two, Two)
+        val bd01 = new IntegerRange(Zero, One)
+        val bd02 = IntegerDomain.createDomain(Set(Zero, Two))
 
         // set domains
         val esd = new IntegerPowersetDomain(ebd)
@@ -38,8 +38,8 @@ final class IntegerPowersetDomainTest extends UnitTest {
         val sd02 = new IntegerPowersetDomain(bd02)
 
         // set values
-        val es  = EmptyIntegerSet
-        val us  = UnboundedIntegerSet
+        val es  = EmptyIntegerSetValue
+        val us  = CompleteIntegerSetValue
         val s0  = new IntegerSetValue(bd0)
         val s1  = new IntegerSetValue(bd1)
         val s2  = new IntegerSetValue(bd2)
@@ -54,17 +54,16 @@ final class IntegerPowersetDomainTest extends UnitTest {
         assertEq(esd.toString, "P({})")
         assert(! esd.isEmpty)
         assertEq(esd.size, 1)
+        assert(! esd.isComplete)
         assert(esd.isFinite)
-        assert(! esd.isInfinite)
         assert(esd.isSingleton)
         assert(esd.contains(es))
         assert(! esd.contains(s0))
         assertEq(esd.singleValue, es)
-        assertEq(esd.randomValue(rg), es)
-        assertEx(esd.nextRandomValue(rg, es))
+        assertEq(esd.randomValue(randomGenerator), es)
+        assertEx(esd.nextRandomValue(randomGenerator, es))
         assertEq(esd.values.toList, List(es))
         assert(esd.isBounded)
-        assert(! esd.isUnbounded)
         assert(esd.maybeLb.isDefined)
         assert(esd.maybeUb.isDefined)
         assertEq(esd.maybeLb.get, esd.lb)
@@ -78,8 +77,8 @@ final class IntegerPowersetDomainTest extends UnitTest {
         assertEq(sd0.toString, "P({0})")
         assert(! sd0.isEmpty)
         assertEq(sd0.size, 2)
+        assert(! sd0.isComplete)
         assert(sd0.isFinite)
-        assert(! sd0.isInfinite)
         assert(! sd0.isSingleton)
         assert(sd0.contains(es))
         assert(sd0.contains(s0))
@@ -88,7 +87,6 @@ final class IntegerPowersetDomainTest extends UnitTest {
         assertEx(sd0.singleValue)
         assertEq(sd0.values.toList, List(es, s0))
         assert(sd0.isBounded)
-        assert(! sd0.isUnbounded)
         assert(sd0.maybeLb.isDefined)
         assert(sd0.maybeUb.isDefined)
         assertEq(sd0.maybeLb.get, sd0.lb)
@@ -96,7 +94,7 @@ final class IntegerPowersetDomainTest extends UnitTest {
         assertEq(sd0.lb, es)
         assertEq(sd0.ub, s0)
         assertEq(sd0.hull, sd0)
-        helper.testUniformityOfDistribution(rg, sd0)
+        helper.testUniformityOfDistribution(randomGenerator, sd0)
 
         // {0, 1}
         List(esd, sd0).foreach(s => assertNe(sd01, s))
@@ -104,15 +102,14 @@ final class IntegerPowersetDomainTest extends UnitTest {
         assertEq(sd01.toString, "P(0..1)")
         assert(! sd01.isEmpty)
         assertEq(sd01.size, 4)
+        assert(! sd01.isComplete)
         assert(sd01.isFinite)
-        assert(! sd01.isInfinite)
         assert(! sd01.isSingleton)
         List(es, s0, s1, s01).foreach(s => assert(sd01.contains(s)))
         List(s2, s02).foreach(s => assert(! sd01.contains(s)))
         assertEx(sd01.singleValue)
         assertEq(sd01.values.toList, List(es, s0, s1, s01))
         assert(sd01.isBounded)
-        assert(! sd01.isUnbounded)
         assert(sd01.maybeLb.isDefined)
         assert(sd01.maybeUb.isDefined)
         assertEq(sd01.maybeLb.get, sd01.lb)
@@ -120,7 +117,7 @@ final class IntegerPowersetDomainTest extends UnitTest {
         assertEq(sd01.lb, es)
         assertEq(sd01.ub, s01)
         assertEq(sd01.hull, sd01)
-        helper.testUniformityOfDistribution(rg, sd01)
+        helper.testUniformityOfDistribution(randomGenerator, sd01)
 
         // {0, 2}
         List(esd, sd0, sd01).foreach(s => assertNe(sd02, s))
@@ -128,15 +125,14 @@ final class IntegerPowersetDomainTest extends UnitTest {
         assertEq(sd02.toString, "P({0} union {2})")
         assert(! sd02.isEmpty)
         assertEq(sd02.size, 4)
+        assert(! sd02.isComplete)
         assert(sd02.isFinite)
-        assert(! sd02.isInfinite)
         assert(! sd02.isSingleton)
         List(es, s0, s2, s02).foreach(s => assert(sd02.contains(s)))
         List(s1, s01).foreach(s => assert(! sd02.contains(s)))
         assertEx(sd02.singleValue)
         assertEq(sd02.values.toList, List(es, s0, s2, s02))
         assert(sd02.isBounded)
-        assert(! sd02.isUnbounded)
         assert(sd02.maybeLb.isDefined)
         assert(sd02.maybeUb.isDefined)
         assertEq(sd02.maybeLb.get, sd02.lb)
@@ -144,7 +140,7 @@ final class IntegerPowersetDomainTest extends UnitTest {
         assertEq(sd02.lb, es)
         assertEq(sd02.ub, s02)
         assertEq(sd02.hull, sd02)
-        helper.testUniformityOfDistribution(rg, sd02)
+        helper.testUniformityOfDistribution(randomGenerator, sd02)
 
         // infinite domain
         List(esd, sd0, sd01, sd02).foreach(s => assertNe(usd, s))
@@ -152,16 +148,15 @@ final class IntegerPowersetDomainTest extends UnitTest {
         assertEq(usd.toString, "P(-inf..+inf)")
         assert(! usd.isEmpty)
         assertEx(usd.size)
+        assert(usd.isComplete)
         assert(! usd.isFinite)
-        assert(usd.isInfinite)
         assert(! usd.isSingleton)
         List(es, us, s0, s1, s2, s01, s02).foreach(s => assert(usd.contains(s)))
         assertEx(usd.singleValue)
         assertEx(usd.values)
-        assertEx(usd.randomValue(rg))
-        assertEx(usd.nextRandomValue(rg, es))
+        assertEx(usd.randomValue(randomGenerator))
+        assertEx(usd.nextRandomValue(randomGenerator, es))
         assert(! usd.isBounded)
-        assert(usd.isUnbounded)
         assert(usd.maybeLb.isDefined)
         assert(usd.maybeUb.isDefined)
         assertEq(usd.maybeLb.get, usd.lb)
@@ -173,9 +168,10 @@ final class IntegerPowersetDomainTest extends UnitTest {
     }
 
     @Test
-    def testCasting {
-        IntegerSetValueTraits.staticDowncast(new IntegerPowersetDomain(UnboundedIntegerDomain))
-        IntegerSetValueTraits.dynamicDowncast(new IntegerPowersetDomain(UnboundedIntegerDomain))
+    @Ignore
+    def testSetOperations {
+        // All operations forward to their counterparts in IntegerDomain.
+        // Hence we skip the testing.
     }
 
 }

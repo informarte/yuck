@@ -13,30 +13,26 @@ import yuck.util.testing.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerSetValueTest extends UnitTest {
 
-    @Test
-    def testComparison {
-        assertEq(EmptyIntegerSet, EmptyIntegerSet)
-        assertEq(NonNegativeIntegerSet, NonNegativeIntegerSet)
-        assertEq(UnboundedIntegerSet, UnboundedIntegerSet)
-        assertNe(EmptyIntegerSet, NonNegativeIntegerSet)
-        assertNe(EmptyIntegerSet, UnboundedIntegerSet)
-        assertNe(NonNegativeIntegerSet, UnboundedIntegerSet)
-        assertLt(EmptyIntegerSet, NonNegativeIntegerSet)
-        assertLt(EmptyIntegerSet, UnboundedIntegerSet)
-        assertLt(NonNegativeIntegerSet, UnboundedIntegerSet)
-        assertGt(NonNegativeIntegerSet, EmptyIntegerSet)
-        assertGt(UnboundedIntegerSet, EmptyIntegerSet)
-        assertGt(UnboundedIntegerSet, NonNegativeIntegerSet)
-        val a = new IntegerSetValue(new IntegerDomain(Zero, Two))
-        val b = new IntegerSetValue(new IntegerDomain(One, Three))
-        assertLt(a, b)
-        assertGt(b, a)
-    }
+    private val NonNegativeIntegerSetValue = new IntegerSetValue(NonNegativeIntegerRange)
 
     @Test
-    def testCasting {
-        IntegerSetValueTraits.dynamicDowncast(EmptyIntegerSet)
-        assertEx(IntegerSetValueTraits.dynamicDowncast(Zero))
+    def testComparison {
+        assertEq(EmptyIntegerSetValue, EmptyIntegerSetValue)
+        assertEq(NonNegativeIntegerSetValue, NonNegativeIntegerSetValue)
+        assertEq(CompleteIntegerSetValue, CompleteIntegerSetValue)
+        assertNe(EmptyIntegerSetValue, NonNegativeIntegerSetValue)
+        assertNe(EmptyIntegerSetValue, CompleteIntegerSetValue)
+        assertNe(NonNegativeIntegerSetValue, CompleteIntegerSetValue)
+        assertLt(EmptyIntegerSetValue, NonNegativeIntegerSetValue)
+        assertLt(EmptyIntegerSetValue, CompleteIntegerSetValue)
+        assertLt(NonNegativeIntegerSetValue, CompleteIntegerSetValue)
+        assertGt(NonNegativeIntegerSetValue, EmptyIntegerSetValue)
+        assertGt(CompleteIntegerSetValue, EmptyIntegerSetValue)
+        assertGt(CompleteIntegerSetValue, NonNegativeIntegerSetValue)
+        val a = new IntegerSetValue(new IntegerRange(Zero, Two))
+        val b = new IntegerSetValue(new IntegerRange(One, Three))
+        assertLt(a, b)
+        assertGt(b, a)
     }
 
 }

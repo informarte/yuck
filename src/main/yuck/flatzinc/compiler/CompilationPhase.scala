@@ -27,7 +27,7 @@ abstract class CompilationPhase(
         (implicit valueTraits: AnyValueTraits[Value]): Boolean =
     {
         val maybeC = tryGetAnyConst(a)
-        ! maybeC.isEmpty && valueTraits.dynamicDowncast(maybeC.get) == b
+        ! maybeC.isEmpty && valueTraits.safeDowncast(maybeC.get) == b
     }
 
     protected final def getConst
@@ -43,7 +43,7 @@ abstract class CompilationPhase(
         (a: Expr)
         (implicit valueTraits: AnyValueTraits[Value]): Option[Value] =
     {
-        tryGetAnyConst(a).map(valueTraits.dynamicDowncast)
+        tryGetAnyConst(a).map(valueTraits.safeDowncast)
     }
 
     protected final def getAnyConst(a: Expr): AnyValue =
@@ -65,10 +65,10 @@ abstract class CompilationPhase(
         cc.ast.getArrayElems(expr)
 
     protected final def createIntegerDomain(lb: Int, ub: Int): IntegerDomain =
-        new IntegerDomain(IntegerValue.get(lb), IntegerValue.get(ub))
+        IntegerDomain.createRange(IntegerValue.get(lb), IntegerValue.get(ub))
 
     protected final def createIntegerDomain(set: Set[Int]): IntegerDomain =
-        new IntegerDomain(set.map(IntegerValue.get(_)))
+        IntegerDomain.createDomain(set.map(IntegerValue.get))
 
     implicit protected final def compileArray
         [Value <: AnyValue]
@@ -76,7 +76,7 @@ abstract class CompilationPhase(
         (implicit valueTraits: AnyValueTraits[Value]):
         immutable.IndexedSeq[Variable[Value]] =
     {
-        valueTraits.dynamicDowncast(compileAnyArray(expr))
+        valueTraits.safeDowncast(compileAnyArray(expr))
     }
 
     protected final def compileAnyArray(expr: Expr): immutable.IndexedSeq[AnyVariable] = expr match {
@@ -96,14 +96,14 @@ abstract class CompilationPhase(
         (implicit valueTraits: AnyValueTraits[Value]):
         Variable[Value] =
     {
-        valueTraits.dynamicDowncast(compileAnyExpr(expr))
+        valueTraits.safeDowncast(compileAnyExpr(expr))
     }
 
     protected final def compileAnyExpr(expr: Expr): AnyVariable = expr match {
         case _ if cc.consts.get(expr).isDefined =>
             cc.consts(expr)
         case BoolConst(value) =>
-            val domain = if (value) ZeroIntegerDomain else OneIntegerDomain
+            val domain = if (value) ZeroToZeroIntegerRange else OneToOneIntegerRange
             val x = cc.space.createVariable(expr.toString, domain)
             cc.consts += expr -> x
             x
@@ -137,14 +137,14 @@ abstract class CompilationPhase(
         compileExpr(IntConst(a.value))
 
     implicit protected final def compileConstant(a: IntegerDomain): Variable[IntegerSetValue] =
-        if (a.isFinite && a.ranges.size == 1) compileExpr[IntegerSetValue](IntSetConst(IntRange(a.lb.value, a.ub.value)))
+        if (a.isFinite && ! a.hasGaps) compileExpr[IntegerSetValue](IntSetConst(IntRange(a.lb.value, a.ub.value)))
         else cc.space.createVariable(a.toString, new SingletonIntegerSetDomain(a))
 
     protected final def createChannel
         [Value <: AnyValue]
         (implicit valueTraits: AnyValueTraits[Value]):
         Variable[Value] =
-        cc.space.createVariable[Value]("", valueTraits.unboundedDomain)
+        cc.space.createVariable[Value]("", valueTraits.completeDomain)
 
     protected final def createNonNegativeChannel
         [Value <: NumericalValue[Value]]

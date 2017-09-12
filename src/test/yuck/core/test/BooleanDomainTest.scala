@@ -17,7 +17,7 @@ final class BooleanDomainTest extends UnitTest {
 
     @Test
     def testBasics {
-        val rg = new JavaRandomGenerator
+        val randomGenerator = new JavaRandomGenerator
         for ((f, t) <- List((false, false), (true, false), (false, true), (true, true))) {
             val d = new BooleanDomain(f, t)
             if (f && t) {
@@ -36,31 +36,32 @@ final class BooleanDomainTest extends UnitTest {
             assertEq(d.size, (if (f) 1 else 0) + (if (t) 1 else 0))
             assertEq(d.size == 1, d.isSingleton)
             assert(d.isFinite)
-            assert(! d.isInfinite)
             assertEq(f, d.contains(False))
             assertEq(t, d.contains(True))
+            assertEq(d.isComplete, f && t)
             assert(d.isBounded)
-            assert(! d.isUnbounded)
+            assert(d.hasLb)
+            assert(d.hasUb)
             assertEq(d.maybeLb.get, d.lb)
             assertEq(d.maybeUb.get, d.ub)
             assertEq(d.hull, d)
             if (d.isEmpty) {
                 assertEx(d.singleValue)
-                assertEx(d.randomValue(rg))
-                assertEx(d.nextRandomValue(rg, False))
+                assertEx(d.randomValue(randomGenerator))
+                assertEx(d.nextRandomValue(randomGenerator, False))
                 assertLt(d.ub, d.lb)
             } else if (d.isSingleton) {
                 assertEq(d.singleValue, if (f) False else True)
-                assertEq(d.randomValue(rg), d.singleValue)
-                assertEq(d.nextRandomValue(rg, False), d.singleValue)
-                assertEq(d.nextRandomValue(rg, True), d.singleValue)
+                assertEq(d.randomValue(randomGenerator), d.singleValue)
+                assertEq(d.nextRandomValue(randomGenerator, False), d.singleValue)
+                assertEq(d.nextRandomValue(randomGenerator, True), d.singleValue)
                 assertEq(d.lb, d.singleValue)
                 assertEq(d.ub, d.singleValue)
             } else {
                 assertEx(d.singleValue)
-                assertEq(d.nextRandomValue(rg, False), True)
-                assertEq(d.nextRandomValue(rg, True), False)
-                helper.testUniformityOfDistribution(rg, d)
+                assertEq(d.nextRandomValue(randomGenerator, False), True)
+                assertEq(d.nextRandomValue(randomGenerator, True), False)
+                helper.testUniformityOfDistribution(randomGenerator, d)
                 assertEq(d.lb, False)
                 assertEq(d.ub, True)
             }
@@ -68,22 +69,27 @@ final class BooleanDomainTest extends UnitTest {
     }
 
     @Test
-    def testSetOperations {
-        assert(! FalseDomain.isSubsetOf(EmptyBooleanDomain))
-        assert(! TrueDomain.isSubsetOf(EmptyBooleanDomain))
-        assert(! UnboundedBooleanDomain.isSubsetOf(EmptyBooleanDomain))
-        assert(! FalseDomain.isSubsetOf(TrueDomain))
-        assert(! TrueDomain.isSubsetOf(FalseDomain))
-        assert(EmptyBooleanDomain.isSubsetOf(UnboundedBooleanDomain))
-        assert(FalseDomain.isSubsetOf(UnboundedBooleanDomain))
-        assert(TrueDomain.isSubsetOf(UnboundedBooleanDomain))
+    def testOrdering {
+        val helper = new OrderingTestHelper[BooleanDomain] {}
+        val testData = List(EmptyBooleanDomain, FalseDomain, TrueDomain, CompleteBooleanDomain)
+        val sortedTestData1 = helper.testOrdering(testData, BooleanValueTraits.domainOrdering)
+        val sortedTestData2 = helper.testOrdering(testData, BooleanDomain.ordering)
+        assertEq(sortedTestData1, sortedTestData2)
     }
 
     @Test
-    def testCasting {
-        BooleanValueTraits.staticDowncast(UnboundedBooleanDomain)
-        BooleanValueTraits.dynamicDowncast(UnboundedBooleanDomain)
-        assertEx(BooleanValueTraits.dynamicDowncast(UnboundedIntegerDomain))
+    def testSetOperations {
+        for ((f1, t1) <- List((false, false), (true, false), (false, true), (true, true))) {
+            val d1 = new BooleanDomain(f1, t1)
+            for ((f2, t2) <- List((false, false), (true, false), (false, true), (true, true))) {
+                val d2 = new BooleanDomain(f2, t2)
+                assertEq(d1.isSubsetOf(d2), (! f1 || f2) && (! t1 || t2))
+                assertEq(d1.intersects(d2), (f1 && f2) || (t1 && t2))
+                assertEq(d1.union(d2), new BooleanDomain(f1 || f2, t1 || t2))
+                assertEq(d1.diff(d2), new BooleanDomain(f1 && ! f2, t1 && ! t2))
+                assertEq(d1.symdiff(d2), d1.union(d2).diff(d1.intersect(d2)))
+            }
+        }
     }
 
 }

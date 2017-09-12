@@ -128,7 +128,7 @@ final class FlatZincCompiler
 
     private def checkSearchVariableDomains(cc: CompilationContext): Unit = {
         for (x <- cc.space.searchVariables) {
-            if (x.domain.isInfinite) {
+            if (! x.domain.isFinite) {
                 throw new VariableWithInfiniteDomainException(x)
             }
         }
@@ -138,7 +138,7 @@ final class FlatZincCompiler
         for ((key, x) <- cc.vars
              if cc.space.isDanglingVariable(x) && ! cc.space.searchState.hasValue(x))
         {
-            if (x.domain.isInfinite) {
+            if (! x.domain.isFinite) {
                 throw new VariableWithInfiniteDomainException(x)
             }
             cc.logger.logg("Assigning random value to dangling variable %s".format(x))

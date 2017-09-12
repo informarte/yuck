@@ -19,13 +19,13 @@ final class ElementTest extends UnitTest {
     @Test
     def testElement {
         val space = new Space(logger)
-        val d = new IntegerDomain(Zero, Nine)
+        val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
         val xs = IndexedSeq(s, t, u)
         val i = space.createVariable("i", d)
-        val y = space.createVariable("costs", NonNegativeIntegerDomain)
+        val y = space.createVariable("costs", NonNegativeIntegerRange)
         val c = new Element(space.constraintIdFactory.nextId, null, xs, i, y, 0)
         space
             .post(c)

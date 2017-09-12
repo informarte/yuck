@@ -10,8 +10,9 @@ import org.junit._
 @runners.Suite.SuiteClasses(
     Array(
         classOf[BooleanDomainTest],
-        classOf[IntegerRangeTest],
         classOf[IntegerDomainTest],
+        classOf[IntegerRangeTest],
+        classOf[IntegerRangeListTest],
         classOf[IntegerSetDomainTest],
         classOf[IntegerPowersetDomainTest],
         classOf[SingletonIntegerSetDomainTest]))

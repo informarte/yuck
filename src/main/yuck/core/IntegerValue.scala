@@ -54,28 +54,3 @@ final object IntegerValue {
        if (VALUE_RANGE.contains(a)) valueCache.apply(a - VALUE_RANGE.start) else new IntegerValue(a)
 
 }
-
-/**
- * Provides traits of integer values.
- *
- * @author Michael Marte
- */
-final object IntegerValueTraits extends NumericalValueTraits[IntegerValue] {
-    override val valueType = classOf[IntegerValue]
-    @inline override def compare(x: IntegerValue, y: IntegerValue) = x.compare(y)
-    override val unboundedDomain = UnboundedIntegerDomain
-    override val nonNegativeDomain = NonNegativeIntegerDomain
-    override val zero = Zero
-    override val one = One
-    override def isSubsetOf(lhs: Domain[IntegerValue], rhs: Domain[IntegerValue]) =
-        (lhs, rhs) match {
-            case (lhs: IntegerRange, rhs: IntegerRange) =>
-                lhs.isSubsetOf(rhs)
-            case (lhs: IntegerDomain, rhs: IntegerDomain) =>
-                lhs.isSubsetOf(rhs)
-            case (lhs: IntegerRange, rhs: IntegerDomain) =>
-                new IntegerDomain(Vector(lhs)).isSubsetOf(rhs)
-            case (lhs: IntegerDomain, rhs: IntegerRange) =>
-                lhs.isSubsetOf(new IntegerDomain(Vector(rhs)))
-        }
-}

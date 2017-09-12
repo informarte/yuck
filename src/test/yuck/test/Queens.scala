@@ -19,27 +19,27 @@ final class Queens extends IntegrationTest {
         override def solverName = "SA-%d".format(i)
         override def call = {
             val space = new Space(logger)
-            val d = new IntegerDomain(Zero, new IntegerValue(n - 1))
+            val d = new IntegerRange(Zero, new IntegerValue(n - 1))
             var rows = new Array[Variable[IntegerValue]](n)
             var rowsMinusI = new Array[Variable[IntegerValue]](n)
             var rowsPlusI = new Array[Variable[IntegerValue]](n)
             for (col <- 0 to (n - 1)) {
                 rows.update(col, space.createVariable("row[%s]".format(col) , d))
-                rowsMinusI.update(col, space.createVariable("row[%s] - %s".format(col, col), UnboundedIntegerDomain))
-                rowsPlusI.update(col, space.createVariable("row[%s] + %s".format(col, col), UnboundedIntegerDomain))
+                rowsMinusI.update(col, space.createVariable("row[%s] - %s".format(col, col), CompleteIntegerRange))
+                rowsPlusI.update(col, space.createVariable("row[%s] + %s".format(col, col), CompleteIntegerRange))
                 val iVal = new IntegerValue(col)
-                val iVar = space.createVariable(col.toString, new IntegerDomain(iVal, iVal))
+                val iVar = space.createVariable(col.toString, new IntegerRange(iVal, iVal))
                 space.setValue(iVar, new IntegerValue(col))
                 space.post(new Minus(space.constraintIdFactory.nextId, null, rows.apply(col), iVar, rowsMinusI.apply(col)))
                 space.post(new Plus(space.constraintIdFactory.nextId, null, rows.apply(col), iVar, rowsPlusI.apply(col)))
             }
-            val rowConflicts = space.createVariable("rowConflicts", UnboundedIntegerDomain)
+            val rowConflicts = space.createVariable("rowConflicts", CompleteIntegerRange)
             space.post(new Alldistinct(space.constraintIdFactory.nextId, null, rows.toIndexedSeq, rowConflicts))
-            val diagonalConflicts1 = space.createVariable("diagonalConflicts1", UnboundedIntegerDomain)
+            val diagonalConflicts1 = space.createVariable("diagonalConflicts1", CompleteIntegerRange)
             space.post(new Alldistinct(space.constraintIdFactory.nextId, null, rowsMinusI.toIndexedSeq, diagonalConflicts1))
-            val diagonalConflicts2 = space.createVariable("diagonalConflicts2", UnboundedIntegerDomain)
+            val diagonalConflicts2 = space.createVariable("diagonalConflicts2", CompleteIntegerRange)
             space.post(new Alldistinct(space.constraintIdFactory.nextId, null, rowsPlusI.toIndexedSeq, diagonalConflicts2))
-            val conflicts = space.createVariable("conflicts", UnboundedIntegerDomain)
+            val conflicts = space.createVariable("conflicts", CompleteIntegerRange)
             space.post(
                 new LinearCombination(
                     space.constraintIdFactory.nextId,

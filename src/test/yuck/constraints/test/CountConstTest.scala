@@ -19,11 +19,11 @@ final class CountConstTest extends UnitTest {
     @Test
     def testCountConst {
         val space = new Space(logger)
-        val d = new IntegerDomain(Zero, Nine)
+        val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
-        val n = space.createVariable("n", NonNegativeIntegerDomain)
+        val n = space.createVariable("n", NonNegativeIntegerRange)
         val c = new CountConst(space.constraintIdFactory.nextId, null, List(s, t, u), One, n)
         space
             .post(c)

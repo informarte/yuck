@@ -18,7 +18,7 @@ final class InverseFunction
      val offset: Int)
 {
     val indexRange = offset until offset + xs.size
-    val indexDomain = new IntegerDomain(IntegerValue.get(offset), IntegerValue.get(offset + xs.size - 1))
+    val indexDomain = IntegerValueTraits.createDomain(IntegerValue.get(offset), IntegerValue.get(offset + xs.size - 1))
     val x2i = new immutable.HashMap[AnyVariable, Int] ++ xs.zip(indexRange)
     val refs = new Array[mutable.HashSet[Int]](xs.size)
     val visited = new Array[Int](xs.size)
@@ -283,7 +283,7 @@ final class Inverse
         def partitionByDomain(xs: Iterable[Variable[IntegerValue]]): PartitionByDomain =
             xs.foldLeft(new PartitionByDomain()) {
                 (map, x) => {
-                    val dx = x.domain.asInstanceOf[IntegerDomain]
+                    val dx = IntegerValueTraits.safeDowncast(x.domain)
                     map += dx -> (map.getOrElse(dx, new Partition()) += x)
                 }
             }
@@ -291,6 +291,7 @@ final class Inverse
         lazy val gPartitionByDomain = partitionByDomain(g.xs)
         def domainLt(lhs: OrderedDomain[IntegerValue], rhs: OrderedDomain[IntegerValue]) =
             lhs.lb < rhs.lb || (lhs.lb == rhs.lb && lhs.ub < rhs.ub)
+        def union(lhs: IntegerDomain, rhs: IntegerDomain) = lhs.union(rhs)
         val isDecomposable =
         // the offsets are equal
             f.offset == g.offset &&
@@ -300,12 +301,12 @@ final class Inverse
             // the variables do not all have the same domain
             fPartitionByDomain.size > 1 &&
             // the domains do not overlap
-            fPartitionByDomain.keysIterator.foldLeft(EmptyIntegerDomain){(acc, domain) => acc.unite(domain)}.size ==
+            fPartitionByDomain.keysIterator.foldLeft(IntegerValueTraits.emptyDomain){union}.size ==
                 fPartitionByDomain.keysIterator.map(_.size).sum
         if (isDecomposable) {
             for (domain <- fPartitionByDomain.keysIterator.toList) yield {
                 val offset = domain.lb.value
-                val costs = space.createVariable("", NonNegativeIntegerDomain)
+                val costs = space.createVariable("", NonNegativeIntegerRange)
                 new Inverse(
                     space.constraintIdFactory.nextId, goal,
                     new InverseFunction(fPartitionByDomain(domain).toIndexedSeq, offset),

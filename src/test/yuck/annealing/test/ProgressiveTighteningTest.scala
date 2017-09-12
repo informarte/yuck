@@ -23,7 +23,7 @@ final class ProgressiveTighteningTest extends IntegrationTest {
     // Minimizing or maximizing (x, y), we expect one tightening event.
 
     private val space = new Space(logger)
-    private val d = new IntegerDomain(Zero, Nine)
+    private val d = new IntegerRange(Zero, Nine)
     private val x = space.createVariable("x", d)
     private val y = space.createVariable("y", d)
     private val randomGenerator = new JavaRandomGenerator(DEFAULT_SEED)

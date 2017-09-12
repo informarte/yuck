@@ -15,16 +15,3 @@ abstract class OrderedValue[Value] extends AnyValue with Ordered[Value] {
         case _ => false
     }
 }
-
-/**
- * Provides properties of ordered values.
- *
- * @author Michael Marte
- */
-trait OrderedValueTraits[Value <: OrderedValue[Value]] extends AnyValueTraits[Value] with Ordering[Value] {
-
-    /** Casts the given domain to an ordered domain over Value. */
-    def staticDowncast(x: Domain[Value]): OrderedDomain[Value] =
-        x.asInstanceOf[OrderedDomain[Value]]
-
-}

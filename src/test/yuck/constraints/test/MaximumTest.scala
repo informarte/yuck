@@ -19,11 +19,11 @@ final class MaximumTest extends UnitTest {
     @Test
     def testMaximum {
         val space = new Space(logger)
-        val d = new IntegerDomain(Zero, Nine)
+        val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
-        val max = space.createVariable("costs", UnboundedIntegerDomain)
+        val max = space.createVariable("costs", CompleteIntegerRange)
         val c = new Maximum(space.constraintIdFactory.nextId, null, List(s, t, u), max)
         space
             .post(c)

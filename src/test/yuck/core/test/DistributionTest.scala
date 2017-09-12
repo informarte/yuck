@@ -84,10 +84,10 @@ final class DistributionTest(df: Int => Distribution) extends UnitTest {
         for (i <- 0 to 2) {
             d.setFrequency(i, i)
         }
-        val rg = new JavaRandomGenerator
+        val randomGenerator = new JavaRandomGenerator
         val e = df(n)
         for (i <- 0 until 1000) {
-            e.addFrequencyDelta(d.nextIndex(rg), 1)
+            e.addFrequencyDelta(d.nextIndex(randomGenerator), 1)
         }
         assertEq(e.frequency(0), 0)
         assertGt(e.frequency(1), 300)
@@ -99,7 +99,7 @@ final class DistributionTest(df: Int => Distribution) extends UnitTest {
     def testDistributionMaintainer {
         val d = df(3)
         val space = new Space(logger)
-        val vr = new IntegerDomain(Zero, new IntegerValue(100))
+        val vr = new IntegerRange(Zero, new IntegerValue(100))
         val x1 = space.createVariable("x1", vr)
         val x2 = space.createVariable("x2", vr)
         val x3 = space.createVariable("x3", vr)

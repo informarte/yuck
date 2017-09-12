@@ -19,7 +19,7 @@ final class CumulativeTest extends UnitTest {
     @Test
     def testCumulative {
         val space = new Space(logger)
-        val d = new IntegerDomain(Zero, Nine)
+        val d = new IntegerRange(Zero, Nine)
         val s0 = space.createVariable("s0", d)
         val d0 = space.createVariable("d0", d)
         val c0 = space.createVariable("c0", d)
@@ -29,7 +29,7 @@ final class CumulativeTest extends UnitTest {
         val t0 = new CumulativeTask(s0, d0, c0)
         val t1 = new CumulativeTask(s1, d1, c1)
         val ub = space.createVariable("ub", d)
-        val costs = space.createVariable("costs", NonNegativeIntegerDomain)
+        val costs = space.createVariable("costs", NonNegativeIntegerRange)
         val c = new Cumulative(space.constraintIdFactory.nextId, null, List(t0, t1), ub, costs)
         // initial conflict: two tasks with same start time and duration
         space

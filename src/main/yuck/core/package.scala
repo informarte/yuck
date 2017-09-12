@@ -14,12 +14,10 @@ package object core {
     val True = new BooleanValue(true)
 
     val EmptyBooleanDomain = new BooleanDomain(false, false)
-    val UnboundedBooleanDomain = new BooleanDomain(true, true)
+    val CompleteBooleanDomain = new BooleanDomain(true, true)
     val FalseDomain = new BooleanDomain(true, false)
     val TrueDomain = new BooleanDomain(false, true)
 
-    val MinusThree = IntegerValue.get(-3)
-    val MinusTwo = IntegerValue.get(-2)
     val MinusOne = IntegerValue.get(-1)
     val Zero = IntegerValue.get(0)
     val One = IntegerValue.get(1)
@@ -32,27 +30,25 @@ package object core {
     val Eight = IntegerValue.get(8)
     val Nine = IntegerValue.get(9)
     val Ten = IntegerValue.get(10)
-    val Eleven = IntegerValue.get(11)
 
     val EmptyIntegerRange = new IntegerRange(One, Zero)
-    val UnboundedIntegerRange = new IntegerRange(null, null)
+    val CompleteIntegerRange = new IntegerRange(null, null)
+    val NegativeIntegerRange = new IntegerRange(null, MinusOne)
+    val NonNegativeIntegerRange = new IntegerRange(Zero, null)
+    val PositiveIntegerRange = new IntegerRange(One, null)
+    val NonPositiveIntegerRange = new IntegerRange(null, Zero)
+    val ZeroToZeroIntegerRange = new IntegerRange(Zero, Zero)
+    val OneToOneIntegerRange = new IntegerRange(One, One)
+    val ZeroToOneIntegerRange = new IntegerRange(Zero, One)
 
-    val EmptyIntegerDomain = new IntegerDomain()
-    val UnboundedIntegerDomain = new IntegerDomain(null, null)
-    val NegativeIntegerDomain = new IntegerDomain(null, MinusOne)
-    val NonNegativeIntegerDomain = new IntegerDomain(Zero, null)
-    val PositiveIntegerDomain = new IntegerDomain(One, null)
-    val ZeroIntegerDomain = new IntegerDomain(Zero)
-    val OneIntegerDomain = new IntegerDomain(One)
-    val ZeroOneIntegerDomain = new IntegerDomain(Zero, One)
+    val EmptyIntegerRangeList = new IntegerRangeList()
 
-    val EmptyIntegerSet = new IntegerSetValue(EmptyIntegerDomain)
-    val UnboundedIntegerSet = new IntegerSetValue(UnboundedIntegerDomain)
-    val NonNegativeIntegerSet = new IntegerSetValue(NonNegativeIntegerDomain)
+    val EmptyIntegerSetValue = new IntegerSetValue(EmptyIntegerRange)
+    val CompleteIntegerSetValue = new IntegerSetValue(CompleteIntegerRange)
 
-    val UnboundedIntegerSetDomain = new IntegerPowersetDomain(UnboundedIntegerDomain)
+    val CompleteIntegerSetDomain = new IntegerPowersetDomain(CompleteIntegerRange)
 
-    implicit def createOrderingForTraversableOnce[T](implicit ord: Ordering[T]): Ordering[TraversableOnce[T]] =
+    implicit def createLexicographicOrderingForTraversableOnce[T](implicit ord: Ordering[T]): Ordering[TraversableOnce[T]] =
         new Ordering[TraversableOnce[T]] {
             override def compare(t: TraversableOnce[T], u: TraversableOnce[T]) = {
                 val i = t.toIterator

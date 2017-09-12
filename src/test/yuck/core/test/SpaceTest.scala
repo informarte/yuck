@@ -23,7 +23,7 @@ final class SpaceTest extends UnitTest {
          * with variables s, ..., z and constraint c, d, and e.
          */
         val space = new Space(logger)
-        def domain(name: Char) = if (name == 'v') ZeroIntegerDomain else UnboundedIntegerDomain
+        def domain(name: Char) = if (name == 'v') ZeroToZeroIntegerRange else CompleteIntegerRange
         val vars @ IndexedSeq(s, t, u, v, w, x, y, z): IndexedSeq[AnyVariable] =
             for (name <- 's' to 'z') yield space.createVariable(name.toString, domain(name))
         val c = new DummyConstraint(space.constraintIdFactory.nextId, List(s, t), List(u))
@@ -98,7 +98,7 @@ final class SpaceTest extends UnitTest {
     @Test
     def testCycleDetection1 {
         val space = new Space(logger)
-        val x = space.createVariable("x", UnboundedIntegerDomain)
+        val x = space.createVariable("x", CompleteIntegerRange)
         val c = new DummyConstraint(space.constraintIdFactory.nextId, List(x, x), List(x))
         assert(space.wouldIntroduceCycle(c))
         assertEx(space.post(c))
@@ -107,9 +107,9 @@ final class SpaceTest extends UnitTest {
     @Test
     def testCycleDetection2 {
         val space = new Space(logger)
-        val x = space.createVariable("x", UnboundedIntegerDomain)
-        val y = space.createVariable("y", UnboundedIntegerDomain)
-        val z = space.createVariable("z", UnboundedIntegerDomain)
+        val x = space.createVariable("x", CompleteIntegerRange)
+        val y = space.createVariable("y", CompleteIntegerRange)
+        val z = space.createVariable("z", CompleteIntegerRange)
         val c = new DummyConstraint(space.constraintIdFactory.nextId, List(x, y), List(z))
         assert(! space.wouldIntroduceCycle(c))
         assert(space.findHypotheticalCycle(c).isEmpty)
@@ -125,9 +125,9 @@ final class SpaceTest extends UnitTest {
     @Test
     def testManagementOfImplicitConstraints {
         val space = new Space(logger)
-        val x = space.createVariable("x", UnboundedIntegerDomain)
-        val y = space.createVariable("y", UnboundedIntegerDomain)
-        val z = space.createVariable("z", UnboundedIntegerDomain)
+        val x = space.createVariable("x", CompleteIntegerRange)
+        val y = space.createVariable("y", CompleteIntegerRange)
+        val z = space.createVariable("z", CompleteIntegerRange)
         val c = new DummyConstraint(space.constraintIdFactory.nextId, List(x), List(y))
         val d = new DummyConstraint(space.constraintIdFactory.nextId, List(x), List(z))
         space.post(c).post(d)

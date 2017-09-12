@@ -161,15 +161,15 @@ final class AlldistinctNeighbourhood
              (probabilityOfSwappingInValuesInPercent > 0 &&
               randomGenerator.nextInt(100) < probabilityOfSwappingInValuesInPercent))
         if (swapInAValue) {
-            val usedValues = xs.toIterator.map(value).toSet
+            val usedValues = valueTraits.createDomain(xs.toIterator.map(value).toSet)
             if (m == 1) {
                 val candidates =
                     randomGenerator
                     .lazyShuffle(xs)
-                    .map(x => (x, (x.domain.values.toSet -- usedValues).toVector))
-                    .filter(_._2.nonEmpty)
+                    .map(x => (x, (x.domain.diff(usedValues))))
+                    .filter(! _._2.isEmpty)
                 val (x, unusedValues) = candidates.next
-                val u = unusedValues(randomGenerator.nextInt(unusedValues.size))
+                val u = unusedValues.randomValue(randomGenerator)
                 // {(x, a)} -> {(x, u)}
                 effects(0).set(x, u)
                 succeed(1)
@@ -177,12 +177,12 @@ final class AlldistinctNeighbourhood
                 val candidates =
                     randomGenerator
                     .lazyShuffle(xs.indices)
-                    .map(i => (i, (xs(i).domain.values.toSet -- usedValues).toVector))
-                    .filter(_._2.nonEmpty)
+                    .map(i => (i, (xs(i).domain.diff(usedValues))))
+                    .filter(! _._2.isEmpty)
                 val (i, unusedValues) = candidates.next
                 val x = xs(i)
                 val a = value(x)
-                val u = unusedValues(randomGenerator.nextInt(unusedValues.size))
+                val u = unusedValues.randomValue(randomGenerator)
                 val j = {
                     val k = randomGenerator.nextInt(n - 1)
                     if (k < i) k else k + 1
@@ -210,18 +210,18 @@ final class AlldistinctNeighbourhood
                 val candidates =
                     for {
                         x <- randomGenerator.lazyShuffle(xs)
-                        unusedValues = x.domain.values.toSet -- usedValues
-                        if unusedValues.nonEmpty
+                        unusedValues = x.domain.diff(usedValues)
+                        if ! unusedValues.isEmpty
                         a = value(x)
                         ys = xs.filter(y => y != x && y.domain.contains(a))
                         y <- randomGenerator.lazyShuffle(ys)
                     } yield {
-                        (x, unusedValues.toVector, y)
+                        (x, unusedValues, y)
                     }
                 if (candidates.hasNext){
                     val (x, unusedValues, y) = candidates.next
                     val a = value(x)
-                    val u = unusedValues(randomGenerator.nextInt(unusedValues.size))
+                    val u = unusedValues.randomValue(randomGenerator)
                     // {(x, a), (y, b)} -> {(x, u), (y, a)}
                     effects(0).set(x, u)
                     effects(1).set(y, a)
@@ -233,8 +233,8 @@ final class AlldistinctNeighbourhood
                 val candidates =
                     for {
                         x <- randomGenerator.lazyShuffle(xs)
-                        unusedValues = x.domain.values.toSet -- usedValues
-                        if unusedValues.nonEmpty
+                        unusedValues = x.domain.diff(usedValues)
+                        if ! unusedValues.isEmpty
                         a = value(x)
                         ys = xs.filter(y => y != x && y.domain.contains(a))
                         y <- randomGenerator.lazyShuffle(ys)
@@ -242,12 +242,12 @@ final class AlldistinctNeighbourhood
                         zs = xs.filter(z => x != z && y != z && z.domain.contains(b))
                         z <- randomGenerator.lazyShuffle(zs)
                     } yield {
-                        (x, unusedValues.toVector, y, z)
+                        (x, unusedValues, y, z)
                     }
                 if (candidates.hasNext) {
                     val (x, unusedValues, y, z) = candidates.next
                     val (a, b) = (value(x), value(y))
-                    val u = unusedValues(randomGenerator.nextInt(unusedValues.size))
+                    val u = unusedValues.randomValue(randomGenerator)
                     // {(x, a), (y, b), (z, c)} -> {(x, u), (y, a), (z, b)}
                     effects(0).set(x, u)
                     effects(1).set(y, a)

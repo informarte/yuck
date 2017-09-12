@@ -17,19 +17,15 @@ final class SingletonIntegerSetDomainTest extends UnitTest {
 
     @Test
     def testBasics {
-        val rg = new JavaRandomGenerator
-
-        // base domains
-        val ebd  = EmptyIntegerDomain
-        val ubd  = UnboundedIntegerDomain
+        val randomGenerator = new JavaRandomGenerator
 
         // set domains
-        val esd = new SingletonIntegerSetDomain(ebd)
-        val usd = new SingletonIntegerSetDomain(ubd)
+        val esd = new SingletonIntegerSetDomain(EmptyIntegerRange)
+        val usd = new SingletonIntegerSetDomain(CompleteIntegerRange)
 
         // set values
-        val es  = EmptyIntegerSet
-        val us  = UnboundedIntegerSet
+        val es  = EmptyIntegerSetValue
+        val us  = CompleteIntegerSetValue
 
         // {}
         assertNe(esd, "")
@@ -39,17 +35,18 @@ final class SingletonIntegerSetDomainTest extends UnitTest {
         assertEq(esd.toString, "{{}}")
         assert(! esd.isEmpty)
         assertEq(esd.size, 1)
+        assert(! esd.isComplete)
         assert(esd.isFinite)
-        assert(! esd.isInfinite)
         assert(esd.isSingleton)
         assert(esd.contains(es))
         assert(! esd.contains(us))
         assertEq(esd.singleValue, es)
-        assertEq(esd.randomValue(rg), es)
-        assertEx(esd.nextRandomValue(rg, es))
+        assertEq(esd.randomValue(randomGenerator), es)
+        assertEx(esd.nextRandomValue(randomGenerator, es))
         assertEq(esd.values.toList, List(es))
         assert(esd.isBounded)
-        assert(! esd.isUnbounded)
+        assert(esd.hasLb)
+        assert(esd.hasUb)
         assert(esd.maybeLb.isDefined)
         assert(esd.maybeUb.isDefined)
         assertEq(esd.maybeLb.get, esd.lb)
@@ -64,17 +61,18 @@ final class SingletonIntegerSetDomainTest extends UnitTest {
         assertEq(usd.toString, "{-inf..+inf}")
         assert(! usd.isEmpty)
         assertEq(usd.size, 1)
+        assert(! usd.isComplete)
         assert(usd.isFinite)
-        assert(! usd.isInfinite)
         assert(usd.isSingleton)
         assert(usd.contains(us))
         assert(! usd.contains(es))
         assertEq(usd.singleValue, us)
         assertEq(usd.values.toList, List(us))
-        assertEq(usd.randomValue(rg), us)
-        assertEx(usd.nextRandomValue(rg, es))
+        assertEq(usd.randomValue(randomGenerator), us)
+        assertEx(usd.nextRandomValue(randomGenerator, es))
         assert(usd.isBounded)
-        assert(! usd.isUnbounded)
+        assert(usd.hasLb)
+        assert(usd.hasUb)
         assert(usd.maybeLb.isDefined)
         assert(usd.maybeUb.isDefined)
         assertEq(usd.maybeLb.get, usd.lb)
@@ -86,9 +84,17 @@ final class SingletonIntegerSetDomainTest extends UnitTest {
     }
 
     @Test
-    def testCasting {
-        IntegerSetValueTraits.staticDowncast(new SingletonIntegerSetDomain(UnboundedIntegerDomain))
-        IntegerSetValueTraits.dynamicDowncast(new SingletonIntegerSetDomain(UnboundedIntegerDomain))
+    def testSetOperations {
+        val esd = new SingletonIntegerSetDomain(EmptyIntegerRange)
+        val usd = new SingletonIntegerSetDomain(CompleteIntegerRange)
+        assert(esd.isSubsetOf(esd))
+        assert(usd.isSubsetOf(usd))
+        assert(! esd.isSubsetOf(usd))
+        assert(! usd.isSubsetOf(esd))
+        assert(esd.intersects(esd))
+        assert(usd.intersects(usd))
+        assert(! esd.intersects(usd))
+        assert(! usd.intersects(esd))
     }
 
 }

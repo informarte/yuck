@@ -27,11 +27,11 @@ final class DomainFinalizer
             val dx = cc.domains(key)
             val tx = dx.valueType
             if (tx == BooleanValueTraits.valueType) {
-                finalizeBooleanDomain(IntegerValueTraits.staticDowncast(x), dx.asInstanceOf[BooleanDomain])
+                finalizeBooleanDomain(IntegerValueTraits.unsafeDowncast(x), dx.asInstanceOf[BooleanDomain])
             } else if (tx == IntegerValueTraits.valueType) {
-                finalizeIntegerDomain(IntegerValueTraits.staticDowncast(x), dx.asInstanceOf[IntegerDomain])
+                finalizeIntegerDomain(IntegerValueTraits.unsafeDowncast(x), dx.asInstanceOf[IntegerDomain])
             } else if (tx == IntegerSetValueTraits.valueType) {
-                finalizeIntegerSetDomain(IntegerSetValueTraits.staticDowncast(x), dx.asInstanceOf[IntegerPowersetDomain])
+                finalizeIntegerSetDomain(IntegerSetValueTraits.unsafeDowncast(x), dx.asInstanceOf[IntegerPowersetDomain])
             }
             cc.logger.logg("Domain of %s is %s".format(x, x.domain))
             done += x
@@ -42,7 +42,7 @@ final class DomainFinalizer
         if (dx.isSingleton) {
             if (cc.space.isChannelVariable(x)) {
                 x.turnIntoChannel(IntegerValueTraits)
-                x.pruneDomain(NonNegativeIntegerDomain)
+                x.pruneDomain(NonNegativeIntegerRange)
                 if (dx.singleValue == True) {
                     cc.costVars += x
                 } else {
@@ -55,7 +55,7 @@ final class DomainFinalizer
             }
         } else if (cc.space.isChannelVariable(x)) {
             x.turnIntoChannel(IntegerValueTraits)
-            x.pruneDomain(NonNegativeIntegerDomain)
+            x.pruneDomain(NonNegativeIntegerRange)
         }
     }
 

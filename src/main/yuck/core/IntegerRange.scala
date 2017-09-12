@@ -1,6 +1,8 @@
 package yuck.core
 
-import scala.math._
+import scala.collection.Iterator
+
+import IntegerDomain.createRange
 
 /**
  * Represents immutable integer ranges in terms of lower and upper bounds.
@@ -10,22 +12,16 @@ import scala.math._
  *
  * Null bounds imply infinity.
  *
- * Currently only used as building block of [[yuck.core.IntegerDomain IntegerDomain]].
- *
  * @author Michael Marte
  */
-final class IntegerRange(
-    override val lb: IntegerValue, override val ub: IntegerValue)
-    extends NumericalDomain[IntegerValue]
+final class IntegerRange
+    (override val lb: IntegerValue, override val ub: IntegerValue)
+    extends IntegerDomain
 {
-    override def hashCode = 3 * (3 + lb.hashCode) + ub.hashCode
-    override def equals(that: Any) = that match {
-        case rhs: IntegerRange => {
-            val lhs = this
-            lhs.lb == rhs.lb && lhs.ub == rhs.ub
-        }
-        case _ => false
-    }
+
+    def equals(that: IntegerRange): Boolean =
+        (this.isEmpty && that.isEmpty) || this.lb == that.lb && this.ub == that.ub
+
     override def toString =
         if (isEmpty)
             "{}"
@@ -35,107 +31,97 @@ final class IntegerRange(
             "%s..%s".format(
                 if (lb == null) "-inf" else lb.toString,
                 if (ub == null) "+inf" else ub.toString)
-    override def valueTraits = IntegerValueTraits
+
     override def size = {
         require(isFinite)
         0.max(ub.value - lb.value + 1)
     }
+    override def isComplete = lb == null && ub == null
     override def isFinite = lb != null && ub != null
+    override def hasGaps = false
+    override def isBounded = lb != null || ub != null
+    override def maybeLb = if (lb == null) None else Some(lb)
+    override def maybeUb = if (ub == null) None else Some(ub)
+    override def hull = this
     override def values = {
         require(isFinite)
         (lb.value to ub.value).toIterator.map(a => IntegerValue.get(a))
     }
-    override def contains(a: IntegerValue) =
-        (lb == null || lb <= a) && (ub == null || a <= ub)
     override def singleValue = {
         require(isSingleton)
         lb
     }
+    override def contains(a: IntegerValue) =
+        (lb == null || lb <= a) && (ub == null || a <= ub)
+
     override def randomValue(randomGenerator: RandomGenerator) = {
-        require(size > 0)
+        require(! isEmpty)
         IntegerValue.get(lb.value + randomGenerator.nextInt(size))
     }
+
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: IntegerValue) = {
-        require(size > 1)
-        if (size == 2) {
+        require(! isEmpty)
+        if (isSingleton) {
+            singleValue
+        } else if (size == 2) {
             if (currentValue == lb) ub else lb
         } else {
             val a = lb.value + randomGenerator.nextInt(size - 1)
             IntegerValue.get(if (a < currentValue.value) a else a + 1)
         }
     }
-    override def isBounded = lb != null || ub != null
-    override def maybeLb = if (lb == null) None else Some(lb)
-    override def maybeUb = if (ub == null) None else Some(ub)
-    override def hull = this
-    override def isSubsetOf(that: Domain[IntegerValue]) =
-        valueTraits.isSubsetOf(this, that)
-    def isSubsetOf(that: IntegerRange): Boolean = {
-        val lhs = this
-        var rhs = that
-        ! lhs.startsBefore(rhs) && ! lhs.endsAfter(rhs)
-    }
-    def precedes(that: IntegerRange): Boolean = {
-        val lhs = this
-        val rhs = that
-        lhs.ub != null && rhs.lb != null && lhs.ub < rhs.lb
-    }
-    def precedesImmediately(that: IntegerRange): Boolean = {
-        val lhs = this
-        val rhs = that
-        lhs.ub != null && rhs.lb != null && lhs.ub + One == rhs.lb
-    }
-    def startsBefore(that: IntegerRange): Boolean = {
-        val lhs = this
-        val rhs = that
-        if (lhs.lb == null) rhs.lb != null
-        else if (rhs.lb != null) lhs.lb < rhs.lb
-        else false
-    }
-    def startsAfter(that: IntegerRange): Boolean = {
-        val lhs = this
-        val rhs = that
-        lhs.lb != null && (rhs.lb == null || lhs.lb > rhs.lb)
-    }
-    def endsBefore(that: IntegerRange): Boolean = {
-        val lhs = this
-        val rhs = that
-        lhs.ub != null && (rhs.ub == null || lhs.ub < rhs.ub)
-    }
-    def endsAfter(that: IntegerRange): Boolean = {
-        val lhs = this
-        val rhs = that
-        if (lhs.ub == null) rhs.ub != null
-        else if (rhs.ub != null) lhs.ub > rhs.ub
-        else false
-    }
-    def intersects(that: IntegerRange): Boolean =
-        ! (this.precedes(that) || that.precedes(this))
-    def intersect(that: IntegerRange): IntegerRange = {
-        val lb =
-            if (this.lb == null) that.lb
-            else if (that.lb == null) this.lb
-            else if (this.lb < that.lb) that.lb
-            else this.lb
-        val ub =
-            if (this.ub == null) that.ub
-            else if (that.ub == null) this.ub
-            else if (this.ub < that.ub) this.ub
-            else that.ub
-        new IntegerRange(lb, ub)
-    }
-    def maybeIntersectionSize(that: IntegerRange): Option[Int] = {
-        val tmp = intersect(that)
-        if (tmp.isInfinite) None else Some(tmp.size)
-    }
-    override def boundFromBelow(lb: IntegerValue) = this.intersect(new IntegerRange(lb, null))
-    override def boundFromAbove(ub: IntegerValue) = this.intersect(new IntegerRange(null, ub))
+
+    override def boundFromBelow(lb: IntegerValue) = this.intersect(createRange(lb, null))
+
+    override def boundFromAbove(ub: IntegerValue) = this.intersect(createRange(null, ub))
+
     override def bisect = {
         require(! isEmpty)
         require(isFinite)
         val mid = lb + ((ub - lb + One) / Two)
-        (this.intersect(new IntegerRange(lb, mid - One)), this.intersect(new IntegerRange(mid, ub)))
+        (this.intersect(createRange(lb, mid - One)), this.intersect(createRange(mid, ub)))
     }
+
+    override def distanceTo(a: IntegerValue) = {
+        require(! isEmpty)
+        if (lb != null && a < lb) lb.value - a.value
+        else if (ub != null && a > ub) a.value - ub.value
+        else 0
+    }
+
+    def isSubsetOf(that: IntegerRange): Boolean =
+        this.isEmpty || (! that.isEmpty && ! this.startsBefore(that) && ! this.endsAfter(that))
+
+    def intersects(that: IntegerRange): Boolean =
+        ! this.isEmpty && ! that.isEmpty && ! (this.precedes(that) || that.precedes(this))
+
+    def intersect(that: IntegerRange): IntegerRange = {
+        val lb =
+            if (! this.hasLb) that.lb
+            else if (! that.hasLb) this.lb
+            else if (this.lb < that.lb) that.lb
+            else this.lb
+        val ub =
+            if (! this.hasUb) that.ub
+            else if (! that.hasUb) this.ub
+            else if (this.ub < that.ub) this.ub
+            else that.ub
+        IntegerDomain.createRange(lb, ub)
+    }
+
+    def maybeIntersectionSize(that: IntegerRange): Option[Int] = {
+        val tmp = intersect(that)
+        if (tmp.isFinite) Some(tmp.size) else None
+    }
+
+    override def randomSubrange(randomGenerator: RandomGenerator): IntegerRange =
+        if (isEmpty) EmptyIntegerRange
+        else {
+            val a = randomValue(randomGenerator)
+            val b = randomValue(randomGenerator)
+            if (a < b) createRange(a, b) else createRange(b, a)
+        }
+
     /**
      * Implements range multiplication as described in:
      * K. R. Apt, Principles of Constraint Programming, p. 221
@@ -148,8 +134,9 @@ final class IntegerRange(
         val c = that.lb
         val d = that.ub
         val A = List(a * c, a * d, b * c, b * d)
-        new IntegerRange(A.min, A.max)
+        createRange(A.min, A.max)
     }
+
     /**
      * Implements range division as described in:
      * K. R. Apt, Principles of Constraint Programming, p. 221
@@ -163,28 +150,48 @@ final class IntegerRange(
         val d = that.ub
         if (this.contains(Zero) && that.contains(Zero)) {
             // case 1
-            UnboundedIntegerRange
+            CompleteIntegerRange
         } else if (! this.contains(Zero) && c == Zero && d == Zero) {
             // case 2
             EmptyIntegerRange
         } else if (! this.contains(Zero) && c < Zero && Zero < d) {
             // case 3
-            val e = IntegerValueTraits.max(a.abs, b.abs)
-            new IntegerRange(MinusOne * e, e)
+            val e = IntegerValueTraits.valueOrdering.max(a.abs, b.abs)
+            createRange(MinusOne * e, e)
         } else if (! this.contains(Zero) && c < Zero && d == Zero) {
             // case 4a
-            this.div(new IntegerRange(c, MinusOne))
+            this.div(createRange(c, MinusOne))
         } else if (! this.contains(Zero) && c == Zero && Zero < d) {
             // case 4b
-            this.div(new IntegerRange(One, d))
+            this.div(createRange(One, d))
         } else if (! that.contains(Zero)) {
             // case 5
             // approximation (6.14)
             val A = List(a.toDouble / c.toDouble, a.toDouble / d.toDouble, b.toDouble / c.toDouble, b.toDouble / d.toDouble)
-            new IntegerRange(IntegerValue.get(A.min.ceil.toInt), IntegerValue.get(A.max.floor.toInt))
+            createRange(IntegerValue.get(A.min.ceil.toInt), IntegerValue.get(A.max.floor.toInt))
         } else {
             // Must not occur since the preceding case distinction covers all cases.
             ???
         }
     }
+
+}
+
+/**
+ * Provides tools for the implementation of IntegerRange.
+ *
+ * @author Michael Marte
+ */
+final object IntegerRange {
+
+    private def lessThan(lhs: IntegerRange, rhs: IntegerRange) =
+        ! rhs.isSubsetOf(lhs) && (lhs.isSubsetOf(rhs) || lhs.startsBefore(rhs))
+
+    /**
+     * An intuitive ordering with A.isSubsetOf(B) -> A < B.
+     * If neither A.isSubsetOf(B) nor B.isSubsetOf(A), then A < B <-> (lb(A), ub(A)) < (lb(B), ub(B)).
+     */
+    // Yes, this is total ordering, I proved it on paper.
+    val ordering = Ordering.fromLessThan(lessThan)
+
 }

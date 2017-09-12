@@ -106,7 +106,7 @@ class NeighbourhoodFactory
 
     protected def createNeighbourhoodForMinimizationGoal(x: Variable[IntegerValue]): Option[Neighbourhood] = {
         if (space.isDanglingVariable(x) && x.domain.asInstanceOf[IntegerDomain].maybeLb.isDefined) {
-            val a = x.domain.asInstanceOf[IntegerDomain].maybeLb.get
+            val a = x.domain.asInstanceOf[IntegerDomain].lb
             logger.logg("Assigning %s to dangling objective variable %s".format(a, x))
             space.setValue(x, a)
             None

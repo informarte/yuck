@@ -51,7 +51,7 @@ final class Regular
     require(delta.forall(_.size == S))
     require(delta.forall(_.forall(q => q >= 0 && q <= Q)))
     require(q0 >= 1 && q0 <= Q)
-    require(F.isSubsetOf(new IntegerDomain(One, IntegerValue.get(Q))))
+    require(F.isSubsetOf(IntegerDomain.createRange(One, IntegerValue.get(Q))))
 
     private val n = xs.size
     private val distancesToAcceptingState: immutable.IndexedSeq[Int] = {

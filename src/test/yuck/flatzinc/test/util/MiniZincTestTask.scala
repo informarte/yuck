@@ -25,8 +25,8 @@ case class MiniZincTestTask(
     val problemName: String = "",
     val modelName: String = "",
     val instanceName: String = "",
-    val solverConfiguration: FlatZincSolverConfiguration =
-        (new FlatZincSolverConfiguration).copy(maybeRuntimeLimitInSeconds = Some(300)),
+    val solverConfiguration: FlatZincSolverConfiguration = new FlatZincSolverConfiguration,
+    val maybeRuntimeLimitInSeconds: Option[Int] = Some(300), // overrules solverConfiguration.maybeRuntimeLimitInSeconds
     val maybeOptimum: Option[Int] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
     val maybeQualityTolerance: Option[Int] = None, // overrules solverConfiguration.maybeQualityTolerance
     val logLevel: yuck.util.logging.LogLevel = yuck.util.logging.InfoLogLevel)

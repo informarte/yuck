@@ -62,7 +62,7 @@ final class VariableDrivenNeighbourhoodFactory
         val remainingVariables = hotSpotIndicators.keys.toSet -- implicitlyConstrainedVars
         if (! remainingVariables.isEmpty) {
             val xs = remainingVariables.toIndexedSeq
-            for (x <- xs if x.domain.isInfinite) {
+            for (x <- xs if ! x.domain.isFinite) {
                 throw new VariableWithInfiniteDomainException(x)
             }
             logger.logg("Adding a neighbourhood over %s".format(xs))
@@ -115,14 +115,14 @@ final class VariableDrivenNeighbourhoodFactory
             constraint match {
                 case lc: LinearCombination[IntegerValue @ unchecked] =>
                     for (ax <- lc.axs
-                         if ax.a.value >= 0 && IntegerValueTraits.staticDowncast(ax.x.domain).maybeLb.exists(_.value >= 0))
+                         if ax.a.value >= 0 && IntegerValueTraits.safeDowncast(ax.x.domain).maybeLb.exists(_.value >= 0))
                     {
                         for (y <- space.involvedSearchVariables(ax.x)) {
                             zs(y) += ax
                         }
                     }
                 case sum: Sum[IntegerValue @ unchecked] =>
-                    for (x <- sum.xs if IntegerValueTraits.staticDowncast(x.domain).maybeLb.exists(_.value >= 0)) {
+                    for (x <- sum.xs if IntegerValueTraits.safeDowncast(x.domain).maybeLb.exists(_.value >= 0)) {
                         for (y <- space.involvedSearchVariables(x)) {
                             zs(y) += new AX(One, x)
                         }

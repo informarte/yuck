@@ -22,7 +22,7 @@ abstract class YuckTest extends YuckAssert {
     private val consoleHandler = new java.util.logging.ConsoleHandler
     consoleHandler.setFormatter(formatter)
     nativeLogger.addHandler(consoleHandler)
-    logger.setThresholdLogLevel(yuck.util.logging.FineLogLevel)
+    logger.setThresholdLogLevel(yuck.util.logging.InfoLogLevel)
 
     protected val testName = new TestName
 

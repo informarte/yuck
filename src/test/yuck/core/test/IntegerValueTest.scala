@@ -62,10 +62,4 @@ final class IntegerValueTest extends UnitTest {
         assert(! One.isEven)
     }
 
-    @Test
-    def testCasting {
-        assertEx(IntegerValueTraits.dynamicDowncast(False))
-        IntegerValueTraits.dynamicDowncast(Zero)
-    }
-
 }

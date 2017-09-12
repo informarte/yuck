@@ -19,11 +19,11 @@ final class TableTest extends UnitTest {
     @Test
     def testIntegerTable1 {
         val space = new Space(logger)
-        val d = new IntegerDomain(Zero, Nine)
+        val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
-        val costs = space.createVariable("costs", NonNegativeIntegerDomain)
+        val costs = space.createVariable("costs", NonNegativeIntegerRange)
         val rows = immutable.IndexedSeq(immutable.IndexedSeq(0, 0, 0), immutable.IndexedSeq(1, 2, 3))
         val c = new IntegerTable(space.constraintIdFactory.nextId, null, immutable.IndexedSeq(s, t, u), rows, costs)
         space
@@ -74,9 +74,9 @@ final class TableTest extends UnitTest {
     @Test
     def testIntegerTable2 {
         val space = new Space(logger)
-        val s = space.createVariable("s", new IntegerDomain(Two, Five))
-        val t = space.createVariable("t", new IntegerDomain(Two))
-        val costs = space.createVariable("costs", NonNegativeIntegerDomain)
+        val s = space.createVariable("s", new IntegerRange(Two, Five))
+        val t = space.createVariable("t", new IntegerRange(Two, Two))
+        val costs = space.createVariable("costs", NonNegativeIntegerRange)
         val rows =
             immutable.IndexedSeq(
                 0, 0,

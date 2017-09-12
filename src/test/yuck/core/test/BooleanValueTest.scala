@@ -46,10 +46,4 @@ final class BooleanValueTest extends UnitTest {
         assertEq(True.not, False)
     }
 
-    @Test
-    def testCasting {
-        BooleanValueTraits.dynamicDowncast(False)
-        assertEx(BooleanValueTraits.dynamicDowncast(Zero))
-    }
-
 }

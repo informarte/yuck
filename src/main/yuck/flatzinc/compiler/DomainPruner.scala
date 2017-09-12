@@ -52,7 +52,7 @@ final class DomainPruner
         case _ => domains(a).asInstanceOf[BooleanDomain]
     }
     private def intDomain(a: Expr): IntegerDomain = a match {
-        case IntConst(a) => new IntegerDomain(IntegerValue.get(a))
+        case IntConst(a) => createIntegerDomain(a, a)
         case _ => domains(a).asInstanceOf[IntegerDomain]
     }
     private def intSetDomain(a: Expr): IntegerSetDomain = a match {
@@ -71,7 +71,7 @@ final class DomainPruner
     }
 
     private def union(domains: TraversableOnce[IntegerDomain]): IntegerDomain =
-        domains.foldLeft(EmptyIntegerDomain)((a, b) => a.unite(b))
+        domains.foldLeft(IntegerValueTraits.emptyDomain)((a, b) => a.union(b))
 
     private def propagateEffects(constraint: yuck.flatzinc.ast.Constraint, effects: mutable.Map[Expr, AnyDomain]): Boolean = {
         var reduction = false
@@ -123,14 +123,14 @@ final class DomainPruner
                     case _ => effects.get(x).getOrElse(domains(x)).asInstanceOf[IntegerDomain]
                 }
                 val di = createIntegerDomain(i, i)
-                for (j <- createIntegerDomain(goff, goff + g.size - 1).subtract(dx).values.map(_.value)) {
+                for (j <- createIntegerDomain(goff, goff + g.size - 1).diff(dx).values.map(_.value)) {
                     val y = g(j - goff)
                     y match {
                         case IntConst(a) =>
                             assertConsistency(a != i, constraint)
                         case _ =>
                             val dy1 = effects.get(y).getOrElse(domains(y)).asInstanceOf[IntegerDomain]
-                            val dy2 = dy1.subtract(di)
+                            val dy2 = dy1.diff(di)
                             equalVars(y).foreach(x => effects += x -> dy2)
                     }
                 }
@@ -173,7 +173,7 @@ final class DomainPruner
                     val db2 =
                         IntegerDomainPruner.eq(
                             db1,
-                            new IntegerDomain(if (da1.containsFalse) Zero else One, if (da1.containsTrue) One else Zero))
+                            IntegerDomain.createRange(if (da1.containsFalse) Zero else One, if (da1.containsTrue) One else Zero))
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                     if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
             }
@@ -472,21 +472,21 @@ final class DomainPruner
                 // MULTIPLICATION 1
                 val dc2 =
                     if (da1.isFinite && db1.isFinite) {
-                        dc1.intersect(new IntegerDomain(Vector(da1.hull.mult(db1.hull))))
+                        dc1.intersect(da1.hull.mult(db1.hull))
                     } else {
                         dc1
                     }
                 // MULTIPLICATION 2
                 val da2 =
                     if (db1.isFinite && dc1.isFinite) {
-                        da1.intersect(new IntegerDomain(Vector(dc1.hull.div(db1.hull))))
+                        da1.intersect(dc1.hull.div(db1.hull))
                     } else {
                         da1
                     }
                 // MULTIPLICATION 3
                 val db2 =
                     if (da1.isFinite && dc1.isFinite) {
-                        db1.intersect(new IntegerDomain(Vector(dc1.hull.div(da1.hull))))
+                        db1.intersect(dc1.hull.div(da1.hull))
                     } else {
                         db1
                     }
@@ -570,7 +570,7 @@ final class DomainPruner
             case Constraint("set_eq", List(a, b), _) =>
                 val da = intSetDomain(a)
                 val db = intSetDomain(b)
-                val d = new IntegerPowersetDomain(IntegerDomainPruner.eq(da.base, db.base))
+                val d = da.intersect(db)
                 propagateEquality(a, b, d)
             case Constraint("set_in", List(a, b), _) => List(normalizeInt(a), b) match {
                 case List(IntConst(a), IntSetConst(IntRange(lb, ub))) =>
@@ -602,7 +602,7 @@ final class DomainPruner
                 case List(a, IntSetConst(IntRange(lb, ub)), BoolConst(false)) =>
                     val da1 = intDomain(a)
                     val db = createIntegerDomain(lb, ub)
-                    val da2 = IntegerDomainPruner.ne(da1, db)
+                    val da2 = da1.diff(db)
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                     impliedConstraints += constraint
                 case List(IntConst(a), IntSetConst(IntSet(set)), BoolConst(false)) =>
@@ -611,7 +611,7 @@ final class DomainPruner
                 case List(a, IntSetConst(IntSet(set)), BoolConst(false)) =>
                     val da1 = intDomain(a)
                     val db = createIntegerDomain(set)
-                    val da2 = IntegerDomainPruner.ne(da1, db)
+                    val da2 = da1.diff(db)
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                     impliedConstraints += constraint
                 case _ =>
@@ -621,10 +621,10 @@ final class DomainPruner
             case Constraint("array_var_int_element", List(b, as, c), _) =>
                 val das = getArrayElems(as).toIterator.map(intDomain).toIndexedSeq
                 val db1 = intDomain(b)
-                val db2 = IntegerDomainPruner.eq(db1, new IntegerDomain(One, IntegerValue.get(das.size)))
+                val db2 = IntegerDomainPruner.eq(db1, createIntegerDomain(1, das.size))
                 val dc1 = intDomain(c)
                 val dc2 = IntegerDomainPruner.eq(dc1, union(db2.values.toIterator.map(i => das(i.value - 1))))
-                val db3 = new IntegerDomain(db2.values.toIterator.filter(i => das(i.value - 1).intersects(dc2)).toSet)
+                val db3 = IntegerDomain.createDomain(db2.values.toIterator.filter(i => das(i.value - 1).intersects(dc2)).toSet)
                 assertConsistency(! b.isConst || ! db3.isEmpty, constraint)
                 if (db1 != db3) equalVars(b).foreach(x => effects += x -> db3)
                 assertConsistency(! c.isConst || ! dc2.isEmpty, constraint)
@@ -664,7 +664,7 @@ final class DomainPruner
                     for (y <- ys if y != x) {
                         val dx1 = effects.get(x).getOrElse(domains(x)).asInstanceOf[IntegerDomain]
                         val dy = effects.get(y).getOrElse(domains(y)).asInstanceOf[IntegerDomain]
-                        val dx2 = IntegerDomainPruner.ne(dx1, dy)
+                        val dx2 = dx1.diff(dy)
                         if (dx1 != dx2) equalVars(x).foreach(y => effects += y -> dx2)
                     }
                 }

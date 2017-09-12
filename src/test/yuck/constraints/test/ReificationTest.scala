@@ -17,10 +17,10 @@ final class ReificationTest extends UnitTest {
     @Test
     def testReification {
         val space = new Space(logger)
-        val d = new IntegerDomain(Zero, Nine)
-        val x = space.createVariable("x", new IntegerDomain(Zero, Nine))
+        val d = new IntegerRange(Zero, Nine)
+        val x = space.createVariable("x", new IntegerRange(Zero, Nine))
         val b = space.createVariable("b", new BooleanDomain(true, true))
-        val costs = space.createVariable("costs", UnboundedIntegerDomain)
+        val costs = space.createVariable("costs", CompleteIntegerRange)
         val c = new Reification(space.constraintIdFactory.nextId, null, x, b, costs)
         space.post(c)
         val now = space.searchState

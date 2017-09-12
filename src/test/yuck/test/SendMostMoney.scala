@@ -23,8 +23,8 @@ final class SendMostMoney extends IntegrationTest {
         override def solverName = "SA-%d".format(i)
         override def call = {
             val space = new Space(logger)
-            val d = new IntegerDomain(Zero, Nine)
-            val d1 = new IntegerDomain(One, Nine)
+            val d = new IntegerRange(Zero, Nine)
+            val d1 = new IntegerRange(One, Nine)
             val S = space.createVariable("S", d1)
             val E = space.createVariable("E", d)
             val N = space.createVariable("N", d)
@@ -33,30 +33,30 @@ final class SendMostMoney extends IntegrationTest {
             val O = space.createVariable("O", d)
             val T = space.createVariable("T", d)
             val Y = space.createVariable("Y", d)
-            val numberOfMissingValues = space.createVariable("numberOfMissingValues", UnboundedIntegerDomain)
+            val numberOfMissingValues = space.createVariable("numberOfMissingValues", CompleteIntegerRange)
             space.post(
                 new Alldistinct(
                     space.constraintIdFactory.nextId, null,
                     Set(S, E, N, D, M, O, S, T, M, O, N, E, Y).toVector, numberOfMissingValues))
             val LHS = List((1000, S), (100, E), (10, N), (1, D), (1000, M), (100, O), (10, S), (1, T))
             val RHS = List((10000, M), (1000, O), (100, N), (10, E), (1, Y))
-            val lhs = space.createVariable("lhs", UnboundedIntegerDomain)
+            val lhs = space.createVariable("lhs", CompleteIntegerRange)
             space.post(
                 new LinearCombination(
                     space.constraintIdFactory.nextId,
                     null,
                     LHS.map{case (a, x) => new AX(new IntegerValue(a), x)},
                     lhs))
-            val rhs = space.createVariable("rhs", UnboundedIntegerDomain)
+            val rhs = space.createVariable("rhs", CompleteIntegerRange)
             space.post(
                 new LinearCombination(
                     space.constraintIdFactory.nextId,
                     null,
                     RHS.map{case (a, x) => new AX(new IntegerValue(a), x)},
                     rhs))
-            val delta = space.createVariable("delta", UnboundedIntegerDomain)
+            val delta = space.createVariable("delta", CompleteIntegerRange)
             space.post(new NumEq(space.constraintIdFactory.nextId, null, lhs, rhs, delta))
-            val costs = space.createVariable("costs", UnboundedIntegerDomain)
+            val costs = space.createVariable("costs", CompleteIntegerRange)
             space.post(
                 new LinearCombination(
                     space.constraintIdFactory.nextId, null,

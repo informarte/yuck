@@ -110,29 +110,29 @@ final class DomainInitializer
             case BoolType => b match {
                 case BoolConst(value) =>
                     val da1 = boolDomain(a)
-                    val da2 = new BooleanDomain(! value && da1.containsFalse, value && da1.containsTrue)
+                    val da2 = da1.intersect(new BooleanDomain(! value, value))
                     if (da1 != da2) equalVars(a).foreach(b => reduceDomain(b, da2))
                 case b =>
                     val da = boolDomain(a)
                     val db = boolDomain(b)
-                    val d = new BooleanDomain(da.containsFalse && db.containsFalse, da.containsTrue && db.containsTrue)
+                    val d = da.intersect(db)
                     propagateEquality(a, b, d)
             }
             case IntType(_) => b match {
                 case IntConst(value) =>
                     val da1 = intDomain(a)
-                    val da2 = IntegerDomainPruner.eq(da1, IntegerValue.get(value))
+                    val da2 = da1.intersect(createIntegerDomain(value, value))
                     if (da1 != da2) equalVars(a).foreach(b => reduceDomain(b, da2))
                 case b =>
                     val da = intDomain(a)
                     val db = intDomain(b)
-                    val d = IntegerDomainPruner.eq(da, db)
+                    val d = da.intersect(db)
                     propagateEquality(a, b, d)
             }
             case IntSetType(_) =>
                 val da = intSetDomain(a)
                 val db = intSetDomain(b)
-                val d = new IntegerPowersetDomain(IntegerDomainPruner.eq(da.base, db.base))
+                val d = da.intersect(db)
                 propagateEquality(a, b, d)
         }
     }
@@ -167,7 +167,7 @@ final class DomainInitializer
         if (d.isEmpty) {
             throw new DomainWipeOutException(a)
         }
-        assert(valueTraits.isSubsetOf(d, valueTraits.dynamicDowncast(domains(a))))
+        assert(d.isSubsetOf(valueTraits.safeDowncast(domains(a))))
         domains += a -> d
     }
 
@@ -189,11 +189,11 @@ final class DomainInitializer
     }
 
     private def createDomain(varType: Type): AnyDomain = varType match {
-        case BoolType => UnboundedBooleanDomain
-        case IntType(None) => UnboundedIntegerDomain
+        case BoolType => CompleteBooleanDomain
+        case IntType(None) => CompleteIntegerRange
         case IntType(Some(IntRange(lb, ub))) => createIntegerDomain(lb, ub)
         case IntType(Some(IntSet(set))) => createIntegerDomain(set)
-        case IntSetType(None) => UnboundedIntegerSetDomain
+        case IntSetType(None) => CompleteIntegerSetDomain
         case IntSetType(Some(IntRange(lb, ub))) => new IntegerPowersetDomain(createIntegerDomain(lb, ub))
         case IntSetType(Some(IntSet(set))) => new IntegerPowersetDomain(createIntegerDomain(set))
         case other => throw new UnsupportedFlatZincTypeException(other)

@@ -1,0 +1,23 @@
+package yuck.core
+
+/**
+ * Provides properties of numerical values.
+ *
+ * @author Michael Marte
+ */
+abstract class NumericalValueTraits[Value <: NumericalValue[Value]] extends OrderedValueTraits[Value] {
+
+    /** Casts the given domain to a numerical domain over Value. */
+    override def safeDowncast(x: Domain[Value]): NumericalDomain[Value] =
+        x.asInstanceOf[NumericalDomain[Value]]
+
+    /** Returns the additive identity. */
+    val zero: Value
+
+    /** Returns the multiplicative identity. */
+    val one: Value
+
+    /** Returns the domain that contains all non-negative values. */
+    val nonNegativeDomain: Domain[Value]
+
+}

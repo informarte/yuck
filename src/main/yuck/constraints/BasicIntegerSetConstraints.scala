@@ -40,11 +40,7 @@ final class SetIn
 {
     override def toString = "set_in(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerValue, b: IntegerSetValue) =
-        if (b.set.isSparse) {
-            if (b.set.contains(a)) Zero else One
-        } else {
-            IntegerValue.get(b.set.distance(a))
-        }
+        if (b.set.isEmpty) One else IntegerValue.get(b.set.distanceTo(a))
 }
 
 /**
@@ -84,7 +80,7 @@ final class SetUnion
     extends BinaryConstraint(id, goal, x, y, z)
 {
     override def toString = "set_union(%s, %s, %s)".format(x, y, z)
-    override def op(a: IntegerSetValue, b: IntegerSetValue) = new IntegerSetValue(a.set.unite(b.set))
+    override def op(a: IntegerSetValue, b: IntegerSetValue) = new IntegerSetValue(a.set.union(b.set))
 }
 
 /**
@@ -97,7 +93,7 @@ final class SetDifference
     extends BinaryConstraint(id, goal, x, y, z)
 {
     override def toString = "set_diff(%s, %s, %s)".format(x, y, z)
-    override def op(a: IntegerSetValue, b: IntegerSetValue) = new IntegerSetValue(a.set.subtract(b.set))
+    override def op(a: IntegerSetValue, b: IntegerSetValue) = new IntegerSetValue(a.set.diff(b.set))
 }
 
 /**
@@ -111,5 +107,5 @@ final class SetSymmetricalDifference
 {
     override def toString = "set_symdiff(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerSetValue, b: IntegerSetValue) =
-        new IntegerSetValue(a.set.unite(b.set).subtract(a.set.intersect(b.set)))
+        new IntegerSetValue(a.set.union(b.set).diff(a.set.intersect(b.set)))
 }
