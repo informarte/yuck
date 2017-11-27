@@ -62,7 +62,7 @@ When used as a FlatZinc interpreter, Yuck proceeds as follows:
 
 ## Download and installation
 
-Yuck requires a Java 6 (or higher) runtime environment.
+Yuck requires a Java 8 (or higher) runtime environment.
 
 This is the latest Yuck package: [yuck_20170812.zip](https://drive.google.com/open?id=0B3cKM2FQLv9vMFl0VUp2V2YyTms).
 

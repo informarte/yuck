@@ -1,6 +1,6 @@
 package yuck.util.testing
 
-import scala.collection.JavaConversions
+import scala.collection.JavaConverters._
 
 import java.util.concurrent.Callable
 import yuck.util.logging.LazyLogger
@@ -12,8 +12,8 @@ import yuck.util.logging.LazyLogger
 class ProcessRunner(logger: LazyLogger, commandLine: Seq[String]) extends Callable[(List[String], List[String])] {
 
     override def call = {
-        val processBuilder = new java.lang.ProcessBuilder(JavaConversions.seqAsJavaList(commandLine))
-        val command = JavaConversions.asScalaBuffer(processBuilder.command)
+        val processBuilder = new java.lang.ProcessBuilder(commandLine.asJava)
+        val command = processBuilder.command.asScala
         logger.withLogScope(command.toIterator.mkString(" ")) {
             val process = processBuilder.start
             val stdout = scala.io.Source.fromInputStream(process.getInputStream)

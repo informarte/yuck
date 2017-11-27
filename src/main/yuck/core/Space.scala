@@ -1,6 +1,7 @@
 package yuck.core
 
 import scala.collection._
+import scala.collection.JavaConverters._
 
 import scalax.collection.mutable.Graph
 import scalax.collection.GraphPredef._, scalax.collection.GraphEdge._
@@ -50,7 +51,7 @@ final class Space(
     private var constraintOrder: ConstraintOrder = null // created by initialize
     private def sortConstraintsTopologically {
         val constraintNetwork = Graph[Constraint, DiEdge]()
-        val noConstraints = new mutable.ArrayBuffer[Constraint]
+        val noConstraints = new mutable.HashSet[Constraint]
         for (pred <- constraints) {
             for (x <- pred.outVariables) {
                 for (succ <- inflowModel.get(x).getOrElse(noConstraints)) {

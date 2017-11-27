@@ -14,6 +14,7 @@ final object BooleanValueTraits extends OrderedValueTraits[BooleanValue] {
         case (False, True) => CompleteBooleanDomain
         case (True, True) => TrueDomain
         case (True, False) => EmptyBooleanDomain
+        case _ => ???
     }
     override val emptyDomain = EmptyBooleanDomain
     override val completeDomain = CompleteBooleanDomain

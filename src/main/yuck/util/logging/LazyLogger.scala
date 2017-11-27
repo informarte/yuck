@@ -3,8 +3,7 @@ package yuck.util.logging
 import java.util.concurrent.locks.ReentrantLock
 import java.util.logging.Level
 import java.util.logging.Logger
-
-import scala.collection.mutable.Stack
+import java.util.ArrayDeque
 
 import yuck.util.arm.scoped
 
@@ -73,15 +72,21 @@ final class LazyLogger(logger: Logger) {
     def currentIndentation: Int =
         indentLevel.get
 
+    private type Stack[E] = ArrayDeque[E]
+
     private var logLevelReductions = new ThreadLocal[Stack[Int]] {
-        override def initialValue = new Stack[Int].push(0)
+        override def initialValue = {
+            val stack = new Stack[Int]
+            stack.push(0)
+            stack
+        }
     }
 
     /** Increases dynamic log-level reduction by the given value. */
     def increaseLogLevelReduction(reduction: Int) {
         require(reduction > 0)
         val stack = logLevelReductions.get
-        stack.push(stack.top + reduction)
+        stack.push(stack.peek + reduction)
     }
 
     /** Undoes the previous change to dynamic log-level reduction. */
@@ -92,7 +97,7 @@ final class LazyLogger(logger: Logger) {
     }
 
     /** Returns the current log-level reduction. */
-    def currentLogLevelReduction: Int = logLevelReductions.get.top
+    def currentLogLevelReduction: Int = logLevelReductions.get.peek
 
     /** Logs on InfoLogLevel - currentLogLevelReduction. */
     def log(msg: => String) {

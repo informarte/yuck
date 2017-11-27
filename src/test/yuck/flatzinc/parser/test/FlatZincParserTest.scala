@@ -71,7 +71,7 @@ final class FlatZincParserTest extends UnitTest {
         expectSuccess(expr, "1e-2", FloatConst(0.01))
         expectSuccess(expr, "+1e-2", FloatConst(0.01))
         expectSuccess(expr, "-1e-2", FloatConst(-0.01))
-        expectSuccess(expr, "-1.56734454885781264827637856876e-378", FloatConst(-1.56734454885781264827637856876e-378))
+        expectSuccess(expr, "-1.56734454885781264827637856876e-178", FloatConst(-1.56734454885781264827637856876e-178))
     }
 
     @Test
