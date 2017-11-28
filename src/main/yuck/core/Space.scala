@@ -3,8 +3,9 @@ package yuck.core
 import scala.collection._
 import scala.collection.JavaConverters._
 
-import scalax.collection.mutable.Graph
-import scalax.collection.GraphPredef._, scalax.collection.GraphEdge._
+import org.jgrapht.alg.cycle.JohnsonSimpleCycles
+import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge}
+import org.jgrapht.traverse.TopologicalOrderIterator
 
 import yuck.util.logging.LazyLogger
 
@@ -50,23 +51,28 @@ final class Space(
     private type ConstraintOrder = Array[Int]
     private var constraintOrder: ConstraintOrder = null // created by initialize
     private def sortConstraintsTopologically {
-        val constraintNetwork = Graph[Constraint, DiEdge]()
+        val constraintNetwork = new DefaultDirectedGraph[Constraint, DefaultEdge](classOf[DefaultEdge])
         val noConstraints = new mutable.HashSet[Constraint]
+        for (constraint <- constraints) {
+            constraintNetwork.addVertex(constraint)
+        }
         for (pred <- constraints) {
             for (x <- pred.outVariables) {
                 for (succ <- inflowModel.get(x).getOrElse(noConstraints)) {
-                    constraintNetwork += pred ~> succ
+                    constraintNetwork.addEdge(pred, succ)
                 }
             }
         }
         constraintOrder = new Array[Int](constraints.toIterator.map(_.id).max.rawId + 1)
-        constraintNetwork.topologicalSort match {
-            case Left(witness) =>
-                assert(false, "Input graph has cycle %s".format(witness.findCycle.get))
-            case Right(order) =>
-                for ((constraint, i) <- order.toStream.zipWithIndex) {
-                    constraintOrder.update(constraint.id.rawId, i)
-                }
+        try {
+            for ((constraint, i) <- new TopologicalOrderIterator[Constraint, DefaultEdge](constraintNetwork).asScala.zipWithIndex) {
+                constraintOrder.update(constraint.id.rawId, i)
+            }
+        }
+        catch {
+            case _: IllegalArgumentException =>
+                val cycles = new JohnsonSimpleCycles[Constraint, DefaultEdge](constraintNetwork).findSimpleCycles
+                assert(false, "Input graph has cycles %s".format(cycles))
         }
     }
     private final object ConstraintOrdering extends Ordering[Constraint] {
