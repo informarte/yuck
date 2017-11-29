@@ -17,14 +17,14 @@ final class CompilationContext(
     val logger: LazyLogger)
 {
     val declaredVars = new mutable.HashSet[Expr]
-    val equalVars = new mutable.HashMap[Expr, mutable.TreeSet[Expr] /* head = representative */]
+    val equalVars = new mutable.AnyRefMap[Expr, mutable.TreeSet[Expr] /* head = representative */]
     val impliedConstraints = new mutable.HashSet[yuck.flatzinc.ast.Constraint]
     val space = new Space(logger, cfg.checkConstraintPropagation)
-    val consts = new mutable.HashMap[Expr, AnyVariable] // holds unnamed inline constants
-    val arrayConsts = new mutable.HashMap[Expr, immutable.IndexedSeq[AnyVariable]] // holds unnamed inline arrays
-    val vars = new mutable.HashMap[Expr, AnyVariable] // also holds named parameters
-    val arrays = new mutable.HashMap[Expr, immutable.IndexedSeq[AnyVariable]]
-    val domains = new mutable.HashMap[Expr, AnyDomain]
+    val consts = new mutable.AnyRefMap[Expr, AnyVariable] // holds unnamed inline constants
+    val arrayConsts = new mutable.AnyRefMap[Expr, immutable.IndexedSeq[AnyVariable]] // holds unnamed inline arrays
+    val vars = new mutable.AnyRefMap[Expr, AnyVariable] // also holds named parameters
+    val arrays = new mutable.AnyRefMap[Expr, immutable.IndexedSeq[AnyVariable]]
+    val domains = new mutable.AnyRefMap[Expr, AnyDomain]
     val searchVars = new mutable.HashSet[AnyVariable]
     val channelVars = new mutable.HashSet[AnyVariable]
     val costVars = new mutable.ArrayBuffer[Variable[IntegerValue]]

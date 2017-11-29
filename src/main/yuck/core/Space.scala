@@ -36,13 +36,13 @@ final class Space(
     @inline private def isImplicitConstraint(constraint: Constraint) =
         implicitConstraints.contains(constraint.id.rawId)
 
-    private type InflowModel = mutable.HashMap[AnyVariable, mutable.HashSet[Constraint]]
+    private type InflowModel = mutable.AnyRefMap[AnyVariable, mutable.HashSet[Constraint]]
     private val inflowModel = new InflowModel // maintained by post
     private def registerInflow(x: AnyVariable, constraint: Constraint) {
         inflowModel += x -> (inflowModel.get(x).getOrElse(new mutable.HashSet[Constraint]) += constraint)
     }
 
-    private type OutflowModel = mutable.HashMap[AnyVariable, Constraint]
+    private type OutflowModel = mutable.AnyRefMap[AnyVariable, Constraint]
     private val outflowModel = new OutflowModel // maintained by post
     private def registerOutflow(x: AnyVariable, constraint: Constraint) {
         outflowModel += x -> constraint
@@ -333,7 +333,7 @@ final class Space(
         require(constraintOrder != null, "Call initialize after posting the last constraint")
         require(constraintQueue.isEmpty)
         private val diff = new BulkMove(move.id)
-        private val diffs = new mutable.HashMap[Constraint, BulkMove]
+        private val diffs = new mutable.AnyRefMap[Constraint, BulkMove]
         private def propagateEffect(effect: AnyEffect) {
             if (assignment.anyValue(effect.anyVariable) != effect.anyValue) {
                 val maybeAffectedConstraints = inflowModel.get(effect.anyVariable)

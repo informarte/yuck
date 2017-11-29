@@ -103,7 +103,7 @@ final class VariableDrivenNeighbourhoodFactory
     // 3. All other cases.
     //    (Maybe there is only a single soft constraint.)
     private def createHotSpotIndicators(x: AnyVariable): Map[AnyVariable, Variable[IntegerValue]] = {
-        val zs = new mutable.HashMap[AnyVariable, mutable.ArrayBuffer[AX[IntegerValue]]]
+        val zs = new mutable.AnyRefMap[AnyVariable, mutable.ArrayBuffer[AX[IntegerValue]]]
         if (space.isSearchVariable(x)) {
             zs += x -> new mutable.ArrayBuffer[AX[IntegerValue]]
         }
@@ -130,7 +130,7 @@ final class VariableDrivenNeighbourhoodFactory
                 case _ =>
             }
         }
-        val s = new mutable.HashMap[AnyVariable, Variable[IntegerValue]]
+        val s = new mutable.AnyRefMap[AnyVariable, Variable[IntegerValue]]
         val one = compileExpr[IntegerValue](IntConst(1))
         for (x <- zs.keys) {
             s += x -> createNonNegativeChannel[IntegerValue]

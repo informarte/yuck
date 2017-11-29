@@ -21,8 +21,8 @@ class DomainTestHelper[Value <: AnyValue] extends YuckAssert {
                 assertLt(f.getOrElse(a, 0), SAMPLE_SIZE / d.size * (1 + MAX_ERROR))
             }
         }
-        val f1 = new mutable.HashMap[Value, Int]
-        val f2 = new mutable.HashMap[Value, Int]
+        val f1 = new mutable.AnyRefMap[Value, Int]
+        val f2 = new mutable.AnyRefMap[Value, Int]
         for (i <- 1 to SAMPLE_SIZE) {
             val a = d.randomValue(randomGenerator)
             assert(d.contains(a))

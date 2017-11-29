@@ -279,7 +279,7 @@ final class Inverse
     // Sometimes inverse constraints are decomposable (see elitserien, for example).
     def decompose(space: Space): Seq[Inverse] = {
         type Partition = mutable.ArrayBuffer[Variable[IntegerValue]]
-        type PartitionByDomain = mutable.HashMap[IntegerDomain, Partition]
+        type PartitionByDomain = mutable.AnyRefMap[IntegerDomain, Partition]
         def partitionByDomain(xs: Iterable[Variable[IntegerValue]]): PartitionByDomain =
             xs.foldLeft(new PartitionByDomain()) {
                 (map, x) => {

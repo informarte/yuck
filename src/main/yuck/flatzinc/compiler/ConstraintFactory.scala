@@ -710,7 +710,7 @@ final class ConstraintFactory
         (implicit valueTraits: NumericalValueTraits[Load]):
         Iterable[Variable[Load]] =
     {
-        val bin2Weight = new mutable.HashMap[Variable[IntegerValue], Load]
+        val bin2Weight = new mutable.AnyRefMap[Variable[IntegerValue], Load]
         for (item <- items) {
             require(item.weight >= valueTraits.zero)
             bin2Weight += item.bin -> (bin2Weight.getOrElse(item.bin, valueTraits.zero) + item.weight)

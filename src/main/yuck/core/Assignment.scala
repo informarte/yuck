@@ -9,7 +9,7 @@ import scala.collection._
  */
 final class Assignment extends SearchState {
 
-    private val valDir = new mutable.HashMap[AnyVariable, AnyValue]
+    private val valDir = new mutable.AnyRefMap[AnyVariable, AnyValue]
 
     override def clone = valDir./:(new Assignment){case (s, (x, a)) => s.setValue(x, a)}
     override def mappedVariables = valDir.toList.map(_._1).toSet

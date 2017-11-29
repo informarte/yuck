@@ -34,7 +34,7 @@ final class DomainPruner
             if (sigint.isSet) {
                 throw new FlatZincCompilerInterruptedException
             }
-            val effects = new mutable.HashMap[Expr, AnyDomain]
+            val effects = new mutable.AnyRefMap[Expr, AnyDomain]
             reduction = false
             pass += 1
             logger.withTimedLogScope("Pass %d".format(pass)) {
