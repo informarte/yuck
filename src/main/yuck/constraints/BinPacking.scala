@@ -74,10 +74,10 @@ final class BinPacking
            val j = before.value(item.bin).value
            val k = after.value(item.bin).value
            if (effects.contains(j)) {
-               loadDeltas += j -> (loadDeltas.get(j).getOrElse(valueTraits.zero) - item.weight)
+               loadDeltas += j -> (loadDeltas.getOrElse(j, valueTraits.zero) - item.weight)
            }
            if (effects.contains(k)) {
-               loadDeltas += k -> (loadDeltas.get(k).getOrElse(valueTraits.zero) + item.weight)
+               loadDeltas += k -> (loadDeltas.getOrElse(k, valueTraits.zero) + item.weight)
            }
        }
        for ((j, loadDelta) <- loadDeltas) {

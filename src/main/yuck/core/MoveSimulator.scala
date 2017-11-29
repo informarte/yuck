@@ -10,6 +10,8 @@ final class MoveSimulator(before: SearchState, move: Move) extends SearchState {
         before.mappedVariables ++ move.involvedVariables
     override def hasValue(x: AnyVariable) =
         before.hasValue(x) || move.involves(x)
+    override def anyValue(x: AnyVariable) =
+        move.maybeAnyValue(x).getOrElse(before.anyValue(x))
     override def maybeAnyValue(x: AnyVariable) = {
         val maybeA = move.maybeAnyValue(x)
         if (maybeA.isDefined) maybeA else before.maybeAnyValue(x)

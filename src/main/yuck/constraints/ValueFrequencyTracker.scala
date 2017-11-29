@@ -28,7 +28,7 @@ abstract class ValueFrequencyTracker
 
     type VariableRegistry = immutable.Map[AnyVariable, Int]
     private def registerVariable(registry: VariableRegistry, x: AnyVariable) =
-        registry + (x -> (registry.get(x).getOrElse(0) + 1))
+        registry + (x -> (registry.getOrElse(x, 0) + 1))
     private val variableRegistry =
         xs.foldLeft(variableRegistryFactory.empty)(registerVariable)
 
@@ -36,7 +36,7 @@ abstract class ValueFrequencyTracker
     private var valueRegistry: ValueRegistry = null
     private var futureValueRegistry: ValueRegistry = null
     private def registerValue(valueRegistry: ValueRegistry, a: Value, n: Int): ValueRegistry =
-        valueRegistry + (a -> (valueRegistry.get(a).getOrElse(0) + n))
+        valueRegistry + (a -> (valueRegistry.getOrElse(a, 0) + n))
     private def deregisterValue(valueRegistry: ValueRegistry, a: Value, n: Int): ValueRegistry = {
         val occurenceCount = valueRegistry(a) - n
         if (occurenceCount == 0) valueRegistry - a else valueRegistry + (a -> occurenceCount)

@@ -120,7 +120,7 @@ final class DomainPruner
                 val x = f(i - foff)
                 val dx = x match {
                     case IntConst(a) => createIntegerDomain(a, a)
-                    case _ => effects.get(x).getOrElse(domains(x)).asInstanceOf[IntegerDomain]
+                    case _ => effects.getOrElse(x, domains(x)).asInstanceOf[IntegerDomain]
                 }
                 val di = createIntegerDomain(i, i)
                 for (j <- createIntegerDomain(goff, goff + g.size - 1).diff(dx).values.map(_.value)) {
@@ -129,7 +129,7 @@ final class DomainPruner
                         case IntConst(a) =>
                             assertConsistency(a != i, constraint)
                         case _ =>
-                            val dy1 = effects.get(y).getOrElse(domains(y)).asInstanceOf[IntegerDomain]
+                            val dy1 = effects.getOrElse(y, domains(y)).asInstanceOf[IntegerDomain]
                             val dy2 = dy1.diff(di)
                             equalVars(y).foreach(x => effects += x -> dy2)
                     }
@@ -657,13 +657,13 @@ final class DomainPruner
                 val ys = xs.filter(domains(_).isSingleton)
                 for (x <- xs) {
                     for (IntConst(a) <- as) {
-                        val dx1 = effects.get(x).getOrElse(domains(x)).asInstanceOf[IntegerDomain]
+                        val dx1 = effects.getOrElse(x, domains(x)).asInstanceOf[IntegerDomain]
                         val dx2 = IntegerDomainPruner.ne(dx1, IntegerValue.get(a))
                         if (dx1 != dx2) equalVars(x).foreach(y => effects += y -> dx2)
                     }
                     for (y <- ys if y != x) {
-                        val dx1 = effects.get(x).getOrElse(domains(x)).asInstanceOf[IntegerDomain]
-                        val dy = effects.get(y).getOrElse(domains(y)).asInstanceOf[IntegerDomain]
+                        val dx1 = effects.getOrElse(x, domains(x)).asInstanceOf[IntegerDomain]
+                        val dy = effects.getOrElse(y, domains(y)).asInstanceOf[IntegerDomain]
                         val dx2 = dx1.diff(dy)
                         if (dx1 != dx2) equalVars(x).foreach(y => effects += y -> dx2)
                     }
@@ -689,7 +689,7 @@ final class DomainPruner
                         case IntConst(a) =>
                             assertConsistency(feasibleValues.contains(a), constraint)
                         case _ =>
-                            val dx1 = effects.get(x).getOrElse(domains(x)).asInstanceOf[IntegerDomain]
+                            val dx1 = effects.getOrElse(x, domains(x)).asInstanceOf[IntegerDomain]
                             val dx2 = IntegerDomainPruner.eq(dx1, createIntegerDomain(feasibleValues))
                             if (dx1 != dx2) equalVars(x).foreach(y => effects += y -> dx2)
                     }

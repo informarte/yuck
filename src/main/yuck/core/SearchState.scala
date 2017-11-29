@@ -23,27 +23,21 @@ abstract class SearchState extends Cloneable[SearchState] {
      *
      * Throws when the variable has no value assignment.
      */
-    final def anyValue(x: AnyVariable): AnyValue = {
-        val maybeA = maybeAnyValue(x)
-        require(maybeA.isDefined, "Variable %s has no value assigned".format(x))
-        maybeA.get
-    }
+    def anyValue(x: AnyVariable): AnyValue = maybeAnyValue(x).get
 
     /**
      * Returns None if the given variable x has no value assignment;
      * otherwise returns Some(a) where a is the value assigned to x.
      */
-    def maybeAnyValue(x: AnyVariable): Option[AnyValue]
+    def maybeAnyValue(x: AnyVariable): Option[AnyValue] =
+        if (hasValue(x)) Some(anyValue(x)) else None
 
     /** Typed version of anyValue. */
-    final def value[Value <: AnyValue](x: Variable[Value]): Value = {
-        val maybeA = maybeValue(x)
-        require(maybeA.isDefined, "Variable %s has no value assigned".format(x))
-        maybeA.get
-    }
+    @inline final def value[Value <: AnyValue](x: Variable[Value]): Value =
+        anyValue(x).asInstanceOf[Value]
 
     /** Typed version of maybeAnyValue. */
-    final def maybeValue[Value <: AnyValue](x: Variable[Value]): Option[Value] =
+    @inline final def maybeValue[Value <: AnyValue](x: Variable[Value]): Option[Value] =
         maybeAnyValue(x).map(_.asInstanceOf[Value])
 
 }

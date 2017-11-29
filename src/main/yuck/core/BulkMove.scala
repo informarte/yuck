@@ -9,11 +9,11 @@ import scala.collection._
  */
 final class BulkMove(id: Id[Move]) extends Move(id) {
 
-    private var map = new mutable.AnyRefMap[AnyVariable, AnyEffect]
+    private var effectDir = new mutable.AnyRefMap[AnyVariable, AnyEffect]
 
     /** Adds the given effect. */
     def +=(effect: AnyEffect): BulkMove = {
-        require(map.put(effect.anyVariable, effect).isEmpty, "%s is re-assignment".format(effect))
+        require(effectDir.put(effect.anyVariable, effect).isEmpty, "%s is re-assignment".format(effect))
         this
     }
 
@@ -23,11 +23,12 @@ final class BulkMove(id: Id[Move]) extends Move(id) {
         this
     }
 
-    override def isEmpty = map.isEmpty
-    override def effects = map.valuesIterator
-    override def size = map.size
-    override def involvedVariables = map.keysIterator
-    override def involves(x: AnyVariable) = map.get(x).isDefined
-    override def maybeAnyValue(x: AnyVariable) = map.get(x).map(_.anyValue)
+    override def isEmpty = effectDir.isEmpty
+    override def effects = effectDir.valuesIterator
+    override def size = effectDir.size
+    override def involvedVariables = effectDir.keysIterator
+    override def involves(x: AnyVariable) = effectDir.contains(x)
+    override def anyValue(x: AnyVariable) = effectDir(x).anyValue
+    override def maybeAnyValue(x: AnyVariable) = effectDir.get(x).map(_.anyValue)
 
 }

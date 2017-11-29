@@ -31,7 +31,8 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] {
      *
      * Throws when the given variable is not involved in the move.
      */
-    @inline final def anyValue(x: AnyVariable): AnyValue = maybeAnyValue(x).get
+    def anyValue(x: AnyVariable): AnyValue =
+        effects.toIterator.filter(_.anyVariable == x).next.anyValue
 
     /**
      * Returns None if the move does not involve the given variable x,
@@ -39,10 +40,11 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] {
      * by the move.
      */
     def maybeAnyValue(x: AnyVariable): Option[AnyValue] =
-        effects.find(_.anyVariable.id == x.id).map(_.anyValue)
+        effects.find(_.anyVariable == x).map(_.anyValue)
 
     /** Typed version of anyValue. */
-    @inline final def value[Value <: AnyValue](x: Variable[Value]): Value = maybeValue(x).get
+    @inline final def value[Value <: AnyValue](x: Variable[Value]): Value =
+        anyValue(x).asInstanceOf[Value]
 
     /** Typed version of maybeAnyValue. */
     @inline final def maybeValue[Value <: AnyValue](x: Variable[Value]): Option[Value] =

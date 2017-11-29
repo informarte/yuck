@@ -13,6 +13,8 @@ final class Assignment extends SearchState {
 
     override def clone = valDir./:(new Assignment){case (s, (x, a)) => s.setValue(x, a)}
     override def mappedVariables = valDir.toList.map(_._1).toSet
+    override def hasValue(x: AnyVariable) = valDir.contains(x)
+    override def anyValue(x: AnyVariable) = valDir(x)
     override def maybeAnyValue(x: AnyVariable) = valDir.get(x)
 
     /** Assigns the given value to the given variable. */

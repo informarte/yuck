@@ -22,5 +22,5 @@ final class CountVar
     override def inVariables = xs.toIterator ++ List(y).toIterator
     override def todo(move: Move) = super.todo(move).filter(x => x != y)
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
-        IntegerValue.get(valueRegistry.get(searchState.value(y)).getOrElse(0))
+        IntegerValue.get(valueRegistry.getOrElse(searchState.value(y), 0))
 }

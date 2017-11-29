@@ -39,7 +39,7 @@ final class Space(
     private type InflowModel = mutable.AnyRefMap[AnyVariable, mutable.HashSet[Constraint]]
     private val inflowModel = new InflowModel // maintained by post
     private def registerInflow(x: AnyVariable, constraint: Constraint) {
-        inflowModel += x -> (inflowModel.get(x).getOrElse(new mutable.HashSet[Constraint]) += constraint)
+        inflowModel += x -> (inflowModel.getOrElse(x, new mutable.HashSet[Constraint]) += constraint)
     }
 
     private type OutflowModel = mutable.AnyRefMap[AnyVariable, Constraint]
@@ -52,13 +52,12 @@ final class Space(
     private var constraintOrder: ConstraintOrder = null // created by initialize
     private def sortConstraintsTopologically {
         val constraintNetwork = new DefaultDirectedGraph[Constraint, DefaultEdge](classOf[DefaultEdge])
-        val noConstraints = new mutable.HashSet[Constraint]
         for (constraint <- constraints) {
             constraintNetwork.addVertex(constraint)
         }
         for (pred <- constraints) {
             for (x <- pred.outVariables) {
-                for (succ <- inflowModel.get(x).getOrElse(noConstraints)) {
+                for (succ <- inflowModel.getOrElse(x, Set.empty)) {
                     constraintNetwork.addEdge(pred, succ)
                 }
             }
@@ -136,7 +135,7 @@ final class Space(
 
     /** Returns the set of constraints directly affected by changing the value of the given variable. */
     def directlyAffectedConstraints(x: AnyVariable): Set[Constraint] =
-        return inflowModel.get(x).getOrElse(Set.empty)
+        return inflowModel.getOrElse(x, Set.empty)
 
     /**
      * Finds the search variables involved in computing the value of given variable

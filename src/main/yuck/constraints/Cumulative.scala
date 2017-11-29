@@ -56,7 +56,7 @@ final class Cumulative
             val d = now.value(t.d).value
             val c = now.value(t.c).value
             for (i <- s until s + d) {
-                currentProfile = currentProfile.updated(i, currentProfile.get(i).getOrElse(0) + c)
+                currentProfile = currentProfile.updated(i, currentProfile.getOrElse(i, 0) + c)
             }
         }
         currentCosts = computeCosts(currentProfile, now.value(ub).value)
@@ -90,7 +90,7 @@ final class Cumulative
                 }
             }
             def addTask(i: Int) {
-                val r0 = futureProfile.get(i).getOrElse(0)
+                val r0 = futureProfile.getOrElse(i, 0)
                 val r1 = r0 + c1
                 futureProfile = futureProfile.updated(i, r1)
                 if (! ubChanged) {

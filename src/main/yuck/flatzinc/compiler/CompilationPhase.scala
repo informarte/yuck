@@ -80,7 +80,7 @@ abstract class CompilationPhase(
     }
 
     protected final def compileAnyArray(expr: Expr): immutable.IndexedSeq[AnyVariable] = expr match {
-        case _ if cc.arrayConsts.get(expr).isDefined =>
+        case _ if cc.arrayConsts.contains(expr) =>
             cc.arrayConsts(expr)
         case Term(id, Nil) =>
             cc.arrays.get(expr).get
@@ -100,7 +100,7 @@ abstract class CompilationPhase(
     }
 
     protected final def compileAnyExpr(expr: Expr): AnyVariable = expr match {
-        case _ if cc.consts.get(expr).isDefined =>
+        case _ if cc.consts.contains(expr) =>
             cc.consts(expr)
         case BoolConst(value) =>
             val domain = if (value) ZeroToZeroIntegerRange else OneToOneIntegerRange
