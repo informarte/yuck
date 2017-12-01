@@ -1,5 +1,7 @@
 # Yuck
 
+[![Build Status](https://www.travis-ci.org/informarte/yuck.svg?branch=master)](https://www.travis-ci.org/informarte/yuck)
+
 ## What is Yuck?
 
 * Yuck is a constraint solver powered by local search.
