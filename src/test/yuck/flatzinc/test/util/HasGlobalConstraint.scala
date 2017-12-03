@@ -32,3 +32,4 @@ trait HasNValueConstraint extends HasGlobalConstraint
 trait HasRegularConstraint extends HasGlobalConstraint
 trait HasSubcircuitConstraint extends HasGlobalConstraint
 trait HasTableConstraint extends HasGlobalConstraint
+trait HasValuePrecedeConstraint extends HasGlobalConstraint

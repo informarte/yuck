@@ -21,6 +21,7 @@
 * Yuck's FlatZinc frontend supports most of FlatZinc and many global MiniZinc constraints, see [FlatZinc support](#flatzinc-support).
 * Yuck is developer-friendly and easy to extend, see [Contributing](#contributing).
 * Yuck was submitted to the [2016 MiniZinc challenge](http://www.minizinc.org/challenge2016/challenge.html) where it coped quite well with 12 out of 20 problems.
+* In the [2017 MiniZinc challenge](http://www.minizinc.org/challenge2017/challenge.html), Yuck ranked second among local-search solvers.
 
 ## FlatZinc support
 
