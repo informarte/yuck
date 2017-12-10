@@ -1,5 +1,7 @@
 package yuck.annealing
 
+import scala.collection._
+
 import yuck.core._
 import yuck.util.arm.ManagedResource
 import yuck.util.logging.LazyLogger
@@ -52,6 +54,7 @@ class StandardAnnealingMonitor(
             logger.criticalSection {
                 logger.log("Suspended solver in round %d".format(result.roundLogs.size - 1))
                 logStatistics(result)
+                captureSolverStatistics(result)
             }
         }
     }
@@ -76,6 +79,7 @@ class StandardAnnealingMonitor(
                 "Solver finished with proposal of quality %s in round %d".format(
                     result.costsOfBestProposal, result.roundLogs.size - 1))
             logStatistics(result)
+            captureSolverStatistics(result)
         }
     }
 
@@ -125,13 +129,39 @@ class StandardAnnealingMonitor(
         logger.withLogScope("Solver statistics".format(result.solverName)) {
             logger.log("Number of rounds: %d".format(result.roundLogs.size))
             if (result.roundLogs.size > 0) {
-                logger.log("Moves per second: %d".format(result.movesPerSecond))
-                logger.log("Consultations per second: %d".format(result.consultationsPerSecond))
-                logger.log("Consultations per move: %d".format(result.consultationsPerMove))
-                logger.log("Commitments per second: %d".format(result.commitmentsPerSecond))
-                logger.log("Commitments per move: %d".format(result.commitmentsPerMove))
+                logger.log("Moves per second: %f".format(result.movesPerSecond))
+                logger.log("Consultations per second: %f".format(result.consultationsPerSecond))
+                logger.log("Consultations per move: %f".format(result.consultationsPerMove))
+                logger.log("Commitments per second: %f".format(result.commitmentsPerSecond))
+                logger.log("Commitments per move: %f".format(result.commitmentsPerMove))
             }
         }
     }
+
+    private class SolverStatistics(
+        val runtimeInSeconds: Double, val movesPerSecond: Double,
+        val consultationsPerSecond: Double, val consultationsPerMove: Double,
+        val commitmentsPerSecond: Double, val commitmentsPerMove: Double)
+
+    private val solverStatistics = new mutable.ArrayBuffer[SolverStatistics]
+
+    private def captureSolverStatistics(result: AnnealingResult) {
+        if (! result.roundLogs.isEmpty) {
+            solverStatistics +=
+                new SolverStatistics(
+                    result.runtimeInSeconds, result.movesPerSecond,
+                    result.consultationsPerSecond, result.consultationsPerMove,
+                    result.commitmentsPerSecond, result.commitmentsPerMove)
+        }
+    }
+
+    def wasSearchRequired: Boolean = ! solverStatistics.isEmpty
+    def numberOfRestarts: Int = scala.math.max(0, solverStatistics.size - 1)
+    def runtimeInSeconds: Double = solverStatistics.toIterator.map(_.runtimeInSeconds).sum
+    def movesPerSecond: Double = solverStatistics.toIterator.map(_.movesPerSecond).sum / solverStatistics.size
+    def consultationsPerSecond: Double = solverStatistics.toIterator.map(_.consultationsPerSecond).sum / solverStatistics.size
+    def consultationsPerMove: Double = solverStatistics.toIterator.map(_.consultationsPerMove).sum / solverStatistics.size
+    def commitmentsPerSecond: Double = solverStatistics.toIterator.map(_.commitmentsPerSecond).sum / solverStatistics.size
+    def commitmentsPerMove: Double = solverStatistics.toIterator.map(_.commitmentsPerMove).sum / solverStatistics.size
 
 }

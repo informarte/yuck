@@ -43,13 +43,15 @@ final class FlatZincCompiler
 
         logger.criticalSection {
             logger.withLogScope("Yuck model statistics") {
-                logModelStatistics(cc)
+                logYuckModelStatistics(cc)
             }
         }
 
         val vars = (for ((key, x) <- cc.vars) yield key.toString -> x).toMap
         val arrays = (for ((key, array) <- cc.arrays) yield key.toString -> array).toMap
-        new FlatZincCompilerResult(cc.ast, cc.space, vars, arrays, cc.costVar, cc.objective, cc.maybeNeighbourhood)
+        new FlatZincCompilerResult(
+            cc.ast, cc.space, vars, arrays, cc.costVar, Option(cc.objectiveVar), cc.objective,
+            cc.maybeNeighbourhood)
 
     }
 
@@ -147,7 +149,7 @@ final class FlatZincCompiler
         }
     }
 
-    private def logModelStatistics(cc: CompilationContext) = {
+    private def logYuckModelStatistics(cc: CompilationContext) = {
         lazy val searchVariables = cc.space.searchVariables
         logger.logg("Search variables: %s".format(searchVariables))
         logger.log("%d search variables".format(searchVariables.size))

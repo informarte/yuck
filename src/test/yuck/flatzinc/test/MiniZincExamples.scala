@@ -380,8 +380,7 @@ final class HardMiniZincExamples
         classOf[EasyMiniZincExamples],
         classOf[MediumMiniZincExamples]))
 @Test
-class TractableMiniZincExamples {
-}
+class TractableMiniZincExamples
 
 /**
  * @author Michael Marte

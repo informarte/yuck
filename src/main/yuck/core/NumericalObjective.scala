@@ -9,7 +9,7 @@ import scala.math._
  */
 abstract class NumericalObjective
     [Value <: NumericalValue[Value]]
-    (x: Variable[Value])
+    (val x: Variable[Value])
     (implicit valueTraits: NumericalValueTraits[Value])
     extends AnyObjective
 {

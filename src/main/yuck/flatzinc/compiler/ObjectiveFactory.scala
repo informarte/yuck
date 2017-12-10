@@ -60,6 +60,7 @@ final class ObjectiveFactory
                     }
                 if (maybeObjectiveVar.isDefined) {
                     objectives += new MinimizationObjective[IntegerValue](maybeObjectiveVar.get, IntegerValue.get(lb), Some(MinusOne))
+                    cc.objectiveVar = maybeObjectiveVar.get
                 }
             case Maximize(a, _) =>
                 val x = compileExpr[IntegerValue](a)
@@ -94,6 +95,7 @@ final class ObjectiveFactory
                     }
                 if (maybeObjectiveVar.isDefined) {
                     objectives += new MaximizationObjective[IntegerValue](maybeObjectiveVar.get, IntegerValue.get(ub), Some(One))
+                    cc.objectiveVar = maybeObjectiveVar.get
                 }
         }
         cc.costVar = createNonNegativeChannel[IntegerValue]

@@ -28,5 +28,11 @@ Public License 1.0:
 * JGraphT
   (http://www.jgrapht.org)
 
+The following libraries are used under the terms of the Apache
+License 2.0:
+
+* spray-json
+  (https://github.com/spray/spray-json)
+
 Please see the folder licenses/ for all copyright statements and the
 licenses.

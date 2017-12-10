@@ -32,7 +32,7 @@ final class MiniZincChallenge2013 extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def celar_6_sub2 {
-        solve(task.copy(problemName = "celar", instanceName = "CELAR6-SUB2"))
+        solve(task.copy(problemName = "celar", instanceName = "CELAR6-SUB2", maybeHighScore = Some(2746)))
     }
 
     @Test

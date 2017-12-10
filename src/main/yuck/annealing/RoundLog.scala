@@ -8,7 +8,7 @@ import yuck.core._
  */
 final class RoundLog(val roundIndex: Int) {
     override def toString =
-        "%d;%3.6f;%1.6f;%1.6f;%s;%s;%s;%s;%s;%d;%s;%d;%d;%d;%d;%d;%d;%d".format(
+        "%d;%3.6f;%1.6f;%1.6f;%s;%s;%s;%s;%s;%d;%f;%f;%d;%f;%f;%d;%f;%f".format(
             roundIndex,
             temperature, traditionalAcceptanceRatio, uphillAcceptanceRatio,
             costsOfInitialProposal, costsOfFinalProposal, costsOfBestProposal,
@@ -40,12 +40,12 @@ final class RoundLog(val roundIndex: Int) {
     var numberOfConsultations: Int = 0
     /** How often Constraint.commit was called. */
     var numberOfCommitments: Int = 0
-    def runtimeInSeconds: Double = scala.math.max(1l, runtimeInMillis).toDouble / 1000.0
-    def movesPerSecond: Int = (numberOfMonteCarloAttempts.toDouble / runtimeInSeconds).toInt
-    def consultationsPerSecond: Int = (numberOfConsultations.toDouble / runtimeInSeconds).toInt
-    def consultationsPerMove: Int = (numberOfConsultations.toDouble / numberOfMonteCarloAttempts.toDouble).toInt
-    def commitmentsPerSecond: Int = (numberOfCommitments.toDouble / runtimeInSeconds).toInt
-    def commitmentsPerMove: Int = (numberOfCommitments.toDouble / numberOfMonteCarloAttempts.toDouble).toInt
+    def runtimeInSeconds: Double = scala.math.max(1l, runtimeInMillis).toDouble / 1000
+    def movesPerSecond: Double = numberOfMonteCarloAttempts.toDouble / runtimeInSeconds
+    def consultationsPerSecond: Double = numberOfConsultations.toDouble / runtimeInSeconds
+    def consultationsPerMove: Double = numberOfConsultations.toDouble / numberOfMonteCarloAttempts
+    def commitmentsPerSecond: Double = numberOfCommitments.toDouble / runtimeInSeconds
+    def commitmentsPerMove: Double = numberOfCommitments.toDouble / numberOfMonteCarloAttempts
     def updateAcceptanceRatio {
         val numberOfAcceptedMoves = numberOfMonteCarloAttempts - numberOfRejectedMoves
         traditionalAcceptanceRatio = numberOfAcceptedMoves.toDouble / numberOfMonteCarloAttempts

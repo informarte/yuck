@@ -104,7 +104,7 @@ final class MiniZincChallenge2017 extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def road_cons_17 {
-        solve(task.copy(problemName = "road-cons", modelName = "road_naive", instanceName = "road_17", maybeMaximumNumberOfVirtualCores = Some(1)))
+        solve(task.copy(problemName = "road-cons", modelName = "road_naive", instanceName = "road_17", maybeMaximumNumberOfVirtualCores = Some(1), maybeOptimum = Some(13560)))
     }
 
     @Test

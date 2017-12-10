@@ -32,7 +32,7 @@ final class MiniZincChallenge2012 extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasCumulativeConstraint], classOf[HasDiffnConstraint]))
     def carpet_cutting_05 {
-        solve(task.copy(problemName = "carpet-cutting", modelName = "cc_base", instanceName = "mzn_rnd_test.05"))
+        solve(task.copy(problemName = "carpet-cutting", modelName = "cc_base", instanceName = "mzn_rnd_test.05", maybeHighScore = Some(1192)))
     }
 
     @Test
@@ -130,7 +130,7 @@ final class MiniZincChallenge2012 extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def vrp_A_n38_k5 {
-        solve(task.copy(problemName = "vrp", instanceName = "A-n38-k5.vrp"))
+        solve(task.copy(problemName = "vrp", instanceName = "A-n38-k5.vrp", maybeHighScore = Some(737)))
     }
 
 }

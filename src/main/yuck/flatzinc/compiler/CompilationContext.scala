@@ -29,6 +29,7 @@ final class CompilationContext(
     val definedVars = new mutable.HashSet[AnyVariable] // variables that occur in a defined_var annotation
     val costVars = new mutable.ArrayBuffer[Variable[IntegerValue]]
     var costVar: Variable[IntegerValue] = null
+    var objectiveVar: Variable[IntegerValue] = null
     var objective: AnyObjective = null
     val implicitlyConstrainedVars = new mutable.HashSet[AnyVariable]
     var maybeNeighbourhood: Option[Neighbourhood] = null

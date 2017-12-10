@@ -53,7 +53,7 @@ object FlatZincRunner {
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(seed = x)))
         opt[Int]("restart-limit")
             .text("Default value is %s".format(defaultCfg.restartLimit))
-            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(restartLimit = max(1, x))))
+            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(restartLimit = max(0, x))))
         opt[Int]("target-objective-value")
             .text("Optional stopping criterion in terms of an objective value")
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(maybeTargetObjectiveValue = Some(x))))

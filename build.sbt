@@ -40,6 +40,7 @@ libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
 libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.6"
 libraryDependencies += "org.jgrapht" % "jgrapht-core" % "1.1.0"
 libraryDependencies += "com.github.scopt" %% "scopt" % "3.5.0"
+libraryDependencies += "io.spray" %% "spray-json" % "1.3.3"
 
 // See https://github.com/sbt/junit-interface/issues/66 for why it does not work!
 testOptions in Test := Seq(Tests.Filter(s => s.endsWith("UnitTestSuite")))

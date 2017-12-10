@@ -26,7 +26,7 @@ final class MiniZincChallenge2015 extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint]))
     def cvrp_simple2 {
-        solve(task.copy(problemName = "cvrp", instanceName = "simple2"))
+        solve(task.copy(problemName = "cvrp", instanceName = "simple2", maybeOptimum = Some(34)))
     }
 
     @Test
@@ -39,7 +39,7 @@ final class MiniZincChallenge2015 extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasNValueConstraint], classOf[HasAtMostConstraint]))
     def gfd_schedule_n30f3d30m7k4 {
-        solve(task.copy(problemName = "gfd-schedule", instanceName = "n30f3d30m7k4"))
+        solve(task.copy(problemName = "gfd-schedule", instanceName = "n30f3d30m7k4", maybeOptimum = Some(1)))
     }
 
     @Test
@@ -57,7 +57,7 @@ final class MiniZincChallenge2015 extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasCumulativeConstraint]))
     def largescheduling_0100_1 {
-        solve(task.copy(problemName = "largescheduling", modelName = "largecumulative", instanceName = "instance-0100-1"))
+        solve(task.copy(problemName = "largescheduling", modelName = "largecumulative", instanceName = "instance-0100-1", maybeHighScore = Some(230502)))
     }
 
     @Test
@@ -113,7 +113,7 @@ final class MiniZincChallenge2015 extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasAtLeastConstraint], classOf[HasAtMostConstraint], classOf[HasExactlyConstraint]))
     def roster_chicroster_dataset_2 {
-        solve(task.copy(problemName = "roster", modelName = "roster_model", instanceName = "chicroster_dataset_2"))
+        solve(task.copy(problemName = "roster", modelName = "roster_model", instanceName = "chicroster_dataset_2", maybeOptimum = Some(0)))
     }
 
     @Test
