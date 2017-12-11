@@ -138,10 +138,16 @@ object FlatZincParser extends RegexParsers {
                     solveGoal)
         }
 
+    def parse(input: java.lang.CharSequence): FlatZincAst =
+        processParsingResult(FlatZincParser.parseAll(FlatZincParser.flatzinc_model, input))
+
     def parse(reader: java.io.InputStreamReader): FlatZincAst =
-        FlatZincParser.parse(FlatZincParser.flatzinc_model, reader) match {
-            case FlatZincParser.Success(ast, rest) => ast
-            case FlatZincParser.NoSuccess(msg, _) => throw new FlatZincParserException(msg)
+        processParsingResult(FlatZincParser.parseAll(FlatZincParser.flatzinc_model, reader))
+
+    private def processParsingResult(result: ParseResult[FlatZincAst]): FlatZincAst = result match {
+        case FlatZincParser.Success(ast, _) => ast
+        case FlatZincParser.NoSuccess(msg, rest) =>
+            throw new FlatZincParserException(rest.pos.line, rest.pos.column, msg)
     }
 
 }

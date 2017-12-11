@@ -3,7 +3,7 @@ package yuck.flatzinc.runner
 import java.util.concurrent.{Callable, Executors}
 
 import yuck.flatzinc.ast.FlatZincAst
-import yuck.flatzinc.parser.FlatZincParser
+import yuck.flatzinc.parser.{ByteArrayAsCharSequence, FlatZincParser}
 import yuck.util.arm.{ManagedExecutorService, ManagedShutdownHook, scoped}
 import yuck.util.logging.LazyLogger
 
@@ -14,13 +14,16 @@ import yuck.util.logging.LazyLogger
  */
 final class FlatZincFileParser(fznFilePath: String, logger: LazyLogger) extends Callable[FlatZincAst] {
 
+    // Combinator parsing from an InputStreamReader (currently) does not scale
+    // (see https://github.com/scala/scala-parser-combinators/issues/64),
+    // so we read the whole file into memory and parse from there via a CharSequence.
+    // (FlatZinc uses ASCII, so converting bytes to characters is not an issue.)
     override def call = {
         val file = new java.io.File(fznFilePath)
-        val reader = new java.io.InputStreamReader(new java.io.FileInputStream(file))
+        val bytes = java.nio.file.Files.readAllBytes(file.toPath)
+        val sequence = new ByteArrayAsCharSequence(bytes, 0, bytes.length)
         class FlatZincParserRunner extends Callable[FlatZincAst] {
-            override def call = {
-                FlatZincParser.parse(reader)
-            }
+            override def call = FlatZincParser.parse(sequence)
         }
         val threadPool = Executors.newFixedThreadPool(1)
         val futureAst = threadPool.submit(new FlatZincParserRunner)
