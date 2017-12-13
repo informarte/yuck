@@ -3,8 +3,10 @@ package yuck.core
 import scala.collection._
 import scala.collection.JavaConverters._
 
-import org.jgrapht.alg.cycle.JohnsonSimpleCycles
-import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge}
+import org.jgrapht.GraphPath
+import org.jgrapht.alg.interfaces.ShortestPathAlgorithm
+import org.jgrapht.alg.shortestpath.DijkstraShortestPath
+import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge, DirectedAcyclicGraph}
 import org.jgrapht.traverse.TopologicalOrderIterator
 
 import yuck.util.logging.LazyLogger
@@ -36,42 +38,84 @@ final class Space(
     @inline private def isImplicitConstraint(constraint: Constraint) =
         implicitConstraints.contains(constraint.id.rawId)
 
+    // The inflow model allows to find out which constraints are affected by changing
+    // the value of a given variable.
     private type InflowModel = mutable.AnyRefMap[AnyVariable, mutable.HashSet[Constraint]]
     private val inflowModel = new InflowModel // maintained by post
     private def registerInflow(x: AnyVariable, constraint: Constraint) {
         inflowModel += x -> (inflowModel.getOrElse(x, new mutable.HashSet[Constraint]) += constraint)
     }
 
+    /** Returns the set of constraints directly affected by changing the value of the given variable. */
+    @inline def directlyAffectedConstraints(x: AnyVariable): Set[Constraint] =
+        inflowModel.getOrElse(x, Set.empty)
+
+    // The outflow model allows to find out which constraint, if any, computes the value of a
+    // given variable.
     private type OutflowModel = mutable.AnyRefMap[AnyVariable, Constraint]
     private val outflowModel = new OutflowModel // maintained by post
     private def registerOutflow(x: AnyVariable, constraint: Constraint) {
         outflowModel += x -> constraint
     }
 
-    private type ConstraintOrder = Array[Int]
-    private var constraintOrder: ConstraintOrder = null // created by initialize
-    private def sortConstraintsTopologically {
-        val constraintNetwork = new DefaultDirectedGraph[Constraint, DefaultEdge](classOf[DefaultEdge])
-        for (constraint <- constraints) {
-            constraintNetwork.addVertex(constraint)
+    /** Returns the constraint that computes the value of the given variable. */
+    @inline def definingConstraint(x: AnyVariable): Option[Constraint] =
+        outflowModel.get(x)
+
+    // The flow model is a DAG which describes the flow of value changes through the
+    // network of variables spanned by the constraints.
+    private case class ConstraintEdge(val from: AnyVariable, val to: AnyVariable, val constraint: Constraint)
+    private type FlowModel = DirectedAcyclicGraph[AnyVariable, ConstraintEdge]
+    private var flowModel: FlowModel = null // maintained by post and discarded by initialize
+    private def addToFlowModel(constraint: Constraint) {
+        if (isCyclic(constraint)) {
+            throw new CyclicConstraintNetworkException(constraint)
         }
-        for (pred <- constraints) {
-            for (x <- pred.outVariables) {
-                for (succ <- inflowModel.getOrElse(x, Set.empty)) {
-                    constraintNetwork.addEdge(pred, succ)
+        for (x <- constraint.inVariables) {
+            flowModel.addVertex(x)
+            for (y <- constraint.outVariables) {
+                flowModel.addVertex(y)
+                try {
+                    flowModel.addEdge(x, y, ConstraintEdge(x, y, constraint))
+                }
+                catch {
+                    case _: IllegalArgumentException => throw new CyclicConstraintNetworkException(constraint)
                 }
             }
         }
-        constraintOrder = new Array[Int](constraints.toIterator.map(_.id).max.rawId + 1)
-        try {
-            for ((constraint, i) <- new TopologicalOrderIterator[Constraint, DefaultEdge](constraintNetwork).asScala.zipWithIndex) {
-                constraintOrder.update(constraint.id.rawId, i)
+    }
+    private def removeFromFlowModel(constraint: Constraint) {
+        for (x <- constraint.inVariables) {
+            for (y <- constraint.outVariables) {
+                flowModel.removeEdge(ConstraintEdge(x, y, constraint))
             }
         }
-        catch {
-            case _: IllegalArgumentException =>
-                val cycles = new JohnsonSimpleCycles[Constraint, DefaultEdge](constraintNetwork).findSimpleCycles
-                assert(false, "Input graph has cycles %s".format(cycles))
+    }
+    private def rebuildFlowModel {
+        require(flowModel == null)
+        flowModel = new FlowModel(classOf[ConstraintEdge])
+        constraints.foreach(addToFlowModel)
+    }
+
+    private type ConstraintOrder = Array[Int]
+    private var constraintOrder: ConstraintOrder = null // created by initialize
+    private def sortConstraintsTopologically {
+        require(constraintOrder == null)
+        val constraintGraph = new DefaultDirectedGraph[Constraint, DefaultEdge](classOf[DefaultEdge])
+        for (constraint <- constraints) {
+            constraintGraph.addVertex(constraint)
+        }
+        for (pred <- constraints) {
+            for (x <- pred.outVariables) {
+                for (succ <- directlyAffectedConstraints(x)) {
+                    constraintGraph.addEdge(pred, succ)
+                }
+            }
+        }
+        constraintOrder = new ConstraintOrder(constraints.toIterator.map(_.id).max.rawId + 1)
+        // The topological ordering exists because it was possible to build the flow model.
+        for ((constraint, i) <- new TopologicalOrderIterator[Constraint, DefaultEdge](constraintGraph).asScala.zipWithIndex) {
+            constraintOrder.update(constraint.id.rawId, i)
         }
     }
     private final object ConstraintOrdering extends Ordering[Constraint] {
@@ -133,10 +177,6 @@ final class Space(
     def isDanglingVariable(x: AnyVariable): Boolean =
         ! isProblemParameter(x) && ! isSearchVariable(x) && ! isChannelVariable(x)
 
-    /** Returns the set of constraints directly affected by changing the value of the given variable. */
-    def directlyAffectedConstraints(x: AnyVariable): Set[Constraint] =
-        return inflowModel.getOrElse(x, Set.empty)
-
     /**
      * Finds the search variables involved in computing the value of given variable
      * and returns the empty set when the variable is a search variable.
@@ -153,7 +193,7 @@ final class Space(
     {
         if (! visited.contains(x)) {
             visited += x
-            val maybeConstraint = outflowModel.get(x)
+            val maybeConstraint = definingConstraint(x)
             if (maybeConstraint.isDefined) {
                 val constraint = maybeConstraint.get
                 val (xs, ys) = constraint.inVariables.toIterator.partition(isSearchVariable)
@@ -173,10 +213,6 @@ final class Space(
         .map(x => if (isSearchVariable(x)) Set(x) else involvedSearchVariables(x).toSet)
         .foldLeft(Set[AnyVariable]())((a, b) => a union b)
 
-    /** Returns the constraint that computes the value of the given variable. */
-    def definingConstraint(x: AnyVariable): Option[Constraint] =
-        outflowModel.get(x)
-
     /**
      * Finds the constraints involved in computing the value of the given variable.
      *
@@ -192,7 +228,7 @@ final class Space(
     {
         if (! visited.contains(x)) {
             visited += x
-            val maybeConstraint = outflowModel.get(x)
+            val maybeConstraint = definingConstraint(x)
             if (maybeConstraint.isDefined) {
                 val constraint = maybeConstraint.get
                 result += constraint
@@ -201,72 +237,75 @@ final class Space(
         }
     }
 
-    /** Decides whether adding the given constraint would add a cycle to the constraint network. */
+    /**
+     * Decides whether adding the given constraint would add a cycle to the constraint network.
+     *
+     * Notice that this method is quite expensive because it inserts and removes the constraint.
+     * Hence, for cycle avoidance, just try to post the constraint; when an exception occurs,
+     * you can try another approach to modeling your problem, otherwise everything is fine.
+     */
     def wouldIntroduceCycle(constraint: Constraint): Boolean =
-        isCyclic(constraint) || findHypotheticalCycle(constraint).isDefined
+        if (isCyclic(constraint)) true
+        else if (constraints.isEmpty) false
+        else try {
+            addToFlowModel(constraint)
+            removeFromFlowModel(constraint)
+            false
+        }
+        catch {
+            case _: IllegalArgumentException => true
+        }
+
+    /** Looks for a cycle that the given constraint would add to the constraint network. */
+    def findHypotheticalCycle(constraint: Constraint): Option[Seq[Constraint]] =
+        if (isCyclic(constraint)) Some(List(constraint))
+        else if (constraints.isEmpty) None
+        else {
+            val spalg = new DijkstraShortestPath[AnyVariable, ConstraintEdge](flowModel)
+            constraint.outVariables.toIterator.map(x => findPath(spalg, x, constraint))
+                .collectFirst{case Some(path) => path.getEdgeList.asScala.map(_.constraint).+=:(constraint)}
+        }
 
     private def isCyclic(constraint: Constraint): Boolean =
         constraint.outVariables.exists(constraint.inVariables.toIterator.contains(_))
 
-    /** Looks for a cycle that the given constraint would add to the constraint network. */
-    def findHypotheticalCycle(constraint: Constraint): Option[List[Constraint]] =
-        findPath(constraint, constraint.inVariables.toSet, new mutable.HashSet[Constraint])
-        .map(path => constraint :: path)
-
-    private def findPath(
-        constraint: Constraint, D: Set[AnyVariable], visited: mutable.Set[Constraint]): Option[List[Constraint]] =
-    {
-        if (visited.contains(constraint)) {
-            None
-        } else {
-            visited += constraint
-            constraint.outVariables.toStream.map(findPath(_, D, visited)).filter(_.isDefined).headOption.map(_.get)
-        }
-    }
-    private def findPath(
-        o: AnyVariable, D: Set[AnyVariable], visited: mutable.Set[Constraint]): Option[List[Constraint]] =
-    {
-        inflowModel.get(o) match {
-            case Some(constraints) =>
-                constraints
-                .toStream
-                .map(
-                    constraint =>
-                        if (constraint.outVariables.exists(x => D.contains(x))) Some(List(constraint))
-                        else findPath(constraint, D, visited).map(path => constraint :: path))
-                .filter(maybePath => maybePath.isDefined)
-                .map(maybePath => maybePath.get)
-                .headOption
-            case None => None
-        }
-    }
+    private def findPath
+        (spalg: ShortestPathAlgorithm[AnyVariable, ConstraintEdge], from: AnyVariable, to: Constraint):
+        Option[GraphPath[AnyVariable, ConstraintEdge]] =
+        to.inVariables.toIterator.map(x => findPath(spalg, from, x)).collectFirst{case Some(path) => path}
+    private def findPath
+        (spalg: ShortestPathAlgorithm[AnyVariable, ConstraintEdge], from: AnyVariable, to: AnyVariable):
+        Option[GraphPath[AnyVariable, ConstraintEdge]] =
+        Option(spalg.getPath(from, to))
 
     /**
      * Adds the given constraint to the constraint network.
      *
-     * Throws when adding the constraint would create a cycle in the network.
+     * Throws a CyclicConstraintNetworkException when adding the constraint would create a cycle in the network.
      */
-    def post(newcomer: Constraint): Space = {
-        logger.loggg("Adding %s".format(newcomer))
+    def post(constraint: Constraint): Space = {
+        logger.loggg("Adding %s".format(constraint))
         require(
-            ! newcomer.outVariables.exists(outVariables.contains(_)),
+            ! constraint.outVariables.exists(outVariables.contains(_)),
             "%s shares out-variables with the following constraints:\n%s".format(
-                newcomer,
-                constraints.filter(_.outVariables.exists(newcomer.outVariables.toIterator.contains(_))).mkString("\n")))
-        require(! isCyclic(newcomer), "%s is cyclic in itself".format(newcomer))
-        val maybeCycle = findHypotheticalCycle(newcomer)
-        require(maybeCycle.isEmpty, "%s introduces cycle %s".format(newcomer, maybeCycle.get))
-        constraints += newcomer
+                constraint,
+                constraints.filter(_.outVariables.exists(constraint.outVariables.toIterator.contains(_))).mkString("\n")))
+        if (flowModel == null) {
+            // This is the first call to post or initialize was called before.
+            rebuildFlowModel
+        }
+        addToFlowModel(constraint)
+        constraints += constraint
         // We use data structures based on sets to avoid problems with duplicate in and out variables.
-        for (x <- newcomer.inVariables) {
+        for (x <- constraint.inVariables) {
             inVariables += x
             if (! x.isParameter) {
-                registerInflow(x, newcomer)
+                registerInflow(x, constraint)
             }
         }
-        for (x <- newcomer.outVariables) {
+        for (x <- constraint.outVariables) {
             outVariables += x
-            registerOutflow(x, newcomer)
+            registerOutflow(x, constraint)
         }
         constraintOrder = null
         this
@@ -304,7 +343,10 @@ final class Space(
      */
     def initialize: Space = {
         require(constraintQueue.isEmpty)
-        sortConstraintsTopologically
+        flowModel == null // free memory
+        if (constraintOrder == null) {
+            sortConstraintsTopologically
+        }
         constraintQueue ++= constraints.toIterator.filterNot(isImplicitConstraint)
         while (! constraintQueue.isEmpty) {
             constraintQueue.dequeue.initialize(assignment).foreach(_.setValue(assignment))
@@ -335,15 +377,13 @@ final class Space(
         private val diffs = new mutable.AnyRefMap[Constraint, BulkMove]
         private def propagateEffect(effect: AnyEffect) {
             if (assignment.anyValue(effect.anyVariable) != effect.anyValue) {
-                val maybeAffectedConstraints = inflowModel.get(effect.anyVariable)
-                if (maybeAffectedConstraints.isDefined) {
-                    for (constraint <- maybeAffectedConstraints.get if ! isImplicitConstraint(constraint)) {
-                        val diff = diffs.getOrElseUpdate(constraint, new BulkMove(move.id))
-                        if (diff.isEmpty) {
-                            constraintQueue += constraint
-                        }
-                        diff += effect
+                val affectedConstraints = directlyAffectedConstraints(effect.anyVariable)
+                for (constraint <- affectedConstraints if ! isImplicitConstraint(constraint)) {
+                    val diff = diffs.getOrElseUpdate(constraint, new BulkMove(move.id))
+                    if (diff.isEmpty) {
+                        constraintQueue += constraint
                     }
+                    diff += effect
                 }
                 diff += effect
             }
@@ -501,11 +541,6 @@ final class Space(
         require(move.id == idOfMostRecentlyAssessedMove)
         new EffectPropagator(move).run.effects.foreach(_.setValue(assignment))
         this
-    }
-
-    /** Throws when the constraint network has a cycle. */
-    def checkConsistency {
-        sortConstraintsTopologically
     }
 
 }

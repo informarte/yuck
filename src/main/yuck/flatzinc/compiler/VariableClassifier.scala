@@ -17,7 +17,7 @@ class VariableClassifier
 
     private val declaredVars = cc.declaredVars
     private val searchVars = cc.searchVars
-    private val channelVars = cc.channelVars
+    private val definedVars = cc.definedVars
     private val domains = cc.domains
 
     override def run {
@@ -27,7 +27,7 @@ class VariableClassifier
     private def classifyVars {
         for (constraint <- cc.ast.constraints) {
             for (Annotation(Term("defines_var", List(a))) <- constraint.annotations) {
-                channelVars += compileAnyExpr(a)
+                definedVars += compileAnyExpr(a)
             }
         }
         for (Annotation(expr) <- cc.ast.solveGoal.annotations) {
@@ -46,10 +46,10 @@ class VariableClassifier
             // finite domain as subject to search except for variables that occur in a defines_var
             // annotation.
             searchVars ++= declaredVars.toIterator.filter(domains(_).isFinite).map(compileAnyExpr)
-            searchVars --= channelVars
+            searchVars --= definedVars
         } else {
           // Sometimes variables with a defines_var annotation are also marked as search variables.
-          searchVars --= channelVars
+          searchVars --= definedVars
         }
     }
 

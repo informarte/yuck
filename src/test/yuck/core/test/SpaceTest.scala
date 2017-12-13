@@ -101,7 +101,7 @@ final class SpaceTest extends UnitTest {
         val x = space.createVariable("x", CompleteIntegerRange)
         val c = new DummyConstraint(space.constraintIdFactory.nextId, List(x, x), List(x))
         assert(space.wouldIntroduceCycle(c))
-        assertEx(space.post(c))
+        assertEx(space.post(c), classOf[CyclicConstraintNetworkException])
     }
 
     @Test
@@ -119,7 +119,11 @@ final class SpaceTest extends UnitTest {
         space.post(c)
         assert(space.wouldIntroduceCycle(d))
         assertEq(space.findHypotheticalCycle(d), Some(List(d, c)))
-        assertEx(space.post(d))
+        assertEx(space.post(d), classOf[CyclicConstraintNetworkException])
+        val e = new DummyConstraint(space.constraintIdFactory.nextId, List(x, y), List(x, z))
+        assert(space.wouldIntroduceCycle(e))
+        assertEq(space.findHypotheticalCycle(e), Some(List(e)))
+        assertEx(space.post(e))
     }
 
     @Test
