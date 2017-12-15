@@ -18,7 +18,7 @@ import yuck.flatzinc.test.util._
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class MiniZincExamples extends MiniZincTestSuite {
+final class MiniZincExamples extends MiniZincBasedTest {
 
     private val task = MiniZincTestTask(directoryLayout = MiniZincExamplesLayout, suitePath = "resources/mzn/examples")
 

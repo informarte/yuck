@@ -13,7 +13,7 @@ import yuck.flatzinc.test.util._
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class MiniZincChallenge2017 extends MiniZincTestSuite {
+final class MiniZincChallenge2017 extends MiniZincBasedTest {
 
     private val task = MiniZincTestTask(directoryLayout = StandardMiniZincBenchmarksLayout, suitePath = "resources/mzn/benchmarks", suiteName = "mznc17")
 
@@ -68,7 +68,7 @@ final class MiniZincChallenge2017 extends MiniZincTestSuite {
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def ma_path_finding_ins_g16_p10_a10 {
-        solve(task.copy(problemName = "ma-path-finding", modelName = "mapf", instanceName = "ins_g16_p10_a10", maybeOptimum = Some(112)))
+        solve(task.copy(problemName = "ma-path-finding", modelName = "mapf", instanceName = "ins_g16_p10_a10", maybeOptimum = Some(112), maybeMaximumNumberOfVirtualCores = Some(1)))
     }
 
     @Test
@@ -104,7 +104,7 @@ final class MiniZincChallenge2017 extends MiniZincTestSuite {
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def road_cons_17 {
-        solve(task.copy(problemName = "road-cons", modelName = "road_naive", instanceName = "road_17"))
+        solve(task.copy(problemName = "road-cons", modelName = "road_naive", instanceName = "road_17", maybeMaximumNumberOfVirtualCores = Some(1)))
     }
 
     @Test

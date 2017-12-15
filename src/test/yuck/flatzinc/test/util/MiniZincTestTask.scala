@@ -26,6 +26,9 @@ case class MiniZincTestTask(
     val modelName: String = "",
     val instanceName: String = "",
     val solverConfiguration: FlatZincSolverConfiguration = new FlatZincSolverConfiguration,
+    val maybeRestartLimit: Option[Int] = None, // limits solverConfiguration.restartLimit
+    val maybeMaximumNumberOfVirtualCores: Option[Int] = None, // limits solverConfiguration.numberOfVirtualCores
+    val maybeRoundLimit: Option[Int] = None, // overrules solverConfiguration.maybeRoundLimitInSeconds
     val maybeRuntimeLimitInSeconds: Option[Int] = Some(300), // overrules solverConfiguration.maybeRuntimeLimitInSeconds
     val maybeOptimum: Option[Int] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
     val maybeQualityTolerance: Option[Int] = None, // overrules solverConfiguration.maybeQualityTolerance

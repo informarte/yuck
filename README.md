@@ -150,7 +150,7 @@ Yuck tests are based on [JUnit 4](http://junit.org/junit4/) and
 * `make unit-tests` builds and runs all unit tests.
 * `make minizinc-tests` runs all FlatZinc frontend tests.
 * `make minizinc-examples` exercises Yuck on a subset of the MiniZinc 1.6 examples.
-* `make tests` runs all tests.
+* `make ci-tests` runs all these tests.
 
 FlatZinc generation is fully automated and happens on the fly.
 

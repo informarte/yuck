@@ -10,13 +10,8 @@ import org.junit._
 @runner.RunWith(classOf[runners.Suite])
 @runners.Suite.SuiteClasses(
     Array(
-        classOf[EasyMiniZincExamples],
-        classOf[MediumMiniZincExamples],
-        classOf[MiniZincChallenge2012],
-        classOf[MiniZincChallenge2013],
-        classOf[MiniZincChallenge2014],
-        classOf[MiniZincChallenge2015],
-        classOf[MiniZincChallenge2016]))
+        classOf[MiniZincExamples],
+        classOf[MiniZincChallenges]))
 @Test
 class MiniZincTestSuites {
 }

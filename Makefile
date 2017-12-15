@@ -1,4 +1,4 @@
-tests: unit-tests minizinc-tests minizinc-examples
+ci-tests: yuck.test.ContinuousIntegrationTestSuite
 
 unit-tests: yuck.test.UnitTestSuite
 

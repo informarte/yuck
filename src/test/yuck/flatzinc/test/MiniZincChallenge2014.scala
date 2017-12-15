@@ -13,7 +13,7 @@ import yuck.flatzinc.test.util._
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class MiniZincChallenge2014 extends MiniZincTestSuite {
+final class MiniZincChallenge2014 extends MiniZincBasedTest {
 
     private val task = MiniZincTestTask(directoryLayout = StandardMiniZincBenchmarksLayout, suitePath = "resources/mzn/benchmarks", suiteName = "mznc14")
 

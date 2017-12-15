@@ -21,13 +21,13 @@ import yuck.flatzinc.test.util._
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class MiniZincTests extends MiniZincTestSuite {
+final class FlatZincImplementationTest extends MiniZincBasedTest {
 
     private val task =
         MiniZincTestTask(
             directoryLayout = MiniZincExamplesLayout,
             suitePath = "resources/mzn/tests",
-            solverConfiguration = (new FlatZincSolverConfiguration).copy(restartLimit = 1))
+            solverConfiguration = new FlatZincSolverConfiguration(restartLimit = 1))
 
     private val taskWithImplicitSolving =
         task.copy(

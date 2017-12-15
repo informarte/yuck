@@ -16,7 +16,7 @@ import yuck.util.testing.{IntegrationTest, ProcessRunner}
  * @author Michael Marte
  *
  */
-class MiniZincTestSuite extends IntegrationTest {
+class MiniZincBasedTest extends IntegrationTest {
 
     protected def solve(task: MiniZincTestTask): Result = {
         logger.setThresholdLogLevel(task.logLevel)
@@ -74,6 +74,15 @@ class MiniZincTestSuite extends IntegrationTest {
             }
         val cfg =
             task.solverConfiguration.copy(
+                restartLimit =
+                    scala.math.min(
+                        task.solverConfiguration.restartLimit,
+                        task.maybeRestartLimit.getOrElse(Int.MaxValue)),
+                numberOfVirtualCores =
+                    scala.math.min(
+                        task.solverConfiguration.numberOfVirtualCores,
+                        task.maybeMaximumNumberOfVirtualCores.getOrElse(Int.MaxValue)),
+                maybeRoundLimit = task.maybeRoundLimit,
                 maybeRuntimeLimitInSeconds = task.maybeRuntimeLimitInSeconds,
                 maybeTargetObjectiveValue = task.maybeOptimum,
                 maybeQualityTolerance = task.maybeQualityTolerance)

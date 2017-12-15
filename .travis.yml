@@ -6,4 +6,4 @@ install:
   - export PATH=$PATH:$PWD/minizinc-2.1.5/bin
 
 script:
-  - make tests
+  - make ci-tests
