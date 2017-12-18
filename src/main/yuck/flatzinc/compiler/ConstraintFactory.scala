@@ -5,7 +5,7 @@ import scala.collection._
 import yuck.constraints._
 import yuck.core._
 import yuck.flatzinc.ast._
-import yuck.util.arm.scoped
+import yuck.util.arm.{Sigint, scoped}
 import yuck.util.logging.LogScope
 
 /**

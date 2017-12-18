@@ -1,15 +1,13 @@
 package yuck.flatzinc.runner
 
 import java.io.IOException
-import java.util.concurrent.{Callable, CancellationException, Executors}
+import java.util.concurrent.CancellationException
 
 import scala.math.max
 
 import scopt._
 
-import yuck.core.SettableSigint
 import yuck.flatzinc.FlatZincSolverConfiguration
-import yuck.flatzinc.ast.FlatZincAst
 import yuck.flatzinc.compiler.{InconsistentProblemException, UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
 import yuck.flatzinc.parser._
 import yuck.util.arm._
@@ -97,11 +95,16 @@ object FlatZincRunner {
             // We use an empty, managed shutdown hook to enforce the completion of a shutdown
             // initiated upon interrupt.
             // (Without it, the JVM would already exit when the inner, managed shutdown hook
-            // deployed by trySolve goes out of scope.)
+            //  goes out of scope.)
             scoped(new ManagedShutdownHook({})) {
                 scoped(logManager) {
                     setupLogging(cl)
-                    solve(cl)
+                    val sigint = new SettableSigint
+                    scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set})) {
+                        maybeTimeboxed(cl.cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
+                            solve(cl, sigint)
+                        }
+                    }
                     logger.log("Shutdown complete, exiting")
                 }
             }
@@ -153,9 +156,9 @@ object FlatZincRunner {
             throw error
     }
 
-    private def solve(cl: CommandLine): Unit = {
+    private def solve(cl: CommandLine, sigint: SettableSigint): Unit = {
         try {
-            trySolve(cl)
+            trySolve(cl, sigint)
         }
         catch {
             case error: CancellationException =>
@@ -165,25 +168,22 @@ object FlatZincRunner {
         }
     }
 
-    private def trySolve(cl: CommandLine) {
+    private def trySolve(cl: CommandLine, sigint: SettableSigint) {
         logger.log("Processing %s".format(cl.fznFilePath))
         val ast =
             logger.withTimedLogScope("Parsing FlatZinc file") {
                 new FlatZincFileParser(cl.fznFilePath, logger).call
             }
         val monitor = new FlatZincSolverMonitor(logger)
-        val sigint = new SettableSigint
-        scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set})) {
-            val solverGenerator = new FlatZincSolverGenerator(ast, cl.cfg, logger, monitor, sigint)
-            val solver = solverGenerator.call
-            val result = solver.call
-            if (! result.isSolution) {
-                println(FLATZINC_NO_SOLUTION_FOUND_INDICATOR)
-            } else {
-                logger.criticalSection {
-                    logger.withLogScope("Solution") {
-                        new FlatZincResultFormatter(result).call.foreach(logger.log(_))
-                    }
+        val solverGenerator = new FlatZincSolverGenerator(ast, cl.cfg, sigint, logger, monitor)
+        val solver = solverGenerator.call
+        val result = solver.call
+        if (! result.isSolution) {
+            println(FLATZINC_NO_SOLUTION_FOUND_INDICATOR)
+        } else {
+            logger.criticalSection {
+                logger.withLogScope("Solution") {
+                    new FlatZincResultFormatter(result).call.foreach(logger.log(_))
                 }
             }
         }

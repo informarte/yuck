@@ -5,6 +5,7 @@ import java.util.concurrent.Callable
 import yuck.core._
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.FlatZincAst
+import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 
 /**
@@ -15,8 +16,8 @@ final class FlatZincCompiler
     (ast: FlatZincAst,
      cfg: FlatZincSolverConfiguration,
      randomGenerator: RandomGenerator,
-     logger: LazyLogger,
-     sigint: Sigint)
+     sigint: Sigint,
+     logger: LazyLogger)
     extends Callable[FlatZincCompilerResult]
 {
 

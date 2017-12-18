@@ -8,44 +8,6 @@ import yuck.util.arm._
 import yuck.util.logging._
 
 /**
- * Provides a read-only channel for interrupt signals.
- *
- * (The Java interrupt mechanism (Thread.interrupt, Future.cancel) is not suitable
- * for anytime algorithms: When a Future gets cancelled in one way or another, it
- * will yield no result, even when the interrupted computation has provided one.
- * Therefore we have to provide and use our own interruption mechanism.)
- *
- * @author Michael Marte
- */
-abstract class Sigint {
-    protected var interrupted = false
-    @inline final def isSet: Boolean = interrupted
-}
-
-/**
- * Provides a means to interrupt a computation (by sending a signal).
- *
- * @author Michael Marte
- */
-class SettableSigint extends Sigint {
-    final def set: Unit = {
-        interrupted = true
-    }
-}
-
-/**
- * Provides a means to interrupt a computation (by sending a signal)
- * and to later resume the computation (by revoking the signal).
- *
- * @author Michael Marte
- */
-final class RevocableSigint extends SettableSigint {
-    def revoke: Unit = {
-        interrupted = false
-    }
-}
-
-/**
  * @author Michael Marte
  *
  */
@@ -68,11 +30,11 @@ abstract class Solver extends Callable[Result] {
      * call immediately returns it.
      *
      * When the solver gets interrupted in some way, call terminates asap.
-     * In case a result is not yet available, call throws an InterruptedException.
+     * In case a result is not yet available, call throws a SolverInterruptedException.
      *
      * call is able to resume an unfinished solver which previously got interrupted.
      *
-     * call must not be used on finished solvers.
+     * call might not work on a finished solver.
      */
     override def call: Result
 
@@ -119,7 +81,7 @@ final object FinishedSolver extends Solver {
 }
 
 /**
- * Interrupts the given solver after the given runtime.
+ * Interrupts the given solver after reaching the given runtime limit.
  *
  * Stops the watch on interruption and resumes it on resumption.
  *
@@ -127,49 +89,16 @@ final object FinishedSolver extends Solver {
  */
 final class TimeboxedSolver(
     solver: Solver,
-    runtimeInSeconds: Int,
+    runtimeLimitInSeconds: Int,
     logger: LazyLogger,
     sigint: SettableSigint)
     extends Solver
 {
-
-    private var remainingRuntimeInMillis: Long = runtimeInSeconds * 1000
-
+    private def solve = solver.call
+    private val timebox = new TimeboxedOperation(solve, runtimeLimitInSeconds, sigint, solver.name, logger)
     override def name = solver.name
-
-    override def hasFinished = solver.hasFinished && remainingRuntimeInMillis > 0
-
-    override def call = {
-        require(! hasFinished)
-        val watchdogThread = new Thread {
-            override def run {
-                val t0 = System.currentTimeMillis
-                try {
-                    Thread.sleep(remainingRuntimeInMillis)
-                }
-                catch {
-                    case error: InterruptedException =>
-                        logger.logg("Interrupted")
-                }
-                finally {
-                    val t1 = System.currentTimeMillis
-                    remainingRuntimeInMillis -= (t1 - t0)
-                }
-                if (remainingRuntimeInMillis <= 0) {
-                    logger.log("Out of time, asking %s to stop".format(solver.name))
-                    sigint.set
-                }
-            }
-        }
-        val result =
-            scoped(new TransientThreadRenaming(watchdogThread, "%s-watchdog".format(solver.name))) {
-                scoped(new ManagedThread(watchdogThread, logger)) {
-                    solver.call
-                }
-            }
-        result
-    }
-
+    override def hasFinished = solver.hasFinished || timebox.isOutOfTime
+    override def call = timebox.call
 }
 
 /**

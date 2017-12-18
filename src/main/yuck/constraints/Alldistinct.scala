@@ -5,6 +5,7 @@ import scala.math.{max, min}
 
 import yuck.annealing._
 import yuck.core._
+import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 
 

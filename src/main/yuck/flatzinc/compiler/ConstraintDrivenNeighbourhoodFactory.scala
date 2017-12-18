@@ -6,6 +6,7 @@ import yuck.constraints.DistributionMaintainer
 import yuck.constraints.LinearCombination
 import yuck.constraints.Sum
 import yuck.core._
+import yuck.util.arm.Sigint
 
 
 /**
@@ -89,6 +90,9 @@ final class ConstraintDrivenNeighbourhoodFactory
                         maybeNeighbourhood.map(ImplicitConstraintMaintainer)
                     }
                 } else () => {
+                    if (sigint.isSet) {
+                        throw new FlatZincCompilerInterruptedException
+                    }
                     val xs = cc.space.involvedSearchVariables(constraint) -- implicitlyConstrainedVars
                     if (xs.isEmpty) {
                         None

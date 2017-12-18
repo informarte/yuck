@@ -7,6 +7,7 @@ import yuck.constraints.LinearCombination
 import yuck.constraints.Sum
 import yuck.core._
 import yuck.flatzinc.ast.IntConst
+import yuck.util.arm.Sigint
 
 
 /**

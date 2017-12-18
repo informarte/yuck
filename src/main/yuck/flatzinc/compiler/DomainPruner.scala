@@ -6,6 +6,7 @@ import scala.math._
 import yuck.constraints._
 import yuck.core._
 import yuck.flatzinc.ast._
+import yuck.util.arm.Sigint
 
 /**
  * Identifies equivalent variables and reduces variable domains by propagating constraints.

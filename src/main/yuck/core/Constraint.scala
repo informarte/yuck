@@ -2,6 +2,8 @@ package yuck.core
 
 import scala.collection._
 
+import yuck.util.arm.Sigint
+
 /**
  * Provides the constraint interface for local search.
  *

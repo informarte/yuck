@@ -9,6 +9,7 @@ import yuck.core._
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.FlatZincAst
 import yuck.flatzinc.compiler.{FlatZincCompiler, FlatZincCompilerResult}
+import yuck.util.arm.{SettableSigint, Sigint}
 import yuck.util.logging.LazyLogger
 
 
@@ -17,8 +18,11 @@ import yuck.util.logging.LazyLogger
  *
  */
 final class FlatZincSolverGenerator
-    (ast: FlatZincAst, cfg: FlatZincSolverConfiguration, logger: LazyLogger, monitor: AnnealingMonitor,
-     sigint: SettableSigint)
+    (ast: FlatZincAst,
+     cfg: FlatZincSolverConfiguration,
+     sigint: SettableSigint,
+     logger: LazyLogger,
+     monitor: AnnealingMonitor)
     extends SolverGenerator
 {
 
@@ -53,7 +57,7 @@ final class FlatZincSolverGenerator
     {
         override def solverName = "FZS-%d".format(solverIndex)
         override def call = {
-            val compiler = new FlatZincCompiler(ast, cfg, randomGenerator.nextGen, logger, sigint)
+            val compiler = new FlatZincCompiler(ast, cfg, randomGenerator.nextGen, sigint, logger)
             val compilerResult = compiler.call
             val space = compilerResult.space
             // The initializer will respect existing value assignments.
@@ -91,30 +95,19 @@ final class FlatZincSolverGenerator
             logger.log("%d constraints".format(ast.constraints.size))
         }
         val randomGenerator = new JavaRandomGenerator(cfg.seed)
-        var solver: Solver = null
-        if (cfg.restartLimit == 1) {
-            solver = logger.withTimedLogScope("Generating solver") {
-                new BaseSolverGenerator(randomGenerator.nextGen, 1).call
-            }
-        } else {
-            val solvers =
-                for (i <- 1 to max(1, cfg.restartLimit)) yield
-                    new OnDemandGeneratedSolver(
-                        new BaseSolverGenerator(randomGenerator.nextGen, i),
-                        logger,
-                        sigint)
-            val numberOfThreads = cfg.numberOfVirtualCores match {
-                case 4 | 8 => 4 // use 4 threads on both i5 and i7, also avoids fan noise on i7
-                case n => n
-            }
-            solver = new ParallelSolver(solvers, numberOfThreads, solverName, logger, sigint)
+        val solvers =
+            for (i <- 1 to max(1, cfg.restartLimit)) yield
+                new OnDemandGeneratedSolver(
+                    new BaseSolverGenerator(randomGenerator.nextGen, i),
+                    logger,
+                    sigint)
+        val numberOfThreads = cfg.numberOfVirtualCores match {
+            case 4 | 8 => 4 // use 4 threads on both i5 and i7, also avoids fan noise on i7
+            case n => n
         }
-        if (cfg.maybeRuntimeLimitInSeconds.isDefined &&
-            (cfg.maybeRoundLimit.isEmpty || cfg.maybeRoundLimit.get > 0) &&
-            ! solver.hasFinished)
-        {
-            solver = new TimeboxedSolver(solver, cfg.maybeRuntimeLimitInSeconds.get, logger, sigint)
-        }
+        val solver =
+            if (solvers.size == 1) solvers.head
+            else new ParallelSolver(solvers, numberOfThreads, solverName, logger, sigint)
         solver
     }
 

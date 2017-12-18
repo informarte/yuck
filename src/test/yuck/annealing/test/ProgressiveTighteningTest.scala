@@ -4,6 +4,7 @@ import org.junit._
 
 import yuck.annealing._
 import yuck.core._
+import yuck.util.arm.SettableSigint
 import yuck.util.testing.IntegrationTest
 
 

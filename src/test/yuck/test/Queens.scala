@@ -5,6 +5,7 @@ import org.junit._
 import yuck.annealing._
 import yuck.constraints._
 import yuck.core._
+import yuck.util.arm.{SettableSigint, Sigint}
 import yuck.util.testing.IntegrationTest
 
 /**

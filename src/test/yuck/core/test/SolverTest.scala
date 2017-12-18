@@ -3,6 +3,7 @@ package yuck.core.test
 import org.junit._
 
 import yuck.core._
+import yuck.util.arm.{RevocableSigint, SettableSigint, Sigint}
 import yuck.util.testing.UnitTest
 
 
@@ -21,6 +22,7 @@ final class SolverTest extends UnitTest {
         private def wasInterrupted = sigint.isSet
         override def hasFinished = finished
         override def call = {
+            require(! hasFinished)
             if (wasInterrupted) {
                 throw new SolverInterruptedException
             } else {
@@ -48,13 +50,16 @@ final class SolverTest extends UnitTest {
     def testTimeboxingWithTimeout {
         val sigint = new RevocableSigint
         val result = new Result("0", null, null, null)
-        val solver = new TimeboxedSolver(new GoodSolver(result, 1, sigint), 0, logger, sigint)
-        assertEx(solver.call, classOf[SolverInterruptedException])
+        val solver = new GoodSolver(result, 1, sigint)
+        val timebox = new TimeboxedSolver(solver, 0, logger, sigint)
+        assertEx(timebox.call, classOf[SolverInterruptedException])
         assert(! solver.hasFinished)
+        assert(timebox.hasFinished)
         assert(sigint.isSet)
         sigint.revoke
-        assertEx(solver.call, classOf[SolverInterruptedException])
+        assertEx(timebox.call, classOf[SolverInterruptedException])
         assert(! solver.hasFinished)
+        assert(timebox.hasFinished)
         assert(sigint.isSet)
     }
 
@@ -200,7 +205,7 @@ final class SolverTest extends UnitTest {
         val solvers =
             results.map(result => new OnDemandGeneratedSolver(new GoodSolverGenerator(result), logger, sigint))
         val solver = new ParallelSolver(solvers, 4, "Test", logger, sigint)
-        assertEx(operation = new TimeboxedSolver(solver, 0, logger, sigint).call, classOf[SolverInterruptedException])
+        assertEx(new TimeboxedSolver(solver, 0, logger, sigint).call, classOf[SolverInterruptedException])
         assert(! solver.hasFinished)
         assert(sigint.isSet)
         sigint.revoke

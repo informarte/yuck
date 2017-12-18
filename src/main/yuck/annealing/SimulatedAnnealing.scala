@@ -1,6 +1,7 @@
 package yuck.annealing
 
 import yuck.core._
+import yuck.util.arm.Sigint
 
 /**
  * Executes the search strategy defined by the given annealing schedule
@@ -26,7 +27,6 @@ final class SimulatedAnnealing(
     sigint: Sigint)
     extends Solver
 {
-
     private var roundCount = 0
     private var temperature = 0.0
     private var heatingPhase = false

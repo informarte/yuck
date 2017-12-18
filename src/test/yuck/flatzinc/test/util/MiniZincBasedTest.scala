@@ -9,7 +9,7 @@ import yuck.core._
 import yuck.flatzinc.compiler.{FlatZincCompilerResult, InconsistentProblemException}
 import yuck.flatzinc.parser._
 import yuck.flatzinc.runner._
-import yuck.util.arm.{ManagedShutdownHook, scoped, using}
+import yuck.util.arm._
 import yuck.util.testing.{IntegrationTest, ProcessRunner}
 
 /**
@@ -68,10 +68,6 @@ class MiniZincBasedTest extends IntegrationTest {
             val (_, errorLines) = new ProcessRunner(logger, mzn2fznCommand).call
             Predef.assert(errorLines.isEmpty, "Flattening failed")
         }
-        val ast =
-            logger.withTimedLogScope("Parsing FlatZinc file") {
-                new FlatZincFileParser(fznFilePath, logger).call
-            }
         val cfg =
             task.solverConfiguration.copy(
                 restartLimit =
@@ -89,8 +85,14 @@ class MiniZincBasedTest extends IntegrationTest {
         val sigint = new SettableSigint
         val result =
             scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set})) {
-                using(new StandardAnnealingMonitor(logger)) {
-                    monitor => new FlatZincSolverGenerator(ast, cfg, logger, monitor, sigint).call.call
+                maybeTimeboxed(cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
+                    val ast =
+                        logger.withTimedLogScope("Parsing FlatZinc file") {
+                            new FlatZincFileParser(fznFilePath, logger).call
+                        }
+                    using(new StandardAnnealingMonitor(logger)) {
+                        monitor => new FlatZincSolverGenerator(ast, cfg, sigint, logger, monitor).call.call
+                    }
                 }
             }
         logger.log("Quality of best proposal: %s".format(result.costsOfBestProposal))
