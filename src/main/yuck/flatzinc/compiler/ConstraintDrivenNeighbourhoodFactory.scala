@@ -41,6 +41,7 @@ final class ConstraintDrivenNeighbourhoodFactory
         createNeighbourhoodForMinimizationGoal(x)
 
     protected override def createNeighbourhoodForMinimizationGoal(x: Variable[IntegerValue]) = {
+        space.registerObjectiveVariable(x)
         if (space.isDanglingVariable(x)) {
             // assign minimum value
             super.createNeighbourhoodForMinimizationGoal(x)

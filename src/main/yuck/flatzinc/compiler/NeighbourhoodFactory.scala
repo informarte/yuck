@@ -127,6 +127,7 @@ class NeighbourhoodFactory
     }
 
     protected final def createNeighbourhoodOnInvolvedSearchVariables(x: Variable[IntegerValue]): Option[Neighbourhood] = {
+        space.registerObjectiveVariable(x)
         val xs =
             (if (space.isSearchVariable(x)) Set(x.asInstanceOf[AnyVariable]) else space.involvedSearchVariables(x)) --
             implicitlyConstrainedVars

@@ -145,6 +145,25 @@ final class Space(
         x
     }
 
+    // Scala's ArrayBuffer.contains uses an iterator, so it's quite slow when used often on small buffers.
+    private val objectiveVariables = new java.util.ArrayList[AnyVariable]
+
+    /**
+     * Registers the given variable as objective variable.
+     *
+     * There is no need to register objective variables but registering them will
+     * speed up consultation.
+     *
+     * Important: When you decide to register objective variables, you have to
+     * register all of them, otherwise the result of consultation will not provide the
+     * effects on the variables that were not registered.
+     */
+    def registerObjectiveVariable(x: AnyVariable) {
+        if (! objectiveVariables.contains(x)) {
+            objectiveVariables.add(x)
+        }
+    }
+
     /** Assigns the given value to the given variable. */
     def setValue[Value <: AnyValue](x: Variable[Value], a: Value): Space = {
         assignment.setValue(x, a)
@@ -386,7 +405,6 @@ final class Space(
         // simulated annealing.
         require(constraintOrder != null, "Call initialize after posting the last constraint")
         require(constraintQueue.isEmpty)
-        private val diff = new BulkMove(move.id)
         private val diffs = new mutable.AnyRefMap[Constraint, BulkMove]
         private def propagateEffect(effect: AnyEffect) {
             if (assignment.anyValue(effect.anyVariable) != effect.anyValue) {
@@ -398,12 +416,13 @@ final class Space(
                     }
                     diff += effect
                 }
-                diff += effect
+                recordEffect(effect)
             }
         }
-        def processConstraint(
+        protected def processConstraint(
             constraint: Constraint, before: SearchState, after: SearchState, move: Move): TraversableOnce[AnyEffect]
-        def run: Move = {
+        protected def recordEffect(effect: AnyEffect)
+        def run {
             move.effects.foreach(propagateEffect)
             while (! constraintQueue.isEmpty) {
                 val constraint = constraintQueue.dequeue
@@ -411,15 +430,15 @@ final class Space(
                 val after = new MoveSimulator(assignment, diff)
                 processConstraint(constraint, assignment, after, diff).foreach(propagateEffect)
             }
-            diff
         }
     }
 
     /** Counts how often Constraint.consult was called. */
     var numberOfConsultations = 0
 
-    private class EffectComputer(move: Move) extends MoveProcessor(move) {
-        override def processConstraint(
+    private final class EffectComputer(move: Move) extends MoveProcessor(move) {
+        val diff = new BulkMove(move.id)
+        override protected def processConstraint(
             constraint: Constraint, before: SearchState, after: SearchState, move: Move) =
         {
             numberOfConsultations += 1
@@ -427,6 +446,11 @@ final class Space(
                 checkedConsult(constraint, before, after, move)
             } else {
                 constraint.consult(before, after, move)
+            }
+        }
+        override protected def recordEffect(effect: AnyEffect) {
+            if (objectiveVariables.isEmpty || objectiveVariables.contains(effect.anyVariable)) {
+                diff += effect
             }
         }
         private def checkedConsult(
@@ -484,11 +508,13 @@ final class Space(
      */
     def consult(move: Move): SearchState = {
         idOfMostRecentlyAssessedMove = move.id
-        new MoveSimulator(assignment, new EffectComputer(move).run)
+        val effectComputer = new EffectComputer(move)
+        effectComputer.run
+        new MoveSimulator(assignment, effectComputer.diff)
     }
 
-    private class EffectPropagator(move: Move) extends MoveProcessor(move) {
-        override def processConstraint(
+    private final class EffectPropagator(move: Move) extends MoveProcessor(move) {
+        override protected def processConstraint(
             constraint: Constraint, before: SearchState, after: SearchState, move: Move) =
         {
             numberOfCommitments += 1
@@ -497,6 +523,10 @@ final class Space(
             } else {
                 constraint.commit(before, after, move)
             }
+        }
+
+        override protected def recordEffect(effect: AnyEffect) {
+            effect.setValue(assignment)
         }
         private def checkedCommit(
             constraint: Constraint, before: SearchState, after: SearchState, move: Move) =
@@ -552,7 +582,7 @@ final class Space(
      */
     def commit(move: Move): Space = {
         require(move.id == idOfMostRecentlyAssessedMove)
-        new EffectPropagator(move).run.effects.foreach(_.setValue(assignment))
+        new EffectPropagator(move).run
         this
     }
 
