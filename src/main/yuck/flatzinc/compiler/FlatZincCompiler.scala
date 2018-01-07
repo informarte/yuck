@@ -147,15 +147,15 @@ final class FlatZincCompiler
     }
 
     private def logModelStatistics(cc: CompilationContext) = {
-        val searchVariables = cc.space.searchVariables
+        lazy val searchVariables = cc.space.searchVariables
         logger.logg("Search variables: %s".format(searchVariables))
         logger.log("%d search variables".format(searchVariables.size))
-        val searchVariablesCoveredByNeighbourhood =
+        lazy val searchVariablesCoveredByNeighbourhood =
             cc.maybeNeighbourhood.map(_.searchVariables).getOrElse(Set[AnyVariable]())
         logger.logg("Search variables covered by neighbourhood: %s".format(searchVariablesCoveredByNeighbourhood))
         logger.log("%d search variables covered by neighbourhood".format(searchVariablesCoveredByNeighbourhood.size))
         logger.log("%d channel variables".format(cc.space.channelVariables.size))
-        val danglingVariables = cc.vars.valuesIterator.toSet.filter(cc.space.isDanglingVariable(_))
+        lazy val danglingVariables = cc.vars.valuesIterator.filter(cc.space.isDanglingVariable(_)).toSet
         logger.logg("Dangling variables: %s".format(danglingVariables))
         logger.log("%d dangling variables".format(danglingVariables.size))
         logger.log("%d constraints".format(cc.space.numberOfConstraints))
