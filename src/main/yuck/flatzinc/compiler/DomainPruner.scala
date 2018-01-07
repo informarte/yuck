@@ -30,15 +30,16 @@ final class DomainPruner
     private def reduceDomains {
         var reduction = false
         var pass = 0
+        val effects = new mutable.AnyRefMap[Expr, AnyDomain]
         do {
             if (sigint.isSet) {
                 throw new FlatZincCompilerInterruptedException
             }
-            val effects = new mutable.AnyRefMap[Expr, AnyDomain]
             reduction = false
             pass += 1
             logger.withTimedLogScope("Pass %d".format(pass)) {
                 for (constraint <- cc.ast.constraints if ! impliedConstraints.contains(constraint)) {
+                    effects.clear
                     propagateConstraint(constraint, effects)
                     reduction |= propagateEffects(constraint, effects)
                 }
