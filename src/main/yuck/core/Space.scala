@@ -195,10 +195,7 @@ final class Space(
             visited += x
             val maybeConstraint = definingConstraint(x)
             if (maybeConstraint.isDefined) {
-                val constraint = maybeConstraint.get
-                val (xs, ys) = constraint.inVariables.toIterator.partition(isSearchVariable)
-                result ++= xs
-                ys.foreach(addInvolvedSearchVariables(_, result, visited))
+                addInvolvedSearchVariables(maybeConstraint.get, result, visited)
             }
         }
     }
@@ -206,12 +203,28 @@ final class Space(
     /**
      * Computes the set of search variables the values of which affect the given
      * constraint directly or indirectly.
+     *
+     * Copes with cycles in the constraint network.
      */
-    final def involvedSearchVariables(constraint: Constraint): Set[AnyVariable] =
-        constraint
-        .inVariables
-        .map(x => if (isSearchVariable(x)) Set(x) else involvedSearchVariables(x).toSet)
-        .foldLeft(Set[AnyVariable]())((a, b) => a union b)
+    def involvedSearchVariables(constraint: Constraint): Set[AnyVariable] = {
+        val result = new mutable.HashSet[AnyVariable]
+        val visited = new mutable.HashSet[AnyVariable]
+        addInvolvedSearchVariables(constraint, result, visited)
+        result
+    }
+    private def addInvolvedSearchVariables(
+        constraint: Constraint, result: mutable.Set[AnyVariable], visited: mutable.Set[AnyVariable])
+    {
+        for (x <- constraint.inVariables) {
+            if (x.isParameter) {
+                // ignore
+            } else if (isSearchVariable(x)) {
+                result += x
+            } else {
+                addInvolvedSearchVariables(x, result, visited)
+            }
+        }
+    }
 
     /**
      * Finds the constraints involved in computing the value of the given variable.
