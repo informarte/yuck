@@ -72,7 +72,7 @@ abstract class NumericalObjective
             x.pruneDomain(d)
         }
         if (  space.isSearchVariable(x) &&
-            ! space.directlyAffectedConstraints(x).exists(space.isImplicit))
+            ! space.directlyAffectedConstraints(x).exists(space.isImplicitConstraint))
         {
             // We look for a value of x that is compatible with the current search state
             // while all smaller (or greater, respectively) values are in conflict with it.

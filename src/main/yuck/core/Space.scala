@@ -34,9 +34,8 @@ final class Space(
     private val inVariables = new mutable.HashSet[AnyVariable] // maintained by post
     private val outVariables = new mutable.HashSet[AnyVariable] // maintained by post
 
-    private val implicitConstraints = new mutable.BitSet // indexed by constraint id
-    @inline private def isImplicitConstraint(constraint: Constraint) =
-        implicitConstraints.contains(constraint.id.rawId)
+    // Java's hash set is much faster than Scala's.
+    private val implicitConstraints = new java.util.HashSet[Constraint]
 
     // The inflow model allows to find out which constraints are affected by changing
     // the value of a given variable.
@@ -353,14 +352,14 @@ final class Space(
      */
     def markAsImplicit(constraint: Constraint): Space = {
         logger.loggg("Marking %s as implicit".format(constraint))
-        implicitConstraints += constraint.id.rawId
+        implicitConstraints.add(constraint)
         constraintOrder = null
         this
     }
 
     /** Returns true iff the given constraint was marked as implicit. */
-    def isImplicit(constraint: Constraint): Boolean =
-        implicitConstraints.contains(constraint.id.rawId)
+    @inline def isImplicitConstraint(constraint: Constraint): Boolean =
+        implicitConstraints.contains(constraint)
 
     /** Returns the number of constraints that were posted and later marked as implicit. */
     def numberOfImplicitConstraints: Int = implicitConstraints.size
@@ -409,12 +408,14 @@ final class Space(
         private def propagateEffect(effect: AnyEffect) {
             if (assignment.anyValue(effect.anyVariable) != effect.anyValue) {
                 val affectedConstraints = directlyAffectedConstraints(effect.anyVariable)
-                for (constraint <- affectedConstraints if ! isImplicitConstraint(constraint)) {
-                    val diff = diffs.getOrElseUpdate(constraint, new BulkMove(move.id))
-                    if (diff.isEmpty) {
-                        constraintQueue += constraint
+                for (constraint <- affectedConstraints) {
+                    if (! isImplicitConstraint(constraint)) {
+                        val diff = diffs.getOrElseUpdate(constraint, new BulkMove(move.id))
+                        if (diff.isEmpty) {
+                            constraintQueue += constraint
+                        }
+                        diff += effect
                     }
-                    diff += effect
                 }
                 recordEffect(effect)
             }
