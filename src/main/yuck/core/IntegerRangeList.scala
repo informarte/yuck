@@ -35,7 +35,7 @@ final class IntegerRangeList
         if (a != null && b != null && b < a) immutable.IndexedSeq()
         else immutable.IndexedSeq(createRange(a, b)))
 
-    def equals(that: IntegerRangeList): Boolean = this.ranges == that.ranges
+    def equals(that: IntegerRangeList): Boolean = this.eq(that) || this.ranges == that.ranges
 
     override def toString = if (isEmpty) "{}" else ranges.map(_.toString).mkString(" union ")
 

@@ -13,7 +13,11 @@ abstract class Domain[Value <: AnyValue] extends AnyDomain {
     @inline final override def valueType = valueTraits.valueType
 
     override def equals(that: Any) = that match {
-        case that: Domain[_] if this.valueType == that.valueType => this.equals(that.asInstanceOf[Domain[Value]])
+        case rhs: Domain[_] => {
+            val lhs = this
+            lhs.eq(rhs) ||
+            (lhs.valueType == rhs.valueType && lhs.equals(rhs.asInstanceOf[Domain[Value]]))
+        }
         case _ => false
     }
     def equals(that: Domain[Value]): Boolean

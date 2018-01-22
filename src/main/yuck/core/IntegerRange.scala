@@ -20,7 +20,7 @@ final class IntegerRange
 {
 
     def equals(that: IntegerRange): Boolean =
-        (this.isEmpty && that.isEmpty) || this.lb == that.lb && this.ub == that.ub
+        this.eq(that) || (this.isEmpty && that.isEmpty) || this.lb == that.lb && this.ub == that.ub
 
     override def toString =
         if (isEmpty)
