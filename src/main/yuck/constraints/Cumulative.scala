@@ -32,10 +32,10 @@ final class Cumulative
 {
 
     override def toString = "cumulative([%s], %s, %s)".format(tasks.mkString(", "), ub, costs)
-    override def inVariables = id2Task.keysIterator ++ List(ub).toIterator
+    override def inVariables = var2Task.keysIterator ++ List(ub).toIterator
     override def outVariables = List(costs)
 
-    private val id2Task =
+    private val var2Task =
         new immutable.HashMap[AnyVariable, CumulativeTask] ++
         (tasks.map(_.s).zip(tasks)) ++ (tasks.map(_.d).zip(tasks)) ++ (tasks.map(_.c).zip(tasks))
     private val effects = List(new ReusableEffectWithFixedVariable[IntegerValue](costs))
@@ -69,9 +69,7 @@ final class Cumulative
         futureProfile = currentProfile
         futureCosts = currentCosts
         val ubChanged = move.involves(ub)
-        val visited = new mutable.HashSet[Variable[IntegerValue]] // start variable
-        for (t <- move.involvedVariables.filter(x => x != ub).map(id2Task) if ! visited.contains(t.s)) {
-            visited += t.s
+        def processTask(t: CumulativeTask) {
             val s0 = before.value(t.s).value
             val d0 = before.value(t.d).value
             val c0 = before.value(t.c).value
@@ -80,22 +78,30 @@ final class Cumulative
             val d1 = after.value(t.d).value
             val c1 = after.value(t.c).value
             val ub1 = after.value(ub).value
-            def subtractTask(i: Int) {
-                val r0 = futureProfile(i)
-                val r1 = r0 - c0
-                futureProfile = futureProfile.updated(i, r1)
-                if (! ubChanged) {
-                    futureCosts -= computeLocalCosts(r0, ub0)
-                    futureCosts += computeLocalCosts(r1, ub0)
+            def subtractTasks(from: Int, to: Int) {
+                var i = from
+                while (i <= to) {
+                    val r0 = futureProfile(i)
+                    val r1 = r0 - c0
+                    futureProfile = futureProfile.updated(i, r1)
+                    if (! ubChanged) {
+                        futureCosts -= computeLocalCosts(r0, ub0)
+                        futureCosts += computeLocalCosts(r1, ub0)
+                    }
+                    i += 1
                 }
             }
-            def addTask(i: Int) {
-                val r0 = futureProfile.getOrElse(i, 0)
-                val r1 = r0 + c1
-                futureProfile = futureProfile.updated(i, r1)
-                if (! ubChanged) {
-                    futureCosts -= computeLocalCosts(r0, ub1)
-                    futureCosts += computeLocalCosts(r1, ub1)
+            def addTasks(from: Int, to: Int) {
+                var i = from
+                while (i <= to) {
+                    val r0 = futureProfile.getOrElse(i, 0)
+                    val r1 = r0 + c1
+                    futureProfile = futureProfile.updated(i, r1)
+                    if (! ubChanged) {
+                        futureCosts -= computeLocalCosts(r0, ub1)
+                        futureCosts += computeLocalCosts(r1, ub1)
+                    }
+                    i += 1
                 }
             }
             // When only the task start changes, the old and the new rectangle are expected to overlap
@@ -106,8 +112,8 @@ final class Cumulative
                 //       s1 ********** s1 + d1 (== d0)
                 //          ^^^^
                 //          Nothing changes where the rectangles overlap!
-                for (i <- s0 until s1) subtractTask(i)
-                for (i <- s0 + d0 until s1 + d1) addTask(i)
+                subtractTasks(s0, s1 - 1)
+                addTasks(s0 + d0, s1 + d1 - 1)
             }
             else if (d0 == d1 && c0 == c1 && s0 > s1 && s0 < s1 + d1) {
                 // symmetrical case
@@ -115,12 +121,22 @@ final class Cumulative
                 // s1 ********** s1 + d1 (== d0)
                 //          ^^^^
                 //          Nothing changes where the rectangles overlap!
-                for (i <- s1 until s0) addTask(i)
-                for (i <- s1 + d1 until s0 + d0) subtractTask(i)
+                addTasks(s1, s0 - 1)
+                subtractTasks(s1 + d1, s0 + d0 - 1)
             }
             else {
-                for (i <- s0 until s0 + d0) subtractTask(i)
-                for (i <- s1 until s1 + d1) addTask(i)
+                subtractTasks(s0, s0 + d0 - 1)
+                addTasks(s1, s1 + d1 - 1)
+            }
+        }
+        val visited = new mutable.HashSet[Variable[IntegerValue]]
+        for (x <- move.involvedVariables) {
+            if (x != ub) {
+                val t = var2Task(x)
+                if (! visited.contains(t.s)) {
+                    visited += t.s
+                    processTask(t)
+                }
             }
         }
         if (ubChanged) {

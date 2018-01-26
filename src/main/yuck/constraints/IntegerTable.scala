@@ -67,17 +67,18 @@ final class IntegerTable
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
-        for (j <- 0 until m) {
-            futureDistances(j) = currentDistances(j)
-        }
-        for (i <- move.involvedVariables.map(x2i)) {
+        Array.copy(currentDistances, 0, futureDistances, 0, m)
+        for (x0 <- move.involvedVariables) {
+            val i = x2i(x0)
             val x = xs(i)
             val a = before.value(x).value
             val b = after.value(x).value
             val col = cols(i)
-            for (j <- 0 until m) {
+            var j = 0
+            while (j < m) {
                 val c = col(j)
                 futureDistances(j) += scala.math.abs(b - c) - scala.math.abs(a - c)
+                j += 1
             }
         }
         effect.a = IntegerValue.get(futureDistances.min)
