@@ -104,8 +104,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                         logger.logg("%s contributes a neighbourhood over %s".format(constraint, xs))
                         val neighbourhood =
                             new RandomReassignmentGenerator(
-                                space, xs.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, None,
-                                cfg.probabilityOfFairChoiceInPercent)
+                                space, xs.toBuffer.sorted.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, None, 0)
                         Some(OtherNeighbourhood(neighbourhood))
                     }
                 }
@@ -113,13 +112,13 @@ final class ConstraintDrivenNeighbourhoodFactory
         }
     }
 
-    private def createNeighbourhoodFactory(axs: immutable.Seq[AX[IntegerValue]]): () => Option[AnnotatedNeighbourhood] = {
+    private def createNeighbourhoodFactory(axs: Seq[AX[IntegerValue]]): () => Option[AnnotatedNeighbourhood] = {
         val weightedNeighbourhoodFactories =
             new mutable.ArrayBuffer[(AX[IntegerValue], () => Option[AnnotatedNeighbourhood])]
-        // Partitioning before shuffling is pointless but this step was in a prior version and it was kept to
-        // facilitate the comparison of test results.
         val (axs0, axs1) =
-            axs.partition(ax => cc.space.definingConstraint(ax.x).exists(_.isCandidateForImplicitSolving(space)))
+            axs
+            .sortBy(_.x.id)
+            .partition(ax => cc.space.definingConstraint(ax.x).exists(_.isCandidateForImplicitSolving(space)))
         val axs2 = randomGenerator.shuffle(axs0) ++ axs1
         for (ax <- axs2) {
             if (sigint.isSet) {
@@ -170,8 +169,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                 .map(if (otherWeightedNeighbourhoods.isEmpty) ImplicitConstraintMaintainer else OtherNeighbourhood)
             } else {
                 Some(OtherNeighbourhood(
-                        new NeighbourhoodCollection(
-                            neighbourhoods.toIndexedSeq, randomGenerator, None, cfg.probabilityOfFairChoiceInPercent)))
+                        new NeighbourhoodCollection(neighbourhoods.toIndexedSeq, randomGenerator, None, 0)))
             }
         }
     }

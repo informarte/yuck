@@ -24,6 +24,10 @@ import yuck.flatzinc.ast.Maximize
  * we keep track of goal satisfaction by means of a dynamic distribution (maintained by
  * an instance of [[yuck.constraints.DistributionMaintainer DistributionMaintainer]]).
  *
+ * In an attempt to decouple this factory from implementation details of data structures
+ * (hash sets, in particular) and the earlier compiler stages, we sort constraints and
+ * variables (by id) before further processing.
+ *
  * @author Michael Marte
  */
 class NeighbourhoodFactory
@@ -135,7 +139,7 @@ class NeighbourhoodFactory
             None
         } else {
             logger.logg("Adding a neighbourhood over %s".format(xs))
-            Some(new RandomReassignmentGenerator(space, xs.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, None, 0))
+            Some(new RandomReassignmentGenerator(space, xs.toBuffer.sorted.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, None, 0))
         }
     }
 

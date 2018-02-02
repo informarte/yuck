@@ -21,10 +21,6 @@ import yuck.util.arm.Sigint
  * Given some subset Z of Y, a neighbourhood over Z is assembled on the basis of a distribution
  * of size |Z| the frequencies of which will be kept in sync with the values of the h(z), z in Z.
  *
- * To decouple this factory from the compiler, we preserve the order of variables in arrays.
- * In particular, we avoid the usage of hash sets because the hash codes/ variable ids depend on
- * details of the compiler implementation.
- *
  * @author Michael Marte
  */
 final class VariableDrivenNeighbourhoodFactory
@@ -38,15 +34,16 @@ final class VariableDrivenNeighbourhoodFactory
         createNeighbourhoodForMinimizationGoal(x)
 
     protected override def createNeighbourhoodForMinimizationGoal(x: Variable[IntegerValue]) = {
-        val threadId = Thread.currentThread.getId
         val hotSpotIndicators =
             logger.withTimedLogScope("Creating hot-spot indicators for %s".format(x)) {
                 createHotSpotIndicators(x)
             }
         val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
-        for (constraint <- randomGenerator.shuffle(space.involvedConstraints(x).toSeq)) {
+        val candidatesForImplicitSolving =
+            space.involvedConstraints(x).toIterator.filter(_.isCandidateForImplicitSolving(space)).toBuffer.sorted
+        for (constraint <- randomGenerator.shuffle(candidatesForImplicitSolving)) {
             val xs = constraint.inVariables.toSet
-            if (constraint.isCandidateForImplicitSolving(space) && (xs & implicitlyConstrainedVars).isEmpty) {
+            if ((xs & implicitlyConstrainedVars).isEmpty) {
                 val maybeNeighbourhood =
                     constraint.prepareForImplicitSolving(
                         space, randomGenerator, cfg.moveSizeDistribution,
@@ -62,7 +59,7 @@ final class VariableDrivenNeighbourhoodFactory
         }
         val remainingVariables = hotSpotIndicators.keys.toSet -- implicitlyConstrainedVars
         if (! remainingVariables.isEmpty) {
-            val xs = remainingVariables.toIndexedSeq
+            val xs = remainingVariables.toBuffer.sorted.toIndexedSeq
             for (x <- xs if ! x.domain.isFinite) {
                 throw new VariableWithInfiniteDomainException(x)
             }
