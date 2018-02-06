@@ -98,39 +98,6 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
         assertEq(e.volume, 1000)
     }
 
-    @Test
-    def testDistributionMaintainer {
-        val d = df(3)
-        val space = new Space(logger)
-        val vr = new IntegerRange(Zero, new IntegerValue(100))
-        val x1 = space.createVariable("x1", vr)
-        val x2 = space.createVariable("x2", vr)
-        val x3 = space.createVariable("x3", vr)
-        val axs = immutable.IndexedSeq(new AX(One, x1), new AX(One, x2), new AX(One, x3))
-        val c = new DistributionMaintainer(space.constraintIdFactory.nextId, null, axs, d)
-        space
-            .post(c)
-            .setValue(x1, One)
-            .setValue(x2, Two)
-            .setValue(x3, Three)
-            .initialize
-        assertEq(d.frequency(0), 1)
-        assertEq(d.frequency(1), 2)
-        assertEq(d.frequency(2), 3)
-        assertEq(d.volume, 6)
-        val move = new ChangeValue(space.moveIdFactory.nextId, x1, Five)
-        space.consult(move)
-        assertEq(d.frequency(0), 1)
-        assertEq(d.frequency(1), 2)
-        assertEq(d.frequency(2), 3)
-        assertEq(d.volume, 6)
-        space.commit(move)
-        assertEq(d.frequency(0), 5)
-        assertEq(d.frequency(1), 2)
-        assertEq(d.frequency(2), 3)
-        assertEq(d.volume, 10)
-    }
-
 }
 
 /**

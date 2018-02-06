@@ -16,6 +16,7 @@ import org.junit._
         classOf[CountVarTest],
         classOf[CumulativeTest],
         classOf[DisjunctionTest],
+        classOf[DistributionMaintainerTest],
         classOf[ElementTest],
         classOf[InverseTest],
         classOf[LexLessEqTest],

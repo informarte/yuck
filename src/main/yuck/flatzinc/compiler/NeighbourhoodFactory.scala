@@ -2,9 +2,7 @@ package yuck.flatzinc.compiler
 
 import scala.collection._
 
-import yuck.constraints.Alldistinct
-import yuck.constraints.UnaryConstraint
-import yuck.constraints.DistributionMaintainer
+import yuck.constraints.{Alldistinct, DistributionMaintainer, UnaryConstraint}
 import yuck.core._
 import yuck.flatzinc.ast.{Minimize, Maximize}
 
@@ -33,12 +31,6 @@ class NeighbourhoodFactory
     (cc: CompilationContext, randomGenerator: RandomGenerator)
     extends CompilationPhase(cc, randomGenerator)
 {
-
-    protected object OptimizationMode extends Enumeration {
-        val Min = Value("Minimization")
-        val Max = Value("Maximization")
-    }
-
     protected val cfg = cc.cfg
     protected val logger = cc.logger
     protected val ast = cc.ast
@@ -54,59 +46,24 @@ class NeighbourhoodFactory
             logger.withTimedLogScope("Creating a neighbourhood for solving hard constraints") {
                 createNeighbourhoodForSatisfactionGoal(cc.costVar)
             }
-        cc.ast.solveGoal match {
-            case Minimize(a, _) =>
-                val maybeNeighbourhood1 =
-                    logger.withTimedLogScope("Creating a neighbourhood for minimizing %s".format(a)) {
-                        createNeighbourhoodForMinimizationGoal(a)
-                    }
-                stackNeighbourhoods(cc.costVar, maybeNeighbourhood0, a, maybeNeighbourhood1)
-            case Maximize(a, _) =>
-                val maybeNeighbourhood1 =
-                    logger.withTimedLogScope("Creating a neighbourhood for maximizing %s".format(a)) {
-                        createNeighbourhoodForMaximizationGoal(a)
-                    }
-                stackNeighbourhoods(cc.costVar, maybeNeighbourhood0, a, maybeNeighbourhood1)
-            case _ =>
-                maybeNeighbourhood0
-        }
-    }
-
-    private def stackNeighbourhoods(
-        costs0: Variable[IntegerValue], maybeNeighbourhood0: Option[Neighbourhood],
-        costs1: Variable[IntegerValue], maybeNeighbourhood1: Option[Neighbourhood]):
-        Option[Neighbourhood] =
-    {
-        (maybeNeighbourhood0, maybeNeighbourhood1) match {
-            case (None, None) => None
-            case (Some(neighbourhood0), None) => Some(neighbourhood0)
-            case (None, Some(neighbourhood1)) => Some(neighbourhood1)
-            case (Some(neighbourhood0), Some(neighbourhood1)) =>
-                val List(objective0, objective1) = cc.objective.asInstanceOf[HierarchicalObjective].objectives
-                val weight0 = createNonNegativeChannel[IntegerValue]
-                space.post(new LevelWeightMaintainer(nextConstraintId, null, costs0, weight0, objective0, Ten))
-                val weight1 = createNonNegativeChannel[IntegerValue]
-                space.post(new LevelWeightMaintainer(nextConstraintId, null, costs1, weight1, objective1, One))
-                val hotSpotDistribution = new ArrayBackedDistribution(2)
-                space.post(
-                    new DistributionMaintainer(
-                        nextConstraintId, null, List(weight0, weight1).toIndexedSeq, hotSpotDistribution))
-                Some(new NeighbourhoodCollection(
-                        immutable.IndexedSeq(neighbourhood0, neighbourhood1), randomGenerator, Some(hotSpotDistribution), None))
-        }
-    }
-
-    private class LevelWeightMaintainer
-        (id: Id[yuck.core.Constraint],
-         goal: Goal,
-         costs: Variable[IntegerValue],
-         priority: Variable[IntegerValue],
-         objective: AnyObjective,
-         gain: IntegerValue)
-        extends UnaryConstraint(id, goal, costs, priority)
-    {
-        override def toString = "levelWeightMaintainer(%s, %s, %s, %s)".format(costs, priority, objective, gain)
-        override def op(costs: IntegerValue) = if (objective.isGoodEnough(costs)) One else gain
+        val maybeNeighbourhood1 =
+            cc.ast.solveGoal match {
+                case Minimize(a, _) =>
+                    val maybeNeighbourhood1 =
+                        logger.withTimedLogScope("Creating a neighbourhood for minimizing %s".format(a)) {
+                            createNeighbourhoodForMinimizationGoal(a)
+                        }
+                    stackNeighbourhoods(cc.costVar, maybeNeighbourhood0, a, maybeNeighbourhood1)
+                case Maximize(a, _) =>
+                    val maybeNeighbourhood1 =
+                        logger.withTimedLogScope("Creating a neighbourhood for maximizing %s".format(a)) {
+                            createNeighbourhoodForMaximizationGoal(a)
+                        }
+                    stackNeighbourhoods(cc.costVar, maybeNeighbourhood0, a, maybeNeighbourhood1)
+                case _ =>
+                    maybeNeighbourhood0
+            }
+        maybeNeighbourhood1
     }
 
     protected def createNeighbourhoodForSatisfactionGoal(x: Variable[IntegerValue]): Option[Neighbourhood] =
@@ -134,6 +91,59 @@ class NeighbourhoodFactory
         }
     }
 
+    private final class Level(
+        val costs: Variable[IntegerValue],
+        val objective: AnyObjective)
+    {
+        val weight = createNonNegativeChannel[IntegerValue]
+        val effect = new ReusableEffectWithFixedVariable(weight)
+        override def toString = (costs, weight).toString
+    }
+
+    private final class LevelWeightMaintainer
+        (id: Id[yuck.core.Constraint], goal: Goal, level0: Level, level1: Level)
+        extends Constraint(id, goal)
+    {
+        override def inVariables = List(level0.costs, level1.costs)
+        override def outVariables = List(level0.weight, level1.weight)
+        private val effects = List(level0.effect, level1.effect)
+        override def toString = "levelWeightMaintainer(%s, %s)".format(level0, level1)
+        override def initialize(now: SearchState) = {
+            val solved = level0.objective.isGoodEnough(now.value(level0.costs))
+            level0.effect.a = if (solved) Zero else One
+            level1.effect.a = if (! solved || level1.objective.isGoodEnough(now.value(level1.costs))) Zero else One
+            effects
+        }
+        override def consult(before: SearchState, after: SearchState, move: Move) =
+            initialize(after)
+        override def commit(before: SearchState, after: SearchState, move: Move) =
+            effects
+    }
+
+    private final def stackNeighbourhoods(
+        costs0: Variable[IntegerValue], maybeNeighbourhood0: Option[Neighbourhood],
+        costs1: Variable[IntegerValue], maybeNeighbourhood1: Option[Neighbourhood]):
+        Option[Neighbourhood] =
+    {
+        (maybeNeighbourhood0, maybeNeighbourhood1) match {
+            case (None, None) => None
+            case (Some(neighbourhood0), None) => Some(neighbourhood0)
+            case (None, Some(neighbourhood1)) => Some(neighbourhood1)
+            case (Some(neighbourhood0), Some(neighbourhood1)) =>
+                val List(objective0, objective1) = cc.objective.asInstanceOf[HierarchicalObjective].objectives
+                val level0 = new Level(costs0, objective0)
+                val level1 = new Level(costs1, objective1)
+                space.post(new LevelWeightMaintainer(nextConstraintId, null, level0, level1))
+                val hotSpotDistribution = new ArrayBackedDistribution(2)
+                space.post(
+                    new DistributionMaintainer(
+                        nextConstraintId, null,
+                        OptimizationMode.Min, List(level0.weight, level1.weight).toIndexedSeq, hotSpotDistribution))
+                Some(new NeighbourhoodCollection(
+                        Vector(neighbourhood0, neighbourhood1), randomGenerator, Some(hotSpotDistribution), None))
+        }
+    }
+
     protected final def createNeighbourhoodOnInvolvedSearchVariables(x: Variable[IntegerValue]): Option[Neighbourhood] = {
         space.registerObjectiveVariable(x)
         val xs =
@@ -143,7 +153,8 @@ class NeighbourhoodFactory
             None
         } else {
             logger.logg("Adding a neighbourhood over %s".format(xs))
-            Some(new RandomReassignmentGenerator(space, xs.toBuffer.sorted.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, None, None))
+            Some(new RandomReassignmentGenerator(
+                    space, xs.toBuffer.sorted.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, None, None))
         }
     }
 
