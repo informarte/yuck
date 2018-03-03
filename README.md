@@ -67,7 +67,7 @@ When used as a FlatZinc interpreter, Yuck proceeds as follows:
 
 Yuck requires a Java 8 (or higher) runtime environment.
 
-This is the latest Yuck package: [yuck_20170812.zip](https://drive.google.com/open?id=0B3cKM2FQLv9vMFl0VUp2V2YyTms).
+This is the latest Yuck package: [yuck_20180303.zip](https://drive.google.com/open?id=1__UqlnLg0hJ5oFbOjtkuu6GcuU_XAg27).
 
 Unzip the package in a suitable location and change to the resulting folder. The start scripts reside in the `bin` subfolder; you can run Yuck with either `./bin/yuck` (on UNIX-based systems) or `bin\yuck.bat` (on Windows). Yuck's MiniZinc library resides in the `mzn` subfolder.
 
