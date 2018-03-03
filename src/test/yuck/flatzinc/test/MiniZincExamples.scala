@@ -8,6 +8,7 @@ import org.junit.experimental.categories.Categories._
 import org.junit.runner.RunWith
 import org.junit.runners.Suite.SuiteClasses
 
+import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
 import yuck.flatzinc.test.util._
 
@@ -20,7 +21,11 @@ import yuck.flatzinc.test.util._
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class MiniZincExamples extends MiniZincBasedTest {
 
-    private val task = MiniZincTestTask(directoryLayout = MiniZincExamplesLayout, suitePath = "resources/mzn/examples")
+    private val task =
+        MiniZincTestTask(
+            directoryLayout = MiniZincExamplesLayout,
+            suitePath = "resources/mzn/examples",
+            solverConfiguration = new FlatZincSolverConfiguration(guideOptimization = true))
 
     private implicit def createTask(problemName: String): MiniZincTestTask = task.copy(problemName = problemName)
 

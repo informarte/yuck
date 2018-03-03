@@ -31,9 +31,15 @@ final class VariableDrivenNeighbourhoodFactory
     private lazy val searchVariables = space.searchVariables
 
     protected override def createNeighbourhoodForSatisfactionGoal(x: Variable[IntegerValue]) =
-        createNeighbourhoodForMinimizationGoal(x)
+        if (cfg.focusOnConstraintViolations) createNeighbourhood(OptimizationMode.Min, x)
+        else super.createNeighbourhoodForSatisfactionGoal(x)
 
-    protected override def createNeighbourhoodForMinimizationGoal(x: Variable[IntegerValue]) = {
+    protected override def createNeighbourhoodForMinimizationGoal(x: Variable[IntegerValue]) =
+        if (cfg.guideOptimization) createNeighbourhood(OptimizationMode.Min, x)
+        else super.createNeighbourhoodForMinimizationGoal(x)
+
+    private def createNeighbourhood(mode: OptimizationMode.Value, x: Variable[IntegerValue]) = {
+        require(mode == OptimizationMode.Min)
         val hotSpotIndicators =
             logger.withTimedLogScope("Creating hot-spot indicators for %s".format(x)) {
                 createHotSpotIndicators(x)

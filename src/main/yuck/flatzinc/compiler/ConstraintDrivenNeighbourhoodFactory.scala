@@ -38,9 +38,15 @@ final class ConstraintDrivenNeighbourhoodFactory
 {
 
     protected override def createNeighbourhoodForSatisfactionGoal(x: Variable[IntegerValue]) =
-        createNeighbourhoodForMinimizationGoal(x)
+        if (cfg.focusOnConstraintViolations) createNeighbourhood(OptimizationMode.Min, x)
+        else super.createNeighbourhoodForSatisfactionGoal(x)
 
-    protected override def createNeighbourhoodForMinimizationGoal(x: Variable[IntegerValue]) = {
+    protected override def createNeighbourhoodForMinimizationGoal(x: Variable[IntegerValue]) =
+        if (cfg.guideOptimization) createNeighbourhood(OptimizationMode.Min, x)
+        else super.createNeighbourhoodForMinimizationGoal(x)
+
+    private def createNeighbourhood(mode: OptimizationMode.Value, x: Variable[IntegerValue]) = {
+        require(mode == OptimizationMode.Min)
         space.registerObjectiveVariable(x)
         if (space.isDanglingVariable(x)) {
             // assign minimum value

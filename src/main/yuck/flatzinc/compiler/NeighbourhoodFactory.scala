@@ -6,8 +6,7 @@ import yuck.constraints.Alldistinct
 import yuck.constraints.UnaryConstraint
 import yuck.constraints.DistributionMaintainer
 import yuck.core._
-import yuck.flatzinc.ast.Minimize
-import yuck.flatzinc.ast.Maximize
+import yuck.flatzinc.ast.{Minimize, Maximize}
 
 /**
  * Customizable factory for creating a neighbourhood for the problem at hand.
@@ -34,6 +33,11 @@ class NeighbourhoodFactory
     (cc: CompilationContext, randomGenerator: RandomGenerator)
     extends CompilationPhase(cc, randomGenerator)
 {
+
+    protected object OptimizationMode extends Enumeration {
+        val Min = Value("Minimization")
+        val Max = Value("Maximization")
+    }
 
     protected val cfg = cc.cfg
     protected val logger = cc.logger
