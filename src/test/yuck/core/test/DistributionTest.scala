@@ -16,45 +16,45 @@ import yuck.util.testing.UnitTest
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
-final class DistributionTest(df: Int => Distribution) extends UnitTest {
+final class DistributionTest(createDistribution: Int => Distribution) extends UnitTest {
 
     @Test
     def testBasics {
         val n = 256
-        val d = df(n)
+        val d = createDistribution(n)
         var m = 0
-        var sum = 0
+        var volume = 0
         assertEq(d.volume, 0)
         assertEq(d.numberOfAlternatives, 0)
         for (i <- 0 until n) {
             val delta = i % 8
-            sum += delta
+            volume += delta
             if (delta > 0) m += 1
             d.addFrequencyDelta(i, delta)
             assertEq(d.frequency(i), delta)
-            assertEq(d.cdf(i), sum)
-            assertEq(d.cdf(n - 1), sum)
-            assertEq(d.volume, sum)
+            assertEq(d.cdf(i), volume)
+            assertEq(d.cdf(n - 1), volume)
+            assertEq(d.volume, volume)
             assertEq(d.numberOfAlternatives, m)
-            if (sum > 0) {
+            if (volume > 0) {
                 assertEq(d.probability(i).value, d.frequency(i).toDouble / d.volume.toDouble)
-                assertEq(d.inverseCdf(sum - 1), if (delta == 0) i - 1 else i)
+                assertEq(d.inverseCdf(volume - 1), if (delta == 0) i - 1 else i)
             }
         }
         for (i <- 0 until n - 1) {
             val delta = i % 8
-            sum -= delta
+            volume -= delta
             if (delta > 0) m -= 1
             d.setFrequency(i, 0)
             assertEq(d.frequency(i), 0)
             assertEq(d.cdf(i), 0)
-            assertEq(d.cdf(n - 1), sum)
-            assertEq(d.volume, sum)
+            assertEq(d.cdf(n - 1), volume)
+            assertEq(d.volume, volume)
             assertEq(d.numberOfAlternatives, m)
-            if (sum > 0) {
-                assertEq(d.probability(i).value, d.frequency(i).toDouble / sum.toDouble)
+            if (volume > 0) {
+                assertEq(d.probability(i).value, d.frequency(i).toDouble / volume.toDouble)
                 assertEq(d.inverseCdf(0), if ((i + 1) % 8 == 0) i + 2 else i + 1)
-                assertEq(d.inverseCdf(sum - 1), n - 1)
+                assertEq(d.inverseCdf(volume - 1), n - 1)
             }
         }
         assertGt(d.volume, 0)
@@ -66,7 +66,7 @@ final class DistributionTest(df: Int => Distribution) extends UnitTest {
     @Test
     def testExceptionalCases {
         val n = 1
-        val d = df(n)
+        val d = createDistribution(n)
         assertEx(d.setFrequency(-1, 0))
         assertEx(d.setFrequency(n, 0))
         assertEx(d.addFrequencyDelta(-1, 0))
@@ -82,18 +82,19 @@ final class DistributionTest(df: Int => Distribution) extends UnitTest {
     @Test
     def testRandomIndexGeneration {
         val n = 3
-        val d = df(n)
+        val d = createDistribution(n)
         for (i <- 0 to 2) {
             d.setFrequency(i, i)
         }
         val randomGenerator = new JavaRandomGenerator
-        val e = df(n)
-        for (i <- 0 until 1000) {
+        val e = createDistribution(n)
+        val SAMPLE_SIZE = 1000
+        for (i <- 0 until SAMPLE_SIZE) {
             e.addFrequencyDelta(d.nextIndex(randomGenerator), 1)
         }
         assertEq(e.frequency(0), 0)
-        assertGt(e.frequency(1), 300)
-        assertGt(e.frequency(2), 600)
+        assertGt(e.frequency(1), 330)
+        assertGt(e.frequency(2), 650)
         assertEq(e.volume, 1000)
     }
 
@@ -132,13 +133,17 @@ final class DistributionTest(df: Int => Distribution) extends UnitTest {
 
 }
 
-object DistributionTest {
+/**
+ * @author Michael Marte
+ *
+ */
+final object DistributionTest {
 
     @runners.Parameterized.Parameters
     def parameters =
         List(
-            Array(n => new ArrayBackedDistribution(n)),
-            Array(n => new FenwickTreeBackedDistribution(n))
+            Array(new ArrayBackedDistribution(_)),
+            Array(new FenwickTreeBackedDistribution(_))
         ).asJava
 
 }

@@ -22,7 +22,7 @@ import yuck.flatzinc.parser.test._
         classOf[FenwickTreeTest],
         classOf[DistributionTest],
         classOf[ConstraintTestSuite],
-        classOf[NeighbourhoodTest],
+        classOf[NeighbourhoodTestSuite],
         classOf[ProgressiveTighteningTest],
         classOf[Queens],
         classOf[SendMoreMoney],

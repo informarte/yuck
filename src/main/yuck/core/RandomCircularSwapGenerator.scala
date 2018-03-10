@@ -48,6 +48,7 @@ final class RandomCircularSwapGenerator
         require(xs(i - 1).domain == xs(i).domain)
     }
 
+    require(moveSizeDistribution.size > 2)
     require(moveSizeDistribution.frequency(0) == 0)
     require(moveSizeDistribution.volume > 0)
 
