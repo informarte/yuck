@@ -1,9 +1,11 @@
+import scala.sys.process._
+
 val gitHeadCommitSha = settingKey[String]("The current git commit SHA")
-gitHeadCommitSha := Process("git rev-parse HEAD").lines.head
+gitHeadCommitSha := Process("git rev-parse HEAD").lineStream.head
 val currentGitBranch = settingKey[String]("The current git branch")
-currentGitBranch := Process("git rev-parse --abbrev-ref HEAD").lines.head
+currentGitBranch := Process("git rev-parse --abbrev-ref HEAD").lineStream.head
 val today = settingKey[String]("The current date")
-today := Process("date +%Y%m%d").lines.head
+today := Process("date +%Y%m%d").lineStream.head
 
 name := "yuck"
 description := "Yuck is a constraint-based local-search solver with FlatZinc interface."
