@@ -41,8 +41,7 @@ final class DomainFinalizer
     private def finalizeBooleanDomain(x: Variable[IntegerValue], dx: BooleanDomain) {
         if (dx.isSingleton) {
             if (cc.space.isChannelVariable(x)) {
-                x.turnIntoChannel(IntegerValueTraits)
-                x.pruneDomain(NonNegativeIntegerRange)
+                x.turnIntoChannel(IntegerValueTraits.nonNegativeDomain)
                 if (dx.singleValue == True) {
                     cc.costVars += x
                 } else {
@@ -54,15 +53,14 @@ final class DomainFinalizer
                 cc.space.setValue(x, if (dx.singleValue == True) Zero else One)
             }
         } else if (cc.space.isChannelVariable(x)) {
-            x.turnIntoChannel(IntegerValueTraits)
-            x.pruneDomain(NonNegativeIntegerRange)
+            x.turnIntoChannel(IntegerValueTraits.nonNegativeDomain)
         }
     }
 
     private def finalizeIntegerDomain(x: Variable[IntegerValue], dx: IntegerDomain) {
         if (dx.isBounded) {
             if (cc.space.isChannelVariable(x)) {
-                x.turnIntoChannel(IntegerValueTraits)
+                x.turnIntoChannel(IntegerValueTraits.completeDomain)
                 if (! cc.space.definingConstraint(x).get.isInstanceOf[Bool2Int1] || dx.isSingleton) {
                     val costs = createNonNegativeChannel[IntegerValue]
                     cc.space.post(new SetIn(nextConstraintId, null, x, dx, costs))
@@ -79,7 +77,7 @@ final class DomainFinalizer
     private def finalizeIntegerSetDomain(x: Variable[IntegerSetValue], dx: IntegerPowersetDomain) {
         if (dx.isBounded) {
             if (cc.space.isChannelVariable(x)) {
-                x.turnIntoChannel(IntegerSetValueTraits)
+                x.turnIntoChannel(IntegerSetValueTraits.completeDomain)
                 val costs = createNonNegativeChannel[IntegerValue]
                 cc.space.post(new SetSubset(nextConstraintId, null, x, dx.base, costs))
                 cc.costVars += costs

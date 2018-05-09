@@ -17,7 +17,6 @@ final class ObjectiveFactory
 {
 
     private val cfg = cc.cfg
-    private val domains = cc.domains
     private val logger = cc.logger
     private val space = cc.space
     private val implicitlyConstrainedVars = cc.implicitlyConstrainedVars
@@ -29,7 +28,7 @@ final class ObjectiveFactory
             case Satisfy(_) =>
             case Minimize(a, _) =>
                 val x = compileExpr[IntegerValue](a)
-                val dx = domains(a).asInstanceOf[IntegerDomain]
+                val dx = x.domain.asInstanceOf[IntegerDomain]
                 val lb =
                     cfg.maybeTargetObjectiveValue
                     .orElse(dx.maybeLb.map(_.value))
@@ -64,7 +63,7 @@ final class ObjectiveFactory
                 }
             case Maximize(a, _) =>
                 val x = compileExpr[IntegerValue](a)
-                val dx = domains(a).asInstanceOf[IntegerDomain]
+                val dx = x.domain.asInstanceOf[IntegerDomain]
                 val ub =
                     cfg.maybeTargetObjectiveValue
                     .orElse(dx.maybeUb.map(_.value))

@@ -19,9 +19,7 @@ final class Assignment(valDir: mutable.AnyRefMap[AnyVariable, AnyValue]) extends
 
     /** Assigns the given value to the given variable. */
     def setValue[Value <: AnyValue](x: Variable[Value], a: Value): Assignment = {
-        require(
-            x.domain.contains(a),
-            "Domain %s of variable %s does not contain value %s".format(x.domain, x, a))
+        x.checkAssignment(a)
         valDir += x -> a
         this
     }

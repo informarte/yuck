@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
 final class VariableTest extends UnitTest {
 
     @Test
-    def testVariableEquality {
+    def testEquality {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
@@ -25,7 +25,7 @@ final class VariableTest extends UnitTest {
     }
 
     @Test
-    def testVariableCasting {
+    def testCasting {
         val space = new Space(logger)
         val b = space.createVariable("b", CompleteBooleanDomain)
         val i = space.createVariable("i", CompleteIntegerRange)
@@ -44,6 +44,29 @@ final class VariableTest extends UnitTest {
         IntegerSetValueTraits.safeDowncast(bar)
         IntegerSetValueTraits.safeDowncast[List](List(foo, bar))
         assertEx(IntegerSetValueTraits.safeDowncast[List](List(b, i)))
+    }
+
+    @Test
+    def testPruning {
+        val space = new Space(logger)
+        val x = space.createVariable("x", NonNegativeIntegerRange)
+        assertEx(x.pruneDomain(NonPositiveIntegerRange))
+        x.pruneDomain(new IntegerRange(Zero, Ten))
+        assertEq(x.domain, new IntegerRange(Zero, Ten))
+    }
+
+    @Test
+    def testAssignmentChecking {
+        val space = new Space(logger)
+        val dx = new IntegerRange(One, Ten)
+        val x = space.createVariable("x", dx)
+        dx.values.foreach(space.setValue(x, _))
+        assertEx(space.setValue(x, dx.lb - One))
+        assertEx(space.setValue(x, dx.ub + One))
+        x.turnIntoChannel(NonNegativeIntegerRange)
+        assertEx(space.setValue(x, MinusOne))
+        space.setValue(x, dx.lb - One)
+        space.setValue(x, dx.ub + One)
     }
 
 }
