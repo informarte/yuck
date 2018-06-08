@@ -1,7 +1,7 @@
 package yuck.flatzinc
 
-import yuck.annealing.{DEFAULT_MOVE_SIZE_DISTRIBUTION, DEFAULT_PROBABILITY_OF_FAIR_CHOICE_IN_PERCENT}
-import yuck.core.{DEFAULT_SEED, DEFAULT_RESTART_LIMIT, Distribution}
+import yuck.annealing.{DEFAULT_MOVE_SIZE_DISTRIBUTION}
+import yuck.core.{DEFAULT_SEED, DEFAULT_RESTART_LIMIT, Distribution, Probability}
 
 /**
  * @author Michael Marte
@@ -20,7 +20,12 @@ case class FlatZincSolverConfiguration(
     val preferImplicitSolvingOverDomainPruning: Boolean = false,
     val checkConstraintPropagation: Boolean = false,
     val moveSizeDistribution: Distribution = DEFAULT_MOVE_SIZE_DISTRIBUTION,
-    val probabilityOfFairChoiceInPercent: Int = DEFAULT_PROBABILITY_OF_FAIR_CHOICE_IN_PERCENT,
+    val maybeFairVariableChoiceRate: Option[Probability] = Some(Probability.from(3)),
     val focusOnConstraintViolations: Boolean = true,
     val guideOptimization: Boolean = false)
-{}
+{
+    require(restartLimit >= 0)
+    require(numberOfVirtualCores > 0)
+    require(maybeRoundLimit.getOrElse(0) >= 0)
+    require(maybeRuntimeLimitInSeconds.getOrElse(0) >= 0)
+}

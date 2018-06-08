@@ -53,7 +53,7 @@ final class VariableDrivenNeighbourhoodFactory
                 val maybeNeighbourhood =
                     constraint.prepareForImplicitSolving(
                         space, randomGenerator, cfg.moveSizeDistribution,
-                        createHotSpotDistribution(hotSpotIndicators), cfg.probabilityOfFairChoiceInPercent,
+                        createHotSpotDistribution(hotSpotIndicators), cfg.maybeFairVariableChoiceRate,
                         sigint)
                 if (maybeNeighbourhood.isDefined) {
                     implicitlyConstrainedVars ++= xs
@@ -73,12 +73,12 @@ final class VariableDrivenNeighbourhoodFactory
             neighbourhoods +=
                 new RandomReassignmentGenerator(
                     space, xs, randomGenerator, cfg.moveSizeDistribution,
-                    createHotSpotDistribution(hotSpotIndicators)(xs), cfg.probabilityOfFairChoiceInPercent)
+                    createHotSpotDistribution(hotSpotIndicators)(xs), cfg.maybeFairVariableChoiceRate)
         }
         if (neighbourhoods.size < 2) {
             neighbourhoods.headOption
         } else {
-            Some(new NeighbourhoodCollection(neighbourhoods.toIndexedSeq, randomGenerator, None, 0))
+            Some(new NeighbourhoodCollection(neighbourhoods.toIndexedSeq, randomGenerator, None, None))
         }
     }
 

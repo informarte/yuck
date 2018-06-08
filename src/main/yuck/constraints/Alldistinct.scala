@@ -52,7 +52,7 @@ final class Alldistinct
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
         hotSpotDistributionFactory: Seq[AnyVariable] => Option[Distribution],
-        probabilityOfFairChoiceInPercent: Int,
+        maybeFairVariableChoiceRate: Option[Probability],
         sigint: Sigint):
         Option[Neighbourhood] =
     {
@@ -95,7 +95,7 @@ final class Alldistinct
                             new RandomReassignmentGenerator(
                                 subspace, subspace.searchVariables.toIndexedSeq, randomGenerator.nextGen,
                                 DEFAULT_MOVE_SIZE_DISTRIBUTION, maybeHotSpotDistribution = None,
-                                probabilityOfFairChoiceInPercent = 0),
+                                maybeFairVariableChoiceRate = None),
                             randomGenerator.nextGen,
                             new MinimizationObjective(subcosts, Zero, None),
                             maybeRoundLimit = Some(1000),
@@ -145,7 +145,7 @@ final class AlldistinctNeighbourhood
     require(moveSizeDistribution.frequency(0) == 0)
     require(moveSizeDistribution.volume > 0)
 
-    private val probabilityOfSwappingInValuesInPercent = moveSizeDistribution.frequency(1)
+    private val probabilityOfSwappingInValues = moveSizeDistribution.probability(1)
     private val variablesHaveTheSameDomain = xs.forall(x => x.domain == xs.head.domain)
     private val swappingInValuesIsPossible = xs.toIterator.map(_.domain.values).flatten.toSet.size > n
     private val effects = Vector.fill(3){new ReusableEffect[Value]}
@@ -157,10 +157,7 @@ final class AlldistinctNeighbourhood
         require(m <= n)
         val swapInAValue =
             swappingInValuesIsPossible &&
-            (m == 1 ||
-             probabilityOfSwappingInValuesInPercent == 100 ||
-             (probabilityOfSwappingInValuesInPercent > 0 &&
-              randomGenerator.nextInt(100) < probabilityOfSwappingInValuesInPercent))
+            (m == 1 || randomGenerator.nextDecision(probabilityOfSwappingInValues))
         if (swapInAValue) {
             val usedValues = valueTraits.createDomain(xs.toIterator.map(value).toSet)
             if (m == 1) {

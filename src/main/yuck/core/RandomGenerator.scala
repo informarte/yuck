@@ -21,7 +21,11 @@ abstract class RandomGenerator {
     def nextProbability: Double
 
     /** Generates a random decision. */
-    def nextDecision: Boolean = nextInt(2) != 0
+    final def nextDecision: Boolean = nextInt(2) != 0
+
+    /** Generates a random decision under consideration of the given probability for "yes". */
+    final def nextDecision(p: Probability): Boolean =
+         p.value == 1 || (p.value > 0 && nextInt(100) < p.value * 100)
 
     /** Creates a random generator of the same type seeded with nextInt. */
     def nextGen: RandomGenerator

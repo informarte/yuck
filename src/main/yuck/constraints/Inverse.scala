@@ -196,7 +196,7 @@ final class Inverse
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
         hotSpotDistributionFactory: Seq[AnyVariable] => Option[Distribution],
-        probabilityOfFairChoiceInPercent: Int,
+        maybeFairVariableChoiceRate: Option[Probability],
         sigint: Sigint):
         Option[Neighbourhood] =
     {
@@ -237,7 +237,7 @@ final class Inverse
                                 new RandomReassignmentGenerator(
                                     subspace, subspace.searchVariables.toIndexedSeq, randomGenerator.nextGen,
                                     DEFAULT_MOVE_SIZE_DISTRIBUTION, maybeHotSpotDistribution = None,
-                                    probabilityOfFairChoiceInPercent = 0),
+                                    maybeFairVariableChoiceRate = None),
                                 randomGenerator.nextGen,
                                 new MinimizationObjective(subcosts, Zero, None),
                                 maybeRoundLimit = Some(1000),

@@ -46,7 +46,7 @@ final class ProgressiveTighteningTest extends IntegrationTest {
             space,
             createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen),
             new RandomReassignmentGenerator(
-                space, Vector(x), randomGenerator.nextGen, DEFAULT_MOVE_SIZE_DISTRIBUTION, None, 0),
+                space, Vector(x), randomGenerator.nextGen, DEFAULT_MOVE_SIZE_DISTRIBUTION, None, None),
             randomGenerator.nextGen,
             objective,
             Some(1),

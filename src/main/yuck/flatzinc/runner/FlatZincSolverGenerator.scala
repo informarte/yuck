@@ -93,7 +93,7 @@ final class FlatZincSolverGenerator
         }
         val randomGenerator = new JavaRandomGenerator(cfg.seed)
         val solvers =
-            for (i <- 1 to 1 + max(0, cfg.restartLimit)) yield
+            for (i <- 1 to 1 + cfg.restartLimit) yield
                 new OnDemandGeneratedSolver(
                     new BaseSolverGenerator(randomGenerator.nextGen, i),
                     logger,

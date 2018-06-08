@@ -85,7 +85,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                 val xs = constraint.inVariables.toSet
                 val maybeNeighbourhood =
                     if (constraint.isCandidateForImplicitSolving(space) && (xs & implicitlyConstrainedVars).isEmpty) {
-                        constraint.prepareForImplicitSolving(space, randomGenerator, cfg.moveSizeDistribution, _ => None, 0, sigint)
+                        constraint.prepareForImplicitSolving(space, randomGenerator, cfg.moveSizeDistribution, _ => None, None, sigint)
                     } else {
                         None
                     }
@@ -110,7 +110,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                         logger.logg("%s contributes a neighbourhood over %s".format(constraint, xs))
                         val neighbourhood =
                             new RandomReassignmentGenerator(
-                                space, xs.toBuffer.sorted.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, None, 0)
+                                space, xs.toBuffer.sorted.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, None, None)
                         Some(OtherNeighbourhood(neighbourhood))
                     }
                 }
@@ -166,7 +166,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                     val hotSpotDistribution = DistributionFactory.createDistribution(weights.size)
                     space.post(new DistributionMaintainer(nextConstraintId, null, weights, hotSpotDistribution))
                     neighbourhoods +=
-                        new NeighbourhoodCollection(otherNeighbourhoods, randomGenerator, Some(hotSpotDistribution), 0)
+                        new NeighbourhoodCollection(otherNeighbourhoods, randomGenerator, Some(hotSpotDistribution), None)
                 }
             }
             if (neighbourhoods.size < 2) {
@@ -175,7 +175,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                 .map(if (otherWeightedNeighbourhoods.isEmpty) ImplicitConstraintMaintainer else OtherNeighbourhood)
             } else {
                 Some(OtherNeighbourhood(
-                        new NeighbourhoodCollection(neighbourhoods.toIndexedSeq, randomGenerator, None, 0)))
+                        new NeighbourhoodCollection(neighbourhoods.toIndexedSeq, randomGenerator, None, None)))
             }
         }
     }

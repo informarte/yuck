@@ -12,13 +12,13 @@ import scala.math._
  * Choosing the number of variables involved in a move is guided by the given
  * move-size distribution.
  *
- * Variable selection can happen in two ways:
+ * Variable choice can happen in two ways:
  * In fair mode, all variables are equally likely to occur in a move while
  * in unfair mode the selection probability may be skewed in some way.
  *
- * To facilitate unfair choice, a so-called hot-spot distribution has to be given.
+ * To facilitate unfair variable choice, a so-called hot-spot distribution has to be given.
  *
- * With unfair choice enabled, the probability of fair choice comes into play.
+ * In unfair mode, the probability of fair variable choice comes into play.
  *
  * Falls back to fair mode when the given hot-spot distribution has zero volume.
  *
@@ -30,18 +30,20 @@ final class RandomReassignmentGenerator
      randomGenerator: RandomGenerator,
      moveSizeDistribution: Distribution,
      maybeHotSpotDistribution: Option[Distribution],
-     probabilityOfFairChoiceInPercent: Int)
+     maybeFairVariableChoiceRate: Option[Probability])
     extends Neighbourhood
 {
 
     private val n = xs.size
     require(n > 0)
     require(n == xs.toSet.size)
+
     require(xs.forall(space.isSearchVariable))
     require(xs.forall(_.domain.isFinite))
+
     require(moveSizeDistribution.frequency(0) == 0)
     require(moveSizeDistribution.volume > 0)
-    require((0 to 100).contains(probabilityOfFairChoiceInPercent))
+
     private val uniformDistribution = DistributionFactory.createDistribution(n)
     (0 until n).foreach(i => uniformDistribution.setFrequency(i, 1))
     require(uniformDistribution.volume > 0)
@@ -60,8 +62,7 @@ final class RandomReassignmentGenerator
         val useUniformDistribution =
             maybeHotSpotDistribution.isEmpty ||
             maybeHotSpotDistribution.get.volume == 0 ||
-            probabilityOfFairChoiceInPercent == 100 ||
-            (probabilityOfFairChoiceInPercent > 0 && randomGenerator.nextInt(100) < probabilityOfFairChoiceInPercent)
+            (maybeFairVariableChoiceRate.isDefined && randomGenerator.nextDecision(maybeFairVariableChoiceRate.get))
         val priorityDistribution = if (useUniformDistribution) uniformDistribution else maybeHotSpotDistribution.get
         val m =
             scala.math.min(

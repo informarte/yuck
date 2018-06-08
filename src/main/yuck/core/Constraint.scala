@@ -82,7 +82,7 @@ abstract class Constraint
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
         hotSpotDistributionFactory: Seq[AnyVariable] => Option[Distribution],
-        probabilityOfFairChoiceInPercent: Int,
+        maybeFairVariableChoiceRate: Option[Probability],
         sigint: Sigint):
         Option[Neighbourhood] =
         None

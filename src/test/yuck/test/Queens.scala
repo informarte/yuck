@@ -57,7 +57,7 @@ final class Queens extends IntegrationTest {
                     space,
                     createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen),
                     new RandomCircularSwapGenerator(
-                        space, rows.toIndexedSeq, randomGenerator.nextGen, DEFAULT_MOVE_SIZE_DISTRIBUTION, None, 0),
+                        space, rows.toIndexedSeq, randomGenerator.nextGen, DEFAULT_MOVE_SIZE_DISTRIBUTION, None, None),
                     randomGenerator.nextGen,
                     new MinimizationObjective(conflicts, Zero, None),
                     None,

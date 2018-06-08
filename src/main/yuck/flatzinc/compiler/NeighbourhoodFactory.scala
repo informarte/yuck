@@ -92,7 +92,7 @@ class NeighbourhoodFactory
                     new DistributionMaintainer(
                         nextConstraintId, null, List(weight0, weight1).toIndexedSeq, hotSpotDistribution))
                 Some(new NeighbourhoodCollection(
-                        immutable.IndexedSeq(neighbourhood0, neighbourhood1), randomGenerator, Some(hotSpotDistribution), 0))
+                        immutable.IndexedSeq(neighbourhood0, neighbourhood1), randomGenerator, Some(hotSpotDistribution), None))
         }
     }
 
@@ -143,7 +143,7 @@ class NeighbourhoodFactory
             None
         } else {
             logger.logg("Adding a neighbourhood over %s".format(xs))
-            Some(new RandomReassignmentGenerator(space, xs.toBuffer.sorted.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, None, 0))
+            Some(new RandomReassignmentGenerator(space, xs.toBuffer.sorted.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, None, None))
         }
     }
 

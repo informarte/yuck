@@ -37,6 +37,7 @@ final class DistributionTest(df: Int => Distribution) extends UnitTest {
             assertEq(d.volume, sum)
             assertEq(d.numberOfAlternatives, m)
             if (sum > 0) {
+                assertEq(d.probability(i).value, d.frequency(i).toDouble / d.volume.toDouble)
                 assertEq(d.inverseCdf(sum - 1), if (delta == 0) i - 1 else i)
             }
         }
@@ -51,6 +52,7 @@ final class DistributionTest(df: Int => Distribution) extends UnitTest {
             assertEq(d.volume, sum)
             assertEq(d.numberOfAlternatives, m)
             if (sum > 0) {
+                assertEq(d.probability(i).value, d.frequency(i).toDouble / sum.toDouble)
                 assertEq(d.inverseCdf(0), if ((i + 1) % 8 == 0) i + 2 else i + 1)
                 assertEq(d.inverseCdf(sum - 1), n - 1)
             }

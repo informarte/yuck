@@ -111,7 +111,7 @@ final class AlldistinctTest extends UnitTest {
         assertEq(now.value(costs), Two)
         val maybeNeighbourhood =
             c.prepareForImplicitSolving(
-                space, new JavaRandomGenerator, DEFAULT_MOVE_SIZE_DISTRIBUTION, _ => None, 0, new SettableSigint)
+                space, new JavaRandomGenerator, DEFAULT_MOVE_SIZE_DISTRIBUTION, _ => None, None, new SettableSigint)
         assert(maybeNeighbourhood.isDefined)
         val neighbourhood = maybeNeighbourhood.get
         assertNe(now.value(s), now.value(t))

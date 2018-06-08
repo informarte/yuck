@@ -24,6 +24,9 @@ abstract class Distribution {
     /** Returns the frequency associated with the given index. */
     def frequency(i: Int): Int
 
+    /** Computes the probability associated with the given index. */
+    final def probability(i: Int): Probability = Probability.from(frequency(i).toDouble / volume.toDouble)
+
     /** Returns the number of currently available alternatives. */
     def numberOfAlternatives: Int
 
