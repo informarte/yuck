@@ -103,8 +103,8 @@ final class MiniZincChallenge2014 extends MiniZincBasedTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
-    def solbat_13_13_5_5 {
-        solve(task.copy(problemName = "solbat", modelName = "sb", instanceName = "sb_13_13_5_5"))
+    def solbat_13_13_6_5 {
+        solve(task.copy(problemName = "solbat", modelName = "sb", instanceName = "sb_13_13_6_5"))
     }
 
     @Test

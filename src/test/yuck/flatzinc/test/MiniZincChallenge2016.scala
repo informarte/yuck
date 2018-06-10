@@ -91,8 +91,8 @@ final class MiniZincChallenge2016 extends MiniZincBasedTest {
 
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasCumulativeConstraint], classOf[HasElementConstraint]))
-    def mrcpsp_j30_1_10 {
-        solve(task.copy(problemName = "mrcpsp", instanceName = "mm_j30/j30_1_10", maybeOptimum = Some(24)))
+    def mrcpsp_j30_15_5 {
+        solve(task.copy(problemName = "mrcpsp", instanceName = "mm_j30/j30_15_5", maybeOptimum = Some(24)))
     }
 
     @Test
