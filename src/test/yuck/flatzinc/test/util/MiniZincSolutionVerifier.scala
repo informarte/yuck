@@ -122,7 +122,9 @@ class MiniZincSolutionVerifier(
             checkIndicators(solution) &&
             new ProcessRunner(logger, mzn2fznCommand).call._2.isEmpty && {
                 val (outputLines, errorLines) = new ProcessRunner(logger, flatzincCommand).call
-                ! outputLines.contains(FLATZINC_INCONSISTENT_PROBLEM_INDICATOR) && checkObjective(outputLines)
+                errorLines.isEmpty &&
+                ! outputLines.contains(FLATZINC_INCONSISTENT_PROBLEM_INDICATOR) &&
+                checkObjective(outputLines)
             }
         verified
     }
