@@ -21,8 +21,7 @@ final class FenwickTreeBackedDistribution(override val size: Int) extends Distri
         require(f >= 0)
         val delta = f - f0
         ft.addDelta(i + 1, delta)
-        frequencySum += delta
-        assert(frequencySum >= 0, "Integer overflow")
+        frequencySum = safeAdd(frequencySum, delta)
         if (f0 == 0 && f > 0) numberOfNonZeroFrequencies += 1
         else if (f0 > 0 && f == 0) numberOfNonZeroFrequencies -= 1
     }
@@ -31,7 +30,7 @@ final class FenwickTreeBackedDistribution(override val size: Int) extends Distri
     }
     override def addFrequencyDelta(i: Int, delta: Int) {
         val f0 = frequency(i)
-        setFrequency(i, f0, f0 + delta)
+        setFrequency(i, f0, safeAdd(f0, delta))
     }
     override def frequency(i: Int) = ft.value(i + 1)
     override def volume = frequencySum

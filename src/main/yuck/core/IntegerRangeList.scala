@@ -2,6 +2,7 @@ package yuck.core
 
 import scala.collection._
 import scala.annotation.tailrec
+import scala.math.{max, min}
 
 import IntegerDomain.{createRange, createDomain}
 
@@ -40,7 +41,7 @@ final class IntegerRangeList
     override def toString = if (isEmpty) "{}" else ranges.map(_.toString).mkString(" union ")
 
     @inline override def isEmpty = ranges.isEmpty
-    override lazy val size = ranges.map(_.size).sum
+    override lazy val size = ranges.map(_.size).foldLeft(0)(safeAdd)
     override def isComplete = ranges.size == 1 && ranges.head.isComplete
     override def isFinite = isEmpty || (lb != null && ub != null)
     override def hasGaps = ranges.size > 1
@@ -98,8 +99,9 @@ final class IntegerRangeList
     override def bisect = {
         require(! isEmpty)
         require(isFinite)
-        val mid = lb + ((ub - lb + One) / Two)
-        (this.intersect(createRange(lb, mid - One)), this.intersect(createRange(mid, ub)))
+        val mid = lb.value + (safeInc(ub.value - lb.value) / 2)
+        (this.intersect(createRange(lb, IntegerValue.get(safeDec(mid)))),
+         this.intersect(createRange(IntegerValue.get(mid), ub)))
     }
 
     def isSubsetOf(that: IntegerRangeList): Boolean = {
@@ -119,7 +121,7 @@ final class IntegerRangeList
             val i = this.findIndexOfFirstIntersectingRange(that.hull, 0, this.ranges.size - 1)
             if (i < 0) EmptyIntegerRange
             else {
-                val buf = new mutable.ArrayBuffer[IntegerRange](scala.math.max(this.ranges.size, that.ranges.size))
+                val buf = new mutable.ArrayBuffer[IntegerRange](max(this.ranges.size, that.ranges.size))
                 IntegerRangeList.intersect(this, i, that, 0, buf)
                 createDomain(buf)
             }
@@ -146,13 +148,13 @@ final class IntegerRangeList
 
     override def distanceTo(a: IntegerValue) = {
         require(! isEmpty)
-        if (lb != null && a < lb) lb.value - a.value
-        else if (ub != null && a > ub) a.value - ub.value
+        if (lb != null && a < lb) safeSub(lb.value, a.value)
+        else if (ub != null && a > ub) safeSub(a.value, ub.value)
         else if (ranges.size == 1) 0
         else {
             val i = findIndexOfContainingHole(a, 0, ranges.size - 2)
             if (i < 0) 0
-            else scala.math.min(a.value - ranges(i).ub.value, ranges(i + 1).lb.value - a.value)
+            else min(safeSub(a.value, ranges(i).ub.value), safeSub(ranges(i + 1).lb.value, a.value))
         }
     }
 

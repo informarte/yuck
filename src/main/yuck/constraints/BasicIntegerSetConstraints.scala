@@ -13,7 +13,7 @@ final class SetEq
 {
     override def toString = "set_eq(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerSetValue, b: IntegerSetValue) =
-        IntegerValue.get(a.set.maybeResidueSize(b.set).getOrElse(1) + b.set.maybeResidueSize(a.set).getOrElse(1))
+        IntegerValue.get(safeAdd(a.set.maybeResidueSize(b.set).getOrElse(1), b.set.maybeResidueSize(a.set).getOrElse(1)))
 }
 
 /**

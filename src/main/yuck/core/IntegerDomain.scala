@@ -226,7 +226,7 @@ final object IntegerDomain {
             var ub = lb
             while (inIt.hasNext) {
                 val a = inIt.next
-                if (a.value <= ub.value + 1) {
+                if (a.value <= safeInc(ub.value)) {
                     ub = a
                 } else {
                     outBuf += new IntegerRange(lb, ub)

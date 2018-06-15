@@ -15,7 +15,7 @@ final class BoolEq
     override def toString = "bool_eq(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerValue, b: IntegerValue) =
         if ((a == Zero && b == Zero) || (a > Zero && b > Zero)) Zero
-        else IntegerValue.get((a.value + b.value + 1) / 2)
+        else IntegerValue.get(safeInc(safeAdd(a.value, b.value)) / 2)
 }
 
 /**
@@ -31,7 +31,7 @@ final class BoolNe
     override def toString = "bool_ne(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerValue, b: IntegerValue) =
         if (a == Zero && b == Zero) One
-        else if (a > Zero && b > Zero) IntegerValue.get((a.value + b.value) / 2)
+        else if (a > Zero && b > Zero) IntegerValue.get(safeAdd(a.value, b.value) / 2)
         else Zero
 }
 
@@ -46,7 +46,8 @@ final class BoolLe
     extends BinaryConstraint(id, goal, x, y, z)
 {
     override def toString = "bool_le(%s, %s, %s)".format(x, y, z)
-    override def op(a: IntegerValue, b: IntegerValue) = if (a == Zero) IntegerValue.get((b.value + 1) / 2) else Zero
+    override def op(a: IntegerValue, b: IntegerValue) =
+        if (a == Zero) IntegerValue.get(safeInc(b.value) / 2) else Zero
 }
 
 /**
@@ -60,7 +61,8 @@ final class BoolLt
     extends BinaryConstraint(id, goal, x, y, z)
 {
     override def toString = "bool_lt(%s, %s, %s)".format(x, y, z)
-    override def op(a: IntegerValue, b: IntegerValue) = if (a == Zero) IntegerValue.get(b.value + 1) else b
+    override def op(a: IntegerValue, b: IntegerValue) =
+        if (a == Zero) IntegerValue.get(safeInc(b.value)) else b
 }
 
 /**

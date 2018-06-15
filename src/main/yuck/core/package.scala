@@ -8,6 +8,21 @@ import scala.language.implicitConversions
  */
 package object core {
 
+    @inline def safeAdd(a: Int, b: Int): Int = java.lang.Math.addExact(a, b)
+    @inline def safeSub(a: Int, b: Int): Int = java.lang.Math.subtractExact(a, b)
+    @inline def safeMul(a: Int, b: Int): Int = java.lang.Math.multiplyExact(a, b)
+    @inline def safeInc(a: Int): Int = java.lang.Math.incrementExact(a)
+    @inline def safeDec(a: Int): Int = java.lang.Math.decrementExact(a)
+    @inline def safeNeg(a: Int): Int = java.lang.Math.negateExact(a)
+
+    @inline def safeAdd(a: Long, b: Long): Long = java.lang.Math.addExact(a, b)
+    @inline def safeSub(a: Long, b: Long): Long = java.lang.Math.subtractExact(a, b)
+    @inline def safeMul(a: Long, b: Long): Long = java.lang.Math.multiplyExact(a, b)
+    @inline def safeInc(a: Long): Long = java.lang.Math.incrementExact(a)
+    @inline def safeDec(a: Long): Long = java.lang.Math.decrementExact(a)
+    @inline def safeNeg(a: Long): Long = java.lang.Math.negateExact(a)
+    @inline def safeToInt(a: Long): Int = java.lang.Math.toIntExact(a)
+
     type Costs = AnyValue
 
     val False = new BooleanValue(false)

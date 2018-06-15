@@ -62,4 +62,21 @@ final class IntegerValueTest extends UnitTest {
         assert(! One.isEven)
     }
 
+    @Test
+    def testOverflowChecking {
+        IntegerValue.get(Int.MinValue) - Zero
+        assertEx(IntegerValue.get(Int.MinValue) - One, classOf[ArithmeticException])
+        IntegerValue.get(Int.MaxValue) + Zero
+        assertEx(IntegerValue.get(Int.MaxValue) + One, classOf[ArithmeticException])
+        IntegerValue.get(Int.MaxValue / 2) * Two
+        assertEx(IntegerValue.get(Int.MaxValue) * Two, classOf[ArithmeticException])
+        IntegerValue.get(Int.MinValue + 1).abs
+        assertEx(IntegerValue.get(Int.MinValue).abs, classOf[ArithmeticException])
+        IntegerValue.get(-2) ^ IntegerValue.get(31)
+        assertEx(IntegerValue.get(-2) ^ IntegerValue.get(32), classOf[ArithmeticException])
+        Two ^ IntegerValue.get(30)
+        assertEx(Two ^ IntegerValue.get(31), classOf[ArithmeticException])
+        assertEx(IntegerValue.get(Int.MaxValue) ^ IntegerValue.get(Int.MaxValue), classOf[ArithmeticException])
+    }
+
 }

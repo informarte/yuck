@@ -1,6 +1,7 @@
 package yuck.constraints
 
 import scala.collection._
+import scala.math.abs
 
 import yuck.core._
 
@@ -59,7 +60,8 @@ final class IntegerTable
         futureDistances = new Array[Int](m)
         for (j <- 0 until m) {
             for (i <- 0 until n) {
-                currentDistances(j) += (now.value(xs(i)).value - cols(i)(j)).abs
+                currentDistances(j) =
+                    safeAdd(currentDistances(j), abs(safeSub(now.value(xs(i)).value, cols(i)(j))))
             }
         }
         effect.a = IntegerValue.get(currentDistances.min)
@@ -77,7 +79,8 @@ final class IntegerTable
             var j = 0
             while (j < m) {
                 val c = col(j)
-                futureDistances(j) += scala.math.abs(b - c) - scala.math.abs(a - c)
+                futureDistances(j) =
+                    safeAdd(futureDistances(j), safeSub(abs(safeSub(b, c)), abs(safeSub(a, c))))
                 j += 1
             }
         }

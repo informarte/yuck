@@ -1,7 +1,7 @@
 package yuck.constraints
 
 import scala.collection._
-import scala.math.{max, min}
+import scala.math.{abs, max, min}
 
 import yuck.annealing._
 import yuck.core._
@@ -18,12 +18,12 @@ final class InverseFunction
     (val xs: immutable.IndexedSeq[Variable[IntegerValue]],
      val offset: Int)
 {
-    val indexRange = offset until offset + xs.size
+    require(! xs.isEmpty)
+    val indexRange = offset until safeAdd(offset, xs.size)
     val indexDomain = IntegerValueTraits.createDomain(IntegerValue.get(offset), IntegerValue.get(offset + xs.size - 1))
     val x2i = new immutable.HashMap[AnyVariable, Int] ++ xs.zip(indexRange)
     val refs = new Array[mutable.HashSet[Int]](xs.size)
     val visited = new Array[Int](xs.size)
-    @inline def size = xs.size
     def isSuitableForImplicitSolving(space: Space) =
         xs.size > 1 &&
         xs.size == xs.toSet.size &&
@@ -74,29 +74,29 @@ final class Inverse
         f: InverseFunction, g: InverseFunction, i: Int, searchState: SearchState): Int =
     {
         val j = searchState.value(f.xs(i - f.offset)).value
-        if (g.indexRange.contains(j)) scala.math.abs(searchState.value(g.xs(j - g.offset)).value - i)
+        if (g.indexRange.contains(j)) abs(safeSub(searchState.value(g.xs(j - g.offset)).value, i))
         else 0
     }
 
     override def initialize(now: SearchState) = {
         currentCosts = 0
-        for (i <- 0 until f.size) {
+        for (i <- 0 until f.xs.size) {
             f.visited(i) = -1
             f.refs(i) = new mutable.HashSet[Int]
         }
-        for (j <- 0 until g.size) {
+        for (j <- 0 until g.xs.size) {
             g.visited(j) = -1
             g.refs(j) = new mutable.HashSet[Int]
         }
-        for (i <- f.offset until f.offset + f.size) {
-            currentCosts += computeCosts(f, g, i, now)
+        for (i <- f.indexRange) {
+            currentCosts = safeAdd(currentCosts, computeCosts(f, g, i, now))
             val j = now.value(f.xs(i - f.offset)).value
             if (g.indexRange.contains(j)) {
                 g.refs(j - g.offset) += i
             }
         }
-        for (j <- g.offset until g.offset + g.size) {
-            currentCosts += computeCosts(g, f, j, now)
+        for (j <- g.indexRange) {
+            currentCosts = safeAdd(currentCosts, computeCosts(g, f, j, now))
             val i = now.value(g.xs(j - g.offset)).value
             if (f.indexRange.contains(i)) {
                 f.refs(i - f.offset) += j
@@ -113,7 +113,7 @@ final class Inverse
                 0
             } else {
                 visited(i - f.offset) = move.id.rawId
-                val delta = computeCosts(f, g, i, after) - computeCosts(f, g, i, before)
+                val delta = safeSub(computeCosts(f, g, i, after), computeCosts(f, g, i, before))
                 delta
             }
         }
@@ -123,21 +123,21 @@ final class Inverse
             if (maybeI.isDefined) {
                 val i = maybeI.get
                 val x = f.xs(i - f.offset)
-                futureCosts += computeCostDelta(f, g, i, f.visited)
+                futureCosts = safeAdd(futureCosts, computeCostDelta(f, g, i, f.visited))
                 for (j <- f.refs(i - f.offset)) {
-                    futureCosts += computeCostDelta(g, f, j, g.visited)
+                    futureCosts = safeAdd(futureCosts, computeCostDelta(g, f, j, g.visited))
                 }
-                futureCosts += computeCostDelta(g, f, after.value(x).value, g.visited)
+                futureCosts = safeAdd(futureCosts, computeCostDelta(g, f, after.value(x).value, g.visited))
             }
             val maybeJ = g.x2i.get(x)
             if (maybeJ.isDefined) {
                 val j = maybeJ.get
                 val y = g.xs(j - g.offset)
-                futureCosts += computeCostDelta(g, f, j, g.visited)
+                futureCosts = safeAdd(futureCosts, computeCostDelta(g, f, j, g.visited))
                 for (i <- g.refs(j - g.offset)) {
-                    futureCosts += computeCostDelta(f, g, i, f.visited)
+                    futureCosts = safeAdd(futureCosts, computeCostDelta(f, g, i, f.visited))
                 }
-                futureCosts += computeCostDelta(f, g, after.value(y).value, f.visited)
+                futureCosts = safeAdd(futureCosts, computeCostDelta(f, g, after.value(y).value, f.visited))
             }
         }
         if (debug) {
@@ -294,7 +294,7 @@ final class Inverse
             lhs.lb < rhs.lb || (lhs.lb == rhs.lb && lhs.ub < rhs.ub)
         def union(lhs: IntegerDomain, rhs: IntegerDomain) = lhs.union(rhs)
         val isDecomposable =
-        // the offsets are equal
+            // the offsets are equal
             f.offset == g.offset &&
             // the variables in f have the same domains as the variables in g
             fPartitionByDomain.keysIterator.toBuffer.sortWith(domainLt) ==

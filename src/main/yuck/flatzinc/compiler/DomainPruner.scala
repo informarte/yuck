@@ -1,7 +1,7 @@
 package yuck.flatzinc.compiler
 
 import scala.collection._
-import scala.math._
+import scala.math.{ceil, floor}
 
 import yuck.constraints._
 import yuck.core._
@@ -118,14 +118,16 @@ final class DomainPruner
             impliedConstraints += constraint
         }
         def propagateInverse(f: immutable.IndexedSeq[Expr], foff: Int, g: immutable.IndexedSeq[Expr], goff: Int) {
-            for (i <- foff until foff + f.size) {
+            require(! f.isEmpty)
+            require(! g.isEmpty)
+            for (i <- foff until safeAdd(foff, f.size)) {
                 val x = f(i - foff)
                 val dx = x match {
                     case IntConst(a) => createIntegerDomain(a, a)
                     case _ => effects.getOrElse(x, domains(x)).asInstanceOf[IntegerDomain]
                 }
                 val di = createIntegerDomain(i, i)
-                for (j <- createIntegerDomain(goff, goff + g.size - 1).diff(dx).values.map(_.value)) {
+                for (j <- createIntegerDomain(goff, safeAdd(goff, g.size) - 1).diff(dx).values.map(_.value)) {
                     val y = g(j - goff)
                     y match {
                         case IntConst(a) =>
@@ -541,24 +543,24 @@ final class DomainPruner
                         neg.forall{case (_, b) => intDomain(b).maybeUb.isDefined})
                     {
                         if (! pos.isEmpty) {
-                            lazy val negTerm = neg.toIterator.map{case (a, b) => a * intDomain(b).ub.value}.sum
+                            lazy val negTerm = neg.toIterator.map{case (a, b) => safeMul(a, intDomain(b).ub.value)}.foldLeft(0)(safeAdd)
                             for (j <- 0 until pos.size) {
-                                val posTerm = (0 until pos.size).toIterator.filter(_ != j).map(pos).map{case (a, b) => a * intDomain(b).lb.value}.sum
+                                val posTerm = (0 until pos.size).toIterator.filter(_ != j).map(pos).map{case (a, b) => safeMul(a, intDomain(b).lb.value)}.foldLeft(0)(safeAdd)
                                 val (a, b) = pos(j)
-                                val lb = (c - posTerm - negTerm).toDouble / a
+                                val lb = safeSub(safeSub(c, posTerm), negTerm).toDouble / a
                                 val db1 = intDomain(b)
-                                val db2 = IntegerDomainPruner.le(db1, IntegerValue.get(scala.math.floor(lb).toInt))
+                                val db2 = IntegerDomainPruner.le(db1, IntegerValue.get(floor(lb).toInt))
                                 if (db1 != db2) equalVars(b).foreach(b => effects += b -> db2)
                             }
                         }
                         if (! neg.isEmpty) {
-                            lazy val posTerm = pos.toIterator.map{case (a, b) => a * intDomain(b).lb.value}.sum
+                            lazy val posTerm = pos.toIterator.map{case (a, b) => safeMul(a, intDomain(b).lb.value)}.foldLeft(0)(safeAdd)
                             for (j <- 0 until neg.size) {
-                                val negTerm = (0 until neg.size).toIterator.filter(_ != j).map(neg).map{case (a, b) => a * intDomain(b).ub.value}.sum
+                                val negTerm = (0 until neg.size).toIterator.filter(_ != j).map(neg).map{case (a, b) => safeMul(a, intDomain(b).ub.value)}.foldLeft(0)(safeAdd)
                                 val (a, b) = neg(j)
-                                val ub = (-c + posTerm + negTerm).toDouble / -a
+                                val ub = safeAdd(safeAdd(safeNeg(c), posTerm), negTerm).toDouble / safeNeg(a)
                                 val db1 = intDomain(b)
-                                val db2 = IntegerDomainPruner.le(IntegerValue.get(scala.math.ceil(ub).toInt), db1)
+                                val db2 = IntegerDomainPruner.le(IntegerValue.get(ceil(ub).toInt), db1)
                                 if (db1 != db2) equalVars(b).foreach(b => effects += b -> db2)
                             }
                         }
@@ -625,8 +627,8 @@ final class DomainPruner
                 val db1 = intDomain(b)
                 val db2 = IntegerDomainPruner.eq(db1, createIntegerDomain(1, das.size))
                 val dc1 = intDomain(c)
-                val dc2 = IntegerDomainPruner.eq(dc1, union(db2.values.toIterator.map(i => das(i.value - 1))))
-                val db3 = IntegerDomain.createDomain(db2.values.toIterator.filter(i => das(i.value - 1).intersects(dc2)).toSet)
+                val dc2 = IntegerDomainPruner.eq(dc1, union(db2.values.toIterator.map(i => das(safeDec(i.value)))))
+                val db3 = IntegerDomain.createDomain(db2.values.toIterator.filter(i => das(safeDec(i.value)).intersects(dc2)).toSet)
                 assertConsistency(! b.isConst || ! db3.isEmpty, constraint)
                 if (db1 != db3) equalVars(b).foreach(x => effects += x -> db3)
                 assertConsistency(! c.isConst || ! dc2.isEmpty, constraint)

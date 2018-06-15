@@ -98,6 +98,14 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
         assertEq(e.volume, 1000)
     }
 
+    @Test
+    def testOverflowChecking {
+        val n = 2
+        val d = createDistribution(n)
+        d.setFrequency(0, Int.MaxValue)
+        assertEx(d.setFrequency(1, Int.MaxValue), classOf[ArithmeticException])
+    }
+
 }
 
 /**

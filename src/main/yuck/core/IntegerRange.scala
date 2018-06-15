@@ -1,6 +1,7 @@
 package yuck.core
 
 import scala.collection.Iterator
+import scala.math.max
 
 import IntegerDomain.createRange
 
@@ -34,7 +35,7 @@ final class IntegerRange
 
     override def size = {
         require(isFinite)
-        0.max(ub.value - lb.value + 1)
+        max(0, safeInc(safeSub(ub.value, lb.value)))
     }
     override def isComplete = lb == null && ub == null
     override def isFinite = lb != null && ub != null
@@ -78,14 +79,15 @@ final class IntegerRange
     override def bisect = {
         require(! isEmpty)
         require(isFinite)
-        val mid = lb + ((ub - lb + One) / Two)
-        (this.intersect(createRange(lb, mid - One)), this.intersect(createRange(mid, ub)))
+        val mid = lb.value + (safeInc(ub.value - lb.value) / 2)
+        (this.intersect(createRange(lb, IntegerValue.get(safeDec(mid)))),
+         this.intersect(createRange(IntegerValue.get(mid), ub)))
     }
 
     override def distanceTo(a: IntegerValue) = {
         require(! isEmpty)
-        if (lb != null && a < lb) lb.value - a.value
-        else if (ub != null && a > ub) a.value - ub.value
+        if (lb != null && a < lb) safeSub(lb.value, a.value)
+        else if (ub != null && a > ub) safeSub(a.value, ub.value)
         else 0
     }
 
@@ -129,12 +131,12 @@ final class IntegerRange
     def mult(that: IntegerRange): IntegerRange = {
         require(this.isFinite)
         require(that.isFinite)
-        val a = this.lb
-        val b = this.ub
-        val c = that.lb
-        val d = that.ub
-        val A = List(a * c, a * d, b * c, b * d)
-        createRange(A.min, A.max)
+        val a = this.lb.value
+        val b = this.ub.value
+        val c = that.lb.value
+        val d = that.ub.value
+        val A = List(safeMul(a, c), safeMul(a, d), safeMul(b, c), safeMul(b, d))
+        createRange(IntegerValue.get(A.min), IntegerValue.get(A.max))
     }
 
     /**

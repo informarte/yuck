@@ -23,9 +23,7 @@ class FenwickTree(val size: Int) {
 
     // Throws when the given index is out-of-range.
     private def checkIndex(i: Int) {
-        if (i < 1 || i > size) {
-            throw new IllegalArgumentException
-        }
+        require(i >= 1 && i <= size)
     }
 
     /** Clears the Fenwick tree. */
@@ -40,7 +38,7 @@ class FenwickTree(val size: Int) {
         checkIndex(i)
         var result = 0
         while (i > 0) {
-            result += tree(i)
+            result = safeAdd(result, tree(i))
             i -= (i & -i)
         }
         result
@@ -48,6 +46,9 @@ class FenwickTree(val size: Int) {
 
     /** Computes the sum of values in the given range [left, right]. */
     def rangeSum(left: Int, right: Int): Int = {
+        checkIndex(left)
+        checkIndex(right)
+        require(left <= right)
         prefixSum(right) - (if (left == 1) 0 else prefixSum(left - 1))
     }
 
@@ -56,7 +57,7 @@ class FenwickTree(val size: Int) {
         var i = __i
         checkIndex(i)
         while (i <= size) {
-            tree(i) += delta
+            tree(i) = safeAdd(tree(i), delta)
             i += (i & -i)
         }
     }

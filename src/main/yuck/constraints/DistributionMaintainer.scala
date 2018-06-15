@@ -20,7 +20,8 @@ final class DistributionMaintainer
     extends Constraint(id, goal)
 {
 
-    assert(distribution.size == axs.size)
+    require(distribution.size == axs.size)
+    require(axs.forall(_.a.value > Int.MinValue)) // see computeFrequency
 
     override def toString = "distributionMaintainer([%s], %s)".format(axs.mkString(", "), distribution)
     override def inVariables = axs.toIterator.map(_.x)
@@ -54,11 +55,11 @@ final class DistributionMaintainer
         val dx = IntegerValueTraits.safeDowncast(ax.x.domain)
         val delta = mode match {
             case OptimizationMode.Min =>
-                if (ax.a < Zero) -a * (dx.ub.value - b) // minimize -a * (dx.ub - x)
-                else a * (b - dx.lb.value) // minimize a * (x - dx.lb)
+                if (ax.a < Zero) safeMul(-a, safeSub(dx.ub.value, b)) // minimize -a * (dx.ub - x)
+                else safeMul(a, safeSub(b, dx.lb.value)) // minimize a * (x - dx.lb)
             case OptimizationMode.Max =>
-                if (ax.a < Zero) -a * (b - dx.lb.value) // minimize -a * (x - dx.lb)
-                else a * (dx.ub.value - b) // minimize a * (dx.ub - x)
+                if (ax.a < Zero) safeMul(-a, safeSub(b, dx.lb.value)) // minimize -a * (x - dx.lb)
+                else safeMul(a, safeSub(dx.ub.value, b)) // minimize a * (dx.ub - x)
         }
         // delta may become negative when ax.x takes a value outside of its domain!
         abs(delta)

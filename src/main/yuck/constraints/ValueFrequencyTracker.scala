@@ -36,7 +36,7 @@ abstract class ValueFrequencyTracker
     private var valueRegistry: ValueRegistry = null
     private var futureValueRegistry: ValueRegistry = null
     private def registerValue(valueRegistry: ValueRegistry, a: Value, n: Int): ValueRegistry =
-        valueRegistry + (a -> (valueRegistry.getOrElse(a, 0) + n))
+        valueRegistry + (a -> safeAdd(valueRegistry.getOrElse(a, 0), n))
     private def deregisterValue(valueRegistry: ValueRegistry, a: Value, n: Int): ValueRegistry = {
         val occurenceCount = valueRegistry(a) - n
         if (occurenceCount == 0) valueRegistry - a else valueRegistry + (a -> occurenceCount)

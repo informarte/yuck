@@ -25,7 +25,7 @@ final class LexLess
 
     override def initialize(now: SearchState) = {
         val c = ord.compare(xs.toIterator.map(now.value(_)), ys.toIterator.map(now.value(_)))
-        effect.a = if (c < 0) Zero else IntegerValue.get(c + 1)
+        effect.a = if (c < 0) Zero else IntegerValue.get(safeInc(c))
         effects
     }
 

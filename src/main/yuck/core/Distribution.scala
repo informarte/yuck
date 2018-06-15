@@ -38,7 +38,7 @@ abstract class Distribution {
         require(i >= 0 && i < size)
         var sum = 0
         var j = 0
-        while (j <= i) {sum += frequency(j); j += 1}
+        while (j <= i) {sum = safeAdd(sum, frequency(j)); j += 1}
         sum
     }
 
@@ -51,7 +51,7 @@ abstract class Distribution {
         require(r >= 0 && r < volume)
         var sum = 0
         var i = -1
-        do {i += 1; sum += frequency(i)} while (r >= sum)
+        do {i += 1; sum = safeAdd(sum, frequency(i))} while (r >= sum)
         i
     }
 

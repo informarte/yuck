@@ -14,15 +14,23 @@ final class IntegerValue(val value: Int) extends NumericalValue[IntegerValue] {
         }
         case _ => false
     }
-    @inline override def compare(that: IntegerValue) = this.value - that.value
+    @inline override def compare(that: IntegerValue) = safeSub(this.value, that.value)
     override def toString = value.toString
-    override def +(that: IntegerValue) = IntegerValue.get(this.value + that.value)
-    override def -(that: IntegerValue) = IntegerValue.get(this.value - that.value)
-    override def *(that: IntegerValue) = IntegerValue.get(this.value * that.value)
+    override def +(that: IntegerValue) = IntegerValue.get(safeAdd(this.value, that.value))
+    override def -(that: IntegerValue) = IntegerValue.get(safeSub(this.value, that.value))
+    override def *(that: IntegerValue) = IntegerValue.get(safeMul(this.value, that.value))
     override def /(that: IntegerValue) = IntegerValue.get(this.value / that.value)
-    override def ^(that: IntegerValue) = IntegerValue.get(scala.math.pow(this.value, that.value).toInt)
-    override def %(that: IntegerValue) = IntegerValue.get(this.value % that.value)
-    override def abs = if (value < 0) IntegerValue.get(-value) else this
+    override def ^(that: IntegerValue) = {
+        val result: Double = scala.math.pow(this.value, that.value)
+        if (result == java.lang.Double.NEGATIVE_INFINITY || result == java.lang.Double.POSITIVE_INFINITY ||
+            result < Int.MinValue || result > Int.MaxValue)
+        {
+            throw new java.lang.ArithmeticException("integer overflow")
+        }
+        IntegerValue.get(result.toInt)
+    }
+    override def %(that: IntegerValue) = IntegerValue.get(this.value % that.value) 
+    override def abs = if (value < 0) IntegerValue.get(safeNeg(value)) else this
     override def toDouble = value.toDouble
     override def isEven = value % 2 == 0
 }

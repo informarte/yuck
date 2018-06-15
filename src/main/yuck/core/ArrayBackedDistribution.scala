@@ -22,13 +22,12 @@ final class ArrayBackedDistribution(override val size: Int) extends Distribution
         val f0 = frequencies(i)
         frequencySum -= f0
         frequencies.update(i, f)
-        frequencySum += f
-        assert(frequencySum >= 0, "Integer overflow")
+        frequencySum = safeAdd(frequencySum, f)
         if (f0 == 0 && f > 0) numberOfNonZeroFrequencies += 1
         else if (f0 > 0 && f == 0) numberOfNonZeroFrequencies -= 1
     }
     override def addFrequencyDelta(i: Int, delta: Int) {
-        setFrequency(i, frequencies(i) + delta)
+        setFrequency(i, safeAdd(frequencies(i), delta))
     }
     override def frequency(i: Int) = frequencies(i)
     override def volume = frequencySum
