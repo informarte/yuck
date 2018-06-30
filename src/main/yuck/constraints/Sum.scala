@@ -39,7 +39,7 @@ final class Sum
         effect.a = sum
         for (x <- move.involvedVariables) {
             val y = x.asInstanceOf[Variable[Value]]
-            effect.a += after.value(y) - before.value(y)
+            effect.a = effect.a.addAndSub(valueTraits.one, after.value(y), before.value(y))
         }
         effects
     }

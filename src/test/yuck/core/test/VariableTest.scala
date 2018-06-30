@@ -27,7 +27,7 @@ final class VariableTest extends UnitTest {
     @Test
     def testCasting {
         val space = new Space(logger)
-        val b = space.createVariable("b", CompleteBooleanDomain)
+        val b = space.createVariable("b", CompleteBooleanDecisionDomain)
         val i = space.createVariable("i", CompleteIntegerRange)
         BooleanValueTraits.unsafeDowncast(b)
         BooleanValueTraits.unsafeDowncast(i)

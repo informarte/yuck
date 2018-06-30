@@ -23,7 +23,7 @@ final class MaximizationObjective
     override def compareCosts(lhs: Costs, rhs: Costs) =
         rhs.asInstanceOf[Value].compare(lhs.asInstanceOf[Value])
     protected override def computeDelta(before: SearchState, after: SearchState) =
-        costs(before) - costs(after)
+        costs(before).toDouble - costs(after).toDouble
     override def tighten(space: Space, rootObjective: AnyObjective) = {
         if (maybeTighteningStep.isDefined) {
             tighten(space, rootObjective, maybeTighteningStep.get)

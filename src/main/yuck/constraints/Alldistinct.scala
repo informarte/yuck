@@ -23,9 +23,9 @@ import yuck.util.logging.LazyLogger
 final class Alldistinct
     [Value <: AnyValue]
     (id: Id[Constraint], goal: Goal,
-     xs: immutable.IndexedSeq[Variable[Value]], costs: Variable[IntegerValue])
+     xs: immutable.IndexedSeq[Variable[Value]], costs: Variable[BooleanValue])
     (implicit valueTraits: AnyValueTraits[Value])
-    extends ValueFrequencyTracker[Value, IntegerValue](
+    extends ValueFrequencyTracker[Value, BooleanValue](
         id, goal, xs, costs,
         immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[Value, Int]())(
         valueTraits)
@@ -34,7 +34,7 @@ final class Alldistinct
     override def toString = "alldistinct([%s], %s)".format(xs.mkString(", "), costs)
 
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
-        IntegerValue.get(xs.size - valueRegistry.size)
+        BooleanValue.get(xs.size - valueRegistry.size)
 
     override def isCandidateForImplicitSolving(space: Space) = {
         val (xs, ys) = this.xs.partition(_.isVariable)
@@ -67,7 +67,7 @@ final class Alldistinct
                     for ((x, a) <- xs.toIterator.zip(randomGenerator.shuffle(domain.values).toIterator)) {
                         space.setValue(x, a)
                     }
-                    space.setValue(costs, Zero)
+                    space.setValue(costs, True)
                     Some(new AlldistinctNeighbourhood(space, xs, randomGenerator, moveSizeDistribution))
                 } else {
                     // unsatisfiable
@@ -79,7 +79,7 @@ final class Alldistinct
                 val subspace = new Space(logger, space.checkConstraintPropagation)
                 val subxs = xs.map(x => subspace.createVariable(x.name, x.domain))
                 val result = logger.withTimedLogScope("Solving %s".format(this)) {
-                    val subcosts = subspace.createVariable("", IntegerValueTraits.nonNegativeDomain)
+                    val subcosts = subspace.createVariable("", BooleanValueTraits.completeDomain)
                     subspace.post(new Alldistinct(subspace.constraintIdFactory.nextId, goal, subxs, subcosts))
                     val initializer = new RandomInitializer(subspace, randomGenerator.nextGen)
                     initializer.run
@@ -97,7 +97,7 @@ final class Alldistinct
                                 DEFAULT_MOVE_SIZE_DISTRIBUTION, maybeHotSpotDistribution = None,
                                 maybeFairVariableChoiceRate = None),
                             randomGenerator.nextGen,
-                            new MinimizationObjective(subcosts, Zero, None),
+                            new MinimizationObjective(subcosts, True, None),
                             maybeRoundLimit = Some(1000),
                             Some(new StandardAnnealingMonitor(logger)),
                             maybeUserData = None,
@@ -108,7 +108,7 @@ final class Alldistinct
                     for ((x, subx) <- xs.toIterator.zip(subxs.toIterator)) {
                         space.setValue(x, subspace.searchState.value(subx))
                     }
-                    space.setValue(costs, Zero)
+                    space.setValue(costs, True)
                     Some(new AlldistinctNeighbourhood(space, xs, randomGenerator, moveSizeDistribution))
                 } else {
                     None

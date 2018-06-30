@@ -41,7 +41,7 @@ final class Regular
      delta: immutable.IndexedSeq[immutable.IndexedSeq[Int]],
      q0: Int,
      F: IntegerDomain,
-     costs: Variable[IntegerValue])
+     costs: Variable[BooleanValue])
     extends Constraint(id, goal)
 {
 
@@ -84,7 +84,7 @@ final class Regular
     override def outVariables = List(costs)
 
     private val x2i = new immutable.HashMap[AnyVariable, Int] ++ xs.zip(0 until n)
-    private val effects = List(new ReusableEffectWithFixedVariable[IntegerValue](costs))
+    private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
     private var currentCosts = 0
     private var currentStates: immutable.IndexedSeq[Int] = null
@@ -111,7 +111,7 @@ final class Regular
         currentCosts = computeCosts(currentStates, i, q)
         currentFailurePosition = if (q == 0) i else n
         assert(currentCosts >= 0)
-        effect.a = IntegerValue.get(currentCosts)
+        effect.a = BooleanValue.get(currentCosts)
         effects
     }
 
@@ -161,7 +161,7 @@ final class Regular
             }
         }
         assert(futureCosts >= 0)
-        effect.a = IntegerValue.get(futureCosts)
+        effect.a = BooleanValue.get(futureCosts)
         effects
     }
 

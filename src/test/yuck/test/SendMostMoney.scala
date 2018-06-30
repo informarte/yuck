@@ -34,7 +34,7 @@ final class SendMostMoney extends IntegrationTest {
             val O = space.createVariable("O", d)
             val T = space.createVariable("T", d)
             val Y = space.createVariable("Y", d)
-            val numberOfMissingValues = space.createVariable("numberOfMissingValues", CompleteIntegerRange)
+            val numberOfMissingValues = space.createVariable("numberOfMissingValues", CompleteBooleanDomain)
             space.post(
                 new Alldistinct(
                     space.constraintIdFactory.nextId, null,
@@ -55,13 +55,13 @@ final class SendMostMoney extends IntegrationTest {
                     null,
                     RHS.map{case (a, x) => new AX(new IntegerValue(a), x)},
                     rhs))
-            val delta = space.createVariable("delta", CompleteIntegerRange)
-            space.post(new NumEq(space.constraintIdFactory.nextId, null, lhs, rhs, delta))
-            val costs = space.createVariable("costs", CompleteIntegerRange)
+            val delta = space.createVariable("delta", CompleteBooleanDomain)
+            space.post(new Eq(space.constraintIdFactory.nextId, null, lhs, rhs, delta))
+            val costs = space.createVariable("costs", CompleteBooleanDomain)
             space.post(
                 new LinearCombination(
                     space.constraintIdFactory.nextId, null,
-                    new AX(new IntegerValue(100), numberOfMissingValues) :: new AX(One, delta) :: Nil, costs))
+                    new AX(new BooleanValue(100), numberOfMissingValues) :: new AX(False, delta) :: Nil, costs))
             assertEq(space.searchVariables, Set(S, E, N, D, M, O, S, T, M, O, N, E, Y))
             val randomGenerator = new JavaRandomGenerator(seed)
             val initializer = new RandomInitializer(space, randomGenerator.nextGen)
@@ -75,11 +75,11 @@ final class SendMostMoney extends IntegrationTest {
                     randomGenerator.nextGen,
                     // cf. http://gecoder.rubyforge.org/examples/send-most-money.html
                     new HierarchicalObjective(
-                        List(new MinimizationObjective(costs, Zero, None),
+                        List(new MinimizationObjective(costs, True, None),
                              new MaximizationObjective(rhs, new IntegerValue(10876), None)),
                         false),
                     None,
-                    None,
+                    Some(new StandardAnnealingMonitor(logger)),
                     Some(new ModelData(LHS, RHS)),
                     sigint)
             solver

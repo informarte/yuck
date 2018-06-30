@@ -6,56 +6,56 @@ import yuck.core._
  * @author Michael Marte
  *
  */
-final class OrdEq
-    [Value <: AnyValue]
+final class Eq
+    [Value <: OrderedValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value], z: Variable[IntegerValue])
+     x: Variable[Value], y: Variable[Value], z: Variable[BooleanValue])
     extends BinaryConstraint(id, goal, x, y, z)
 {
-    override def toString = "%s = if %s == %s then %s else %s".format(z, x, y, Zero, One)
-    override def op(x: Value, y: Value) = if (x == y) Zero else One
+    override def toString = "%s = %s == %s".format(z, x, y)
+    override def op(x: Value, y: Value) = x.eqc(y)
 }
 
 /**
  * @author Michael Marte
  *
  */
-final class OrdNe
+final class Ne
     [Value <: OrderedValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value], z: Variable[IntegerValue])
+     x: Variable[Value], y: Variable[Value], z: Variable[BooleanValue])
     extends BinaryConstraint(id, goal, x, y, z)
 {
-    override def toString = "%s = if %s != %s then %s else %s".format(z, x, y, Zero, One)
-    override def op(x: Value, y: Value) = if (x != y) Zero else One
+    override def toString = "%s = %s != %s".format(z, x, y)
+    override def op(x: Value, y: Value) = x.nec(y)
 }
 
 /**
  * @author Michael Marte
  *
  */
-final class OrdLt
+final class Lt
     [Value <: OrderedValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value], z: Variable[IntegerValue])
+     x: Variable[Value], y: Variable[Value], z: Variable[BooleanValue])
     extends BinaryConstraint(id, goal, x, y, z)
 {
-    override def toString = "%s = if %s < %s then %s else %s".format(z, x, y, Zero, One)
-    override def op(x: Value, y: Value) = if (x < y) Zero else One
+    override def toString = "%s = %s < %s".format(z, x, y)
+    override def op(x: Value, y: Value) = x.ltc(y)
 }
 
 /**
  * @author Michael Marte
  *
  */
-final class OrdLe
+final class Le
     [Value <: OrderedValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value], z: Variable[IntegerValue])
+     x: Variable[Value], y: Variable[Value], z: Variable[BooleanValue])
     extends BinaryConstraint(id, goal, x, y, z)
 {
-    override def toString = "%s = if %s <= %s then %s else %s".format(z, x, y, Zero, One)
-    override def op(x: Value, y: Value) = if (x <= y) Zero else One
+    override def toString = "%s = %s <= %s".format(z, x, y)
+    override def op(x: Value, y: Value) = x.lec(y)
 }
 
 /**

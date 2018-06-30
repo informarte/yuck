@@ -29,14 +29,21 @@ final class IntegerValue(val value: Int) extends NumericalValue[IntegerValue] {
         }
         IntegerValue.get(result.toInt)
     }
-    override def %(that: IntegerValue) = IntegerValue.get(this.value % that.value) 
+    override def %(that: IntegerValue) = IntegerValue.get(this.value % that.value)
+    override def addAndSub(s: IntegerValue, a: IntegerValue, b: IntegerValue) =
+        IntegerValue.get(safeAdd(this.value, safeMul(s.value, safeSub(a.value, b.value))))
     override def abs = if (value < 0) IntegerValue.get(safeNeg(value)) else this
+    override def toInt = value
     override def toDouble = value.toDouble
     override def isEven = value % 2 == 0
+    override def eqc(that: IntegerValue) = BooleanValue.get(scala.math.abs(safeSub(this.value, that.value)))
+    override def nec(that: IntegerValue) = if (this != that) True else False
+    override def ltc(that: IntegerValue) = if (this < that) True else BooleanValue.get(safeInc(safeSub(this.value, that.value)))
+    override def lec(that: IntegerValue) = if (this <= that) True else BooleanValue.get(safeSub(this.value, that.value))
 }
 
 /**
- * Provides properties of and operations on integer values.
+ * Companion object to IntegerValue.
  *
  * @author Michael Marte
  */

@@ -1,5 +1,7 @@
 package yuck.core.test
 
+import scala.math.{abs, signum}
+
 import org.junit._
 
 import yuck.core._
@@ -18,34 +20,33 @@ final class IntegerValueTest extends UnitTest {
 
         assertNe(Zero, null)
         assertNe(Zero, False)
-        assertEq(Zero, Zero)
-        assertEq(Zero, new IntegerValue(0))
-        assertNe(Zero, One)
-        assertLt(Zero.compare(One), 0)
-        assertEq(Zero.compare(Zero), 0)
-        assertGt(One.compare(Zero), 0)
 
-        for ((a, b) <- List((0, 0), (0, 1), (1, 0), (1, 1))) {
-            val c = if (a == 0) Zero else One
-            val d = if (b == 0) Zero else One
+        val testRange = -5 to 5
+        for (a <- testRange) {
+            val c = IntegerValue.get(a)
+            assertEq(c.value, a)
             val e = new IntegerValue(a)
-            val f = new IntegerValue(b)
-            assertEq(a == b, c == d)
-            assertEq(a == b, e == f)
             assertEq(c, e)
-            assertEq(d, f)
-            assertEq(a.compare(b), c.compare(d))
-            assertEq(b.compare(a), d.compare(c))
-        }
-
-        for ((a, b) <- List((false, 0), (false, 1), (true, 0), (true, 1))) {
-            val c = if (a) True else False
-            val d = if (b == 0) Zero else One
-            assertNe(c, d)
+            for (b <- testRange) {
+                val d = IntegerValue.get(b)
+                assertEq(d.value, b)
+                val f = new IntegerValue(b)
+                assertEq(d, f)
+                assertEq(a == b, c == d)
+                assertEq(a == b, e == f)
+                assertEq(a != b, c != d)
+                assertEq(signum(a.compare(b)), signum(c.compare(d)))
+                assertEq(signum(b.compare(a)), signum(d.compare(c)))
+                assertEq(c.eqc(d).truthValue, c == d)
+                assertEq(c.nec(d).truthValue, c != d)
+                assertEq(c.ltc(d).truthValue, c < d)
+                assertEq(c.lec(d).truthValue, c <= d)
+            }
         }
 
         assertEq(IntegerValue.min(Zero, One), Zero)
         assertEq(IntegerValue.max(Zero, One), One)
+
     }
 
     @Test
@@ -53,6 +54,8 @@ final class IntegerValueTest extends UnitTest {
         assertEq(One + Two, Three)
         assertEq(Three - One, Two)
         assertEq(Two * Three, Six)
+        assertEq(One.addAndSub(Two, Five, Two), Seven)
+        assertEq(One.addAndSub(One, IntegerValue.get(Int.MaxValue), IntegerValue.get(Int.MaxValue - 1)), Two)
         assertEq(Six / Two, Three)
         assertEq(Two ^ Three, Eight)
         assertEq(Seven % Two, One)
@@ -64,12 +67,14 @@ final class IntegerValueTest extends UnitTest {
 
     @Test
     def testOverflowChecking {
-        IntegerValue.get(Int.MinValue) - Zero
-        assertEx(IntegerValue.get(Int.MinValue) - One, classOf[ArithmeticException])
         IntegerValue.get(Int.MaxValue) + Zero
         assertEx(IntegerValue.get(Int.MaxValue) + One, classOf[ArithmeticException])
+        IntegerValue.get(Int.MinValue) - Zero
+        assertEx(IntegerValue.get(Int.MinValue) - One, classOf[ArithmeticException])
         IntegerValue.get(Int.MaxValue / 2) * Two
         assertEx(IntegerValue.get(Int.MaxValue) * Two, classOf[ArithmeticException])
+        IntegerValue.get(Int.MaxValue - 1).addAndSub(One, One, Zero)
+        assertEx(IntegerValue.get(Int.MaxValue).addAndSub(One, One, Zero), classOf[ArithmeticException])
         IntegerValue.get(Int.MinValue + 1).abs
         assertEx(IntegerValue.get(Int.MinValue).abs, classOf[ArithmeticException])
         IntegerValue.get(-2) ^ IntegerValue.get(31)
@@ -77,6 +82,10 @@ final class IntegerValueTest extends UnitTest {
         Two ^ IntegerValue.get(30)
         assertEx(Two ^ IntegerValue.get(31), classOf[ArithmeticException])
         assertEx(IntegerValue.get(Int.MaxValue) ^ IntegerValue.get(Int.MaxValue), classOf[ArithmeticException])
+        IntegerValue.get(Int.MaxValue - 1).ltc(Zero)
+        assertEx(IntegerValue.get(Int.MaxValue).ltc(Zero), classOf[ArithmeticException])
+        IntegerValue.get(Int.MaxValue).lec(Zero)
+        assertEx(IntegerValue.get(Int.MaxValue).lec(MinusOne), classOf[ArithmeticException])
     }
 
 }

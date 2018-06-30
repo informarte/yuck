@@ -28,20 +28,28 @@ final class VariableDrivenNeighbourhoodFactory
 
     private lazy val searchVariables = space.searchVariables
 
-    protected override def createNeighbourhoodForSatisfactionGoal(x: Variable[IntegerValue]) = {
+    protected override def createNeighbourhoodForSatisfactionGoal(x: Variable[BooleanValue]) = {
         val levelCfg = cfg.level0Configuration
         if (levelCfg.guideOptimization) createNeighbourhood(OptimizationMode.Min, levelCfg, x)
         else super.createNeighbourhoodForSatisfactionGoal(x)
     }
 
-    protected override def createNeighbourhoodForMinimizationGoal(x: Variable[IntegerValue]) = {
+    protected override def createNeighbourhoodForMinimizationGoal
+        [Value <: NumericalValue[Value]]
+        (x: Variable[Value])
+        (implicit valueTraits: NumericalValueTraits[Value]):
+        Option[Neighbourhood] =
+    {
         val levelCfg = cfg.level1Configuration
         if (levelCfg.guideOptimization) createNeighbourhood(OptimizationMode.Min, levelCfg, x)
         else super.createNeighbourhoodForMinimizationGoal(x)
     }
 
     private def createNeighbourhood
-        (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, x: Variable[IntegerValue]) =
+        [Value <: NumericalValue[Value]]
+        (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, x: Variable[Value])
+        (implicit valueTraits: NumericalValueTraits[Value]):
+        Option[Neighbourhood] =
     {
         require(mode == OptimizationMode.Min)
         val hotSpotIndicators =
@@ -93,10 +101,6 @@ final class VariableDrivenNeighbourhoodFactory
     // the higher the value of h(y).)
     // The resulting hot-spot indicators are for defining hot-spot aware neighbourhoods
     // via neighbourhood-specific distributions.
-    // (As distributions can only handle integer frequencies, it does not make sense to
-    // generalize this function to numerical values.)
-    // To avoid runtime errors in move generation as well as local optima, we make sure that
-    // h(y) >= 1 for all y at any time.
     // The code below deals with three cases:
     // 1. x is a search variable itself.
     //    (In FlatZinc practice x may be the end of the last task in a makespan minimization problem.)
@@ -110,41 +114,45 @@ final class VariableDrivenNeighbourhoodFactory
     //        resource consumption.)
     // 3. All other cases.
     //    (Maybe there is only a single soft constraint.)
-    private def createHotSpotIndicators(x: AnyVariable): Map[AnyVariable, Variable[IntegerValue]] = {
-        val zs = new mutable.AnyRefMap[AnyVariable, mutable.ArrayBuffer[AX[IntegerValue]]]
+    private def createHotSpotIndicators
+        [Value <: NumericalValue[Value]]
+        (x: AnyVariable)
+        (implicit valueTraits: NumericalValueTraits[Value]):
+        Map[AnyVariable, Variable[Value]] =
+    {
+        val zs = new mutable.AnyRefMap[AnyVariable, mutable.ArrayBuffer[AX[Value]]]
         if (space.isSearchVariable(x)) {
-            zs += x -> new mutable.ArrayBuffer[AX[IntegerValue]]
+            zs += x -> new mutable.ArrayBuffer[AX[Value]]
         }
         else if (space.isChannelVariable(x)) {
             for (y <- space.involvedSearchVariables(x)) {
-                zs += y -> new mutable.ArrayBuffer[AX[IntegerValue]]
+                zs += y -> new mutable.ArrayBuffer[AX[Value]]
             }
             val constraint: yuck.core.Constraint = space.definingConstraint(x).get
             constraint match {
-                case lc: LinearCombination[IntegerValue @ unchecked] =>
+                case lc: LinearCombination[Value @ unchecked] =>
                     for (ax <- lc.axs
-                         if ax.a.value >= 0 && IntegerValueTraits.safeDowncast(ax.x.domain).maybeLb.exists(_.value >= 0))
+                         if ax.a >= valueTraits.zero &&
+                             valueTraits.safeDowncast(ax.x.domain).maybeLb.exists(_ >= valueTraits.zero))
                     {
                         for (y <- space.involvedSearchVariables(ax.x)) {
                             zs(y) += ax
                         }
                     }
-                case sum: Sum[IntegerValue @ unchecked] =>
-                    for (x <- sum.xs if IntegerValueTraits.safeDowncast(x.domain).maybeLb.exists(_.value >= 0)) {
+                case sum: Sum[Value @ unchecked] =>
+                    for (x <- sum.xs if valueTraits.safeDowncast(x.domain).maybeLb.exists(_ >= valueTraits.zero)) {
                         for (y <- space.involvedSearchVariables(x)) {
-                            zs(y) += new AX(One, x)
+                            zs(y) += new AX(valueTraits.one, x)
                         }
                     }
                 case _ =>
             }
         }
-        val s = new mutable.AnyRefMap[AnyVariable, Variable[IntegerValue]]
-        val one = compileExpr[IntegerValue](IntConst(1))
+        val s = new mutable.AnyRefMap[AnyVariable, Variable[Value]]
         for (x <- zs.keys) {
-            s += x -> createNonNegativeChannel[IntegerValue]
-            zs(x) += new AX(One, one)
+            s += x -> createNonNegativeChannel[Value]
             val zl = AX.compact(zs(x))
-            if (zl.forall(ax => ax.a == One)) {
+            if (zl.forall(ax => ax.a == valueTraits.one)) {
                space.post(new Sum(nextConstraintId, null, zl.toIterator.map(ax => ax.x).toIndexedSeq, s(x)))
             } else {
                space.post(new LinearCombination(nextConstraintId, null, zl.toIndexedSeq, s(x)))
@@ -154,12 +162,14 @@ final class VariableDrivenNeighbourhoodFactory
     }
 
     private def createHotSpotDistribution
-        (hotSpotIndicators: Map[AnyVariable, Variable[IntegerValue]])
-        (xs: Seq[AnyVariable]):
+        [Value <: NumericalValue[Value]]
+        (hotSpotIndicators: Map[AnyVariable, Variable[Value]])
+        (xs: Seq[AnyVariable])
+        (implicit valueTraits: NumericalValueTraits[Value]):
         Option[Distribution] =
     {
         val hotSpotDistribution = DistributionFactory.createDistribution(xs.size)
-        val weightedIndicators = xs.toIterator.map(x => new AX(One, hotSpotIndicators(x))).toIndexedSeq
+        val weightedIndicators = xs.toIterator.map(x => new AX(valueTraits.one, hotSpotIndicators(x))).toIndexedSeq
         space.post(new DistributionMaintainer(nextConstraintId, null, OptimizationMode.Min, weightedIndicators, hotSpotDistribution))
         Some(hotSpotDistribution)
     }

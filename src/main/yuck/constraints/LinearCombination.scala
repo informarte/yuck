@@ -41,7 +41,7 @@ final class LinearCombination
         effect.a = sum
         for (x <- move.involvedVariables) {
             val ax = id2ax.get(x).get
-            effect.a += ax.a * (after.value(ax.x) - before.value(ax.x))
+            effect.a = effect.a.addAndSub(ax.a, after.value(ax.x), before.value(ax.x))
         }
         effects
     }

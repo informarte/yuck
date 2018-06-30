@@ -6,26 +6,12 @@ import yuck.core._
  * @author Michael Marte
  *
  */
-final class SetEq
-    (id: Id[Constraint], goal: Goal,
-     x: Variable[IntegerSetValue], y: Variable[IntegerSetValue], z: Variable[IntegerValue])
-    extends BinaryConstraint(id, goal, x, y, z)
-{
-    override def toString = "set_eq(%s, %s, %s)".format(x, y, z)
-    override def op(a: IntegerSetValue, b: IntegerSetValue) =
-        IntegerValue.get(safeAdd(a.set.maybeResidueSize(b.set).getOrElse(1), b.set.maybeResidueSize(a.set).getOrElse(1)))
-}
-
-/**
- * @author Michael Marte
- *
- */
-final class SetCard
+final class SetCardinality
     (id: Id[Constraint], goal: Goal,
      a: Variable[IntegerSetValue], b: Variable[IntegerValue])
     extends UnaryConstraint(id, goal, a, b)
 {
-    override def toString = "set_card(%s, %s)".format(a, b)
+    override def toString = "set_cardinality(%s, %s)".format(a, b)
     override def op(a: IntegerSetValue) = IntegerValue.get(a.set.size)
 }
 
@@ -33,40 +19,40 @@ final class SetCard
  * @author Michael Marte
  *
  */
-final class SetIn
+final class Contains
     (id: Id[Constraint], goal: Goal,
-     x: Variable[IntegerValue], y: Variable[IntegerSetValue], z: Variable[IntegerValue])
+     x: Variable[IntegerValue], y: Variable[IntegerSetValue], z: Variable[BooleanValue])
     extends BinaryConstraint(id, goal, x, y, z)
 {
-    override def toString = "set_in(%s, %s, %s)".format(x, y, z)
+    override def toString = "contains(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerValue, b: IntegerSetValue) =
-        if (b.set.isEmpty) One else IntegerValue.get(b.set.distanceTo(a))
+        if (b.set.isEmpty) False else BooleanValue.get(b.set.distanceTo(a))
 }
 
 /**
  * @author Michael Marte
  *
  */
-final class SetSubset
+final class Subset
     (id: Id[Constraint], goal: Goal,
-     x: Variable[IntegerSetValue], y: Variable[IntegerSetValue], z: Variable[IntegerValue])
+     x: Variable[IntegerSetValue], y: Variable[IntegerSetValue], z: Variable[BooleanValue])
     extends BinaryConstraint(id, goal, x, y, z)
 {
-    override def toString = "set_subset(%s, %s, %s)".format(x, y, z)
+    override def toString = "subset(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerSetValue, b: IntegerSetValue) =
-        IntegerValue.get(a.set.maybeResidueSize(b.set).getOrElse(1))
+        BooleanValue.get(a.set.maybeResidueSize(b.set).getOrElse(1))
 }
 
 /**
  * @author Michael Marte
  *
  */
-final class SetIntersect
+final class SetIntersection
     (id: Id[Constraint], goal: Goal,
      x: Variable[IntegerSetValue], y: Variable[IntegerSetValue], z: Variable[IntegerSetValue])
     extends BinaryConstraint(id, goal, x, y, z)
 {
-    override def toString = "set_intersect(%s, %s, %s)".format(x, y, z)
+    override def toString = "set_intersection(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerSetValue, b: IntegerSetValue) = new IntegerSetValue(a.set.intersect(b.set))
 }
 
@@ -92,7 +78,7 @@ final class SetDifference
      x: Variable[IntegerSetValue], y: Variable[IntegerSetValue], z: Variable[IntegerSetValue])
     extends BinaryConstraint(id, goal, x, y, z)
 {
-    override def toString = "set_diff(%s, %s, %s)".format(x, y, z)
+    override def toString = "set_difference(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerSetValue, b: IntegerSetValue) = new IntegerSetValue(a.set.diff(b.set))
 }
 
@@ -100,12 +86,12 @@ final class SetDifference
  * @author Michael Marte
  *
  */
-final class SetSymmetricalDifference
+final class SymmetricalSetDifference
     (id: Id[Constraint], goal: Goal,
      x: Variable[IntegerSetValue], y: Variable[IntegerSetValue], z: Variable[IntegerSetValue])
     extends BinaryConstraint(id, goal, x, y, z)
 {
-    override def toString = "set_symdiff(%s, %s, %s)".format(x, y, z)
+    override def toString = "symmetrical_set_difference(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerSetValue, b: IntegerSetValue) =
         new IntegerSetValue(a.set.union(b.set).diff(a.set.intersect(b.set)))
 }

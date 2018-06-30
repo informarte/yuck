@@ -51,13 +51,13 @@ class NeighbourhoodFactory
                 case Minimize(a, _) =>
                     val maybeNeighbourhood1 =
                         logger.withTimedLogScope("Creating a neighbourhood for minimizing %s".format(a)) {
-                            createNeighbourhoodForMinimizationGoal(a)
+                            createNeighbourhoodForMinimizationGoal[IntegerValue](a)
                         }
                     stackNeighbourhoods(cc.costVar, maybeNeighbourhood0, a, maybeNeighbourhood1)
                 case Maximize(a, _) =>
                     val maybeNeighbourhood1 =
                         logger.withTimedLogScope("Creating a neighbourhood for maximizing %s".format(a)) {
-                            createNeighbourhoodForMaximizationGoal(a)
+                            createNeighbourhoodForMaximizationGoal[IntegerValue](a)
                         }
                     stackNeighbourhoods(cc.costVar, maybeNeighbourhood0, a, maybeNeighbourhood1)
                 case _ =>
@@ -66,12 +66,18 @@ class NeighbourhoodFactory
         maybeNeighbourhood1
     }
 
-    protected def createNeighbourhoodForSatisfactionGoal(x: Variable[IntegerValue]): Option[Neighbourhood] =
+    protected def createNeighbourhoodForSatisfactionGoal(x: Variable[BooleanValue]): Option[Neighbourhood] =
         createNeighbourhoodOnInvolvedSearchVariables(x)
 
-    protected def createNeighbourhoodForMinimizationGoal(x: Variable[IntegerValue]): Option[Neighbourhood] = {
-        if (space.isDanglingVariable(x) && x.domain.asInstanceOf[IntegerDomain].maybeLb.isDefined) {
-            val a = x.domain.asInstanceOf[IntegerDomain].lb
+    protected def createNeighbourhoodForMinimizationGoal
+        [Value <: NumericalValue[Value]]
+        (x: Variable[Value])
+        (implicit valueTraits: NumericalValueTraits[Value]):
+        Option[Neighbourhood] =
+    {
+        val dx = valueTraits.safeDowncast(x.domain)
+        if (space.isDanglingVariable(x) && dx.hasLb) {
+            val a = dx.lb
             logger.logg("Assigning %s to dangling objective variable %s".format(a, x))
             space.setValue(x, a)
             None
@@ -80,9 +86,15 @@ class NeighbourhoodFactory
         }
     }
 
-    protected def createNeighbourhoodForMaximizationGoal(x: Variable[IntegerValue]): Option[Neighbourhood] = {
-        if (space.isDanglingVariable(x) && x.domain.asInstanceOf[IntegerDomain].maybeUb.isDefined) {
-            val a = x.domain.asInstanceOf[IntegerDomain].maybeUb.get
+    protected def createNeighbourhoodForMaximizationGoal
+        [Value <: NumericalValue[Value]]
+        (x: Variable[Value])
+        (implicit valueTraits: NumericalValueTraits[Value]):
+        Option[Neighbourhood] =
+    {
+        val dx = valueTraits.safeDowncast(x.domain)
+        if (space.isDanglingVariable(x) && dx.hasUb) {
+            val a = dx.ub
             logger.logg("Assigning %s to dangling objective variable %s".format(a, x))
             space.setValue(x, a)
             None
@@ -91,9 +103,9 @@ class NeighbourhoodFactory
         }
     }
 
-    private final class Level(
-        val costs: Variable[IntegerValue],
-        val objective: AnyObjective)
+    private final class Level
+        [Value <: NumericalValue[Value]]
+        (val costs: Variable[Value], val objective: AnyObjective)
     {
         val weight = createNonNegativeChannel[IntegerValue]
         val effect = new ReusableEffectWithFixedVariable(weight)
@@ -101,7 +113,7 @@ class NeighbourhoodFactory
     }
 
     private final class LevelWeightMaintainer
-        (id: Id[yuck.core.Constraint], goal: Goal, level0: Level, level1: Level)
+        (id: Id[yuck.core.Constraint], goal: Goal, level0: Level[BooleanValue], level1: Level[IntegerValue])
         extends Constraint(id, goal)
     {
         override def inVariables = List(level0.costs, level1.costs)
@@ -121,7 +133,7 @@ class NeighbourhoodFactory
     }
 
     private final def stackNeighbourhoods(
-        costs0: Variable[IntegerValue], maybeNeighbourhood0: Option[Neighbourhood],
+        costs0: Variable[BooleanValue], maybeNeighbourhood0: Option[Neighbourhood],
         costs1: Variable[IntegerValue], maybeNeighbourhood1: Option[Neighbourhood]):
         Option[Neighbourhood] =
     {
@@ -144,10 +156,10 @@ class NeighbourhoodFactory
         }
     }
 
-    protected final def createNeighbourhoodOnInvolvedSearchVariables(x: Variable[IntegerValue]): Option[Neighbourhood] = {
+    protected final def createNeighbourhoodOnInvolvedSearchVariables(x: AnyVariable): Option[Neighbourhood] = {
         space.registerObjectiveVariable(x)
         val xs =
-            (if (space.isSearchVariable(x)) Set(x.asInstanceOf[AnyVariable]) else space.involvedSearchVariables(x)) --
+            (if (space.isSearchVariable(x)) Set(x) else space.involvedSearchVariables(x)) --
             implicitlyConstrainedVars
         if (xs.isEmpty) {
             None

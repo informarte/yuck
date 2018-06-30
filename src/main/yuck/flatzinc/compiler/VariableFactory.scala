@@ -6,11 +6,6 @@ import yuck.flatzinc.ast._
 /**
  * Generates Yuck variables from FlatZinc variable definitions.
  *
- * Boolean FlatZinc variables get translated to integer Yuck variables with {0, 1}
- * domains where 0 means true and 1 means false. (In a later phase, the domains
- * of Boolean channel variables will be relaxed to include all positive integer
- * values to represent the degree of violation of reified constraints.)
- *
  * For each class of FlatZinc variables that, in earlier phases, were identified to
  * be equivalent, a representative is chosen and only for this representative a Yuck
  * variable is introduced.
@@ -66,33 +61,33 @@ class VariableFactory
     private def createVariable(decl: VarDecl) {
         decl.varType match {
             case BoolType =>
-                createVariable(Term(decl.id, Nil), BoolType, createBooleanVariable)
+                createVariable[BooleanValue](Term(decl.id, Nil))
             case IntType(_) =>
-                createVariable(Term(decl.id, Nil), decl.varType, createIntegerVariable)
+                createVariable[IntegerValue](Term(decl.id, Nil))
             case IntSetType(_) =>
-                createVariable(Term(decl.id, Nil), decl.varType, createIntegerSetVariable)
+                createVariable[IntegerSetValue](Term(decl.id, Nil))
             case ArrayType(Some(IntRange(1, n)), BoolType) =>
                 val array =
                     for (idx <- 1 to n) yield {
                         val name = "%s[%d]".format(decl.id, idx)
                         val key = ArrayAccess(decl.id, IntConst(idx))
-                        createVariable(key, BoolType, createBooleanVariable)
+                        createVariable[BooleanValue](key)
                     }
                 arrays += Term(decl.id, Nil) -> array
-            case ArrayType(Some(IntRange(1, n)), baseType@IntType(_)) =>
+            case ArrayType(Some(IntRange(1, n)), IntType(_)) =>
                 val array =
                     for (idx <- 1 to n) yield {
                         val name = "%s[%d]".format(decl.id, idx)
                         val key = ArrayAccess(decl.id, IntConst(idx))
-                        createVariable(key, baseType, createIntegerVariable)
+                        createVariable[IntegerValue](key)
                     }
                 arrays += Term(decl.id, Nil) -> array
-            case ArrayType(Some(IntRange(1, n)), baseType@IntSetType(_)) =>
+            case ArrayType(Some(IntRange(1, n)), IntSetType(_)) =>
                 val array =
                     for (idx <- 1 to n) yield {
                         val name = "%s[%d]".format(decl.id, idx)
                         val key = ArrayAccess(decl.id, IntConst(idx))
-                        createVariable(key, baseType, createIntegerSetVariable)
+                        createVariable[IntegerSetValue](key)
                     }
                 arrays += Term(decl.id, Nil) -> array
             case other =>
@@ -102,14 +97,17 @@ class VariableFactory
 
     private def createVariable
         [Value <: OrderedValue[Value]]
-        (key: Expr, varType: Type, factory: (Expr, Type) => Variable[Value]):
+        (key: Expr)
+        (implicit valueTraits: OrderedValueTraits[Value]):
         Variable[Value] =
     {
+        def factory(key: Expr) =
+            space.createVariable(key.toString, valueTraits.safeDowncast(domains(key)))
         val maybeEqualVars = equalVars.get(key)
         if (maybeEqualVars.isDefined) {
             val representative = maybeEqualVars.get.head
             if (! vars.contains(representative)) {
-                vars += representative -> factory(representative, varType)
+                vars += representative -> factory(representative)
             }
             val x = vars(representative).asInstanceOf[Variable[Value]]
             if (key != representative) {
@@ -118,33 +116,10 @@ class VariableFactory
             x
         }
         else {
-            factory(key, varType)
+            val x = factory(key)
+            vars += key -> x
+            x
         }
-    }
-
-    private def createBooleanVariable(key: Expr, varType: Type): Variable[IntegerValue] = {
-        val name = key.toString
-        val x = space.createVariable(name, ZeroToOneIntegerRange)
-        val dx = BooleanValueTraits.safeDowncast(domains(key))
-        if (dx.isSingleton) {
-            x.pruneDomain(if (dx.singleValue == True) ZeroToZeroIntegerRange else OneToOneIntegerRange)
-        }
-        vars += key -> x
-        x
-    }
-
-    private def createIntegerVariable(key: Expr, varType: Type): Variable[IntegerValue] = {
-        val name = key.toString
-        val x = space.createVariable(name, IntegerValueTraits.safeDowncast(domains(key)))
-        vars += key -> x
-        x
-    }
-
-    private def createIntegerSetVariable(key: Expr, varType: Type): Variable[IntegerSetValue] = {
-        val name = key.toString
-        val x = space.createVariable(name, IntegerSetValueTraits.safeDowncast(domains(key)))
-        vars += key -> x
-        x
     }
 
 }

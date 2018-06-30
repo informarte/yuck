@@ -13,81 +13,64 @@ import yuck.util.testing.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class BooleanDomainTest extends UnitTest {
 
-    val helper = new DomainTestHelper[BooleanValue]
+    private val helper = new OrderedDomainTestHelper[BooleanValue]
+    private val testData =
+        List(EmptyBooleanDomain, FalseDomain, TrueDomain, CompleteBooleanDecisionDomain, BooleanChannelDomain)
 
     @Test
-    def testBasics {
-        val randomGenerator = new JavaRandomGenerator
-        for ((f, t) <- List((false, false), (true, false), (false, true), (true, true))) {
-            val d = new BooleanDomain(f, t)
-            if (f && t) {
-                assertEq(d.toString, "{false, true}")
-            } else if (f) {
-                assertEq(d.toString, "{false}")
-            } else if (t) {
-                assertEq(d.toString, "{true}")
+    def testEquality {
+        for (Seq(a, b) <- testData.combinations(2).map(_.permutations).flatten) {
+            if ((a.isComplete && b.isComplete) || (a.isFinite && b.isFinite && a.values == b.values)) {
+                assertEq(a.asInstanceOf[BooleanDomain], b)
             } else {
-                assertEq(d.toString, "{}")
-            }
-            assertNe(d, "")
-            assertEq(d, d)
-            assertNe(d, new BooleanDomain(! f, t))
-            assert(if (f || t) ! d.isEmpty else d.isEmpty)
-            assertEq(d.size, (if (f) 1 else 0) + (if (t) 1 else 0))
-            assertEq(d.size == 1, d.isSingleton)
-            assert(d.isFinite)
-            assertEq(f, d.contains(False))
-            assertEq(t, d.contains(True))
-            assertEq(d.isComplete, f && t)
-            assert(d.isBounded)
-            assert(d.hasLb)
-            assert(d.hasUb)
-            assertEq(d.maybeLb.get, d.lb)
-            assertEq(d.maybeUb.get, d.ub)
-            assertEq(d.hull, d)
-            if (d.isEmpty) {
-                assertEx(d.singleValue)
-                assertEx(d.randomValue(randomGenerator))
-                assertEx(d.nextRandomValue(randomGenerator, False))
-                assertLt(d.ub, d.lb)
-            } else if (d.isSingleton) {
-                assertEq(d.singleValue, if (f) False else True)
-                assertEq(d.randomValue(randomGenerator), d.singleValue)
-                assertEq(d.nextRandomValue(randomGenerator, False), d.singleValue)
-                assertEq(d.nextRandomValue(randomGenerator, True), d.singleValue)
-                assertEq(d.lb, d.singleValue)
-                assertEq(d.ub, d.singleValue)
-            } else {
-                assertEx(d.singleValue)
-                assertEq(d.nextRandomValue(randomGenerator, False), True)
-                assertEq(d.nextRandomValue(randomGenerator, True), False)
-                helper.testUniformityOfDistribution(randomGenerator, d)
-                assertEq(d.lb, False)
-                assertEq(d.ub, True)
+                assertNe(a.asInstanceOf[BooleanDomain], b)
             }
         }
     }
 
     @Test
     def testOrdering {
-        val helper = new OrderingTestHelper[BooleanDomain] {}
-        val testData = List(EmptyBooleanDomain, FalseDomain, TrueDomain, CompleteBooleanDomain)
-        val sortedTestData1 = helper.testOrdering(testData, BooleanValueTraits.domainOrdering)
-        val sortedTestData2 = helper.testOrdering(testData, BooleanDomain.ordering)
-        assertEq(sortedTestData1, sortedTestData2)
+        helper.testOrdering(testData, BooleanDomain.ordering)
     }
 
     @Test
     def testSetOperations {
-        for ((f1, t1) <- List((false, false), (true, false), (false, true), (true, true))) {
-            val d1 = new BooleanDomain(f1, t1)
-            for ((f2, t2) <- List((false, false), (true, false), (false, true), (true, true))) {
-                val d2 = new BooleanDomain(f2, t2)
-                assertEq(d1.isSubsetOf(d2), (! f1 || f2) && (! t1 || t2))
-                assertEq(d1.intersects(d2), (f1 && f2) || (t1 && t2))
-                assertEq(d1.union(d2), new BooleanDomain(f1 || f2, t1 || t2))
-                assertEq(d1.diff(d2), new BooleanDomain(f1 && ! f2, t1 && ! t2))
-                assertEq(d1.symdiff(d2), d1.union(d2).diff(d1.intersect(d2)))
+        for (Seq(a, b) <- testData.combinations(2).map(_.permutations).flatten) {
+            assertEq(a.asInstanceOf[BooleanDomain].isSubsetOf(b), a.isSubsetOf(b))
+            assertEq(a.asInstanceOf[BooleanDomain].intersects(b), a.intersects(b))
+            assertEq(a.asInstanceOf[BooleanDomain].intersect(b), a.intersect(b))
+            assertEq(a.asInstanceOf[BooleanDomain].union(b), a.union(b))
+            if (! a.isComplete || b.isEmpty) {
+                assertEq(a.asInstanceOf[BooleanDomain].diff(b), a.diff(b))
+            }
+            if (! a.union(b).isComplete || ! a.intersects(b)) {
+                assertEq(a.asInstanceOf[BooleanDomain].symdiff(b), a.symdiff(b))
+            }
+            if (a.isComplete) {
+                assert(!a.isSubsetOf(b))
+                assert(a.intersects(b))
+                assertEq(a.intersect(b), b)
+                assert(a.union(b).isComplete)
+                if (b.isEmpty) {
+                    assert(a.diff(b).isComplete)
+                    assert(a.symdiff(b).isComplete)
+                } else {
+                    assertEx(a.diff(b))
+                    assertEx(a.symdiff(b))
+                }
+            } else if (b.isComplete) {
+                assert(a.isSubsetOf(b))
+                assert(a.intersects(b))
+                assertEq(a.intersect(b), a)
+                assert(a.union(b).isComplete)
+                assert(a.diff(b).isEmpty)
+                if (a.isEmpty) {
+                    assert(a.symdiff(b).isComplete)
+                } else {
+                    assertEx(a.symdiff(b))
+                }
+            } else {
+                // see BooleanDecisionDomainTest
             }
         }
     }

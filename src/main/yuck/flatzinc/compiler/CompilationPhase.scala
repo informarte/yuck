@@ -103,7 +103,7 @@ abstract class CompilationPhase(
         case _ if cc.consts.contains(expr) =>
             cc.consts(expr)
         case BoolConst(value) =>
-            val domain = if (value) ZeroToZeroIntegerRange else OneToOneIntegerRange
+            val domain = if (value) TrueDomain else FalseDomain
             val x = cc.space.createVariable(expr.toString, domain)
             cc.consts += expr -> x
             x
@@ -131,7 +131,7 @@ abstract class CompilationPhase(
     }
 
     implicit protected final def compileConstant(a: BooleanValue): Variable[BooleanValue] =
-        compileExpr(BoolConst(a.value))
+        compileExpr(BoolConst(a.truthValue))
 
     implicit protected final def compileConstant(a: IntegerValue): Variable[IntegerValue] =
         compileExpr(IntConst(a.value))

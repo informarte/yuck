@@ -34,18 +34,18 @@ final class Queens extends IntegrationTest {
                 space.post(new Minus(space.constraintIdFactory.nextId, null, rows.apply(col), iVar, rowsMinusI.apply(col)))
                 space.post(new Plus(space.constraintIdFactory.nextId, null, rows.apply(col), iVar, rowsPlusI.apply(col)))
             }
-            val rowConflicts = space.createVariable("rowConflicts", CompleteIntegerRange)
+            val rowConflicts = space.createVariable("rowConflicts", CompleteBooleanDomain)
             space.post(new Alldistinct(space.constraintIdFactory.nextId, null, rows.toIndexedSeq, rowConflicts))
-            val diagonalConflicts1 = space.createVariable("diagonalConflicts1", CompleteIntegerRange)
+            val diagonalConflicts1 = space.createVariable("diagonalConflicts1", CompleteBooleanDomain)
             space.post(new Alldistinct(space.constraintIdFactory.nextId, null, rowsMinusI.toIndexedSeq, diagonalConflicts1))
-            val diagonalConflicts2 = space.createVariable("diagonalConflicts2", CompleteIntegerRange)
+            val diagonalConflicts2 = space.createVariable("diagonalConflicts2", CompleteBooleanDomain)
             space.post(new Alldistinct(space.constraintIdFactory.nextId, null, rowsPlusI.toIndexedSeq, diagonalConflicts2))
-            val conflicts = space.createVariable("conflicts", CompleteIntegerRange)
+            val conflicts = space.createVariable("conflicts", CompleteBooleanDomain)
             space.post(
                 new LinearCombination(
                     space.constraintIdFactory.nextId,
                     null,
-                    List(rowConflicts, diagonalConflicts1, diagonalConflicts2).map(new AX(One, _)),
+                    List(rowConflicts, diagonalConflicts1, diagonalConflicts2).map(new AX(False, _)),
                     conflicts))
             val randomGenerator = new JavaRandomGenerator(seed)
             for ((x, a) <- rows.zip(0 to n - 1)) {
@@ -59,9 +59,9 @@ final class Queens extends IntegrationTest {
                     new RandomCircularSwapGenerator(
                         space, rows.toIndexedSeq, randomGenerator.nextGen, DEFAULT_MOVE_SIZE_DISTRIBUTION, None, None),
                     randomGenerator.nextGen,
-                    new MinimizationObjective(conflicts, Zero, None),
+                    new MinimizationObjective(conflicts, True, None),
                     None,
-                    None,
+                    Some(new StandardAnnealingMonitor(logger)),
                     None,
                     sigint)
             solver

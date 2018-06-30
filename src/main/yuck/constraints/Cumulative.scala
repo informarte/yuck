@@ -28,7 +28,7 @@ final class CumulativeTask(
 final class Cumulative
     (id: Id[Constraint], goal: Goal,
      tasks: immutable.Seq[CumulativeTask], ub: Variable[IntegerValue],
-     costs: Variable[IntegerValue])
+     costs: Variable[BooleanValue])
     extends Constraint(id, goal)
 {
 
@@ -39,7 +39,7 @@ final class Cumulative
     private val var2Task =
         new immutable.HashMap[AnyVariable, CumulativeTask] ++
         (tasks.map(_.s).zip(tasks)) ++ (tasks.map(_.d).zip(tasks)) ++ (tasks.map(_.c).zip(tasks))
-    private val effects = List(new ReusableEffectWithFixedVariable[IntegerValue](costs))
+    private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
     private type Profile = immutable.HashMap[Int, Int] // time slot -> resource consumption
     private var currentProfile: Profile = null
@@ -62,7 +62,7 @@ final class Cumulative
         }
         currentCosts = computeCosts(currentProfile, now.value(ub).value)
         assert(currentCosts >= 0)
-        effect.a = IntegerValue.get(currentCosts)
+        effect.a = BooleanValue.get(currentCosts)
         effects
     }
 
@@ -144,7 +144,7 @@ final class Cumulative
             futureCosts = computeCosts(futureProfile, after.value(ub).value)
         }
         assert(futureCosts >= 0)
-        effect.a = IntegerValue.get(futureCosts)
+        effect.a = BooleanValue.get(futureCosts)
         effects
     }
 

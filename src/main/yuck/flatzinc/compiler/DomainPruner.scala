@@ -48,10 +48,10 @@ final class DomainPruner
         } while(reduction)
     }
 
-    private def boolDomain(a: Expr): BooleanDomain = a match {
+    private def boolDomain(a: Expr): BooleanDecisionDomain = a match {
         case BoolConst(false) => FalseDomain
         case BoolConst(true) => TrueDomain
-        case _ => domains(a).asInstanceOf[BooleanDomain]
+        case _ => domains(a).asInstanceOf[BooleanDecisionDomain]
     }
     private def intDomain(a: Expr): IntegerDomain = a match {
         case IntConst(a) => createIntegerDomain(a, a)
@@ -64,7 +64,7 @@ final class DomainPruner
     }
 
     private def normalizeBool(a: Expr): Expr =
-        tryGetConst[BooleanValue](a).map(_.value).map(BoolConst).getOrElse(a)
+        tryGetConst[BooleanValue](a).map(_.truthValue).map(BoolConst).getOrElse(a)
     private def normalizeInt(a: Expr): Expr =
         tryGetConst[IntegerValue](a).map(_.value).map(IntConst).getOrElse(a)
     private def normalizeArray(a: Expr): Expr = a match {
@@ -163,7 +163,7 @@ final class DomainPruner
                 case List(a, IntConst(b)) =>
                     assertConsistency(b == 0 || b == 1, constraint)
                     val da1 = boolDomain(a)
-                    val da2 = new BooleanDomain(b == 0 && da1.containsFalse, b == 1 && da1.containsTrue)
+                    val da2 = BooleanDecisionDomain.createDomain(b == 0 && da1.containsFalse, b == 1 && da1.containsTrue)
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                 case List(BoolConst(a), b) =>
                     val db1 = intDomain(b)
@@ -173,7 +173,7 @@ final class DomainPruner
                     val da1 = boolDomain(a)
                     val db1 = intDomain(b)
                     val da2 =
-                        new BooleanDomain(db1.contains(Zero) && da1.containsFalse, db1.contains(One) && da1.containsTrue)
+                        BooleanDecisionDomain.createDomain(db1.contains(Zero) && da1.containsFalse, db1.contains(One) && da1.containsTrue)
                     val db2 =
                         IntegerDomainPruner.eq(
                             db1,
@@ -187,18 +187,18 @@ final class DomainPruner
                     impliedConstraints += constraint
                 case List(a, BoolConst(value)) =>
                     val da1 = boolDomain(a)
-                    val da2 = new BooleanDomain(! value && da1.containsFalse, value && da1.containsTrue)
+                    val da2 = BooleanDecisionDomain.createDomain(! value && da1.containsFalse, value && da1.containsTrue)
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                     impliedConstraints += constraint
                 case List(BoolConst(value), b) =>
                     val db1 = boolDomain(b)
-                    val db2 = new BooleanDomain(! value && db1.containsFalse, value && db1.containsTrue)
+                    val db2 = BooleanDecisionDomain.createDomain(! value && db1.containsFalse, value && db1.containsTrue)
                     if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
                     impliedConstraints += constraint
                 case List(a, b) =>
                     val da = boolDomain(a)
                     val db = boolDomain(b)
-                    val d = new BooleanDomain(da.containsFalse && db.containsFalse, da.containsTrue && db.containsTrue)
+                    val d = BooleanDecisionDomain.createDomain(da.containsFalse && db.containsFalse, da.containsTrue && db.containsTrue)
                     propagateEquality(a, b, d)
             }
             case Constraint("bool_eq_reif", params, _) => params.map(normalizeBool) match {
@@ -208,7 +208,7 @@ final class DomainPruner
                     propagateTranslation(constraint.copy(id = "bool_not", params = List(a, b)))
                 case List(BoolConst(a), BoolConst(b), r) =>
                     val dr1 = boolDomain(r)
-                    val dr2 = new BooleanDomain(dr1.containsFalse && a != b, dr1.containsTrue && a == b)
+                    val dr2 = BooleanDecisionDomain.createDomain(dr1.containsFalse && a != b, dr1.containsTrue && a == b)
                     if (dr1 != dr2) equalVars(r).foreach(a => effects += a -> dr2)
                     impliedConstraints += constraint
                 case _ =>
@@ -221,12 +221,12 @@ final class DomainPruner
                     impliedConstraints += constraint
                 case List(a, BoolConst(value)) =>
                     val da1 = boolDomain(a)
-                    val da2 = new BooleanDomain(value && da1.containsFalse, ! value && da1.containsTrue)
+                    val da2 = BooleanDecisionDomain.createDomain(value && da1.containsFalse, ! value && da1.containsTrue)
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                     impliedConstraints += constraint
                 case List(BoolConst(value), b) =>
                     val db1 = boolDomain(b)
-                    val db2 = new BooleanDomain(value && db1.containsFalse, ! value && db1.containsTrue)
+                    val db2 = BooleanDecisionDomain.createDomain(value && db1.containsFalse, ! value && db1.containsTrue)
                     if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
                     impliedConstraints += constraint
                 case List(a, b) =>
@@ -239,26 +239,26 @@ final class DomainPruner
                     impliedConstraints += constraint
                 case List(BoolConst(true), b) =>
                     val db1 = boolDomain(b)
-                    val db2 = new BooleanDomain(false, db1.containsTrue)
+                    val db2 = BooleanDecisionDomain.createDomain(false, db1.containsTrue)
                     if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
                     impliedConstraints += constraint
                 case List(_, BoolConst(true)) =>
                     impliedConstraints += constraint
                 case List(a, BoolConst(false)) =>
                     val da1 = boolDomain(a)
-                    val da2 = new BooleanDomain(da1.containsFalse, false)
+                    val da2 = BooleanDecisionDomain.createDomain(da1.containsFalse, false)
                     if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                     impliedConstraints += constraint
                 case List(a, b) =>
                     val da1 = boolDomain(a)
                     val db1 = boolDomain(b)
-                    if (da1.isSingleton && da1.singleValue == True) {
-                        val db2 = new BooleanDomain(false, db1.containsTrue)
+                    if (da1.isSingleton && da1.singleValue.truthValue) {
+                        val db2 = BooleanDecisionDomain.createDomain(false, db1.containsTrue)
                         if (db1 != db2) equalVars(b).foreach(a => effects += a -> db2)
                         impliedConstraints += constraint
                     }
-                    if (db1.isSingleton && db1.singleValue == False) {
-                        val da2 = new BooleanDomain(da1.containsFalse, false)
+                    if (db1.isSingleton && ! db1.singleValue.truthValue) {
+                        val da2 = BooleanDecisionDomain.createDomain(da1.containsFalse, false)
                         if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                         impliedConstraints += constraint
                     }
@@ -270,7 +270,7 @@ final class DomainPruner
                             assertConsistency(a == BoolConst(true), constraint)
                         } else {
                             val da1 = boolDomain(a)
-                            val da2 = new BooleanDomain(false, da1.containsTrue)
+                            val da2 = BooleanDecisionDomain.createDomain(false, da1.containsTrue)
                             if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                         }
                     }
@@ -285,13 +285,13 @@ final class DomainPruner
                     val as = getArrayElems(as0)
                     if (as.exists(a => compilesToConst(a, False))) {
                         val dr1 = boolDomain(r)
-                        val dr2 = new BooleanDomain(dr1.containsFalse, false)
+                        val dr2 = BooleanDecisionDomain.createDomain(dr1.containsFalse, false)
                         if (dr1 != dr2) equalVars(r).foreach(s => effects += s -> dr2)
                         impliedConstraints += constraint
                     }
                     else if (as.forall(a => compilesToConst(a, True))) {
                         val dr1 = boolDomain(r)
-                        val dr2 = new BooleanDomain(false, dr1.containsTrue)
+                        val dr2 = BooleanDecisionDomain.createDomain(false, dr1.containsTrue)
                         if (dr1 != dr2) equalVars(r).foreach(s => effects += s -> dr2)
                         impliedConstraints += constraint
                     }
@@ -303,7 +303,7 @@ final class DomainPruner
                             assertConsistency(a == BoolConst(false), constraint)
                         } else {
                             val da1 = boolDomain(a)
-                            val da2 = new BooleanDomain(da1.containsFalse, false)
+                            val da2 = BooleanDecisionDomain.createDomain(da1.containsFalse, false)
                             if (da1 != da2) equalVars(a).foreach(b => effects += b -> da2)
                         }
                     }
@@ -318,13 +318,13 @@ final class DomainPruner
                     val as = getArrayElems(as0)
                     if (as.exists(a => compilesToConst(a, True))) {
                         val dr1 = boolDomain(r)
-                        val dr2 = new BooleanDomain(false, dr1.containsTrue)
+                        val dr2 = BooleanDecisionDomain.createDomain(false, dr1.containsTrue)
                         if (dr1 != dr2) equalVars(r).foreach(s => effects += s -> dr2)
                         impliedConstraints += constraint
                     }
                     else if (as.forall(a => compilesToConst(a, False))) {
                         val dr1 = boolDomain(r)
-                        val dr2 = new BooleanDomain(dr1.containsFalse, false)
+                        val dr2 = BooleanDecisionDomain.createDomain(dr1.containsFalse, false)
                         if (dr1 != dr2) equalVars(r).foreach(s => effects += s -> dr2)
                         impliedConstraints += constraint
                     }
@@ -370,7 +370,7 @@ final class DomainPruner
                     propagateTranslation(constraint.copy(id = "int_ne", params = List(a, b)))
                 case List(IntConst(a), IntConst(b), r) =>
                     val dr1 = boolDomain(r)
-                    val dr2 = new BooleanDomain(dr1.containsFalse && a != b, dr1.containsTrue && a == b)
+                    val dr2 = BooleanDecisionDomain.createDomain(dr1.containsFalse && a != b, dr1.containsTrue && a == b)
                     if (dr1 != dr2) equalVars(r).foreach(a => effects += a -> dr2)
                     impliedConstraints += constraint
                 case _ =>
@@ -397,7 +397,7 @@ final class DomainPruner
                     propagateTranslation(constraint.copy(id = "int_eq", params = List(a, b)))
                 case List(IntConst(a), IntConst(b), r) =>
                     val dr1 = boolDomain(r)
-                    val dr2 = new BooleanDomain(dr1.containsFalse && a == b, dr1.containsTrue && a != b)
+                    val dr2 = BooleanDecisionDomain.createDomain(dr1.containsFalse && a == b, dr1.containsTrue && a != b)
                     if (dr1 != dr2) equalVars(r).foreach(a => effects += a -> dr2)
                     impliedConstraints += constraint
                 case _ =>
@@ -430,7 +430,7 @@ final class DomainPruner
                     propagateTranslation(constraint.copy(id = "int_lt", params = List(b, a)))
                 case List(IntConst(a), IntConst(b), r) =>
                     val dr1 = boolDomain(r)
-                    val dr2 = new BooleanDomain(dr1.containsFalse && a > b, dr1.containsTrue && a <= b)
+                    val dr2 = BooleanDecisionDomain.createDomain(dr1.containsFalse && a > b, dr1.containsTrue && a <= b)
                     if (dr1 != dr2) equalVars(r).foreach(a => effects += a -> dr2)
                     impliedConstraints += constraint
                 case _ =>
@@ -463,7 +463,7 @@ final class DomainPruner
                     propagateTranslation(constraint.copy(id = "int_le", params = List(b, a)))
                 case List(IntConst(a), IntConst(b), r) =>
                     val dr1 = boolDomain(r)
-                    val dr2 = new BooleanDomain(dr1.containsFalse && a >= b, dr1.containsTrue && a < b)
+                    val dr2 = BooleanDecisionDomain.createDomain(dr1.containsFalse && a >= b, dr1.containsTrue && a < b)
                     if (dr1 != dr2) equalVars(r).foreach(a => effects += a -> dr2)
                     impliedConstraints += constraint
                 case _ =>
@@ -716,7 +716,7 @@ final class DomainPruner
                }
                val r = params.last match {
                    case BoolConst(b) => b
-                   case _ => boolDomain(params.last).singleValue.value
+                   case _ => boolDomain(params.last).singleValue.truthValue
                }
                if (r) {
                    propagateTranslation(Constraint(name, params.take(params.size - 1), annotations))

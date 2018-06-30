@@ -11,7 +11,7 @@ final class LexLessEq
     [Value <: OrderedValue[Value]]
     (id: Id[Constraint], goal: Goal,
      xs: Seq[Variable[Value]], ys: Seq[Variable[Value]],
-     costs: Variable[IntegerValue])
+     costs: Variable[BooleanValue])
     (implicit val ord: Ordering[TraversableOnce[Value]])
     extends Constraint(id, goal)
 {
@@ -20,12 +20,12 @@ final class LexLessEq
     override def inVariables = xs.toIterator ++ ys.toIterator
     override def outVariables = List(costs)
 
-    private val effects = List(new ReusableEffectWithFixedVariable[IntegerValue](costs))
+    private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
 
     override def initialize(now: SearchState) = {
         val c = ord.compare(xs.toIterator.map(now.value(_)), ys.toIterator.map(now.value(_)))
-        effect.a = if (c <= 0) Zero else IntegerValue.get(c)
+        effect.a = if (c <= 0) True else BooleanValue.get(c)
         effects
     }
 

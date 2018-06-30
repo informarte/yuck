@@ -49,7 +49,7 @@ final class SendMoreMoney extends IntegrationTest {
         val O = space.createVariable("O", d)
         val R = space.createVariable("R", d)
         val Y = space.createVariable("Y", d)
-        val numberOfMissingValues = space.createVariable("numberOfMissingValues", CompleteIntegerRange)
+        val numberOfMissingValues = space.createVariable("numberOfMissingValues", CompleteBooleanDomain)
         space.post(
             new Alldistinct(
                 space.constraintIdFactory.nextId, null, Vector(S, E, N, D, M, O, R, Y), numberOfMissingValues))
@@ -69,14 +69,13 @@ final class SendMoreMoney extends IntegrationTest {
                 null,
                 RHS.map{case (a, x) => new AX(new IntegerValue(a), x)},
                 rhs))
-        val delta = space.createVariable("delta", CompleteIntegerRange)
-        space.post(new NumEq(space.constraintIdFactory.nextId, null, lhs, rhs, delta))
-        val costs = space.createVariable("costs", CompleteIntegerRange)
+        val delta = space.createVariable("delta", CompleteBooleanDomain)
+        space.post(new Eq(space.constraintIdFactory.nextId, null, lhs, rhs, delta))
+        val costs = space.createVariable("costs", CompleteBooleanDomain)
         space.post(
             new LinearCombination(
                 space.constraintIdFactory.nextId, null,
-                new AX(new IntegerValue(100), numberOfMissingValues) :: new AX(One, delta) :: Nil, costs))
-        var objective = new MinimizationObjective(costs, Zero, None)
+                new AX(new BooleanValue(100), numberOfMissingValues) :: new AX(False, delta) :: Nil, costs))
         assertEq(space.searchVariables, Set(S, E, N, D, M, O, R, E, M, O, N, E, Y))
         val randomGenerator = new JavaRandomGenerator(seed)
         val initializer = new RandomInitializer(space, randomGenerator.nextGen)
@@ -88,11 +87,12 @@ final class SendMoreMoney extends IntegrationTest {
                 createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen),
                 new SimpleRandomReassignmentGenerator(space, space.searchVariables.toIndexedSeq, randomGenerator.nextGen),
                 randomGenerator.nextGen,
-                new MinimizationObjective(costs, Zero, None),
+                new MinimizationObjective(costs, True, None),
                 None,
-                None,
+                Some(new StandardAnnealingMonitor(logger)),
                 Some(new ModelData(LHS, RHS)),
                 sigint)
+        logger.setThresholdLogLevel(yuck.util.logging.FinestLogLevel)
         val result = solver.call
         if (result.isSolution) {
             val modelData = result.maybeUserData.get.asInstanceOf[ModelData]

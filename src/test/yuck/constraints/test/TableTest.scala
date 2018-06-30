@@ -23,7 +23,7 @@ final class TableTest extends UnitTest {
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
-        val costs = space.createVariable("costs", NonNegativeIntegerRange)
+        val costs = space.createVariable("costs", CompleteBooleanDomain)
         val rows = immutable.IndexedSeq(immutable.IndexedSeq(0, 0, 0), immutable.IndexedSeq(1, 2, 3))
         val c = new IntegerTable(space.constraintIdFactory.nextId, null, immutable.IndexedSeq(s, t, u), rows, costs)
         space
@@ -34,18 +34,18 @@ final class TableTest extends UnitTest {
             .initialize
         assertEq(space.searchVariables, Set(s, t, u))
         val now = space.searchState
-        assertEq(now.value(costs), Three)
+        assertEq(now.value(costs), False3)
         if (true) {
             // move away from the first row and approach the second row
             val move = new ChangeValue(space.moveIdFactory.nextId, t, Two)
             val after = space.consult(move)
             assertEq(now.value(t), One)
-            assertEq(now.value(costs), Three)
+            assertEq(now.value(costs), False3)
             assertEq(after.value(t), Two)
-            assertEq(after.value(costs), Two)
+            assertEq(after.value(costs), False2)
             space.commit(move)
             assertEq(now.value(t), Two)
-            assertEq(now.value(costs), Two)
+            assertEq(now.value(costs), False2)
         }
         if (true) {
             // change two values at once
@@ -56,17 +56,17 @@ final class TableTest extends UnitTest {
             val after = space.consult(move)
             assertEq(now.value(s), One)
             assertEq(now.value(u), One)
-            assertEq(now.value(costs), Two)
+            assertEq(now.value(costs), False2)
             assertEq(after.value(s), Zero)
             assertEq(after.value(u), Three)
-            assertEq(after.value(costs), One)
+            assertEq(after.value(costs), False)
             space.commit(move)
             assertEq(now.value(s), Zero)
             assertEq(now.value(u), Three)
-            assertEq(now.value(costs), One)
+            assertEq(now.value(costs), False)
         }
         space.initialize
-        assertEq(now.value(costs), One)
+        assertEq(now.value(costs), False)
     }
 
     // This test considers a situation that caused problems due to a bug in the
@@ -76,7 +76,7 @@ final class TableTest extends UnitTest {
         val space = new Space(logger)
         val s = space.createVariable("s", new IntegerRange(Two, Five))
         val t = space.createVariable("t", new IntegerRange(Two, Two))
-        val costs = space.createVariable("costs", NonNegativeIntegerRange)
+        val costs = space.createVariable("costs", CompleteBooleanDomain)
         val rows =
             immutable.IndexedSeq(
                 0, 0,
@@ -90,13 +90,13 @@ final class TableTest extends UnitTest {
         space.post(c).setValue(s, Two).setValue(t, Two).initialize
         assertEq(space.searchVariables, Set(s))
         val now = space.searchState
-        assertEq(now.value(costs), Zero)
+        assertEq(now.value(costs), True)
         space.setValue(s, Three).initialize
-        assertEq(now.value(costs), One)
+        assertEq(now.value(costs), False)
         space.setValue(s, Four).initialize
-        assertEq(now.value(costs), One)
+        assertEq(now.value(costs), False)
         space.setValue(s, Five).initialize
-        assertEq(now.value(costs), Zero)
+        assertEq(now.value(costs), True)
     }
 
 }

@@ -11,10 +11,13 @@ abstract class NumericalValue[Value] extends OrderedValue[Value] {
     def +(that: Value): Value
     def -(that: Value): Value
     def *(that: Value): Value
+    /** Computes this + s * a - s * b. */
+    def addAndSub(s: Value, a: Value, b: Value): Value
     def /(that: Value): Value
     def ^(that: Value): Value
     def %(that: Value): Value
     def abs: Value
+    def toInt: Int
     def toDouble: Double
     def isEven: Boolean
 }

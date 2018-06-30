@@ -186,16 +186,18 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
 }
 
 /**
- * Provides methods for creating integer domains.
+ * Companion object to IntegerDomain.
  *
  * @author Michael Marte
  */
 final object IntegerDomain {
 
+    /** A total ordering on integer domains. */
     val ordering = new Ordering[IntegerDomain] {
         override def compare(lhs: IntegerDomain, rhs: IntegerDomain) = lhs.compare(rhs)
     }
 
+    /** Turns the given integer domain into a range list, if necessary. */
     def ensureRangeList(domain: Domain[IntegerValue]): IntegerRangeList = domain match {
         case range: IntegerRange => if (range.isEmpty) EmptyIntegerRangeList else new IntegerRangeList(range)
         case rangeList: IntegerRangeList => rangeList

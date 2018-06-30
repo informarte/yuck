@@ -54,7 +54,7 @@ final class Inverse
     (id: Id[Constraint], goal: Goal,
      f: InverseFunction,
      g: InverseFunction,
-     costs: Variable[IntegerValue])
+     costs: Variable[BooleanValue])
     extends Constraint(id, goal)
 {
 
@@ -64,7 +64,7 @@ final class Inverse
     override def inVariables = f.xs.toIterator ++ g.xs.toIterator
     override def outVariables = List(costs)
 
-    private val effects = List(new ReusableEffectWithFixedVariable[IntegerValue](costs))
+    private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
     private var currentCosts = 0
     private var futureCosts = 0
@@ -103,7 +103,7 @@ final class Inverse
             }
         }
         assert(currentCosts >= 0)
-        effect.a = IntegerValue.get(currentCosts)
+        effect.a = BooleanValue.get(currentCosts)
         effects
     }
 
@@ -149,7 +149,7 @@ final class Inverse
             }
         }
         assert(futureCosts >= 0)
-        effect.a = IntegerValue.get(futureCosts)
+        effect.a = BooleanValue.get(futureCosts)
         effects
     }
 
@@ -212,7 +212,7 @@ final class Inverse
                     for ((y, i) <- g.xs.toIterator.zip(f.indexRange.toIterator)) {
                         space.setValue(y, IntegerValue.get(i))
                     }
-                    space.setValue(costs, Zero)
+                    space.setValue(costs, True)
                     Some(new SimpleInverseNeighbourhood(space, f, g, randomGenerator))
                 } else {
                     // general case
@@ -221,7 +221,7 @@ final class Inverse
                     val subf = new InverseFunction(f.xs.map(x => subspace.createVariable(x.name, x.domain)), f.offset)
                     val subg = new InverseFunction(g.xs.map(y => subspace.createVariable(y.name, y.domain)), g.offset)
                     val result = logger.withTimedLogScope("Solving %s".format(this)) {
-                        val subcosts = subspace.createVariable("", IntegerValueTraits.nonNegativeDomain)
+                        val subcosts = subspace.createVariable("", BooleanValueTraits.completeDomain)
                         subspace.post(new Inverse(subspace.constraintIdFactory.nextId, goal, subf, subg, subcosts))
                         val initializer = new RandomInitializer(subspace, randomGenerator.nextGen)
                         initializer.run
@@ -239,7 +239,7 @@ final class Inverse
                                     DEFAULT_MOVE_SIZE_DISTRIBUTION, maybeHotSpotDistribution = None,
                                     maybeFairVariableChoiceRate = None),
                                 randomGenerator.nextGen,
-                                new MinimizationObjective(subcosts, Zero, None),
+                                new MinimizationObjective(subcosts, True, None),
                                 maybeRoundLimit = Some(1000),
                                 Some(new StandardAnnealingMonitor(logger)),
                                 maybeUserData = None,
@@ -253,7 +253,7 @@ final class Inverse
                         for ((y, suby) <- g.xs.toIterator.zip(subg.xs.toIterator)) {
                             space.setValue(y, subspace.searchState.value(suby))
                         }
-                        space.setValue(costs, Zero)
+                        space.setValue(costs, True)
                         Some(new GeneralInverseNeighbourhood(space, f, g, randomGenerator))
                     } else {
                         None
@@ -267,7 +267,7 @@ final class Inverse
                     space.setValue(f.xs(i1 - f.offset), IntegerValue.get(i2))
                     space.setValue(f.xs(i2 - f.offset), IntegerValue.get(i1))
                 }
-                space.setValue(costs, Zero)
+                space.setValue(costs, True)
                 Some(new SelfInverseNeighbourhood(space, f, randomGenerator))
             } else {
                 None
@@ -307,7 +307,7 @@ final class Inverse
         if (isDecomposable) {
             for (domain <- fPartitionByDomain.keysIterator.toList) yield {
                 val offset = domain.lb.value
-                val costs = space.createVariable("", NonNegativeIntegerRange)
+                val costs = space.createVariable("", BooleanValueTraits.completeDomain)
                 new Inverse(
                     space.constraintIdFactory.nextId, goal,
                     new InverseFunction(fPartitionByDomain(domain).toIndexedSeq, offset),

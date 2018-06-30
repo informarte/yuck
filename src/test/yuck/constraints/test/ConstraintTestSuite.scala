@@ -26,7 +26,6 @@ import org.junit._
         classOf[MinimumTest],
         classOf[NumberOfDistinctValuesTest],
         classOf[RegularTest],
-        classOf[ReificationTest],
         classOf[SumTest],
         classOf[TableTest]))
 @Test

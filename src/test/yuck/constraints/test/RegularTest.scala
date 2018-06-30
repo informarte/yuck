@@ -26,7 +26,7 @@ final class RegularTest extends UnitTest {
         val delta = immutable.IndexedSeq(1, 2, 3, 0, 3, 4, 0, 5, 0, 6, 6, 0).grouped(2).toIndexedSeq
         val q0 = 1
         val F = new IntegerRange(Six, Six)
-        val costs = space.createVariable("costs", NonNegativeIntegerRange)
+        val costs = space.createVariable("costs", CompleteBooleanDomain)
         val c = new Regular(space.constraintIdFactory.nextId, null, xs, Q, S, delta, q0, F, costs)
         space
             .post(c)
@@ -38,19 +38,19 @@ final class RegularTest extends UnitTest {
             .initialize
         assertEq(space.searchVariables, xs.toSet)
         val now = space.searchState
-        assertEq(now.value(costs), Zero)
+        assertEq(now.value(costs).violation, 0)
         if (true) {
             // input:  1, 1, 1, 2, 2, 2, 2, 2, 1, 1
             // states: 1, 1, 1, 2, 0, 0, 0, 0, 0, 0
             val move = new ChangeValue(space.moveIdFactory.nextId, xs(4), Two)
             val after = space.consult(move)
             assertEq(now.value(xs(4)), One)
-            assertEq(now.value(costs), Zero)
+            assertEq(now.value(costs), True)
             assertEq(after.value(xs(4)), Two)
-            assertEq(after.value(costs), Six)
+            assertEq(after.value(costs), False6)
             space.commit(move)
             assertEq(now.value(xs(4)), Two)
-            assertEq(now.value(costs), Six)
+            assertEq(now.value(costs), False6)
         }
         if (true) {
             // input:  1, 1, 1, 2, 1, 2, 2, 2, 1, 2
@@ -62,14 +62,14 @@ final class RegularTest extends UnitTest {
             val after = space.consult(move)
             assertEq(now.value(xs(4)), Two)
             assertEq(now.value(xs(9)), One)
-            assertEq(now.value(costs), Six)
+            assertEq(now.value(costs), False6)
             assertEq(after.value(xs(4)), One)
             assertEq(after.value(xs(9)), Two)
-            assertEq(after.value(costs), One)
+            assertEq(after.value(costs), False)
             space.commit(move)
             assertEq(now.value(xs(4)), One)
             assertEq(now.value(xs(9)), Two)
-            assertEq(now.value(costs), One)
+            assertEq(now.value(costs), False)
         }
         if (true) {
             // input:  1, 1, 1, 2, 1, 2, 2, 2, 1, 1
@@ -77,15 +77,15 @@ final class RegularTest extends UnitTest {
             val move = new ChangeValue(space.moveIdFactory.nextId, xs(9), One)
             val after = space.consult(move)
             assertEq(now.value(xs(9)), Two)
-            assertEq(now.value(costs), One)
+            assertEq(now.value(costs), False)
             assertEq(after.value(xs(9)), One)
-            assertEq(after.value(costs), Zero)
+            assertEq(after.value(costs), True)
             space.commit(move)
             assertEq(now.value(xs(9)), One)
-            assertEq(now.value(costs), Zero)
+            assertEq(now.value(costs), True)
         }
         space.initialize
-        assertEq(now.value(costs), Zero)
+        assertEq(now.value(costs), True)
     }
 
 }

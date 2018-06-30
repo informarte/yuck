@@ -23,7 +23,7 @@ final class IntegerTable
     (id: Id[Constraint], goal: Goal,
      xs: immutable.IndexedSeq[Variable[IntegerValue]],
      rows: immutable.IndexedSeq[immutable.IndexedSeq[Int]],
-     costs: Variable[IntegerValue])
+     costs: Variable[BooleanValue])
     extends Constraint(id, goal)
 {
 
@@ -52,7 +52,7 @@ final class IntegerTable
     private val x2i = new immutable.HashMap[AnyVariable, Int] ++ xs.zip(0 until n)
     private var currentDistances: Array[Int] = null // for each row
     private var futureDistances: Array[Int] = null // for each row
-    private val effects = List(new ReusableEffectWithFixedVariable[IntegerValue](costs))
+    private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
 
     override def initialize(now: SearchState) = {
@@ -64,7 +64,7 @@ final class IntegerTable
                     safeAdd(currentDistances(j), abs(safeSub(now.value(xs(i)).value, cols(i)(j))))
             }
         }
-        effect.a = IntegerValue.get(currentDistances.min)
+        effect.a = BooleanValue.get(currentDistances.min)
         effects
     }
 
@@ -84,7 +84,7 @@ final class IntegerTable
                 j += 1
             }
         }
-        effect.a = IntegerValue.get(futureDistances.min)
+        effect.a = BooleanValue.get(futureDistances.min)
         effects
     }
 

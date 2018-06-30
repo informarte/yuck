@@ -25,13 +25,23 @@ package object core {
 
     type Costs = AnyValue
 
-    val False = new BooleanValue(false)
-    val True = new BooleanValue(true)
+    val True = BooleanValue.get(0)
+    val False = BooleanValue.get(1)
+    val False2 = BooleanValue.get(2)
+    val False3 = BooleanValue.get(3)
+    val False4 = BooleanValue.get(4)
+    val False5 = BooleanValue.get(5)
+    val False6 = BooleanValue.get(6)
+    val False7 = BooleanValue.get(7)
+    val False8 = BooleanValue.get(8)
+    val False9 = BooleanValue.get(9)
+    val False10 = BooleanValue.get(10)
 
-    val EmptyBooleanDomain = new BooleanDomain(false, false)
-    val CompleteBooleanDomain = new BooleanDomain(true, true)
-    val FalseDomain = new BooleanDomain(true, false)
-    val TrueDomain = new BooleanDomain(false, true)
+    val EmptyBooleanDomain = new BooleanDecisionDomain(false, false)
+    val CompleteBooleanDecisionDomain = new BooleanDecisionDomain(true, true)
+    val FalseDomain = new BooleanDecisionDomain(true, false)
+    val TrueDomain = new BooleanDecisionDomain(false, true)
+    val CompleteBooleanDomain = BooleanChannelDomain
 
     val MinusOne = IntegerValue.get(-1)
     val Zero = IntegerValue.get(0)

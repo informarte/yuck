@@ -29,7 +29,7 @@ final class CumulativeTest extends UnitTest {
         val t0 = new CumulativeTask(s0, d0, c0)
         val t1 = new CumulativeTask(s1, d1, c1)
         val ub = space.createVariable("ub", d)
-        val costs = space.createVariable("costs", NonNegativeIntegerRange)
+        val costs = space.createVariable("costs", CompleteBooleanDomain)
         val c = new Cumulative(space.constraintIdFactory.nextId, null, List(t0, t1), ub, costs)
         // initial conflict: two tasks with same start time and duration
         space
@@ -44,42 +44,42 @@ final class CumulativeTest extends UnitTest {
             .initialize
         assertEq(space.searchVariables, Set(s0, d0, c0, s1, d1, c1, ub))
         val now = space.searchState
-        assertEq(now.value(costs), Three)
+        assertEq(now.value(costs), False3)
         if (true) {
             // move second task to resolve conflict
             val move = new ChangeValue(space.moveIdFactory.nextId, s1, Three)
             val after = space.consult(move)
             assertEq(now.value(s1), Zero)
-            assertEq(now.value(costs), Three)
+            assertEq(now.value(costs), False3)
             assertEq(after.value(s1), Three)
-            assertEq(after.value(costs), Zero)
+            assertEq(after.value(costs), True)
             space.commit(move)
             assertEq(now.value(s1), Three)
-            assertEq(now.value(costs), Zero)
+            assertEq(now.value(costs), True)
         }
         if (true) {
             // make first task longer to create overlap
             val move = new ChangeValue(space.moveIdFactory.nextId, d0, Four)
             val after = space.consult(move)
             assertEq(now.value(d0), Three)
-            assertEq(now.value(costs), Zero)
+            assertEq(now.value(costs), True)
             assertEq(after.value(d0), Four)
-            assertEq(after.value(costs), One)
+            assertEq(after.value(costs), False)
             space.commit(move)
             assertEq(now.value(d0), Four)
-            assertEq(now.value(costs), One)
+            assertEq(now.value(costs), False)
         }
         if (true) {
             // resolve conflict by increasing resource supply
             val move = new ChangeValue(space.moveIdFactory.nextId, ub, Four)
             val after = space.consult(move)
             assertEq(now.value(ub), Three)
-            assertEq(now.value(costs), One)
+            assertEq(now.value(costs), False)
             assertEq(after.value(ub), Four)
-            assertEq(after.value(costs), Zero)
+            assertEq(after.value(costs), True)
             space.commit(move)
             assertEq(now.value(ub), Four)
-            assertEq(now.value(costs), Zero)
+            assertEq(now.value(costs), True)
         }
         if (true) {
             // change duration and resource consumption in one move
@@ -90,17 +90,17 @@ final class CumulativeTest extends UnitTest {
             val after = space.consult(move)
             assertEq(now.value(d0), Four)
             assertEq(now.value(c0), Two)
-            assertEq(now.value(costs), Zero)
+            assertEq(now.value(costs), True)
             assertEq(after.value(d0), Three)
             assertEq(after.value(c0), Five)
-            assertEq(after.value(costs), Three)
+            assertEq(after.value(costs), False3)
             space.commit(move)
             assertEq(now.value(d0), Three)
             assertEq(now.value(c0), Five)
-            assertEq(now.value(costs), Three)
+            assertEq(now.value(costs), False3)
         }
         space.initialize
-        assertEq(now.value(costs), Three)
+        assertEq(now.value(costs), False3)
     }
 
 }

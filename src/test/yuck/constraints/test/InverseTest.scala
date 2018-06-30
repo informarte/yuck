@@ -26,7 +26,7 @@ final class InverseTest extends UnitTest {
         val g1 = space.createVariable("g1", d)
         val g2 = space.createVariable("g2", d)
         val g3 = space.createVariable("g3", d)
-        val costs = space.createVariable("costs", NonNegativeIntegerRange)
+        val costs = space.createVariable("costs", CompleteBooleanDomain)
         val f = immutable.IndexedSeq(f1, f2, f3)
         val g = immutable.IndexedSeq(g1, g2, g3)
         val c = new Inverse(space.constraintIdFactory.nextId, null, new InverseFunction(f, 1), new InverseFunction(g, 1), costs)
@@ -39,7 +39,7 @@ final class InverseTest extends UnitTest {
             .initialize
         assertEq(space.searchVariables, Set(f1, f2, f3, g1, g2, g3))
         val now = space.searchState
-        assertEq(now.value(costs), Eight)
+        assertEq(now.value(costs), False8)
         if (true) {
             // swap values of g1 and g3:
             // 3 1 2
@@ -54,14 +54,14 @@ final class InverseTest extends UnitTest {
             val after = space.consult(move)
             assertEq(now.value(g1), Three)
             assertEq(now.value(g3), Two)
-            assertEq(now.value(costs), Eight)
+            assertEq(now.value(costs), False8)
             assertEq(after.value(g1), Two)
             assertEq(after.value(g3), Three)
-            assertEq(after.value(costs), Six)
+            assertEq(after.value(costs), False6)
             space.commit(move)
             assertEq(now.value(g1), Two)
             assertEq(now.value(g3), Three)
-            assertEq(now.value(costs), Six)
+            assertEq(now.value(costs), False6)
         }
         if (true) {
             // swap values of f1 and f3:
@@ -74,14 +74,14 @@ final class InverseTest extends UnitTest {
             val after = space.consult(move)
             assertEq(now.value(f1), Three)
             assertEq(now.value(f3), Two)
-            assertEq(now.value(costs), Six)
+            assertEq(now.value(costs), False6)
             assertEq(after.value(f1), Two)
             assertEq(after.value(f3), Three)
-            assertEq(after.value(costs), Zero)
+            assertEq(after.value(costs), True)
             space.commit(move)
             assertEq(now.value(f1), Two)
             assertEq(now.value(f3), Three)
-            assertEq(now.value(costs), Zero)
+            assertEq(now.value(costs), True)
         }
         if (true) {
             // swap values of f2 and g1:
@@ -94,14 +94,14 @@ final class InverseTest extends UnitTest {
             val after = space.consult(move)
             assertEq(now.value(f2), One)
             assertEq(now.value(g1), Two)
-            assertEq(now.value(costs), Zero)
+            assertEq(now.value(costs), True)
             assertEq(after.value(f2), Two)
             assertEq(after.value(g1), One)
-            assertEq(after.value(costs), Two)
+            assertEq(after.value(costs), False2)
             space.commit(move)
             assertEq(now.value(f2), Two)
             assertEq(now.value(g1), One)
-            assertEq(now.value(costs), Two)
+            assertEq(now.value(costs), False2)
         }
         if (true) {
             // reverting previous move in two steps, this is step one:
@@ -110,12 +110,12 @@ final class InverseTest extends UnitTest {
             val move = new ChangeValue(space.moveIdFactory.nextId, f2, One)
             val after = space.consult(move)
             assertEq(now.value(f2), Two)
-            assertEq(now.value(costs), Two)
+            assertEq(now.value(costs), False2)
             assertEq(after.value(f2), One)
-            assertEq(after.value(costs), Two)
+            assertEq(after.value(costs), False2)
             space.commit(move)
             assertEq(now.value(f2), One)
-            assertEq(now.value(costs), Two)
+            assertEq(now.value(costs), False2)
         }
         if (true) {
             // ... this is step two:
@@ -124,15 +124,15 @@ final class InverseTest extends UnitTest {
             val move = new ChangeValue(space.moveIdFactory.nextId, g1, Two)
             val after = space.consult(move)
             assertEq(now.value(g1), One)
-            assertEq(now.value(costs), Two)
+            assertEq(now.value(costs), False2)
             assertEq(after.value(g1), Two)
-            assertEq(after.value(costs), Zero)
+            assertEq(after.value(costs), True)
             space.commit(move)
             assertEq(now.value(g1), Two)
-            assertEq(now.value(costs), Zero)
+            assertEq(now.value(costs), True)
         }
         space.initialize
-        assertEq(now.value(costs), Zero)
+        assertEq(now.value(costs), True)
     }
 
     @Test
@@ -146,7 +146,7 @@ final class InverseTest extends UnitTest {
         val g1 = space.createVariable("g1", gd)
         val g2 = space.createVariable("g2", gd)
         val g3 = space.createVariable("g3", gd)
-        val costs = space.createVariable("costs", NonNegativeIntegerRange)
+        val costs = space.createVariable("costs", CompleteBooleanDomain)
         val f = immutable.IndexedSeq(f1, f2, f3)
         val g = immutable.IndexedSeq(g1, g2, g3)
         val c = new Inverse(space.constraintIdFactory.nextId, null, new InverseFunction(f, 1), new InverseFunction(g, 0), costs)
@@ -159,7 +159,7 @@ final class InverseTest extends UnitTest {
             .initialize
         assertEq(space.searchVariables, Set(f1, f2, f3, g1, g2, g3))
         val now = space.searchState
-        assertEq(now.value(costs), Eight)
+        assertEq(now.value(costs), False8)
         if (true) {
             // swap values of g1 and g3:
             // 2 0 1
@@ -174,14 +174,14 @@ final class InverseTest extends UnitTest {
             val after = space.consult(move)
             assertEq(now.value(g1), Three)
             assertEq(now.value(g3), Two)
-            assertEq(now.value(costs), Eight)
+            assertEq(now.value(costs), False8)
             assertEq(after.value(g1), Two)
             assertEq(after.value(g3), Three)
-            assertEq(after.value(costs), Six)
+            assertEq(after.value(costs), False6)
             space.commit(move)
             assertEq(now.value(g1), Two)
             assertEq(now.value(g3), Three)
-            assertEq(now.value(costs), Six)
+            assertEq(now.value(costs), False6)
         }
         if (true) {
             // swap values of f1 and f3:
@@ -194,17 +194,17 @@ final class InverseTest extends UnitTest {
             val after = space.consult(move)
             assertEq(now.value(f1), Two)
             assertEq(now.value(f3), One)
-            assertEq(now.value(costs), Six)
+            assertEq(now.value(costs), False6)
             assertEq(after.value(f1), One)
             assertEq(after.value(f3), Two)
-            assertEq(after.value(costs), Zero)
+            assertEq(after.value(costs), True)
             space.commit(move)
             assertEq(now.value(f1), One)
             assertEq(now.value(f3), Two)
-            assertEq(now.value(costs), Zero)
+            assertEq(now.value(costs), True)
         }
         space.initialize
-        assertEq(now.value(costs), Zero)
+        assertEq(now.value(costs), True)
     }
 
 }

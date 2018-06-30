@@ -2,7 +2,7 @@ package yuck.flatzinc.compiler
 
 import scala.collection._
 
-import yuck.constraints.{NumLe, Sum}
+import yuck.constraints.{Le, Sum}
 import yuck.core._
 import yuck.flatzinc.ast._
 
@@ -50,9 +50,9 @@ final class ObjectiveFactory
                         val y = space.createVariable("_YUCK_UB", dx)
                         space.setValue(y, dx.ub)
                         implicitlyConstrainedVars += y
-                        val z = createNonNegativeChannel[IntegerValue]
+                        val z = createNonNegativeChannel[BooleanValue]
                         costVars += z
-                        space.post(new NumLe(nextConstraintId, null, x, y, z))
+                        space.post(new Le(nextConstraintId, null, x, y, z))
                         Some(y)
                     } else {
                         Some(x)
@@ -85,9 +85,9 @@ final class ObjectiveFactory
                         val y = space.createVariable("_YUCK_LB", dx)
                         space.setValue(y, dx.lb)
                         implicitlyConstrainedVars += y
-                        val z = createNonNegativeChannel[IntegerValue]
+                        val z = createNonNegativeChannel[BooleanValue]
                         costVars += z
-                        space.post(new NumLe(nextConstraintId, null, y, x, z))
+                        space.post(new Le(nextConstraintId, null, y, x, z))
                         Some(y)
                     } else {
                         Some(x)
@@ -97,9 +97,9 @@ final class ObjectiveFactory
                     cc.objectiveVar = maybeObjectiveVar.get
                 }
         }
-        cc.costVar = createNonNegativeChannel[IntegerValue]
+        cc.costVar = createNonNegativeChannel[BooleanValue]
         space.post(new Sum(nextConstraintId, null, costVars.toIndexedSeq, cc.costVar))
-        objectives += new MinimizationObjective(cc.costVar, Zero, None)
+        objectives += new MinimizationObjective(cc.costVar, True, None)
         cc.objective =
             if (objectives.size == 1) objectives.head
             else new HierarchicalObjective(objectives.toList.reverse, cfg.stopOnFirstSolution)

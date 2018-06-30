@@ -24,10 +24,10 @@ final class DomainFinalizer
     private def finalizeDomains {
         val done = new mutable.HashSet[AnyVariable]
         for ((key, x) <- cc.vars if ! done.contains(x)) {
-            val dx = cc.domains(key)
+            val dx = x.domain
             val tx = dx.valueType
             if (tx == BooleanValueTraits.valueType) {
-                finalizeBooleanDomain(IntegerValueTraits.unsafeDowncast(x), dx.asInstanceOf[BooleanDomain])
+                finalizeBooleanDomain(BooleanValueTraits.unsafeDowncast(x), dx.asInstanceOf[BooleanDomain])
             } else if (tx == IntegerValueTraits.valueType) {
                 finalizeIntegerDomain(IntegerValueTraits.unsafeDowncast(x), dx.asInstanceOf[IntegerDomain])
             } else if (tx == IntegerSetValueTraits.valueType) {
@@ -38,22 +38,22 @@ final class DomainFinalizer
         }
     }
 
-    private def finalizeBooleanDomain(x: Variable[IntegerValue], dx: BooleanDomain) {
+    private def finalizeBooleanDomain(x: Variable[BooleanValue], dx: BooleanDomain) {
         if (dx.isSingleton) {
             if (cc.space.isChannelVariable(x)) {
-                x.turnIntoChannel(IntegerValueTraits.nonNegativeDomain)
-                if (dx.singleValue == True) {
+                x.turnIntoChannel(BooleanValueTraits.completeDomain)
+                if (dx.singleValue.truthValue) {
                     cc.costVars += x
                 } else {
-                    val costs = createNonNegativeChannel[IntegerValue]
-                    cc.space.post(new NumLe(nextConstraintId, null, One, x, costs))
+                    val costs = createNonNegativeChannel[BooleanValue]
+                    cc.space.post(new Not(nextConstraintId, null, x, costs))
                     cc.costVars += costs
                 }
             } else {
-                cc.space.setValue(x, if (dx.singleValue == True) Zero else One)
+                cc.space.setValue(x, dx.singleValue)
             }
         } else if (cc.space.isChannelVariable(x)) {
-            x.turnIntoChannel(IntegerValueTraits.nonNegativeDomain)
+            x.turnIntoChannel(BooleanValueTraits.completeDomain)
         }
     }
 
@@ -62,8 +62,8 @@ final class DomainFinalizer
             if (cc.space.isChannelVariable(x)) {
                 x.turnIntoChannel(IntegerValueTraits.completeDomain)
                 if (! cc.space.definingConstraint(x).get.isInstanceOf[Bool2Int1] || dx.isSingleton) {
-                    val costs = createNonNegativeChannel[IntegerValue]
-                    cc.space.post(new SetIn(nextConstraintId, null, x, dx, costs))
+                    val costs = createNonNegativeChannel[BooleanValue]
+                    cc.space.post(new Contains(nextConstraintId, null, x, dx, costs))
                     cc.costVars += costs
                 }
             } else {
@@ -78,8 +78,8 @@ final class DomainFinalizer
         if (dx.isBounded) {
             if (cc.space.isChannelVariable(x)) {
                 x.turnIntoChannel(IntegerSetValueTraits.completeDomain)
-                val costs = createNonNegativeChannel[IntegerValue]
-                cc.space.post(new SetSubset(nextConstraintId, null, x, dx.base, costs))
+                val costs = createNonNegativeChannel[BooleanValue]
+                cc.space.post(new Subset(nextConstraintId, null, x, dx.base, costs))
                 cc.costVars += costs
             } else {
                 if (dx.isSingleton) {

@@ -18,9 +18,9 @@ import yuck.core._
 final class AlldistinctExceptZero
     [Value <: NumericalValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     xs: immutable.Seq[Variable[Value]], costs: Variable[IntegerValue])
+     xs: immutable.Seq[Variable[Value]], costs: Variable[BooleanValue])
     (implicit valueTraits: NumericalValueTraits[Value])
-    extends ValueFrequencyTracker[Value, IntegerValue](
+    extends ValueFrequencyTracker[Value, BooleanValue](
         id, goal, xs, costs,
         immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[Value, Int]())(
         valueTraits)
@@ -28,7 +28,6 @@ final class AlldistinctExceptZero
     override def toString = "alldistinctExceptZero([%s], %s)".format(xs.mkString(", "), costs)
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) = {
         val maybeZeroCount = valueRegistry.get(valueTraits.zero)
-        IntegerValue.get((xs.size - maybeZeroCount.getOrElse(0)) -
-        (valueRegistry.size - (if (maybeZeroCount.isEmpty) 0 else 1)))
+        BooleanValue.get((xs.size - maybeZeroCount.getOrElse(0)) - (valueRegistry.size - (if (maybeZeroCount.isEmpty) 0 else 1)))
     }
 }

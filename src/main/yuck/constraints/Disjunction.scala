@@ -33,16 +33,15 @@ import yuck.core._
 final class Disjunction
     (id: Id[Constraint],
      goal: Goal,
-     xs: immutable.Seq[Variable[IntegerValue]],
-     y: Variable[IntegerValue])
+     xs: immutable.Seq[Variable[BooleanValue]],
+     y: Variable[BooleanValue])
     extends Constraint(id, goal)
 {
 
     require(! xs.isEmpty)
-    require(xs.forall(_.domain.asInstanceOf[IntegerDomain].lb == Zero))
     require(xs.size <= Int.MaxValue)
 
-    override def toString = "costsOr(%s, %s)".format(xs, y)
+    override def toString = "disjunction(%s, %s)".format(xs, y)
     override def inVariables = xs
     override def outVariables = List(y)
 
@@ -58,11 +57,11 @@ final class Disjunction
         sum = 0
         trueCount = 0
         for (x <- xs) {
-            val a = now.value(x).value
+            val a = now.value(x).violation
             sum = safeAdd(sum, a)
             if (a == 0) trueCount += 1
         }
-        effect.a = if (trueCount > 0) Zero else IntegerValue.get(sum / n)
+        effect.a = if (trueCount > 0) True else BooleanValue.get(sum / n)
         effects
     }
 
@@ -70,14 +69,14 @@ final class Disjunction
         futureSum = sum
         futureTrueCount = trueCount
         for (x <- move.involvedVariables) {
-            val y = x.asInstanceOf[Variable[IntegerValue]]
-            val a = before.value(y).value
-            val b = after.value(y).value
+            val y = x.asInstanceOf[Variable[BooleanValue]]
+            val a = before.value(y).violation
+            val b = after.value(y).violation
             futureSum = safeAdd(futureSum, safeSub(b, a))
             if (a == 0 && b > 0) futureTrueCount -= 1
             else if (a > 0 && b == 0) futureTrueCount += 1
         }
-        effect.a = if (futureTrueCount > 0) Zero else IntegerValue.get(futureSum / n)
+        effect.a = if (futureTrueCount > 0) True else BooleanValue.get(futureSum / n)
         effects
     }
 

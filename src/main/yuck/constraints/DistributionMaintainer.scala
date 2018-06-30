@@ -14,20 +14,22 @@ import yuck.core._
  * @author Michael Marte
  */
 final class DistributionMaintainer
+    [Value <: NumericalValue[Value]]
     (id: Id[Constraint], goal: Goal,
      mode: OptimizationMode.Value,
-     axs: immutable.Seq[AX[IntegerValue]], distribution: Distribution)
+     axs: immutable.Seq[AX[Value]], distribution: Distribution)
+    (implicit valueTraits: NumericalValueTraits[Value])
     extends Constraint(id, goal)
 {
 
     require(distribution.size == axs.size)
-    require(axs.forall(_.a.value > Int.MinValue)) // see computeFrequency
+    require(axs.forall(_.a.toInt > Int.MinValue)) // see computeFrequency
 
     override def toString = "distributionMaintainer([%s], %s)".format(axs.mkString(", "), distribution)
     override def inVariables = axs.toIterator.map(_.x)
     override def outVariables = Nil
 
-    private val indexMap: immutable.Map[AnyVariable, (Int, AX[IntegerValue])] =
+    private val indexMap: immutable.Map[AnyVariable, (Int, AX[Value])] =
         (0 until axs.size).map(i => (axs(i).x, (i, axs(i)))).toMap
 
     override def initialize(now: SearchState) = {
@@ -49,17 +51,17 @@ final class DistributionMaintainer
         Nil
     }
 
-    private def computeFrequency(ax: AX[IntegerValue], searchState: SearchState): Int = {
-        val a = ax.a.value
-        val b = searchState.value(ax.x).value
-        val dx = IntegerValueTraits.safeDowncast(ax.x.domain)
+    private def computeFrequency(ax: AX[Value], searchState: SearchState): Int = {
+        val a = ax.a.toInt
+        val b = searchState.value(ax.x).toInt
+        val dx = valueTraits.safeDowncast(ax.x.domain)
         val delta = mode match {
             case OptimizationMode.Min =>
-                if (ax.a < Zero) safeMul(-a, safeSub(dx.ub.value, b)) // minimize -a * (dx.ub - x)
-                else safeMul(a, safeSub(b, dx.lb.value)) // minimize a * (x - dx.lb)
+                if (ax.a < valueTraits.zero) safeMul(-a, safeSub(dx.ub.toInt, b)) // minimize -a * (dx.ub - x)
+                else safeMul(a, safeSub(b, dx.lb.toInt)) // minimize a * (x - dx.lb)
             case OptimizationMode.Max =>
-                if (ax.a < Zero) safeMul(-a, safeSub(b, dx.lb.value)) // minimize -a * (x - dx.lb)
-                else safeMul(a, safeSub(dx.ub.value, b)) // minimize a * (dx.ub - x)
+                if (ax.a < valueTraits.zero) safeMul(-a, safeSub(b, dx.lb.toInt)) // minimize -a * (x - dx.lb)
+                else safeMul(a, safeSub(dx.ub.toInt, b)) // minimize a * (dx.ub - x)
         }
         // delta may become negative when ax.x takes a value outside of its domain!
         abs(delta)

@@ -224,7 +224,7 @@ final class IntegerRangeList
 }
 
 /**
- * Provides tools for the implementation of IntegerRangeList.
+ * Companion object to IntegerRangeList.
  *
  * @author Michael Marte
  */

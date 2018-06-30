@@ -19,10 +19,10 @@ abstract class NumericalObjective
 
     private var deltaScale = 0.0
     private var sampleSize = 0.0
-    protected def computeDelta(before: SearchState, after: SearchState): Value
+    protected def computeDelta(before: SearchState, after: SearchState): Double
 
     override final def assessMove(before: SearchState, after: SearchState) = {
-        var delta = computeDelta(before, after).toDouble
+        var delta = computeDelta(before, after)
         if (delta != 0) {
             val sign = signum(delta)
             delta = abs(delta)

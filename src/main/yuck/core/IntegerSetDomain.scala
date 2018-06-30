@@ -48,7 +48,7 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
 }
 
 /**
- * Provides tools for the implementation of IntegerSetDomain.
+ * Companion object to IntegerSetDomain.
  *
  * @author Michael Marte
  */

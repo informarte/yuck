@@ -180,7 +180,7 @@ final class IntegerRange
 }
 
 /**
- * Provides tools for the implementation of IntegerRange.
+ * Companion object to IntegerRange.
  *
  * @author Michael Marte
  */

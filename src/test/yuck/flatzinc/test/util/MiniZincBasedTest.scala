@@ -183,7 +183,7 @@ class MiniZincBasedTest extends IntegrationTest {
         val resultNodes = new mutable.ArrayBuffer[JsField]
         resultNodes += "solved" -> JsBoolean(result.isSolution)
         if (! result.isSolution) {
-            resultNodes += "violation" -> JsNumber(result.bestProposal.value(compilerResult.costVar).value)
+            resultNodes += "violation" -> JsNumber(result.bestProposal.value(compilerResult.costVar).violation)
         }
         if (compilerResult.maybeObjectiveVar.isDefined) {
             resultNodes += "quality" -> JsNumber(result.bestProposal.value(compilerResult.maybeObjectiveVar.get).value)
@@ -210,8 +210,8 @@ class MiniZincBasedTest extends IntegrationTest {
         val visited = new mutable.HashSet[AnyVariable]
         val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
         result.space.definingConstraint(compilerResult.costVar).get match {
-            case sum: yuck.constraints.Sum[IntegerValue @ unchecked] =>
-                for (x <- sum.xs if result.space.searchState.value(x) > Zero) {
+            case sum: yuck.constraints.Sum[BooleanValue @ unchecked] =>
+                for (x <- sum.xs if result.space.searchState.value(x) > True) {
                     logViolatedConstraints(result, x, visited)
                 }
         }

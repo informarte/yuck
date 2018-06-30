@@ -24,7 +24,7 @@ final class LexLessEqTest extends UnitTest {
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
         val v = space.createVariable("v", d)
-        val costs = space.createVariable("costs", NonNegativeIntegerRange)
+        val costs = space.createVariable("costs", CompleteBooleanDomain)
         val c =
             new LexLessEq(
                 space.constraintIdFactory.nextId, null,
@@ -38,33 +38,33 @@ final class LexLessEqTest extends UnitTest {
             .initialize
         assertEq(space.searchVariables, Set(s, t, u, v))
         val now = space.searchState
-        assertEq(now.value(costs), Zero)
+        assertEq(now.value(costs), True)
         if (true) {
             // t = 5
             val move = new ChangeValue(space.moveIdFactory.nextId, t, Five)
             val after = space.consult(move)
             assertEq(now.value(t), One)
-            assertEq(now.value(costs), Zero)
+            assertEq(now.value(costs), True)
             assertEq(after.value(t), Five)
-            assertEq(after.value(costs), Four)
+            assertEq(after.value(costs), False4)
             space.commit(move)
             assertEq(now.value(t), Five)
-            assertEq(now.value(costs), Four)
+            assertEq(now.value(costs), False4)
         }
         if (true) {
             // s = 0
             val move = new ChangeValue(space.moveIdFactory.nextId, s, Zero)
             val after = space.consult(move)
             assertEq(now.value(s), One)
-            assertEq(now.value(costs), Four)
+            assertEq(now.value(costs), False4)
             assertEq(after.value(s), Zero)
-            assertEq(after.value(costs), Zero)
+            assertEq(after.value(costs), True)
             space.commit(move)
             assertEq(now.value(s), Zero)
-            assertEq(now.value(costs), Zero)
+            assertEq(now.value(costs), True)
         }
         space.initialize
-        assertEq(now.value(costs), Zero)
+        assertEq(now.value(costs), True)
     }
 
 }
