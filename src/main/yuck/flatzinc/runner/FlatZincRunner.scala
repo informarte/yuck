@@ -48,7 +48,7 @@ object FlatZincRunner {
         opt[Int]('p', "number-of-virtual-cores")
             .text("Default value is %s".format(defaultCfg.numberOfVirtualCores))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(numberOfVirtualCores = max(1, x))))
-        opt[Int]('r', "seed")
+        opt[Long]('r', "seed")
             .text("Default value is %s".format(defaultCfg.seed))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(seed = x)))
         opt[Int]("restart-limit")

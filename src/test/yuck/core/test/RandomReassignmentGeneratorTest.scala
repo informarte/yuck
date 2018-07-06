@@ -35,7 +35,7 @@ final class RandomReassignmentGeneratorTest
                 space, xs, randomGenerator, moveSizeDistribution, maybeHotSpotDistribution, maybeFairVariableChoiceRate)
         val result = helper.measure(neighbourhood)
         helper.checkMoveSizeFrequencies(result, 0.1, 0)
-        helper.checkVariableFrequencies(result, 0.1, 0.1)
+        helper.checkVariableFrequencies(result, 0.1, 1)
     }
 
 }

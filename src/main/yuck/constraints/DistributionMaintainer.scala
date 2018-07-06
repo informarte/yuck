@@ -51,17 +51,17 @@ final class DistributionMaintainer
         Nil
     }
 
-    private def computeFrequency(ax: AX[Value], searchState: SearchState): Int = {
-        val a = ax.a.toInt
-        val b = searchState.value(ax.x).toInt
+    private def computeFrequency(ax: AX[Value], searchState: SearchState): Long = {
+        val a = ax.a.toLong
+        val b = searchState.value(ax.x).toLong
         val dx = valueTraits.safeDowncast(ax.x.domain)
         val delta = mode match {
             case OptimizationMode.Min =>
-                if (ax.a < valueTraits.zero) safeMul(-a, safeSub(dx.ub.toInt, b)) // minimize -a * (dx.ub - x)
-                else safeMul(a, safeSub(b, dx.lb.toInt)) // minimize a * (x - dx.lb)
+                if (ax.a < valueTraits.zero) safeMul(-a, safeSub(dx.ub.toLong, b)) // minimize -a * (dx.ub - x)
+                else safeMul(a, safeSub(b, dx.lb.toLong)) // minimize a * (x - dx.lb)
             case OptimizationMode.Max =>
-                if (ax.a < valueTraits.zero) safeMul(-a, safeSub(b, dx.lb.toInt)) // minimize -a * (x - dx.lb)
-                else safeMul(a, safeSub(dx.ub.toInt, b)) // minimize a * (dx.ub - x)
+                if (ax.a < valueTraits.zero) safeMul(-a, safeSub(b, dx.lb.toLong)) // minimize -a * (x - dx.lb)
+                else safeMul(a, safeSub(dx.ub.toLong, b)) // minimize a * (dx.ub - x)
         }
         // delta may become negative when ax.x takes a value outside of its domain!
         abs(delta)

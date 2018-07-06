@@ -7,8 +7,8 @@ package yuck.core
  */
 final class ArrayBackedDistribution(override val size: Int) extends Distribution {
     require(size > 0)
-    private val frequencies = new Array[Int](size)
-    private var frequencySum = 0
+    private val frequencies = new Array[Long](size)
+    private var frequencySum = 0l
     private var numberOfNonZeroFrequencies = 0
     override def clear {
         for (i <- 0 until size) {
@@ -17,7 +17,7 @@ final class ArrayBackedDistribution(override val size: Int) extends Distribution
         frequencySum = 0
         numberOfNonZeroFrequencies = 0
     }
-    override def setFrequency(i: Int, f: Int) {
+    override def setFrequency(i: Int, f: Long) {
         require(f >= 0)
         val f0 = frequencies(i)
         frequencySum -= f0
@@ -26,7 +26,7 @@ final class ArrayBackedDistribution(override val size: Int) extends Distribution
         if (f0 == 0 && f > 0) numberOfNonZeroFrequencies += 1
         else if (f0 > 0 && f == 0) numberOfNonZeroFrequencies -= 1
     }
-    override def addFrequencyDelta(i: Int, delta: Int) {
+    override def addFrequencyDelta(i: Int, delta: Long) {
         setFrequency(i, safeAdd(frequencies(i), delta))
     }
     override def frequency(i: Int) = frequencies(i)

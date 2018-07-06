@@ -93,8 +93,8 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
             e.addFrequencyDelta(d.nextIndex(randomGenerator), 1)
         }
         assertEq(e.frequency(0), 0)
-        assertGt(e.frequency(1), 330)
-        assertGt(e.frequency(2), 650)
+        assertGt(e.frequency(1), 300)
+        assertGt(e.frequency(2), 600)
         assertEq(e.volume, 1000)
     }
 
@@ -102,8 +102,8 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
     def testOverflowChecking {
         val n = 2
         val d = createDistribution(n)
-        d.setFrequency(0, Int.MaxValue)
-        assertEx(d.setFrequency(1, Int.MaxValue), classOf[ArithmeticException])
+        d.setFrequency(0, Long.MaxValue)
+        assertEx(d.setFrequency(1, 1l), classOf[ArithmeticException])
     }
 
 }

@@ -18,6 +18,7 @@ abstract class NumericalValue[Value] extends OrderedValue[Value] {
     def %(that: Value): Value
     def abs: Value
     def toInt: Int
+    def toLong: Long
     def toDouble: Double
     def isEven: Boolean
 }

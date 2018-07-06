@@ -112,6 +112,8 @@ final class IntegerValueTest extends UnitTest {
                     }
                 }
             }
+            assertEq(a.toInt, a.value)
+            assertEq(a.toLong, a.value.toLong)
             assertEq(a.toDouble, a.value.toDouble)
             assertEq(a.isEven, a.value % 2 == 0)
         }

@@ -8,9 +8,9 @@ package yuck.core
 final class FrequencyRestorer {
 
     private var i = -1
-    private var f = 0
+    private var f = 0l
 
-    @inline def store(i: Int, f: Int) {
+    @inline def store(i: Int, f: Long) {
         this.i = i
         this.f = f
     }

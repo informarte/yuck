@@ -46,9 +46,9 @@ final class Disjunction
     override def outVariables = List(y)
 
     private val n = xs.size
-    private var sum = 0
+    private var sum = 0l
     private var trueCount = 0
-    private var futureSum = 0
+    private var futureSum = 0l
     private var futureTrueCount = 0
     private val effects = List(new ReusableEffectWithFixedVariable(y))
     private val effect = effects.head

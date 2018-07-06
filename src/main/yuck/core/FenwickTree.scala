@@ -19,7 +19,7 @@ package yuck.core
  */
 class FenwickTree(val size: Int) {
 
-    private val tree = new Array[Int](size + 1)
+    private val tree = new Array[Long](size + 1)
 
     // Throws when the given index is out-of-range.
     private def checkIndex(i: Int) {
@@ -35,10 +35,10 @@ class FenwickTree(val size: Int) {
     }
 
     /** Computes the prefix sum for the given index. */
-    def prefixSum(__i: Int): Int = {
+    def prefixSum(__i: Int): Long = {
         var i = __i
         checkIndex(i)
-        var result = 0
+        var result = 0l
         while (i > 0) {
             result = safeAdd(result, tree(i))
             i -= (i & -i)
@@ -47,7 +47,7 @@ class FenwickTree(val size: Int) {
     }
 
     /** Computes the sum of values in the given range [left, right]. */
-    def rangeSum(left: Int, right: Int): Int = {
+    def rangeSum(left: Int, right: Int): Long = {
         checkIndex(left)
         checkIndex(right)
         require(left <= right)
@@ -55,7 +55,7 @@ class FenwickTree(val size: Int) {
     }
 
     /** Updates the value at the given index by adding the given delta to it. */
-    def addDelta(__i: Int, delta: Int) {
+    def addDelta(__i: Int, delta: Long) {
         var i = __i
         checkIndex(i)
         while (i <= size) {
@@ -65,7 +65,7 @@ class FenwickTree(val size: Int) {
     }
 
     /** Computes the value at the given index. */
-    def value(__i: Int): Int = {
+    def value(__i: Int): Long = {
         var i = __i
         checkIndex(i)
         var value = tree(i)
@@ -85,7 +85,7 @@ class FenwickTree(val size: Int) {
      * Finds the largest index i in the Fenwick tree such that the prefix sum up
      * to i is less than or equal to the given sum.
      */
-    def index(__sum: Int): Int = {
+    def index(__sum: Long): Int = {
         var sum = __sum
         var mask = 1
         while (mask <= size) mask *= 2
@@ -104,7 +104,7 @@ class FenwickTree(val size: Int) {
     }
 
     /** Divides all values by the given scaling factor. */
-    def scale(f: Int) {
+    def scale(f: Long) {
         for (i <- size until 0 by -1) {
             addDelta(i, -value(i) / f)
         }

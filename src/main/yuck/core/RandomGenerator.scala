@@ -17,6 +17,12 @@ abstract class RandomGenerator {
     /** Generates a random integer in the interval [0, limit). */
     def nextInt(limit: Int): Int
 
+    /** Generates a random long integer. */
+    def nextLong: Long
+
+    /** Generates a random long integer in the interval [0, limit). */
+    def nextLong(limit: Long): Long
+
     /** Generates a random double in the interval [0, 1). */
     def nextProbability: Double
 

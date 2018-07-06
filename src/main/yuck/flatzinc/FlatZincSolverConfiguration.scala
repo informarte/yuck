@@ -19,7 +19,7 @@ case class FlatZincLevelConfiguration(
  *
  */
 case class FlatZincSolverConfiguration(
-    val seed: Int = DEFAULT_SEED,
+    val seed: Long = DEFAULT_SEED,
     val restartLimit: Int = DEFAULT_RESTART_LIMIT,
     val numberOfVirtualCores: Int = Runtime.getRuntime.availableProcessors,
     val maybeRoundLimit: Option[Int] = None,

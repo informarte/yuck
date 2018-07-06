@@ -1,17 +1,19 @@
 package yuck.core
 
 /**
- * Creates a [[http://docs.oracle.com/javase/7/docs/api/java/util/Random.html Java random generator]]
+ * Creates a [[https://docs.oracle.com/javase/8/docs/api/java/util/SplittableRandom.html Java random generator]]
  * and makes it available for optimization.
  *
  * @author Michael Marte
  */
-final class JavaRandomGenerator(seed: Int = 5489) extends RandomGenerator {
-    private val wrappee = new java.util.Random(seed)
+final class JavaRandomGenerator(seed: Long = DEFAULT_SEED) extends RandomGenerator {
+    private val wrappee = new java.util.SplittableRandom(seed)
     // warm-up
     for (i <- 1 until 8192) nextInt
     override def nextInt = wrappee.nextInt
     override def nextInt(limit: Int) = wrappee.nextInt(limit)
+    override def nextLong = wrappee.nextLong
+    override def nextLong(limit: Long) = wrappee.nextLong(limit)
     override def nextProbability = wrappee.nextDouble
-    override def nextGen = new JavaRandomGenerator(nextInt)
+    override def nextGen = new JavaRandomGenerator(nextLong)
 }

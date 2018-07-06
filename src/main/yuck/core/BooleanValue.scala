@@ -14,7 +14,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-final class BooleanValue(val violation: Int) extends NumericalValue[BooleanValue] {
+final class BooleanValue(val violation: Long) extends NumericalValue[BooleanValue] {
     require(violation >= 0)
     def this(value: Boolean) = this(if (value) 0 else 1)
     @inline override def hashCode = violation.hashCode
@@ -44,7 +44,8 @@ final class BooleanValue(val violation: Int) extends NumericalValue[BooleanValue
                 safeAdd(this.violation, safeMul(s.violation, a.violation)),
                 safeMul(s.violation, b.violation)))
     override def abs = ???
-    override def toInt = violation
+    override def toInt = safeToInt(violation)
+    override def toLong = violation
     override def toDouble = violation.toDouble
     override def isEven = ???
     override def eqc(that: BooleanValue) =
@@ -81,5 +82,8 @@ final object BooleanValue {
      */
     def get(a: Int): BooleanValue =
         if (VALUE_RANGE.contains(a)) valueCache.apply(a - VALUE_RANGE.start) else new BooleanValue(a)
+
+    def get(a: Long): BooleanValue =
+        if (a >= Int.MinValue && a <= Int.MaxValue) get(a.toInt) else new BooleanValue(a)
 
 }

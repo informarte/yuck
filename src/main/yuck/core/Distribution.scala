@@ -16,13 +16,13 @@ abstract class Distribution {
     def clear
 
     /** Sets the frequency of the given index to the given value. */
-    def setFrequency(i: Int, f: Int)
+    def setFrequency(i: Int, f: Long)
 
     /** Adds the given delta to the frequency of the given index. */
-    def addFrequencyDelta(i: Int, delta: Int)
+    def addFrequencyDelta(i: Int, delta: Long)
 
     /** Returns the frequency associated with the given index. */
-    def frequency(i: Int): Int
+    def frequency(i: Int): Long
 
     /** Computes the probability associated with the given index. */
     final def probability(i: Int): Probability = Probability.from(frequency(i).toDouble / volume.toDouble)
@@ -31,14 +31,14 @@ abstract class Distribution {
     def numberOfAlternatives: Int
 
     /** Returns the sum of all frequencies. */
-    def volume: Int = cdf(size - 1)
+    def volume: Long = cdf(size - 1)
 
     /** Implements the cumulative distribution function. */
-    def cdf(i: Int): Int = {
+    def cdf(i: Int): Long = {
         if (i < 0 || i > size) {
             throw new ArrayIndexOutOfBoundsException
         }
-        var sum = 0
+        var sum = 0l
         var j = 0
         while (j <= i) {sum = safeAdd(sum, frequency(j)); j += 1}
         sum
@@ -49,9 +49,9 @@ abstract class Distribution {
      *
      * With this approach, indices with zero frequencies are ignored.
      */
-    def inverseCdf(r: Int): Int = {
+    def inverseCdf(r: Long): Int = {
         require(r >= 0 && r < volume)
-        var sum = 0
+        var sum = 0l
         var i = -1
         do {i += 1; sum = safeAdd(sum, frequency(i))} while (r >= sum)
         i
@@ -59,7 +59,7 @@ abstract class Distribution {
 
     /** Randomly chooses an index according to the current distribution. */
     def nextIndex(randomGenerator: RandomGenerator): Int =
-        inverseCdf(randomGenerator.nextInt(volume))
+        inverseCdf(randomGenerator.nextLong(volume))
 
     override def toString =
         (0 until size).map(i => frequency(i)).toString
