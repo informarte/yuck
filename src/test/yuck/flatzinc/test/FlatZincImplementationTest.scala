@@ -267,6 +267,12 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     }
 
     @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testRegularWithDuplicateInputVariables {
+        solve(task.copy(problemName = "regular_test_with_duplicate_input_variables"))
+    }
+
+    @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
     def testTableInt {
         solve(task.copy(problemName = "table_int_test"))

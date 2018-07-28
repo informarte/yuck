@@ -24,7 +24,7 @@ import yuck.core._
  *  - The domains of the xs(i) allow for the transitions required to reach an accepting state from u.
  *  - Once in an accepting state, the DFA can stay in that state or oscillate between accepting states.
  *
- * @param xs Sequence of input variables (may contain channel variables)
+ * @param xs Sequence of input variables (may contain channel and duplicate variables)
  * @param Q Number of states
  * @param S Number of inputs
  * @param delta State transition function 1..Q x 1..S -> 0..Q (0 is failed state)
@@ -77,13 +77,17 @@ final class Regular
     }
 
     override def toString =
-        "regular([%s], %d, %d, [%s], %d, %s)".format(
+        "regular([%s], %d, %d, [%s], %d, %s, %s)".format(
             xs.mkString(", "), Q, S,
-            delta.map(row => "[%s]".format(row.mkString(", "))).mkString(", "), q0, F)
+            delta.map(row => "[%s]".format(row.mkString(", "))).mkString(", "), q0, F, costs)
     override def inVariables = xs
     override def outVariables = List(costs)
 
     private val x2i = new immutable.HashMap[AnyVariable, Int] ++ xs.zip(0 until n)
+    private def registerX(map: immutable.HashMap[AnyVariable, List[Int]], x2i: Tuple2[AnyVariable, Int]) =
+        map + (x2i._1 -> (x2i._2 :: map.getOrElse(x2i._1, Nil)))
+    private val x2is =
+        xs.zip(0 until n).foldLeft(new immutable.HashMap[AnyVariable, immutable.List[Int]])(registerX)
     private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
     private var currentCosts = 0
@@ -127,7 +131,7 @@ final class Regular
         //    that position all current states are to be considered as failed.)
         //    Whenever we pass the first i in is, we remove it from is (by increasing j).
         // 3. In case some i is left in is (j < m), we continue with step 2.
-        val is = move.involvedVariables.map(x2i).filter(_ <= currentFailurePosition).toIndexedSeq.sorted
+        val is = move.involvedVariables.toIterator.map(x2is).flatten.filter(_ <= currentFailurePosition).toBuffer.sorted
         val m = is.size
         var j = 0
         futureStates = currentStates
