@@ -404,6 +404,7 @@ final class Space(
         // simulated annealing.
         require(constraintOrder != null, "Call initialize after posting the last constraint")
         require(constraintQueue.isEmpty)
+        protected val diff = new BulkMove(move.id)
         private val diffs = new mutable.AnyRefMap[Constraint, BulkMove]
         private def propagateEffect(effect: AnyEffect) {
             if (assignment.anyValue(effect.anyVariable) != effect.anyValue) {
@@ -423,7 +424,7 @@ final class Space(
         protected def processConstraint(
             constraint: Constraint, before: SearchState, after: SearchState, move: Move): TraversableOnce[AnyEffect]
         protected def recordEffect(effect: AnyEffect)
-        def run {
+        def run: Move = {
             move.effects.foreach(propagateEffect)
             while (! constraintQueue.isEmpty) {
                 val constraint = constraintQueue.dequeue
@@ -431,6 +432,7 @@ final class Space(
                 val after = new MoveSimulator(assignment, diff)
                 processConstraint(constraint, assignment, after, diff).foreach(propagateEffect)
             }
+            diff
         }
     }
 
@@ -438,7 +440,6 @@ final class Space(
     var numberOfConsultations = 0
 
     private final class EffectComputer(move: Move) extends MoveProcessor(move) {
-        val diff = new BulkMove(move.id)
         override protected def processConstraint(
             constraint: Constraint, before: SearchState, after: SearchState, move: Move) =
         {
@@ -509,9 +510,7 @@ final class Space(
      */
     def consult(move: Move): SearchState = {
         idOfMostRecentlyAssessedMove = move.id
-        val effectComputer = new EffectComputer(move)
-        effectComputer.run
-        new MoveSimulator(assignment, effectComputer.diff)
+        new MoveSimulator(assignment, new EffectComputer(move).run)
     }
 
     private final class EffectPropagator(move: Move) extends MoveProcessor(move) {
@@ -527,7 +526,7 @@ final class Space(
         }
 
         override protected def recordEffect(effect: AnyEffect) {
-            effect.setValue(assignment)
+            diff += effect
         }
         private def checkedCommit(
             constraint: Constraint, before: SearchState, after: SearchState, move: Move) =
@@ -583,7 +582,7 @@ final class Space(
      */
     def commit(move: Move): Space = {
         require(move.id == idOfMostRecentlyAssessedMove)
-        new EffectPropagator(move).run
+        new EffectPropagator(move).run.effects.foreach(_.setValue(assignment))
         this
     }
 
