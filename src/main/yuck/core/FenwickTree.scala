@@ -23,7 +23,9 @@ class FenwickTree(val size: Int) {
 
     // Throws when the given index is out-of-range.
     private def checkIndex(i: Int) {
-        require(i >= 1 && i <= size)
+        if (i < 1 || i > size) {
+            throw new ArrayIndexOutOfBoundsException
+        }
     }
 
     /** Clears the Fenwick tree. */

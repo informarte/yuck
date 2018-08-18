@@ -67,14 +67,14 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
     def testExceptionalCases {
         val n = 1
         val d = createDistribution(n)
-        assertEx(d.setFrequency(-1, 0))
-        assertEx(d.setFrequency(n, 0))
-        assertEx(d.addFrequencyDelta(-1, 0))
-        assertEx(d.addFrequencyDelta(n, 0))
-        assertEx(d.frequency(-1))
-        assertEx(d.frequency(n))
-        assertEx(d.cdf(-1))
-        assertEx(d.cdf(n))
+        assertEx(d.setFrequency(-1, 0), classOf[ArrayIndexOutOfBoundsException])
+        assertEx(d.setFrequency(n, 0), classOf[ArrayIndexOutOfBoundsException])
+        assertEx(d.addFrequencyDelta(-1, 0), classOf[ArrayIndexOutOfBoundsException])
+        assertEx(d.addFrequencyDelta(n, 0), classOf[ArrayIndexOutOfBoundsException])
+        assertEx(d.frequency(-1), classOf[ArrayIndexOutOfBoundsException])
+        assertEx(d.frequency(n), classOf[ArrayIndexOutOfBoundsException])
+        assertEx(d.cdf(-1), classOf[ArrayIndexOutOfBoundsException])
+        assertEx(d.cdf(n), classOf[ArrayIndexOutOfBoundsException])
         assertEx(d.inverseCdf(-1))
         assertEx(d.inverseCdf(d.volume))
     }

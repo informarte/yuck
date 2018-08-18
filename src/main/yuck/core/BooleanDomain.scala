@@ -62,7 +62,7 @@ abstract class BooleanDomain extends NumericalDomain[BooleanValue] {
         case (lhs: BooleanDecisionDomain, rhs: BooleanDecisionDomain) => lhs.diff(rhs)
         case (lhs: BooleanDecisionDomain, rhs: BooleanChannelDomain.type) => EmptyBooleanDomain
         case (lhs: BooleanChannelDomain.type, rhs: BooleanChannelDomain.type) => EmptyBooleanDomain
-        case (lhs: BooleanChannelDomain.type, rhs: BooleanDecisionDomain) => if (rhs.isEmpty) lhs else ???
+        case (lhs: BooleanChannelDomain.type, rhs: BooleanDecisionDomain) => if (rhs.isEmpty) lhs else !!!
         case _ => ???
     }
 

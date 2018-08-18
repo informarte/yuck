@@ -35,7 +35,9 @@ abstract class Distribution {
 
     /** Implements the cumulative distribution function. */
     def cdf(i: Int): Int = {
-        require(i >= 0 && i < size)
+        if (i < 0 || i > size) {
+            throw new ArrayIndexOutOfBoundsException
+        }
         var sum = 0
         var j = 0
         while (j <= i) {sum = safeAdd(sum, frequency(j)); j += 1}

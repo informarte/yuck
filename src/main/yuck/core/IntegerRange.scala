@@ -56,12 +56,12 @@ final class IntegerRange
         (lb == null || lb <= a) && (ub == null || a <= ub)
 
     override def randomValue(randomGenerator: RandomGenerator) = {
-        require(! isEmpty)
+        require(! isEmpty && isFinite)
         IntegerValue.get(lb.value + randomGenerator.nextInt(size))
     }
 
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: IntegerValue) = {
-        require(! isEmpty)
+        require(! isEmpty && isFinite)
         if (isSingleton) {
             singleValue
         } else if (size == 2) {

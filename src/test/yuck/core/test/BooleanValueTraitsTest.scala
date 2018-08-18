@@ -27,7 +27,7 @@ final class BooleanValueTraitsTest extends UnitTest {
         assertEq(createDomain(Set(False)), FalseDomain)
         assertEq(createDomain(Set(True)), TrueDomain)
         assertEq(createDomain(Set(False, True)), CompleteBooleanDecisionDomain)
-        assertEx(createDomain(Set(False, False2, True)), classOf[IllegalArgumentException])
+        assertEx(createDomain(Set(False, False2, True)))
         assertEq(createDomain(False, False), FalseDomain)
         assertEq(createDomain(False, True), EmptyBooleanDomain)
         assertEq(createDomain(True, False), CompleteBooleanDecisionDomain)

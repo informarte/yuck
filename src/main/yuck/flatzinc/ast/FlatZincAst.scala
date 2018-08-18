@@ -132,6 +132,8 @@ final case class FlatZincAst(
         case Term(id, Nil) if paramDeclsByName.contains(id) =>
             val ArrayConst(elems) = paramDeclsByName(id).value
             elems
+        case _ =>
+            throw new IllegalArgumentException("%s is not an array".format(expr))
     }
 
     /** Returns the variables involved in the given expression. */

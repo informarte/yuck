@@ -28,7 +28,7 @@ abstract class AnyValueTraits[Value <: AnyValue] {
 
     /** Throws when the type of the given value differs from Value. */
     final def checkType(a: AnyValue) {
-        assert(
+        require(
             a.valueType == valueType,
             "Value %s has type %s but not %s as expected".format(a, a.valueType, valueType))
     }
@@ -45,7 +45,7 @@ abstract class AnyValueTraits[Value <: AnyValue] {
 
     /** Throws when the given domain is not a domain over Value. */
     final def checkType(d: AnyDomain) {
-        assert(
+        require(
             d.valueType == valueType,
             "Domain %s has type %s but not %s as expected".format(d, d.valueType, valueType))
     }
@@ -62,7 +62,7 @@ abstract class AnyValueTraits[Value <: AnyValue] {
 
     /** Throws when the given variable is not a variable over Value. */
     final def checkType(x: AnyVariable) {
-        assert(
+        require(
             x.valueType == valueType,
             "Variable %s has type %s but not %s as expected".format(x.name, x.valueType, valueType))
     }

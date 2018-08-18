@@ -8,6 +8,13 @@ import scala.language.implicitConversions
  */
 package object core {
 
+    /**
+     * `!!!` should be used for marking methods that cannot to be implemented.
+ *
+     * @throws IllegalArgumentException
+     */
+    def !!! : Nothing = throw new IllegalArgumentException("Implementation is not possible")
+
     @inline def safeAdd(a: Int, b: Int): Int = java.lang.Math.addExact(a, b)
     @inline def safeSub(a: Int, b: Int): Int = java.lang.Math.subtractExact(a, b)
     @inline def safeMul(a: Int, b: Int): Int = java.lang.Math.multiplyExact(a, b)

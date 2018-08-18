@@ -25,7 +25,7 @@ final class SingletonIntegerSetDomain
     override def singleValue = new IntegerSetValue(base)
     override def contains(a: IntegerSetValue) = a.set == base
     override def randomValue(randomGenerator: RandomGenerator) = singleValue
-    override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: IntegerSetValue) = ???
+    override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: IntegerSetValue) = singleValue
     def isSubsetOf(that: SingletonIntegerSetDomain): Boolean = this == that
     def intersects(that: SingletonIntegerSetDomain): Boolean = this == that
 }

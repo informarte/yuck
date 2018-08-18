@@ -40,18 +40,9 @@ trait YuckAssert {
         Assert.assertTrue("%s (testee) <= %s".format(a, b), ord.compare(a, b) > 0)
     }
 
+    /** Expects an IllegalArgumentException. */
     protected def assertEx(operation: => Unit) {
-        var failed = true
-        try {
-            operation
-            failed = false
-        }
-        catch {
-            case _: Throwable =>
-        }
-        if (! failed) {
-            Assert.fail("Expected some exception")
-        }
+        assertEx(operation, classOf[IllegalArgumentException])
     }
 
     protected def assertEx(operation: => Unit, expectedExceptionType: Class[_ <: Throwable]) {

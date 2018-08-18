@@ -71,7 +71,7 @@ final class SolverTest extends UnitTest {
         solver.call
         assert(solver.hasFinished)
         assert(! sigint.isSet)
-        assertEx(solver.call, classOf[IllegalArgumentException])
+        assertEx(solver.call)
         assert(solver.hasFinished)
         assert(! sigint.isSet)
     }
@@ -102,7 +102,7 @@ final class SolverTest extends UnitTest {
         assertEq(solver.call.solverName, result.solverName)
         assert(solver.hasFinished)
         assert(! sigint.isSet)
-        assertEx(solver.call, classOf[IllegalArgumentException])
+        assertEx(solver.call)
         assert(solver.hasFinished)
         assert(! sigint.isSet)
     }
@@ -143,7 +143,7 @@ final class SolverTest extends UnitTest {
         assert(solver.hasFinished)
         assert(sigint.isSet)
         sigint.revoke
-        assertEx(solver.call, classOf[IllegalArgumentException])
+        assertEx(solver.call)
         assert(solver.hasFinished)
         assert(! sigint.isSet)
     }
@@ -165,7 +165,7 @@ final class SolverTest extends UnitTest {
         assert(solver.hasFinished)
         assert(sigint.isSet)
         sigint.revoke
-        assertEx(solver.call, classOf[IllegalArgumentException])
+        assertEx(solver.call)
         assert(solver.hasFinished)
         assert(! sigint.isSet)
     }
@@ -220,7 +220,7 @@ final class SolverTest extends UnitTest {
         }
         assert(solver.hasFinished)
         assert(sigint.isSet)
-        assertEx(solver.call, classOf[IllegalArgumentException])
+        assertEx(solver.call)
         assert(solver.hasFinished)
         assert(sigint.isSet)
     }
