@@ -3,15 +3,24 @@ package yuck.core.test
 import scala.collection._
 
 import yuck.core._
-import yuck.util.testing.YuckAssert
+import yuck.util.logging.LazyLogger
+import yuck.util.testing.{EqualityTestHelper, YuckAssert}
 
 /**
  * @author Michael Marte
  *
  */
-class DomainTestHelper[Value <: AnyValue] extends YuckAssert {
+class DomainTestHelper[Value <: AnyValue](logger: LazyLogger) extends YuckAssert {
 
-    // checks that values are chosen uniformly from the given domain
+    def testEquality(testData: Seq[Domain[Value]]) {
+        logger.withLogScope("Test data") {
+            testData.foreach(item => logger.log(item.toString))
+        }
+        val helper = new EqualityTestHelper[Domain[Value]]
+        helper.testEquality(testData)
+    }
+
+    // Checks that values are chosen uniformly from the given domain.
     def testUniformityOfDistribution(randomGenerator: RandomGenerator, d: Domain[Value]) {
         val SAMPLE_SIZE = 100000
         val MAX_ERROR = 0.05

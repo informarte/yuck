@@ -13,13 +13,14 @@ import yuck.util.testing.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class BooleanDecisionDomainTest extends UnitTest {
 
-    private val helper = new OrderedDomainTestHelper[BooleanValue]
+    private val helper = new OrderedDomainTestHelper[BooleanValue](logger)
+    private val testData1 = List((false, false), (true, false), (false, true), (true, true))
+    private val testData2 = List(EmptyBooleanDomain, FalseDomain, TrueDomain, CompleteBooleanDecisionDomain)
 
     @Test
     def testBasics {
         val randomGenerator = new JavaRandomGenerator
-        val testData = List((false, false), (true, false), (false, true), (true, true))
-        for ((f, t) <- testData) {
+        for ((f, t) <- testData1) {
             val d = new BooleanDecisionDomain(f, t)
             assertEq(f, d.containsFalse)
             assertEq(t, d.containsTrue)
@@ -68,17 +69,27 @@ final class BooleanDecisionDomainTest extends UnitTest {
     }
 
     @Test
+    def testEquality {
+        helper.testEquality(testData2)
+        for (a <- testData2) {
+            val b = new BooleanDecisionDomain(a.containsFalse, a.containsTrue)
+            assertEq(a, b)
+            assertEq(b, a)
+            assertNe(a, False)
+            assertNe(False, a)
+        }
+    }
+
+    @Test
     def testOrdering {
-        val testData = List(EmptyBooleanDomain, FalseDomain, TrueDomain, CompleteBooleanDecisionDomain)
-        helper.testOrdering(testData, BooleanDecisionDomain.ordering)
+        helper.testOrdering(testData2, BooleanDecisionDomain.ordering)
     }
 
     @Test
     def testSetOperations {
-        val testData = List((false, false), (true, false), (false, true), (true, true))
-        for ((f1, t1) <- testData) {
+        for ((f1, t1) <- testData1) {
             val d1 = new BooleanDecisionDomain(f1, t1)
-            for ((f2, t2) <- testData) {
+            for ((f2, t2) <- testData1) {
                 val d2 = new BooleanDecisionDomain(f2, t2)
                 assertEq(d1.isSubsetOf(d2), (! f1 || f2) && (! t1 || t2))
                 assertEq(d1.intersects(d2), (f1 && f2) || (t1 && t2))

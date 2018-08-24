@@ -14,7 +14,6 @@ trait YuckAssert {
 
     protected def assertEq[T](a: T, b: T) {
         Assert.assertTrue("%s (testee) != %s".format(a, b), a == b)
-        Assert.assertTrue("%s (testee) != %s".format(b, a), b == a)
         if (a != null && b != null) {
             Assert.assertTrue("%s.hashcode (testee) != %s.hashcode".format(a, b), a.hashCode == b.hashCode)
         }

@@ -15,7 +15,7 @@ import yuck.util.testing.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerPowersetDomainTest extends UnitTest {
 
-    private val helper = new DomainTestHelper[IntegerSetValue]
+    private val helper = new DomainTestHelper[IntegerSetValue](logger)
 
     @Test
     def testBasics {

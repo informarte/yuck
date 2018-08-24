@@ -14,7 +14,9 @@ import yuck.util.testing.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerDomainTest extends UnitTest {
 
-    private val helper = new IntegerDomainTestHelper(logger)
+    private val randomGenerator = new JavaRandomGenerator
+    private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
+    private val baseRange = new IntegerRange(IntegerValue.get(-5), Five)
 
     @Test
     def testEquality {
@@ -22,55 +24,33 @@ final class IntegerDomainTest extends UnitTest {
         assertEq(EmptyIntegerRange.asInstanceOf[IntegerDomain], EmptyIntegerRange)
         assertNe(EmptyIntegerRange.asInstanceOf[IntegerDomain], CompleteIntegerRange)
         assertEq(EmptyIntegerRange, EmptyIntegerRangeList)
-        assertEq(CompleteIntegerRange, CompleteIntegerRangeList)
         assertNe(EmptyIntegerRange, CompleteIntegerRangeList)
+        assertEq(CompleteIntegerRange, CompleteIntegerRangeList)
         assertNe(CompleteIntegerRange, EmptyIntegerRangeList)
         assertEq(new IntegerRange(Zero, Two), new IntegerRangeList(Zero, Two))
         assertNe(new IntegerRange(Zero, Two), new IntegerRangeList(Vector(new IntegerRange(Zero, Zero), new IntegerRange(Two, Two))))
         assertEq(EmptyIntegerRangeList.asInstanceOf[IntegerDomain], EmptyIntegerRange)
         assertNe(EmptyIntegerRangeList.asInstanceOf[IntegerDomain], CompleteIntegerRange)
-
     }
 
     @Test
     def testOrdering {
         val SAMPLE_SIZE = 16
-        val randomGenerator = new JavaRandomGenerator
-        val baseRange = new IntegerRange(Zero, Nine)
-        val singletonRanges = baseRange.values.map(a => new IntegerRange(a, a)).toVector
-        val randomFiniteRangeLists = for (i <- 1 to SAMPLE_SIZE) yield baseRange.randomSubdomain(randomGenerator)
-        val randomInfiniteRangeLists = randomFiniteRangeLists.map(CompleteIntegerRange.diff)
-        for ((d, e) <- randomFiniteRangeLists.zip(randomInfiniteRangeLists)) {
-            assert(d.union(e).isComplete)
-        }
-        val edgeCases = List(EmptyIntegerRange, baseRange) ++ helper.specialInfiniteRanges ++ singletonRanges
-        val testData = (randomFiniteRangeLists ++ randomInfiniteRangeLists ++ edgeCases ++ edgeCases)
+        val testData = helper.createTestData(baseRange, SAMPLE_SIZE)
         helper.testOrdering(testData, IntegerDomain.ordering)
     }
 
     @Test
     def testOperations {
-        val SAMPLE_SIZE = 16
-        val randomGenerator = new JavaRandomGenerator
-        val baseRange = new IntegerRange(Zero, Nine)
-        val singletonRanges = baseRange.values.map(a => new IntegerRange(a, a)).toVector
-        val randomFiniteRanges = for (i <- 1 to SAMPLE_SIZE) yield baseRange.randomSubrange(randomGenerator)
-        val randomFiniteRangeLists = for (i <- 1 to SAMPLE_SIZE) yield baseRange.randomSubdomain(randomGenerator)
-        val randomFiniteIntegerDomains = randomFiniteRanges ++ randomFiniteRangeLists
-        val randomInfiniteRangeLists = (randomFiniteIntegerDomains).map(CompleteIntegerRange.diff)
-        for ((d, e) <- randomFiniteIntegerDomains.zip(randomInfiniteRangeLists)) {
-            assert(d.union(e).isComplete)
-        }
-        val edgeCases = List(EmptyIntegerRange, baseRange) ++ helper.specialInfiniteRanges ++ singletonRanges
-        val testData = (randomFiniteIntegerDomains ++ randomInfiniteRangeLists ++ edgeCases).distinct
-        helper.testOperations(randomGenerator, testData, (-2 to 11).map(IntegerValue.get))
+        val SAMPLE_SIZE = 8
+        val testData = helper.createTestData(baseRange, SAMPLE_SIZE)
+        val extendedBaseRange = new IntegerRange(baseRange.lb - One, baseRange.ub + One)
+        helper.testOperations(testData, extendedBaseRange.values.toSeq)
     }
 
     @Test
     def testRandomSubdomainCreation {
         val SAMPLE_SIZE = 1000
-        val randomGenerator = new JavaRandomGenerator
-        val baseRange = new IntegerRange(Zero, Nine)
         val sample = new mutable.HashSet[IntegerDomain]
         for (i <- 1 to SAMPLE_SIZE) {
             val e = baseRange.randomSubdomain(randomGenerator)

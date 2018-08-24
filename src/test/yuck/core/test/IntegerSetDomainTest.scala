@@ -3,7 +3,7 @@ package yuck.core.test
 import org.junit._
 
 import yuck.core._
-import yuck.util.testing.UnitTest
+import yuck.util.testing.{OrderingTestHelper, UnitTest}
 
 /**
  * @author Michael Marte
@@ -34,20 +34,16 @@ final class IntegerSetDomainTest extends UnitTest {
     // so we test the ordering only once and here.
     @Test
     def testOrdering {
-        val SAMPLE_SIZE = 32
+        val SAMPLE_SIZE = 8
         val randomGenerator = new JavaRandomGenerator
-        val baseRange = new IntegerRange(Zero, Nine)
-        val singletonRanges = baseRange.values.map(a => new IntegerRange(a, a)).toVector
-        val randomSubranges = for (i <- 1 to SAMPLE_SIZE) yield baseRange.randomSubrange(randomGenerator)
-        val edgeCases = List(EmptyIntegerRange, baseRange) ++ IntegerDomainTestHelper.specialInfiniteRanges ++ singletonRanges
+        val helper1 = new IntegerDomainTestHelper(randomGenerator, logger)
+        val baseRange = new IntegerRange(IntegerValue.get(-5), Five)
         val testData =
-            (randomSubranges ++ edgeCases ++ edgeCases)
-            .map(r => List(new SingletonIntegerSetDomain(r), new IntegerPowersetDomain(r)))
-            .flatten
-        val helper = new OrderingTestHelper[IntegerSetDomain] {}
-        val sortedTestData1 = helper.testOrdering(testData, IntegerSetValueTraits.domainOrdering)
-        val sortedTestData2 = helper.testOrdering(testData, IntegerSetDomain.ordering)
-        assertEq(sortedTestData1, sortedTestData2)
+            helper1.createTestData(baseRange, SAMPLE_SIZE)
+                .map(r => List(new SingletonIntegerSetDomain(r), new IntegerPowersetDomain(r)))
+                .flatten
+        val helper2 = new OrderingTestHelper[IntegerSetDomain]
+        helper2.testOrdering(testData, IntegerSetDomain.ordering)
     }
 
     @Test

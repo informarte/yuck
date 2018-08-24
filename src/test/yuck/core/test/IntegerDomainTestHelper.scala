@@ -9,13 +9,26 @@ import yuck.util.logging.LazyLogger
  * @author Michael Marte
  *
  */
-final class IntegerDomainTestHelper(logger: LazyLogger) extends OrderedDomainTestHelper[IntegerValue] {
-
-    // Test strategy for set operations:
-    // - Try to avoid cyclic test dependencies by using more primitive functions only.
-    // - If a function cannot be fully verified, issue a warning.
+final class IntegerDomainTestHelper
+    (randomGenerator: RandomGenerator, logger: LazyLogger)
+    extends OrderedDomainTestHelper[IntegerValue](logger)
+{
 
     val specialInfiniteRanges = IntegerDomainTestHelper.specialInfiniteRanges
+
+    def createTestData(baseRange: IntegerRange, SAMPLE_SIZE: Int): Seq[IntegerDomain] = {
+        val singletonRanges = baseRange.values.map(a => new IntegerRange(a, a)).toVector
+        val randomFiniteRanges = for (i <- 1 to SAMPLE_SIZE) yield baseRange.randomSubrange(randomGenerator)
+        val randomFiniteRangeLists = for (i <- 1 to SAMPLE_SIZE) yield baseRange.randomSubdomain(randomGenerator)
+        val randomFiniteIntegerDomains = randomFiniteRanges ++ randomFiniteRangeLists
+        val randomInfiniteRangeLists = (randomFiniteIntegerDomains).map(CompleteIntegerRange.diff)
+        for ((d, e) <- randomFiniteIntegerDomains.zip(randomInfiniteRangeLists)) {
+            assert(d.union(e).isComplete)
+        }
+        val edgeCases = List(EmptyIntegerRange, baseRange) ++ specialInfiniteRanges ++ singletonRanges
+        val testData = randomFiniteIntegerDomains ++ randomInfiniteRangeLists ++ edgeCases
+        testData
+    }
 
     private def testEnsureRangeList(d: IntegerDomain) {
         val e = IntegerDomain.ensureRangeList(d)
@@ -40,6 +53,10 @@ final class IntegerDomainTestHelper(logger: LazyLogger) extends OrderedDomainTes
             assertEq(d.endsAfter(e), e.hasUb && (! d.hasUb || d.ub > e.ub))
         }
     }
+
+    // Test strategy for set operations:
+    // - Try to avoid cyclic test dependencies by using more primitive functions only.
+    // - If a function cannot be fully verified, issue a warning.
 
     private def testSetSize(d: IntegerDomain) {
         if (d.isFinite) {
@@ -411,13 +428,10 @@ final class IntegerDomainTestHelper(logger: LazyLogger) extends OrderedDomainTes
         }
     }
 
-    def testRangeBasics(randomGenerator: RandomGenerator, createRange: (IntegerValue, IntegerValue) => IntegerDomain) {
+    def testRepresentation(createRange: (IntegerValue, IntegerValue) => IntegerDomain) {
 
         // {}
         val a = createRange(One, Zero)
-        assertNe(a, "")
-        assertEq(a, a)
-        assertEq(a, createRange(One, Zero))
         assertEq(a.toString, "{}")
         assert(a.isEmpty)
         assertEq(a.size, 0)
@@ -426,8 +440,6 @@ final class IntegerDomainTestHelper(logger: LazyLogger) extends OrderedDomainTes
         assert(! a.isSingleton)
         assert(! a.contains(Zero))
         assertEx(a.singleValue)
-        assertEx(a.randomValue(randomGenerator))
-        assertEx(a.nextRandomValue(randomGenerator, Zero))
         assertEq(a.values.toList, Nil)
         assert(a.isBounded)
         assert(a.hasLb)
@@ -442,8 +454,6 @@ final class IntegerDomainTestHelper(logger: LazyLogger) extends OrderedDomainTes
 
         // {0}
         val b = createRange(Zero, Zero)
-        assertEq(b, b)
-        assertEq(b, createRange(Zero, Zero))
         assertEq(b.toString, "{0}")
         assert(! b.isEmpty)
         assertEq(b.size, 1)
@@ -454,8 +464,6 @@ final class IntegerDomainTestHelper(logger: LazyLogger) extends OrderedDomainTes
         assert(b.contains(Zero))
         assert(! b.contains(One))
         assertEq(b.singleValue, Zero)
-        assertEq(b.randomValue(randomGenerator), Zero)
-        assertEq(b.nextRandomValue(randomGenerator, Zero), Zero)
         assertEq(b.values.toList, List(Zero))
         assert(b.isBounded)
         assert(b.hasLb)
@@ -471,8 +479,6 @@ final class IntegerDomainTestHelper(logger: LazyLogger) extends OrderedDomainTes
 
         // [0, 9]
         val c = createRange(Zero, Nine)
-        assertEq(c, c)
-        assertEq(c, createRange(Zero, Nine))
         assertEq(c.toString, "0..9")
         assert(! c.isEmpty)
         assertEq(c.size, 10)
@@ -499,9 +505,6 @@ final class IntegerDomainTestHelper(logger: LazyLogger) extends OrderedDomainTes
 
         // ]-inf, +inf[
         val d = createRange(null, null)
-        assertNe(d, "")
-        assertEq(d, d)
-        assertEq(d, createRange(null, null))
         assertEq(d.toString, "-inf..+inf")
         assert(! d.isEmpty)
         assertEx(d.size)
@@ -510,8 +513,6 @@ final class IntegerDomainTestHelper(logger: LazyLogger) extends OrderedDomainTes
         assert(! d.isSingleton)
         assert(d.contains(Zero))
         assertEx(d.singleValue)
-        assertEx(d.randomValue(randomGenerator))
-        assertEx(d.nextRandomValue(randomGenerator, Zero))
         assertEx(d.values)
         assert(! d.isBounded)
         assert(! d.hasLb)
@@ -524,9 +525,6 @@ final class IntegerDomainTestHelper(logger: LazyLogger) extends OrderedDomainTes
 
         // [-inf, 0[
         val e = createRange(null, Zero)
-        assertNe(e, "")
-        assertEq(e, e)
-        assertEq(e, createRange(null, Zero))
         assertEq(e.toString, "-inf..0")
         assert(! e.isEmpty)
         assertEx(e.size)
@@ -537,8 +535,6 @@ final class IntegerDomainTestHelper(logger: LazyLogger) extends OrderedDomainTes
         assert(e.contains(Zero))
         assert(! e.contains(One))
         assertEx(e.singleValue)
-        assertEx(e.randomValue(randomGenerator))
-        assertEx(e.nextRandomValue(randomGenerator, Zero))
         assertEx(e.values)
         assert(e.isBounded)
         assert(! e.hasLb)
@@ -551,9 +547,6 @@ final class IntegerDomainTestHelper(logger: LazyLogger) extends OrderedDomainTes
 
         // [0, +inf[
         val f = createRange(Zero, null)
-        assertNe(f, "")
-        assertEq(f, f)
-        assertEq(f, createRange(Zero, null))
         assertEq(f.toString, "0..+inf")
         assert(! f.isEmpty)
         assertEx(f.size)
@@ -564,8 +557,6 @@ final class IntegerDomainTestHelper(logger: LazyLogger) extends OrderedDomainTes
         assert(f.contains(Zero))
         assert(f.contains(One))
         assertEx(f.singleValue)
-        assertEx(f.randomValue(randomGenerator))
-        assertEx(f.nextRandomValue(randomGenerator, Zero))
         assertEx(f.values)
         assert(f.isBounded)
         assert(f.hasLb)
@@ -576,18 +567,14 @@ final class IntegerDomainTestHelper(logger: LazyLogger) extends OrderedDomainTes
         assertEq(f.ub, null)
         assert(! f.hasGaps)
 
-        // inequality
-        val testData = List(EmptyIntegerRange) ++ specialInfiniteRanges ++ List(b, c)
-        for (d <- testData) {
-            assertEq(d, d)
-        }
-        for (List(d, e) <- testData.combinations(2)) {
-            assertNe(d, e)
-        }
-
     }
 
-    def testOperations(randomGenerator: RandomGenerator, dl: Seq[IntegerDomain], vl: Seq[IntegerValue]) {
+    def testOperations(dl: Seq[IntegerDomain], vl: Seq[IntegerValue]) {
+        logger.withLogScope("Test data") {
+            dl.foreach(d => logger.log(d.toString))
+        }
+        require(dl.size > 1)
+        require(! vl.isEmpty)
         for (d <- dl) {
             testEnsureRangeList(d)
             testSetSize(d)
@@ -621,8 +608,16 @@ final class IntegerDomainTestHelper(logger: LazyLogger) extends OrderedDomainTes
                     testBounding(d, d.ub)
                     testBounding(d, d.ub + One)
                 }
-                if (d.isFinite && ! d.isSingleton) {
-                    testUniformityOfDistribution(randomGenerator, d)
+                if (d.isFinite) {
+                    if (d.isSingleton) {
+                        assertEq(d.randomValue(randomGenerator), d.singleValue)
+                        assertEq(d.nextRandomValue(randomGenerator, Zero), d.singleValue)
+                    } else {
+                        testUniformityOfDistribution(randomGenerator, d)
+                    }
+                } else {
+                    assertEx(d.randomValue(randomGenerator))
+                    assertEx(d.nextRandomValue(randomGenerator, Zero))
                 }
             }
             testBisecting(d)

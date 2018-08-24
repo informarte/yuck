@@ -13,38 +13,55 @@ import yuck.util.testing.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerSetValueTest extends UnitTest {
 
-    private val NonNegativeIntegerSetValue = new IntegerSetValue(NonNegativeIntegerRange)
+    private val helper = new OrderedValueTestHelper[IntegerSetValue]
+    private val baseData =
+        List(
+            EmptyIntegerRange, NonNegativeIntegerRange, CompleteIntegerRange,
+            new IntegerRange(Zero, Two), new IntegerRange(One, Three), new IntegerRange(Two, Four),
+            new IntegerRange(Zero, Five))
+    private val testData =
+        baseData.map(new IntegerSetValue(_))
 
     @Test
-    def testComparison {
+    def testConstruction {
+        for (a <- baseData) {
+            assertEq(new IntegerSetValue(a).set, a)
+        }
+    }
 
-        assertEq(EmptyIntegerSetValue, EmptyIntegerSetValue)
-        assertEq(NonNegativeIntegerSetValue, NonNegativeIntegerSetValue)
-        assertEq(CompleteIntegerSetValue, CompleteIntegerSetValue)
-        assertNe(EmptyIntegerSetValue, NonNegativeIntegerSetValue)
-        assertNe(EmptyIntegerSetValue, CompleteIntegerSetValue)
-        assertNe(NonNegativeIntegerSetValue, CompleteIntegerSetValue)
-        assertLt(EmptyIntegerSetValue, NonNegativeIntegerSetValue)
-        assertLt(EmptyIntegerSetValue, CompleteIntegerSetValue)
-        assertLt(NonNegativeIntegerSetValue, CompleteIntegerSetValue)
-        assertGt(NonNegativeIntegerSetValue, EmptyIntegerSetValue)
-        assertGt(CompleteIntegerSetValue, EmptyIntegerSetValue)
-        assertGt(CompleteIntegerSetValue, NonNegativeIntegerSetValue)
-        val a = new IntegerSetValue(new IntegerRange(Zero, Two))
-        val b = new IntegerSetValue(new IntegerRange(One, Three))
-        assertLt(a, b)
-        assertGt(b, a)
+    @Test
+    def testSpecialValues {
+        assert(EmptyIntegerSetValue.set.isEmpty)
+        assert(CompleteIntegerSetValue.set.isComplete)
+    }
 
-        val testData = List(EmptyIntegerSetValue, NonNegativeIntegerSetValue, CompleteIntegerSetValue, a, b)
-        for (c <- testData) {
-            for (d <- testData) {
-                assertEq(c.eqc(d).truthValue, c == d)
-                assertEq(c.nec(d).truthValue, c != d)
-                assertEq(c.ltc(d).truthValue, c < d)
-                assertEq(c.lec(d).truthValue, c <= d)
+    @Test
+    def testEquality {
+        helper.testEquality(testData)
+        for (a <- testData) {
+            val b = new IntegerSetValue(a.set)
+            assertEq(a, b)
+            assertEq(b, a)
+            assertNe(a, Zero)
+            assertNe(Zero, a)
+        }
+    }
+
+    @Test
+    def testOrdering {
+        helper.testOrdering(testData ++ testData)
+    }
+
+    @Test
+    def testConstraints {
+        for (a <- testData) {
+            for (b <- testData) {
+                assertEq(a.eqc(b).truthValue, a == b)
+                assertEq(a.nec(b).truthValue, a != b)
+                assertEq(a.ltc(b).truthValue, a < b)
+                assertEq(a.lec(b).truthValue, a <= b)
             }
         }
-
     }
 
 }

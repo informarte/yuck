@@ -15,54 +15,106 @@ import yuck.util.testing.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerValueTest extends UnitTest {
 
+    private val helper = new OrderedValueTestHelper[IntegerValue]
+    private val testRange = -5 to 5
+    private val testData = testRange.map(IntegerValue.get)
+
     @Test
-    def testComparison {
-
-        assertNe(Zero, null)
-        assertNe(Zero, False)
-
-        val testRange = -5 to 5
+    def testConstruction {
         for (a <- testRange) {
-            val c = IntegerValue.get(a)
-            assertEq(c.value, a)
-            val e = new IntegerValue(a)
-            assertEq(c, e)
-            for (b <- testRange) {
-                val d = IntegerValue.get(b)
-                assertEq(d.value, b)
-                val f = new IntegerValue(b)
-                assertEq(d, f)
-                assertEq(a == b, c == d)
-                assertEq(a == b, e == f)
-                assertEq(a != b, c != d)
-                assertEq(signum(a.compare(b)), signum(c.compare(d)))
-                assertEq(signum(b.compare(a)), signum(d.compare(c)))
-                assertEq(c.eqc(d).truthValue, c == d)
-                assertEq(c.nec(d).truthValue, c != d)
-                assertEq(c.ltc(d).truthValue, c < d)
-                assertEq(c.lec(d).truthValue, c <= d)
-            }
+            assertEq(new IntegerValue(a).value, a)
         }
+    }
 
+    @Test
+    def testSpecialValues {
+        assertEq(MinusOne.value, -1)
+        assertEq(Zero.value, 0)
+        assertEq(One.value, 1)
+        assertEq(Two.value, 2)
+        assertEq(Three.value, 3)
+        assertEq(Four.value, 4)
+        assertEq(Five.value, 5)
+        assertEq(Six.value, 6)
+        assertEq(Seven.value, 7)
+        assertEq(Eight.value, 8)
+        assertEq(Nine.value, 9)
+        assertEq(Ten.value, 10)
+    }
+
+    @Test
+    def testValueFactory {
+        for (a <- testRange) {
+            assertEq(IntegerValue.get(a).value, a)
+            assert(IntegerValue.get(a).eq(IntegerValue.get(a)))
+        }
+    }
+
+    @Test
+    def testEquality {
+        helper.testEquality(testData)
+        for (a <- testData) {
+            val b = new IntegerValue(a.value)
+            assertEq(a, b)
+            assertEq(b, a)
+            assertNe(a, False)
+            assertNe(False, a)
+        }
+    }
+
+    @Test
+    def testOrdering {
+        helper.testOrdering(testData ++ testData)
         assertEq(IntegerValue.min(Zero, One), Zero)
         assertEq(IntegerValue.max(Zero, One), One)
+    }
 
+    @Test
+    def testConstraints {
+        for (a <- testData) {
+            for (b <- testData) {
+                assertEq(a.eqc(b).truthValue, a == b)
+                assertEq(a.nec(b).truthValue, a != b)
+                assertEq(a.ltc(b).truthValue, a < b)
+                assertEq(a.lec(b).truthValue, a <= b)
+                for (c <- testData) {
+                    if (a < b && a < c && b < c) {
+                        assertLe((a eqc b).violation, (a eqc c).violation)
+                        assertLe((a ltc b).violation, (a ltc c).violation)
+                    }
+                }
+            }
+        }
     }
 
     @Test
     def testNumericalOperations {
-        assertEq(One + Two, Three)
-        assertEq(Three - One, Two)
-        assertEq(Two * Three, Six)
-        assertEq(One.addAndSub(Two, Five, Two), Seven)
-        assertEq(One.addAndSub(One, IntegerValue.get(Int.MaxValue), IntegerValue.get(Int.MaxValue - 1)), Two)
-        assertEq(Six / Two, Three)
-        assertEq(Two ^ Three, Eight)
-        assertEq(Seven % Two, One)
-        assertEq(MinusOne.abs, One)
-        assertEq(MinusOne.toDouble, -1.0)
-        assert(Zero.isEven)
-        assert(! One.isEven)
+        for (a <- testData) {
+            for (b <- testData) {
+                assertEq((a + b).value, a.value + b.value)
+                assertEq((a - b).value, a.value - b.value)
+                assertEq((a * b).value, a.value * b.value)
+                if (b == Zero) {
+                    assertEx(a / b, classOf[ArithmeticException])
+                    assertEx(a % b, classOf[ArithmeticException])
+                } else {
+                    assertEq((a / b).value, a.value / b.value)
+                    assertEq((a % b).value, a.value % b.value)
+                }
+                if (a == Zero && b < Zero) {
+                    assertEx(a ^ b, classOf[ArithmeticException])
+                } else {
+                    assertEq((a ^ b).value, scala.math.pow(a.value, b.value).toInt)
+                }
+                for (c <- testData) {
+                    for (d <- testData) {
+                        assertEq(a.addAndSub(b, c, d).value, a.value + b.value * (c.value - d.value))
+                    }
+                }
+            }
+            assertEq(a.toDouble, a.value.toDouble)
+            assertEq(a.isEven, a.value % 2 == 0)
+        }
     }
 
     @Test
@@ -74,6 +126,7 @@ final class IntegerValueTest extends UnitTest {
         IntegerValue.get(Int.MaxValue / 2) * Two
         assertEx(IntegerValue.get(Int.MaxValue) * Two, classOf[ArithmeticException])
         IntegerValue.get(Int.MaxValue - 1).addAndSub(One, One, Zero)
+        One.addAndSub(One, IntegerValue.get(Int.MaxValue), IntegerValue.get(Int.MaxValue - 1))
         assertEx(IntegerValue.get(Int.MaxValue).addAndSub(One, One, Zero), classOf[ArithmeticException])
         IntegerValue.get(Int.MinValue + 1).abs
         assertEx(IntegerValue.get(Int.MinValue).abs, classOf[ArithmeticException])

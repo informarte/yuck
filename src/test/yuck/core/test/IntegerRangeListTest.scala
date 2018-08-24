@@ -15,18 +15,24 @@ import yuck.util.testing.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerRangeListTest extends UnitTest {
 
-    private val helper = new IntegerDomainTestHelper(logger)
+    private val randomGenerator = new JavaRandomGenerator
+    private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
+    private val baseRange = new IntegerRange(IntegerValue.get(-5), Five)
+    private val testData = {
+        val a = IntegerDomainPruner.ne(new IntegerRange(Zero, Nine), Five)
+        val b = IntegerDomainPruner.ne(a, Seven)
+        val c = IntegerDomainPruner.ne(b, Six)
+        val d = new IntegerRangeList(CompleteIntegerRange).diff(b)
+        List(a, b, c, d)
+    }
 
     @Test
-    def testBasics {
-        val randomGenerator = new JavaRandomGenerator
+    def testRepresentation {
 
-        helper.testRangeBasics(randomGenerator, (a, b) => new IntegerRangeList(a, b))
+        helper.testRepresentation((a, b) => new IntegerRangeList(a, b))
+        val List(a, b, c, d) = testData
 
         // [0, 9] \ {5}
-        val a = IntegerDomainPruner.ne(new IntegerRange(Zero, Nine), Five)
-        assertNe(a, "")
-        assertEq(a, a)
         assert(! a.isEmpty)
         assertEq(a.size, 9)
         assertEq(a.toString, "0..4 union 6..9")
@@ -48,9 +54,6 @@ final class IntegerRangeListTest extends UnitTest {
         assert(a.hasGaps)
 
         // [0, 9] \ {5, 7}
-        val b = IntegerDomainPruner.ne(a, Seven)
-        assertNe(b, "")
-        assertEq(b, b)
         assert(! b.isEmpty)
         assertEq(b.size, 8)
         assertEq(b.toString, "0..4 union {6} union 8..9")
@@ -72,9 +75,6 @@ final class IntegerRangeListTest extends UnitTest {
         assert(b.hasGaps)
 
         // [0, 9] \ {5, 6, 7}
-        val c = IntegerDomainPruner.ne(b, Six)
-        assertNe(c, "")
-        assertEq(c, c)
         assert(! c.isEmpty)
         assertEq(c.size, 7)
         assertEq(c.toString, "0..4 union 8..9")
@@ -96,10 +96,6 @@ final class IntegerRangeListTest extends UnitTest {
         assert(c.hasGaps)
 
         // ]-inf, +inf[ \ ([0, 9] \ {5, 7})
-        val d = new IntegerRangeList(CompleteIntegerRange).diff(b)
-        assertNe(d, "")
-        assertEq(d, d)
-        assertEq(d, new IntegerRangeList(Vector(new IntegerRange(null, MinusOne), new IntegerRange(Five, Five), new IntegerRange(Seven, Seven), new IntegerRange(Ten, null))))
         assertEq(d.toString, "-inf..-1 union {5} union {7} union 10..+inf")
         assert(! d.isEmpty)
         assertEx(d.size)
@@ -108,8 +104,6 @@ final class IntegerRangeListTest extends UnitTest {
         assert(! d.isSingleton)
         assert(d.contains(Five))
         assertEx(d.singleValue)
-        assertEx(d.randomValue(randomGenerator))
-        assertEx(d.nextRandomValue(randomGenerator, Five))
         assertEx(d.values)
         assert(! d.isBounded)
         assert(! d.hasLb)
@@ -120,37 +114,41 @@ final class IntegerRangeListTest extends UnitTest {
         assertEq(d.ub, null)
         assert(d.hasGaps)
 
-        // equality
-        val testData = (List(EmptyIntegerRange, new IntegerRange(Zero, Nine)) ++ helper.specialInfiniteRanges ++ List(a, b, c, d)).map(IntegerDomain.ensureRangeList)
-        for (d <- testData) {
-            assertEq(d, d)
-        }
-        for (List(d, e) <- testData.combinations(2)) {
-            assertNe(d, e)
-        }
+    }
 
+    @Test
+    def testEquality {
+        val testData =
+            (List(EmptyIntegerRange, new IntegerRange(Zero, Nine)) ++ helper.specialInfiniteRanges ++ this.testData)
+                .map(IntegerDomain.ensureRangeList)
+        helper.testEquality(testData)
+        for (a <- testData) {
+            val b = new IntegerRangeList(a.ranges)
+            assertEq(a, b)
+            assertEq(b, a)
+            assertNe(a, False)
+            assertNe(False, a)
+        }
     }
 
     @Test
     def testOrdering {
         val SAMPLE_SIZE = 16
-        val randomGenerator = new JavaRandomGenerator
-        val baseRange = new IntegerRange(Zero, Nine)
-        val singletonRanges = baseRange.values.map(a => new IntegerRange(a, a)).toVector
-        val randomFiniteRangeLists = for (i <- 1 to SAMPLE_SIZE) yield baseRange.randomSubdomain(randomGenerator)
-        val randomInfiniteRangeLists = randomFiniteRangeLists.map(CompleteIntegerRange.diff)
-        for ((d, e) <- randomFiniteRangeLists.zip(randomInfiniteRangeLists)) {
-            assert(d.union(e).isComplete)
-        }
-        val edgeCases = List(EmptyIntegerRange, baseRange) ++ helper.specialInfiniteRanges ++ singletonRanges
-        val testData = (randomFiniteRangeLists ++ randomInfiniteRangeLists ++ edgeCases ++ edgeCases).map(IntegerDomain.ensureRangeList)
+        val testData = helper.createTestData(baseRange, SAMPLE_SIZE).map(IntegerDomain.ensureRangeList)
         helper.testOrdering(testData, IntegerRangeList.ordering)
+    }
+
+    @Test
+    def testOperations {
+        val SAMPLE_SIZE = 8
+        val testData = helper.createTestData(baseRange, SAMPLE_SIZE).map(IntegerDomain.ensureRangeList)
+        val extendedBaseRange = new IntegerRange(baseRange.lb - One, baseRange.ub + One)
+        helper.testOperations(testData, extendedBaseRange.values.toSeq)
     }
 
     @Test
     def testRandomSubrangeCreation {
         val SAMPLE_SIZE = 1000
-        val randomGenerator = new JavaRandomGenerator
         val baseDomain = new IntegerRangeList(Vector(new IntegerRange(Zero, Four), new IntegerRange(Six, Nine)))
         val sample = new mutable.HashSet[IntegerRange]
         for (i <- 1 to SAMPLE_SIZE) {
