@@ -30,7 +30,7 @@ final class MiniZincChallenge2014 extends MiniZincBasedTest {
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint], classOf[HasGlobalCardinalityConstraint], classOf[HasInverseConstraint], classOf[HasMemberConstraint], classOf[HasRegularConstraint]))
+    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint], classOf[HasInverseConstraint], classOf[HasMemberConstraint], classOf[HasRegularConstraint]))
     def elitserien_handball11 {
         solve(task.copy(problemName = "elitserien", modelName = "handball", instanceName = "handball11", maybeOptimum = Some(3)))
     }
