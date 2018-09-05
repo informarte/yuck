@@ -70,6 +70,7 @@ class VariableClassifier
                 }
             case Term("seq_search", ArrayConst(searches) :: _) =>
                 searches.foreach(findSearchVars)
+            case _ =>
         }
     }
 
