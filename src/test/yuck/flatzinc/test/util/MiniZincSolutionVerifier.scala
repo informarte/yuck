@@ -96,6 +96,7 @@ class MiniZincSolutionVerifier(
         val solutionWriter = new java.io.FileWriter(solutionFilePath, false /* do not append */)
         val solutionFormatter = new FlatZincResultFormatter(result)
         val solution = solutionFormatter.call
+        assert(checkIndicators(solution))
         for (assignment <- solution.toIterator.takeWhile(_ != FLATZINC_SOLUTION_SEPARATOR)) {
             solutionWriter.write("constraint %s\n".format(assignment))
         }
@@ -117,15 +118,12 @@ class MiniZincSolutionVerifier(
         mzn2fznCommand += solutionFilePath
         if (! dznFileName.isEmpty) mzn2fznCommand += "%s/%s".format(includePath, dznFileName)
         new ProcessRunner(logger, List("flatzinc", "--version")).call
+        new ProcessRunner(logger, mzn2fznCommand).call
         val flatzincCommand = List("flatzinc", "--backend", "fd", "--solver-stats", flattenedSolutionFilePath)
+        val (outputLines, _) = new ProcessRunner(logger, flatzincCommand).call
         val verified =
-            checkIndicators(solution) &&
-            new ProcessRunner(logger, mzn2fznCommand).call._2.isEmpty && {
-                val (outputLines, errorLines) = new ProcessRunner(logger, flatzincCommand).call
-                errorLines.isEmpty &&
-                ! outputLines.contains(FLATZINC_INCONSISTENT_PROBLEM_INDICATOR) &&
-                checkObjective(outputLines)
-            }
+            ! outputLines.contains(FLATZINC_INCONSISTENT_PROBLEM_INDICATOR) &&
+            checkObjective(outputLines)
         verified
     }
 

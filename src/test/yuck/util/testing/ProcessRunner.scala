@@ -9,7 +9,7 @@ import yuck.util.logging.LazyLogger
  * @author Michael Marte
  *
  */
-class ProcessRunner(logger: LazyLogger, commandLine: Seq[String]) extends Callable[(List[String], List[String])] {
+class ProcessRunner(logger: LazyLogger, commandLine: Seq[String]) extends Callable[(Seq[String], Seq[String])] {
 
     override def call = {
         val processBuilder = new java.lang.ProcessBuilder(commandLine.asJava)
@@ -18,11 +18,12 @@ class ProcessRunner(logger: LazyLogger, commandLine: Seq[String]) extends Callab
             val process = processBuilder.start
             val stdout = scala.io.Source.fromInputStream(process.getInputStream)
             val stderr = scala.io.Source.fromInputStream(process.getErrorStream)
-            val outputLines = stdout.mkString.lines.toList
-            val (errorLines, warningLines) = stderr.mkString.lines.toList.partition(_.toLowerCase.contains("error"))
+            val outputLines = stdout.getLines.toSeq
+            val errorLines = stderr.getLines.toSeq
             outputLines.foreach(logger.log(_))
-            warningLines.foreach(logger.log(_))
             errorLines.foreach(logger.log(_))
+            val exitCode = process.waitFor
+            assert(exitCode == 0, "Process failed with exit code %d".format(exitCode))
             (outputLines, errorLines)
         }
     }

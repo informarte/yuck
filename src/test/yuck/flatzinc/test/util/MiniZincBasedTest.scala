@@ -69,8 +69,7 @@ class MiniZincBasedTest extends IntegrationTest {
         mzn2fznCommand += mznFilePath
         if (! dznFilePath.isEmpty) mzn2fznCommand += dznFilePath
         logger.withTimedLogScope("Flattening MiniZinc model") {
-            val (_, errorLines) = new ProcessRunner(logger, mzn2fznCommand).call
-            Predef.assert(errorLines.isEmpty, "Flattening failed")
+            new ProcessRunner(logger, mzn2fznCommand).call
         }
         val cfg =
             task.solverConfiguration.copy(
