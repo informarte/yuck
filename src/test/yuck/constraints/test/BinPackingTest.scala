@@ -44,10 +44,6 @@ final class BinPackingTest extends UnitTest {
             // move item 1 from bin 1 to 3
             val move = new ChangeValue(space.moveIdFactory.nextId, items(1).bin, Three)
             val after = space.consult(move)
-            assertEq(now.value(items(1).bin), One)
-            assertEq(now.value(loads(1)), Five)
-            assertEq(now.value(loads(2)), Seven)
-            assertEq(now.value(loads(3)), Three)
             assertEq(after.value(items(1).bin), Three)
             assertEq(after.value(loads(1)), Four)
             assertEq(after.value(loads(2)), Seven)
@@ -66,11 +62,6 @@ final class BinPackingTest extends UnitTest {
                 space.moveIdFactory.nextId,
                 List(new ImmutableEffect(items(2).bin, One), new ImmutableEffect(items(5).bin, Three)))
             val after = space.consult(move)
-            assertEq(now.value(items(2).bin), Two)
-            assertEq(now.value(items(5).bin), Two)
-            assertEq(now.value(loads(1)), Four)
-            assertEq(now.value(loads(2)), Seven)
-            assertEq(now.value(loads(3)), Four)
             assertEq(after.value(items(2).bin), One)
             assertEq(after.value(items(5).bin), Three)
             assertEq(after.value(loads(1)), Six)

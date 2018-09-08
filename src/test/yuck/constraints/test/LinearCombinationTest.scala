@@ -39,7 +39,6 @@ final class LinearCombinationTest extends UnitTest {
         assertEq(now.value(y), Five)
         val move = new ChangeValue(space.moveIdFactory.nextId, x2, Three)
         val after = space.consult(move)
-        assertEq(now.value(y), Five)
         assertEq(after.value(y), Six)
         space.commit(move)
         assertEq(now.value(y), Six)

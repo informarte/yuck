@@ -10,6 +10,10 @@ import scala.collection._
 final class Assignment(valDir: mutable.AnyRefMap[AnyVariable, AnyValue]) extends SearchState {
 
     def this() = this(new mutable.AnyRefMap[AnyVariable, AnyValue])
+    def this(searchState: SearchState) = {
+        this()
+        setValues(searchState)
+    }
 
     override def clone = new Assignment(valDir.clone)
     override def mappedVariables = valDir.toList.map(_._1).toSet

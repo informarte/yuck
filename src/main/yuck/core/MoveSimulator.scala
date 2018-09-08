@@ -6,6 +6,8 @@ package yuck.core
  * @author Michael Marte
  */
 final class MoveSimulator(before: SearchState, move: Move) extends SearchState {
+    override def clone =
+        new Assignment(this)
     override def mappedVariables =
         before.mappedVariables ++ move.involvedVariables
     override def hasValue(x: AnyVariable) =

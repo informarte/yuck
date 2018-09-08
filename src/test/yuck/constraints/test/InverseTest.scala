@@ -52,9 +52,6 @@ final class InverseTest extends UnitTest {
                 space.moveIdFactory.nextId,
                 List(new ImmutableEffect(g1, Two), new ImmutableEffect(g3, Three)))
             val after = space.consult(move)
-            assertEq(now.value(g1), Three)
-            assertEq(now.value(g3), Two)
-            assertEq(now.value(costs), False8)
             assertEq(after.value(g1), Two)
             assertEq(after.value(g3), Three)
             assertEq(after.value(costs), False6)
@@ -72,9 +69,6 @@ final class InverseTest extends UnitTest {
                 space.moveIdFactory.nextId,
                 List(new ImmutableEffect(f1, Two), new ImmutableEffect(f3, Three)))
             val after = space.consult(move)
-            assertEq(now.value(f1), Three)
-            assertEq(now.value(f3), Two)
-            assertEq(now.value(costs), False6)
             assertEq(after.value(f1), Two)
             assertEq(after.value(f3), Three)
             assertEq(after.value(costs), True)
@@ -92,9 +86,6 @@ final class InverseTest extends UnitTest {
                 space.moveIdFactory.nextId,
                 List(new ImmutableEffect(f2, Two), new ImmutableEffect(g1, One)))
             val after = space.consult(move)
-            assertEq(now.value(f2), One)
-            assertEq(now.value(g1), Two)
-            assertEq(now.value(costs), True)
             assertEq(after.value(f2), Two)
             assertEq(after.value(g1), One)
             assertEq(after.value(costs), False2)
@@ -109,8 +100,6 @@ final class InverseTest extends UnitTest {
             // 1 1 3
             val move = new ChangeValue(space.moveIdFactory.nextId, f2, One)
             val after = space.consult(move)
-            assertEq(now.value(f2), Two)
-            assertEq(now.value(costs), False2)
             assertEq(after.value(f2), One)
             assertEq(after.value(costs), False2)
             space.commit(move)
@@ -123,8 +112,6 @@ final class InverseTest extends UnitTest {
             // 2 1 3
             val move = new ChangeValue(space.moveIdFactory.nextId, g1, Two)
             val after = space.consult(move)
-            assertEq(now.value(g1), One)
-            assertEq(now.value(costs), False2)
             assertEq(after.value(g1), Two)
             assertEq(after.value(costs), True)
             space.commit(move)
@@ -172,9 +159,6 @@ final class InverseTest extends UnitTest {
                 space.moveIdFactory.nextId,
                 List(new ImmutableEffect(g1, Two), new ImmutableEffect(g3, Three)))
             val after = space.consult(move)
-            assertEq(now.value(g1), Three)
-            assertEq(now.value(g3), Two)
-            assertEq(now.value(costs), False8)
             assertEq(after.value(g1), Two)
             assertEq(after.value(g3), Three)
             assertEq(after.value(costs), False6)
@@ -192,9 +176,6 @@ final class InverseTest extends UnitTest {
                 space.moveIdFactory.nextId,
                 List(new ImmutableEffect(f1, One), new ImmutableEffect(f3, Two)))
             val after = space.consult(move)
-            assertEq(now.value(f1), Two)
-            assertEq(now.value(f3), One)
-            assertEq(now.value(costs), False6)
             assertEq(after.value(f1), One)
             assertEq(after.value(f3), Two)
             assertEq(after.value(costs), True)

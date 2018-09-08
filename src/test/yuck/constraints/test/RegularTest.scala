@@ -44,8 +44,6 @@ final class RegularTest extends UnitTest {
             // states: 1, 1, 1, 2, 0, 0, 0, 0, 0, 0
             val move = new ChangeValue(space.moveIdFactory.nextId, xs(4), Two)
             val after = space.consult(move)
-            assertEq(now.value(xs(4)), One)
-            assertEq(now.value(costs), True)
             assertEq(after.value(xs(4)), Two)
             assertEq(after.value(costs), False6)
             space.commit(move)
@@ -60,9 +58,6 @@ final class RegularTest extends UnitTest {
                 space.moveIdFactory.nextId,
                 List(new ImmutableEffect(xs(4), One), new ImmutableEffect(xs(9), Two)))
             val after = space.consult(move)
-            assertEq(now.value(xs(4)), Two)
-            assertEq(now.value(xs(9)), One)
-            assertEq(now.value(costs), False6)
             assertEq(after.value(xs(4)), One)
             assertEq(after.value(xs(9)), Two)
             assertEq(after.value(costs), False)
@@ -76,8 +71,6 @@ final class RegularTest extends UnitTest {
             // states: 1, 1, 1, 2, 3, 4, 5, 6, 6, 6
             val move = new ChangeValue(space.moveIdFactory.nextId, xs(9), One)
             val after = space.consult(move)
-            assertEq(now.value(xs(9)), Two)
-            assertEq(now.value(costs), False)
             assertEq(after.value(xs(9)), One)
             assertEq(after.value(costs), True)
             space.commit(move)

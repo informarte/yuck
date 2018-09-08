@@ -37,8 +37,6 @@ final class MaximumTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, u, Two)
             val after = space.consult(move)
-            assertEq(now.value(u), Three)
-            assertEq(now.value(max), Three)
             assertEq(after.value(u), Two)
             assertEq(after.value(max), Two)
             space.commit(move)
@@ -48,8 +46,6 @@ final class MaximumTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, s, Three)
             val after = space.consult(move)
-            assertEq(now.value(s), One)
-            assertEq(now.value(max), Two)
             assertEq(after.value(s), Three)
             assertEq(after.value(max), Three)
             space.commit(move)

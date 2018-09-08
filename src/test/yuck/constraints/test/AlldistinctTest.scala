@@ -38,8 +38,6 @@ final class AlldistinctTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, s, Two)
             val after = space.consult(move)
-            assertEq(now.value(s), One)
-            assertEq(now.value(costs), False2)
             assertEq(after.value(s), Two)
             assertEq(after.value(costs), False)
             space.commit(move)
@@ -69,8 +67,6 @@ final class AlldistinctTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, s, Two)
             val after = space.consult(move)
-            assertEq(now.value(s), One)
-            assertEq(now.value(costs), False2)
             assertEq(after.value(s), Two)
             assertEq(after.value(costs), False)
             space.commit(move)
@@ -80,8 +76,6 @@ final class AlldistinctTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, t, Two)
             val after = space.consult(move)
-            assertEq(now.value(t), One)
-            assertEq(now.value(costs), False)
             assertEq(after.value(t), Two)
             assertEq(after.value(costs), False2)
             space.commit(move)
@@ -150,8 +144,6 @@ final class AlldistinctTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, s, Zero)
             val after = space.consult(move)
-            assertEq(now.value(s), One)
-            assertEq(now.value(costs), False2)
             assertEq(after.value(s), Zero)
             assertEq(after.value(costs), False)
             space.commit(move)
@@ -161,8 +153,6 @@ final class AlldistinctTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, t, Zero)
             val after = space.consult(move)
-            assertEq(now.value(t), One)
-            assertEq(now.value(costs), False)
             assertEq(after.value(t), Zero)
             assertEq(after.value(costs), True)
             space.commit(move)
@@ -172,8 +162,6 @@ final class AlldistinctTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, u, Zero)
             val after = space.consult(move)
-            assertEq(now.value(u), One)
-            assertEq(now.value(costs), True)
             assertEq(after.value(u), Zero)
             assertEq(after.value(costs), True)
             space.commit(move)
@@ -203,8 +191,6 @@ final class AlldistinctTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, s, Zero)
             val after = space.consult(move)
-            assertEq(now.value(s), One)
-            assertEq(now.value(costs), False2)
             assertEq(after.value(s), Zero)
             assertEq(after.value(costs), False)
             space.commit(move)
@@ -214,8 +200,6 @@ final class AlldistinctTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, t, Zero)
             val after = space.consult(move)
-            assertEq(now.value(t), One)
-            assertEq(now.value(costs), False)
             assertEq(after.value(t), Zero)
             assertEq(after.value(costs), True)
             space.commit(move)
@@ -225,8 +209,6 @@ final class AlldistinctTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, s, One)
             val after = space.consult(move)
-            assertEq(now.value(s), Zero)
-            assertEq(now.value(costs), True)
             assertEq(after.value(s), One)
             assertEq(after.value(costs), True)
             space.commit(move)
@@ -236,8 +218,6 @@ final class AlldistinctTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, t, Two)
             val after = space.consult(move)
-            assertEq(now.value(t), Zero)
-            assertEq(now.value(costs), True)
             assertEq(after.value(t), Two)
             assertEq(after.value(costs), False)
             space.commit(move)

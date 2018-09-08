@@ -37,8 +37,6 @@ final class DisjunctionTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, u, BooleanValue.get(2))
             val after = space.consult(move)
-            assertEq(now.value(u), False3)
-            assertEq(now.value(costs), False2)
             assertEq(after.value(u), False2)
             assertEq(after.value(costs), False)
             space.commit(move)
@@ -48,8 +46,6 @@ final class DisjunctionTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, s, True)
             val after = space.consult(move)
-            assertEq(now.value(s), False)
-            assertEq(now.value(costs), False)
             assertEq(after.value(s).violation, 0)
             assertEq(after.value(costs).violation, 0)
             space.commit(move)
@@ -59,8 +55,6 @@ final class DisjunctionTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, s, BooleanValue.get(3))
             val after = space.consult(move)
-            assertEq(now.value(s).violation, 0)
-            assertEq(now.value(costs).violation, 0)
             assertEq(after.value(s), False3)
             assertEq(after.value(costs), False2)
             space.commit(move)

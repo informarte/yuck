@@ -36,7 +36,6 @@ final class SumTest extends UnitTest {
         assertEq(now.value(y), Six)
         val move = new ChangeValue(space.moveIdFactory.nextId, x2, Three)
         val after = space.consult(move)
-        assertEq(now.value(y), Six)
         assertEq(after.value(y), Seven)
         space.commit(move)
         assertEq(now.value(y), Seven)

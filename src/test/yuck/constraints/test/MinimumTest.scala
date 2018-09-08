@@ -37,8 +37,6 @@ final class MinimumTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, s, Two)
             val after = space.consult(move)
-            assertEq(now.value(s), One)
-            assertEq(now.value(min), One)
             assertEq(after.value(s), Two)
             assertEq(after.value(min), Two)
             space.commit(move)
@@ -48,8 +46,6 @@ final class MinimumTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, u, One)
             val after = space.consult(move)
-            assertEq(now.value(u), Three)
-            assertEq(now.value(min), Two)
             assertEq(after.value(u), One)
             assertEq(after.value(min), One)
             space.commit(move)

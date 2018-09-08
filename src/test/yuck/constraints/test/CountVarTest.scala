@@ -39,8 +39,6 @@ final class CountVarTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, s, Two)
             val after = space.consult(move)
-            assertEq(now.value(s), One)
-            assertEq(now.value(n), Three)
             assertEq(after.value(s), Two)
             assertEq(after.value(n), Two)
             space.commit(move)
@@ -50,8 +48,6 @@ final class CountVarTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, what, Two)
             val after = space.consult(move)
-            assertEq(now.value(what), One)
-            assertEq(now.value(n), Two)
             assertEq(after.value(what), Two)
             assertEq(after.value(n), One)
             space.commit(move)

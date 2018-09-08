@@ -39,8 +39,6 @@ final class TableTest extends UnitTest {
             // move away from the first row and approach the second row
             val move = new ChangeValue(space.moveIdFactory.nextId, t, Two)
             val after = space.consult(move)
-            assertEq(now.value(t), One)
-            assertEq(now.value(costs), False3)
             assertEq(after.value(t), Two)
             assertEq(after.value(costs), False2)
             space.commit(move)
@@ -54,9 +52,6 @@ final class TableTest extends UnitTest {
                     space.moveIdFactory.nextId,
                     List(new ImmutableEffect(s, Zero), new ImmutableEffect(u, Three)))
             val after = space.consult(move)
-            assertEq(now.value(s), One)
-            assertEq(now.value(u), One)
-            assertEq(now.value(costs), False2)
             assertEq(after.value(s), Zero)
             assertEq(after.value(u), Three)
             assertEq(after.value(costs), False)

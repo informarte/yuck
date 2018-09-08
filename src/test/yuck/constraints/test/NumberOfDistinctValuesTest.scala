@@ -30,8 +30,6 @@ final class NumberOfDistinctValuesTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, xs(0), Two)
             val after = space.consult(move)
-            assertEq(now.value(xs(0)), One)
-            assertEq(now.value(m), One)
             assertEq(after.value(xs(0)), Two)
             assertEq(after.value(m), Two)
             space.commit(move)
@@ -41,8 +39,6 @@ final class NumberOfDistinctValuesTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, xs(1), Two)
             val after = space.consult(move)
-            assertEq(now.value(xs(1)), One)
-            assertEq(now.value(m), Two)
             assertEq(after.value(xs(1)), Two)
             assertEq(after.value(m), Two)
             space.commit(move)
@@ -52,8 +48,6 @@ final class NumberOfDistinctValuesTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, xs(2), Two)
             val after = space.consult(move)
-            assertEq(now.value(xs(2)), One)
-            assertEq(now.value(m), Two)
             assertEq(after.value(xs(2)), Two)
             assertEq(after.value(m), One)
             space.commit(move)

@@ -40,8 +40,6 @@ final class ElementTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, s, Zero)
             val after = space.consult(move)
-            assertEq(now.value(s), One)
-            assertEq(now.value(y), One)
             assertEq(after.value(s), Zero)
             assertEq(after.value(y), Zero)
             space.commit(move)
@@ -51,8 +49,6 @@ final class ElementTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.moveIdFactory.nextId, i, One)
             val after = space.consult(move)
-            assertEq(now.value(i), Zero)
-            assertEq(now.value(y), Zero)
             assertEq(after.value(i), One)
             assertEq(after.value(y), Two)
             space.commit(move)

@@ -41,7 +41,8 @@ abstract class Constraint
      * @param before is the search state before the move and the one the constraint's internal
      * state is in sync with.
      * @param after is the search state obtained by applying the move to before.
-     * @param move is the move to be assessed and involves only input variables of the constraint.
+     * @param move is the move to be assessed and involves only input variables of the constraint
+     * that are affected by the move.
      */
     def consult(before: SearchState, after: SearchState, move: Move): TraversableOnce[AnyEffect]
 
@@ -50,7 +51,7 @@ abstract class Constraint
      *
      * Please see consult for the parameters' meaning and the expected return value.
      *
-     * The default implementation forwards to consult.
+     * For use with stateless constraints, the default implementation forwards to consult.
      *
      * A call to commit will only happen after a call to consult.
      */
