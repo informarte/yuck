@@ -35,7 +35,7 @@ EclipseKeys.withSource := true
 EclipseKeys.withJavadoc := true
 EclipseKeys.eclipseOutput := Some("target/eclipse")
 
-scalaVersion := "2.12.4"
+scalaVersion := "2.12.7"
 
 scalacOptions ++= Seq(
     "-target:jvm-1.8",
