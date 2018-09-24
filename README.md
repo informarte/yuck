@@ -2,66 +2,15 @@
 
 [![Build Status](https://www.travis-ci.org/informarte/yuck.svg?branch=master)](https://www.travis-ci.org/informarte/yuck)
 
-## What is Yuck?
+## Yuck in a nutshell
 
-* Yuck is a constraint solver powered by local search.
-* Yuck's approach to problem solving is comparable to Comet [HM05] and [OscaR](http://oscarlib.bitbucket.org)/CBLS [BMFP15].
-* Yuck can be used as a library or as a [FlatZinc](http://www.minizinc.org/downloads/doc-1.6/flatzinc-spec.pdf) interpreter that integrates with the [MiniZinc toolchain](http://www.minizinc.org/software).
+* Yuck is a [FlatZinc](http://www.minizinc.org/downloads/doc-1.6/flatzinc-spec.pdf) interpreter that integrates with the [MiniZinc toolchain](http://www.minizinc.org/software).
+* Yuck's approach to problem solving is based in local search.
+* Yuck implements Boolean, integer, and integer set variables.
+* Yuck implements many global constraints, see [FlatZinc support](#flatzinc-support).
 * Yuck is provided under the terms of the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0).
-* Yuck's design goal is not to compete with highly tuned LP, CP, or SAT solvers, but to provide an alternative for cases where the use of such solvers is inappropriate or seems risky, namely when the input data might be inconsistent with the constraints (so the solver is expected to build around what is given), or when the requirements are hard to model and it seems easier to provide domain-specific constraints for local search than for tree search.
-* Yuck is written in Scala and exploits the Scala library's immutable collection classes for implementing global constraints.
-
-## Current state
-
-* Yuck implements simulated annealing along with some basic annealing schedules and some schedule combinators.
-* Yuck supports lexicographic cost functions with both minimization and maximization goals.
-* Yuck allows to timebox and parallelize solvers by means of solver combinators.
-* Yuck supports the interruption and the resumption of solvers to facilitate the presentation of intermediate results.
-* Yuck implements boolean, integer, and integer set variables.
-* Yuck supports implicit solving by means of constraint-specific neighbourhoods.
-* Yuck's constraint library is far from complete but already provides the most frequently used constraints.
-* Yuck's FlatZinc frontend supports most of FlatZinc and many global MiniZinc constraints, see [FlatZinc support](#flatzinc-support).
-* Yuck is developer-friendly and easy to extend, see [Contributing](#contributing).
-* Yuck was submitted to the [2016 MiniZinc challenge](http://www.minizinc.org/challenge2016/challenge.html) where it coped quite well with 12 out of 20 problems.
 * In the [2017 MiniZinc challenge](http://www.minizinc.org/challenge2017/challenge.html), Yuck ranked second among local-search solvers.
-
-## FlatZinc support
-
-Yuck's FlatZinc frontend supports all of FlatZinc except for float variables and float constraints.
-
-Yuck provides dedicated solvers for the following global MiniZinc constraints:
-
-* all_different, all_different_except_0
-* at_least, at_most
-* bin_packing, bin_packing_capa, bin_packing_load
-* count_eq, count_geq, count_gt, count_leq, count_lt, count_neq
-* cumulative
-* disjunctive
-* exactly
-* global_cardinality and friends
-* inverse
-* lex_less, lex_lesseq
-* maximum
-* member
-* minimum
-* nvalue
-* regular
-* table
-
-Yuck provides dedicated neighbourhoods for the following global MiniZinc constraints:
-
-* all_different
-* inverse
-
-When used as a FlatZinc interpreter, Yuck proceeds as follows:
-
-* It performs a limited amount of constraint propagation to reduce variable domains before starting local search.
-* It eliminates variables by exploiting equality constraints.
-* It identifies and exploits functional dependencies to reduce the number of decision variables.
-* It uses an annealing schedule that interleaves adaptive cooling with geometric reheating.
-* In move generation, it concentrates on variables that are involved in constraint violations.
-* It uses restarting to increase robustness: When a solver terminates without having reached its objective, it gets replaced by a new one starting out from another random assignment.
-* When Yuck is configured to use multiple threads, restarting turns into parallel solving: Given a thread pool and a stream of solvers with a common objective, Yuck submits the solvers to the thread pool and, when one of the solvers provides a solution that satisfies the objective, Yuck discards all running and pending solvers.
+* In the [2018 MiniZinc challenge](http://www.minizinc.org/challenge2018/challenge.html), Yuck defended its second place in the local-search category.
 
 ## Download and installation
 
@@ -119,31 +68,67 @@ In case you need Yuck's MiniZinc library, its location depends on how you instal
 * When you installed the Debian package, the library resides in `/usr/share/yuck/mzn/lib`.
 * When you installed the universal package, the library resides in the `mzn/lib` subfolder of the Yuck distribution.
 
+## Under the hood
+
+* Yuck's approach to problem solving is comparable to Comet [HM05] and [OscaR](http://oscarlib.bitbucket.org)/CBLS [BMFP15].
+* Yuck implements simulated annealing along with some basic annealing schedules and some schedule combinators.
+* Yuck supports lexicographic cost functions with both minimization and maximization goals.
+* Yuck allows to timebox and parallelize solvers by means of solver combinators.
+* Yuck supports the interruption and the resumption of solvers to facilitate the presentation of intermediate results.
+* Yuck supports implicit solving by means of constraint-specific neighbourhoods.
+* Yuck is written in Scala and exploits the Scala library's immutable collection classes for implementing global constraints.
+
+## FlatZinc support
+
+Yuck's FlatZinc frontend supports all of FlatZinc except for float variables and float constraints.
+
+Yuck provides dedicated solvers for the following global MiniZinc constraints:
+
+* all_different, all_different_except_0
+* at_least, at_most
+* bin_packing, bin_packing_capa, bin_packing_load
+* count_eq, count_geq, count_gt, count_leq, count_lt, count_neq
+* cumulative
+* disjunctive
+* exactly
+* global_cardinality and friends
+* inverse
+* lex_less, lex_lesseq
+* maximum
+* member
+* minimum
+* nvalue
+* regular
+* table
+
+Yuck provides dedicated neighbourhoods for the following global MiniZinc constraints:
+
+* all_different
+* inverse
+
+When used as a FlatZinc interpreter, Yuck proceeds as follows:
+
+* It performs a limited amount of constraint propagation to reduce variable domains before starting local search.
+* It eliminates variables by exploiting equality constraints.
+* It identifies and exploits functional dependencies to reduce the number of decision variables.
+* It uses an annealing schedule that interleaves adaptive cooling with geometric reheating.
+* In move generation, it concentrates on variables that are involved in constraint violations.
+* It uses restarting to increase robustness: When a solver terminates without having reached its objective, it gets replaced by a new one starting out from another random assignment.
+* When Yuck is configured to use multiple threads, restarting turns into parallel solving: Given a thread pool and a stream of solvers with a common objective, Yuck submits the solvers to the thread pool and, when one of the solvers provides a solution that satisfies the objective, Yuck discards all running and pending solvers.
+
 ## Future work
 
-* Allow for the composition of lexicographic cost functions in
-  MiniZinc through constraint and goal annotations
 * Implement among, diffn, circuit, subcircuit, ...
 * Provide soft constraints
 * Refactor and improve up-front propagation
 * Reduce dependence on integration testing by adding more unit tests
+* Provide libraries with Yuck core functionality
 
 ## Contributing
 
-Yuck is developer-friendly:
-
-* It's source code is clean and well-documented.
-* It provides extensive and configurable logging.
-* Test coverage is good.
-
-Yuck is easy to extend:
-
-* It's core machinery can be asked to look for misbehaving constraints while running a solver.
-* New variable types can be added without touching the core machinery and without impairing the type safety of the system.
-
 To build and run Yuck, you need [sbt](http://www.scala-sbt.org).
 
-Use `sbt eclipse` to create an Eclipse project.
+Run `sbt eclipse` to create an Eclipse project.
 
 ### Building
 
