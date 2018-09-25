@@ -77,10 +77,10 @@ class MiniZincBasedTest extends IntegrationTest {
                     scala.math.min(
                         task.solverConfiguration.restartLimit,
                         task.maybeRestartLimit.getOrElse(Int.MaxValue)),
-                numberOfVirtualCores =
+                numberOfThreads =
                     scala.math.min(
-                        task.solverConfiguration.numberOfVirtualCores,
-                        task.maybeMaximumNumberOfVirtualCores.getOrElse(Int.MaxValue)),
+                        task.solverConfiguration.numberOfThreads,
+                        task.maybeMaximumNumberOfThreads.getOrElse(Int.MaxValue)),
                 maybeRoundLimit = task.maybeRoundLimit,
                 maybeRuntimeLimitInSeconds = task.maybeRuntimeLimitInSeconds,
                 maybeTargetObjectiveValue = task.maybeOptimum,

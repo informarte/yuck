@@ -98,13 +98,9 @@ final class FlatZincSolverGenerator
                     new BaseSolverGenerator(randomGenerator.nextGen, i),
                     logger,
                     sigint)
-        val numberOfThreads = cfg.numberOfVirtualCores match {
-            case 4 | 8 => 4 // use 4 threads on both i5 and i7, also avoids fan noise on i7
-            case n => n
-        }
         val solver =
             if (solvers.size == 1) solvers.head
-            else new ParallelSolver(solvers, numberOfThreads, solverName, logger, sigint)
+            else new ParallelSolver(solvers, cfg.numberOfThreads, solverName, logger, sigint)
         solver
     }
 

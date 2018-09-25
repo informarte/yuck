@@ -21,7 +21,7 @@ case class FlatZincLevelConfiguration(
 case class FlatZincSolverConfiguration(
     val seed: Long = DEFAULT_SEED,
     val restartLimit: Int = DEFAULT_RESTART_LIMIT,
-    val numberOfVirtualCores: Int = Runtime.getRuntime.availableProcessors,
+    val numberOfThreads: Int = Runtime.getRuntime.availableProcessors,
     val maybeRoundLimit: Option[Int] = None,
     val maybeRuntimeLimitInSeconds: Option[Int] = None,
     val maybeTargetObjectiveValue: Option[Int] = None,
@@ -35,7 +35,7 @@ case class FlatZincSolverConfiguration(
     val level1Configuration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, Some(Probability.from(13))))
 {
     require(restartLimit >= 0)
-    require(numberOfVirtualCores > 0)
+    require(numberOfThreads > 0)
     require(maybeRoundLimit.getOrElse(0) >= 0)
     require(maybeRuntimeLimitInSeconds.getOrElse(0) >= 0)
 }

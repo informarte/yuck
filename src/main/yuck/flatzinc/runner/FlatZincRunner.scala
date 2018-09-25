@@ -29,7 +29,8 @@ object FlatZincRunner {
         val logFilePath: String = "",
         val fznFilePath: String = "",
         val cfg: FlatZincSolverConfiguration =
-            new FlatZincSolverConfiguration(
+            FlatZincSolverConfiguration(
+                numberOfThreads = 1,
                 // The parser expects the following values to be undefined!
                 maybeRoundLimit = None,
                 maybeRuntimeLimitInSeconds = None,
@@ -37,7 +38,7 @@ object FlatZincRunner {
     {}
 
     class CommandLineParser extends OptionParser[CommandLine]("yuck") {
-        val defaultCl = new CommandLine
+        val defaultCl = CommandLine()
         val defaultCfg = defaultCl.cfg
         val logLevels = yuck.util.logging.logLevels
         val logLevelMap = logLevels.map(level => (level.toString -> level)).toMap
@@ -45,9 +46,9 @@ object FlatZincRunner {
         help("help").abbr("h").text("Show this help message")
         opt[Unit]('a', "print-all-solutions").text("Ignored")
         opt[Unit]('f', "ignore-search-strategy").text("Ignored")
-        opt[Int]('p', "number-of-virtual-cores")
-            .text("Default value is %s".format(defaultCfg.numberOfVirtualCores))
-            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(numberOfVirtualCores = max(1, x))))
+        opt[Int]('p', "number-of-threads")
+            .text("Default value is %s".format(defaultCfg.numberOfThreads))
+            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(numberOfThreads = max(1, x))))
         opt[Long]('r', "seed")
             .text("Default value is %s".format(defaultCfg.seed))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(seed = x)))
