@@ -6,7 +6,7 @@
 
 * Yuck is a constraint solver powered by local search.
 * Yuck's approach to problem solving is comparable to Comet [HM05] and [OscaR](http://oscarlib.bitbucket.org)/CBLS [BMFP15].
-* Yuck can be used as a library or as a [FlatZinc](http://www.minizinc.org/downloads/doc-1.6/flatzinc-spec.pdf) interpreter that integrates with the [MiniZinc IDE](http://www.minizinc.org/ide/index.html).
+* Yuck can be used as a library or as a [FlatZinc](http://www.minizinc.org/downloads/doc-1.6/flatzinc-spec.pdf) interpreter that integrates with the [MiniZinc toolchain](http://www.minizinc.org/software).
 * Yuck is provided under the terms of the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0).
 * Yuck's design goal is not to compete with highly tuned LP, CP, or SAT solvers, but to provide an alternative for cases where the use of such solvers is inappropriate or seems risky, namely when the input data might be inconsistent with the constraints (so the solver is expected to build around what is given), or when the requirements are hard to model and it seems easier to provide domain-specific constraints for local search than for tree search.
 * Yuck is written in Scala and exploits the Scala library's immutable collection classes for implementing global constraints.
@@ -65,13 +65,37 @@ When used as a FlatZinc interpreter, Yuck proceeds as follows:
 
 ## Download and installation
 
-Yuck requires a Java 8 (or higher) runtime environment.
+Yuck downloads are available from the [Releases page](https://github.com/informarte/yuck/releases).
 
-Download the [latest release](https://github.com/informarte/yuck/releases/latest), unzip the package in a suitable location, and change to the resulting folder. The start scripts reside in the `bin` subfolder; you can run Yuck with either `./bin/yuck` (on UNIX-based systems) or `bin\yuck.bat` (on Windows). Yuck's MiniZinc library resides in the `mzn` subfolder.
+After downloading the package, proceed as follows:
 
-## Command-line interface
+1. Make sure that a [Java runtime environment](https://openjdk.java.net/install) is available on your system; Yuck requires at least version 8.
+2. Unzip the package in a suitable location.
+3. To register Yuck as a backend for the MiniZinc toolchain, define the ```MZN_SOLVER_PATH``` environment variable to point to the ```mzn``` subfolder of the Yuck distribution. (For other ways of providing a solver configuration file to the MiniZinc toolchain, see the section on [Solver Configuration Files](http://www.minizinc.org/doc-2.2.0/en/fzn-spec.html#solver-configuration-files) of *The MiniZinc Handbook*.)
 
-To solve a problem with Yuck, invoke Yuck with the FlatZinc file on the command line, for example:
+## Usage as MiniZinc backend
+
+To apply Yuck to MiniZinc models, you need a working [MiniZinc](https://www.minizinc.org/software.html) installation. This section assumes that you have at least version 2.2.2 installed and that Yuck has been properly registered as a MiniZinc backend (see above).
+
+To use Yuck from inside the MiniZinc IDE, just select it from the menu of solver configurations before running your model.
+
+To run MiniZinc models from the command line, use `minizinc` as follows:
+
+```
+minizinc --solver yuck zebra.mzn
+
+zebra:
+nation = [3, 4, 2, 1, 5]
+colour = [3, 5, 4, 1, 2]
+animal = [4, 1, 2, 5, 3]
+drink  = [5, 2, 3, 4, 1]
+smoke  = [3, 1, 2, 4, 5]
+----------
+```
+
+## Direct usage
+
+To use Yuck directly, invoke it with the FlatZinc file on the command line, for example:
 
 ```
 yuck zebra.fzn
@@ -88,23 +112,7 @@ Yuck's output complies to the requirements of the [FlatZinc 1.6 specification](h
 
 Use the `--help` option to obtain a list of all options.
 
-## MiniZinc IDE integration
-
-To configure Yuck as a backend for the [MiniZinc IDE](http://www.minizinc.org/ide/index.html), proceed as follows:
-
-* In the MiniZinc IDE, go to the **Configuration** tab.
-* From the **Solver** dropdown list, select **Add new solver** and a
-  window will open.
-* In that window, provide values for the following parameters:
-  * Name: Yuck
-  * Executable: Give the full path to the Yuck start script, see above.
-  * MiniZinc library path: Give the full path to Yuck's MiniZinc library, see above, and prefix it with `-I`. (There must NOT be a space between `-I` and the path.)
-* Then press the **Add** button.
-* Back on the **Configuration** tab, select **Yuck** from the dropdown list.
-* Switch from **Default behavior** to **User-defined behavior**.
-* If your hardware allows, increase the number of threads.
-
-(Tested on Ubuntu and Windows 10.)
+In case you need Yuck's MiniZinc library: it resides in the `mzn/lib` subfolder of the Yuck distribution.
 
 ## Future work
 

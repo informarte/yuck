@@ -5,7 +5,22 @@ gitHeadCommitSha := Process("git rev-parse HEAD").lineStream.head
 val currentGitBranch = settingKey[String]("The current git branch")
 currentGitBranch := Process("git rev-parse --abbrev-ref HEAD").lineStream.head
 val today = settingKey[String]("The current date")
-today := Process("date +%Y%m%d").lineStream.head
+today := new java.text.SimpleDateFormat("yyyyMMdd").format(new java.util.Date)
+
+def createMscFile(baseDir: java.io.File, version: String, exePath: String, mznLibPath: String): java.io.File = {
+    val source = new java.io.File(baseDir / "resources" / "mzn", "yuck.msc.in")
+    val sink = java.io.File.createTempFile("yuck-", ".msc")
+    val writer = new java.io.FileWriter(sink)
+    for (line <- scala.io.Source.fromFile(source).getLines) {
+        writer.write(
+            "%s\n".format(
+                line.replace("VERSION", version)
+                    .replace("EXE_PATH", exePath)
+                    .replace("MZN_LIB_PATH", mznLibPath)))
+    }
+    writer.close
+    sink
+}
 
 name := "yuck"
 description := "Yuck is a constraint-based local-search solver with FlatZinc interface."
@@ -54,7 +69,12 @@ mainClass in (Compile, run) := Some("yuck.flatzinc.runner.FlatZincRunner")
 mainClass in (Compile, packageBin) := Some("yuck.flatzinc.runner.FlatZincRunner")
 
 enablePlugins(JavaAppPackaging)
+
 enablePlugins(UniversalPlugin)
+
+val yuckMscFileForUniversalPackage = taskKey[java.io.File]("Create yuck.msc file for universal package")
+yuckMscFileForUniversalPackage :=
+    createMscFile(baseDir = baseDirectory.value, version = today.value, exePath = "../bin/yuck", mznLibPath = "lib")
 
 mappings in Universal +=
     (baseDirectory.value / "doc" / "copyright" -> "doc/copyright")
@@ -67,4 +87,8 @@ mappings in Universal ++=
     (baseDirectory.value / "resources" / "mzn" / "lib" / "yuck")
     .listFiles
     .toStream
-    .map(file => file -> ("mzn/" + file.getName))
+    .map(file => file -> ("mzn/lib/" + file.getName))
+mappings in Universal += {
+    val file = yuckMscFileForUniversalPackage.value
+    file -> "mzn/yuck.msc"
+}
