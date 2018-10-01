@@ -18,6 +18,9 @@ yuck.test.% yuck.flatzinc.test.%:
 stage:
 	sbt stage
 
+deb:
+	sbt debian:lintian
+
 zip:
 	sbt universal:packageBin
 

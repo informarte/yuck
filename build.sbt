@@ -92,3 +92,16 @@ mappings in Universal += {
     val file = yuckMscFileForUniversalPackage.value
     file -> "mzn/yuck.msc"
 }
+
+enablePlugins(DebianPlugin)
+
+val yuckMscFileForDebianPackage = taskKey[java.io.File]("Create yuck.msc file for Debian package")
+yuckMscFileForDebianPackage :=
+    createMscFile(baseDir = baseDirectory.value, version = today.value, exePath = "/usr/bin/yuck", mznLibPath = "/usr/share/yuck/mzn/lib")
+
+debianPackageDependencies in Debian ++= Seq("default-jre-headless (>= 1.8)")
+debianSection in Debian := "universe/interpreters"
+linuxPackageMappings in Debian += {
+    val file = yuckMscFileForDebianPackage.value
+    packageMapping(file -> "/usr/share/minizinc/solvers/yuck.msc").withPerms("0644")
+}

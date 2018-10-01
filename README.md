@@ -65,9 +65,11 @@ When used as a FlatZinc interpreter, Yuck proceeds as follows:
 
 ## Download and installation
 
-Yuck downloads are available from the [Releases page](https://github.com/informarte/yuck/releases).
+Yuck downloads are available from the [Releases page](https://github.com/informarte/yuck/releases). You can choose the Debian package (suitable for all Debian based systems, including Ubuntu and its offspring) or the ZIP package (for all other systems).
 
-After downloading the package, proceed as follows:
+When you installed the Debian package, you are already good to go; no further manual setup is required.
+
+When you decided for the ZIP package, proceed as follows:
 
 1. Make sure that a [Java runtime environment](https://openjdk.java.net/install) is available on your system; Yuck requires at least version 8.
 2. Unzip the package in a suitable location.
@@ -112,7 +114,10 @@ Yuck's output complies to the requirements of the [FlatZinc 1.6 specification](h
 
 Use the `--help` option to obtain a list of all options.
 
-In case you need Yuck's MiniZinc library: it resides in the `mzn/lib` subfolder of the Yuck distribution.
+In case you need Yuck's MiniZinc library, its location depends on how you installed Yuck:
+
+* When you installed the Debian package, the library resides in `/usr/share/yuck/mzn/lib`.
+* When you installed the universal package, the library resides in the `mzn/lib` subfolder of the Yuck distribution.
 
 ## Future work
 
