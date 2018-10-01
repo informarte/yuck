@@ -29,3 +29,6 @@ clean:
 
 clean-tmp:
 	-rm -fr tmp/*
+
+render-readme:
+	python3 -m grip
