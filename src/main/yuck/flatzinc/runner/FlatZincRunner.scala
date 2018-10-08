@@ -44,8 +44,6 @@ object FlatZincRunner {
         val logLevelMap = logLevels.map(level => (level.toString -> level)).toMap
         head("Yuck FlatZinc frontend")
         help("help").abbr("h").text("Show this help message")
-        opt[Unit]('a', "print-all-solutions").text("Ignored")
-        opt[Unit]('f', "ignore-search-strategy").text("Ignored")
         opt[Int]('p', "number-of-threads")
             .text("Default value is %s".format(defaultCfg.numberOfThreads))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(numberOfThreads = max(1, x))))
