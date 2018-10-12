@@ -45,7 +45,7 @@ class MiniZincSolutionVerifier(
         logger.log("Found %d expectation files in %s".format(expectationFiles.size, searchPath))
         val actualLines = new FlatZincResultFormatter(result).call
         val witnessFile = expectationFiles.find(expectationFile => {
-            val expectedLines = scala.io.Source.fromFile(expectationFile).mkString.lines.toList
+            val expectedLines = scala.io.Source.fromFile(expectationFile).mkString.linesIterator.toList
             actualLines.zip(expectedLines).forall {case (a, b) => a == b}
         })
         val verified = witnessFile.isDefined
@@ -60,13 +60,10 @@ class MiniZincSolutionVerifier(
     // Creates a solution file that includes the MiniZinc model and that contains the assignments to output
     // variables in terms of equality constraints.
     // Then runs the NICTA MiniZinc tool chain in the tmp dir with the problem dir on the include path.
-    // (mzn2fzn will find the included .mzn files there.)
-    // If the solution is ok, the NICTA solver will print the solution followed by the solution separator
+    // (minizinc will find the included .mzn files there.)
+    // If the solution is ok, Gecode will print the solution followed by the solution separator
     // "----------" to stdout (this behaviour complies to the FlatZinc spec), so we check for this string.
-    // To check our objective value, we compare it to the one computed by the NICTA solver.
-    // To this end, we call mzn2fzn and flatzinc ourselves because the frontends (e.g. mzn-g12fd)
-    // do not list the assignments in a machine-readable way but format the output as required by
-    // the .mzn file.
+    // To check our objective value, we compare it to the one computed by Gecode.
     // The solution files are not deleted to allow for manual re-checking.
     private def consultMiniZinc: Boolean = {
         val suitePath = task.suitePath
@@ -104,50 +101,25 @@ class MiniZincSolutionVerifier(
         // after the last line.
         solutionWriter.write("include \"%s\";".format(mznFileName));
         solutionWriter.close
-        val flattenedSolutionFilePath = solutionFilePath.replace(".mzn", ".fzn")
-        new ProcessRunner(logger, List("mzn2fzn", "--version")).call
-        val mzn2fznCommand = mutable.ArrayBuffer(
-            "mzn2fzn",
+        val minizincCommand = mutable.ArrayBuffer(
+            "minizinc",
             "-v",
+            // Tell minizinc where to find the MiniZinc model.
             "-I", includePath,
             // To facilitate the verification of solutions found by Yuck, the following directory
-            // contains a redefinitions file that causes mzn2fzn to ignore redundant constraints.
+            // contains a redefinitions file that causes minizinc to ignore redundant constraints.
             "-I", "resources/mzn/lib/std",
-            "--globals-dir", "g12_fd",
-            "--no-output-ozn", "--output-fzn-to-file", flattenedSolutionFilePath)
-        mzn2fznCommand += solutionFilePath
-        if (! dznFileName.isEmpty) mzn2fznCommand += "%s/%s".format(includePath, dznFileName)
-        new ProcessRunner(logger, List("flatzinc", "--version")).call
-        new ProcessRunner(logger, mzn2fznCommand).call
-        val flatzincCommand = List("flatzinc", "--backend", "fd", "--solver-stats", flattenedSolutionFilePath)
-        val (outputLines, _) = new ProcessRunner(logger, flatzincCommand).call
+            "--solver", "Gecode",
+            "--output-mode", "dzn",
+            "--output-objective",
+            "--statistics")
+        minizincCommand += solutionFilePath
+        if (! dznFileName.isEmpty) minizincCommand += "%s/%s".format(includePath, dznFileName)
+        val (outputLines, _) = new ProcessRunner(logger, minizincCommand).call
         val verified =
             ! outputLines.contains(FLATZINC_INCONSISTENT_PROBLEM_INDICATOR) &&
             checkObjective(outputLines)
         verified
-    }
-
-    private def checkObjective(outputLines: Seq[String]): Boolean = {
-        compilerResult.ast.solveGoal match {
-            case Satisfy(_) => true
-            case Minimize(Term(id, _), _) =>
-                // trucking:
-                // var 0..600: obj :: output_var = INT____00001;
-                // solve minimize INT____00001;
-                checkAssignment(outputLines, compilerResult.vars(id))
-            case Minimize(ArrayAccess(id, IntConst(idx)), _) =>
-                // ghoulomb:
-                // var 0..81: objective :: output_var = mark2[9];
-                // solve  :: int_search(...) minimize mark2[9];
-                checkAssignment(outputLines, compilerResult.arrays(id)(idx - 1))
-            case Maximize(Term(id, _), _) =>
-                // photo:
-                // var 0..17: satisfies :: output_var = INT____00018;
-                // solve :: int_search(...) maximize INT____00018;
-                checkAssignment(outputLines, compilerResult.vars(id))
-            case Maximize(ArrayAccess(id, IntConst(idx)), _) =>
-                checkAssignment(outputLines, compilerResult.arrays(id)(idx - 1))
-         }
     }
 
     private def checkIndicators(outputLines: Seq[String]): Boolean = {
@@ -165,42 +137,42 @@ class MiniZincSolutionVerifier(
         }
     }
 
-    private def checkAssignment(outputLines: Seq[String], x: AnyVariable): Boolean = {
-        if (compilerResult.space.isSearchVariable(x)) {
-            true
-        } else {
-            val alias = findOutputVariableName(x).getOrElse(x.name)
-            val expectation1 = "%s = ".format(alias)
-            if (outputLines.exists(_.startsWith(expectation1))) {
-                val expectation2 = "%s = %s;".format(alias, result.bestProposal.anyValue(x))
-                outputLines.contains(expectation2)
-            } else {
-                logger.log("Could not verify objective value because flatzinc did not print it")
-                true
-            }
+    private def checkObjective(outputLines: Seq[String]): Boolean = {
+        compilerResult.ast.solveGoal match {
+            case Satisfy(_) => true
+            case Minimize(Term(id, _), _) =>
+                // trucking:
+                // var 0..600: obj :: output_var = INT____00001;
+                // solve minimize INT____00001;
+                checkObjective(outputLines, compilerResult.vars(id))
+            case Minimize(ArrayAccess(id, IntConst(idx)), _) =>
+                // ghoulomb:
+                // var 0..81: objective :: output_var = mark2[9];
+                // solve  :: int_search(...) minimize mark2[9];
+                checkObjective(outputLines, compilerResult.arrays(id)(idx - 1))
+            case Maximize(Term(id, _), _) =>
+                // photo:
+                // var 0..17: satisfies :: output_var = INT____00018;
+                // solve :: int_search(...) maximize INT____00018;
+                checkObjective(outputLines, compilerResult.vars(id))
+            case Maximize(ArrayAccess(id, IntConst(idx)), _) =>
+                checkObjective(outputLines, compilerResult.arrays(id)(idx - 1))
         }
     }
 
-    // Given the variable x to minimize or maximize, the task is to find the name of this variable
-    // in the original formulation as given by the .mzn file.
-    // This is not straightforward (x.name) because x may be a replacement for the original variable
-    // introduced by the MiniZinc compiler (mzn2fzn) or by our FlatZinc compiler.
-    // So we have to scan the AST for an output variable that translates to the given x.
-    // Notice that in some problems (like jobshop2x2 and perfsq), the objective variable was not declared
-    // as output variable.
-    private def findOutputVariableName(x: AnyVariable): Option[String] = {
-        var sortedMap = new immutable.TreeMap[String, String]() // id -> value
-        var maybeName: Option[String] = None
-        for (decl <- compilerResult.ast.varDecls if maybeName.isEmpty) {
-            for (annotation <- decl.annotations) {
-                annotation match {
-                    case Annotation(Term("output_var", Nil)) if (compilerResult.vars(decl.id) == x) =>
-                        maybeName = Some(decl.id)
-                    case _ =>
-                }
+    private def checkObjective(outputLines: Seq[String], x: AnyVariable): Boolean = {
+        if (compilerResult.space.isSearchVariable(x)) {
+            true
+        } else {
+            val expectation1 = "_objective = "
+            if (outputLines.exists(_.startsWith(expectation1))) {
+                val expectation2 = "_objective = %s;".format(result.bestProposal.anyValue(x))
+                outputLines.contains(expectation2)
+            } else {
+                logger.log("Could not verify objective value because minizinc did not print it")
+                false
             }
         }
-        maybeName
     }
 
 }

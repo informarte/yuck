@@ -11,7 +11,7 @@ minizinc-examples: yuck.flatzinc.test.TractableMiniZincExamples
 minizinc-challenges: yuck.flatzinc.test.MiniZincChallenges
 
 yuck.test.% yuck.flatzinc.test.%:
-	-sbt "test:runMain org.junit.runner.JUnitCore $@"
+	sbt "test:runMain org.junit.runner.JUnitCore $@"
 
 .PHONY: stage zip doc clean clean-tmp
 

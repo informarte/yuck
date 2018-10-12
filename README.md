@@ -151,7 +151,7 @@ To build and rebuild Yuck and its documentation, use the sbt standard targets:
 ### Testing
 
 Yuck tests are based on [JUnit 4](http://junit.org/junit4/) and
-[MiniZinc 2.1.x](http://www.minizinc.org/software.html).
+[MiniZinc 2.2.x](http://www.minizinc.org/software.html).
 
 * `make unit-tests` builds and runs all unit tests.
 * `make minizinc-tests` runs all FlatZinc frontend tests.
@@ -163,8 +163,7 @@ FlatZinc generation is fully automated and happens on the fly.
 All test cases other than unit tests leave a log in the local ```tmp```
 folder.
 
-Optimization results undergo automated verification on the basis of
-the G12 solver (which comes with MiniZinc).
+Optimization results undergo automated verification using Gecode (part of the MiniZinc distribution).
 
 ### Running
 

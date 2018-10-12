@@ -20,8 +20,8 @@ class ProcessRunner(logger: LazyLogger, commandLine: Seq[String]) extends Callab
             val stderr = scala.io.Source.fromInputStream(process.getErrorStream)
             val outputLines = stdout.getLines.toSeq
             val errorLines = stderr.getLines.toSeq
-            outputLines.foreach(logger.log(_))
             errorLines.foreach(logger.log(_))
+            outputLines.foreach(logger.log(_))
             val exitCode = process.waitFor
             assert(exitCode == 0, "Process failed with exit code %d".format(exitCode))
             (outputLines, errorLines)

@@ -60,7 +60,6 @@ class MiniZincBasedTest extends IntegrationTest {
         nativeLogger.addHandler(logFileHandler)
         logger.log("Processing %s".format(mznFilePath))
         logger.log("Logging into %s".format(logFilePath))
-        new ProcessRunner(logger, List("mzn2fzn", "--version")).call
         val mzn2fznCommand = mutable.ArrayBuffer(
             "mzn2fzn",
             "-v",

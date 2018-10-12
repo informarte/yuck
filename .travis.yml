@@ -1,9 +1,12 @@
+dist: xenial
+
 language: scala
 
 install:
-  - wget https://github.com/MiniZinc/libminizinc/releases/download/2.1.5/minizinc-2.1.5-linux64.tar.gz
-  - tar xzf minizinc-2.1.5-linux64.tar.gz
-  - export PATH=$PATH:$PWD/minizinc-2.1.5/bin
+  - wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.2.2/MiniZincIDE-2.2.2-bundle-linux-x86_64.tgz
+  - tar xzf MiniZincIDE-2.2.2-bundle-linux-x86_64.tgz
+  - export PATH=$PWD/MiniZincIDE-2.2.2-bundle-linux/bin:$PATH
+  - export LD_LIBRARY_PATH=$PWD/MiniZincIDE-2.2.2-bundle-linux/lib:$LD_LIBRARY_PATH
 
 script:
   - make ci-tests
