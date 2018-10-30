@@ -4,8 +4,7 @@ predicate global_cardinality_low_up(
     array[int] of var int: x,
     array[int] of int: cover,
     array[int] of int: lbound,
-    array[int] of int: ubound)
-=
+    array[int] of int: ubound) =
     assert(
         index_set(cover) = index_set(lbound) /\ index_set(lbound) = index_set(ubound),
         "global_cardinality_low_up: cover, lbound, and ubound must have identical index sets",

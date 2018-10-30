@@ -6,8 +6,7 @@ predicate yuck_global_cardinality(
 predicate global_cardinality(
     array[int] of var int: x,
     array[int] of int: cover,
-    array[int] of var int: counts)
-=
+    array[int] of var int: counts) =
     assert(
         index_set(cover) = index_set(counts),
         "global_cardinality: cover and counts must have identical index sets",

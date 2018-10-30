@@ -1,10 +1,9 @@
 include "cumulative.mzn";
 
-predicate safe_bin_packing(
+predicate bin_packing(
     int: c,
     array[int] of var int: bin,
-    array[int] of int: w,
-    var bool: continuation) =
+    array[int] of int: w) =
     assert(
         index_set(bin) == index_set(w),
         "bin_packing: the bin and weight arrays must have identical index sets",
@@ -14,10 +13,4 @@ predicate safe_bin_packing(
             assert(
                 c >= 0,
                 "bin_packing: capacity must be non-negative",
-                continuation)));
-
-predicate bin_packing(
-    int: c,
-    array[int] of var int: bin,
-    array[int] of int: w) =
-    safe_bin_packing(c, bin, w, cumulative(bin, [1 | i in index_set(bin)], w, c));
+                cumulative(bin, [1 | i in index_set(bin)], w, c))));

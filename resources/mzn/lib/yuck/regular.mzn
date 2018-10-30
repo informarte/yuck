@@ -4,10 +4,9 @@ predicate yuck_regular(
     array[int] of var int: x, int: Q, int: S,
     array[int] of int: d, int: q0, set of int: F);
 
-predicate safe_regular(
+predicate regular(
     array[int] of var int: x, int: Q, int: S,
-    array[int, int] of int: d, int: q0, set of int: F,
-    var bool: continuation) =
+    array[int, int] of int: d, int: q0, set of int: F) =
     assert(
         Q > 0,
         "regular: 'Q' must be greater than zero",
@@ -28,11 +27,4 @@ predicate safe_regular(
                         assert(
                             F subset 1..Q,
                             "regular: final states in 'F' contain states outside 1..Q",
-                            continuation))))));
-
-predicate regular(
-    array[int] of var int: x, int: Q, int: S,
-    array[int, int] of int: d, int: q0, set of int: F) =
-    safe_regular(
-        x, Q, S, d, q0, F,
-        yuck_regular(x, Q, S, [d[i, j] | i in index_set_1of2(d), j in index_set_2of2(d)], q0, F));
+                            yuck_regular(x, Q, S, [d[i, j] | i in index_set_1of2(d), j in index_set_2of2(d)], q0, F)))))));
