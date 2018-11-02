@@ -27,7 +27,8 @@ import yuck.util.logging.LazyLogger
  */
 final class Space(
     val logger: LazyLogger,
-    val checkConstraintPropagation: Boolean = false)
+    val checkConstraintPropagation: Boolean = false,
+    val checkAssignmentsToNonChannelVariables: Boolean = false)
 {
 
     private val constraints = new mutable.ArrayBuffer[Constraint] // maintained by post
@@ -165,6 +166,11 @@ final class Space(
 
     /** Assigns the given value to the given variable. */
     def setValue[Value <: AnyValue](x: Variable[Value], a: Value): Space = {
+        if (checkAssignmentsToNonChannelVariables && (isProblemParameter(x) || isSearchVariable(x))) {
+            require(
+                x.domain.contains(a),
+                "Domain %s of variable %s does not contain value %s".format(x.domain, x, a))
+        }
         assignment.setValue(x, a)
         this
     }

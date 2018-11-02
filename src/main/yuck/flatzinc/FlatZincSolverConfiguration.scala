@@ -30,6 +30,7 @@ case class FlatZincSolverConfiguration(
     val useProgressiveTightening: Boolean = true,
     val preferImplicitSolvingOverDomainPruning: Boolean = false,
     val checkConstraintPropagation: Boolean = false,
+    val checkAssignmentsToNonChannelVariables: Boolean = false,
     val moveSizeDistribution: Distribution = DistributionFactory.createDistribution(1, List(90, 10)),
     val level0Configuration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, Some(Probability.from(3))),
     val level1Configuration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, Some(Probability.from(13))))

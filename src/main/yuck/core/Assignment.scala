@@ -23,7 +23,6 @@ final class Assignment(valDir: mutable.AnyRefMap[AnyVariable, AnyValue]) extends
 
     /** Assigns the given value to the given variable. */
     def setValue[Value <: AnyValue](x: Variable[Value], a: Value): Assignment = {
-        x.checkAssignment(a)
         valDir += x -> a
         this
     }

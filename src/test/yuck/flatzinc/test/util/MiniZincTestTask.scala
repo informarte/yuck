@@ -25,7 +25,8 @@ case class MiniZincTestTask(
     val problemName: String = "",
     val modelName: String = "",
     val instanceName: String = "",
-    val solverConfiguration: FlatZincSolverConfiguration = FlatZincSolverConfiguration(),
+    val solverConfiguration: FlatZincSolverConfiguration =
+        FlatZincSolverConfiguration(checkAssignmentsToNonChannelVariables = true),
     val maybeRestartLimit: Option[Int] = None, // limits solverConfiguration.restartLimit
     val maybeMaximumNumberOfThreads: Option[Int] = Some(4), // limits solverConfiguration.numberOfThreads
     val maybeRoundLimit: Option[Int] = None, // overrules solverConfiguration.maybeRoundLimitInSeconds

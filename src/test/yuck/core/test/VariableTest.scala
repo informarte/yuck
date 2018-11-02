@@ -55,18 +55,4 @@ final class VariableTest extends UnitTest {
         assertEq(x.domain, new IntegerRange(Zero, Ten))
     }
 
-    @Test
-    def testAssignmentChecking {
-        val space = new Space(logger)
-        val dx = new IntegerRange(One, Ten)
-        val x = space.createVariable("x", dx)
-        dx.values.foreach(space.setValue(x, _))
-        assertEx(space.setValue(x, dx.lb - One))
-        assertEx(space.setValue(x, dx.ub + One))
-        x.turnIntoChannel(NonNegativeIntegerRange)
-        assertEx(space.setValue(x, MinusOne))
-        space.setValue(x, dx.lb - One)
-        space.setValue(x, dx.ub + One)
-    }
-
 }

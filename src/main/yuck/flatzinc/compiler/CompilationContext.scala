@@ -19,7 +19,7 @@ final class CompilationContext(
     val declaredVars = new mutable.HashSet[Expr]
     val equalVars = new mutable.AnyRefMap[Expr, mutable.TreeSet[Expr] /* head = representative */]
     val impliedConstraints = new mutable.HashSet[yuck.flatzinc.ast.Constraint]
-    val space = new Space(logger, cfg.checkConstraintPropagation)
+    val space = new Space(logger, cfg.checkConstraintPropagation, cfg.checkAssignmentsToNonChannelVariables)
     val consts = new mutable.AnyRefMap[Expr, AnyVariable] // holds unnamed inline constants
     val arrayConsts = new mutable.AnyRefMap[Expr, immutable.IndexedSeq[AnyVariable]] // holds unnamed inline arrays
     val vars = new mutable.AnyRefMap[Expr, AnyVariable] // also holds named parameters

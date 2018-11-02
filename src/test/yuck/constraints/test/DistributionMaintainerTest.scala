@@ -57,8 +57,6 @@ class DistributionMaintainerTest extends UnitTest {
         }
         if (true) {
             // let variables take values outside their domains
-            x.turnIntoChannel(CompleteIntegerRange)
-            y.turnIntoChannel(CompleteIntegerRange)
             val effects = List(new ImmutableEffect(x, dx.lb - One), new ImmutableEffect(y, dy.ub + One))
             val move = new ChangeValues(space.moveIdFactory.nextId, effects)
             space.consult(move)
@@ -111,8 +109,6 @@ class DistributionMaintainerTest extends UnitTest {
         }
         if (true) {
             // let variables take values outside their domains
-            x.turnIntoChannel(CompleteIntegerRange)
-            y.turnIntoChannel(CompleteIntegerRange)
             val effects = List(new ImmutableEffect(x, dx.ub + One), new ImmutableEffect(y, dy.lb - One))
             val move = new ChangeValues(space.moveIdFactory.nextId, effects)
             space.consult(move)

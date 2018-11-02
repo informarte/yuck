@@ -27,27 +27,6 @@ final class Variable
         }
     }
 
-    private var channelDomain: Domain[Value] = null
-
-    /** Turns the variable into a channel that allow for the given values. */
-    def turnIntoChannel(channelDomain: Domain[Value]) {
-        require(currentDomain.isSubsetOf(channelDomain))
-        this.channelDomain = channelDomain
-    }
-
-    /** Throws when the given value must not be assigned to the variable. */
-    def checkAssignment(a: Value) {
-        if (channelDomain == null) {
-            require(
-                currentDomain.contains(a),
-                "Domain %s of variable %s does not contain value %s".format(currentDomain, this, a))
-        } else {
-            require(
-                channelDomain.contains(a),
-                "Channel domain %s of variable %s does not contain value %s".format(channelDomain, this, a))
-        }
-    }
-
     override def domain: Domain[Value] = currentDomain
 
     override def nextMove(space: Space, randomGenerator: RandomGenerator) =
