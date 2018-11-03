@@ -7,6 +7,7 @@ package yuck.core
  */
 final object BooleanValueTraits extends NumericalValueTraits[BooleanValue] {
     override val valueType = classOf[BooleanValue]
+    override val orderingCostModel = BooleanOrderingCostModel
     override def createDomain(values: Set[BooleanValue]) = {
         require(values.isEmpty || values.toIterator.map(_.violation).max < 2)
         BooleanDecisionDomain.createDomain(values.contains(False), values.contains(True))

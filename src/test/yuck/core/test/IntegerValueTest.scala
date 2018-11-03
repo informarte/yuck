@@ -70,21 +70,26 @@ final class IntegerValueTest extends UnitTest {
     }
 
     @Test
-    def testConstraints {
+    def testOrderingCostModel {
+        val costModel = IntegerOrderingCostModel
         for (a <- testData) {
             for (b <- testData) {
-                assertEq(a.eqc(b).truthValue, a == b)
-                assertEq(a.nec(b).truthValue, a != b)
-                assertEq(a.ltc(b).truthValue, a < b)
-                assertEq(a.lec(b).truthValue, a <= b)
+                assertEq(costModel.eq(a, b).truthValue, a == b)
+                assertEq(costModel.ne(a, b).truthValue, a != b)
+                assertEq(costModel.lt(a, b).truthValue, a < b)
+                assertEq(costModel.le(a, b).truthValue, a <= b)
                 for (c <- testData) {
                     if (a < b && a < c && b < c) {
-                        assertLe((a eqc b).violation, (a eqc c).violation)
-                        assertLe((a ltc b).violation, (a ltc c).violation)
+                        assertLe(costModel.eq(a, b).violation, costModel.eq(a, c).violation)
+                        assertLe(costModel.lt(a, b).violation, costModel.lt(a, c).violation)
                     }
                 }
             }
         }
+        costModel.lt(IntegerValue.get(Int.MaxValue - 1), Zero)
+        assertEx(costModel.lt(IntegerValue.get(Int.MaxValue), Zero), classOf[ArithmeticException])
+        costModel.le(IntegerValue.get(Int.MaxValue), Zero)
+        assertEx(costModel.le(IntegerValue.get(Int.MaxValue), MinusOne), classOf[ArithmeticException])
     }
 
     @Test
@@ -117,10 +122,6 @@ final class IntegerValueTest extends UnitTest {
             assertEq(a.toDouble, a.value.toDouble)
             assertEq(a.isEven, a.value % 2 == 0)
         }
-    }
-
-    @Test
-    def testOverflowChecking {
         IntegerValue.get(Int.MaxValue) + Zero
         assertEx(IntegerValue.get(Int.MaxValue) + One, classOf[ArithmeticException])
         IntegerValue.get(Int.MinValue) - Zero
@@ -137,10 +138,6 @@ final class IntegerValueTest extends UnitTest {
         Two ^ IntegerValue.get(30)
         assertEx(Two ^ IntegerValue.get(31), classOf[ArithmeticException])
         assertEx(IntegerValue.get(Int.MaxValue) ^ IntegerValue.get(Int.MaxValue), classOf[ArithmeticException])
-        IntegerValue.get(Int.MaxValue - 1).ltc(Zero)
-        assertEx(IntegerValue.get(Int.MaxValue).ltc(Zero), classOf[ArithmeticException])
-        IntegerValue.get(Int.MaxValue).lec(Zero)
-        assertEx(IntegerValue.get(Int.MaxValue).lec(MinusOne), classOf[ArithmeticException])
     }
 
 }

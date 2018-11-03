@@ -46,6 +46,7 @@ final class BooleanValueTest extends UnitTest {
             assertEq(BooleanValue.get(a).violation, a)
             assert(BooleanValue.get(a).eq(BooleanValue.get(a)))
         }
+        assertEx(new BooleanValue(-1))
     }
 
     @Test
@@ -66,15 +67,24 @@ final class BooleanValueTest extends UnitTest {
     }
 
     @Test
-    def testConstraints {
+    def testOrderingCostModel {
+        val costModel = BooleanOrderingCostModel
         for (a <- testData) {
             for (b <- testData) {
-                assertEq(a.eqc(b).truthValue, a.truthValue == b.truthValue)
-                assertEq(a.nec(b).truthValue, a.truthValue != b.truthValue)
-                assertEq(a.ltc(b).truthValue, ! a.truthValue && b.truthValue)
-                assertEq(a.lec(b).truthValue, ! a.truthValue || b.truthValue)
+                assertEq(costModel.eq(a, b).truthValue, a.truthValue == b.truthValue)
+                assertEq(costModel.ne(a, b).truthValue, a.truthValue != b.truthValue)
+                assertEq(costModel.lt(a, b).truthValue, ! a.truthValue && b.truthValue)
+                assertEq(costModel.le(a, b).truthValue, ! a.truthValue || b.truthValue)
             }
         }
+        costModel.eq(True, BooleanValue.get(Long.MaxValue - 1))
+        assertEx(costModel.eq(True, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
+        costModel.ne(False, BooleanValue.get(Long.MaxValue - 1))
+        assertEx(costModel.ne(False, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
+        costModel.lt(True, BooleanValue.get(Long.MaxValue - 1))
+        assertEx(costModel.lt(True, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
+        costModel.le(True, BooleanValue.get(Long.MaxValue - 1))
+        assertEx(costModel.le(True, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
     }
 
     @Test
@@ -107,18 +117,6 @@ final class BooleanValueTest extends UnitTest {
             assertEq(a.toDouble, a.violation.toDouble)
             assertEx(a.isEven, classOf[NotImplementedError])
         }
-    }
-
-    @Test
-    def testNegation {
-        assertEq(False.not, True)
-        assertEq(False2.not, True)
-        assertEq(True.not, False)
-    }
-
-    @Test
-    def testOverflowChecking {
-        assertEx(new BooleanValue(-1))
         BooleanValue.get(Long.MaxValue) + True
         assertEx(BooleanValue.get(Long.MaxValue) + False, classOf[ArithmeticException])
         True - True
@@ -127,16 +125,15 @@ final class BooleanValueTest extends UnitTest {
         assertEx(BooleanValue.get(Long.MaxValue) * False2, classOf[ArithmeticException])
         BooleanValue.get(Long.MaxValue - 1).addAndSub(False, False, True)
         assertEx(BooleanValue.get(Long.MaxValue).addAndSub(False, False, True), classOf[ArithmeticException])
-        True.eqc(BooleanValue.get(Long.MaxValue - 1))
-        assertEx(True.eqc(BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
-        False.nec(BooleanValue.get(Long.MaxValue - 1))
-        assertEx(False.nec(BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
-        True.ltc(BooleanValue.get(Long.MaxValue - 1))
-        assertEx(True.ltc(BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
-        True.lec(BooleanValue.get(Long.MaxValue - 1))
-        assertEx(True.lec(BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
         BooleanValue.get(Int.MaxValue).toInt
         assertEx(BooleanValue.get(Int.MaxValue.toLong + 1).toInt, classOf[ArithmeticException])
+    }
+
+    @Test
+    def testNegation {
+        assertEq(False.not, True)
+        assertEq(False2.not, True)
+        assertEq(True.not, False)
     }
 
 }

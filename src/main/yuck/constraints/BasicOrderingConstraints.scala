@@ -10,10 +10,11 @@ final class Eq
     [Value <: OrderedValue[Value]]
     (id: Id[Constraint], goal: Goal,
      x: Variable[Value], y: Variable[Value], z: Variable[BooleanValue])
+    (implicit valueTraits: OrderedValueTraits[Value])
     extends BinaryConstraint(id, goal, x, y, z)
 {
     override def toString = "%s = %s == %s".format(z, x, y)
-    override def op(x: Value, y: Value) = x.eqc(y)
+    override def op(a: Value, b: Value) = valueTraits.orderingCostModel.eq(a, b)
 }
 
 /**
@@ -24,10 +25,11 @@ final class Ne
     [Value <: OrderedValue[Value]]
     (id: Id[Constraint], goal: Goal,
      x: Variable[Value], y: Variable[Value], z: Variable[BooleanValue])
+    (implicit valueTraits: OrderedValueTraits[Value])
     extends BinaryConstraint(id, goal, x, y, z)
 {
     override def toString = "%s = %s != %s".format(z, x, y)
-    override def op(x: Value, y: Value) = x.nec(y)
+    override def op(a: Value, b: Value) = valueTraits.orderingCostModel.ne(a, b)
 }
 
 /**
@@ -38,10 +40,11 @@ final class Lt
     [Value <: OrderedValue[Value]]
     (id: Id[Constraint], goal: Goal,
      x: Variable[Value], y: Variable[Value], z: Variable[BooleanValue])
+    (implicit valueTraits: OrderedValueTraits[Value])
     extends BinaryConstraint(id, goal, x, y, z)
 {
     override def toString = "%s = %s < %s".format(z, x, y)
-    override def op(x: Value, y: Value) = x.ltc(y)
+    override def op(a: Value, b: Value) = valueTraits.orderingCostModel.lt(a, b)
 }
 
 /**
@@ -52,10 +55,11 @@ final class Le
     [Value <: OrderedValue[Value]]
     (id: Id[Constraint], goal: Goal,
      x: Variable[Value], y: Variable[Value], z: Variable[BooleanValue])
+    (implicit valueTraits: OrderedValueTraits[Value])
     extends BinaryConstraint(id, goal, x, y, z)
 {
     override def toString = "%s = %s <= %s".format(z, x, y)
-    override def op(x: Value, y: Value) = x.lec(y)
+    override def op(a: Value, b: Value) = valueTraits.orderingCostModel.le(a, b)
 }
 
 /**

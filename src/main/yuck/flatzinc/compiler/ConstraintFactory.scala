@@ -787,7 +787,7 @@ final class ConstraintFactory
         [InputValue <: OrderedValue[InputValue], OutputValue <: OrderedValue[OutputValue]]
         (operationFactory: UnaryConstraintFactory[InputValue, OutputValue],
          goal: Goal, constraint: yuck.flatzinc.ast.Constraint)
-        (implicit inputValueTraits: AnyValueTraits[InputValue], outputValueTraits: AnyValueTraits[OutputValue]):
+        (implicit inputValueTraits: OrderedValueTraits[InputValue], outputValueTraits: OrderedValueTraits[OutputValue]):
         Iterable[Variable[BooleanValue]] =
     {
         val List(a, b) = constraint.params
@@ -809,7 +809,7 @@ final class ConstraintFactory
         [Value <: OrderedValue[Value]]
         (operationFactory: BinaryConstraintFactory[Value, Value],
          goal: Goal, constraint: yuck.flatzinc.ast.Constraint)
-        (implicit valueTraits: AnyValueTraits[Value]):
+        (implicit valueTraits: OrderedValueTraits[Value]):
         Iterable[Variable[BooleanValue]] =
     {
         val List(a, b, c) = constraint.params

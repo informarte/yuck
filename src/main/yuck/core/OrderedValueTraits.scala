@@ -17,6 +17,9 @@ abstract class OrderedValueTraits[Value <: OrderedValue[Value]] extends AnyValue
         override def compare(x: OrderedDomain[Value], y: OrderedDomain[Value]) = x.compare(y)
     }
 
+    /** The cost model for ordering operations over Value. */
+    val orderingCostModel: OrderingCostModel[Value]
+
     /** Creates a domain from the given bounds. */
     def createDomain(lb: Value, ub: Value): OrderedDomain[Value]
 

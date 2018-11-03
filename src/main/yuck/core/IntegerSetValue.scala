@@ -16,9 +16,6 @@ final class IntegerSetValue(val set: IntegerDomain) extends OrderedValue[Integer
     }
     override def compare(that: IntegerSetValue) = this.set.compare(that.set)
     override def toString = set.toString
-    override def eqc(that: IntegerSetValue) =
-        BooleanValue.get(
-            safeAdd(this.set.maybeResidueSize(that.set).getOrElse(1), that.set.maybeResidueSize(this.set).getOrElse(1)))
 }
 
 /**

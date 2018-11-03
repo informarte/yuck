@@ -16,16 +16,4 @@ abstract class OrderedValue[Value] extends AnyValue with Ordered[Value] {
         case _ => false
     }
 
-    /** Basis for implementing equality constraints. */
-    def eqc(that: Value): BooleanValue = if (this == that) True else False
-
-    /** Basis for implementing inequality constraints. */
-    def nec(that: Value): BooleanValue = if (this != that) True else False
-
-    /** Basis for implementing ordering constraints. */
-    def ltc(that: Value): BooleanValue = if (this < that) True else False
-
-    /** Basis for implementing ordering constraints. */
-    def lec(that: Value): BooleanValue = if (this <= that) True else False
-
 }

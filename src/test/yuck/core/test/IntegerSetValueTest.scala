@@ -53,13 +53,14 @@ final class IntegerSetValueTest extends UnitTest {
     }
 
     @Test
-    def testConstraints {
+    def testOrderingCostModel {
+        val costModel = IntegerSetOrderingCostModel
         for (a <- testData) {
             for (b <- testData) {
-                assertEq(a.eqc(b).truthValue, a == b)
-                assertEq(a.nec(b).truthValue, a != b)
-                assertEq(a.ltc(b).truthValue, a < b)
-                assertEq(a.lec(b).truthValue, a <= b)
+                assertEq(costModel.eq(a, b).truthValue, a == b)
+                assertEq(costModel.ne(a, b).truthValue, a != b)
+                assertEq(costModel.lt(a, b).truthValue, a < b)
+                assertEq(costModel.le(a, b).truthValue, a <= b)
             }
         }
     }

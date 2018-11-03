@@ -37,10 +37,6 @@ final class IntegerValue(val value: Int) extends NumericalValue[IntegerValue] {
     override def toLong = value.toLong
     override def toDouble = value.toDouble
     override def isEven = value % 2 == 0
-    override def eqc(that: IntegerValue) = BooleanValue.get(scala.math.abs(safeSub(this.value, that.value)))
-    override def nec(that: IntegerValue) = if (this != that) True else False
-    override def ltc(that: IntegerValue) = if (this < that) True else BooleanValue.get(safeInc(safeSub(this.value, that.value)))
-    override def lec(that: IntegerValue) = if (this <= that) True else BooleanValue.get(safeSub(this.value, that.value))
 }
 
 /**

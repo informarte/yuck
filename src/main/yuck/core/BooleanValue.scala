@@ -48,17 +48,6 @@ final class BooleanValue(val violation: Long) extends NumericalValue[BooleanValu
     override def toLong = violation
     override def toDouble = violation.toDouble
     override def isEven = ???
-    override def eqc(that: BooleanValue) =
-        if (this.truthValue == that.truthValue) True
-        else BooleanValue.get(safeInc(safeAdd(this.violation, that.violation)) / 2)
-    override def nec(that: BooleanValue) =
-        if (this.truthValue && that.truthValue) False
-        else if (! this.truthValue && ! that.truthValue) BooleanValue.get(safeAdd(this.violation, that.violation) / 2)
-        else True
-    override def ltc(that: BooleanValue) =
-        if (this.truthValue) BooleanValue.get(safeInc(that.violation)) else that
-    override def lec(that: BooleanValue) =
-        if (this.truthValue) BooleanValue.get(safeInc(that.violation) / 2) else True
 }
 
 /**
