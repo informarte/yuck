@@ -36,4 +36,11 @@ final class IntegerSetValueTraitsTest extends UnitTest {
         assertEx(safeDowncast(CompleteIntegerRange))
     }
 
+    @Test
+    def testConfiguration {
+        assertEq(valueType, classOf[IntegerSetValue])
+        assertEq(orderingCostModel, IntegerSetOrderingCostModel)
+        assertEq(domainPruner, IntegerSetDomainPruner)
+    }
+
 }

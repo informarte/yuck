@@ -70,8 +70,8 @@ final class TableTest extends UnitTest {
     def testIntegerTable2 {
         val space = new Space(logger)
         val s = space.createVariable("s", new IntegerRange(Two, Five))
-        val t = space.createVariable("t", new IntegerRange(Two, Two))
-        val costs = space.createVariable("costs", CompleteBooleanDomain)
+        val t = space.createVariable("t", new IntegerRange(Two, Three))
+        val costs = space.createVariable("costs", TrueDomain)
         val rows =
             immutable.IndexedSeq(
                 0, 0,
@@ -81,17 +81,17 @@ final class TableTest extends UnitTest {
                 4, 0, 4, 4,
                 5, 0, 5, 1, 5, 2, 5, 3, 5, 4)
                 .grouped(2).toIndexedSeq
-        val c = new IntegerTable(space.constraintIdFactory.nextId, null, immutable.IndexedSeq(s, t), rows, costs)
-        space.post(c).setValue(s, Two).setValue(t, Two).initialize
-        assertEq(space.searchVariables, Set(s))
-        val now = space.searchState
-        assertEq(now.value(costs), True)
-        space.setValue(s, Three).initialize
-        assertEq(now.value(costs), False)
-        space.setValue(s, Four).initialize
-        assertEq(now.value(costs), False)
-        space.setValue(s, Five).initialize
-        assertEq(now.value(costs), True)
+        space.post(new IntegerTable(space.constraintIdFactory.nextId, null, immutable.IndexedSeq(s, t), rows, costs))
+        if (true) {
+            space.prune
+            assertEq(s.domain, IntegerDomain.createDomain(List(Two, Three, Five)))
+            assertEq(t.domain, IntegerDomain.createDomain(List(Two, Three)))
+        }
+        if (true) {
+            t.pruneDomain(new IntegerRange(Two, Two))
+            space.prune
+            assertEq(s.domain, IntegerDomain.createDomain(List(Two, Five)))
+        }
     }
 
 }

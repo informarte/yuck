@@ -120,12 +120,12 @@ final class ConstraintFactory
         Iterable[Variable[BooleanValue]] =
         compileConstraint(constraint, compileAnyArray(in), compileAnyExpr(out), withFunctionalDependency, withoutFunctionalDependency)
 
-    private type UnaryConstraintFactory
+    private type BinaryConstraintFactory
         [InputValue <: AnyValue, OutputValue <: AnyValue] =
         (Id[yuck.core.Constraint], Goal, Variable[InputValue], Variable[OutputValue]) =>
          yuck.core.Constraint
 
-     private type BinaryConstraintFactory
+     private type TernaryConstraintFactory
         [InputValue <: AnyValue, OutputValue <: AnyValue] =
         (Id[yuck.core.Constraint], Goal, Variable[InputValue], Variable[InputValue], Variable[OutputValue]) =>
          yuck.core.Constraint
@@ -232,7 +232,7 @@ final class ConstraintFactory
             }
             compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
         case Constraint("bool_xor", _, _) =>
-            compileBinaryConstraint[BooleanValue](new Ne[BooleanValue](_, _, _, _, _), goal, constraint)
+            compileTernaryConstraint[BooleanValue](new Ne[BooleanValue](_, _, _, _, _), goal, constraint)
         case Constraint("array_bool_and", List(as, b), _) =>
             val as1 = ArrayConst(getArrayElems(as).toIterator.filter(a => ! compilesToConst(a, True)).toList)
             val as2 = if (as1.value.isEmpty) ArrayConst(List(BoolConst(true))) else as1
@@ -377,30 +377,27 @@ final class ConstraintFactory
             }
             compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
         case Constraint("int_min", _, _) =>
-            compileBinaryConstraint[IntegerValue](new Min(_, _, _, _, _), goal, constraint)
+            compileTernaryConstraint[IntegerValue](new Min(_, _, _, _, _), goal, constraint)
         case Constraint("int_max", _, _) =>
-            compileBinaryConstraint[IntegerValue](new Max(_, _, _, _, _), goal, constraint)
-        // TODO Perform this rewriting also for the other arithmetic operations!?
+            compileTernaryConstraint[IntegerValue](new Max(_, _, _, _, _), goal, constraint)
         case Constraint("int_plus", List(a, b, c), annotations) =>
-            if (definesVar(constraint, a)) {
-                compileConstraint(goal, Constraint("int_minus", List(c, b, a), annotations))
-            } else if (definesVar(constraint, b)) {
-                compileConstraint(goal, Constraint("int_minus", List(c, a, b), annotations))
-            } else {
-                compileBinaryConstraint[IntegerValue](new Plus(_, _, _, _, _), goal, constraint)
-            }
-        case Constraint("int_minus", List(a, b, c), _) =>
-            compileBinaryConstraint[IntegerValue](new Minus(_, _, _, _, _), goal, constraint)
+            compileConstraint(
+                goal,
+                Constraint("int_lin_eq", List(ArrayConst(List(IntConst(1), IntConst(1))), ArrayConst(List(a, b)), c), annotations))
+        case Constraint("int_minus", List(a, b, c), annotations) =>
+            compileConstraint(
+                goal,
+                Constraint("int_lin_eq", List(ArrayConst(List(IntConst(1), IntConst(-1))), ArrayConst(List(a, b)), c), annotations))
         case Constraint("int_times", List(a, b, c), _) =>
-            compileBinaryConstraint[IntegerValue](new Times(_, _, _, _, _), goal, constraint)
+            compileTernaryConstraint[IntegerValue](new Times(_, _, _, _, _), goal, constraint)
         case Constraint("int_div", List(a, b, c), _) =>
-            compileBinaryConstraint[IntegerValue](new Div(_, _, _, _, _), goal, constraint)
+            compileTernaryConstraint[IntegerValue](new Div(_, _, _, _, _), goal, constraint)
         case Constraint("int_pow", List(a, b, c), _) =>
-            compileBinaryConstraint[IntegerValue](new Power(_, _, _, _, _), goal, constraint)
+            compileTernaryConstraint[IntegerValue](new Power(_, _, _, _, _), goal, constraint)
         case Constraint("int_mod", List(a, b, c), _) =>
-            compileBinaryConstraint[IntegerValue](new Mod(_, _, _, _, _), goal, constraint)
+            compileTernaryConstraint[IntegerValue](new Mod(_, _, _, _, _), goal, constraint)
         case Constraint("int_abs", List(a, b), _) =>
-            compileUnaryConstraint[IntegerValue, IntegerValue](new Abs(_, _, _, _), goal, constraint)
+            compileBinaryConstraint[IntegerValue, IntegerValue](new Abs(_, _, _, _), goal, constraint)
        // expansion of terms in parameters
         case Constraint(IntLin(name), (as @ Term(_, _)) :: t, _) =>
             compileConstraint(goal, constraint.copy(params = ArrayConst(getArrayElems(as).toList) :: t))
@@ -597,7 +594,7 @@ final class ConstraintFactory
             }
             compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
         case Constraint("set_card", List(a, b), _) =>
-            compileUnaryConstraint[IntegerSetValue, IntegerValue](new SetCardinality(_, _, _, _), goal, constraint)
+            compileBinaryConstraint[IntegerSetValue, IntegerValue](new SetCardinality(_, _, _, _), goal, constraint)
         case Constraint("set_in", List(a, b), _) =>
             val costs = createNonNegativeChannel[BooleanValue]
             space.post(new Contains(nextConstraintId, goal, a, b, costs))
@@ -625,13 +622,13 @@ final class ConstraintFactory
             }
             compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
         case Constraint("set_intersect", List(a, b, c), _) =>
-            compileBinaryConstraint[IntegerSetValue](new SetIntersection(_, _, _, _, _), goal, constraint)
+            compileTernaryConstraint[IntegerSetValue](new SetIntersection(_, _, _, _, _), goal, constraint)
         case Constraint("set_union", List(a, b, c), _) =>
-            compileBinaryConstraint[IntegerSetValue](new SetUnion(_, _, _, _, _), goal, constraint)
+            compileTernaryConstraint[IntegerSetValue](new SetUnion(_, _, _, _, _), goal, constraint)
         case Constraint("set_diff", List(a, b, c), _) =>
-            compileBinaryConstraint[IntegerSetValue](new SetDifference(_, _, _, _, _), goal, constraint)
+            compileTernaryConstraint[IntegerSetValue](new SetDifference(_, _, _, _, _), goal, constraint)
         case Constraint("set_symdiff", List(a, b, c), _) =>
-            compileBinaryConstraint[IntegerSetValue](
+            compileTernaryConstraint[IntegerSetValue](
                 new SymmetricalSetDifference(_, _, _, _, _), goal, constraint)
         case Constraint("all_different_int", List(as), _) =>
             val xs = compileArray[IntegerValue](as)
@@ -783,9 +780,9 @@ final class ConstraintFactory
             compileReifiedConstraint(goal, constraint)
     }
 
-    private def compileUnaryConstraint
+    private def compileBinaryConstraint
         [InputValue <: OrderedValue[InputValue], OutputValue <: OrderedValue[OutputValue]]
-        (operationFactory: UnaryConstraintFactory[InputValue, OutputValue],
+        (operationFactory: BinaryConstraintFactory[InputValue, OutputValue],
          goal: Goal, constraint: yuck.flatzinc.ast.Constraint)
         (implicit inputValueTraits: OrderedValueTraits[InputValue], outputValueTraits: OrderedValueTraits[OutputValue]):
         Iterable[Variable[BooleanValue]] =
@@ -805,9 +802,9 @@ final class ConstraintFactory
         compileConstraint(constraint, List(a), b, withFunctionalDependency, withoutFunctionalDependency)
     }
 
-    private def compileBinaryConstraint
+    private def compileTernaryConstraint
         [Value <: OrderedValue[Value]]
-        (operationFactory: BinaryConstraintFactory[Value, Value],
+        (operationFactory: TernaryConstraintFactory[Value, Value],
          goal: Goal, constraint: yuck.flatzinc.ast.Constraint)
         (implicit valueTraits: OrderedValueTraits[Value]):
         Iterable[Variable[BooleanValue]] =
@@ -895,8 +892,13 @@ final class ConstraintFactory
             case _ =>
                 val channel = maybeChannel.getOrElse(createChannel[Value])
                 if (axs.forall(ax => ax.a == One)) {
-                   val xs = axs.toIterator.map(ax => ax.x).toIndexedSeq
-                   space.post(new Sum(nextConstraintId, goal, xs /* not ys! */, channel))
+                    if (axs.size == 2) {
+                        val List(AX(_, x), AX(_, y)) = axs
+                        space.post(new Plus(nextConstraintId, goal, x, y, channel))
+                    } else {
+                        val xs = axs.toIterator.map(ax => ax.x).toIndexedSeq
+                        space.post(new Sum(nextConstraintId, goal, xs /* not ys! */ , channel))
+                    }
                 } else {
                    space.post(new LinearCombination(nextConstraintId, goal, axs.toIndexedSeq, channel))
                 }
@@ -907,7 +909,7 @@ final class ConstraintFactory
     private def compileCountConstraint
         [Value <: AnyValue]
         (goal: Goal, constraint: yuck.flatzinc.ast.Constraint,
-         comparatorFactory: BinaryConstraintFactory[IntegerValue, BooleanValue])
+         comparatorFactory: TernaryConstraintFactory[IntegerValue, BooleanValue])
         (implicit valueTraits: AnyValueTraits[Value]):
         Iterable[Variable[BooleanValue]] =
     {

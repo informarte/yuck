@@ -20,12 +20,6 @@ abstract class AnyVariable
     /** Returns the type of the elements of the variable's domain. */
     @inline final def valueType: Class[_] = domain.valueType
 
-    /** Returns true iff the variable's domain is singleton. */
-    @inline final def isParameter: Boolean = domain.isSingleton
-
-    /** Returns true iff the variable's domain is not singleton. */
-    @inline final def isVariable: Boolean = ! isParameter
-
     /**
      * Assigns the variable a random value from its domain.
      *

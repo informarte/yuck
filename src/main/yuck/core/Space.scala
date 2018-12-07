@@ -179,10 +179,11 @@ final class Space(
     def searchState: SearchState = assignment
 
     /** Computes the set of problem parameters. */
-    def problemParameters: Set[AnyVariable] = inVariables.filter(_.isParameter)
+    def problemParameters: Set[AnyVariable] = inVariables.filter(_.domain.isSingleton)
 
     /** Decides whether the given variable is a problem parameter. */
-    def isProblemParameter(x: AnyVariable): Boolean = x.isParameter && inVariables.contains(x)
+    def isProblemParameter(x: AnyVariable): Boolean =
+        x.domain.isSingleton && inVariables.contains(x) && ! outVariables.contains(x)
 
     /** Returns the set of channel variables. */
     def channelVariables: Set[AnyVariable] = outVariables
@@ -191,11 +192,11 @@ final class Space(
     def isChannelVariable(x: AnyVariable): Boolean = outVariables.contains(x)
 
     /** Computes the set of search variables. */
-    def searchVariables: Set[AnyVariable] = inVariables.filter(! _.isParameter) -- outVariables
+    def searchVariables: Set[AnyVariable] = inVariables.filter(! _.domain.isSingleton) -- outVariables
 
     /** Decides whether the given variable is a search variable. */
     def isSearchVariable(x: AnyVariable): Boolean =
-        ! x.isParameter && inVariables.contains(x) && ! outVariables.contains(x)
+        ! x.domain.isSingleton && inVariables.contains(x) && ! outVariables.contains(x)
 
     /** Decides whether the given variable is a dangling variable. */
     def isDanglingVariable(x: AnyVariable): Boolean =
@@ -240,9 +241,7 @@ final class Space(
         constraint: Constraint, result: mutable.Set[AnyVariable], visited: mutable.Set[AnyVariable])
     {
         for (x <- constraint.inVariables) {
-            if (x.isParameter) {
-                // ignore
-            } else if (isSearchVariable(x)) {
+            if (isSearchVariable(x)) {
                 result += x
             } else {
                 addInvolvedSearchVariables(x, result, visited)
@@ -336,9 +335,7 @@ final class Space(
         // We use data structures based on sets to avoid problems with duplicate in and out variables.
         for (x <- constraint.inVariables) {
             inVariables += x
-            if (! x.isParameter) {
-                registerInflow(x, constraint)
-            }
+            registerInflow(x, constraint)
         }
         for (x <- constraint.outVariables) {
             outVariables += x
@@ -372,6 +369,10 @@ final class Space(
 
     /** Counts how often Constraint.initialize was called. */
     var numberOfInitializations = 0
+
+    /** Calls propagate on each constraint and returns true iff at least one domain was pruned. */
+    def prune: Boolean =
+        constraints.foldLeft(false){case (pruned, constraint) => constraint.propagate || pruned}
 
     /**
      * Initializes the constraint network for local search.

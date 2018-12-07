@@ -129,14 +129,18 @@ final class IntegerRange
      * K. R. Apt, Principles of Constraint Programming, p. 221
      */
     def mult(that: IntegerRange): IntegerRange = {
-        require(this.isFinite)
-        require(that.isFinite)
-        val a = this.lb.value
-        val b = this.ub.value
-        val c = that.lb.value
-        val d = that.ub.value
-        val A = List(safeMul(a, c), safeMul(a, d), safeMul(b, c), safeMul(b, d))
-        createRange(IntegerValue.get(A.min), IntegerValue.get(A.max))
+        if (this.isEmpty || that.isEmpty) {
+            EmptyIntegerRange
+        } else {
+            require(this.isFinite)
+            require(that.isFinite)
+            val a = this.lb.value
+            val b = this.ub.value
+            val c = that.lb.value
+            val d = that.ub.value
+            val A = List(safeMul(a, c), safeMul(a, d), safeMul(b, c), safeMul(b, d))
+            createRange(IntegerValue.get(A.min), IntegerValue.get(A.max))
+        }
     }
 
     /**
@@ -144,36 +148,40 @@ final class IntegerRange
      * K. R. Apt, Principles of Constraint Programming, p. 221
      */
     def div(that: IntegerRange): IntegerRange = {
-        require(this.isFinite)
-        require(that.isFinite)
-        val a = this.lb
-        val b = this.ub
-        val c = that.lb
-        val d = that.ub
-        if (this.contains(Zero) && that.contains(Zero)) {
-            // case 1
-            CompleteIntegerRange
-        } else if (! this.contains(Zero) && c == Zero && d == Zero) {
-            // case 2
+        if (this.isEmpty || that.isEmpty) {
             EmptyIntegerRange
-        } else if (! this.contains(Zero) && c < Zero && Zero < d) {
-            // case 3
-            val e = IntegerValueTraits.valueOrdering.max(a.abs, b.abs)
-            createRange(MinusOne * e, e)
-        } else if (! this.contains(Zero) && c < Zero && d == Zero) {
-            // case 4a
-            this.div(createRange(c, MinusOne))
-        } else if (! this.contains(Zero) && c == Zero && Zero < d) {
-            // case 4b
-            this.div(createRange(One, d))
-        } else if (! that.contains(Zero)) {
-            // case 5
-            // approximation (6.14)
-            val A = List(a.toDouble / c.toDouble, a.toDouble / d.toDouble, b.toDouble / c.toDouble, b.toDouble / d.toDouble)
-            createRange(IntegerValue.get(A.min.ceil.toInt), IntegerValue.get(A.max.floor.toInt))
         } else {
-            // Must not occur since the preceding case distinction covers all cases.
-            ???
+            require(this.isFinite)
+            require(that.isFinite)
+            val a = this.lb
+            val b = this.ub
+            val c = that.lb
+            val d = that.ub
+            if (this.contains(Zero) && that.contains(Zero)) {
+                // case 1
+                CompleteIntegerRange
+            } else if (! this.contains(Zero) && c == Zero && d == Zero) {
+                // case 2
+                EmptyIntegerRange
+            } else if (! this.contains(Zero) && c < Zero && Zero < d) {
+                // case 3
+                val e = IntegerValueTraits.valueOrdering.max(a.abs, b.abs)
+                createRange(MinusOne * e, e)
+            } else if (! this.contains(Zero) && c < Zero && d == Zero) {
+                // case 4a
+                this.div(createRange(c, MinusOne))
+            } else if (! this.contains(Zero) && c == Zero && Zero < d) {
+                // case 4b
+                this.div(createRange(One, d))
+            } else if (! that.contains(Zero)) {
+                // case 5
+                // approximation (6.14)
+                val A = List(a.toDouble / c.toDouble, a.toDouble / d.toDouble, b.toDouble / c.toDouble, b.toDouble / d.toDouble)
+                createRange(IntegerValue.get(A.min.ceil.toInt), IntegerValue.get(A.max.floor.toInt))
+            } else {
+                // Must not occur since the preceding case distinction covers all cases.
+                ???
+            }
         }
     }
 

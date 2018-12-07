@@ -6,9 +6,10 @@ package yuck.core
  * @author Michael Marte
  */
 final class BooleanDecisionDomain
-(val containsFalse: Boolean, val containsTrue: Boolean)
+    (val containsFalse: Boolean, val containsTrue: Boolean)
     extends BooleanDomain
 {
+    import BooleanDecisionDomain.createDomain
     override def hashCode = 3 * (3 + containsFalse.hashCode) + containsTrue.hashCode
     def equals(that: BooleanDecisionDomain): Boolean =
         this.eq(that) || (this.containsFalse == that.containsFalse && this.containsTrue == that.containsTrue)
@@ -48,11 +49,11 @@ final class BooleanDecisionDomain
     def intersects(that: BooleanDecisionDomain): Boolean =
         (this.containsFalse && that.containsFalse) || (this.containsTrue && that.containsTrue)
     def intersect(that: BooleanDecisionDomain): BooleanDecisionDomain =
-        new BooleanDecisionDomain(this.containsFalse && that.containsFalse, this.containsTrue && that.containsTrue)
+        createDomain(this.containsFalse && that.containsFalse, this.containsTrue && that.containsTrue)
     def union(that: BooleanDecisionDomain): BooleanDecisionDomain =
-        new BooleanDecisionDomain(this.containsFalse || that.containsFalse, this.containsTrue || that.containsTrue)
+        createDomain(this.containsFalse || that.containsFalse, this.containsTrue || that.containsTrue)
     def diff(that: BooleanDecisionDomain): BooleanDecisionDomain =
-        new BooleanDecisionDomain(this.containsFalse && ! that.containsFalse, this.containsTrue && ! that.containsTrue)
+        createDomain(this.containsFalse && ! that.containsFalse, this.containsTrue && ! that.containsTrue)
     override def boundFromBelow(lb: BooleanValue) = ???
     override def boundFromAbove(ub: BooleanValue) = ???
     override def bisect = ???

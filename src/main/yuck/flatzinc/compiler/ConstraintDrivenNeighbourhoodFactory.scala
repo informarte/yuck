@@ -170,9 +170,9 @@ final class ConstraintDrivenNeighbourhoodFactory
         (implicit valueTraits: NumericalValueTraits[Value]):
         () => Option[AnnotatedNeighbourhood] =
     {
-        if (! axs.isEmpty && axs.forall(ax => ax.x.isParameter || space.isSearchVariable(ax.x))) {
+        if (! axs.isEmpty && axs.forall(ax => space.isProblemParameter(ax.x) || space.isSearchVariable(ax.x))) {
             () => {
-                val weights = axs.filter(ax => ! ax.x.isParameter && ! implicitlyConstrainedVars.contains(ax.x))
+                val weights = axs.filter(ax => space.isSearchVariable(ax.x) && ! implicitlyConstrainedVars.contains(ax.x))
                 if (weights.isEmpty) {
                     None
                 } else {
@@ -202,7 +202,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                 val maybeConstraint = space.definingConstraint(ax.x)
                 if (maybeConstraint.isDefined) {
                     weightedNeighbourhoodFactories += ax -> createNeighbourhoodFactory(mode, levelCfg, maybeConstraint.get)
-                } else if (! ax.x.isParameter) {
+                } else if (! space.isProblemParameter(ax.x)) {
                     weightedNeighbourhoodFactories += ax -> (() =>
                         if (implicitlyConstrainedVars.contains(ax.x)) {
                             None

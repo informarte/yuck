@@ -28,6 +28,8 @@ abstract class NumericalDomain[Value <: NumericalValue[Value]] extends OrderedDo
      */
     def bisect: (NumericalDomain[Value], NumericalDomain[Value])
 
+    override def hull: NumericalDomain[Value]
+
     override def intersect(that: Domain[Value]): NumericalDomain[Value]
     override def union(that: Domain[Value]): NumericalDomain[Value]
     override def diff(that: Domain[Value]): NumericalDomain[Value]

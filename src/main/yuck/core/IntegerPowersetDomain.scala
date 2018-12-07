@@ -52,7 +52,7 @@ final class IntegerPowersetDomain
     def intersect(that: IntegerPowersetDomain): IntegerPowersetDomain =
         new IntegerPowersetDomain(this.base.intersect(that.base))
     def union(that: IntegerPowersetDomain): IntegerPowersetDomain =
-        new IntegerPowersetDomain(this.base.union(that.base))
+        !!!
     def diff(that: IntegerPowersetDomain): IntegerPowersetDomain =
         new IntegerPowersetDomain(this.base.diff(that.base))
 }

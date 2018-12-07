@@ -26,6 +26,9 @@ abstract class AnyValueTraits[Value <: AnyValue] {
     /** Returns the largest domain over Value. */
     val completeDomain: Domain[Value]
 
+    /** Returns a domain pruner for use by generic constraints. */
+    val domainPruner: DomainPruner[Value]
+
     /** Throws when the type of the given value differs from Value. */
     final def checkType(a: AnyValue) {
         require(

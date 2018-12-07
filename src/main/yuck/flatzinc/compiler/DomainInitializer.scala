@@ -8,7 +8,7 @@ import yuck.flatzinc.ast._
 /**
  * Builds a map from variable declarations to domains.
  *
- * Propagates optional assignments by enriching the AST with appropriate equality constraints.
+ * Assign variables to equivalence classes by considering optional assignments and equality constraints.
  *
  * @author Michael Marte
  */
@@ -20,13 +20,7 @@ final class DomainInitializer
     private val declaredVars = cc.declaredVars
     private val equalVars = cc.equalVars
     private val domains = cc.domains
-
-    private def boolDomain(a: Expr): BooleanDomain =
-        domains(a).asInstanceOf[BooleanDomain]
-    private def intDomain(a: Expr): IntegerDomain =
-        domains(a).asInstanceOf[IntegerDomain]
-    private def intSetDomain(a: Expr): IntegerSetDomain =
-        domains(a).asInstanceOf[IntegerSetDomain]
+    private val impliedConstraints = cc.impliedConstraints
 
     // puts problem variables before variables introduced by mzn2fzn
     private object ProblemVariablesFirstOrdering extends Ordering[Expr] {
@@ -44,6 +38,7 @@ final class DomainInitializer
     override def run {
         initializeDomains
         propagateAssignments
+        propagateEqualityConstraints
     }
 
     private def initializeDomains {
@@ -137,7 +132,33 @@ final class DomainInitializer
         }
     }
 
-    def propagateEquality
+    private def propagateEqualityConstraints {
+        for (constraint <- cc.ast.constraints if ! impliedConstraints.contains(constraint)) {
+            constraint match {
+                case Constraint("bool_eq", List(a, b), _) if ! a.isConst && ! b.isConst =>
+                    val da = boolDomain(a)
+                    val db = boolDomain(b)
+                    val d = da.intersect(db)
+                    propagateEquality(a, b, d)
+                    impliedConstraints += constraint
+                case Constraint("int_eq", List(a, b), _) if ! a.isConst && ! b.isConst =>
+                    val da = intDomain(a)
+                    val db = intDomain(b)
+                    val d = da.intersect(db)
+                    propagateEquality(a, b, d)
+                    impliedConstraints += constraint
+                case Constraint("set_eq", List(a, b), _) if ! a.isConst && ! b.isConst =>
+                    val da = intSetDomain(a)
+                    val db = intSetDomain(b)
+                    val d = da.intersect(db)
+                    propagateEquality(a, b, d)
+                    impliedConstraints += constraint
+                case _ =>
+            }
+        }
+    }
+
+    private def propagateEquality
         [Value <: AnyValue]
         (a: Expr, b: Expr, d: Domain[Value])
         (implicit valueTraits: AnyValueTraits[Value])
@@ -165,7 +186,7 @@ final class DomainInitializer
         (implicit valueTraits: AnyValueTraits[Value])
     {
         if (d.isEmpty) {
-            throw new DomainWipeOutException(a)
+            throw new DomainWipeOutException1(a)
         }
         assert(d.isSubsetOf(valueTraits.safeDowncast(domains(a))))
         domains += a -> d

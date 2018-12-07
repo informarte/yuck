@@ -46,4 +46,11 @@ final class IntegerValueTraitsTest extends UnitTest {
         assertEx(safeDowncast(EmptyBooleanDomain))
     }
 
+    @Test
+    def testConfiguration {
+        assertEq(valueType, classOf[IntegerValue])
+        assertEq(orderingCostModel, IntegerOrderingCostModel)
+        assertEq(domainPruner, IntegerDomainPruner)
+    }
+
 }

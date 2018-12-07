@@ -26,6 +26,15 @@ final class Sum
     private val effects = List(new ReusableEffectWithFixedVariable[Value](y))
     private val effect = effects.head
 
+    override def propagate = {
+        val lhs0 = new Iterable[(Value, NumericalDomain[Value])] {
+            override def iterator = xs.toIterator.map(x => (valueTraits.one, valueTraits.safeDowncast(x.domain)))
+        }
+        val rhs0 = valueTraits.safeDowncast(y.domain)
+        val (lhs1, rhs1) = valueTraits.domainPruner.linEq(lhs0, rhs0)
+        Variable.pruneDomains(xs.toIterator.zip(lhs1.toIterator)) ||| y.pruneDomain(rhs1)
+    }
+
     override def initialize(now: SearchState) = {
         sum = valueTraits.zero
         for (x <- xs) {

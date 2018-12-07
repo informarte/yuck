@@ -16,10 +16,10 @@ final class IntegerDomainTestHelper
 
     val specialInfiniteRanges = IntegerDomainTestHelper.specialInfiniteRanges
 
-    def createTestData(baseRange: IntegerRange, SAMPLE_SIZE: Int): Seq[IntegerDomain] = {
+    def createTestData(baseRange: IntegerRange, sampleSize: Int): Seq[IntegerDomain] = {
         val singletonRanges = baseRange.values.map(a => new IntegerRange(a, a)).toVector
-        val randomFiniteRanges = for (i <- 1 to SAMPLE_SIZE) yield baseRange.randomSubrange(randomGenerator)
-        val randomFiniteRangeLists = for (i <- 1 to SAMPLE_SIZE) yield baseRange.randomSubdomain(randomGenerator)
+        val randomFiniteRanges = for (i <- 1 to sampleSize) yield baseRange.randomSubrange(randomGenerator)
+        val randomFiniteRangeLists = for (i <- 1 to sampleSize) yield baseRange.randomSubdomain(randomGenerator)
         val randomFiniteIntegerDomains = randomFiniteRanges ++ randomFiniteRangeLists
         val randomInfiniteRangeLists = (randomFiniteIntegerDomains).map(CompleteIntegerRange.diff)
         for ((d, e) <- randomFiniteIntegerDomains.zip(randomInfiniteRangeLists)) {
@@ -277,117 +277,6 @@ final class IntegerDomainTestHelper
         }
     }
 
-    private def testEqPruning(d: IntegerDomain, e: IntegerDomain) {
-        assertEq(IntegerDomainPruner.eq(d, e), d.intersect(e))
-    }
-
-    private def testLePruning(d: IntegerDomain, e: IntegerDomain) {
-        val (f, g) = IntegerDomainPruner.le(d, e)
-        assert(f.isSubsetOf(d))
-        assert(g.isSubsetOf(e))
-        if (d.isEmpty || e.isEmpty || e.precedes(d)) {
-            assert(f.isEmpty)
-            assert(g.isEmpty)
-        } else if (d.isFinite && e.isFinite) {
-            d.values.foreach(a => assertEq(e.values.exists(b => a <= b), f.contains(a)))
-            e.values.foreach(b => assertEq(d.values.exists(a => a <= b), g.contains(b)))
-        } else {
-            assert(! f.isEmpty)
-            assert(! g.isEmpty)
-            assertEq(f.lb, d.lb)
-            assertEq(g.ub, e.ub)
-            if (d.endsAfter(e)) {
-                assert(! f.endsAfter(g))
-                // Check that not too many values were pruned from d.
-                // d.endsAfter(e) => e.ub is finite
-                // e.ub is finite && g.ub == e.ub => g.ub is finite
-                // ! f.endsAfter(g) && g.ub is finite => f.ub is finite
-                assert(new IntegerRange(f.ub + One, e.ub).intersect(d).isEmpty)
-            } else {
-                assertEq(f.ub, d.ub)
-            }
-            if (e.startsBefore(d)) {
-                assert(! g.startsBefore(f))
-                // Check that not too many values were pruned from e.
-                // e.startsBefore(d) => d.lb.isFinite
-                // d.lb is finite && f.lb == d.lb => f.lb is finite
-                // ! g.startsBefore(f) && f.lb is finite => g.lb is finite
-                assert(new IntegerRange(d.lb, g.lb - One).intersect(e).isEmpty)
-            } else {
-                assertEq(g.lb, e.lb)
-            }
-        }
-    }
-
-    private def testLtPruning(d: IntegerDomain, e: IntegerDomain) {
-        val (f, g) = IntegerDomainPruner.lt(d, e)
-        assert(f.isSubsetOf(d))
-        assert(g.isSubsetOf(e))
-        if (d.isFinite && e.isFinite) {
-            d.values.foreach(a => assertEq(e.values.exists(b => a < b), f.contains(a)))
-            e.values.foreach(b => assertEq(d.values.exists(a => a < b), g.contains(b)))
-        } else if (d.isEmpty || e.isEmpty || (d.hasLb && e.hasUb && e.ub <= d.lb)) {
-            assert(f.isEmpty)
-            assert(g.isEmpty)
-        } else {
-            assert(! f.isEmpty)
-            assert(! g.isEmpty)
-            assertEq(f.lb, d.lb)
-            assertEq(g.ub, e.ub)
-            if (d.endsBefore(e) || ! e.hasUb) {
-                assertEq(f.ub, d.ub)
-            } else {
-                // e.ub is finite
-                assert(f.endsBefore(e))
-                // f.endsBefore(e) => f.ub is finite
-                if (f.ub < e.ub - One) {
-                    // Check that not too many values were pruned from d.
-                    assert(new IntegerRange(f.ub + One, e.ub - One).intersect(d).isEmpty)
-                }
-            }
-            if (e.startsAfter(d) || ! d.hasLb) {
-                assertEq(g.lb, e.lb)
-            } else {
-                // d.lb is finite
-                assert(g.startsAfter(d))
-                // g.startsAfter(d) => g.lb is finite
-                if (g.lb > d.lb + One) {
-                    // Check that not too many values were pruned from e.
-                    assert(new IntegerRange(d.lb + One, g.lb - One).intersect(e).isEmpty)
-                }
-            }
-        }
-    }
-
-    private def testPruning(d: IntegerDomain, e: IntegerDomain) {
-        testEqPruning(d, e)
-        testLePruning(d, e)
-        testLtPruning(d, e)
-    }
-
-    private def testEqPruning(d: IntegerDomain, a: IntegerValue) {
-        assertEq(IntegerDomainPruner.eq(d, a), d.intersect(new IntegerRange(a, a)))
-    }
-
-    private def testNePruning(d: IntegerDomain, a: IntegerValue) {
-        assertEq(IntegerDomainPruner.ne(d, a), d.diff(new IntegerRange(a, a)))
-    }
-
-    private def testLePruning(d: IntegerDomain, a: IntegerValue) {
-        assertEq(IntegerDomainPruner.le(d, a), d.intersect(new IntegerRange(null, a)))
-    }
-
-    private def testLtPruning(d: IntegerDomain, a: IntegerValue) {
-        assertEq(IntegerDomainPruner.lt(d, a), d.intersect(new IntegerRange(null, a - One)))
-    }
-
-    private def testPruning(d: IntegerDomain, a: IntegerValue) {
-        testEqPruning(d, a)
-        testNePruning(d, a)
-        testLePruning(d, a)
-        testLtPruning(d, a)
-    }
-
     private def testBounding(d: IntegerDomain, a: IntegerValue) {
         val d1 = d.boundFromBelow(a)
         val d2 = d.boundFromAbove(a)
@@ -586,12 +475,10 @@ final class IntegerDomainTestHelper
                 testSetUnion(d, e)
                 testSetDifference(d, e)
                 testSymmetricalSetDifference(d, e)
-                testPruning(d, e)
             }
             for (a <- vl) {
                 testSetContainment(d, a)
                 testDistanceToSet(d, a)
-                testPruning(d, a)
             }
             if (d.isEmpty) {
                 assert(d.boundFromBelow(Zero).isEmpty)

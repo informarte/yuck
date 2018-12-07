@@ -12,9 +12,11 @@ import org.junit._
         classOf[BooleanDomainTest],
         classOf[BooleanDecisionDomainTest],
         classOf[BooleanChannelDomainTest],
+        classOf[BooleanDomainPrunerTest],
         classOf[IntegerDomainTest],
         classOf[IntegerRangeTest],
         classOf[IntegerRangeListTest],
+        classOf[IntegerDomainPrunerTest],
         classOf[IntegerSetDomainTest],
         classOf[IntegerPowersetDomainTest],
         classOf[SingletonIntegerSetDomainTest]))

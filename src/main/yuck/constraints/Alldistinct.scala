@@ -33,11 +33,23 @@ final class Alldistinct
 
     override def toString = "alldistinct([%s], %s)".format(xs.mkString(", "), costs)
 
+    override def propagate = {
+        if (costs.domain == TrueDomain) {
+            Variable.pruneDomains(
+                for (x <- xs.toIterator if x.domain.isSingleton;
+                     y <- xs.toIterator if y != x && y.domain.contains(x.domain.singleValue))
+                yield (y, y.domain.diff(x.domain))
+            )
+        } else {
+            false
+        }
+    }
+
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
         BooleanValue.get(xs.size - valueRegistry.size)
 
     override def isCandidateForImplicitSolving(space: Space) = {
-        val (xs, ys) = this.xs.partition(_.isVariable)
+        val (xs, ys) = this.xs.partition(! _.domain.isSingleton)
         val as = ys.toIterator.map(_.domain.singleValue).toSet
         ys.size == as.size &&
         xs.size > 1 &&
@@ -57,7 +69,7 @@ final class Alldistinct
         Option[Neighbourhood] =
     {
         if (isCandidateForImplicitSolving(space)) {
-            val xs = this.xs.filter(_.isVariable)
+            val xs = this.xs.filter(! _.domain.isSingleton)
             if (xs.forall(_.domain == xs.head.domain)) {
                 // all variables have the same domain
                 if (xs.head.domain.size >= xs.size) {

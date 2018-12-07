@@ -83,4 +83,16 @@ final class BooleanDomainTest extends UnitTest {
         }
     }
 
+    @Test
+    def testProjection {
+        for (a <- testData) {
+            val b = BooleanDomain.ensureDecisionDomain(a)
+            if (a.isComplete) {
+                assertEq(b, CompleteBooleanDecisionDomain)
+            } else {
+                assertEq(b, a)
+            }
+        }
+    }
+
 }

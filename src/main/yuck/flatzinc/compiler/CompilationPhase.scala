@@ -61,6 +61,34 @@ abstract class CompilationPhase(
         }
     }
 
+    protected final def normalizeBool(a: Expr): Expr =
+        tryGetConst[BooleanValue](a).map(_.truthValue).map(BoolConst).getOrElse(a)
+
+    protected final def normalizeInt(a: Expr): Expr =
+        tryGetConst[IntegerValue](a).map(_.value).map(IntConst).getOrElse(a)
+
+    protected final def normalizeArray(a: Expr): Expr = a match {
+        case ArrayConst(a) => ArrayConst(a)
+        case a => ArrayConst(getArrayElems(a).toList)
+    }
+
+    protected final def boolDomain(a: Expr): BooleanDecisionDomain = a match {
+        case BoolConst(false) => FalseDomain
+        case BoolConst(true) => TrueDomain
+        case _ => cc.domains(a).asInstanceOf[BooleanDecisionDomain]
+    }
+
+    protected final def intDomain(a: Expr): IntegerDomain = a match {
+        case IntConst(a) => createIntegerDomain(a, a)
+        case _ => cc.domains(a).asInstanceOf[IntegerDomain]
+    }
+
+    protected final def intSetDomain(a: Expr): IntegerSetDomain = a match {
+        case IntSetConst(IntRange(lb, ub)) => new SingletonIntegerSetDomain(createIntegerDomain(lb, ub))
+        case IntSetConst(IntSet(set)) => new SingletonIntegerSetDomain(createIntegerDomain(set))
+        case _ => cc.domains(a).asInstanceOf[IntegerSetDomain]
+    }
+
     protected final def getArrayElems(expr: Expr): immutable.Iterable[Expr] =
         cc.ast.getArrayElems(expr)
 

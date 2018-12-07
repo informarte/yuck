@@ -7,6 +7,10 @@ package yuck.core
  */
 abstract class OrderedValueTraits[Value <: OrderedValue[Value]] extends AnyValueTraits[Value] {
 
+    override val emptyDomain: OrderedDomain[Value]
+    override val completeDomain: OrderedDomain[Value]
+    override val domainPruner: OrderedDomainPruner[Value]
+
     /** A total ordering induced by Value.compare. */
     implicit final val valueOrdering: Ordering[Value] = new Ordering[Value] {
         override def compare(x: Value, y: Value) = x.compare(y)

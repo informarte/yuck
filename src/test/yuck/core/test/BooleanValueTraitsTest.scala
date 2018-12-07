@@ -42,4 +42,11 @@ final class BooleanValueTraitsTest extends UnitTest {
         assertEx(safeDowncast(CompleteIntegerRange))
     }
 
+    @Test
+    def testConfiguration {
+        assertEq(valueType, classOf[BooleanValue])
+        assertEq(orderingCostModel, BooleanOrderingCostModel)
+        assertEq(domainPruner, BooleanDomainPruner)
+    }
+
 }

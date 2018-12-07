@@ -80,4 +80,14 @@ final object BooleanDomain {
         override def compare(lhs: BooleanDomain, rhs: BooleanDomain) = lhs.compare(rhs)
     }
 
+    /**
+     * Projects the given domain onto a logically equivalent decision domain, if necessary.
+     *
+     * (More precisely, True maps to True and all other values map to False.)
+     */
+    def ensureDecisionDomain(domain: Domain[BooleanValue]): BooleanDecisionDomain = domain match {
+        case decisionDomain: BooleanDecisionDomain => decisionDomain
+        case channelDomain: BooleanChannelDomain.type => CompleteBooleanDecisionDomain
+    }
+
 }

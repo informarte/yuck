@@ -51,7 +51,7 @@ final class SpaceTest extends UnitTest {
         assertEq(space.directlyAffectedConstraints(s), Set(c, d))
         assertEq(space.directlyAffectedConstraints(t), Set(c))
         assertEq(space.directlyAffectedConstraints(u), Set(e))
-        assertEq(space.directlyAffectedConstraints(v), Set())
+        assertEq(space.directlyAffectedConstraints(v), Set(d))
         assertEq(space.directlyAffectedConstraints(w), Set(e))
         assertEq(space.directlyAffectedConstraints(x), Set(e))
         assertEq(space.directlyAffectedConstraints(y), Set())
@@ -153,7 +153,7 @@ final class SpaceTest extends UnitTest {
         assertEq(space.numberOfCommitments, 1)
     }
 
-    // A Spy constraint computes the sum and average of its input variables and,
+    // A spy constraint computes the sum and average of its input variables and,
     // on each call to consult and commit, checks that Space calls these methods
     // according to their contracts.
     private final class Spy
@@ -162,6 +162,7 @@ final class SpaceTest extends UnitTest {
          sum: Variable[IntegerValue], avg: Variable[IntegerValue])
         extends Constraint(id, null)
     {
+        require(! xs.isEmpty)
         override def toString = "spy([%s], %s, %s)".format(xs.mkString(", "), sum, avg)
         override def inVariables = xs
         override def outVariables = Vector(sum, avg)
@@ -169,9 +170,14 @@ final class SpaceTest extends UnitTest {
             Vector(
                 new ReusableEffectWithFixedVariable[IntegerValue](sum),
                 new ReusableEffectWithFixedVariable[IntegerValue](avg))
+        var numberOfPropagations = 0
         var numberOfInitializations = 0
         var numberOfConsultations = 0
         var numberOfCommitments = 0
+        override def propagate = {
+            numberOfPropagations += 1
+            numberOfPropagations <= xs.size
+        }
         override def initialize(now: SearchState) = {
             numberOfInitializations += 1
             effects(0).a = Zero
@@ -217,7 +223,7 @@ final class SpaceTest extends UnitTest {
         val m = 64 // number of moves per network
         val n = 8 // number of networks
         val dx = new IntegerRange(One, IntegerValue.get(k * l))
-        val moveSizedDistribution = DistributionFactory.createDistribution(1, List(60, 30, 10))
+        val moveSizeDistribution = DistributionFactory.createDistribution(1, List(60, 30, 10))
 
         val randomGenerator = new JavaRandomGenerator
 
@@ -265,6 +271,12 @@ final class SpaceTest extends UnitTest {
                 }
             }
 
+            // check spy propagation
+            do {} while (space.prune)
+            for (spy <- spies) {
+                assertEq(spy.numberOfPropagations, k + 1)
+            }
+
             // initialize variables
             new RandomInitializer(space, randomGenerator).run
             // initialize spies
@@ -279,7 +291,7 @@ final class SpaceTest extends UnitTest {
             // generate and perform m moves
             val neighbourhood =
                 new RandomReassignmentGenerator(
-                    space, space.searchVariables.toIndexedSeq, randomGenerator, moveSizedDistribution, None, None)
+                    space, space.searchVariables.toIndexedSeq, randomGenerator, moveSizeDistribution, None, None)
             for (i <- 1 to m) {
                 // generate move and consult space
                 val move = neighbourhood.nextMove
@@ -303,6 +315,10 @@ final class SpaceTest extends UnitTest {
                 // check that each spy was told at most once to commit
                 for (spy <- spies) {
                     assertLe(spy.numberOfCommitments, 1)
+                }
+                // check that no propagation happened during consult and commit
+                for (spy <- spies) {
+                    assertEq(spy.numberOfPropagations, k + 1)
                 }
                 // prepare for next round
                 for (spy <- spies) {

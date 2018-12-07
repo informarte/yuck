@@ -2,7 +2,7 @@ package yuck.flatzinc.compiler
 
 import scala.collection._
 
-import yuck.constraints.{Alldistinct, DistributionMaintainer, UnaryConstraint}
+import yuck.constraints.{Alldistinct, DistributionMaintainer, BinaryConstraint}
 import yuck.core._
 import yuck.flatzinc.ast.{Minimize, Maximize}
 

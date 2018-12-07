@@ -9,7 +9,7 @@ import yuck.core._
 final class SetCardinality
     (id: Id[Constraint], goal: Goal,
      a: Variable[IntegerSetValue], b: Variable[IntegerValue])
-    extends UnaryConstraint(id, goal, a, b)
+    extends BinaryConstraint(id, goal, a, b)
 {
     override def toString = "set_cardinality(%s, %s)".format(a, b)
     override def op(a: IntegerSetValue) = IntegerValue.get(a.set.size)
@@ -22,11 +22,15 @@ final class SetCardinality
 final class Contains
     (id: Id[Constraint], goal: Goal,
      x: Variable[IntegerValue], y: Variable[IntegerSetValue], z: Variable[BooleanValue])
-    extends BinaryConstraint(id, goal, x, y, z)
+    extends TernaryConstraint(id, goal, x, y, z)
 {
     override def toString = "contains(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerValue, b: IntegerSetValue) =
         if (b.set.isEmpty) False else BooleanValue.get(b.set.distanceTo(a))
+    override def propagate =
+        BooleanDomain.ensureDecisionDomain(z.domain) == TrueDomain &&
+        y.domain.isSingleton &&
+        x.pruneDomain(x.domain.intersect(y.domain.singleValue.set))
 }
 
 /**
@@ -36,7 +40,7 @@ final class Contains
 final class Subset
     (id: Id[Constraint], goal: Goal,
      x: Variable[IntegerSetValue], y: Variable[IntegerSetValue], z: Variable[BooleanValue])
-    extends BinaryConstraint(id, goal, x, y, z)
+    extends TernaryConstraint(id, goal, x, y, z)
 {
     override def toString = "subset(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerSetValue, b: IntegerSetValue) =
@@ -50,7 +54,7 @@ final class Subset
 final class SetIntersection
     (id: Id[Constraint], goal: Goal,
      x: Variable[IntegerSetValue], y: Variable[IntegerSetValue], z: Variable[IntegerSetValue])
-    extends BinaryConstraint(id, goal, x, y, z)
+    extends TernaryConstraint(id, goal, x, y, z)
 {
     override def toString = "set_intersection(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerSetValue, b: IntegerSetValue) = new IntegerSetValue(a.set.intersect(b.set))
@@ -63,7 +67,7 @@ final class SetIntersection
 final class SetUnion
     (id: Id[Constraint], goal: Goal,
      x: Variable[IntegerSetValue], y: Variable[IntegerSetValue], z: Variable[IntegerSetValue])
-    extends BinaryConstraint(id, goal, x, y, z)
+    extends TernaryConstraint(id, goal, x, y, z)
 {
     override def toString = "set_union(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerSetValue, b: IntegerSetValue) = new IntegerSetValue(a.set.union(b.set))
@@ -76,7 +80,7 @@ final class SetUnion
 final class SetDifference
     (id: Id[Constraint], goal: Goal,
      x: Variable[IntegerSetValue], y: Variable[IntegerSetValue], z: Variable[IntegerSetValue])
-    extends BinaryConstraint(id, goal, x, y, z)
+    extends TernaryConstraint(id, goal, x, y, z)
 {
     override def toString = "set_difference(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerSetValue, b: IntegerSetValue) = new IntegerSetValue(a.set.diff(b.set))
@@ -89,7 +93,7 @@ final class SetDifference
 final class SymmetricalSetDifference
     (id: Id[Constraint], goal: Goal,
      x: Variable[IntegerSetValue], y: Variable[IntegerSetValue], z: Variable[IntegerSetValue])
-    extends BinaryConstraint(id, goal, x, y, z)
+    extends TernaryConstraint(id, goal, x, y, z)
 {
     override def toString = "symmetrical_set_difference(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerSetValue, b: IntegerSetValue) =

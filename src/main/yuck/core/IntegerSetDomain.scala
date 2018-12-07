@@ -39,7 +39,6 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         case _ => !!!
     }
     final override def union(that: Domain[IntegerSetValue]): IntegerSetDomain = (this, that) match {
-        case (lhs: IntegerPowersetDomain, rhs: IntegerPowersetDomain) => lhs.union(rhs)
         case _ => !!!
     }
     final override def diff(that: Domain[IntegerSetValue]): IntegerSetDomain = (this, that) match {

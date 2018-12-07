@@ -7,7 +7,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-class Probability private(val value: Double) extends AnyVal {
+final class Probability private(val value: Double) extends AnyVal {
     override def toString = "%s".format(value)
 }
 

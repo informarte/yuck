@@ -7,12 +7,14 @@ import yuck.util.arm.Sigint
 /**
  * Provides the constraint interface for local search.
  *
- * Regarding the input variables, there are three things to keep in mind
+ * Regarding the input variables, there are two things to keep in mind
  * when implementing a constraint:
  *
- *  - They may get pruned between construction and initialization.
  *  - There may be channel variables among them with infinite domains.
  *  - There may be duplicate variables.
+ *
+ * Moreover, the domains of both input and output variables may get pruned between
+ * construction and initialization.
  *
  * @author Michael Marte
  */
@@ -29,6 +31,19 @@ abstract class Constraint
 
     /** Returns the output variables. */
     def outVariables: TraversableOnce[AnyVariable]
+
+    /**
+     * Propgates the constraint by pruning the domains of its variables.
+     *
+     * Returns true iff some pruning happened.
+     *
+     * Does not need to compute a fixed point.
+     *
+     * Intended for use before local search.
+     *
+     * The default implementation does nothing and returns false.
+     */
+    def propagate: Boolean = false
 
     /**
      * Initializes the constraint's internal state according to the given search state

@@ -53,6 +53,26 @@ final class Disjunction
     private val effects = List(new ReusableEffectWithFixedVariable(y))
     private val effect = effects.head
 
+    override def propagate = {
+        import BooleanDomain.ensureDecisionDomain
+        val dy = ensureDecisionDomain(y.domain)
+        if (dy == TrueDomain) {
+            if (xs.forall(x => ensureDecisionDomain(x.domain) == FalseDomain)) {
+                y.pruneDomain(EmptyBooleanDomain)
+            } else {
+                false
+            }
+        } else if (dy == FalseDomain) {
+            Variable.pruneDomains(xs.toIterator.map(x => (x, FalseDomain)))
+        } else if (xs.exists(x => ensureDecisionDomain(x.domain) == TrueDomain)) {
+            y.pruneDomain(TrueDomain)
+        } else if (xs.forall(x => ensureDecisionDomain(x.domain) == FalseDomain)) {
+            y.pruneDomain(FalseDomain)
+        } else {
+            false
+        }
+    }
+
     override def initialize(now: SearchState) = {
         sum = 0
         trueCount = 0

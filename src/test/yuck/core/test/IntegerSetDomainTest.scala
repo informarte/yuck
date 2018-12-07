@@ -84,10 +84,8 @@ final class IntegerSetDomainTest extends UnitTest {
     def testSetUnion {
         assertEx(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].union(new SingletonIntegerSetDomain(EmptyIntegerRange)))
         assertEx(new SingletonIntegerSetDomain(EmptyIntegerRange).union(CompleteIntegerSetDomain))
-        assertEq(new IntegerPowersetDomain(NonPositiveIntegerRange).asInstanceOf[IntegerSetDomain].union(new IntegerPowersetDomain(NonNegativeIntegerRange)), CompleteIntegerSetDomain)
-        assertEq(new IntegerPowersetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].union(new IntegerPowersetDomain(PositiveIntegerRange)), new IntegerPowersetDomain(PositiveIntegerRange))
+        assertEx(new IntegerPowersetDomain(NonPositiveIntegerRange).asInstanceOf[IntegerSetDomain].union(new IntegerPowersetDomain(NonNegativeIntegerRange)))
         assertEx(CompleteIntegerSetDomain.union(new SingletonIntegerSetDomain(EmptyIntegerRange)))
-        CompleteIntegerSetDomain.asInstanceOf[IntegerSetDomain].union(CompleteIntegerSetDomain).isBounded
     }
 
     @Test

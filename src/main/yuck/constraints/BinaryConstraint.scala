@@ -7,22 +7,22 @@ import yuck.core._
  *
  */
 abstract class BinaryConstraint
-    [In1 <: AnyValue, In2 <: AnyValue, Out <: AnyValue]
+    [In <: AnyValue, Out <: AnyValue]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[In1], y: Variable[In2], z: Variable[Out])
+     x: Variable[In], y: Variable[Out])
     extends Constraint(id, goal)
 {
-    final override def inVariables = List(x, y)
-    final override def outVariables = List(z)
-    def op(x: In1, y: In2): Out
-    private val effects = List(new ReusableEffectWithFixedVariable[Out](z))
+    override def inVariables = List(x)
+    override def outVariables = List(y)
+    private val effects = List(new ReusableEffectWithFixedVariable[Out](y))
     private val effect = effects.head
-    final override def initialize(now: SearchState) = {
-        effect.a = op(now.value(x), now.value(y))
+    def op(x: In): Out
+    override def initialize(now: SearchState) = {
+        effect.a = op(now.value(x))
         effects
     }
-    final override def consult(before: SearchState, after: SearchState, move: Move) =
+    override def consult(before: SearchState, after: SearchState, move: Move) =
         initialize(after)
-    final override def commit(before: SearchState, after: SearchState, move: Move) =
+    override def commit(before: SearchState, after: SearchState, move: Move) =
         effects
 }

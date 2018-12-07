@@ -47,12 +47,50 @@ final class VariableTest extends UnitTest {
     }
 
     @Test
-    def testPruning {
+    def testPruning1 {
         val space = new Space(logger)
-        val x = space.createVariable("x", NonNegativeIntegerRange)
-        assertEx(x.pruneDomain(NonPositiveIntegerRange))
-        x.pruneDomain(new IntegerRange(Zero, Ten))
-        assertEq(x.domain, new IntegerRange(Zero, Ten))
+        val x = space.createVariable("x", CompleteIntegerRange)
+        assertEq(false, x.pruneDomain(x.domain))
+        assertEq(true, x.pruneDomain(NonNegativeIntegerRange))
+        assertEq(x.domain, NonNegativeIntegerRange)
+        assertEx(x.pruneDomain(NegativeIntegerRange), classOf[DomainWipeOutException])
+    }
+
+    @Test
+    def testPruning2 {
+        val space = new Space(logger)
+        val x = space.createVariable("x", CompleteIntegerRange)
+        val y = space.createVariable("y", CompleteIntegerRange)
+        assertEq(false, Variable.pruneDomains(x, x.domain, y, y.domain))
+        assertEq(true, Variable.pruneDomains(x, NegativeIntegerRange, y, NonNegativeIntegerRange))
+        assertEq(NegativeIntegerRange, x.domain)
+        assertEq(NonNegativeIntegerRange, y.domain)
+    }
+
+    @Test
+    def testPruning3 {
+        val space = new Space(logger)
+        val x = space.createVariable("x", CompleteIntegerRange)
+        val y = space.createVariable("y", CompleteIntegerRange)
+        val z = space.createVariable("z", CompleteIntegerRange)
+        assertEq(false, Variable.pruneDomains(x, x.domain, y, y.domain, z, z.domain))
+        assertEq(true, Variable.pruneDomains(x, NegativeIntegerRange, y, y.domain, z, PositiveIntegerRange))
+        assertEq(NegativeIntegerRange, x.domain)
+        assertEq(CompleteIntegerRange, y.domain)
+        assertEq(PositiveIntegerRange, z.domain)
+    }
+
+    @Test
+    def testPruningN {
+        val space = new Space(logger)
+        val x = space.createVariable("x", CompleteIntegerRange)
+        val y = space.createVariable("y", CompleteIntegerRange)
+        val z = space.createVariable("z", CompleteIntegerRange)
+        assertEq(false, Variable.pruneDomains(List((x, x.domain), (y, y.domain), (z, z.domain))))
+        assertEq(true, Variable.pruneDomains(List((x, NegativeIntegerRange), (y, y.domain), (z, PositiveIntegerRange))))
+        assertEq(NegativeIntegerRange, x.domain)
+        assertEq(CompleteIntegerRange, y.domain)
+        assertEq(PositiveIntegerRange, z.domain)
     }
 
 }

@@ -229,7 +229,7 @@ class MiniZincBasedTest extends IntegrationTest {
                         logViolatedConstraints(result, x, visited)
                     }
                 }
-             } else if (! x.isParameter) {
+             } else if (! result.space.isProblemParameter(x)) {
                 logger.logg("%s = %s".format(x, a, visited))
             }
         }

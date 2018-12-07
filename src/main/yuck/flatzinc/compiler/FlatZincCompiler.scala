@@ -58,8 +58,7 @@ final class FlatZincCompiler
     private def preferDomainPruningOverImplicitSolving: CompilationContext = {
         val cc = new CompilationContext(ast, cfg, logger)
         run(new DomainInitializer(cc, randomGenerator.nextGen))
-        run(new DomainPruner(cc, randomGenerator.nextGen, sigint))
-        finishCompilation(cc)
+        finishCompilation(cc, true)
         cc
     }
 
@@ -77,17 +76,17 @@ final class FlatZincCompiler
             // stage 1: identify implicit constraints
             val cc1 = new CompilationContext(ast, cfg, logger)
             run(new DomainInitializer(cc1, randomGenerator.nextGen))
-            finishCompilation(cc1)
+            finishCompilation(cc1, false)
 
-            // stage 2: compute domain reductions
-            run(new DomainPruner(cc1, randomGenerator.nextGen, sigint))
+            // stage 2: propagate constraints to reduce domains
+            run(new Presolver(cc1, randomGenerator.nextGen, sigint))
 
             // stage 3: build final model, taking domain reductions into account as far as possible without
             // inhibiting implicit solving
             val cc2 = new CompilationContext(ast, cfg, logger)
             run(new DomainInitializer(cc2, randomGenerator.nextGen))
-            for ((a, domain) <- cc1.domains if ! cc1.implicitlyConstrainedVars.contains(cc1.vars(a))) {
-                cc2.domains += a -> domain
+            for ((a, x) <- cc1.vars if ! cc1.implicitlyConstrainedVars.contains(x)) {
+                cc2.domains += a -> x.domain
             }
             cc2.equalVars ++= cc1.equalVars
             for (constraint <- cc1.impliedConstraints
@@ -102,16 +101,19 @@ final class FlatZincCompiler
         }
 
         // continuation of stage 3
-        finishCompilation(cc2)
+        finishCompilation(cc2, false)
 
         cc2
 
     }
 
-    private def finishCompilation(cc: CompilationContext) {
+    private def finishCompilation(cc: CompilationContext, runPresolver: Boolean) {
         run(new VariableFactory(cc, randomGenerator.nextGen))
         run(new VariableClassifier(cc, randomGenerator.nextGen))
         run(new ConstraintFactory(cc, randomGenerator.nextGen, sigint))
+        if (runPresolver) {
+            run(new Presolver(cc, randomGenerator.nextGen, sigint))
+        }
         run(new DomainFinalizer(cc, randomGenerator.nextGen))
         run(new ObjectiveFactory(cc, randomGenerator.nextGen))
         run(new ConstraintDrivenNeighbourhoodFactory(cc, randomGenerator.nextGen, sigint))

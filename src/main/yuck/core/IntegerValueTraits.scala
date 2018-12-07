@@ -8,6 +8,7 @@ package yuck.core
 final object IntegerValueTraits extends NumericalValueTraits[IntegerValue] {
     override val valueType = classOf[IntegerValue]
     override val orderingCostModel = IntegerOrderingCostModel
+    override val domainPruner = IntegerDomainPruner
     override def safeDowncast(x: Domain[IntegerValue]): IntegerDomain = x.asInstanceOf[IntegerDomain]
     override def createDomain(values: Set[IntegerValue]): IntegerDomain = IntegerDomain.createDomain(values)
     override def createDomain(lb: IntegerValue, ub: IntegerValue) = IntegerDomain.createRange(lb, ub)

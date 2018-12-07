@@ -120,7 +120,6 @@ When used as a FlatZinc interpreter, Yuck proceeds as follows:
 
 * Implement among, diffn, circuit, subcircuit, ...
 * Provide soft constraints
-* Refactor and improve up-front propagation
 * Reduce dependence on integration testing by adding more unit tests
 * Provide libraries with Yuck core functionality
 

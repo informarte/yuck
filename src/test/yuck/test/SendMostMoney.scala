@@ -23,6 +23,20 @@ final class SendMostMoney extends IntegrationTest {
     private final class SendMostMoneyGenerator(i: Int, seed: Int, sigint: Sigint) extends SolverGenerator {
         override def solverName = "SA-%d".format(i)
         override def call = {
+
+            /*
+            send_most_money(Vars) :-
+                use_module(library(clpfd)),
+                Vars = [S,E,N,D,M,O,T,Y],
+                Vars ins 0..9,
+                LHS #= S * 1000 + E * 100 + N * 10 + D + M * 1000 + O * 100 + S * 10 + T,
+                RHS #= M * 10000 + O * 1000 + N * 100 + E * 10 + Y,
+                LHS #= RHS,
+                M #\= 0, S#\= 0,
+                all_different(Vars).
+             */
+
+            // define problem
             val space = new Space(logger)
             val d = new IntegerRange(Zero, Nine)
             val d1 = new IntegerRange(One, Nine)
@@ -34,6 +48,7 @@ final class SendMostMoney extends IntegrationTest {
             val O = space.createVariable("O", d)
             val T = space.createVariable("T", d)
             val Y = space.createVariable("Y", d)
+            val vars = Set(S, E, N, D, M, O, S, T, M, O, N, E, Y)
             val numberOfMissingValues = space.createVariable("numberOfMissingValues", CompleteBooleanDomain)
             space.post(
                 new Alldistinct(
@@ -62,7 +77,28 @@ final class SendMostMoney extends IntegrationTest {
                 new LinearCombination(
                     space.constraintIdFactory.nextId, null,
                     new AX(new BooleanValue(100), numberOfMissingValues) :: new AX(False, delta) :: Nil, costs))
-            assertEq(space.searchVariables, Set(S, E, N, D, M, O, S, T, M, O, N, E, Y))
+            assertEq(space.searchVariables, vars)
+
+            // propagate constraints
+            costs.pruneDomain(TrueDomain)
+            do {} while (space.prune)
+            assertEq(space.searchVariables, vars -- Set(M, O, S))
+            assertEq(delta.domain, TrueDomain)
+            assertEq(numberOfMissingValues.domain, TrueDomain)
+            assertEq(S.domain.singleValue, Nine)
+            assertEq(E.domain, new IntegerRange(Two, Seven))
+            assertEq(N.domain, new IntegerRange(Three, Eight))
+            assertEq(D.domain, new IntegerRange(Two, Eight))
+            assertEq(M.domain.singleValue, One)
+            assertEq(O.domain.singleValue, Zero)
+            assertEq(T.domain, D.domain)
+            assertEq(Y.domain, D.domain)
+            assertEq(lhs.domain, new IntegerRange(IntegerValue.get(10324), IntegerValue.get(10878)))
+
+            // build local-search solver
+            for (x <- vars if x.domain.isSingleton) {
+                space.setValue(x, x.domain.singleValue)
+            }
             val randomGenerator = new JavaRandomGenerator(seed)
             val initializer = new RandomInitializer(space, randomGenerator.nextGen)
             initializer.run
@@ -82,6 +118,7 @@ final class SendMostMoney extends IntegrationTest {
                     Some(new StandardAnnealingMonitor(logger)),
                     Some(new ModelData(LHS, RHS)),
                     sigint)
+
             solver
         }
     }

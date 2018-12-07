@@ -1,7 +1,5 @@
 package yuck.core
 
-import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
-
 /**
  * Implements typed variables.
  *
@@ -14,16 +12,47 @@ final class Variable
 {
 
     /**
+     * Intersects the variable's domain with the given domain.
+     *
+     * Returns true iff the variable's domain was actually pruned.
+     *
+     * Throws a [[yuck.core.DomainWipeOutException DomainWipeOutException]]
+     * when the variable's domain became empty.
+     */
+    def pruneDomain(restriction: Domain[Value]): Boolean = {
+        if (restriction != currentDomain) {
+            // Assuming that restriction is usually a subset of currentDomain,
+            // we avoid useless and expensive intersections.
+            if (restriction.isSubsetOf(currentDomain)) {
+                currentDomain = restriction
+            } else {
+                currentDomain = currentDomain.intersect(restriction)
+            }
+            if (currentDomain.isEmpty) {
+                throw new DomainWipeOutException(this)
+            }
+            true
+        } else {
+            false
+        }
+    }
+
+    /**
      * Replaces the variable's domain with the given domain.
      *
-     * Throws when the new domain is not a subset of the current domain.
+     * Returns true iff the variable's domain was actually relaxed.
+     *
+     * Throws when the new domain is not a superset of the current domain.
      */
-    def pruneDomain(newDomain: Domain[Value]) {
-        if (newDomain != currentDomain) {
+    def relaxDomain(relaxation: Domain[Value]): Boolean = {
+        if (relaxation != currentDomain) {
             require(
-                newDomain.isSubsetOf(currentDomain),
-                "%s is not a subset of %s".format(newDomain, currentDomain))
-            currentDomain = newDomain
+                currentDomain.isSubsetOf(relaxation),
+                "%s is not a superset of %s".format(relaxation, currentDomain))
+            currentDomain = relaxation
+            true
+        } else {
+            false
         }
     }
 
@@ -44,6 +73,53 @@ final class Variable
     override def nextRandomEffect(space: Space, randomGenerator: RandomGenerator) = {
         reuseableEffect.setNextRandomValue(space.searchState, randomGenerator)
         reuseableEffect
+    }
+
+}
+
+/**
+ * @author Michael Marte
+ *
+ */
+final object Variable {
+
+    /**
+     * Prunes the domains of the given variables.
+     *
+     * Returns true iff at least one of the domains was pruned.
+     */
+    def pruneDomains
+        [Value1 <: AnyValue, Value2 <: AnyValue]
+        (x: Variable[Value1], dx: Domain[Value1], y: Variable[Value2], dy: Domain[Value2]):
+        Boolean =
+    {
+        x.pruneDomain(dx) ||| y.pruneDomain(dy)
+    }
+
+    /**
+     * Prunes the domains of the given variables.
+     *
+     * Returns true iff at least one of the domains was pruned.
+     */
+    def pruneDomains
+        [Value1 <: AnyValue, Value2 <: AnyValue, Value3 <: AnyValue]
+        (x: Variable[Value1], dx: Domain[Value1], y: Variable[Value2], dy: Domain[Value2], z: Variable[Value3], dz: Domain[Value3]):
+        Boolean =
+    {
+        x.pruneDomain(dx) ||| y.pruneDomain(dy) ||| z.pruneDomain(dz)
+    }
+
+    /**
+     * Prunes the domains of the given variables.
+     *
+     * Returns true iff at least one of the domains was pruned.
+     */
+    def pruneDomains
+        [Value <: AnyValue]
+        (xds: TraversableOnce[(Variable[Value], Domain[Value])]):
+        Boolean =
+    {
+        xds.foldLeft(false){case (z, (x, dx)) => z ||| x.pruneDomain(dx)}
     }
 
 }

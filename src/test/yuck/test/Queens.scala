@@ -19,6 +19,8 @@ final class Queens extends IntegrationTest {
     private final class QueensGenerator(n: Int, i: Int, seed: Int, sigint: Sigint) extends SolverGenerator {
         override def solverName = "SA-%d".format(i)
         override def call = {
+
+            // define problem
             val space = new Space(logger)
             val d = new IntegerRange(Zero, new IntegerValue(n - 1))
             var rows = new Array[Variable[IntegerValue]](n)
@@ -47,6 +49,8 @@ final class Queens extends IntegrationTest {
                     null,
                     List(rowConflicts, diagonalConflicts1, diagonalConflicts2).map(new AX(False, _)),
                     conflicts))
+
+            // build local-search solver
             val randomGenerator = new JavaRandomGenerator(seed)
             for ((x, a) <- rows.zip(0 to n - 1)) {
                 space.setValue(x, IntegerValue.get(a))
@@ -64,6 +68,7 @@ final class Queens extends IntegrationTest {
                     Some(new StandardAnnealingMonitor(logger)),
                     None,
                     sigint)
+
             solver
         }
     }

@@ -11,7 +11,7 @@ import yuck.core._
  * and provides the minimum distance as measure of constraint violation.
  *
  * The distance of (a[1], ..., a[n]) to (b[1], ..., b[n]) is computed as
- * |[a[1] - b[1]| + ... + |[a[n] - b[n]|.
+ *   |[a[1] - b[1]| + ... + |[a[n] - b[n]|.
  *
  * A more generic implementation (based on NumericalValue) was up to three times slower.
  *
@@ -27,7 +27,7 @@ final class IntegerTable
     extends Constraint(id, goal)
 {
 
-    private val n = xs.size // number of columns
+    private val n = xs.size // number of variables/ columns
     rows.foreach(row => require(row.size == n))
 
     override def toString =
@@ -38,22 +38,31 @@ final class IntegerTable
     override def inVariables = xs
     override def outVariables = List(costs)
 
-    // We prune infeasible rows and, to improve data locality, transpose the result.
-    private lazy val cols: immutable.IndexedSeq[immutable.IndexedSeq[Int]] = {
-        def f(x: Variable[IntegerValue], a: Int) =
-            x.domain.contains(IntegerValue.get(a))
-        val feasibleRows =
-             (0 until n)
-            .foldLeft(rows.toIterator){case (rows, i) => rows.filter(row => f(xs(i), row(i)))}
-            .toIndexedSeq
-        for (i <- 0 until n) yield for (j <- 0 until feasibleRows.size) yield feasibleRows(j)(i)
-    }
-    private lazy val m = cols(0).size // number of rows
+
+    private var feasibleRows = rows
+    private lazy val cols = feasibleRows.transpose // columns improve data locality
+    private lazy val m = feasibleRows.size
     private val x2i = new immutable.HashMap[AnyVariable, Int] ++ xs.zip(0 until n)
     private var currentDistances: Array[Int] = null // for each row
     private var futureDistances: Array[Int] = null // for each row
     private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
+
+    override def propagate = {
+        if (costs.domain == TrueDomain) {
+            feasibleRows =
+                feasibleRows.filter(row => (0 until n).forall(i => xs(i).domain.contains(IntegerValue.get(row(i)))))
+            Variable.pruneDomains(
+                for (i <- 0 until n) yield {
+                    val feasibleValues = feasibleRows.toIterator.map(row => IntegerValue.get(row(i))).toSet
+                    val x = xs(i)
+                    (x, x.domain.intersect(IntegerDomain.createDomain(feasibleValues)))
+                }
+            )
+        } else {
+            false
+        }
+    }
 
     override def initialize(now: SearchState) = {
         currentDistances = new Array[Int](m)

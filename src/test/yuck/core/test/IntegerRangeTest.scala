@@ -72,6 +72,9 @@ final class IntegerRangeTest extends UnitTest {
 
     @Test
     def testMultiplication {
+        assertEq(EmptyIntegerRange.mult(EmptyIntegerRange), EmptyIntegerRange)
+        assertEq(EmptyIntegerRange.mult(createRange(1, 10)), EmptyIntegerRange)
+        assertEq(createRange(1, 10).mult(EmptyIntegerRange), EmptyIntegerRange)
         assertEq(createRange(0, 2).mult(createRange(1, 2)), createRange(0, 4))
         assertEq(createRange(0, 2).mult(createRange(-1, 2)), createRange(-2, 4))
         assertEq(createRange(-2, 2).mult(createRange(3, 10)), createRange(-20, 20))
@@ -79,6 +82,9 @@ final class IntegerRangeTest extends UnitTest {
 
     @Test
     def testDivision {
+        assertEq(EmptyIntegerRange.div(EmptyIntegerRange), EmptyIntegerRange)
+        assertEq(EmptyIntegerRange.div(createRange(1, 10)), EmptyIntegerRange)
+        assertEq(createRange(1, 10).div(EmptyIntegerRange), EmptyIntegerRange)
         assertEq(createRange(-1, 100).div(createRange(-2, 8)), CompleteIntegerRange)
         assertEq(createRange(10, 100).div(createRange(0, 0)), EmptyIntegerRange)
         assertEq(createRange(-100, -10).div(createRange(-2, 5)), createRange(-100, 100))
