@@ -28,7 +28,7 @@ final class VariableDrivenNeighbourhoodFactory
 
     private lazy val searchVariables = space.searchVariables
 
-    protected override def createNeighbourhoodForSatisfactionGoal(x: Variable[BooleanValue]) = {
+    protected override def createNeighbourhoodForSatisfactionGoal(x: BooleanVariable) = {
         val levelCfg = cfg.level0Configuration
         if (levelCfg.guideOptimization) createNeighbourhood(OptimizationMode.Min, levelCfg, x)
         else super.createNeighbourhoodForSatisfactionGoal(x)
@@ -36,7 +36,7 @@ final class VariableDrivenNeighbourhoodFactory
 
     protected override def createNeighbourhoodForMinimizationGoal
         [Value <: NumericalValue[Value]]
-        (x: Variable[Value])
+        (x: NumericalVariable[Value])
         (implicit valueTraits: NumericalValueTraits[Value]):
         Option[Neighbourhood] =
     {
@@ -47,7 +47,7 @@ final class VariableDrivenNeighbourhoodFactory
 
     private def createNeighbourhood
         [Value <: NumericalValue[Value]]
-        (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, x: Variable[Value])
+        (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[Value])
         (implicit valueTraits: NumericalValueTraits[Value]):
         Option[Neighbourhood] =
     {
@@ -118,7 +118,7 @@ final class VariableDrivenNeighbourhoodFactory
         [Value <: NumericalValue[Value]]
         (x: AnyVariable)
         (implicit valueTraits: NumericalValueTraits[Value]):
-        Map[AnyVariable, Variable[Value]] =
+        Map[AnyVariable, NumericalVariable[Value]] =
     {
         val zs = new mutable.AnyRefMap[AnyVariable, mutable.ArrayBuffer[AX[Value]]]
         if (space.isSearchVariable(x)) {
@@ -132,15 +132,14 @@ final class VariableDrivenNeighbourhoodFactory
             constraint match {
                 case lc: LinearCombination[Value @ unchecked] =>
                     for (ax <- lc.axs
-                         if ax.a >= valueTraits.zero &&
-                             valueTraits.safeDowncast(ax.x.domain).maybeLb.exists(_ >= valueTraits.zero))
+                         if ax.a >= valueTraits.zero && ax.x.domain.maybeLb.exists(_ >= valueTraits.zero))
                     {
                         for (y <- space.involvedSearchVariables(ax.x)) {
                             zs(y) += ax
                         }
                     }
                 case sum: Sum[Value @ unchecked] =>
-                    for (x <- sum.xs if valueTraits.safeDowncast(x.domain).maybeLb.exists(_ >= valueTraits.zero)) {
+                    for (x <- sum.xs if x.domain.maybeLb.exists(_ >= valueTraits.zero)) {
                         for (y <- space.involvedSearchVariables(x)) {
                             zs(y) += new AX(valueTraits.one, x)
                         }
@@ -148,7 +147,7 @@ final class VariableDrivenNeighbourhoodFactory
                 case _ =>
             }
         }
-        val s = new mutable.AnyRefMap[AnyVariable, Variable[Value]]
+        val s = new mutable.AnyRefMap[AnyVariable, NumericalVariable[Value]]
         for (x <- zs.keys) {
             s += x -> createNonNegativeChannel[Value]
             val zl = AX.compact(zs(x))
@@ -163,7 +162,7 @@ final class VariableDrivenNeighbourhoodFactory
 
     private def createHotSpotDistribution
         [Value <: NumericalValue[Value]]
-        (hotSpotIndicators: Map[AnyVariable, Variable[Value]])
+        (hotSpotIndicators: Map[AnyVariable, NumericalVariable[Value]])
         (xs: Seq[AnyVariable])
         (implicit valueTraits: NumericalValueTraits[Value]):
         Option[Distribution] =

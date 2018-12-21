@@ -9,16 +9,16 @@ import yuck.core._
 final class Plus
     [Value <: NumericalValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value], z: Variable[Value])
+     x: NumericalVariable[Value], y: NumericalVariable[Value], z: NumericalVariable[Value])
     (implicit valueTraits: NumericalValueTraits[Value])
     extends TernaryConstraint(id, goal, x, y, z)
 {
     override def toString = "%s = %s + %s".format(z, x, y)
     override def op(a: Value, b: Value) = a + b
     override def propagate = {
-        import valueTraits.{safeDowncast => cast, one}
-        val lhs0 = Seq((one, cast(x.domain)), (one, cast(y.domain)))
-        val (lhs1, dz1) = valueTraits.domainPruner.linEq(lhs0, cast(z.domain))
+        import valueTraits.one
+        val lhs0 = Seq((one, x.domain), (one, y.domain))
+        val (lhs1, dz1) = valueTraits.domainPruner.linEq(lhs0, z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
         Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
@@ -31,16 +31,16 @@ final class Plus
 final class Minus
     [Value <: NumericalValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value], z: Variable[Value])
+     x: NumericalVariable[Value], y: NumericalVariable[Value], z: NumericalVariable[Value])
     (implicit valueTraits: NumericalValueTraits[Value])
     extends TernaryConstraint(id, goal, x, y, z)
 {
     override def toString = "%s = %s - %s".format(z, x, y)
     override def op(a: Value, b: Value) = a - b
     override def propagate = {
-        import valueTraits.{safeDowncast => cast, one, zero}
-        val lhs0 = Seq((one, cast(x.domain)), (zero - one, cast(y.domain)))
-        val (lhs1, dz1) = valueTraits.domainPruner.linEq(lhs0, cast(z.domain))
+        import valueTraits.{one, zero}
+        val lhs0 = Seq((one, x.domain), (zero - one, y.domain))
+        val (lhs1, dz1) = valueTraits.domainPruner.linEq(lhs0, z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
         Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
@@ -53,15 +53,14 @@ final class Minus
 final class Times
     [Value <: NumericalValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value], z: Variable[Value])
+     x: NumericalVariable[Value], y: NumericalVariable[Value], z: NumericalVariable[Value])
     (implicit valueTraits: NumericalValueTraits[Value])
-    extends TernaryConstraint(id, goal, x, y, z)
+    extends TernaryConstraint[Value, Value, Value](id, goal, x, y, z)
 {
     override def toString = "%s = %s * %s".format(z, x, y)
     override def op(a: Value, b: Value) = a * b
     override def propagate = {
-        import valueTraits.{safeDowncast => cast}
-        val (dx1, dy1, dz1) = valueTraits.domainPruner.times(cast(x.domain), cast(y.domain), cast(z.domain))
+        val (dx1, dy1, dz1) = valueTraits.domainPruner.times(x.domain, y.domain, z.domain)
         Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
 }
@@ -73,7 +72,7 @@ final class Times
 final class Div
     [Value <: NumericalValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value], z: Variable[Value])
+     x: NumericalVariable[Value], y: NumericalVariable[Value], z: NumericalVariable[Value])
     extends TernaryConstraint(id, goal, x, y, z)
 {
     override def toString = "%s = %s / %s".format(z, x, y)
@@ -87,7 +86,7 @@ final class Div
 final class Power
     [Value <: NumericalValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value], z: Variable[Value])
+     x: NumericalVariable[Value], y: NumericalVariable[Value], z: NumericalVariable[Value])
     extends TernaryConstraint(id, goal, x, y, z)
 {
     override def toString = "%s = %s ^ %s".format(z, x, y)
@@ -101,7 +100,7 @@ final class Power
 final class Mod
     [Value <: NumericalValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value], z: Variable[Value])
+     x: NumericalVariable[Value], y: NumericalVariable[Value], z: NumericalVariable[Value])
     extends TernaryConstraint(id, goal, x, y, z)
 {
     override def toString = "%s = %s % %s".format(z, x, y)
@@ -115,7 +114,7 @@ final class Mod
 final class Abs
     [Value <: NumericalValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value])
+     x: NumericalVariable[Value], y: NumericalVariable[Value])
     extends BinaryConstraint(id, goal, x, y)
 {
     override def toString = "%s = |%s|".format(y, x)
@@ -129,7 +128,7 @@ final class Abs
 final class Even
     [Value <: NumericalValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[BooleanValue])
+     x: NumericalVariable[Value], y: BooleanVariable)
     extends BinaryConstraint(id, goal, x, y)
 {
     override def toString = "%s = even(%s)".format(y, x)
@@ -143,7 +142,7 @@ final class Even
 final class Uneven
     [Value <: NumericalValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[BooleanValue])
+     x: NumericalVariable[Value], y: BooleanVariable)
     extends BinaryConstraint(id, goal, x, y)
 {
     override def toString = "%s = uneven(%s)".format(y, x)

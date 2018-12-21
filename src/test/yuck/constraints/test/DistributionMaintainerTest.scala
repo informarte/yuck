@@ -22,8 +22,8 @@ class DistributionMaintainerTest extends UnitTest {
         val space = new Space(logger)
         val dx = new IntegerRange(IntegerValue.get(-10), IntegerValue.get(50))
         val dy = new IntegerRange(IntegerValue.get(0), IntegerValue.get(100))
-        val x = space.createVariable("x", dx)
-        val y = space.createVariable("y", dy)
+        val x = new IntegerVariable(space.variableIdFactory.nextId, "x", dx)
+        val y = new IntegerVariable(space.variableIdFactory.nextId, "y", dy)
         val axs = immutable.IndexedSeq(new AX(Three, x), new AX(IntegerValue.get(-2), y))
         val c = new DistributionMaintainer(space.constraintIdFactory.nextId, null, OptimizationMode.Min, axs, d)
         space
@@ -74,8 +74,8 @@ class DistributionMaintainerTest extends UnitTest {
         val space = new Space(logger)
         val dx = new IntegerRange(IntegerValue.get(0), IntegerValue.get(100))
         val dy = new IntegerRange(IntegerValue.get(-10), IntegerValue.get(50))
-        val x = space.createVariable("x", dx)
-        val y = space.createVariable("y", dy)
+        val x = new IntegerVariable(space.variableIdFactory.nextId, "x", dx)
+        val y = new IntegerVariable(space.variableIdFactory.nextId, "y", dy)
         val axs = immutable.IndexedSeq(new AX(Three, x), new AX(IntegerValue.get(-2), y))
         val c = new DistributionMaintainer(space.constraintIdFactory.nextId, null, OptimizationMode.Max, axs, d)
         space

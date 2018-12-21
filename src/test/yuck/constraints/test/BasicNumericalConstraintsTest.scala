@@ -20,24 +20,24 @@ final class BasicNumericalConstraintsTest extends UnitTest {
     def testPlus {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val s = space.createVariable("s", d)
-        val t = space.createVariable("t", d)
-        val u = space.createVariable("u", d)
-        val v = space.createVariable("v", d)
-        val w = space.createVariable("w", d)
+        val s = new IntegerVariable(space.variableIdFactory.nextId, "s", d)
+        val t = new IntegerVariable(space.variableIdFactory.nextId, "t", d)
+        val u = new IntegerVariable(space.variableIdFactory.nextId, "u", d)
+        val v = new IntegerVariable(space.variableIdFactory.nextId, "v", d)
+        val w = new IntegerVariable(space.variableIdFactory.nextId, "w", d)
         // u = s + t
         space
             .post(new Plus(space.constraintIdFactory.nextId, null, s, t, u))
-            .setValue(s, new IntegerValue(1))
-            .setValue(t, new IntegerValue(2))
+            .setValue(s, One)
+            .setValue(t, Two)
             .post(new Plus(space.constraintIdFactory.nextId, null, u, v, w))
-            .setValue(v, new IntegerValue(1))
+            .setValue(v, One)
             .initialize
         assertEq(Set(s, t, v), space.searchVariables)
         val now = space.searchState
         assertEq(now.value(u), Three)
         assertEq(now.value(w), Four)
-        val move = new ChangeValue(space.moveIdFactory.nextId, s, new IntegerValue(2))
+        val move = new ChangeValue(space.moveIdFactory.nextId, s, Two)
         val after = space.consult(move)
         assertEq(after.value(u), Four)
         assertEq(after.value(w), Five)

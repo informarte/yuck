@@ -17,8 +17,8 @@ import yuck.util.testing.IntegrationTest
 final class SendMoreMoney extends IntegrationTest {
 
     private final class ModelData(
-        val LHS: List[(Int, Variable[IntegerValue])],
-        val RHS: List[(Int, Variable[IntegerValue])])
+        val LHS: List[(Int, IntegerVariable)],
+        val RHS: List[(Int, IntegerVariable)])
 
     private final class SendMoreMoneyGenerator(i: Int, seed: Int, sigint: Sigint) extends SolverGenerator {
         override def solverName = "SA-%d".format(i)
@@ -41,38 +41,38 @@ final class SendMoreMoney extends IntegrationTest {
             val sigint = new SettableSigint
             val d = new IntegerRange(Zero, Nine)
             val d1 = new IntegerRange(One, Nine)
-            val S = space.createVariable("S", d1)
-            val E = space.createVariable("E", d)
-            val N = space.createVariable("N", d)
-            val D = space.createVariable("D", d)
-            val M = space.createVariable("M", d1)
-            val O = space.createVariable("O", d)
-            val R = space.createVariable("R", d)
-            val Y = space.createVariable("Y", d)
+            val S = new IntegerVariable(space.variableIdFactory.nextId, "S", d1)
+            val E = new IntegerVariable(space.variableIdFactory.nextId, "E", d)
+            val N = new IntegerVariable(space.variableIdFactory.nextId, "N", d)
+            val D = new IntegerVariable(space.variableIdFactory.nextId, "D", d)
+            val M = new IntegerVariable(space.variableIdFactory.nextId, "M", d1)
+            val O = new IntegerVariable(space.variableIdFactory.nextId, "O", d)
+            val R = new IntegerVariable(space.variableIdFactory.nextId, "R", d)
+            val Y = new IntegerVariable(space.variableIdFactory.nextId, "Y", d)
             val vars = Set(S, E, N, D, M, O, R, E, M, O, N, E, Y)
-            val numberOfMissingValues = space.createVariable("numberOfMissingValues", CompleteBooleanDomain)
+            val numberOfMissingValues = new BooleanVariable(space.variableIdFactory.nextId, "numberOfMissingValues", CompleteBooleanDomain)
             space.post(
                 new Alldistinct(
                     space.constraintIdFactory.nextId, null, Vector(S, E, N, D, M, O, R, Y), numberOfMissingValues))
             val LHS = List((1000, S), (100, E), (10, N), (1, D), (1000, M), (100, O), (10, R), (1, E))
             val RHS = List((10000, M), (1000, O), (100, N), (10, E), (1, Y))
-            val lhs = space.createVariable("lhs", CompleteIntegerRange)
+            val lhs = new IntegerVariable(space.variableIdFactory.nextId, "lhs", CompleteIntegerRange)
             space.post(
                 new LinearCombination(
                     space.constraintIdFactory.nextId,
                     null,
-                    LHS.map { case (a, x) => new AX(new IntegerValue(a), x) },
+                    LHS.map{case (a, x) => new AX(new IntegerValue(a), x)},
                     lhs))
-            val rhs = space.createVariable("rhs", CompleteIntegerRange)
+            val rhs = new IntegerVariable(space.variableIdFactory.nextId, "rhs", CompleteIntegerRange)
             space.post(
                 new LinearCombination(
                     space.constraintIdFactory.nextId,
                     null,
-                    RHS.map { case (a, x) => new AX(new IntegerValue(a), x) },
+                    RHS.map{case (a, x) => new AX(new IntegerValue(a), x)},
                     rhs))
-            val delta = space.createVariable("delta", CompleteBooleanDomain)
+            val delta = new BooleanVariable(space.variableIdFactory.nextId, "delta", CompleteBooleanDomain)
             space.post(new Eq(space.constraintIdFactory.nextId, null, lhs, rhs, delta))
-            val costs = space.createVariable("costs", CompleteBooleanDomain)
+            val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
             space.post(
                 new LinearCombination(
                     space.constraintIdFactory.nextId, null,

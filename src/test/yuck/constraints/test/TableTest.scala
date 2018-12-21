@@ -20,10 +20,10 @@ final class TableTest extends UnitTest {
     def testIntegerTable1 {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val s = space.createVariable("s", d)
-        val t = space.createVariable("t", d)
-        val u = space.createVariable("u", d)
-        val costs = space.createVariable("costs", CompleteBooleanDomain)
+        val s = new IntegerVariable(space.variableIdFactory.nextId, "s", d)
+        val t = new IntegerVariable(space.variableIdFactory.nextId, "t", d)
+        val u = new IntegerVariable(space.variableIdFactory.nextId, "u", d)
+        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
         val rows = immutable.IndexedSeq(immutable.IndexedSeq(0, 0, 0), immutable.IndexedSeq(1, 2, 3))
         val c = new IntegerTable(space.constraintIdFactory.nextId, null, immutable.IndexedSeq(s, t, u), rows, costs)
         space
@@ -69,9 +69,9 @@ final class TableTest extends UnitTest {
     @Test
     def testIntegerTable2 {
         val space = new Space(logger)
-        val s = space.createVariable("s", new IntegerRange(Two, Five))
-        val t = space.createVariable("t", new IntegerRange(Two, Three))
-        val costs = space.createVariable("costs", TrueDomain)
+        val s = new IntegerVariable(space.variableIdFactory.nextId, "s", new IntegerRange(Two, Five))
+        val t = new IntegerVariable(space.variableIdFactory.nextId, "t", new IntegerRange(Two, Three))
+        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", TrueDomain)
         val rows =
             immutable.IndexedSeq(
                 0, 0,

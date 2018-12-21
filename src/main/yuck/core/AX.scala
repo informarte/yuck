@@ -7,7 +7,7 @@ package yuck.core
  */
 final case class AX
     [Value <: NumericalValue[Value]]
-    (val a: Value, val x: Variable[Value])
+    (val a: Value, val x: NumericalVariable[Value])
 {
     override def toString = "%s * %s".format(a, x)
     override def hashCode = x.hashCode

@@ -20,10 +20,10 @@ final class DisjunctionTest extends UnitTest {
     def testDisjunction {
         val space = new Space(logger)
         val d = CompleteBooleanDomain
-        val s = space.createVariable("s", d)
-        val t = space.createVariable("t", d)
-        val u = space.createVariable("u", d)
-        val costs = space.createVariable("costs", CompleteBooleanDomain)
+        val s = new BooleanVariable(space.variableIdFactory.nextId, "s", d)
+        val t = new BooleanVariable(space.variableIdFactory.nextId, "t", d)
+        val u = new BooleanVariable(space.variableIdFactory.nextId, "u", d)
+        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
         val c = new Disjunction(space.constraintIdFactory.nextId, null, List(s, t, u), costs)
         space
             .post(c)

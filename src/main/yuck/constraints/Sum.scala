@@ -10,10 +10,8 @@ import yuck.core._
  */
 final class Sum
     [Value <: NumericalValue[Value]]
-    (id: Id[Constraint],
-     goal: Goal,
-     val xs: immutable.Seq[Variable[Value]],
-     y: Variable[Value])
+    (id: Id[Constraint], goal: Goal,
+     val xs: immutable.Seq[NumericalVariable[Value]], y: NumericalVariable[Value])
     (implicit valueTraits: NumericalValueTraits[Value])
     extends Constraint(id, goal)
 {
@@ -28,9 +26,9 @@ final class Sum
 
     override def propagate = {
         val lhs0 = new Iterable[(Value, NumericalDomain[Value])] {
-            override def iterator = xs.toIterator.map(x => (valueTraits.one, valueTraits.safeDowncast(x.domain)))
+            override def iterator = xs.toIterator.map(x => (valueTraits.one, x.domain))
         }
-        val rhs0 = valueTraits.safeDowncast(y.domain)
+        val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.linEq(lhs0, rhs0)
         Variable.pruneDomains(xs.toIterator.zip(lhs1.toIterator)) ||| y.pruneDomain(rhs1)
     }
@@ -47,7 +45,7 @@ final class Sum
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         effect.a = sum
         for (x <- move.involvedVariables) {
-            val y = x.asInstanceOf[Variable[Value]]
+            val y = valueTraits.safeDowncast(x)
             effect.a = effect.a.addAndSub(valueTraits.one, after.value(y), before.value(y))
         }
         effects

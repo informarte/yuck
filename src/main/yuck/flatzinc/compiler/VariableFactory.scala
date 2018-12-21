@@ -30,6 +30,8 @@ class VariableFactory
         cc.ast.varDecls.foreach(createVariable)
     }
 
+    import HighPriorityImplicits._
+
     private def createParameter(decl: ParamDecl) {
         decl.paramType match {
             case BoolType =>
@@ -99,17 +101,17 @@ class VariableFactory
         [Value <: OrderedValue[Value]]
         (key: Expr)
         (implicit valueTraits: OrderedValueTraits[Value]):
-        Variable[Value] =
+        OrderedVariable[Value] =
     {
         def factory(key: Expr) =
-            space.createVariable(key.toString, valueTraits.safeDowncast(domains(key)))
+            valueTraits.createVariable(space, key.toString, valueTraits.safeDowncast(domains(key)))
         val maybeEqualVars = equalVars.get(key)
         if (maybeEqualVars.isDefined) {
             val representative = maybeEqualVars.get.head
             if (! vars.contains(representative)) {
                 vars += representative -> factory(representative)
             }
-            val x = vars(representative).asInstanceOf[Variable[Value]]
+            val x = valueTraits.safeDowncast(vars(representative))
             if (key != representative) {
                 vars += key -> x
             }

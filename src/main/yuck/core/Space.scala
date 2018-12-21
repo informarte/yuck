@@ -139,10 +139,13 @@ final class Space(
     val moveIdFactory = new IdFactory[Move]
 
     /** Convenience method for creating variables. */
-    def createVariable[Value <: AnyValue](name: String, domain: Domain[Value]): Variable[Value] = {
-        val x = new Variable[Value](variableIdFactory.nextId, name, domain)
-        if (domain.isSingleton) setValue(x, domain.singleValue)
-        x
+    def createVariable
+        [Value <: AnyValue]
+        (name: String, domain: Domain[Value])
+        (implicit valueTraits: AnyValueTraits[Value]):
+        Variable[Value] =
+    {
+        valueTraits.createVariable(this, name, domain)
     }
 
     // Scala's ArrayBuffer.contains uses an iterator, so it's quite slow when used often on small buffers.

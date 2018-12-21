@@ -12,7 +12,7 @@ import yuck.core._
  *
  */
 final class CumulativeTask(
-    val s: Variable[IntegerValue], val d: Variable[IntegerValue], val c: Variable[IntegerValue])
+    val s: IntegerVariable, val d: IntegerVariable, val c: IntegerVariable)
 {
     override def toString = "(%s, %s, %s)".format(s, d, c)
 }
@@ -27,8 +27,8 @@ final class CumulativeTask(
  */
 final class Cumulative
     (id: Id[Constraint], goal: Goal,
-     tasks: immutable.Seq[CumulativeTask], ub: Variable[IntegerValue],
-     costs: Variable[BooleanValue])
+     tasks: immutable.Seq[CumulativeTask], ub: IntegerVariable,
+     costs: BooleanVariable)
     extends Constraint(id, goal)
 {
 
@@ -130,7 +130,7 @@ final class Cumulative
                 addTasks(s1, safeDec(safeAdd(s1, d1)))
             }
         }
-        val visited = new mutable.HashSet[Variable[IntegerValue]]
+        val visited = new mutable.HashSet[IntegerVariable]
         for (x <- move.involvedVariables) {
             if (x != ub) {
                 val t = var2Task(x)

@@ -15,12 +15,12 @@ import yuck.util.logging.LazyLogger
  * @author Michael Marte
  */
 final class InverseFunction
-    (val xs: immutable.IndexedSeq[Variable[IntegerValue]],
+    (val xs: immutable.IndexedSeq[IntegerVariable],
      val offset: Int)
 {
     require(! xs.isEmpty)
     val indexRange = offset until safeAdd(offset, xs.size)
-    val indexDomain = IntegerValueTraits.createDomain(IntegerValue.get(offset), IntegerValue.get(offset + xs.size - 1))
+    val indexDomain = IntegerDomain.createRange(IntegerValue.get(offset), IntegerValue.get(offset + xs.size - 1))
     val x2i = new immutable.HashMap[AnyVariable, Int] ++ xs.zip(indexRange)
     val refs = new Array[mutable.HashSet[Int]](xs.size)
     val visited = new Array[Int](xs.size)
@@ -54,7 +54,7 @@ final class Inverse
     (id: Id[Constraint], goal: Goal,
      f: InverseFunction,
      g: InverseFunction,
-     costs: Variable[BooleanValue])
+     costs: BooleanVariable)
     extends Constraint(id, goal)
 {
 
@@ -245,10 +245,10 @@ final class Inverse
                     // general case
                     val logger = space.logger
                     val subspace = new Space(logger, space.checkConstraintPropagation)
-                    val subf = new InverseFunction(f.xs.map(x => subspace.createVariable(x.name, x.domain)), f.offset)
-                    val subg = new InverseFunction(g.xs.map(y => subspace.createVariable(y.name, y.domain)), g.offset)
+                    val subf = new InverseFunction(f.xs.map(x => new IntegerVariable(subspace.variableIdFactory.nextId, x.name, x.domain)), f.offset)
+                    val subg = new InverseFunction(g.xs.map(y => new IntegerVariable(subspace.variableIdFactory.nextId, y.name, y.domain)), g.offset)
                     val result = logger.withTimedLogScope("Solving %s".format(this)) {
-                        val subcosts = subspace.createVariable("", BooleanValueTraits.completeDomain)
+                        val subcosts = new BooleanVariable(subspace.variableIdFactory.nextId, "", CompleteBooleanDomain)
                         subspace.post(new Inverse(subspace.constraintIdFactory.nextId, goal, subf, subg, subcosts))
                         val initializer = new RandomInitializer(subspace, randomGenerator.nextGen)
                         initializer.run
@@ -306,18 +306,18 @@ final class Inverse
 
     // Sometimes inverse constraints are decomposable (see elitserien, for example).
     def decompose(space: Space): Seq[Inverse] = {
-        type Partition = mutable.ArrayBuffer[Variable[IntegerValue]]
+        type Partition = mutable.ArrayBuffer[IntegerVariable]
         type PartitionByDomain = mutable.AnyRefMap[IntegerDomain, Partition]
-        def partitionByDomain(xs: Iterable[Variable[IntegerValue]]): PartitionByDomain =
+        def partitionByDomain(xs: Iterable[IntegerVariable]): PartitionByDomain =
             xs.foldLeft(new PartitionByDomain()) {
                 (map, x) => {
-                    val dx = IntegerValueTraits.safeDowncast(x.domain)
+                    val dx = x.domain
                     map += dx -> (map.getOrElse(dx, new Partition()) += x)
                 }
             }
         lazy val fPartitionByDomain = partitionByDomain(f.xs)
         lazy val gPartitionByDomain = partitionByDomain(g.xs)
-        def domainLt(lhs: OrderedDomain[IntegerValue], rhs: OrderedDomain[IntegerValue]) =
+        def domainLt(lhs: IntegerDomain, rhs: IntegerDomain) =
             lhs.lb < rhs.lb || (lhs.lb == rhs.lb && lhs.ub < rhs.ub)
         def union(lhs: IntegerDomain, rhs: IntegerDomain) = lhs.union(rhs)
         val isDecomposable =
@@ -329,12 +329,12 @@ final class Inverse
             // the variables do not all have the same domain
             fPartitionByDomain.size > 1 &&
             // the domains do not overlap
-            fPartitionByDomain.keysIterator.foldLeft(IntegerValueTraits.emptyDomain){union}.size ==
+            fPartitionByDomain.keysIterator.foldLeft[IntegerDomain](EmptyIntegerRange){union}.size ==
                 fPartitionByDomain.keysIterator.map(_.size).sum
         if (isDecomposable) {
             for (domain <- fPartitionByDomain.keysIterator.toList) yield {
                 val offset = domain.lb.value
-                val costs = space.createVariable("", BooleanValueTraits.completeDomain)
+                val costs = new BooleanVariable(space.variableIdFactory.nextId, "", CompleteBooleanDomain)
                 new Inverse(
                     space.constraintIdFactory.nextId, goal,
                     new InverseFunction(fPartitionByDomain(domain).toIndexedSeq, offset),
@@ -355,8 +355,8 @@ abstract class InverseNeighbourhood
     extends Neighbourhood
 {
 
-    protected final def value(x: Variable[IntegerValue]): IntegerValue = space.searchState.value(x)
-    protected final def rawValue(x: Variable[IntegerValue]): Int = value(x).value
+    protected final def value(x: IntegerVariable): IntegerValue = space.searchState.value(x)
+    protected final def rawValue(x: IntegerVariable): Int = value(x).value
 
     require(f.xs.size == g.xs.size)
     require(f.isSuitableForImplicitSolving(space))

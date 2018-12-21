@@ -20,10 +20,10 @@ final class MaximumTest extends UnitTest {
     def testMaximum {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val s = space.createVariable("s", d)
-        val t = space.createVariable("t", d)
-        val u = space.createVariable("u", d)
-        val max = space.createVariable("costs", CompleteIntegerRange)
+        val s = new IntegerVariable(space.variableIdFactory.nextId, "s", d)
+        val t = new IntegerVariable(space.variableIdFactory.nextId, "t", d)
+        val u = new IntegerVariable(space.variableIdFactory.nextId, "u", d)
+        val max = new IntegerVariable(space.variableIdFactory.nextId, "costs", CompleteIntegerRange)
         val c = new Maximum(space.constraintIdFactory.nextId, null, List(s, t, u), max)
         space
             .post(c)

@@ -11,7 +11,7 @@ import yuck.core._
 final class CountVar
     [Value <: AnyValue]
     (id: Id[Constraint], goal: Goal,
-     xs: immutable.Seq[Variable[Value]], y: Variable[Value], n: Variable[IntegerValue])
+     xs: immutable.Seq[Variable[Value]], y: Variable[Value], n: IntegerVariable)
     (implicit valueTraits: AnyValueTraits[Value])
     extends ValueFrequencyTracker[Value, IntegerValue](
         id, goal, xs, n,

@@ -41,6 +41,8 @@ class NeighbourhoodFactory
         cc.maybeNeighbourhood = createNeighbourhood
     }
 
+    import HighPriorityImplicits._
+
     private final def createNeighbourhood: Option[Neighbourhood] = {
         val maybeNeighbourhood0 =
             logger.withTimedLogScope("Creating a neighbourhood for solving hard constraints") {
@@ -66,16 +68,16 @@ class NeighbourhoodFactory
         maybeNeighbourhood1
     }
 
-    protected def createNeighbourhoodForSatisfactionGoal(x: Variable[BooleanValue]): Option[Neighbourhood] =
+    protected def createNeighbourhoodForSatisfactionGoal(x: BooleanVariable): Option[Neighbourhood] =
         createNeighbourhoodOnInvolvedSearchVariables(x)
 
     protected def createNeighbourhoodForMinimizationGoal
         [Value <: NumericalValue[Value]]
-        (x: Variable[Value])
+        (x: NumericalVariable[Value])
         (implicit valueTraits: NumericalValueTraits[Value]):
         Option[Neighbourhood] =
     {
-        val dx = valueTraits.safeDowncast(x.domain)
+        val dx = x.domain
         if (space.isDanglingVariable(x) && dx.hasLb) {
             val a = dx.lb
             logger.logg("Assigning %s to dangling objective variable %s".format(a, x))
@@ -88,11 +90,11 @@ class NeighbourhoodFactory
 
     protected def createNeighbourhoodForMaximizationGoal
         [Value <: NumericalValue[Value]]
-        (x: Variable[Value])
+        (x: NumericalVariable[Value])
         (implicit valueTraits: NumericalValueTraits[Value]):
         Option[Neighbourhood] =
     {
-        val dx = valueTraits.safeDowncast(x.domain)
+        val dx = x.domain
         if (space.isDanglingVariable(x) && dx.hasUb) {
             val a = dx.ub
             logger.logg("Assigning %s to dangling objective variable %s".format(a, x))
@@ -105,7 +107,7 @@ class NeighbourhoodFactory
 
     private final class Level
         [Value <: NumericalValue[Value]]
-        (val costs: Variable[Value], val objective: AnyObjective)
+        (val costs: NumericalVariable[Value], val objective: AnyObjective)
     {
         val weight = createNonNegativeChannel[IntegerValue]
         val effect = new ReusableEffectWithFixedVariable(weight)
@@ -133,8 +135,8 @@ class NeighbourhoodFactory
     }
 
     private final def stackNeighbourhoods(
-        costs0: Variable[BooleanValue], maybeNeighbourhood0: Option[Neighbourhood],
-        costs1: Variable[IntegerValue], maybeNeighbourhood1: Option[Neighbourhood]):
+        costs0: BooleanVariable, maybeNeighbourhood0: Option[Neighbourhood],
+        costs1: IntegerVariable, maybeNeighbourhood1: Option[Neighbourhood]):
         Option[Neighbourhood] =
     {
         (maybeNeighbourhood0, maybeNeighbourhood1) match {

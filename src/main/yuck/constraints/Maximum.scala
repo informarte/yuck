@@ -11,7 +11,7 @@ import yuck.core._
 final class Maximum
     [Value <: OrderedValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     xs: immutable.Seq[Variable[Value]], y: Variable[Value])
+     xs: immutable.Seq[OrderedVariable[Value]], y: OrderedVariable[Value])
     (implicit valueTraits: OrderedValueTraits[Value])
     extends ValueFrequencyTracker[Value, Value](
         id, goal, xs, y,
@@ -24,9 +24,9 @@ final class Maximum
         valueRegistry.last._1
     override def propagate = {
         val lhs0 = new Iterable[OrderedDomain[Value]] {
-            override def iterator = xs.toIterator.map(x => valueTraits.safeDowncast(x.domain))
+            override def iterator = xs.toIterator.map(x => x.domain)
         }
-        val rhs0 = valueTraits.safeDowncast(y.domain)
+        val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.max(lhs0, rhs0)
         Variable.pruneDomains(xs.toIterator.zip(lhs1.toIterator)) ||| y.pruneDomain(rhs1)
    }

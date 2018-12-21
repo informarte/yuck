@@ -22,13 +22,15 @@ final class ObjectiveFactory
     private val implicitlyConstrainedVars = cc.implicitlyConstrainedVars
     private val costVars = cc.costVars
 
+    import HighPriorityImplicits._
+
     override def run {
         val objectives = new mutable.ArrayBuffer[AnyObjective]
         cc.ast.solveGoal match {
             case Satisfy(_) =>
             case Minimize(a, _) =>
-                val x = compileExpr[IntegerValue](a)
-                val dx = x.domain.asInstanceOf[IntegerDomain]
+                val x = compileIntExpr(a)
+                val dx = x.domain
                 val lb =
                     cfg.maybeTargetObjectiveValue
                     .orElse(dx.maybeLb.map(_.value))
@@ -47,10 +49,10 @@ final class ObjectiveFactory
                         dx.maybeUb.isDefined)
                     {
                         logger.log("Objective variable %s is a channel variable with upper bound, setting up for progressive tightening".format(x))
-                        val y = space.createVariable("_YUCK_UB", dx)
+                        val y = new IntegerVariable(space.variableIdFactory.nextId, "_YUCK_UB", dx)
                         space.setValue(y, dx.ub)
                         implicitlyConstrainedVars += y
-                        val z = createNonNegativeChannel[BooleanValue]
+                        val z = createBoolChannel
                         costVars += z
                         space.post(new Le(nextConstraintId, null, x, y, z))
                         Some(y)
@@ -62,8 +64,8 @@ final class ObjectiveFactory
                     cc.objectiveVar = maybeObjectiveVar.get
                 }
             case Maximize(a, _) =>
-                val x = compileExpr[IntegerValue](a)
-                val dx = x.domain.asInstanceOf[IntegerDomain]
+                val x = compileIntExpr(a)
+                val dx = x.domain
                 val ub =
                     cfg.maybeTargetObjectiveValue
                     .orElse(dx.maybeUb.map(_.value))
@@ -82,10 +84,10 @@ final class ObjectiveFactory
                         dx.maybeLb.isDefined)
                     {
                         logger.log("Objective variable %s is a channel variable with lower bound, setting up for progressive tightening".format(x))
-                        val y = space.createVariable("_YUCK_LB", dx)
+                        val y = new IntegerVariable(space.variableIdFactory.nextId, "_YUCK_LB", dx)
                         space.setValue(y, dx.lb)
                         implicitlyConstrainedVars += y
-                        val z = createNonNegativeChannel[BooleanValue]
+                        val z = createBoolChannel
                         costVars += z
                         space.post(new Le(nextConstraintId, null, y, x, z))
                         Some(y)
@@ -97,7 +99,7 @@ final class ObjectiveFactory
                     cc.objectiveVar = maybeObjectiveVar.get
                 }
         }
-        cc.costVar = createNonNegativeChannel[BooleanValue]
+        cc.costVar = createBoolChannel
         space.post(new Sum(nextConstraintId, null, costVars.toIndexedSeq, cc.costVar))
         objectives += new MinimizationObjective(cc.costVar, True, None)
         cc.objective =

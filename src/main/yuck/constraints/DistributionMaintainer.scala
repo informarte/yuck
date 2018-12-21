@@ -54,7 +54,7 @@ final class DistributionMaintainer
     private def computeFrequency(ax: AX[Value], searchState: SearchState): Long = {
         val a = ax.a.toLong
         val b = searchState.value(ax.x).toLong
-        val dx = valueTraits.safeDowncast(ax.x.domain)
+        val dx = ax.x.domain
         val delta = mode match {
             case OptimizationMode.Min =>
                 if (ax.a < valueTraits.zero) safeMul(-a, safeSub(dx.ub.toLong, b)) // minimize -a * (dx.ub - x)

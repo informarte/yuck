@@ -9,18 +9,21 @@ import yuck.core._
 final class Eq
     [Value <: OrderedValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value], z: Variable[BooleanValue])
+     x: OrderedVariable[Value], y: OrderedVariable[Value], z: BooleanVariable)
     (implicit valueTraits: OrderedValueTraits[Value])
     extends TernaryConstraint(id, goal, x, y, z)
-    with ReifiedBinaryConstraintPropagator[Value, Value]
+    with ReifiedBinaryConstraintPropagator[OrderedDomain[Value], OrderedDomain[Value]]
 {
     override def toString = "%s = %s == %s".format(z, x, y)
     override def op(a: Value, b: Value) = valueTraits.orderingCostModel.eq(a, b)
-    override def propagate = propagate(x, y, z)
-    override protected def enforce(lhs: Domain[Value], rhs: Domain[Value]) =
-        valueTraits.domainPruner.eq(valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
-    override protected def prohibit(lhs: Domain[Value], rhs: Domain[Value]) =
-        valueTraits.domainPruner.ne(valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
+    override def propagate = {
+        val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
+        Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
+    }
+    override protected def enforce(lhs: OrderedDomain[Value], rhs: OrderedDomain[Value]) =
+        valueTraits.domainPruner.eq(lhs, rhs)
+    override protected def prohibit(lhs: OrderedDomain[Value], rhs: OrderedDomain[Value]) =
+        valueTraits.domainPruner.ne(lhs, rhs)
 }
 
 /**
@@ -30,18 +33,21 @@ final class Eq
 final class Ne
     [Value <: OrderedValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value], z: Variable[BooleanValue])
+     x: OrderedVariable[Value], y: OrderedVariable[Value], z: BooleanVariable)
     (implicit valueTraits: OrderedValueTraits[Value])
     extends TernaryConstraint(id, goal, x, y, z)
-    with ReifiedBinaryConstraintPropagator[Value, Value]
+    with ReifiedBinaryConstraintPropagator[OrderedDomain[Value], OrderedDomain[Value]]
 {
     override def toString = "%s = %s != %s".format(z, x, y)
     override def op(a: Value, b: Value) = valueTraits.orderingCostModel.ne(a, b)
-    override def propagate = propagate(x, y, z)
-    override protected def enforce(lhs: Domain[Value], rhs: Domain[Value]) =
-        valueTraits.domainPruner.ne(valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
-    override protected def prohibit(lhs: Domain[Value], rhs: Domain[Value]) =
-        valueTraits.domainPruner.eq(valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
+    override def propagate = {
+        val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
+        Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
+    }
+    override protected def enforce(lhs: OrderedDomain[Value], rhs: OrderedDomain[Value]) =
+        valueTraits.domainPruner.ne(lhs, rhs)
+    override protected def prohibit(lhs: OrderedDomain[Value], rhs: OrderedDomain[Value]) =
+        valueTraits.domainPruner.eq(lhs, rhs)
 }
 
 /**
@@ -51,18 +57,21 @@ final class Ne
 final class Lt
     [Value <: OrderedValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value], z: Variable[BooleanValue])
+     x: OrderedVariable[Value], y: OrderedVariable[Value], z: BooleanVariable)
     (implicit valueTraits: OrderedValueTraits[Value])
     extends TernaryConstraint(id, goal, x, y, z)
-    with ReifiedBinaryConstraintPropagator[Value, Value]
+    with ReifiedBinaryConstraintPropagator[OrderedDomain[Value], OrderedDomain[Value]]
 {
     override def toString = "%s = %s < %s".format(z, x, y)
     override def op(a: Value, b: Value) = valueTraits.orderingCostModel.lt(a, b)
-    override def propagate = propagate(x, y, z)
-    override protected def enforce(lhs: Domain[Value], rhs: Domain[Value]) =
-        valueTraits.domainPruner.lt(valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
-    override protected def prohibit(lhs0: Domain[Value], rhs0: Domain[Value]) = {
-        val (rhs1, lhs1) = valueTraits.domainPruner.le(valueTraits.safeDowncast(rhs0), valueTraits.safeDowncast(lhs0))
+    override def propagate = {
+        val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
+        Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
+    }
+    override protected def enforce(lhs: OrderedDomain[Value], rhs: OrderedDomain[Value]) =
+        valueTraits.domainPruner.lt(lhs, rhs)
+    override protected def prohibit(lhs0: OrderedDomain[Value], rhs0: OrderedDomain[Value]) = {
+        val (rhs1, lhs1) = valueTraits.domainPruner.le(rhs0, lhs0)
         (lhs1, rhs1)
     }
 }
@@ -74,18 +83,21 @@ final class Lt
 final class Le
     [Value <: OrderedValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value], z: Variable[BooleanValue])
+     x: OrderedVariable[Value], y: OrderedVariable[Value], z: BooleanVariable)
     (implicit valueTraits: OrderedValueTraits[Value])
     extends TernaryConstraint(id, goal, x, y, z)
-    with ReifiedBinaryConstraintPropagator[Value, Value]
+    with ReifiedBinaryConstraintPropagator[OrderedDomain[Value], OrderedDomain[Value]]
 {
     override def toString = "%s = %s <= %s".format(z, x, y)
     override def op(a: Value, b: Value) = valueTraits.orderingCostModel.le(a, b)
-    override def propagate = propagate(x, y, z)
-    override protected def enforce(lhs: Domain[Value], rhs: Domain[Value]) =
-        valueTraits.domainPruner.le(valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
-    override protected def prohibit(lhs0: Domain[Value], rhs0: Domain[Value]) = {
-        val (rhs1, lhs1) = valueTraits.domainPruner.lt(valueTraits.safeDowncast(rhs0), valueTraits.safeDowncast(lhs0))
+    override def propagate = {
+        val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
+        Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
+    }
+    override protected def enforce(lhs: OrderedDomain[Value], rhs: OrderedDomain[Value]) =
+        valueTraits.domainPruner.le(lhs, rhs)
+    override protected def prohibit(lhs0: OrderedDomain[Value], rhs0: OrderedDomain[Value]) = {
+        val (rhs1, lhs1) = valueTraits.domainPruner.lt(rhs0, lhs0)
         (lhs1, rhs1)
     }
 }
@@ -97,15 +109,14 @@ final class Le
 final class Min
     [Value <: OrderedValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value], z: Variable[Value])
+     x: OrderedVariable[Value], y: OrderedVariable[Value], z: OrderedVariable[Value])
     (implicit valueTraits: OrderedValueTraits[Value])
     extends TernaryConstraint(id, goal, x, y, z)
 {
     override def toString = "%s = min(%s, %s)".format(z, x, y)
     override def op(a: Value, b: Value) = if (a < b) a else b
     override def propagate = {
-        import valueTraits.{safeDowncast => cast}
-        val (lhs1, dz1) = valueTraits.domainPruner.min(Seq(cast(x.domain), cast(y.domain)), cast(z.domain))
+        val (lhs1, dz1) = valueTraits.domainPruner.min(Seq(x.domain, y.domain), z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
         Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
@@ -118,15 +129,14 @@ final class Min
 final class Max
     [Value <: OrderedValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     x: Variable[Value], y: Variable[Value], z: Variable[Value])
+     x: OrderedVariable[Value], y: OrderedVariable[Value], z: OrderedVariable[Value])
     (implicit valueTraits: OrderedValueTraits[Value])
     extends TernaryConstraint(id, goal, x, y, z)
 {
     override def toString = "%s = max(%s, %s)".format(z, x, y)
     override def op(a: Value, b: Value) = if (a > b) a else b
     override def propagate = {
-        import valueTraits.{safeDowncast => cast}
-        val (lhs1, dz1) = valueTraits.domainPruner.max(Seq(cast(x.domain), cast(y.domain)), cast(z.domain))
+        val (lhs1, dz1) = valueTraits.domainPruner.max(Seq(x.domain, y.domain), z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
         Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
     }

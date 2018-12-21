@@ -10,7 +10,7 @@ import yuck.core._
  */
 final class BinPackingItem
     [Weight <: NumericalValue[Weight]]
-    (val bin: Variable[IntegerValue], val weight: Weight)
+    (val bin: IntegerVariable, val weight: Weight)
 {
     override def toString = "(%s, %s)".format(bin, weight)
 }

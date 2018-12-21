@@ -35,13 +35,13 @@ import yuck.core._
  */
 final class Regular
     (id: Id[Constraint], goal: Goal,
-     xs: immutable.IndexedSeq[Variable[IntegerValue]],
+     xs: immutable.IndexedSeq[IntegerVariable],
      Q: Int,
      S: Int,
      delta: immutable.IndexedSeq[immutable.IndexedSeq[Int]],
      q0: Int,
      F: IntegerDomain,
-     costs: Variable[BooleanValue])
+     costs: BooleanVariable)
     extends Constraint(id, goal)
 {
 

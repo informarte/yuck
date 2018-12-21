@@ -23,7 +23,7 @@ final class CountConstTest extends UnitTest {
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
-        val n = space.createVariable("n", NonNegativeIntegerRange)
+        val n = new IntegerVariable(space.variableIdFactory.nextId, "n", NonNegativeIntegerRange)
         val c = new CountConst(space.constraintIdFactory.nextId, null, List(s, t, u), One, n)
         space
             .post(c)

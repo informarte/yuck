@@ -158,8 +158,8 @@ final class SpaceTest extends UnitTest {
     // according to their contracts.
     private final class Spy
         (id: Id[Constraint],
-         xs: Set[Variable[IntegerValue]],
-         sum: Variable[IntegerValue], avg: Variable[IntegerValue])
+         xs: Set[IntegerVariable],
+         sum: IntegerVariable, avg: IntegerVariable)
         extends Constraint(id, null)
     {
         require(! xs.isEmpty)
@@ -249,20 +249,20 @@ final class SpaceTest extends UnitTest {
             }
 
             // build constraint network (see above for how we do it)
-            val X = new mutable.ArrayBuffer[Variable[IntegerValue]]
+            val X = new mutable.ArrayBuffer[IntegerVariable]
             for (i <- 1 to k) {
-                X += space.createVariable("x(0, %d)".format(i), dx)
+                X += new IntegerVariable(space.variableIdFactory.nextId, "x(0, %d)".format(i), dx)
             }
             for (i <- 1 to l) {
-                val P = new mutable.HashSet[Variable[IntegerValue]]
+                val P = new mutable.HashSet[IntegerVariable]
                 while (P.size < k) {
                     P += X(randomGenerator.nextInt(X.size))
                 }
                 var j = 1
                 for (Q <- P.subsets if ! Q.isEmpty) {
-                    val sum = space.createVariable("sum(%d, %d)".format(i, j), NonNegativeIntegerRange)
+                    val sum = new IntegerVariable(space.variableIdFactory.nextId, "sum(%d, %d)".format(i, j), NonNegativeIntegerRange)
                     X += sum
-                    val avg = space.createVariable("avg(%d, %d)".format(i, j), NonNegativeIntegerRange)
+                    val avg = new IntegerVariable(space.variableIdFactory.nextId, "avg(%d, %d)".format(i, j), NonNegativeIntegerRange)
                     X += avg
                     val spy = new Spy(space.constraintIdFactory.nextId, Q, sum, avg)
                     space.post(spy)

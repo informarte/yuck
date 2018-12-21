@@ -20,11 +20,11 @@ final class LexLessTest extends UnitTest {
     def testLexLess {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val s = space.createVariable("s", d)
-        val t = space.createVariable("t", d)
-        val u = space.createVariable("u", d)
-        val v = space.createVariable("v", d)
-        val costs = space.createVariable("costs", CompleteBooleanDomain)
+        val s = new IntegerVariable(space.variableIdFactory.nextId, "s", d)
+        val t = new IntegerVariable(space.variableIdFactory.nextId, "t", d)
+        val u = new IntegerVariable(space.variableIdFactory.nextId, "u", d)
+        val v = new IntegerVariable(space.variableIdFactory.nextId, "v", d)
+        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
         val c =
             new LexLess(
                 space.constraintIdFactory.nextId, null,

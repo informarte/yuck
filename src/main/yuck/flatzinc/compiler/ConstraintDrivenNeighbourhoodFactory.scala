@@ -35,7 +35,7 @@ final class ConstraintDrivenNeighbourhoodFactory
     extends NeighbourhoodFactory(cc, randomGenerator)
 {
 
-    protected override def createNeighbourhoodForSatisfactionGoal(x: Variable[BooleanValue]) = {
+    protected override def createNeighbourhoodForSatisfactionGoal(x: BooleanVariable) = {
         val levelCfg = cfg.level0Configuration
         if (levelCfg.guideOptimization) createNeighbourhood(OptimizationMode.Min, levelCfg, x)
         else super.createNeighbourhoodForSatisfactionGoal(x)
@@ -43,7 +43,7 @@ final class ConstraintDrivenNeighbourhoodFactory
 
     protected override def createNeighbourhoodForMinimizationGoal
         [Value <: NumericalValue[Value]]
-        (x: Variable[Value])
+        (x: NumericalVariable[Value])
         (implicit valueTraits: NumericalValueTraits[Value]):
         Option[Neighbourhood] =
     {
@@ -54,7 +54,7 @@ final class ConstraintDrivenNeighbourhoodFactory
 
     protected override def createNeighbourhoodForMaximizationGoal
         [Value <: NumericalValue[Value]]
-        (x: Variable[Value])
+        (x: NumericalVariable[Value])
         (implicit valueTraits: NumericalValueTraits[Value]):
         Option[Neighbourhood] =
     {
@@ -65,7 +65,7 @@ final class ConstraintDrivenNeighbourhoodFactory
 
     private def createNeighbourhood
         [Value <: NumericalValue[Value]]
-        (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, x: Variable[Value])
+        (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[Value])
         (implicit valueTraits: NumericalValueTraits[Value]):
         Option[Neighbourhood] =
     {
@@ -100,13 +100,6 @@ final class ConstraintDrivenNeighbourhoodFactory
     private case class ImplicitConstraintMaintainer(override val neighbourhood: Neighbourhood) extends AnnotatedNeighbourhood
     private case class OtherNeighbourhood(override val neighbourhood: Neighbourhood) extends AnnotatedNeighbourhood
 
-    private def domain
-        [Value <: OrderedValue[Value]]
-        (x: Variable[Value])
-        (implicit valueTraits: OrderedValueTraits[Value]):
-        OrderedDomain[Value] =
-        valueTraits.safeDowncast(x.domain)
-
     private def createNeighbourhoodFactory
         [Value <: NumericalValue[Value]]
         (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, constraint: yuck.core.Constraint)
@@ -115,16 +108,16 @@ final class ConstraintDrivenNeighbourhoodFactory
     {
         (mode, constraint) match {
             case (OptimizationMode.Min, lc: LinearCombination[Value @ unchecked])
-            if (lc.axs.forall(ax => if (ax.a < valueTraits.zero) domain(ax.x).hasUb else domain(ax.x).hasLb)) =>
+            if (lc.axs.forall(ax => if (ax.a < valueTraits.zero) ax.x.domain.hasUb else ax.x.domain.hasLb)) =>
                 createNeighbourhoodFactory(mode, levelCfg, lc.axs)
             case (OptimizationMode.Max, lc: LinearCombination[Value @ unchecked])
-            if (lc.axs.forall(ax => if (ax.a < valueTraits.zero) domain(ax.x).hasLb else domain(ax.x).hasUb)) =>
+            if (lc.axs.forall(ax => if (ax.a < valueTraits.zero) ax.x.domain.hasLb else ax.x.domain.hasUb)) =>
                 createNeighbourhoodFactory(mode, levelCfg, lc.axs)
             case (OptimizationMode.Min, sum: Sum[Value @ unchecked])
-            if (sum.xs.forall(x => domain(x).hasLb)) =>
+            if (sum.xs.forall(x => x.domain.hasLb)) =>
                 createNeighbourhoodFactory(mode, levelCfg, sum.xs.map(new AX(valueTraits.one, _)))
             case (OptimizationMode.Max, sum: Sum[Value @ unchecked])
-            if (sum.xs.forall(x => domain(x).hasUb)) =>
+            if (sum.xs.forall(x => x.domain.hasUb)) =>
                 createNeighbourhoodFactory(mode, levelCfg, sum.xs.map(new AX(valueTraits.one, _)))
             case _ => {
                 val xs = constraint.inVariables.toSet

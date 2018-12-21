@@ -17,7 +17,7 @@ final class ObjectiveTest extends UnitTest {
     def testMinimizationObjective {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val x = space.createVariable("x", d)
+        val x = new IntegerVariable(space.variableIdFactory.nextId, "x", d)
         val a = new Assignment
         a.setValue(x, Zero)
         val o = new MinimizationObjective(x, Zero, Some(MinusOne))
@@ -67,7 +67,7 @@ final class ObjectiveTest extends UnitTest {
     def testMaximizationObjective {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val x = space.createVariable("x", d)
+        val x = new IntegerVariable(space.variableIdFactory.nextId, "x", d)
         val a = new Assignment
         a.setValue(x, Zero)
         val o = new MaximizationObjective(x, Zero, Some(One))
@@ -115,8 +115,8 @@ final class ObjectiveTest extends UnitTest {
     def testHierarchicalObjective {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val x = space.createVariable("x", d)
-        val y = space.createVariable("y", d)
+        val x = new IntegerVariable(space.variableIdFactory.nextId, "x", d)
+        val y = new IntegerVariable(space.variableIdFactory.nextId, "y", d)
         val a = new Assignment
         a.setValue(x, Zero)
         a.setValue(y, One)

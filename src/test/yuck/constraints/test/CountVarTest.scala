@@ -24,7 +24,7 @@ final class CountVarTest extends UnitTest {
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
         val what = space.createVariable("what", d)
-        val n = space.createVariable("n", NonNegativeIntegerRange)
+        val n = new IntegerVariable(space.variableIdFactory.nextId, "n", NonNegativeIntegerRange)
         val c = new CountVar(space.constraintIdFactory.nextId, null, List(s, t, u), what, n)
         space
             .post(c)

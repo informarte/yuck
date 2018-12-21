@@ -15,7 +15,7 @@ import yuck.core._
 final class Element
     [Value <: AnyValue]
     (id: Id[Constraint], goal: Goal,
-     xs: IndexedSeq[Variable[Value]], i: Variable[IntegerValue], y: Variable[Value], indexBase: Int)
+     xs: IndexedSeq[Variable[Value]], i: IntegerVariable, y: Variable[Value], indexBase: Int)
     (implicit valueTraits: AnyValueTraits[Value])
     extends Constraint(id, goal)
 {

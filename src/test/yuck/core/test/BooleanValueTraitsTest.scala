@@ -35,11 +35,34 @@ final class BooleanValueTraitsTest extends UnitTest {
     }
 
     @Test
-    def testCasting {
+    def testVariableFactories {
+        val space = new Space(logger)
+        val x = createVariable(space, "x", FalseDomain)
+        val c = createChannel(space)
+        assertEq(x.name, "x")
+        assertEq(x.domain, FalseDomain)
+        assertEq(c.domain, CompleteBooleanDomain)
+    }
+
+    @Test
+    def testValueCasting {
         safeDowncast(False)
-        assertEx(safeDowncast(Zero))
+        assertEx(safeDowncast(Zero), classOf[ClassCastException])
+    }
+
+    @Test
+    def testDomainCasting {
         safeDowncast(CompleteBooleanDecisionDomain)
-        assertEx(safeDowncast(CompleteIntegerRange))
+        assertEx(safeDowncast(CompleteIntegerRange), classOf[ClassCastException])
+    }
+
+    @Test
+    def testVariableCasting {
+        val space = new Space(logger)
+        val b = space.createVariable("b", CompleteBooleanDecisionDomain)
+        val i = space.createVariable("i", CompleteIntegerRange)
+        safeDowncast(b)
+        assertEx(safeDowncast(i), classOf[ClassCastException])
     }
 
     @Test

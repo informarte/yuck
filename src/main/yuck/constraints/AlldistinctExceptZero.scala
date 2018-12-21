@@ -18,7 +18,7 @@ import yuck.core._
 final class AlldistinctExceptZero
     [Value <: NumericalValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     xs: immutable.Seq[Variable[Value]], costs: Variable[BooleanValue])
+     xs: immutable.Seq[NumericalVariable[Value]], costs: BooleanVariable)
     (implicit valueTraits: NumericalValueTraits[Value])
     extends ValueFrequencyTracker[Value, BooleanValue](
         id, goal, xs, costs,

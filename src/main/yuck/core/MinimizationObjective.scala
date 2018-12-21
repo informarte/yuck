@@ -9,7 +9,7 @@ import scala.math._
  */
 final class MinimizationObjective
     [Value <: NumericalValue[Value]]
-    (x: Variable[Value],
+    (x: NumericalVariable[Value],
      override val targetCosts: Value,
      maybeTighteningStep: Option[Value])
     (implicit valueTraits: NumericalValueTraits[Value])

@@ -25,8 +25,8 @@ final class ProgressiveTighteningTest extends IntegrationTest {
 
     private val space = new Space(logger)
     private val d = new IntegerRange(Zero, Nine)
-    private val x = space.createVariable("x", d)
-    private val y = space.createVariable("y", d)
+    private val x = new IntegerVariable(space.variableIdFactory.nextId, "x", d)
+    private val y = new IntegerVariable(space.variableIdFactory.nextId, "y", d)
     private val randomGenerator = new JavaRandomGenerator(DEFAULT_SEED)
     private val tighteningCounter = new TighteningCounter(y)
     space.post(new DummyConstraint(space.constraintIdFactory.nextId, List(x, y), Nil))

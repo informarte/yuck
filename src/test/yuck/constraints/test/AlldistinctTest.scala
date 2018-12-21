@@ -24,7 +24,7 @@ final class AlldistinctTest extends UnitTest {
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
-        val costs = space.createVariable("costs", CompleteBooleanDomain)
+        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
         val c = new Alldistinct(space.constraintIdFactory.nextId, null, Vector(s, t, u), costs)
         space
             .post(c)
@@ -54,7 +54,7 @@ final class AlldistinctTest extends UnitTest {
         val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
-        val costs = space.createVariable("costs", CompleteBooleanDomain)
+        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
         val c = new Alldistinct(space.constraintIdFactory.nextId, null, Vector(s, t, t), costs)
         space
             .post(c)
@@ -93,7 +93,7 @@ final class AlldistinctTest extends UnitTest {
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
-        val costs = space.createVariable("costs", CompleteBooleanDomain)
+        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
         val c = new Alldistinct(space.constraintIdFactory.nextId, null, Vector(s, t, u), costs)
         space
             .post(c)
@@ -127,10 +127,10 @@ final class AlldistinctTest extends UnitTest {
     def testAlldistinctExceptZero {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val s = space.createVariable("s", d)
-        val t = space.createVariable("t", d)
-        val u = space.createVariable("u", d)
-        val costs = space.createVariable("costs", CompleteBooleanDomain)
+        val s = new IntegerVariable(space.variableIdFactory.nextId, "s", d)
+        val t = new IntegerVariable(space.variableIdFactory.nextId, "t", d)
+        val u = new IntegerVariable(space.variableIdFactory.nextId, "u", d)
+        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
         val c = new AlldistinctExceptZero(space.constraintIdFactory.nextId, null, List(s, t, u), costs)
         space
             .post(c)
@@ -176,9 +176,9 @@ final class AlldistinctTest extends UnitTest {
     def testAlldistinctExceptZeroWithAVariableOccuringTwice {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val s = space.createVariable("s", d)
-        val t = space.createVariable("t", d)
-        val costs = space.createVariable("costs", CompleteBooleanDomain)
+        val s = new IntegerVariable(space.variableIdFactory.nextId, "s", d)
+        val t = new IntegerVariable(space.variableIdFactory.nextId, "t", d)
+        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
         val c = new AlldistinctExceptZero(space.constraintIdFactory.nextId, null, List(s, t, t), costs)
         space
             .post(c)

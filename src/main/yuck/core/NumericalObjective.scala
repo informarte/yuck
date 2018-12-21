@@ -9,7 +9,7 @@ import scala.math._
  */
 abstract class NumericalObjective
     [Value <: NumericalValue[Value]]
-    (val x: Variable[Value])
+    (val x: NumericalVariable[Value])
     (implicit valueTraits: NumericalValueTraits[Value])
     extends AnyObjective
 {
@@ -76,7 +76,7 @@ abstract class NumericalObjective
         {
             // We look for a value of x that is compatible with the current search state
             // while all smaller (or greater, respectively) values are in conflict with it.
-            val dx0 = valueTraits.safeDowncast(x.domain)
+            val dx0 = x.domain
             val a = space.searchState.value(x)
             val maybeB = findActualObjectiveValue(bound(dx0, a))
             if (maybeB.isDefined) {

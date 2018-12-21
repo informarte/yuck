@@ -7,9 +7,14 @@ package yuck.core
  */
 abstract class OrderedValueTraits[Value <: OrderedValue[Value]] extends AnyValueTraits[Value] {
 
+    override def createDomain(values: Set[Value]): OrderedDomain[Value]
     override val emptyDomain: OrderedDomain[Value]
     override val completeDomain: OrderedDomain[Value]
     override val domainPruner: OrderedDomainPruner[Value]
+    override def createVariable(space: Space, name: String, domain: Domain[Value]): OrderedVariable[Value]
+    override def createChannel(space: Space): OrderedVariable[Value]
+    override def safeDowncast(d: AnyDomain): OrderedDomain[Value]
+    override def safeDowncast(x: AnyVariable): OrderedVariable[Value]
 
     /** A total ordering induced by Value.compare. */
     implicit final val valueOrdering: Ordering[Value] = new Ordering[Value] {
@@ -26,9 +31,5 @@ abstract class OrderedValueTraits[Value <: OrderedValue[Value]] extends AnyValue
 
     /** Creates a domain from the given bounds. */
     def createDomain(lb: Value, ub: Value): OrderedDomain[Value]
-
-    /** Casts the given domain to an ordered domain over Value. */
-    def safeDowncast(x: Domain[Value]): OrderedDomain[Value] =
-        x.asInstanceOf[OrderedDomain[Value]]
 
 }

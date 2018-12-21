@@ -12,6 +12,7 @@ import scala.language.higherKinds
  *
  * @author Michael Marte
  */
+// TODO Rename to ValueTraits!?
 abstract class AnyValueTraits[Value <: AnyValue] {
 
     /** Returns the type of the concrete values. */
@@ -29,65 +30,19 @@ abstract class AnyValueTraits[Value <: AnyValue] {
     /** Returns a domain pruner for use by generic constraints. */
     val domainPruner: DomainPruner[Value]
 
-    /** Throws when the type of the given value differs from Value. */
-    final def checkType(a: AnyValue) {
-        require(
-            a.valueType == valueType,
-            "Value %s has type %s but not %s as expected".format(a, a.valueType, valueType))
-    }
+    /** Creates a variable over the given domain in the given space. */
+    def createVariable(space: Space, name: String, domain: Domain[Value]): Variable[Value]
 
-    /** Casts the given value to Value. */
-    private final def unsafeDowncast(a: AnyValue): Value =
-        a.asInstanceOf[Value]
+    /** Creates a channel variable in the given space. */
+    def createChannel(space: Space): Variable[Value]
 
     /** Tries to cast the given value to Value. */
-    final def safeDowncast(a: AnyValue): Value = {
-        checkType(a)
-        unsafeDowncast(a)
-    }
-
-    /** Throws when the given domain is not a domain over Value. */
-    final def checkType(d: AnyDomain) {
-        require(
-            d.valueType == valueType,
-            "Domain %s has type %s but not %s as expected".format(d, d.valueType, valueType))
-    }
-
-    /** Casts the given domain to a domain over Value. */
-    private final def unsafeDowncast(x: AnyDomain): Domain[Value] =
-        x.asInstanceOf[Domain[Value]]
+    def safeDowncast(a: AnyValue): Value
 
     /** Tries to cast the given domain to a domain over Value. */
-    final def safeDowncast(d: AnyDomain): Domain[Value] = {
-        checkType(d)
-        unsafeDowncast(d)
-    }
-
-    /** Throws when the given variable is not a variable over Value. */
-    final def checkType(x: AnyVariable) {
-        require(
-            x.valueType == valueType,
-            "Variable %s has type %s but not %s as expected".format(x.name, x.valueType, valueType))
-    }
-
-    /** Casts the given variable to a variable over Value. */
-    final def unsafeDowncast(x: AnyVariable): Variable[Value] =
-        x.asInstanceOf[Variable[Value]]
-
-    /** Casts the given variable collection to a collection of variables over Value. */
-    final def unsafeDowncast[CC[X] <: TraversableOnce[X]](xs: CC[AnyVariable]): CC[Variable[Value]] =
-        xs.asInstanceOf[CC[Variable[Value]]]
+    def safeDowncast(d: AnyDomain): Domain[Value]
 
     /** Tries to cast the given variable to a variable over Value. */
-    final def safeDowncast(x: AnyVariable): Variable[Value] = {
-        checkType(x)
-        unsafeDowncast(x)
-    }
-
-    /** Tries to cast the given variable collection to a collection of variables over Value. */
-    final def safeDowncast[CC[X] <: TraversableOnce[X]](xs: CC[AnyVariable]): CC[Variable[Value]] = {
-        xs.foreach(checkType)
-        unsafeDowncast(xs)
-    }
+    def safeDowncast(x: AnyVariable): Variable[Value]
 
 }

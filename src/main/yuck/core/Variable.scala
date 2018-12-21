@@ -1,13 +1,13 @@
 package yuck.core
 
 /**
- * Implements typed variables.
+ * Provides an interface for working with typed variables.
  *
  * @author Michael Marte
  */
-final class Variable
+abstract class Variable
     [Value <: AnyValue]
-    (id: Id[AnyVariable], name: String, private var currentDomain: Domain[Value])
+    (id: Id[AnyVariable], name: String)
     extends AnyVariable(id, name)
 {
 
@@ -19,23 +19,7 @@ final class Variable
      * Throws a [[yuck.core.DomainWipeOutException DomainWipeOutException]]
      * when the variable's domain became empty.
      */
-    def pruneDomain(restriction: Domain[Value]): Boolean = {
-        if (restriction != currentDomain) {
-            // Assuming that restriction is usually a subset of currentDomain,
-            // we avoid useless and expensive intersections.
-            if (restriction.isSubsetOf(currentDomain)) {
-                currentDomain = restriction
-            } else {
-                currentDomain = currentDomain.intersect(restriction)
-            }
-            if (currentDomain.isEmpty) {
-                throw new DomainWipeOutException(this)
-            }
-            true
-        } else {
-            false
-        }
-    }
+    def pruneDomain(restriction: Domain[Value]): Boolean
 
     /**
      * Replaces the variable's domain with the given domain.
@@ -44,19 +28,9 @@ final class Variable
      *
      * Throws when the new domain is not a superset of the current domain.
      */
-    def relaxDomain(relaxation: Domain[Value]): Boolean = {
-        if (relaxation != currentDomain) {
-            require(
-                currentDomain.isSubsetOf(relaxation),
-                "%s is not a superset of %s".format(relaxation, currentDomain))
-            currentDomain = relaxation
-            true
-        } else {
-            false
-        }
-    }
+    def relaxDomain(relaxation: Domain[Value]): Boolean
 
-    override def domain: Domain[Value] = currentDomain
+    override def domain: Domain[Value]
 
     override def nextMove(space: Space, randomGenerator: RandomGenerator) =
         new ChangeValue(
@@ -65,7 +39,7 @@ final class Variable
             domain.nextRandomValue(randomGenerator, space.searchState.value(this)))
 
     override def assignRandomValue(space: Space, randomGenerator: RandomGenerator) = {
-        space.setValue(this, domain.randomValue(randomGenerator))
+        space.setValue(this, if (domain.isSingleton) domain.singleValue else domain.randomValue(randomGenerator))
     }
 
     private val reuseableEffect = new ReusableEffectWithFixedVariable[Value](this)

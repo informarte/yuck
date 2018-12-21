@@ -8,16 +8,23 @@ package yuck.core
 final object BooleanValueTraits extends NumericalValueTraits[BooleanValue] {
     override val valueType = classOf[BooleanValue]
     override val orderingCostModel = BooleanOrderingCostModel
-    override val domainPruner = BooleanDomainPruner
+    override val zero = True
+    override val one = False
     override def createDomain(values: Set[BooleanValue]) = {
         require(values.isEmpty || values.toIterator.map(_.violation).max < 2)
         BooleanDecisionDomain.createDomain(values.contains(False), values.contains(True))
     }
     override def createDomain(lb: BooleanValue, ub: BooleanValue) =
         BooleanDecisionDomain.createDomain(lb, ub)
-    override val zero = True
-    override val one = False
     override val emptyDomain = EmptyBooleanDomain
     override val completeDomain = CompleteBooleanDomain
     override val nonNegativeDomain = completeDomain
+    override val domainPruner = BooleanDomainPruner
+    override def createVariable(space: Space, name: String, domain: Domain[BooleanValue]): BooleanVariable =
+        new BooleanVariable(space.variableIdFactory.nextId, name, safeDowncast(domain))
+    override def createChannel(space: Space): BooleanVariable =
+        new BooleanVariable(space.variableIdFactory.nextId, "", completeDomain)
+    override def safeDowncast(a: AnyValue): BooleanValue = a.asInstanceOf[BooleanValue]
+    override def safeDowncast(x: AnyDomain): BooleanDomain = x.asInstanceOf[BooleanDomain]
+    override def safeDowncast(x: AnyVariable): BooleanVariable = x.asInstanceOf[BooleanVariable]
 }

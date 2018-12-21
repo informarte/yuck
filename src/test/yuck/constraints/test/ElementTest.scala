@@ -24,8 +24,8 @@ final class ElementTest extends UnitTest {
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
         val xs = IndexedSeq(s, t, u)
-        val i = space.createVariable("i", d)
-        val y = space.createVariable("costs", NonNegativeIntegerRange)
+        val i = new IntegerVariable(space.variableIdFactory.nextId, "i", d)
+        val y = space.createVariable("y", NonNegativeIntegerRange)
         val c = new Element(space.constraintIdFactory.nextId, null, xs, i, y, 0)
         space
             .post(c)

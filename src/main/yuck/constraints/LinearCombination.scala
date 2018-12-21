@@ -11,7 +11,7 @@ import yuck.core._
 final class LinearCombination
     [Value <: NumericalValue[Value]]
     (id: Id[Constraint], goal: Goal,
-     val axs: immutable.Seq[AX[Value]], y: Variable[Value])
+     val axs: immutable.Seq[AX[Value]], y: NumericalVariable[Value])
     (implicit valueTraits: NumericalValueTraits[Value])
     extends Constraint(id, goal)
 {
@@ -30,9 +30,9 @@ final class LinearCombination
 
     override def propagate = {
         val lhs0 = new Iterable[(Value, NumericalDomain[Value])] {
-            override def iterator = axs.toIterator.map(ax => (ax.a, valueTraits.safeDowncast(ax.x.domain)))
+            override def iterator = axs.toIterator.map(ax => (ax.a, ax.x.domain))
         }
-        val rhs0 = valueTraits.safeDowncast(y.domain)
+        val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.linEq(lhs0, rhs0)
         Variable.pruneDomains(axs.toIterator.map(_.x).zip(lhs1.toIterator)) ||| y.pruneDomain(rhs1)
     }

@@ -11,7 +11,7 @@ import yuck.core._
 final class CountConst
     [Value <: AnyValue]
     (id: Id[Constraint], goal: Goal,
-     xs: Seq[Variable[Value]], a: Value, val n: Variable[IntegerValue])
+     xs: Seq[Variable[Value]], a: Value, val n: IntegerVariable)
     extends Constraint(id, goal)
 {
 

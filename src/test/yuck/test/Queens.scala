@@ -23,26 +23,26 @@ final class Queens extends IntegrationTest {
             // define problem
             val space = new Space(logger)
             val d = new IntegerRange(Zero, new IntegerValue(n - 1))
-            var rows = new Array[Variable[IntegerValue]](n)
-            var rowsMinusI = new Array[Variable[IntegerValue]](n)
-            var rowsPlusI = new Array[Variable[IntegerValue]](n)
+            var rows = new Array[IntegerVariable](n)
+            var rowsMinusI = new Array[IntegerVariable](n)
+            var rowsPlusI = new Array[IntegerVariable](n)
             for (col <- 0 to (n - 1)) {
-                rows.update(col, space.createVariable("row[%s]".format(col) , d))
-                rowsMinusI.update(col, space.createVariable("row[%s] - %s".format(col, col), CompleteIntegerRange))
-                rowsPlusI.update(col, space.createVariable("row[%s] + %s".format(col, col), CompleteIntegerRange))
+                rows.update(col, new IntegerVariable(space.variableIdFactory.nextId, "row[%s]".format(col) , d))
+                rowsMinusI.update(col, new IntegerVariable(space.variableIdFactory.nextId, "row[%s] - %s".format(col, col), CompleteIntegerRange))
+                rowsPlusI.update(col, new IntegerVariable(space.variableIdFactory.nextId, "row[%s] + %s".format(col, col), CompleteIntegerRange))
                 val iVal = new IntegerValue(col)
-                val iVar = space.createVariable(col.toString, new IntegerRange(iVal, iVal))
+                val iVar = new IntegerVariable(space.variableIdFactory.nextId, col.toString, new IntegerRange(iVal, iVal))
                 space.setValue(iVar, new IntegerValue(col))
                 space.post(new Minus(space.constraintIdFactory.nextId, null, rows.apply(col), iVar, rowsMinusI.apply(col)))
                 space.post(new Plus(space.constraintIdFactory.nextId, null, rows.apply(col), iVar, rowsPlusI.apply(col)))
             }
-            val rowConflicts = space.createVariable("rowConflicts", CompleteBooleanDomain)
+            val rowConflicts = new BooleanVariable(space.variableIdFactory.nextId, "rowConflicts", CompleteBooleanDomain)
             space.post(new Alldistinct(space.constraintIdFactory.nextId, null, rows.toIndexedSeq, rowConflicts))
-            val diagonalConflicts1 = space.createVariable("diagonalConflicts1", CompleteBooleanDomain)
+            val diagonalConflicts1 = new BooleanVariable(space.variableIdFactory.nextId, "diagonalConflicts1", CompleteBooleanDomain)
             space.post(new Alldistinct(space.constraintIdFactory.nextId, null, rowsMinusI.toIndexedSeq, diagonalConflicts1))
-            val diagonalConflicts2 = space.createVariable("diagonalConflicts2", CompleteBooleanDomain)
+            val diagonalConflicts2 = new BooleanVariable(space.variableIdFactory.nextId, "diagonalConflicts2", CompleteBooleanDomain)
             space.post(new Alldistinct(space.constraintIdFactory.nextId, null, rowsPlusI.toIndexedSeq, diagonalConflicts2))
-            val conflicts = space.createVariable("conflicts", CompleteBooleanDomain)
+            val conflicts = new BooleanVariable(space.variableIdFactory.nextId, "conflicts", CompleteBooleanDomain)
             space.post(
                 new LinearCombination(
                     space.constraintIdFactory.nextId,

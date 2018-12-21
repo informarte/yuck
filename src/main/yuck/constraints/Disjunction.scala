@@ -33,8 +33,8 @@ import yuck.core._
 final class Disjunction
     (id: Id[Constraint],
      goal: Goal,
-     xs: immutable.Seq[Variable[BooleanValue]],
-     y: Variable[BooleanValue])
+     xs: immutable.Seq[BooleanVariable],
+     y: BooleanVariable)
     extends Constraint(id, goal)
 {
 
@@ -89,7 +89,7 @@ final class Disjunction
         futureSum = sum
         futureTrueCount = trueCount
         for (x <- move.involvedVariables) {
-            val y = x.asInstanceOf[Variable[BooleanValue]]
+            val y = x.asInstanceOf[BooleanVariable]
             val a = before.value(y).violation
             val b = after.value(y).violation
             futureSum = safeAdd(futureSum, safeSub(b, a))

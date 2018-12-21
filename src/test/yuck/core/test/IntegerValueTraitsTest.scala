@@ -38,12 +38,35 @@ final class IntegerValueTraitsTest extends UnitTest {
     }
 
     @Test
-    def testCasting {
-        assertEx(safeDowncast(False))
+    def testVariableFactories {
+        val space = new Space(logger)
+        val x = createVariable(space, "x", NonNegativeIntegerRange)
+        val c = createChannel(space)
+        assertEq(x.name, "x")
+        assertEq(x.domain, NonNegativeIntegerRange)
+        assertEq(c.domain, CompleteIntegerRange)
+    }
+
+    @Test
+    def testValueCasting {
+        assertEx(safeDowncast(False), classOf[ClassCastException])
         safeDowncast(Zero)
+    }
+
+    @Test
+    def testDomainCasting {
         safeDowncast(EmptyIntegerRange)
         safeDowncast(EmptyIntegerRangeList)
-        assertEx(safeDowncast(EmptyBooleanDomain))
+        assertEx(safeDowncast(EmptyBooleanDomain), classOf[ClassCastException])
+    }
+
+    @Test
+    def testVariableCasting {
+        val space = new Space(logger)
+        val b = space.createVariable("b", CompleteBooleanDecisionDomain)
+        val i = space.createVariable("i", CompleteIntegerRange)
+        safeDowncast(i)
+        assertEx(safeDowncast(b), classOf[ClassCastException])
     }
 
     @Test

@@ -25,28 +25,6 @@ final class VariableTest extends UnitTest {
     }
 
     @Test
-    def testCasting {
-        val space = new Space(logger)
-        val b = space.createVariable("b", CompleteBooleanDecisionDomain)
-        val i = space.createVariable("i", CompleteIntegerRange)
-        BooleanValueTraits.unsafeDowncast(b)
-        BooleanValueTraits.unsafeDowncast(i)
-        BooleanValueTraits.safeDowncast(b)
-        BooleanValueTraits.unsafeDowncast[List](List(b, i))
-        assertEx(BooleanValueTraits.safeDowncast(i))
-        assertEx(IntegerValueTraits.safeDowncast(b))
-        BooleanValueTraits.safeDowncast[List](List(b))
-        assertEx(BooleanValueTraits.safeDowncast[List](List(b, i)))
-        IntegerValueTraits.safeDowncast(i)
-        val foo = space.createVariable("foo", new IntegerPowersetDomain(CompleteIntegerRange))
-        val bar = space.createVariable("bar", new SingletonIntegerSetDomain(CompleteIntegerRange))
-        IntegerSetValueTraits.safeDowncast(foo)
-        IntegerSetValueTraits.safeDowncast(bar)
-        IntegerSetValueTraits.safeDowncast[List](List(foo, bar))
-        assertEx(IntegerSetValueTraits.safeDowncast[List](List(b, i)))
-    }
-
-    @Test
     def testPruning1 {
         val space = new Space(logger)
         val x = space.createVariable("x", CompleteIntegerRange)

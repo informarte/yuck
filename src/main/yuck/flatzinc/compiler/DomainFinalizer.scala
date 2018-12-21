@@ -24,27 +24,26 @@ final class DomainFinalizer
     private def finalizeDomains {
         val done = new mutable.HashSet[AnyVariable]
         for ((key, x) <- cc.vars if ! done.contains(x)) {
-            val dx = x.domain
-            val tx = dx.valueType
-            if (tx == BooleanValueTraits.valueType) {
-                finalizeBooleanDomain(BooleanValueTraits.unsafeDowncast(x), dx.asInstanceOf[BooleanDomain])
-            } else if (tx == IntegerValueTraits.valueType) {
-                finalizeIntegerDomain(IntegerValueTraits.unsafeDowncast(x), dx.asInstanceOf[IntegerDomain])
-            } else if (tx == IntegerSetValueTraits.valueType) {
-                finalizeIntegerSetDomain(IntegerSetValueTraits.unsafeDowncast(x), dx.asInstanceOf[IntegerPowersetDomain])
+            x.domain match {
+                case dx: BooleanDomain =>
+                    finalizeBooleanDomain(BooleanValueTraits.safeDowncast(x), dx)
+                case dx: IntegerDomain =>
+                    finalizeIntegerDomain(IntegerValueTraits.safeDowncast(x), dx)
+                case dx: IntegerPowersetDomain =>
+                    finalizeIntegerSetDomain(IntegerSetValueTraits.safeDowncast(x), dx)
             }
             cc.logger.logg("Domain of %s is %s".format(x, x.domain))
             done += x
         }
     }
 
-    private def finalizeBooleanDomain(x: Variable[BooleanValue], dx: BooleanDomain) {
+    private def finalizeBooleanDomain(x: BooleanVariable, dx: BooleanDomain) {
         if (dx.isSingleton) {
             if (cc.space.isChannelVariable(x)) {
                 if (dx.singleValue.truthValue) {
                     cc.costVars += x
                 } else {
-                    val costs = createNonNegativeChannel[BooleanValue]
+                    val costs = createBoolChannel
                     cc.space.post(new Not(nextConstraintId, null, x, costs))
                     cc.costVars += costs
                 }
@@ -54,11 +53,11 @@ final class DomainFinalizer
         }
     }
 
-    private def finalizeIntegerDomain(x: Variable[IntegerValue], dx: IntegerDomain) {
+    private def finalizeIntegerDomain(x: IntegerVariable, dx: IntegerDomain) {
         if (dx.isBounded) {
             if (cc.space.isChannelVariable(x)) {
                 if (! cc.space.definingConstraint(x).get.isInstanceOf[Bool2Int1] || dx.isSingleton) {
-                    val costs = createNonNegativeChannel[BooleanValue]
+                    val costs = createBoolChannel
                     cc.space.post(new Contains(nextConstraintId, null, x, dx, costs))
                     cc.costVars += costs
                 }
@@ -70,10 +69,10 @@ final class DomainFinalizer
         }
     }
 
-    private def finalizeIntegerSetDomain(x: Variable[IntegerSetValue], dx: IntegerPowersetDomain) {
+    private def finalizeIntegerSetDomain(x: IntegerSetVariable, dx: IntegerPowersetDomain) {
         if (dx.isBounded) {
             if (cc.space.isChannelVariable(x)) {
-                val costs = createNonNegativeChannel[BooleanValue]
+                val costs = createBoolChannel
                 cc.space.post(new Subset(nextConstraintId, null, x, dx.base, costs))
                 cc.costVars += costs
             } else {

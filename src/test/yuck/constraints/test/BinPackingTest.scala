@@ -21,7 +21,7 @@ final class BinPackingTest extends UnitTest {
         val binDomain = new IntegerRange(One, Three)
         val items =
             (for (i <- (1 to 5).toIterator) yield {
-                val bin = space.createVariable("bin%d".format(i), binDomain)
+                val bin = new IntegerVariable(space.variableIdFactory.nextId, "bin%d".format(i), binDomain)
                 i -> new BinPackingItem(bin, IntegerValue.get(i))
             }).toMap
         val loads =

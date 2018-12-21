@@ -21,9 +21,9 @@ import yuck.core._
  */
 final class IntegerTable
     (id: Id[Constraint], goal: Goal,
-     xs: immutable.IndexedSeq[Variable[IntegerValue]],
+     xs: immutable.IndexedSeq[IntegerVariable],
      rows: immutable.IndexedSeq[immutable.IndexedSeq[Int]],
-     costs: Variable[BooleanValue])
+     costs: BooleanVariable)
     extends Constraint(id, goal)
 {
 

@@ -151,12 +151,12 @@ final object NeighbourhoodTestHelper {
 
     def createSpace
         (logger: LazyLogger, randomGenerator: RandomGenerator, domains: Seq[IntegerDomain]):
-        (Space, immutable.IndexedSeq[Variable[IntegerValue]]) =
+        (Space, immutable.IndexedSeq[IntegerVariable]) =
     {
         val space = new Space(logger)
         val xs =
             for ((i, domain) <- (0 until domains.size).zip(domains)) yield {
-                val x = space.createVariable("x%d".format(i), domain)
+                val x = new IntegerVariable(space.variableIdFactory.nextId, "x%d".format(i), domain)
                 space.setValue(x, x.domain.randomValue(randomGenerator))
                 x
             }

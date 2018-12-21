@@ -116,7 +116,7 @@ final class DomainInitializer
             case IntType(_) => b match {
                 case IntConst(value) =>
                     val da1 = intDomain(a)
-                    val da2 = da1.intersect(createIntegerDomain(value, value))
+                    val da2 = da1.intersect(createIntDomain(value, value))
                     if (da1 != da2) equalVars(a).foreach(b => reduceDomain(b, da2))
                 case b =>
                     val da = intDomain(a)
@@ -212,11 +212,11 @@ final class DomainInitializer
     private def createDomain(varType: Type): AnyDomain = varType match {
         case BoolType => CompleteBooleanDecisionDomain
         case IntType(None) => CompleteIntegerRange
-        case IntType(Some(IntRange(lb, ub))) => createIntegerDomain(lb, ub)
-        case IntType(Some(IntSet(set))) => createIntegerDomain(set)
+        case IntType(Some(IntRange(lb, ub))) => createIntDomain(lb, ub)
+        case IntType(Some(IntSet(set))) => createIntDomain(set)
         case IntSetType(None) => CompleteIntegerSetDomain
-        case IntSetType(Some(IntRange(lb, ub))) => new IntegerPowersetDomain(createIntegerDomain(lb, ub))
-        case IntSetType(Some(IntSet(set))) => new IntegerPowersetDomain(createIntegerDomain(set))
+        case IntSetType(Some(IntRange(lb, ub))) => new IntegerPowersetDomain(createIntDomain(lb, ub))
+        case IntSetType(Some(IntSet(set))) => new IntegerPowersetDomain(createIntDomain(set))
         case other => throw new UnsupportedFlatZincTypeException(other)
     }
 

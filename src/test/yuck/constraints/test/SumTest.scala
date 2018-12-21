@@ -20,10 +20,10 @@ final class SumTest extends UnitTest {
     def testSum {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, new IntegerValue(100))
-        val x1 = space.createVariable("x1", d)
-        val x2 = space.createVariable("x2", d)
-        val x3 = space.createVariable("x3", d)
-        val y = space.createVariable("y", d)
+        val x1 = new IntegerVariable(space.variableIdFactory.nextId, "x1", d)
+        val x2 = new IntegerVariable(space.variableIdFactory.nextId, "x2", d)
+        val x3 = new IntegerVariable(space.variableIdFactory.nextId, "x3", d)
+        val y = new IntegerVariable(space.variableIdFactory.nextId, "y", d)
         val c = new Sum(space.constraintIdFactory.nextId, null, List(x1, x2, x3), y)
         space
             .post(c)

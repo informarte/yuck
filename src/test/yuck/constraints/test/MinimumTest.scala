@@ -20,10 +20,10 @@ final class MinimumTest extends UnitTest {
     def testMinimum {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val s = space.createVariable("s", d)
-        val t = space.createVariable("t", d)
-        val u = space.createVariable("u", d)
-        val min = space.createVariable("costs", CompleteIntegerRange)
+        val s = new IntegerVariable(space.variableIdFactory.nextId, "s", d)
+        val t = new IntegerVariable(space.variableIdFactory.nextId, "t", d)
+        val u = new IntegerVariable(space.variableIdFactory.nextId, "u", d)
+        val min = new IntegerVariable(space.variableIdFactory.nextId, "costs", CompleteIntegerRange)
         val c = new Minimum(space.constraintIdFactory.nextId, null, List(s, t, u), min)
         space
             .post(c)

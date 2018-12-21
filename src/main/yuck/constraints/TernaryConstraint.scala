@@ -31,34 +31,31 @@ abstract class TernaryConstraint
  * @author Michael Marte
  *
  */
-trait ReifiedBinaryConstraintPropagator[LhsValue <: AnyValue, RhsValue <: AnyValue] {
-    protected def enforce(lhs: Domain[LhsValue], rhs: Domain[RhsValue]): (Domain[LhsValue], Domain[RhsValue])
-    protected def prohibit(lhs: Domain[LhsValue], rhs: Domain[RhsValue]): (Domain[LhsValue], Domain[RhsValue])
-    final def propagate(x: Variable[LhsValue], y: Variable[RhsValue], z: Variable[BooleanValue]): Boolean = {
-        val dx0 = x.domain
-        val dy0 = y.domain
-        val dz0 = BooleanDomain.ensureDecisionDomain(z.domain)
-        val (dx1, dy1, dz1) =
-            if (dz0 == TrueDomain) {
-                val (dx1, dy1) = enforce(dx0, dy0)
-                (dx1, dy1, dz0)
-            } else if (dz0 == FalseDomain) {
-                val (dx1, dy1) = prohibit(dx0, dy0)
-                (dx1, dy1, dz0)
+trait ReifiedBinaryConstraintPropagator[LhsDomain <: AnyDomain, RhsDomain <: AnyDomain] {
+    protected def enforce(lhs: LhsDomain, rhs: RhsDomain): (LhsDomain, RhsDomain)
+    protected def prohibit(lhs: LhsDomain, rhs: RhsDomain): (LhsDomain, RhsDomain)
+    final def propagate
+        (dx0: LhsDomain, dy0: RhsDomain, dz0: BooleanDecisionDomain):
+        (LhsDomain, RhsDomain, BooleanDecisionDomain) =
+    {
+        if (dz0 == TrueDomain) {
+            val (dx1, dy1) = enforce(dx0, dy0)
+            (dx1, dy1, dz0)
+        } else if (dz0 == FalseDomain) {
+            val (dx1, dy1) = prohibit(dx0, dy0)
+            (dx1, dy1, dz0)
+        } else {
+            val (dx2, dy2) = enforce(dx0, dy0)
+            if (dx2.isEmpty || dy2.isEmpty) {
+                (dx0, dy0, FalseDomain)
             } else {
-                val (dx2, dy2) = enforce(dx0, dy0)
-                if (dx2.isEmpty || dy2.isEmpty) {
-                    (dx0, dy0, FalseDomain)
+                val (dx3, dy3) = prohibit(dx0, dy0)
+                if (dx3.isEmpty || dy3.isEmpty) {
+                    (dx0, dy0, TrueDomain)
                 } else {
-                    val (dx3, dy3) = prohibit(dx0, dy0)
-                    if (dx3.isEmpty || dy3.isEmpty) {
-                        (dx0, dy0, TrueDomain)
-                    } else {
-                        (dx0, dy0, dz0)
-                    }
+                    (dx0, dy0, dz0)
                 }
             }
-        Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
+        }
     }
 }
-
