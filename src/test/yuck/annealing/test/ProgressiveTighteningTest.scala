@@ -25,11 +25,11 @@ final class ProgressiveTighteningTest extends IntegrationTest {
 
     private val space = new Space(logger)
     private val d = new IntegerRange(Zero, Nine)
-    private val x = new IntegerVariable(space.variableIdFactory.nextId, "x", d)
-    private val y = new IntegerVariable(space.variableIdFactory.nextId, "y", d)
+    private val x = new IntegerVariable(space.nextVariableId, "x", d)
+    private val y = new IntegerVariable(space.nextVariableId, "y", d)
     private val randomGenerator = new JavaRandomGenerator(DEFAULT_SEED)
     private val tighteningCounter = new TighteningCounter(y)
-    space.post(new DummyConstraint(space.constraintIdFactory.nextId, List(x, y), Nil))
+    space.post(new DummyConstraint(space.nextConstraintId, List(x, y), Nil))
 
     private final class TighteningCounter(val y: AnyVariable) extends StandardAnnealingMonitor(logger) {
         var n = 0

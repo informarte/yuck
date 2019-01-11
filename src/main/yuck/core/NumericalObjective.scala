@@ -59,14 +59,14 @@ abstract class NumericalObjective
                 else Some(if (minimize) d2.lb else d1.ub)
             }
         def isFeasibleObjectiveValue(a: Value): Boolean = {
-            val move = new ChangeValue(space.moveIdFactory.nextId, x, a)
+            val move = new ChangeValue(space.nextMoveId, x, a)
             val before = space.searchState
             val after = space.consult(move)
             val costsAfterMove = rootObjective.costs(after)
             ! rootObjective.isHigherThan(costsAfterMove, costsOfCurrentProposal)
         }
         def propagateBound(d: NumericalDomain[Value]) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, x, if (minimize) d.ub else d.lb)
+            val move = new ChangeValue(space.nextMoveId, x, if (minimize) d.ub else d.lb)
             space.consult(move)
             space.commit(move)
             x.pruneDomain(d)

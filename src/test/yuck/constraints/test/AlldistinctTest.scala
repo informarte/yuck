@@ -24,8 +24,8 @@ final class AlldistinctTest extends UnitTest {
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
-        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
-        val c = new Alldistinct(space.constraintIdFactory.nextId, null, Vector(s, t, u), costs)
+        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+        val c = new Alldistinct(space.nextConstraintId, null, Vector(s, t, u), costs)
         space
             .post(c)
             .setValue(s, One)
@@ -36,7 +36,7 @@ final class AlldistinctTest extends UnitTest {
         val now = space.searchState
         assertEq(now.value(costs), False2)
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, s, Two)
+            val move = new ChangeValue(space.nextMoveId, s, Two)
             val after = space.consult(move)
             assertEq(after.value(s), Two)
             assertEq(after.value(costs), False)
@@ -54,8 +54,8 @@ final class AlldistinctTest extends UnitTest {
         val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
-        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
-        val c = new Alldistinct(space.constraintIdFactory.nextId, null, Vector(s, t, t), costs)
+        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+        val c = new Alldistinct(space.nextConstraintId, null, Vector(s, t, t), costs)
         space
             .post(c)
             .setValue(s, One)
@@ -65,7 +65,7 @@ final class AlldistinctTest extends UnitTest {
         val now = space.searchState
         assertEq(now.value(costs), False2)
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, s, Two)
+            val move = new ChangeValue(space.nextMoveId, s, Two)
             val after = space.consult(move)
             assertEq(after.value(s), Two)
             assertEq(after.value(costs), False)
@@ -74,7 +74,7 @@ final class AlldistinctTest extends UnitTest {
             assertEq(now.value(costs), False)
         }
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, t, Two)
+            val move = new ChangeValue(space.nextMoveId, t, Two)
             val after = space.consult(move)
             assertEq(after.value(t), Two)
             assertEq(after.value(costs), False2)
@@ -93,8 +93,8 @@ final class AlldistinctTest extends UnitTest {
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
-        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
-        val c = new Alldistinct(space.constraintIdFactory.nextId, null, Vector(s, t, u), costs)
+        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+        val c = new Alldistinct(space.nextConstraintId, null, Vector(s, t, u), costs)
         space
             .post(c)
             .setValue(s, One)
@@ -127,11 +127,11 @@ final class AlldistinctTest extends UnitTest {
     def testAlldistinctExceptZero {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val s = new IntegerVariable(space.variableIdFactory.nextId, "s", d)
-        val t = new IntegerVariable(space.variableIdFactory.nextId, "t", d)
-        val u = new IntegerVariable(space.variableIdFactory.nextId, "u", d)
-        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
-        val c = new AlldistinctExceptZero(space.constraintIdFactory.nextId, null, List(s, t, u), costs)
+        val s = new IntegerVariable(space.nextVariableId, "s", d)
+        val t = new IntegerVariable(space.nextVariableId, "t", d)
+        val u = new IntegerVariable(space.nextVariableId, "u", d)
+        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+        val c = new AlldistinctExceptZero(space.nextConstraintId, null, List(s, t, u), costs)
         space
             .post(c)
             .setValue(s, One)
@@ -142,7 +142,7 @@ final class AlldistinctTest extends UnitTest {
         val now = space.searchState
         assertEq(now.value(costs), False2)
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, s, Zero)
+            val move = new ChangeValue(space.nextMoveId, s, Zero)
             val after = space.consult(move)
             assertEq(after.value(s), Zero)
             assertEq(after.value(costs), False)
@@ -151,7 +151,7 @@ final class AlldistinctTest extends UnitTest {
             assertEq(now.value(costs), False)
         }
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, t, Zero)
+            val move = new ChangeValue(space.nextMoveId, t, Zero)
             val after = space.consult(move)
             assertEq(after.value(t), Zero)
             assertEq(after.value(costs), True)
@@ -160,7 +160,7 @@ final class AlldistinctTest extends UnitTest {
             assertEq(now.value(costs), True)
         }
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, u, Zero)
+            val move = new ChangeValue(space.nextMoveId, u, Zero)
             val after = space.consult(move)
             assertEq(after.value(u), Zero)
             assertEq(after.value(costs), True)
@@ -176,10 +176,10 @@ final class AlldistinctTest extends UnitTest {
     def testAlldistinctExceptZeroWithAVariableOccuringTwice {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val s = new IntegerVariable(space.variableIdFactory.nextId, "s", d)
-        val t = new IntegerVariable(space.variableIdFactory.nextId, "t", d)
-        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
-        val c = new AlldistinctExceptZero(space.constraintIdFactory.nextId, null, List(s, t, t), costs)
+        val s = new IntegerVariable(space.nextVariableId, "s", d)
+        val t = new IntegerVariable(space.nextVariableId, "t", d)
+        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+        val c = new AlldistinctExceptZero(space.nextConstraintId, null, List(s, t, t), costs)
         space
             .post(c)
             .setValue(s, One)
@@ -189,7 +189,7 @@ final class AlldistinctTest extends UnitTest {
         val now = space.searchState
         assertEq(now.value(costs), False2)
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, s, Zero)
+            val move = new ChangeValue(space.nextMoveId, s, Zero)
             val after = space.consult(move)
             assertEq(after.value(s), Zero)
             assertEq(after.value(costs), False)
@@ -198,7 +198,7 @@ final class AlldistinctTest extends UnitTest {
             assertEq(now.value(costs), False)
         }
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, t, Zero)
+            val move = new ChangeValue(space.nextMoveId, t, Zero)
             val after = space.consult(move)
             assertEq(after.value(t), Zero)
             assertEq(after.value(costs), True)
@@ -207,7 +207,7 @@ final class AlldistinctTest extends UnitTest {
             assertEq(now.value(costs), True)
         }
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, s, One)
+            val move = new ChangeValue(space.nextMoveId, s, One)
             val after = space.consult(move)
             assertEq(after.value(s), One)
             assertEq(after.value(costs), True)
@@ -216,7 +216,7 @@ final class AlldistinctTest extends UnitTest {
             assertEq(now.value(costs), True)
         }
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, t, Two)
+            val move = new ChangeValue(space.nextMoveId, t, Two)
             val after = space.consult(move)
             assertEq(after.value(t), Two)
             assertEq(after.value(costs), False)

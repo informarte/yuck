@@ -129,14 +129,20 @@ final class Space(
 
     private val assignment = new Assignment
 
-    /** Provides the space-specific factory for variable ids. */
-    val variableIdFactory = new IdFactory[AnyVariable]
+    private val variableIdFactory = new IdFactory[AnyVariable]
 
-    /** Provides the space-specific factory for constraint ids. */
-    val constraintIdFactory = new IdFactory[Constraint]
+    /** Provides a unique variable id. */
+    def nextVariableId = variableIdFactory.nextId
 
-    /** Provides the space-specific factory for move ids. */
-    val moveIdFactory = new IdFactory[Move]
+    private val constraintIdFactory = new IdFactory[Constraint]
+
+    /** Provides a unique constraint id. */
+    def nextConstraintId = constraintIdFactory.nextId
+
+    private val moveIdFactory = new IdFactory[Move]
+
+    /** Provides a unique move id. */
+    def nextMoveId = moveIdFactory.nextId
 
     /** Convenience method for creating variables. */
     def createVariable

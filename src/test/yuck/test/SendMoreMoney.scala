@@ -41,41 +41,41 @@ final class SendMoreMoney extends IntegrationTest {
             val sigint = new SettableSigint
             val d = new IntegerRange(Zero, Nine)
             val d1 = new IntegerRange(One, Nine)
-            val S = new IntegerVariable(space.variableIdFactory.nextId, "S", d1)
-            val E = new IntegerVariable(space.variableIdFactory.nextId, "E", d)
-            val N = new IntegerVariable(space.variableIdFactory.nextId, "N", d)
-            val D = new IntegerVariable(space.variableIdFactory.nextId, "D", d)
-            val M = new IntegerVariable(space.variableIdFactory.nextId, "M", d1)
-            val O = new IntegerVariable(space.variableIdFactory.nextId, "O", d)
-            val R = new IntegerVariable(space.variableIdFactory.nextId, "R", d)
-            val Y = new IntegerVariable(space.variableIdFactory.nextId, "Y", d)
+            val S = new IntegerVariable(space.nextVariableId, "S", d1)
+            val E = new IntegerVariable(space.nextVariableId, "E", d)
+            val N = new IntegerVariable(space.nextVariableId, "N", d)
+            val D = new IntegerVariable(space.nextVariableId, "D", d)
+            val M = new IntegerVariable(space.nextVariableId, "M", d1)
+            val O = new IntegerVariable(space.nextVariableId, "O", d)
+            val R = new IntegerVariable(space.nextVariableId, "R", d)
+            val Y = new IntegerVariable(space.nextVariableId, "Y", d)
             val vars = Set(S, E, N, D, M, O, R, E, M, O, N, E, Y)
-            val numberOfMissingValues = new BooleanVariable(space.variableIdFactory.nextId, "numberOfMissingValues", CompleteBooleanDomain)
+            val numberOfMissingValues = new BooleanVariable(space.nextVariableId, "numberOfMissingValues", CompleteBooleanDomain)
             space.post(
                 new Alldistinct(
-                    space.constraintIdFactory.nextId, null, Vector(S, E, N, D, M, O, R, Y), numberOfMissingValues))
+                    space.nextConstraintId, null, Vector(S, E, N, D, M, O, R, Y), numberOfMissingValues))
             val LHS = List((1000, S), (100, E), (10, N), (1, D), (1000, M), (100, O), (10, R), (1, E))
             val RHS = List((10000, M), (1000, O), (100, N), (10, E), (1, Y))
-            val lhs = new IntegerVariable(space.variableIdFactory.nextId, "lhs", CompleteIntegerRange)
+            val lhs = new IntegerVariable(space.nextVariableId, "lhs", CompleteIntegerRange)
             space.post(
                 new LinearCombination(
-                    space.constraintIdFactory.nextId,
+                    space.nextConstraintId,
                     null,
                     LHS.map{case (a, x) => new AX(new IntegerValue(a), x)},
                     lhs))
-            val rhs = new IntegerVariable(space.variableIdFactory.nextId, "rhs", CompleteIntegerRange)
+            val rhs = new IntegerVariable(space.nextVariableId, "rhs", CompleteIntegerRange)
             space.post(
                 new LinearCombination(
-                    space.constraintIdFactory.nextId,
+                    space.nextConstraintId,
                     null,
                     RHS.map{case (a, x) => new AX(new IntegerValue(a), x)},
                     rhs))
-            val delta = new BooleanVariable(space.variableIdFactory.nextId, "delta", CompleteBooleanDomain)
-            space.post(new Eq(space.constraintIdFactory.nextId, null, lhs, rhs, delta))
-            val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
+            val delta = new BooleanVariable(space.nextVariableId, "delta", CompleteBooleanDomain)
+            space.post(new Eq(space.nextConstraintId, null, lhs, rhs, delta))
+            val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
             space.post(
                 new LinearCombination(
-                    space.constraintIdFactory.nextId, null,
+                    space.nextConstraintId, null,
                     new AX(new BooleanValue(100), numberOfMissingValues) :: new AX(False, delta) :: Nil, costs))
             assertEq(space.searchVariables, vars)
 

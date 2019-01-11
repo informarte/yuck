@@ -20,11 +20,11 @@ final class MinimumTest extends UnitTest {
     def testMinimum {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val s = new IntegerVariable(space.variableIdFactory.nextId, "s", d)
-        val t = new IntegerVariable(space.variableIdFactory.nextId, "t", d)
-        val u = new IntegerVariable(space.variableIdFactory.nextId, "u", d)
-        val min = new IntegerVariable(space.variableIdFactory.nextId, "costs", CompleteIntegerRange)
-        val c = new Minimum(space.constraintIdFactory.nextId, null, List(s, t, u), min)
+        val s = new IntegerVariable(space.nextVariableId, "s", d)
+        val t = new IntegerVariable(space.nextVariableId, "t", d)
+        val u = new IntegerVariable(space.nextVariableId, "u", d)
+        val min = new IntegerVariable(space.nextVariableId, "costs", CompleteIntegerRange)
+        val c = new Minimum(space.nextConstraintId, null, List(s, t, u), min)
         space
             .post(c)
             .setValue(s, One)
@@ -35,7 +35,7 @@ final class MinimumTest extends UnitTest {
         val now = space.searchState
         assertEq(now.value(min), One)
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, s, Two)
+            val move = new ChangeValue(space.nextMoveId, s, Two)
             val after = space.consult(move)
             assertEq(after.value(s), Two)
             assertEq(after.value(min), Two)
@@ -44,7 +44,7 @@ final class MinimumTest extends UnitTest {
             assertEq(now.value(min), Two)
         }
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, u, One)
+            val move = new ChangeValue(space.nextMoveId, u, One)
             val after = space.consult(move)
             assertEq(after.value(u), One)
             assertEq(after.value(min), One)

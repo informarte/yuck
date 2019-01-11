@@ -17,9 +17,9 @@ final object IntegerValueTraits extends NumericalValueTraits[IntegerValue] {
     override val nonNegativeDomain: IntegerDomain = NonNegativeIntegerRange
     override val domainPruner = IntegerDomainPruner
     override def createVariable(space: Space, name: String, domain: Domain[IntegerValue]): IntegerVariable =
-        new IntegerVariable(space.variableIdFactory.nextId, name, safeDowncast(domain))
+        new IntegerVariable(space.nextVariableId, name, safeDowncast(domain))
     override def createChannel(space: Space): IntegerVariable =
-        new IntegerVariable(space.variableIdFactory.nextId, "", completeDomain)
+        new IntegerVariable(space.nextVariableId, "", completeDomain)
     override def safeDowncast(a: AnyValue): IntegerValue = a.asInstanceOf[IntegerValue]
     override def safeDowncast(x: AnyDomain): IntegerDomain = x.asInstanceOf[IntegerDomain]
     override def safeDowncast(x: AnyVariable): IntegerVariable = x.asInstanceOf[IntegerVariable]

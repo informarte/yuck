@@ -106,7 +106,7 @@ final class RandomReassignmentGenerator
                 }
             }
         }
-        val result = new ChangeAnyValues(space.moveIdFactory.nextId, effects)
+        val result = new ChangeAnyValues(space.nextMoveId, effects)
         result
     }
 

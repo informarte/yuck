@@ -17,7 +17,7 @@ final class ObjectiveTest extends UnitTest {
     def testMinimizationObjective {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val x = new IntegerVariable(space.variableIdFactory.nextId, "x", d)
+        val x = new IntegerVariable(space.nextVariableId, "x", d)
         val a = new Assignment
         a.setValue(x, Zero)
         val o = new MinimizationObjective(x, Zero, Some(MinusOne))
@@ -41,7 +41,7 @@ final class ObjectiveTest extends UnitTest {
         assertLt(o.assessMove(b, a), -1)
         // check tightening
         space
-        .post(new DummyConstraint(space.constraintIdFactory.nextId, List(x), Nil))
+        .post(new DummyConstraint(space.nextConstraintId, List(x), Nil))
         .setValue(x, One)
         .initialize
         // check that tightening finds lower bound of x
@@ -67,7 +67,7 @@ final class ObjectiveTest extends UnitTest {
     def testMaximizationObjective {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val x = new IntegerVariable(space.variableIdFactory.nextId, "x", d)
+        val x = new IntegerVariable(space.nextVariableId, "x", d)
         val a = new Assignment
         a.setValue(x, Zero)
         val o = new MaximizationObjective(x, Zero, Some(One))
@@ -89,7 +89,7 @@ final class ObjectiveTest extends UnitTest {
         assertGt(o.assessMove(b, a), 1)
         // check tightening
         space
-        .post(new DummyConstraint(space.constraintIdFactory.nextId, List(x), Nil))
+        .post(new DummyConstraint(space.nextConstraintId, List(x), Nil))
         .setValue(x, Eight)
         .initialize
         // check that tightening finds upper bound of x
@@ -115,8 +115,8 @@ final class ObjectiveTest extends UnitTest {
     def testHierarchicalObjective {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val x = new IntegerVariable(space.variableIdFactory.nextId, "x", d)
-        val y = new IntegerVariable(space.variableIdFactory.nextId, "y", d)
+        val x = new IntegerVariable(space.nextVariableId, "x", d)
+        val y = new IntegerVariable(space.nextVariableId, "y", d)
         val a = new Assignment
         a.setValue(x, Zero)
         a.setValue(y, One)
@@ -155,7 +155,7 @@ final class ObjectiveTest extends UnitTest {
         // check tightening of subordinate (maximization) objective
         // starting out from a nearly optimal but infeasible search state
         space
-        .post(new DummyConstraint(space.constraintIdFactory.nextId, List(x, y), Nil))
+        .post(new DummyConstraint(space.nextConstraintId, List(x, y), Nil))
         .setValue(x, One)
         .setValue(y, Eight)
         .initialize

@@ -328,7 +328,7 @@ abstract class CompilationPhase(
     }
 
     protected final def nextConstraintId: Id[yuck.core.Constraint] =
-        cc.space.constraintIdFactory.nextId
+        cc.space.nextConstraintId
 
     implicit protected final def xs2axs
         [Value <: NumericalValue[Value]]

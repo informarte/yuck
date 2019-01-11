@@ -20,14 +20,14 @@ final class LexLessTest extends UnitTest {
     def testLexLess {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val s = new IntegerVariable(space.variableIdFactory.nextId, "s", d)
-        val t = new IntegerVariable(space.variableIdFactory.nextId, "t", d)
-        val u = new IntegerVariable(space.variableIdFactory.nextId, "u", d)
-        val v = new IntegerVariable(space.variableIdFactory.nextId, "v", d)
-        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
+        val s = new IntegerVariable(space.nextVariableId, "s", d)
+        val t = new IntegerVariable(space.nextVariableId, "t", d)
+        val u = new IntegerVariable(space.nextVariableId, "u", d)
+        val v = new IntegerVariable(space.nextVariableId, "v", d)
+        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         val c =
             new LexLess(
-                space.constraintIdFactory.nextId, null,
+                space.nextConstraintId, null,
                 immutable.IndexedSeq(s, t), immutable.IndexedSeq(u, v), costs)
         space
             .post(c)
@@ -41,7 +41,7 @@ final class LexLessTest extends UnitTest {
         assertEq(now.value(costs), False)
         if (true) {
             // t = 5
-            val move = new ChangeValue(space.moveIdFactory.nextId, t, Five)
+            val move = new ChangeValue(space.nextMoveId, t, Five)
             val after = space.consult(move)
             assertEq(after.value(t), Five)
             assertEq(after.value(costs), False5)
@@ -51,7 +51,7 @@ final class LexLessTest extends UnitTest {
         }
         if (true) {
             // s = 0
-            val move = new ChangeValue(space.moveIdFactory.nextId, s, Zero)
+            val move = new ChangeValue(space.nextMoveId, s, Zero)
             val after = space.consult(move)
             assertEq(after.value(s), Zero)
             assertEq(after.value(costs), True)

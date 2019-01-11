@@ -91,8 +91,8 @@ final class Alldistinct
                 val subspace = new Space(logger, space.checkConstraintPropagation)
                 val subxs = xs.map(x => valueTraits.createVariable(subspace, x.name, x.domain))
                 val result = logger.withTimedLogScope("Solving %s".format(this)) {
-                    val subcosts = new BooleanVariable(subspace.variableIdFactory.nextId, "", CompleteBooleanDomain)
-                    subspace.post(new Alldistinct(subspace.constraintIdFactory.nextId, goal, subxs, subcosts))
+                    val subcosts = new BooleanVariable(subspace.nextVariableId, "", CompleteBooleanDomain)
+                    subspace.post(new Alldistinct(subspace.nextConstraintId, goal, subxs, subcosts))
                     val initializer = new RandomInitializer(subspace, randomGenerator.nextGen)
                     initializer.run
                     val n = subspace.searchVariables.size * 4
@@ -162,8 +162,8 @@ final class AlldistinctNeighbourhood
     private val swappingInValuesIsPossible = xs.toIterator.map(_.domain.values).flatten.toSet.size > n
     private val effects = Vector.fill(3){new ReusableEffect[Value]}
     private val swaps = for (n <- 1 to 3) yield effects.take(n)
-    private def succeed(n: Int): Move = new ChangeValues[Value](space.moveIdFactory.nextId, swaps(n - 1))
-    private def fail: Move = new ChangeValues[Value](space.moveIdFactory.nextId, Nil)
+    private def succeed(n: Int): Move = new ChangeValues[Value](space.nextMoveId, swaps(n - 1))
+    private def fail: Move = new ChangeValues[Value](space.nextMoveId, Nil)
 
     private def nextMove(m: Int): Move = {
         require(m <= n)

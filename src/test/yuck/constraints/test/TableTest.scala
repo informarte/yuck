@@ -20,12 +20,12 @@ final class TableTest extends UnitTest {
     def testIntegerTable1 {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val s = new IntegerVariable(space.variableIdFactory.nextId, "s", d)
-        val t = new IntegerVariable(space.variableIdFactory.nextId, "t", d)
-        val u = new IntegerVariable(space.variableIdFactory.nextId, "u", d)
-        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
+        val s = new IntegerVariable(space.nextVariableId, "s", d)
+        val t = new IntegerVariable(space.nextVariableId, "t", d)
+        val u = new IntegerVariable(space.nextVariableId, "u", d)
+        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         val rows = immutable.IndexedSeq(immutable.IndexedSeq(0, 0, 0), immutable.IndexedSeq(1, 2, 3))
-        val c = new IntegerTable(space.constraintIdFactory.nextId, null, immutable.IndexedSeq(s, t, u), rows, costs)
+        val c = new IntegerTable(space.nextConstraintId, null, immutable.IndexedSeq(s, t, u), rows, costs)
         space
             .post(c)
             .setValue(s, One)
@@ -37,7 +37,7 @@ final class TableTest extends UnitTest {
         assertEq(now.value(costs), False3)
         if (true) {
             // move away from the first row and approach the second row
-            val move = new ChangeValue(space.moveIdFactory.nextId, t, Two)
+            val move = new ChangeValue(space.nextMoveId, t, Two)
             val after = space.consult(move)
             assertEq(after.value(t), Two)
             assertEq(after.value(costs), False2)
@@ -49,7 +49,7 @@ final class TableTest extends UnitTest {
             // change two values at once
             val move =
                 new ChangeValues(
-                    space.moveIdFactory.nextId,
+                    space.nextMoveId,
                     List(new ImmutableEffect(s, Zero), new ImmutableEffect(u, Three)))
             val after = space.consult(move)
             assertEq(after.value(s), Zero)
@@ -69,9 +69,9 @@ final class TableTest extends UnitTest {
     @Test
     def testIntegerTable2 {
         val space = new Space(logger)
-        val s = new IntegerVariable(space.variableIdFactory.nextId, "s", new IntegerRange(Two, Five))
-        val t = new IntegerVariable(space.variableIdFactory.nextId, "t", new IntegerRange(Two, Three))
-        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", TrueDomain)
+        val s = new IntegerVariable(space.nextVariableId, "s", new IntegerRange(Two, Five))
+        val t = new IntegerVariable(space.nextVariableId, "t", new IntegerRange(Two, Three))
+        val costs = new BooleanVariable(space.nextVariableId, "costs", TrueDomain)
         val rows =
             immutable.IndexedSeq(
                 0, 0,
@@ -81,7 +81,7 @@ final class TableTest extends UnitTest {
                 4, 0, 4, 4,
                 5, 0, 5, 1, 5, 2, 5, 3, 5, 4)
                 .grouped(2).toIndexedSeq
-        space.post(new IntegerTable(space.constraintIdFactory.nextId, null, immutable.IndexedSeq(s, t), rows, costs))
+        space.post(new IntegerTable(space.nextConstraintId, null, immutable.IndexedSeq(s, t), rows, costs))
         if (true) {
             space.prune
             assertEq(s.domain, IntegerDomain.createDomain(List(Two, Three, Five)))

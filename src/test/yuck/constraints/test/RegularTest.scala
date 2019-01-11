@@ -20,14 +20,14 @@ final class RegularTest extends UnitTest {
     def testRegular {
         val space = new Space(logger)
         val d = new IntegerRange(One, Two)
-        val xs = for (i <- 1 to 10) yield new IntegerVariable(space.variableIdFactory.nextId, "x[%d]".format(i), d)
+        val xs = for (i <- 1 to 10) yield new IntegerVariable(space.nextVariableId, "x[%d]".format(i), d)
         val Q = 6
         val S = 2
         val delta = immutable.IndexedSeq(1, 2, 3, 0, 3, 4, 0, 5, 0, 6, 6, 0).grouped(2).toIndexedSeq
         val q0 = 1
         val F = new IntegerRange(Six, Six)
-        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
-        val c = new Regular(space.constraintIdFactory.nextId, null, xs, Q, S, delta, q0, F, costs)
+        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+        val c = new Regular(space.nextConstraintId, null, xs, Q, S, delta, q0, F, costs)
         space
             .post(c)
             // input:  1, 1, 1, 2, 1, 2, 2, 2, 1, 1
@@ -42,7 +42,7 @@ final class RegularTest extends UnitTest {
         if (true) {
             // input:  1, 1, 1, 2, 2, 2, 2, 2, 1, 1
             // states: 1, 1, 1, 2, 0, 0, 0, 0, 0, 0
-            val move = new ChangeValue(space.moveIdFactory.nextId, xs(4), Two)
+            val move = new ChangeValue(space.nextMoveId, xs(4), Two)
             val after = space.consult(move)
             assertEq(after.value(xs(4)), Two)
             assertEq(after.value(costs), False6)
@@ -55,7 +55,7 @@ final class RegularTest extends UnitTest {
             // states: 1, 1, 1, 2, 3, 4, 5, 6, 6, 0
             val move =
             new ChangeValues(
-                space.moveIdFactory.nextId,
+                space.nextMoveId,
                 List(new ImmutableEffect(xs(4), One), new ImmutableEffect(xs(9), Two)))
             val after = space.consult(move)
             assertEq(after.value(xs(4)), One)
@@ -69,7 +69,7 @@ final class RegularTest extends UnitTest {
         if (true) {
             // input:  1, 1, 1, 2, 1, 2, 2, 2, 1, 1
             // states: 1, 1, 1, 2, 3, 4, 5, 6, 6, 6
-            val move = new ChangeValue(space.moveIdFactory.nextId, xs(9), One)
+            val move = new ChangeValue(space.nextMoveId, xs(9), One)
             val after = space.consult(move)
             assertEq(after.value(xs(9)), One)
             assertEq(after.value(costs), True)

@@ -20,13 +20,13 @@ final class LinearCombinationTest extends UnitTest {
     def testLinearCombination {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, new IntegerValue(100))
-        val x1 = new IntegerVariable(space.variableIdFactory.nextId, "x1", d)
-        val x2 = new IntegerVariable(space.variableIdFactory.nextId, "x2", d)
-        val x3 = new IntegerVariable(space.variableIdFactory.nextId, "x3", d)
-        val y = new IntegerVariable(space.variableIdFactory.nextId, "y", d)
+        val x1 = new IntegerVariable(space.nextVariableId, "x1", d)
+        val x2 = new IntegerVariable(space.nextVariableId, "x2", d)
+        val x3 = new IntegerVariable(space.nextVariableId, "x3", d)
+        val y = new IntegerVariable(space.nextVariableId, "y", d)
         val c =
             new LinearCombination(
-                space.constraintIdFactory.nextId, null,
+                space.nextConstraintId, null,
                 List(new AX(Zero, x1), new AX(One, x2), new AX(One, x3)), y)
         space
             .post(c)
@@ -37,7 +37,7 @@ final class LinearCombinationTest extends UnitTest {
         assertEq(space.searchVariables, Set(x1, x2, x3))
         val now = space.searchState
         assertEq(now.value(y), Five)
-        val move = new ChangeValue(space.moveIdFactory.nextId, x2, Three)
+        val move = new ChangeValue(space.nextMoveId, x2, Three)
         val after = space.consult(move)
         assertEq(after.value(y), Six)
         space.commit(move)

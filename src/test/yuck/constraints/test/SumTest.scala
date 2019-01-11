@@ -20,11 +20,11 @@ final class SumTest extends UnitTest {
     def testSum {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, new IntegerValue(100))
-        val x1 = new IntegerVariable(space.variableIdFactory.nextId, "x1", d)
-        val x2 = new IntegerVariable(space.variableIdFactory.nextId, "x2", d)
-        val x3 = new IntegerVariable(space.variableIdFactory.nextId, "x3", d)
-        val y = new IntegerVariable(space.variableIdFactory.nextId, "y", d)
-        val c = new Sum(space.constraintIdFactory.nextId, null, List(x1, x2, x3), y)
+        val x1 = new IntegerVariable(space.nextVariableId, "x1", d)
+        val x2 = new IntegerVariable(space.nextVariableId, "x2", d)
+        val x3 = new IntegerVariable(space.nextVariableId, "x3", d)
+        val y = new IntegerVariable(space.nextVariableId, "y", d)
+        val c = new Sum(space.nextConstraintId, null, List(x1, x2, x3), y)
         space
             .post(c)
             .setValue(x1, One)
@@ -34,7 +34,7 @@ final class SumTest extends UnitTest {
         assertEq(space.searchVariables, Set(x1, x2, x3))
         val now = space.searchState
         assertEq(now.value(y), Six)
-        val move = new ChangeValue(space.moveIdFactory.nextId, x2, Three)
+        val move = new ChangeValue(space.nextMoveId, x2, Three)
         val after = space.consult(move)
         assertEq(after.value(y), Seven)
         space.commit(move)

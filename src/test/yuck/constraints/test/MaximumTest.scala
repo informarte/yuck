@@ -20,11 +20,11 @@ final class MaximumTest extends UnitTest {
     def testMaximum {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val s = new IntegerVariable(space.variableIdFactory.nextId, "s", d)
-        val t = new IntegerVariable(space.variableIdFactory.nextId, "t", d)
-        val u = new IntegerVariable(space.variableIdFactory.nextId, "u", d)
-        val max = new IntegerVariable(space.variableIdFactory.nextId, "costs", CompleteIntegerRange)
-        val c = new Maximum(space.constraintIdFactory.nextId, null, List(s, t, u), max)
+        val s = new IntegerVariable(space.nextVariableId, "s", d)
+        val t = new IntegerVariable(space.nextVariableId, "t", d)
+        val u = new IntegerVariable(space.nextVariableId, "u", d)
+        val max = new IntegerVariable(space.nextVariableId, "costs", CompleteIntegerRange)
+        val c = new Maximum(space.nextConstraintId, null, List(s, t, u), max)
         space
             .post(c)
             .setValue(s, One)
@@ -35,7 +35,7 @@ final class MaximumTest extends UnitTest {
         val now = space.searchState
         assertEq(now.value(max), Three)
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, u, Two)
+            val move = new ChangeValue(space.nextMoveId, u, Two)
             val after = space.consult(move)
             assertEq(after.value(u), Two)
             assertEq(after.value(max), Two)
@@ -44,7 +44,7 @@ final class MaximumTest extends UnitTest {
             assertEq(now.value(max), Two)
         }
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, s, Three)
+            val move = new ChangeValue(space.nextMoveId, s, Three)
             val after = space.consult(move)
             assertEq(after.value(s), Three)
             assertEq(after.value(max), Three)

@@ -245,11 +245,11 @@ final class Inverse
                     // general case
                     val logger = space.logger
                     val subspace = new Space(logger, space.checkConstraintPropagation)
-                    val subf = new InverseFunction(f.xs.map(x => new IntegerVariable(subspace.variableIdFactory.nextId, x.name, x.domain)), f.offset)
-                    val subg = new InverseFunction(g.xs.map(y => new IntegerVariable(subspace.variableIdFactory.nextId, y.name, y.domain)), g.offset)
+                    val subf = new InverseFunction(f.xs.map(x => new IntegerVariable(subspace.nextVariableId, x.name, x.domain)), f.offset)
+                    val subg = new InverseFunction(g.xs.map(y => new IntegerVariable(subspace.nextVariableId, y.name, y.domain)), g.offset)
                     val result = logger.withTimedLogScope("Solving %s".format(this)) {
-                        val subcosts = new BooleanVariable(subspace.variableIdFactory.nextId, "", CompleteBooleanDomain)
-                        subspace.post(new Inverse(subspace.constraintIdFactory.nextId, goal, subf, subg, subcosts))
+                        val subcosts = new BooleanVariable(subspace.nextVariableId, "", CompleteBooleanDomain)
+                        subspace.post(new Inverse(subspace.nextConstraintId, goal, subf, subg, subcosts))
                         val initializer = new RandomInitializer(subspace, randomGenerator.nextGen)
                         initializer.run
                         val n = subspace.searchVariables.size * 4
@@ -334,9 +334,9 @@ final class Inverse
         if (isDecomposable) {
             for (domain <- fPartitionByDomain.keysIterator.toList) yield {
                 val offset = domain.lb.value
-                val costs = new BooleanVariable(space.variableIdFactory.nextId, "", CompleteBooleanDomain)
+                val costs = new BooleanVariable(space.nextVariableId, "", CompleteBooleanDomain)
                 new Inverse(
-                    space.constraintIdFactory.nextId, goal,
+                    space.nextConstraintId, goal,
                     new InverseFunction(fPartitionByDomain(domain).toIndexedSeq, offset),
                     new InverseFunction(gPartitionByDomain(domain).toIndexedSeq, offset),
                     costs)
@@ -414,7 +414,7 @@ final class SimpleInverseNeighbourhood
         effects(1).set(x2, a1)
         effects(2).set(y1, b2)
         effects(3).set(y2, b1)
-        new ChangeValues(space.moveIdFactory.nextId, effects)
+        new ChangeValues(space.nextMoveId, effects)
     }
 
 }
@@ -439,7 +439,7 @@ final class GeneralInverseNeighbourhood
 
     override def nextMove = {
         if (candidates1.isEmpty) {
-            new ChangeValues[IntegerValue](space.moveIdFactory.nextId, Nil)
+            new ChangeValues[IntegerValue](space.nextMoveId, Nil)
         } else {
             val i1 = candidates1(randomGenerator.nextInt(candidates1.size))
             val x1 = f.xs(i1)
@@ -468,7 +468,7 @@ final class GeneralInverseNeighbourhood
                     })
                 .toIndexedSeq
             if (candidates2.isEmpty) {
-                new ChangeValues[IntegerValue](space.moveIdFactory.nextId, Nil)
+                new ChangeValues[IntegerValue](space.nextMoveId, Nil)
             } else {
                 val i2 = candidates2(randomGenerator.nextInt(candidates2.size))
                 val x2 = f.xs(i2)
@@ -482,7 +482,7 @@ final class GeneralInverseNeighbourhood
                 effects(1).set(x2, a1)
                 effects(2).set(y1, b2)
                 effects(3).set(y2, b1)
-                new ChangeValues(space.moveIdFactory.nextId, effects)
+                new ChangeValues(space.nextMoveId, effects)
             }
         }
     }
@@ -531,7 +531,7 @@ final class SelfInverseNeighbourhood
         effects(1).set(x3, a1)
         effects(2).set(x2, a4)
         effects(3).set(x4, a2)
-        new ChangeValues(space.moveIdFactory.nextId, effects)
+        new ChangeValues(space.nextMoveId, effects)
     }
 
 }

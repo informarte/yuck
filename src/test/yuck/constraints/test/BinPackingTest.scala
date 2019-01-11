@@ -21,14 +21,14 @@ final class BinPackingTest extends UnitTest {
         val binDomain = new IntegerRange(One, Three)
         val items =
             (for (i <- (1 to 5).toIterator) yield {
-                val bin = new IntegerVariable(space.variableIdFactory.nextId, "bin%d".format(i), binDomain)
+                val bin = new IntegerVariable(space.nextVariableId, "bin%d".format(i), binDomain)
                 i -> new BinPackingItem(bin, IntegerValue.get(i))
             }).toMap
         val loads =
             (for (i <- binDomain.values) yield
                 i.value -> space.createVariable("load%d".format(i.value), CompleteIntegerRange)).toMap
         space
-            .post(new BinPacking(space.constraintIdFactory.nextId, null, items.valuesIterator.to, loads))
+            .post(new BinPacking(space.nextConstraintId, null, items.valuesIterator.to, loads))
             .setValue(items(1).bin, One)
             .setValue(items(2).bin, Two)
             .setValue(items(3).bin, Three)
@@ -42,7 +42,7 @@ final class BinPackingTest extends UnitTest {
         assertEq(now.value(loads(3)), Three)
         if (true) {
             // move item 1 from bin 1 to 3
-            val move = new ChangeValue(space.moveIdFactory.nextId, items(1).bin, Three)
+            val move = new ChangeValue(space.nextMoveId, items(1).bin, Three)
             val after = space.consult(move)
             assertEq(after.value(items(1).bin), Three)
             assertEq(after.value(loads(1)), Four)
@@ -59,7 +59,7 @@ final class BinPackingTest extends UnitTest {
             // move item 5 from bin 2 to 3
             val move =
             new ChangeValues(
-                space.moveIdFactory.nextId,
+                space.nextMoveId,
                 List(new ImmutableEffect(items(2).bin, One), new ImmutableEffect(items(5).bin, Three)))
             val after = space.consult(move)
             assertEq(after.value(items(2).bin), One)

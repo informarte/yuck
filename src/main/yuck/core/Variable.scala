@@ -34,7 +34,7 @@ abstract class Variable
 
     override def nextMove(space: Space, randomGenerator: RandomGenerator) =
         new ChangeValue(
-            space.moveIdFactory.nextId,
+            space.nextMoveId,
             this,
             domain.nextRandomValue(randomGenerator, space.searchState.value(this)))
 

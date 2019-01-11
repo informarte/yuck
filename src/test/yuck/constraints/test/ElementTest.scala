@@ -24,9 +24,9 @@ final class ElementTest extends UnitTest {
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
         val xs = IndexedSeq(s, t, u)
-        val i = new IntegerVariable(space.variableIdFactory.nextId, "i", d)
+        val i = new IntegerVariable(space.nextVariableId, "i", d)
         val y = space.createVariable("y", NonNegativeIntegerRange)
-        val c = new Element(space.constraintIdFactory.nextId, null, xs, i, y, 0)
+        val c = new Element(space.nextConstraintId, null, xs, i, y, 0)
         space
             .post(c)
             .setValue(s, One)
@@ -38,7 +38,7 @@ final class ElementTest extends UnitTest {
         val now = space.searchState
         assertEq(now.value(y), One)
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, s, Zero)
+            val move = new ChangeValue(space.nextMoveId, s, Zero)
             val after = space.consult(move)
             assertEq(after.value(s), Zero)
             assertEq(after.value(y), Zero)
@@ -47,7 +47,7 @@ final class ElementTest extends UnitTest {
             assertEq(now.value(y), Zero)
         }
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, i, One)
+            val move = new ChangeValue(space.nextMoveId, i, One)
             val after = space.consult(move)
             assertEq(after.value(i), One)
             assertEq(after.value(y), Two)

@@ -24,8 +24,8 @@ final class CountVarTest extends UnitTest {
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
         val what = space.createVariable("what", d)
-        val n = new IntegerVariable(space.variableIdFactory.nextId, "n", NonNegativeIntegerRange)
-        val c = new CountVar(space.constraintIdFactory.nextId, null, List(s, t, u), what, n)
+        val n = new IntegerVariable(space.nextVariableId, "n", NonNegativeIntegerRange)
+        val c = new CountVar(space.nextConstraintId, null, List(s, t, u), what, n)
         space
             .post(c)
             .setValue(s, One)
@@ -37,7 +37,7 @@ final class CountVarTest extends UnitTest {
         val now = space.searchState
         assertEq(now.value(n), Three)
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, s, Two)
+            val move = new ChangeValue(space.nextMoveId, s, Two)
             val after = space.consult(move)
             assertEq(after.value(s), Two)
             assertEq(after.value(n), Two)
@@ -46,7 +46,7 @@ final class CountVarTest extends UnitTest {
             assertEq(now.value(n), Two)
         }
         if (true) {
-            val move = new ChangeValue(space.moveIdFactory.nextId, what, Two)
+            val move = new ChangeValue(space.nextMoveId, what, Two)
             val after = space.consult(move)
             assertEq(after.value(what), Two)
             assertEq(after.value(n), One)

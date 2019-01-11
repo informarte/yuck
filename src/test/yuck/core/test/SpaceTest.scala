@@ -28,9 +28,9 @@ final class SpaceTest extends UnitTest {
         def domain(name: Char) = if (name == 'v') ZeroToZeroIntegerRange else CompleteIntegerRange
         val vars @ IndexedSeq(s, t, u, v, w, x, y, z): IndexedSeq[AnyVariable] =
             for (name <- 's' to 'z') yield space.createVariable(name.toString, domain(name))
-        val c = new DummyConstraint(space.constraintIdFactory.nextId, List(s, t), List(u))
-        val d = new DummyConstraint(space.constraintIdFactory.nextId, List(s, v), List(w, x))
-        val e = new DummyConstraint(space.constraintIdFactory.nextId, List(u, w, x), List(y))
+        val c = new DummyConstraint(space.nextConstraintId, List(s, t), List(u))
+        val d = new DummyConstraint(space.nextConstraintId, List(s, v), List(w, x))
+        val e = new DummyConstraint(space.nextConstraintId, List(u, w, x), List(y))
         space.post(c).post(d).post(e)
 
         val problemParams = space.problemParameters
@@ -101,7 +101,7 @@ final class SpaceTest extends UnitTest {
     def testCycleDetection1 {
         val space = new Space(logger)
         val x = space.createVariable("x", CompleteIntegerRange)
-        val c = new DummyConstraint(space.constraintIdFactory.nextId, List(x, x), List(x))
+        val c = new DummyConstraint(space.nextConstraintId, List(x, x), List(x))
         assert(space.wouldIntroduceCycle(c))
         assertEx(space.post(c), classOf[CyclicConstraintNetworkException])
     }
@@ -112,17 +112,17 @@ final class SpaceTest extends UnitTest {
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
         val z = space.createVariable("z", CompleteIntegerRange)
-        val c = new DummyConstraint(space.constraintIdFactory.nextId, List(x, y), List(z))
+        val c = new DummyConstraint(space.nextConstraintId, List(x, y), List(z))
         assert(! space.wouldIntroduceCycle(c))
         assert(space.findHypotheticalCycle(c).isEmpty)
-        val d = new DummyConstraint(space.constraintIdFactory.nextId, List(x, z), List(y))
+        val d = new DummyConstraint(space.nextConstraintId, List(x, z), List(y))
         assert(! space.wouldIntroduceCycle(d))
         assert(space.findHypotheticalCycle(d).isEmpty)
         space.post(c)
         assert(space.wouldIntroduceCycle(d))
         assertEq(space.findHypotheticalCycle(d), Some(List(d, c)))
         assertEx(space.post(d), classOf[CyclicConstraintNetworkException])
-        val e = new DummyConstraint(space.constraintIdFactory.nextId, List(x, y), List(x, z))
+        val e = new DummyConstraint(space.nextConstraintId, List(x, y), List(x, z))
         assert(space.wouldIntroduceCycle(e))
         assertEq(space.findHypotheticalCycle(e), Some(List(e)))
         assertEx(space.post(e))
@@ -134,8 +134,8 @@ final class SpaceTest extends UnitTest {
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
         val z = space.createVariable("z", CompleteIntegerRange)
-        val c = new DummyConstraint(space.constraintIdFactory.nextId, List(x), List(y))
-        val d = new DummyConstraint(space.constraintIdFactory.nextId, List(x), List(z))
+        val c = new DummyConstraint(space.nextConstraintId, List(x), List(y))
+        val d = new DummyConstraint(space.nextConstraintId, List(x), List(z))
         space.post(c).post(d)
         assertEq(space.numberOfImplicitConstraints, 0)
         assert(! space.isImplicitConstraint(c))
@@ -146,7 +146,7 @@ final class SpaceTest extends UnitTest {
         assert(space.isImplicitConstraint(d))
         space.setValue(x, Zero).setValue(y, Zero).initialize
         assertEq(space.numberOfInitializations, 1)
-        val move = new ChangeValue(space.moveIdFactory.nextId, x, One)
+        val move = new ChangeValue(space.nextMoveId, x, One)
         space.consult(move)
         assertEq(space.numberOfConsultations, 1)
         space.commit(move)
@@ -251,7 +251,7 @@ final class SpaceTest extends UnitTest {
             // build constraint network (see above for how we do it)
             val X = new mutable.ArrayBuffer[IntegerVariable]
             for (i <- 1 to k) {
-                X += new IntegerVariable(space.variableIdFactory.nextId, "x(0, %d)".format(i), dx)
+                X += new IntegerVariable(space.nextVariableId, "x(0, %d)".format(i), dx)
             }
             for (i <- 1 to l) {
                 val P = new mutable.HashSet[IntegerVariable]
@@ -260,11 +260,11 @@ final class SpaceTest extends UnitTest {
                 }
                 var j = 1
                 for (Q <- P.subsets if ! Q.isEmpty) {
-                    val sum = new IntegerVariable(space.variableIdFactory.nextId, "sum(%d, %d)".format(i, j), NonNegativeIntegerRange)
+                    val sum = new IntegerVariable(space.nextVariableId, "sum(%d, %d)".format(i, j), NonNegativeIntegerRange)
                     X += sum
-                    val avg = new IntegerVariable(space.variableIdFactory.nextId, "avg(%d, %d)".format(i, j), NonNegativeIntegerRange)
+                    val avg = new IntegerVariable(space.nextVariableId, "avg(%d, %d)".format(i, j), NonNegativeIntegerRange)
                     X += avg
-                    val spy = new Spy(space.constraintIdFactory.nextId, Q, sum, avg)
+                    val spy = new Spy(space.nextConstraintId, Q, sum, avg)
                     space.post(spy)
                     spies += spy
                     j += 1

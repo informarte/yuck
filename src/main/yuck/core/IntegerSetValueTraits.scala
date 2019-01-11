@@ -14,9 +14,9 @@ final object IntegerSetValueTraits extends OrderedValueTraits[IntegerSetValue] {
     override val completeDomain: IntegerSetDomain = CompleteIntegerSetDomain
     override val domainPruner = IntegerSetDomainPruner
     override def createVariable(space: Space, name: String, domain: Domain[IntegerSetValue]): IntegerSetVariable =
-        new IntegerSetVariable(space.variableIdFactory.nextId, name, safeDowncast(domain))
+        new IntegerSetVariable(space.nextVariableId, name, safeDowncast(domain))
     override def createChannel(space: Space): IntegerSetVariable =
-        new IntegerSetVariable(space.variableIdFactory.nextId, "", completeDomain)
+        new IntegerSetVariable(space.nextVariableId, "", completeDomain)
     override def safeDowncast(a: AnyValue): IntegerSetValue = a.asInstanceOf[IntegerSetValue]
     override def safeDowncast(x: AnyDomain): IntegerSetDomain = x.asInstanceOf[IntegerSetDomain]
     override def safeDowncast(x: AnyVariable): IntegerSetVariable = x.asInstanceOf[IntegerSetVariable]

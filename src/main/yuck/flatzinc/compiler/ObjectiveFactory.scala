@@ -49,7 +49,7 @@ final class ObjectiveFactory
                         dx.maybeUb.isDefined)
                     {
                         logger.log("Objective variable %s is a channel variable with upper bound, setting up for progressive tightening".format(x))
-                        val y = new IntegerVariable(space.variableIdFactory.nextId, "_YUCK_UB", dx)
+                        val y = new IntegerVariable(space.nextVariableId, "_YUCK_UB", dx)
                         space.setValue(y, dx.ub)
                         implicitlyConstrainedVars += y
                         val z = createBoolChannel
@@ -84,7 +84,7 @@ final class ObjectiveFactory
                         dx.maybeLb.isDefined)
                     {
                         logger.log("Objective variable %s is a channel variable with lower bound, setting up for progressive tightening".format(x))
-                        val y = new IntegerVariable(space.variableIdFactory.nextId, "_YUCK_LB", dx)
+                        val y = new IntegerVariable(space.nextVariableId, "_YUCK_LB", dx)
                         space.setValue(y, dx.lb)
                         implicitlyConstrainedVars += y
                         val z = createBoolChannel

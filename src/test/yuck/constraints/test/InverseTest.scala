@@ -20,16 +20,16 @@ final class InverseTest extends UnitTest {
     def testInverseWithIdenticalOffsets {
         val space = new Space(logger)
         val d = new IntegerRange(One, Three)
-        val f1 = new IntegerVariable(space.variableIdFactory.nextId, "f1", d)
-        val f2 = new IntegerVariable(space.variableIdFactory.nextId, "f2", d)
-        val f3 = new IntegerVariable(space.variableIdFactory.nextId, "f3", d)
-        val g1 = new IntegerVariable(space.variableIdFactory.nextId, "g1", d)
-        val g2 = new IntegerVariable(space.variableIdFactory.nextId, "g2", d)
-        val g3 = new IntegerVariable(space.variableIdFactory.nextId, "g3", d)
-        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
+        val f1 = new IntegerVariable(space.nextVariableId, "f1", d)
+        val f2 = new IntegerVariable(space.nextVariableId, "f2", d)
+        val f3 = new IntegerVariable(space.nextVariableId, "f3", d)
+        val g1 = new IntegerVariable(space.nextVariableId, "g1", d)
+        val g2 = new IntegerVariable(space.nextVariableId, "g2", d)
+        val g3 = new IntegerVariable(space.nextVariableId, "g3", d)
+        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         val f = immutable.IndexedSeq(f1, f2, f3)
         val g = immutable.IndexedSeq(g1, g2, g3)
-        val c = new Inverse(space.constraintIdFactory.nextId, null, new InverseFunction(f, 1), new InverseFunction(g, 1), costs)
+        val c = new Inverse(space.nextConstraintId, null, new InverseFunction(f, 1), new InverseFunction(g, 1), costs)
         // 3 1 2
         // 3 1 2
         space
@@ -49,7 +49,7 @@ final class InverseTest extends UnitTest {
             // Here f2 is the node in question because it is referenced by before(g3) and after(g1).
             val move =
             new ChangeValues(
-                space.moveIdFactory.nextId,
+                space.nextMoveId,
                 List(new ImmutableEffect(g1, Two), new ImmutableEffect(g3, Three)))
             val after = space.consult(move)
             assertEq(after.value(g1), Two)
@@ -66,7 +66,7 @@ final class InverseTest extends UnitTest {
             // 2 1 3
             val move =
             new ChangeValues(
-                space.moveIdFactory.nextId,
+                space.nextMoveId,
                 List(new ImmutableEffect(f1, Two), new ImmutableEffect(f3, Three)))
             val after = space.consult(move)
             assertEq(after.value(f1), Two)
@@ -83,7 +83,7 @@ final class InverseTest extends UnitTest {
             // 1 1 3
             val move =
             new ChangeValues(
-                space.moveIdFactory.nextId,
+                space.nextMoveId,
                 List(new ImmutableEffect(f2, Two), new ImmutableEffect(g1, One)))
             val after = space.consult(move)
             assertEq(after.value(f2), Two)
@@ -98,7 +98,7 @@ final class InverseTest extends UnitTest {
             // reverting previous move in two steps, this is step one:
             // 2 1 3
             // 1 1 3
-            val move = new ChangeValue(space.moveIdFactory.nextId, f2, One)
+            val move = new ChangeValue(space.nextMoveId, f2, One)
             val after = space.consult(move)
             assertEq(after.value(f2), One)
             assertEq(after.value(costs), False2)
@@ -110,7 +110,7 @@ final class InverseTest extends UnitTest {
             // ... this is step two:
             // 2 1 3
             // 2 1 3
-            val move = new ChangeValue(space.moveIdFactory.nextId, g1, Two)
+            val move = new ChangeValue(space.nextMoveId, g1, Two)
             val after = space.consult(move)
             assertEq(after.value(g1), Two)
             assertEq(after.value(costs), True)
@@ -127,16 +127,16 @@ final class InverseTest extends UnitTest {
         val space = new Space(logger)
         val fd = new IntegerRange(Zero, Two)
         val gd = new IntegerRange(One, Three)
-        val f1 = new IntegerVariable(space.variableIdFactory.nextId, "f1", fd)
-        val f2 = new IntegerVariable(space.variableIdFactory.nextId, "f2", fd)
-        val f3 = new IntegerVariable(space.variableIdFactory.nextId, "f3", fd)
-        val g1 = new IntegerVariable(space.variableIdFactory.nextId, "g1", gd)
-        val g2 = new IntegerVariable(space.variableIdFactory.nextId, "g2", gd)
-        val g3 = new IntegerVariable(space.variableIdFactory.nextId, "g3", gd)
-        val costs = new BooleanVariable(space.variableIdFactory.nextId, "costs", CompleteBooleanDomain)
+        val f1 = new IntegerVariable(space.nextVariableId, "f1", fd)
+        val f2 = new IntegerVariable(space.nextVariableId, "f2", fd)
+        val f3 = new IntegerVariable(space.nextVariableId, "f3", fd)
+        val g1 = new IntegerVariable(space.nextVariableId, "g1", gd)
+        val g2 = new IntegerVariable(space.nextVariableId, "g2", gd)
+        val g3 = new IntegerVariable(space.nextVariableId, "g3", gd)
+        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         val f = immutable.IndexedSeq(f1, f2, f3)
         val g = immutable.IndexedSeq(g1, g2, g3)
-        val c = new Inverse(space.constraintIdFactory.nextId, null, new InverseFunction(f, 1), new InverseFunction(g, 0), costs)
+        val c = new Inverse(space.nextConstraintId, null, new InverseFunction(f, 1), new InverseFunction(g, 0), costs)
         // 2 0 1
         // 3 1 2
         space
@@ -156,7 +156,7 @@ final class InverseTest extends UnitTest {
             // Here f2 is the node in question because it is referenced by before(g3) and after(g1).
             val move =
             new ChangeValues(
-                space.moveIdFactory.nextId,
+                space.nextMoveId,
                 List(new ImmutableEffect(g1, Two), new ImmutableEffect(g3, Three)))
             val after = space.consult(move)
             assertEq(after.value(g1), Two)
@@ -173,7 +173,7 @@ final class InverseTest extends UnitTest {
             // 2 1 3
             val move =
             new ChangeValues(
-                space.moveIdFactory.nextId,
+                space.nextMoveId,
                 List(new ImmutableEffect(f1, One), new ImmutableEffect(f3, Two)))
             val after = space.consult(move)
             assertEq(after.value(f1), One)
