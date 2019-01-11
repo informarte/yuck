@@ -12,8 +12,7 @@ import scala.language.higherKinds
  *
  * @author Michael Marte
  */
-// TODO Rename to ValueTraits!?
-abstract class AnyValueTraits[Value <: AnyValue] {
+abstract class ValueTraits[Value <: AnyValue] {
 
     /** Returns the type of the concrete values. */
     val valueType: Class[Value]

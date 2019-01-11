@@ -161,7 +161,7 @@ final class DomainInitializer
     private def propagateEquality
         [Value <: AnyValue]
         (a: Expr, b: Expr, d: Domain[Value])
-        (implicit valueTraits: AnyValueTraits[Value])
+        (implicit valueTraits: ValueTraits[Value])
     {
         val e = equalVars(a)
         val f = equalVars(b)
@@ -183,7 +183,7 @@ final class DomainInitializer
     private def reduceDomain
         [Value <: AnyValue]
         (a: Expr, d: Domain[Value])
-        (implicit valueTraits: AnyValueTraits[Value])
+        (implicit valueTraits: ValueTraits[Value])
     {
         if (d.isEmpty) {
             throw new DomainWipeOutException1(a)

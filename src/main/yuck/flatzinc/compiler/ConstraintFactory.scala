@@ -786,7 +786,7 @@ final class ConstraintFactory
          goal: Goal, constraint: yuck.flatzinc.ast.Constraint)
         (implicit
          inHelper: CompilationHelper[InValue, InVariable],
-         inValueTraits: AnyValueTraits[InValue],
+         inValueTraits: ValueTraits[InValue],
          outHelper: OrderedCompilationHelper[OutValue, OutVariable],
          outValueTraits: OrderedValueTraits[OutValue]):
         Iterable[BooleanVariable] =
@@ -942,7 +942,7 @@ final class ConstraintFactory
         [Value <: AnyValue]
         (goal: Goal, constraint: yuck.flatzinc.ast.Constraint,
          comparatorFactory: TernaryConstraintFactory[IntegerVariable, IntegerVariable, BooleanVariable])
-        (implicit valueTraits: AnyValueTraits[Value]):
+        (implicit valueTraits: ValueTraits[Value]):
         Iterable[BooleanVariable] =
     {
         val Constraint(_, List(as, a, m), _) = constraint
@@ -981,7 +981,7 @@ final class ConstraintFactory
     private def compileMemberConstraint
         [Value <: AnyValue]
         (goal: Goal, constraint: yuck.flatzinc.ast.Constraint)
-        (implicit valueTraits: AnyValueTraits[Value]):
+        (implicit valueTraits: ValueTraits[Value]):
         Iterable[BooleanVariable] =
         compileCountConstraint(
             goal,

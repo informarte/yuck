@@ -17,7 +17,7 @@ final class NeighbourhoodTestHelper
      moveSizeDistribution: Distribution,
      maybeHotSpotDistribution: Option[Distribution], // goes together with xs
      maybeFairVariableChoiceRate: Option[Probability])
-    (implicit valueTraits: AnyValueTraits[Value])
+    (implicit valueTraits: ValueTraits[Value])
     extends YuckAssert
 {
 

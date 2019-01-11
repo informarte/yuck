@@ -24,7 +24,7 @@ final class Alldistinct
     [Value <: AnyValue]
     (id: Id[Constraint], goal: Goal,
      xs: immutable.IndexedSeq[Variable[Value]], costs: BooleanVariable)
-    (implicit valueTraits: AnyValueTraits[Value])
+    (implicit valueTraits: ValueTraits[Value])
     extends ValueFrequencyTracker[Value, BooleanValue](
         id, goal, xs, costs,
         immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[Value, Int]())(
@@ -144,7 +144,7 @@ final class AlldistinctNeighbourhood
      xs: immutable.IndexedSeq[Variable[Value]],
      randomGenerator: RandomGenerator,
      moveSizeDistribution: Distribution)
-    (implicit valueTraits: AnyValueTraits[Value])
+    (implicit valueTraits: ValueTraits[Value])
     extends Neighbourhood
 {
 

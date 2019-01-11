@@ -19,7 +19,7 @@ abstract class ValueFrequencyTracker
      xs: immutable.Seq[Variable[Value]], result: Variable[Result],
      val variableRegistryFactory: immutable.Map[AnyVariable, Int],
      val valueRegistryFactory: immutable.Map[Value, Int])
-    (implicit valueTraits: AnyValueTraits[Value])
+    (implicit valueTraits: ValueTraits[Value])
     extends Constraint(id, goal)
 {
 

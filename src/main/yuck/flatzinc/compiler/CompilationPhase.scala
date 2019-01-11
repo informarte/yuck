@@ -24,7 +24,7 @@ abstract class CompilationPhase(
     protected final def compilesToConst
         [Value <: AnyValue]
         (a: Expr, b: Value)
-        (implicit valueTraits: AnyValueTraits[Value]): Boolean =
+        (implicit valueTraits: ValueTraits[Value]): Boolean =
     {
         val maybeC = tryGetAnyConst(a)
         ! maybeC.isEmpty && valueTraits.safeDowncast(maybeC.get) == b
@@ -33,7 +33,7 @@ abstract class CompilationPhase(
     protected final def getConst
         [Value <: AnyValue]
         (a: Expr)
-        (implicit valueTraits: AnyValueTraits[Value]): Value =
+        (implicit valueTraits: ValueTraits[Value]): Value =
     {
         tryGetConst(a).get
     }
@@ -41,7 +41,7 @@ abstract class CompilationPhase(
     protected final def tryGetConst
         [Value <: AnyValue]
         (a: Expr)
-        (implicit valueTraits: AnyValueTraits[Value]): Option[Value] =
+        (implicit valueTraits: ValueTraits[Value]): Option[Value] =
     {
         tryGetAnyConst(a).map(valueTraits.safeDowncast)
     }
@@ -224,7 +224,7 @@ abstract class CompilationPhase(
         implicit final def compileExpr
             [Value <: AnyValue]
             (expr: Expr)
-            (implicit valueTraits: AnyValueTraits[Value]):
+            (implicit valueTraits: ValueTraits[Value]):
             Variable[Value] =
         {
             valueTraits.safeDowncast(compileAnyExpr(expr))
@@ -233,7 +233,7 @@ abstract class CompilationPhase(
         implicit final def compileArray
             [Value <: AnyValue]
             (expr: Expr)
-            (implicit valueTraits: AnyValueTraits[Value]):
+            (implicit valueTraits: ValueTraits[Value]):
             immutable.IndexedSeq[Variable[Value]] =
         {
             val xs = compileAnyArray(expr)
@@ -255,7 +255,7 @@ abstract class CompilationPhase(
 
     protected final def createChannel
         [Value <: AnyValue]
-        (implicit valueTraits: AnyValueTraits[Value]):
+        (implicit valueTraits: ValueTraits[Value]):
         Variable[Value] =
     {
         valueTraits.createChannel(cc.space)

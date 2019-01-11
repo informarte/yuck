@@ -8,7 +8,7 @@ package yuck.core
 abstract class Domain[Value <: AnyValue] extends AnyDomain {
 
     /** Provides the traits of the type of the domain's elements. */
-    def valueTraits: AnyValueTraits[Value]
+    def valueTraits: ValueTraits[Value]
 
     @inline final override def valueType = valueTraits.valueType
 

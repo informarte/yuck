@@ -5,7 +5,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-abstract class OrderedValueTraits[Value <: OrderedValue[Value]] extends AnyValueTraits[Value] {
+abstract class OrderedValueTraits[Value <: OrderedValue[Value]] extends ValueTraits[Value] {
 
     override def createDomain(values: Set[Value]): OrderedDomain[Value]
     override val emptyDomain: OrderedDomain[Value]
