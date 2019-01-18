@@ -1,6 +1,7 @@
 package yuck.flatzinc.parser
 
 import scala.language.postfixOps
+import scala.util.control.Exception
 import scala.util.matching.Regex
 import scala.util.parsing.combinator.RegexParsers
 
@@ -17,13 +18,28 @@ object FlatZincParser extends RegexParsers {
     lazy val identifier: Parser[String] =
         regex(new Regex("_*[A-Za-z][A-Za-z0-9_]*"))
     lazy val int_const: Parser[IntConst] =
-        regex(new Regex("(\\+|-)?[0-9]+")) ^^ (s => IntConst(s.toInt))
-    lazy val float_const_with_fractional_part: Parser[FloatConst] =
-        regex(new Regex("(\\+|-)?[0-9]+\\.[0-9]+((e|E)(\\+|-)?[0-9]+)?")) ^^ (s => FloatConst(s.toDouble))
-    lazy val float_const_without_fractional_part: Parser[FloatConst] =
-        regex(new Regex("(\\+|-)?[0-9]+(e|E)(\\+|-)?[0-9]+")) ^^ (s => FloatConst(s.toDouble))
+        regex(new Regex("(\\+|-)?[0-9]+")) ^? (
+            new PartialFunction[String, IntConst]() {
+                override def isDefinedAt(s: String) =
+                    Exception.catching[Int](classOf[NumberFormatException]).opt{s.toInt}.isDefined
+                override def apply(s: String) =
+                    IntConst(s.toInt)
+            },
+            s => String.format("Invalid integer literal %s", s))
+    lazy val float_const_with_fractional_part: Parser[String] =
+        regex(new Regex("(\\+|-)?[0-9]+\\.[0-9]+((e|E)(\\+|-)?[0-9]+)?"))
+    lazy val float_const_without_fractional_part: Parser[String] =
+        regex(new Regex("(\\+|-)?[0-9]+(e|E)(\\+|-)?[0-9]+"))
     lazy val float_const: Parser[FloatConst] =
-        float_const_without_fractional_part | float_const_with_fractional_part
+        (float_const_without_fractional_part | float_const_with_fractional_part) ^? (
+            new PartialFunction[String, FloatConst]() {
+                override def isDefinedAt(s: String) =
+                    Exception.catching[Double](classOf[NumberFormatException]).opt{s.toDouble}
+                        .filterNot(_.isInfinity).isDefined
+                override def apply(s: String) =
+                    FloatConst(s.toDouble)
+            },
+            s => String.format("Invalid float literal %s", s))
     lazy val int_range: Parser[IntRange] =
         int_const ~ ".." ~ int_const ^^ {
             case IntConst(lb) ~ _ ~ IntConst(ub) => IntRange(lb, ub)
