@@ -16,5 +16,5 @@ predicate table_int(
     array[int, int] of int: t) =
     assert(
         index_set_2of2(t) == index_set(x),
-        "The second dimension of the table must equal the number of variables in the first argument",
+        "table_int: the table's second dimension must equal the number of variables in the first argument",
         yuck_table_int(x, [t[i, j] | i in index_set_1of2(t), j in index_set_2of2(t)]));

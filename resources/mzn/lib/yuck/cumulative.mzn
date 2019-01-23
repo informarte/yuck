@@ -1,4 +1,5 @@
 include "alldifferent.mzn";
+include "disjunctive.mzn";
 
 predicate yuck_cumulative(
     array[int] of var int: s,
@@ -21,8 +22,7 @@ predicate cumulative(
                if forall(i in index_set(d))(is_fixed(d[i]) /\ fix(d[i]) == 1) then
                    alldifferent(s)
                else
-                   % disjunctive case
-                   yuck_cumulative(s, d, r, b)
+                   disjunctive(s, d)
                endif
             else
                yuck_cumulative(s, d, r, b)

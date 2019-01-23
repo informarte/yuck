@@ -89,7 +89,8 @@ Yuck provides dedicated solvers for the following global MiniZinc constraints:
 * bin_packing, bin_packing_capa, bin_packing_load
 * count_eq, count_geq, count_gt, count_leq, count_lt, count_neq
 * cumulative
-* disjunctive
+* diffn, diffn_nonstrict
+* disjunctive, disjunctive_strict
 * exactly
 * global_cardinality and friends
 * inverse
@@ -118,7 +119,7 @@ When used as a FlatZinc interpreter, Yuck proceeds as follows:
 
 ## Future work
 
-* Implement among, diffn, circuit, subcircuit, ...
+* Implement among, circuit, subcircuit, ...
 * Provide soft constraints
 * Reduce dependence on integration testing by adding more unit tests
 * Provide libraries with Yuck core functionality

@@ -80,14 +80,14 @@ final class Regular
         "regular([%s], %d, %d, [%s], %d, %s, %s)".format(
             xs.mkString(", "), Q, S,
             delta.map(row => "[%s]".format(row.mkString(", "))).mkString(", "), q0, F, costs)
+
     override def inVariables = xs
     override def outVariables = List(costs)
 
-    private val x2i = new immutable.HashMap[AnyVariable, Int] ++ xs.zip(0 until n)
-    private def registerX(map: immutable.HashMap[AnyVariable, List[Int]], x2i: Tuple2[AnyVariable, Int]) =
-        map + (x2i._1 -> (x2i._2 :: map.getOrElse(x2i._1, Nil)))
     private val x2is =
-        xs.zip(0 until n).foldLeft(new immutable.HashMap[AnyVariable, immutable.List[Int]])(registerX)
+        xs.toIterator.zip((0 until n).toIterator).foldLeft(new immutable.HashMap[AnyVariable, immutable.List[Int]]){
+            case (map, (x, i)) => map + (x -> (i :: map.getOrElse(x, Nil)))
+        }
     private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
     private var currentCosts = 0

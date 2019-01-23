@@ -33,6 +33,8 @@ License 2.0:
 
 * spray-json
   (https://github.com/spray/spray-json)
+* Conversant RTree
+  (https://github.com/conversant/rtree)
 
 Please see the folder licenses/ for all copyright statements and the
 licenses.

@@ -15,6 +15,7 @@ import org.junit._
         classOf[CountConstTest],
         classOf[CountVarTest],
         classOf[CumulativeTest],
+        classOf[Disjoint2Test],
         classOf[DisjunctionTest],
         classOf[DistributionMaintainerTest],
         classOf[ElementTest],

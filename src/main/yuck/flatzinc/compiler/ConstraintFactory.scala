@@ -686,6 +686,18 @@ final class ConstraintFactory
             val costs = createBoolChannel
             space.post(new Cumulative(nextConstraintId, goal, tasks, ub, costs))
             List(costs)
+        case Constraint("yuck_disjoint2", List(x, y, w, h, BoolConst(strict)), _) =>
+            val xs = compileIntArray(x)
+            val ys = compileIntArray(y)
+            val ws = compileIntArray(w)
+            val hs = compileIntArray(h)
+            assert(xs.size == ys.size)
+            assert(xs.size == ws.size)
+            assert(xs.size == hs.size)
+            val rects = for (i <- 0 until xs.size) yield new Disjoint2Rect(xs(i), ys(i), ws(i), hs(i))
+            val costs = createBoolChannel
+            space.post(new Disjoint2(nextConstraintId, goal, rects, strict, costs))
+            List(costs)
         case Constraint("yuck_table_int", List(as, flatT), _) =>
             val xs = compileIntArray(as)
             val t = compileIntArray(flatT)

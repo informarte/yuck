@@ -16,7 +16,7 @@ final class Assignment(valDir: mutable.AnyRefMap[AnyVariable, AnyValue]) extends
     }
 
     override def clone = new Assignment(valDir.clone)
-    override def mappedVariables = valDir.toList.map(_._1).toSet
+    override def mappedVariables = valDir.keysIterator.toSet
     override def hasValue(x: AnyVariable) = valDir.contains(x)
     override def anyValue(x: AnyVariable) = valDir(x)
     override def maybeAnyValue(x: AnyVariable) = valDir.get(x)

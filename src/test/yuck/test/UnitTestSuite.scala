@@ -7,6 +7,7 @@ import yuck.constraints.test._
 import yuck.core.test._
 import yuck.flatzinc.ast.test._
 import yuck.flatzinc.parser.test._
+import yuck.util.alg.rtree.test._
 
 @runner.RunWith(classOf[runners.Suite])
 @runners.Suite.SuiteClasses(
@@ -25,6 +26,8 @@ import yuck.flatzinc.parser.test._
         classOf[ConstraintTestSuite],
         classOf[NeighbourhoodTestSuite],
         classOf[ProgressiveTighteningTest],
+        classOf[RTreeIntakeTest],
+        classOf[RTreeTransactionTest],
         classOf[Queens],
         classOf[SendMoreMoney],
         classOf[SendMostMoney],

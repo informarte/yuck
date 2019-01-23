@@ -166,9 +166,27 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     }
 
     @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
+    def testDiffnNonstrict {
+        solve(task.copy(problemName = "diffn_nonstrict_test"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
+    def testDiffnStrict {
+        solve(task.copy(problemName = "diffn_strict_test"))
+    }
+
+    @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDisjunctiveConstraint]))
-    def testDisjunctive {
-        solve(task.copy(problemName = "disjunctive_test"))
+    def testDisjunctiveNonstrict {
+        solve(task.copy(problemName = "disjunctive_nonstrict_test"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDisjunctiveConstraint]))
+    def testDisjunctiveStrict {
+        solve(task.copy(problemName = "disjunctive_strict_test"))
     }
 
     @Test

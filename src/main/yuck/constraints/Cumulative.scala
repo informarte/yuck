@@ -9,7 +9,6 @@ import yuck.core._
  * A data structure to provide a single task to a [[yuck.constraints.Cumulative Cumulative]] constraint.
  *
  * @author Michael Marte
- *
  */
 final class CumulativeTask(
     val s: IntegerVariable, val d: IntegerVariable, val c: IntegerVariable)
