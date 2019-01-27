@@ -193,18 +193,17 @@ object FlatZincRunner {
 
     private def reportSolverError(error: Throwable) = error match {
         case error: IOException =>
-            nativeLogger.severe(error.getMessage)
+            System.err.println(error.getMessage)
         case error: FlatZincParserException =>
-            nativeLogger.severe(error.getMessage)
+            System.err.println(error.getMessage)
         case error: UnsupportedFlatZincTypeException =>
-            nativeLogger.severe(error.getMessage)
+            System.err.println(error.getMessage)
         case error: VariableWithInfiniteDomainException =>
-            nativeLogger.severe(error.getMessage)
+            System.err.println(error.getMessage)
         case error: InconsistentProblemException =>
-            nativeLogger.fine(error.getMessage)
+            System.err.println(error.getMessage)
             println(FLATZINC_INCONSISTENT_PROBLEM_INDICATOR)
         case error: Throwable =>
-            nativeLogger.log(java.util.logging.Level.SEVERE, "", error)
             // JVM will print error
             throw error
     }
