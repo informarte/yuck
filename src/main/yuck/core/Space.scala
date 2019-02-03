@@ -122,10 +122,6 @@ final class Space(
         @inline override def compare(lhs: Constraint, rhs: Constraint) =
             constraintOrder(lhs.id.rawId) - constraintOrder(rhs.id.rawId)
     }
-    // Iterating over the elements will not yield heap order -
-    // the only way to obtain it is to use dequeue!
-    private type ConstraintQueue = mutable.PriorityQueue[Constraint]
-    private val constraintQueue = new ConstraintQueue()(ConstraintOrdering.reverse)
 
     private val assignment = new Assignment
 
@@ -389,14 +385,12 @@ final class Space(
      * The caller has to assign values to all search variables before initializing!
      */
     def initialize: Space = {
-        require(constraintQueue.isEmpty)
         flowModel == null // free memory
         if (constraintOrder == null) {
             sortConstraintsTopologically
         }
-        constraintQueue ++= constraints.toIterator.filterNot(isImplicitConstraint)
-        while (! constraintQueue.isEmpty) {
-            constraintQueue.dequeue.initialize(assignment).foreach(_.setValue(assignment))
+        for (constraint <- constraints.toIterator.filterNot(isImplicitConstraint).toBuffer.sorted(ConstraintOrdering)) {
+            constraint.initialize(assignment).foreach(_.setValue(assignment))
             numberOfInitializations += 1
         }
         this
@@ -413,23 +407,23 @@ final class Space(
     }
 
     abstract private class MoveProcessor(val move: Move) {
-        // Commits can be made cheaper by storing the affected constraints in the order of
+        // Commits could be made cheaper by storing the affected constraints in the order of
         // processing while consulting.
         // This makes consulting more expensive, increases code complexity, and does not
         // pay off because commits are very rare at the normal operating temperatures of
         // simulated annealing.
         require(constraintOrder != null, "Call initialize after posting the last constraint")
-        require(constraintQueue.isEmpty)
         protected val diff = new BulkMove(move.id)
-        private val diffs = new mutable.AnyRefMap[Constraint, BulkMove]
+        private val diffs = new java.util.TreeMap[Constraint, BulkMove](ConstraintOrdering)
         private def propagateEffect(effect: AnyEffect) {
             if (assignment.anyValue(effect.anyVariable) != effect.anyValue) {
                 val affectedConstraints = directlyAffectedConstraints(effect.anyVariable)
                 for (constraint <- affectedConstraints) {
                     if (! isImplicitConstraint(constraint)) {
-                        val diff = diffs.getOrElseUpdate(constraint, new BulkMove(move.id))
-                        if (diff.isEmpty) {
-                            constraintQueue += constraint
+                        var diff = diffs.get(constraint)
+                        if (diff == null) {
+                            diff = new BulkMove(move.id)
+                            diffs.put(constraint, diff)
                         }
                         diff += effect
                     }
@@ -442,9 +436,10 @@ final class Space(
         protected def recordEffect(effect: AnyEffect)
         def run: Move = {
             move.effects.foreach(propagateEffect)
-            while (! constraintQueue.isEmpty) {
-                val constraint = constraintQueue.dequeue
-                val diff = diffs(constraint)
+            while (! diffs.isEmpty) {
+                val entry = diffs.pollFirstEntry
+                val constraint = entry.getKey
+                val diff = entry.getValue
                 val after = new MoveSimulator(assignment, diff)
                 processConstraint(constraint, assignment, after, diff).foreach(propagateEffect)
             }
