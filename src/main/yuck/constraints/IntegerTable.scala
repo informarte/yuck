@@ -30,23 +30,41 @@ final class IntegerTable
     private val n = xs.size // number of variables/ columns
     rows.foreach(row => require(row.size == n))
 
+    private val hasDuplicateVariables = xs.toSet.size < n
+
     override def toString =
         "table([%s], [%s], %s)".format(
             xs.mkString(", "),
             rows.map(row => "[%s]".format(row.mkString(", "))).mkString(", "),
             costs)
+
     override def inVariables = xs
     override def outVariables = List(costs)
-
 
     private var feasibleRows = rows
     private lazy val cols = feasibleRows.transpose // columns improve data locality
     private lazy val m = feasibleRows.size
-    private val x2i = new immutable.HashMap[AnyVariable, Int] ++ xs.zip(0 until n)
+
     private var currentDistances: Array[Int] = null // for each row
     private var futureDistances: Array[Int] = null // for each row
     private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
+
+    private lazy val x2i =
+        xs.toIterator.zipWithIndex.filterNot(_._1.domain.isSingleton).toMap[AnyVariable, Int]
+    private lazy val x2is =
+        xs
+        .toIterator
+        .zipWithIndex
+        .filterNot(_._1.domain.isSingleton)
+        .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
+            case (map, (x, i)) =>
+                val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])
+                buf += i
+                map
+        }
+        .map{case (x, buf) => (x, buf.toIndexedSeq)}
+        .toMap
 
     override def propagate = {
         if (costs.domain == TrueDomain) {
@@ -79,8 +97,11 @@ final class IntegerTable
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         Array.copy(currentDistances, 0, futureDistances, 0, m)
-        for (x0 <- move.involvedVariables) {
-            val i = x2i(x0)
+        val is = {
+            val xs = move.involvedVariables.toIterator
+            if (hasDuplicateVariables) xs.map(x2is).flatten else xs.map(x2i)
+        }
+        for (i <- is) {
             val x = xs(i)
             val a = before.value(x).value
             val b = after.value(x).value

@@ -28,7 +28,7 @@ import org.junit._
         classOf[NumberOfDistinctValuesTest],
         classOf[RegularTest],
         classOf[SumTest],
-        classOf[TableTest]))
+        classOf[IntegerTableTest]))
 @Test
 final class ConstraintTestSuite {
 }
