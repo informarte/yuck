@@ -54,6 +54,8 @@ final class Regular
     require(F.isSubsetOf(IntegerDomain.createRange(One, IntegerValue.get(Q))))
 
     private val n = xs.size
+    private val hasDuplicateVariables = xs.toSet.size < n
+
     private val distancesToAcceptingState: immutable.IndexedSeq[Int] = {
         // We use the Floyd-Warshall algorithm to compute, for each q in Q, the minimum number of
         // transitions that are required to reach an accepting state from q.
@@ -84,10 +86,22 @@ final class Regular
     override def inVariables = xs
     override def outVariables = List(costs)
 
-    private val x2is =
-        xs.toIterator.zip((0 until n).toIterator).foldLeft(new immutable.HashMap[AnyVariable, immutable.List[Int]]){
-            case (map, (x, i)) => map + (x -> (i :: map.getOrElse(x, Nil)))
+    private lazy val x2i =
+        xs.toIterator.zipWithIndex.filterNot(_._1.domain.isSingleton).toMap[AnyVariable, Int]
+    private lazy val x2is =
+        xs
+        .toIterator
+        .zipWithIndex
+        .filterNot(_._1.domain.isSingleton)
+        .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
+            case (map, (x, i)) =>
+                val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])
+                buf += i
+                map
         }
+        .map{case (x, buf) => (x, buf.toIndexedSeq)}
+        .toMap
+
     private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
     private var currentCosts = 0
@@ -131,7 +145,11 @@ final class Regular
         //    that position all current states are to be considered as failed.)
         //    Whenever we pass the first i in is, we remove it from is (by increasing j).
         // 3. In case some i is left in is (j < m), we continue with step 2.
-        val is = move.involvedVariables.toIterator.map(x2is).flatten.filter(_ <= currentFailurePosition).toBuffer.sorted
+        val is = {
+            val xs = move.involvedVariables.toIterator
+            val is0 = if (hasDuplicateVariables) xs.map(x2is).flatten else xs.map(x2i)
+            is0.filter(_ <= currentFailurePosition).toBuffer.sorted
+        }
         val m = is.size
         var j = 0
         futureStates = currentStates
