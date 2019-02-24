@@ -8,6 +8,10 @@ import yuck.core._
 /**
  * A data structure to provide a single task to a [[yuck.constraints.Cumulative Cumulative]] constraint.
  *
+ * @param s is the task start.
+ * @param d is the task duration.
+ * @param c is the task's resource consumption.
+ *
  * @author Michael Marte
  */
 final class CumulativeTask(
@@ -32,14 +36,42 @@ final class Cumulative
 {
 
     override def toString = "cumulative([%s], %s, %s)".format(tasks.mkString(", "), ub, costs)
-    override def inVariables = var2Task.keysIterator ++ List(ub).toIterator
+
+    private def variablesIterator(t: CumulativeTask) = {
+        new Iterator[IntegerVariable] {
+            private var i = 0
+            override def hasNext = i < 3
+            override def next = {
+                i += 1
+                i match {
+                    case 1 => t.s
+                    case 2 => t.d
+                    case 3 => t.c
+                }
+            }
+        }
+    }
+
+    override def inVariables = tasks.toIterator.map(variablesIterator).flatten ++ List(ub).toIterator
     override def outVariables = List(costs)
 
-    private val var2Task =
-        new immutable.HashMap[AnyVariable, CumulativeTask] ++
-        (tasks.map(_.s).zip(tasks)) ++ (tasks.map(_.d).zip(tasks)) ++ (tasks.map(_.c).zip(tasks))
+    private lazy val x2Tasks =
+        tasks
+        .toIterator
+        .map(t => variablesIterator(t).filterNot(_.domain.isSingleton).map(x => (x, t)))
+        .flatten
+        .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[CumulativeTask]]) {
+            case (map, (x, t)) =>
+                val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[CumulativeTask])
+                buf += t
+                map
+        }
+        .map{case (x, buf) => (x, buf.toIndexedSeq)}
+        .toMap
+
     private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
+
     private type Profile = immutable.HashMap[Int, Int] // time slot -> resource consumption
     private var currentProfile: Profile = null
     private var futureProfile: Profile = null
@@ -129,15 +161,9 @@ final class Cumulative
                 addTasks(s1, safeDec(safeAdd(s1, d1)))
             }
         }
-        val visited = new mutable.HashSet[IntegerVariable]
-        for (x <- move.involvedVariables) {
-            if (x != ub) {
-                val t = var2Task(x)
-                if (! visited.contains(t.s)) {
-                    visited += t.s
-                    processTask(t)
-                }
-            }
+        val ts = move.involvedVariables.toIterator.map(x2Tasks.getOrElse(_, Nil)).flatten.to[mutable.Set]
+        for (t <- ts) {
+            processTask(t)
         }
         if (ubChanged) {
             futureCosts = computeCosts(futureProfile, after.value(ub).value)
