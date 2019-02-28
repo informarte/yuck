@@ -119,8 +119,9 @@ final class LazyLogger(logger: Logger) {
     // ConsoleHandler does not print anything when logging on level ALL!?
     // So we use level INFO.
     private def write(logLevel: LogLevel, msg: => String) {
-        if (thresholdLogLevel.intValue <= logLevel.intValue - currentLogLevelReduction)
-            logger.log(Level.INFO, currentIndent(indentLevel.get) + msg)
+        if (thresholdLogLevel.intValue <= logLevel.intValue - currentLogLevelReduction) {
+            yuck.util.arm.criticalSection(lock)(logger.log(Level.INFO, currentIndent(indentLevel.get) + msg))
+        }
     }
 
     /**

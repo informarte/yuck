@@ -70,7 +70,16 @@ final class SimulatedAnnealing(
         if (maybeMonitor.isDefined) {
             maybeMonitor.get.onSolverLaunched(result)
         }
-        anneal
+        try {
+            anneal
+        }
+        catch {
+            case error: Throwable =>
+                if (maybeMonitor.isDefined) {
+                    maybeMonitor.get.onSolverFinished(result)
+                }
+                throw error
+        }
         result
     }
 

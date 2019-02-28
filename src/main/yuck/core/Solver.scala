@@ -209,6 +209,14 @@ final class ParallelSolver(
                             catch {
                                 case error: InterruptedException =>
                                     logger.log(error.getMessage)
+                                case error: Throwable =>
+                                    logger.criticalSection {
+                                        logger.withLogScope(error.toString) {
+                                            error.getStackTrace.foreach(frame => logger.log(frame.toString))
+                                        }
+                                    }
+                                    sigint.set
+                                    throw error
                             }
                         }
                     }
