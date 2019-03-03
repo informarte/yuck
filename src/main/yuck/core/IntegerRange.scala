@@ -39,6 +39,8 @@ final class IntegerRange
     }
     override def isComplete = lb == null && ub == null
     override def isFinite = lb != null && ub != null
+    override def isEmpty = isFinite && lb > ub
+    override def isSingleton = isFinite && lb == ub
     override def hasGaps = false
     override def isBounded = lb != null || ub != null
     override def maybeLb = if (lb == null) None else Some(lb)

@@ -1,9 +1,15 @@
 package yuck.constraints
 
+import com.conversantmedia.util.collection.geometry.{Point2d, Rect2d}
+import com.conversantmedia.util.collection.spatial.{HyperPoint, HyperRect, RectBuilder, SpatialSearch, SpatialSearches}
+import java.util.function.Consumer
+
 import scala.collection._
-import scala.math.max
+import scala.math.{max, min}
 
 import yuck.core._
+import yuck.util.alg.rtree.{RTreeTransaction, RicherRect2d}
+
 
 /**
  * A data structure to provide a single task to a [[yuck.constraints.Cumulative Cumulative]] constraint.
@@ -14,8 +20,8 @@ import yuck.core._
  *
  * @author Michael Marte
  */
-final class CumulativeTask(
-    val s: IntegerVariable, val d: IntegerVariable, val c: IntegerVariable)
+final class CumulativeTask
+    (val s: IntegerVariable, val d: IntegerVariable, val c: IntegerVariable)
 {
     override def toString = "(%s, %s, %s)".format(s, d, c)
 }
@@ -26,44 +32,82 @@ final class CumulativeTask(
  * Keeps track of resource consumption for each time slot in order to provide the amount
  * of unsatisfied requirements (summed up over time) as measure of constraint violation.
  *
+ * Uses an R tree to track task placements and sweeping to compute costs and cost deltas.
+ *
  * @author Michael Marte
  */
 final class Cumulative
     (id: Id[Constraint], goal: Goal,
-     tasks: immutable.Seq[CumulativeTask], ub: IntegerVariable,
+     tasks: immutable.IndexedSeq[CumulativeTask], capacity: IntegerVariable,
      costs: BooleanVariable)
     extends Constraint(id, goal)
 {
 
-    override def toString = "cumulative([%s], %s, %s)".format(tasks.mkString(", "), ub, costs)
+    private val n = tasks.size
 
-    private def variablesIterator(t: CumulativeTask) = {
+    override def toString = "cumulative([%s], %s, %s)".format(tasks.mkString(", "), capacity, costs)
+
+    private def variablesIterator(i: Int) =
         new Iterator[IntegerVariable] {
-            private var i = 0
-            override def hasNext = i < 3
+            private val t = tasks(i)
+            private var j = 0
+            override def hasNext = j < 3
             override def next = {
-                i += 1
-                i match {
+                j += 1
+                j match {
                     case 1 => t.s
                     case 2 => t.d
                     case 3 => t.c
                 }
             }
         }
-    }
 
-    override def inVariables = tasks.toIterator.map(variablesIterator).flatten ++ List(ub).toIterator
+    override def inVariables = (0 until n).toIterator.map(variablesIterator).flatten ++ List(capacity).toIterator
     override def outVariables = List(costs)
 
-    private lazy val x2Tasks =
-        tasks
+    // Rectangles may be identical, so we use the index of originating task to distinguish them.
+    private class RTreeEntry(val i: Int, val bbox: Rect2d) {
+        override def hashCode = i
+        override def equals(that: Any) = that match {
+            case rhs: RTreeEntry => {
+                val lhs = this
+                lhs.i == rhs.i && lhs.bbox == rhs.bbox
+            }
+            case _ => false
+        }
+        override def toString = "%d -> %s".format(i, bbox)
+    }
+
+    private val rectBuilder =
+        new RectBuilder[RTreeEntry] {
+            override def getBBox(entry: RTreeEntry) =
+                entry.bbox
+            override def getMbr(p1: HyperPoint, p2: HyperPoint) =
+                new Rect2d(p1.getCoord(0), p1.getCoord(1), p2.getCoord(0), p2.getCoord(1))
+        }
+
+    private def createRTreeEntry(i: Int, searchState: SearchState) = {
+        val t = tasks(i)
+        val s = searchState.value(t.s).value
+        val d = searchState.value(t.d).value
+        val c = searchState.value(t.c).value
+        val entry = new RTreeEntry(i, new Rect2d(s, 0, safeAdd(s, d), c))
+        entry
+    }
+
+    private var rTree: SpatialSearch[RTreeEntry] = null
+    private var rTreeTransaction: RTreeTransaction[RTreeEntry] = null
+
+    // By using a lazy val, we keep out variables that were pruned to parameters.
+    private lazy val x2is =
+        (0 until n)
         .toIterator
-        .map(t => variablesIterator(t).filterNot(_.domain.isSingleton).map(x => (x, t)))
+        .map{case i => variablesIterator(i).filter(! _.domain.isSingleton).map((_, i))}
         .flatten
-        .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[CumulativeTask]]) {
-            case (map, (x, t)) =>
-                val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[CumulativeTask])
-                buf += t
+        .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
+            case (map, (x, i)) =>
+                val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])
+                buf += i
                 map
         }
         .map{case (x, buf) => (x, buf.toIndexedSeq)}
@@ -72,101 +116,168 @@ final class Cumulative
     private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
 
-    private type Profile = immutable.HashMap[Int, Int] // time slot -> resource consumption
-    private var currentProfile: Profile = null
-    private var futureProfile: Profile = null
-    private var currentCosts = 0
-    private var futureCosts = 0
-    private def computeCosts(profile: Profile, ub: Int): Int =
-        profile.toIterator.map{case (_, c) => computeLocalCosts(c, ub)}.foldLeft(0)(safeAdd)
-    @inline private def computeLocalCosts(c: Int, ub: Int): Int = max(safeSub(c, ub), 0)
+    private var currentCosts = 0l
+    private var futureCosts = 0l
+
+    private final class EventPoint(val x: Int, val bbox: Rect2d, val isBBoxStart: Boolean)
+    private object EventPointOrdering extends Ordering[EventPoint] {
+        override def compare(p1: EventPoint, p2: EventPoint) = p1.x.compare(p2.x)
+    }
+
+    private def computeCosts(rTree: SpatialSearch[RTreeEntry], capacity: Int): Long = {
+        require(capacity >= 0)
+        val eventPoints = new java.util.ArrayList[EventPoint]
+        rTree.forEach(
+            new Consumer[RTreeEntry] {
+                override def accept(entry: RTreeEntry) {
+                    val bbox = entry.bbox
+                    eventPoints.add(new EventPoint(bbox.x1, bbox, true))
+                    eventPoints.add(new EventPoint(bbox.x2, bbox, false))
+                }
+            }
+        )
+        eventPoints.sort(EventPointOrdering) // sort in place without copying (infeasible with Scala facilities)
+        val n = eventPoints.size
+        var costs = 0l
+        if (n > 0) {
+            assert(n > 1)
+            var sweepLinePos = eventPoints.get(0).x
+            var i = 0
+            var consumption = 0
+            do {
+                do {
+                    val p = eventPoints.get(i)
+                    if (p.isBBoxStart) {
+                        consumption = safeAdd(consumption, p.bbox.h)
+                    } else {
+                        consumption -= p.bbox.h
+                    }
+                    assert(consumption >= 0)
+                    i += 1
+                } while (i < n && eventPoints.get(i).x == sweepLinePos)
+                if (i < n) {
+                    val nextSweepLinePos = eventPoints.get(i).x
+                    val segmentWidth = nextSweepLinePos - sweepLinePos
+                    sweepLinePos = nextSweepLinePos
+                    if (consumption > capacity) {
+                        costs = safeAdd(costs, safeMul(segmentWidth.toLong, (consumption - capacity).toLong))
+                    }
+                }
+            } while (i < n)
+        }
+        costs
+    }
+
+    private def computeCostDelta(rTree: SpatialSearch[RTreeEntry], x1: Int, x2: Int, consumptionDelta: Int, capacity: Int): Long = {
+        require(x1 < x2)
+        require(consumptionDelta != 0)
+        require(capacity >= 0)
+        val eventPoints = new java.util.ArrayList[EventPoint]
+        rTree.intersects(
+            new Rect2d(x1, 0, x2, 1),
+            new Consumer[RTreeEntry] {
+                override def accept(entry: RTreeEntry) {
+                    val bbox = entry.bbox
+                    val p1 = new EventPoint(max(x1, bbox.x1), bbox, true)
+                    val p2 = new EventPoint(min(x2, bbox.x2), bbox, false)
+                    if (p1.x < x2 && p2.x > x1) {
+                        // entry really intersects with [x1, x2]
+                        eventPoints.add(p1)
+                        eventPoints.add(p2)
+                    }
+                }
+            }
+        )
+        if (consumptionDelta > 0) {
+            // add event points for the case that [x1, x2] is not (yet) fully covered by tasks
+            val bbox = new Rect2d(x1, 0, x2, 0)
+            eventPoints.add(new EventPoint(x1, bbox, true))
+            eventPoints.add(new EventPoint(x2, bbox, false))
+        }
+        eventPoints.sort(EventPointOrdering) // sort in place without copying (infeasible with Scala facilities)
+        val n = eventPoints.size
+        assert(n > 1)
+        assert(eventPoints.get(0).x == x1)
+        assert(eventPoints.get(n - 1).x == x2)
+        var sweepLinePos = eventPoints.get(0).x
+        var i = 0
+        var consumption = 0
+        var costDelta = 0l
+        do {
+            do {
+                val p = eventPoints.get(i)
+                if (p.isBBoxStart) {
+                    consumption = safeAdd(consumption, p.bbox.h)
+                } else {
+                    consumption -= p.bbox.h
+                }
+                assert(consumption >= 0)
+                i += 1
+            } while (i < n && eventPoints.get(i).x == sweepLinePos)
+            if (i < n) {
+                val nextSweepLinePos = eventPoints.get(i).x
+                val segmentWidth = nextSweepLinePos - sweepLinePos
+                if (consumptionDelta > 0) {
+                    if (consumption >= capacity) {
+                        costDelta = safeAdd(costDelta, safeMul(segmentWidth.toLong, consumptionDelta.toLong))
+                    } else {
+                        val futureConsumption = safeAdd(consumption, consumptionDelta)
+                        if (futureConsumption > capacity) {
+                            costDelta = safeAdd(costDelta, safeMul(segmentWidth.toLong, (futureConsumption - capacity).toLong))
+                        }
+                    }
+                } else if (consumption > capacity) {
+                    val futureConsumption = safeAdd(consumption, consumptionDelta)
+                    assert(futureConsumption >= 0)
+                    if (futureConsumption >= capacity) {
+                        costDelta = safeAdd(costDelta, safeMul(segmentWidth.toLong, consumptionDelta.toLong))
+                    } else {
+                        costDelta = safeSub(costDelta, safeMul(segmentWidth.toLong, (consumption - capacity).toLong))
+                    }
+                }
+                sweepLinePos = nextSweepLinePos
+            }
+        } while (i < n)
+        costDelta
+    }
 
     override def initialize(now: SearchState) = {
-        currentProfile = new Profile
-        for (t <- tasks) {
-            val s = now.value(t.s).value
-            val d = now.value(t.d).value
-            val c = now.value(t.c).value
-            for (i <- s until safeAdd(s, d)) {
-                currentProfile = currentProfile.updated(i, safeAdd(currentProfile.getOrElse(i, 0), c))
-            }
+        rTree = SpatialSearches.rTree[RTreeEntry](rectBuilder)
+        rTreeTransaction = new RTreeTransaction[RTreeEntry](rTree, rectBuilder)
+        currentCosts = 0
+        for (i <- 0 until n) {
+            val entry = createRTreeEntry(i, now)
+            rTree.add(entry)
         }
-        currentCosts = computeCosts(currentProfile, now.value(ub).value)
+        currentCosts = computeCosts(rTree, now.value(capacity).value)
         assert(currentCosts >= 0)
         effect.a = BooleanValue.get(currentCosts)
         effects
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
-        futureProfile = currentProfile
+        rTreeTransaction.rollback
         futureCosts = currentCosts
-        val ubChanged = move.involves(ub)
-        def processTask(t: CumulativeTask) {
-            val s0 = before.value(t.s).value
-            val d0 = before.value(t.d).value
-            val c0 = before.value(t.c).value
-            val ub0 = before.value(ub).value
-            val s1 = after.value(t.s).value
-            val d1 = after.value(t.d).value
-            val c1 = after.value(t.c).value
-            val ub1 = after.value(ub).value
-            def subtractTasks(from: Int, to: Int) {
-                var i = from
-                while (i <= to) {
-                    val r0 = futureProfile(i)
-                    val r1 = safeSub(r0, c0)
-                    futureProfile = futureProfile.updated(i, r1)
-                    if (! ubChanged) {
-                        futureCosts = safeSub(futureCosts, computeLocalCosts(r0, ub0))
-                        futureCosts = safeAdd(futureCosts, computeLocalCosts(r1, ub0))
-                    }
-                    i = safeInc(i)
-                }
+        val beforeCapacity = before.value(capacity).value
+        val capacityChanged = ! capacity.domain.isSingleton && move.involves(capacity)
+        val is = move.involvedVariables.toIterator.map(x2is.getOrElse(_, Nil)).flatten.to[mutable.Set]
+        for (i <- is) {
+            val beforeEntry = createRTreeEntry(i, before)
+            val beforeBbox = beforeEntry.bbox
+            if (! capacityChanged && ! beforeBbox.isEmpty) {
+                futureCosts = safeAdd(futureCosts, computeCostDelta(rTreeTransaction, beforeBbox.x1, beforeBbox.x2, -beforeBbox.h, beforeCapacity))
             }
-            def addTasks(from: Int, to: Int) {
-                var i = from
-                while (i <= to) {
-                    val r0 = futureProfile.getOrElse(i, 0)
-                    val r1 = safeAdd(r0, c1)
-                    futureProfile = futureProfile.updated(i, r1)
-                    if (! ubChanged) {
-                        futureCosts = safeSub(futureCosts, computeLocalCosts(r0, ub1))
-                        futureCosts = safeAdd(futureCosts, computeLocalCosts(r1, ub1))
-                    }
-                    i = safeInc(i)
-                }
+            rTreeTransaction.remove(beforeEntry)
+            val afterEntry = createRTreeEntry(i, after)
+            val afterBbox = afterEntry.bbox
+            if (! capacityChanged && ! afterBbox.isEmpty) {
+                futureCosts = safeAdd(futureCosts, computeCostDelta(rTreeTransaction, afterBbox.x1, afterBbox.x2, afterBbox.h, beforeCapacity))
             }
-            // When only the task start changes, the old and the new rectangle are expected to overlap
-            // by about 50% on average.
-            if (d0 == d1 && c0 == c1 && s1 > s0 && s1 < safeAdd(s0, d0)) {
-                // duration and resource consumption did not change, old and new rectangles overlap
-                // s0 ********** s0 + d0
-                //       s1 ********** s1 + d1 (== d0)
-                //          ^^^^
-                //          Nothing changes where the rectangles overlap!
-                subtractTasks(s0, safeDec(s1))
-                addTasks(safeAdd(s0, d0), safeDec(safeAdd(s1, d1)))
-            }
-            else if (d0 == d1 && c0 == c1 && s0 > s1 && s0 < safeAdd(s1, d1)) {
-                // symmetrical case
-                //       s0 ********** s0 + d0
-                // s1 ********** s1 + d1 (== d0)
-                //          ^^^^
-                //          Nothing changes where the rectangles overlap!
-                addTasks(s1, safeDec(s0))
-                subtractTasks(safeAdd(s1, d1), safeDec(safeAdd(s0, d0)))
-            }
-            else {
-                subtractTasks(s0, safeDec(safeAdd(s0, d0)))
-                addTasks(s1, safeDec(safeAdd(s1, d1)))
-            }
+            rTreeTransaction.add(afterEntry)
         }
-        val ts = move.involvedVariables.toIterator.map(x2Tasks.getOrElse(_, Nil)).flatten.to[mutable.Set]
-        for (t <- ts) {
-            processTask(t)
-        }
-        if (ubChanged) {
-            futureCosts = computeCosts(futureProfile, after.value(ub).value)
+        if (capacityChanged) {
+            val afterCapacity = after.value(capacity).value
+            futureCosts = computeCosts(rTreeTransaction, afterCapacity)
         }
         assert(futureCosts >= 0)
         effect.a = BooleanValue.get(futureCosts)
@@ -174,7 +285,8 @@ final class Cumulative
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
-        currentProfile = futureProfile
+        rTreeTransaction.commit
+        assert(rTree.getEntryCount == n)
         currentCosts = futureCosts
         effects
     }

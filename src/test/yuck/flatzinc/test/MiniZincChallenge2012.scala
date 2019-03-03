@@ -54,7 +54,7 @@ final class MiniZincChallenge2012 extends MiniZincBasedTest {
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasCumulativeConstraint]))
+    @Category(Array(classOf[MinimizationProblem]))
     def mspsp_easy_1 {
         solve(task.copy(problemName = "mspsp", instanceName = "easy_01", maybeOptimum = Some(26)))
     }

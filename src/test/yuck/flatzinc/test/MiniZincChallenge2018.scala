@@ -44,7 +44,7 @@ final class MiniZincChallenge2018 extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasCumulativeConstraint]))
     def largescheduling_instance_0100_4 {
-        solve(task.copy(problemName = "largescheduling", modelName = "largecumulative", instanceName = "instance-0400-4", maybeHighScore = Some(220428), maybeMaximumNumberOfThreads = Some(1)))
+        solve(task.copy(problemName = "largescheduling", modelName = "largecumulative", instanceName = "instance-0400-4", maybeHighScore = Some(220428)))
     }
 
     @Test

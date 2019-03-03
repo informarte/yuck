@@ -676,7 +676,7 @@ final class ConstraintFactory
             compileMemberConstraint[IntegerValue](goal, constraint)
         case Constraint("member_set", _, _) =>
             compileMemberConstraint[IntegerSetValue](goal, constraint)
-        case Constraint("yuck_cumulative", List(s, d, r, ub), _) =>
+        case Constraint("yuck_cumulative", List(s, d, r, b), _) =>
             val xs = compileIntArray(s)
             val ys = compileIntArray(d)
             val zs = compileIntArray(r)
@@ -684,7 +684,7 @@ final class ConstraintFactory
             assert(ys.size == zs.size)
             val tasks = for (((x, y), z) <- xs.zip(ys).zip(zs)) yield new CumulativeTask(x, y, z)
             val costs = createBoolChannel
-            space.post(new Cumulative(nextConstraintId, goal, tasks, ub, costs))
+            space.post(new Cumulative(nextConstraintId, goal, tasks, b, costs))
             List(costs)
         case Constraint("yuck_disjoint2", List(x, y, w, h, BoolConst(strict)), _) =>
             val xs = compileIntArray(x)
