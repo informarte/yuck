@@ -30,9 +30,12 @@ final class IntegerValue(val value: Int) extends NumericalValue[IntegerValue] {
         IntegerValue.get(result.toInt)
     }
     override def %(that: IntegerValue) = IntegerValue.get(this.value % that.value)
+    override def addAndSub(a: IntegerValue, b: IntegerValue) =
+        IntegerValue.get(safeAdd(this.value, safeSub(a.value, b.value)))
     override def addAndSub(s: IntegerValue, a: IntegerValue, b: IntegerValue) =
         IntegerValue.get(safeAdd(this.value, safeMul(s.value, safeSub(a.value, b.value))))
     override def abs = if (value < 0) IntegerValue.get(safeNeg(value)) else this
+    override def neg = IntegerValue.get(safeNeg(value))
     override def toInt = value
     override def toLong = value.toLong
     override def toDouble = value.toDouble

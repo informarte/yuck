@@ -38,12 +38,15 @@ final class BooleanValue(val violation: Long) extends NumericalValue[BooleanValu
     override def /(that: BooleanValue) = ???
     override def ^(that: BooleanValue) = ???
     override def %(that: BooleanValue) = ???
+    override def addAndSub(a: BooleanValue, b: BooleanValue) =
+        BooleanValue.get(safeSub(safeAdd(this.violation, a.violation), b.violation))
     override def addAndSub(s: BooleanValue, a: BooleanValue, b: BooleanValue) =
         BooleanValue.get(
             safeSub(
                 safeAdd(this.violation, safeMul(s.violation, a.violation)),
                 safeMul(s.violation, b.violation)))
     override def abs = ???
+    override def neg = !!!
     override def toInt = safeToInt(violation)
     override def toLong = violation
     override def toDouble = violation.toDouble

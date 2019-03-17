@@ -61,14 +61,14 @@ final class SendMostMoney extends IntegrationTest {
                 new LinearCombination(
                     space.nextConstraintId,
                     null,
-                    LHS.map{case (a, x) => new AX(new IntegerValue(a), x)},
+                    AX.compact(LHS.map{case (a, x) => new AX(new IntegerValue(a), x)}),
                     lhs))
             val rhs = new IntegerVariable(space.nextVariableId, "rhs", CompleteIntegerRange)
             space.post(
                 new LinearCombination(
                     space.nextConstraintId,
                     null,
-                    RHS.map{case (a, x) => new AX(new IntegerValue(a), x)},
+                    AX.compact(RHS.map{case (a, x) => new AX(new IntegerValue(a), x)}),
                     rhs))
             val delta = new BooleanVariable(space.nextVariableId, "delta", CompleteBooleanDomain)
             space.post(new Eq(space.nextConstraintId, null, lhs, rhs, delta))

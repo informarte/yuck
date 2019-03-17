@@ -16,6 +16,8 @@ final class Sum
     extends Constraint(id, goal)
 {
 
+    require(xs.toSet.size == xs.size)
+
     override def toString = "%s = sum([%s])".format(y, xs.mkString(", "))
     override def inVariables = xs
     override def outVariables = List(y)
@@ -46,7 +48,7 @@ final class Sum
         effect.a = sum
         for (x <- move.involvedVariables) {
             val y = valueTraits.safeDowncast(x)
-            effect.a = effect.a.addAndSub(valueTraits.one, after.value(y), before.value(y))
+            effect.a = effect.a.addAndSub(after.value(y), before.value(y))
         }
         effects
     }

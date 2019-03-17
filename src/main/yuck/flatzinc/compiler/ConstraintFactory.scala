@@ -448,16 +448,12 @@ final class ConstraintFactory
                 Nil
             }
             def withoutFunctionalDependency = {
-                val channel = compileLinearCombination[IntegerValue](goal, as, bs)
-                val costs = createBoolChannel
-                space.post(new Eq[IntegerValue](nextConstraintId, goal, channel, c, costs))
-                List(costs)
+                List(compileLinearConstraint[IntegerValue](goal, as, bs, EqRelation, c))
             }
             compileConstraint(constraint, bs, c, withFunctionalDependency, withoutFunctionalDependency)
         case Constraint("int_lin_eq_reif", List(as, bs, c, r), _) =>
             def withFunctionalDependency = {
-                val channel = compileLinearCombination[IntegerValue](goal, as, bs)
-                space.post(new Eq[IntegerValue](nextConstraintId, goal, channel, c, r))
+                compileLinearConstraint[IntegerValue](goal, as, bs, EqRelation, c, Some(r))
                 Nil
             }
             def withoutFunctionalDependency = {
@@ -465,14 +461,10 @@ final class ConstraintFactory
             }
             compileConstraint(constraint, bs, r, withFunctionalDependency, withoutFunctionalDependency)
         case Constraint("int_lin_ne", List(as, bs, c), _) =>
-            val channel = compileLinearCombination[IntegerValue](goal, as, bs)
-            val costs = createBoolChannel
-            space.post(new Ne[IntegerValue](nextConstraintId, goal, channel, c, costs))
-            List(costs)
+            List(compileLinearConstraint[IntegerValue](goal, as, bs, NeRelation, c))
         case Constraint("int_lin_ne_reif", List(as, bs, c, r), _) =>
             def withFunctionalDependency = {
-                val channel = compileLinearCombination[IntegerValue](goal, as, bs)
-                space.post(new Ne[IntegerValue](nextConstraintId, goal, channel, c, r))
+                compileLinearConstraint[IntegerValue](goal, as, bs, NeRelation, c, Some(r))
                 Nil
             }
             def withoutFunctionalDependency = {
@@ -480,14 +472,10 @@ final class ConstraintFactory
             }
             compileConstraint(constraint, bs, r, withFunctionalDependency, withoutFunctionalDependency)
         case Constraint("int_lin_le", List(as, bs, c), _) =>
-            val channel = compileLinearCombination[IntegerValue](goal, as, bs)
-            val costs = createBoolChannel
-            space.post(new Le[IntegerValue](nextConstraintId, goal, channel, c, costs))
-            List(costs)
+            List(compileLinearConstraint[IntegerValue](goal, as, bs, LeRelation, c))
         case Constraint("int_lin_le_reif", List(as, bs, c, r), _) =>
             def withFunctionalDependency = {
-                val channel = compileLinearCombination[IntegerValue](goal, as, bs)
-                space.post(new Le[IntegerValue](nextConstraintId, goal, channel, c, r))
+                compileLinearConstraint[IntegerValue](goal, as, bs, LeRelation, c, Some(r))
                 Nil
             }
             def withoutFunctionalDependency = {
@@ -909,45 +897,71 @@ final class ConstraintFactory
     private def compileLinearCombination
         [Value <: NumericalValue[Value]]
         (goal: Goal,
-         as: Expr, bs: Expr,
+         as0: Expr, bs: Expr,
          maybeChannel: Option[NumericalVariable[Value]] = None)
         (implicit valueTraits: NumericalValueTraits[Value]):
         NumericalVariable[Value] =
     {
-        val xs = compileNumArray[Value](as)
-        val ys = compileNumArray[Value](bs)
-        require(xs.size == ys.size)
+        val zero = valueTraits.zero
+        val one = valueTraits.one
+        val minusOne = one.neg
+        val as = compileNumArray[Value](as0)
+        val xs = compileNumArray[Value](bs)
+        require(as.size == xs.size)
         val axs =
-          AX.compact(
-              for ((x, y) <- xs.toIterator.zip(ys.toIterator)
-              if x.domain.singleValue != valueTraits.zero && (! y.domain.isSingleton || y.domain.singleValue != valueTraits.zero))
-                  yield new AX[Value](x.domain.singleValue, y))
+            AX.compact(
+                for ((x, y) <- as.toIterator.zip(xs.toIterator)
+                     if x.domain.singleValue != zero && (! y.domain.isSingleton || y.domain.singleValue != zero))
+                    yield new AX[Value](x.domain.singleValue, y))
         axs match {
-            case List(AX(One, x)) if maybeChannel.isEmpty =>
+            case List(AX(`one`, x)) if maybeChannel.isEmpty =>
                 x
-            case List(AX(One, x), AX(MinusOne, y)) =>
+            case List(AX(`one`, x), AX(`minusOne`, y)) =>
                 val channel = maybeChannel.getOrElse(createNumChannel[Value])
                 space.post(new Minus[Value](nextConstraintId, goal, x, y, channel))
                 channel
-            case List(AX(MinusOne, x), AX(One, y)) =>
+            case List(AX(`minusOne`, x), AX(`one`, y)) =>
                 val channel = maybeChannel.getOrElse(createNumChannel[Value])
                 space.post(new Minus[Value](nextConstraintId, goal, y, x, channel))
                 channel
             case _ =>
                 val channel = maybeChannel.getOrElse(createNumChannel[Value])
-                if (axs.forall(ax => ax.a == One)) {
+                if (axs.forall(_.a == one)) {
                     if (axs.size == 2) {
                         val List(AX(_, x), AX(_, y)) = axs
                         space.post(new Plus(nextConstraintId, goal, x, y, channel))
                     } else {
-                        val xs = axs.toIterator.map(ax => ax.x).toIndexedSeq
-                        space.post(new Sum(nextConstraintId, goal, xs /* not ys! */ , channel))
+                        val xs = axs.toIterator.map(_.x).toIndexedSeq
+                        space.post(new Sum(nextConstraintId, goal, xs , channel))
                     }
                 } else {
                    space.post(new LinearCombination(nextConstraintId, goal, axs.toIndexedSeq, channel))
                 }
                 channel
         }
+    }
+
+    private def compileLinearConstraint
+        [Value <: NumericalValue[Value]]
+        (goal: Goal,
+         as0: Expr, bs: Expr, relation: OrderingRelation, c: Expr,
+         maybeCosts: Option[BooleanVariable] = None)
+        (implicit valueTraits: NumericalValueTraits[Value]):
+        BooleanVariable =
+    {
+        val zero = valueTraits.zero
+        val as = compileNumArray[Value](as0)
+        val xs = compileNumArray[Value](bs)
+        require(as.size == xs.size)
+        val axs =
+            AX.compact(
+                for ((x, y) <- as.toIterator.zip(xs.toIterator)
+                     if x.domain.singleValue != zero && (! y.domain.isSingleton || y.domain.singleValue != zero))
+                    yield new AX[Value](x.domain.singleValue, y))
+        val z = compileNumExpr[Value](c)
+        val costs = maybeCosts.getOrElse(createBoolChannel)
+        LinearConstraint.postLinearConstraint(space, goal, axs, relation, z, costs)
+        costs
     }
 
     private def compileCountConstraint

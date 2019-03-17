@@ -23,6 +23,7 @@ import org.junit._
         classOf[LexLessEqTest],
         classOf[LexLessTest],
         classOf[LinearCombinationTest],
+        classOf[LinearConstraintTest],
         classOf[MaximumTest],
         classOf[MinimumTest],
         classOf[NumberOfDistinctValuesTest],

@@ -86,6 +86,11 @@ final class IntegerValueTest extends UnitTest {
                 }
             }
         }
+    }
+
+    @Test
+    def testOverflowCheckingInCostComputation {
+        val costModel = IntegerOrderingCostModel
         costModel.lt(IntegerValue.get(Int.MaxValue - 1), Zero)
         assertEx(costModel.lt(IntegerValue.get(Int.MaxValue), Zero), classOf[ArithmeticException])
         costModel.le(IntegerValue.get(Int.MaxValue), Zero)
@@ -112,27 +117,42 @@ final class IntegerValueTest extends UnitTest {
                     assertEq((a ^ b).value, scala.math.pow(a.value, b.value).toInt)
                 }
                 for (c <- testData) {
+                    assertEq(a.addAndSub(b, c).value, a.value + b.value - c.value)
                     for (d <- testData) {
                         assertEq(a.addAndSub(b, c, d).value, a.value + b.value * (c.value - d.value))
                     }
                 }
             }
+            if (a.value < 0) {
+                assertEq(a.abs, IntegerValue.get(-a.value))
+            } else {
+                assertEq(a.abs, a)
+            }
+            assertEq(a.neg, IntegerValue.get(-a.value))
             assertEq(a.toInt, a.value)
             assertEq(a.toLong, a.value.toLong)
             assertEq(a.toDouble, a.value.toDouble)
             assertEq(a.isEven, a.value % 2 == 0)
         }
+    }
+
+    @Test
+    def testOverflowCheckingInNumericalOperations {
         IntegerValue.get(Int.MaxValue) + Zero
         assertEx(IntegerValue.get(Int.MaxValue) + One, classOf[ArithmeticException])
         IntegerValue.get(Int.MinValue) - Zero
         assertEx(IntegerValue.get(Int.MinValue) - One, classOf[ArithmeticException])
         IntegerValue.get(Int.MaxValue / 2) * Two
         assertEx(IntegerValue.get(Int.MaxValue) * Two, classOf[ArithmeticException])
+        IntegerValue.get(Int.MaxValue - 1).addAndSub(One, Zero)
+        One.addAndSub(IntegerValue.get(Int.MaxValue), IntegerValue.get(Int.MaxValue - 1))
         IntegerValue.get(Int.MaxValue - 1).addAndSub(One, One, Zero)
         One.addAndSub(One, IntegerValue.get(Int.MaxValue), IntegerValue.get(Int.MaxValue - 1))
         assertEx(IntegerValue.get(Int.MaxValue).addAndSub(One, One, Zero), classOf[ArithmeticException])
         IntegerValue.get(Int.MinValue + 1).abs
         assertEx(IntegerValue.get(Int.MinValue).abs, classOf[ArithmeticException])
+        IntegerValue.get(Int.MaxValue).neg
+        assertEx(IntegerValue.get(Int.MinValue).neg, classOf[ArithmeticException])
         IntegerValue.get(-2) ^ IntegerValue.get(31)
         assertEx(IntegerValue.get(-2) ^ IntegerValue.get(32), classOf[ArithmeticException])
         Two ^ IntegerValue.get(30)

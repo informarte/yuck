@@ -16,14 +16,13 @@ final class LinearCombination
     extends Constraint(id, goal)
 {
 
+    require(axs.toIterator.map(_.x).toSet.size == axs.size)
+
     override def toString = "%s = sum([%s])".format(y, axs.mkString(", "))
     override def inVariables = axs.toIterator.map(_.x)
     override def outVariables = List(y)
 
-    private val id2ax = {
-        val c = AX.compact(axs.toList)
-        immutable.HashMap[AnyVariable, AX[Value]]() ++ (c.map(_.x).zip(c))
-    }
+    private val id2ax = immutable.HashMap[AnyVariable, AX[Value]]() ++ (axs.toIterator.map(_.x).zip(axs.toIterator))
     private var sum = valueTraits.zero
     private val effects = List(new ReusableEffectWithFixedVariable[Value](y))
     private val effect = effects.head

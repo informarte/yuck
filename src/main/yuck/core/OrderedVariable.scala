@@ -1,7 +1,7 @@
 package yuck.core
 
 /**
- * Provides an interface for working with ordered variables.
+ * Provides an interface for working with variables that have an ordered domain.
  *
  * @author Michael Marte
  */

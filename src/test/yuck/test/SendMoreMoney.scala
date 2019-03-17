@@ -61,7 +61,7 @@ final class SendMoreMoney extends IntegrationTest {
                 new LinearCombination(
                     space.nextConstraintId,
                     null,
-                    LHS.map{case (a, x) => new AX(new IntegerValue(a), x)},
+                    AX.compact(LHS.map{case (a, x) => new AX(new IntegerValue(a), x)}),
                     lhs))
             val rhs = new IntegerVariable(space.nextVariableId, "rhs", CompleteIntegerRange)
             space.post(

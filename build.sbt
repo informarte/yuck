@@ -53,6 +53,7 @@ scalaSource in Test := baseDirectory.value / "src/test"
 javaSource in Test := baseDirectory.value / "src/test"
 
 libraryDependencies += "junit" % "junit" % "4.12" % "test"
+libraryDependencies += "org.mockito" % "mockito-core" % "2.27.0" % "test"
 libraryDependencies += "com.conversantmedia" % "rtree" % "1.0.5"
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
 libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.6"
