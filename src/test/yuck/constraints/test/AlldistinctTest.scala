@@ -38,10 +38,8 @@ final class AlldistinctTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.nextMoveId, s, Two)
             val after = space.consult(move)
-            assertEq(after.value(s), Two)
             assertEq(after.value(costs), False)
             space.commit(move)
-            assertEq(now.value(s), Two)
             assertEq(now.value(costs), False)
         }
         space.initialize
@@ -67,19 +65,15 @@ final class AlldistinctTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.nextMoveId, s, Two)
             val after = space.consult(move)
-            assertEq(after.value(s), Two)
             assertEq(after.value(costs), False)
             space.commit(move)
-            assertEq(now.value(s), Two)
             assertEq(now.value(costs), False)
         }
         if (true) {
             val move = new ChangeValue(space.nextMoveId, t, Two)
             val after = space.consult(move)
-            assertEq(after.value(t), Two)
             assertEq(after.value(costs), False2)
             space.commit(move)
-            assertEq(now.value(t), Two)
             assertEq(now.value(costs), False2)
         }
         space.initialize
@@ -144,28 +138,22 @@ final class AlldistinctTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.nextMoveId, s, Zero)
             val after = space.consult(move)
-            assertEq(after.value(s), Zero)
             assertEq(after.value(costs), False)
             space.commit(move)
-            assertEq(now.value(s), Zero)
             assertEq(now.value(costs), False)
         }
         if (true) {
             val move = new ChangeValue(space.nextMoveId, t, Zero)
             val after = space.consult(move)
-            assertEq(after.value(t), Zero)
             assertEq(after.value(costs), True)
             space.commit(move)
-            assertEq(now.value(t), Zero)
             assertEq(now.value(costs), True)
         }
         if (true) {
             val move = new ChangeValue(space.nextMoveId, u, Zero)
             val after = space.consult(move)
-            assertEq(after.value(u), Zero)
             assertEq(after.value(costs), True)
             space.commit(move)
-            assertEq(now.value(u), Zero)
             assertEq(now.value(costs), True)
         }
         space.initialize
@@ -191,37 +179,29 @@ final class AlldistinctTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.nextMoveId, s, Zero)
             val after = space.consult(move)
-            assertEq(after.value(s), Zero)
             assertEq(after.value(costs), False)
             space.commit(move)
-            assertEq(now.value(s), Zero)
             assertEq(now.value(costs), False)
         }
         if (true) {
             val move = new ChangeValue(space.nextMoveId, t, Zero)
             val after = space.consult(move)
-            assertEq(after.value(t), Zero)
             assertEq(after.value(costs), True)
             space.commit(move)
-            assertEq(now.value(t), Zero)
             assertEq(now.value(costs), True)
         }
         if (true) {
             val move = new ChangeValue(space.nextMoveId, s, One)
             val after = space.consult(move)
-            assertEq(after.value(s), One)
             assertEq(after.value(costs), True)
             space.commit(move)
-            assertEq(now.value(s), One)
             assertEq(now.value(costs), True)
         }
         if (true) {
             val move = new ChangeValue(space.nextMoveId, t, Two)
             val after = space.consult(move)
-            assertEq(after.value(t), Two)
             assertEq(after.value(costs), False)
             space.commit(move)
-            assertEq(now.value(t), Two)
             assertEq(now.value(costs), False)
         }
         space.initialize

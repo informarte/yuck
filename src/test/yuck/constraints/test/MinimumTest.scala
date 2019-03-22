@@ -37,19 +37,15 @@ final class MinimumTest extends UnitTest {
         if (true) {
             val move = new ChangeValue(space.nextMoveId, s, Two)
             val after = space.consult(move)
-            assertEq(after.value(s), Two)
             assertEq(after.value(min), Two)
             space.commit(move)
-            assertEq(now.value(s), Two)
             assertEq(now.value(min), Two)
         }
         if (true) {
             val move = new ChangeValue(space.nextMoveId, u, One)
             val after = space.consult(move)
-            assertEq(after.value(u), One)
             assertEq(after.value(min), One)
             space.commit(move)
-            assertEq(now.value(u), One)
             assertEq(now.value(min), One)
         }
         space.initialize

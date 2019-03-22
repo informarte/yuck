@@ -36,10 +36,8 @@ final class CountConstTest extends UnitTest {
         assertEq(now.value(n), Three)
         val move = new ChangeValue(space.nextMoveId, s, Two)
         val after = space.consult(move)
-        assertEq(after.value(s), Two)
         assertEq(after.value(n), Two)
         space.commit(move)
-        assertEq(now.value(s), Two)
         assertEq(now.value(n), Two)
         space.initialize
         assertEq(now.value(n), Two)

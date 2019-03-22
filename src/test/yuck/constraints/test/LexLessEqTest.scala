@@ -43,20 +43,16 @@ final class LexLessEqTest extends UnitTest {
             // t = 5
             val move = new ChangeValue(space.nextMoveId, t, Five)
             val after = space.consult(move)
-            assertEq(after.value(t), Five)
             assertEq(after.value(costs), False4)
             space.commit(move)
-            assertEq(now.value(t), Five)
             assertEq(now.value(costs), False4)
         }
         if (true) {
             // s = 0
             val move = new ChangeValue(space.nextMoveId, s, Zero)
             val after = space.consult(move)
-            assertEq(after.value(s), Zero)
             assertEq(after.value(costs), True)
             space.commit(move)
-            assertEq(now.value(s), Zero)
             assertEq(now.value(costs), True)
         }
         space.initialize

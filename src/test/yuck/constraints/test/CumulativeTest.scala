@@ -55,20 +55,16 @@ final class CumulativeTest extends UnitTest {
             // move t2 to reduce conflict
             val move = new ChangeValue(space.nextMoveId, t2.s, One)
             val after = space.consult(move)
-            assertEq(after.value(t2.s), One)
             assertEq(after.value(costs), False4)
             space.commit(move)
-            assertEq(now.value(t2.s), One)
             assertEq(now.value(costs), False4)
         }
         if (true) {
             // move t2 to resolve conflict
             val move = new ChangeValue(space.nextMoveId, t2.s, Three)
             val after = space.consult(move)
-            assertEq(after.value(t2.s), Three)
             assertEq(after.value(costs), True)
             space.commit(move)
-            assertEq(now.value(t2.s), Three)
             assertEq(now.value(costs), True)
         }
         if (true) {
@@ -78,12 +74,8 @@ final class CumulativeTest extends UnitTest {
                     space.nextMoveId,
                     List(new ImmutableEffect(t1.s, One), new ImmutableEffect(t2.s, Two)))
             val after = space.consult(move)
-            assertEq(after.value(t1.s), One)
-            assertEq(after.value(t2.s), Two)
             assertEq(after.value(costs), False4)
             space.commit(move)
-            assertEq(now.value(t1.s), One)
-            assertEq(now.value(t2.s), Two)
             assertEq(now.value(costs), False4)
         }
         space.initialize
@@ -111,20 +103,16 @@ final class CumulativeTest extends UnitTest {
             // reduce conflict by reducing the the duration of t1
             val move = new ChangeValue(space.nextMoveId, t1.d, One)
             val after = space.consult(move)
-            assertEq(after.value(t1.d), One)
             assertEq(after.value(costs), False2)
             space.commit(move)
-            assertEq(now.value(t1.d), One)
             assertEq(now.value(costs), False2)
         }
         if (true) {
             // resolve conflict by setting the duration of t1 to zero
             val move = new ChangeValue(space.nextMoveId, t1.d, Zero)
             val after = space.consult(move)
-            assertEq(after.value(t1.d), Zero)
             assertEq(after.value(costs), True)
             space.commit(move)
-            assertEq(now.value(t1.d), Zero)
             assertEq(now.value(costs), True)
         }
         if (true) {
@@ -134,22 +122,16 @@ final class CumulativeTest extends UnitTest {
                     space.nextMoveId,
                     List(new ImmutableEffect(t1.d, Three), new ImmutableEffect(t1.c, Zero)))
             val after = space.consult(move)
-            assertEq(after.value(t1.d), Three)
-            assertEq(after.value(t1.c), Zero)
             assertEq(after.value(costs), True)
             space.commit(move)
-            assertEq(now.value(t1.d), Three)
-            assertEq(now.value(t1.c), Zero)
             assertEq(now.value(costs), True)
         }
         if (true) {
             // increase consumption of t2 beyond capacity
             val move = new ChangeValue(space.nextMoveId, t2.c, Four)
             val after = space.consult(move)
-            assertEq(after.value(t2.c), Four)
             assertEq(after.value(costs), False4)
             space.commit(move)
-            assertEq(now.value(t2.c), Four)
             assertEq(now.value(costs), False4)
         }
         if (true) {
@@ -160,12 +142,8 @@ final class CumulativeTest extends UnitTest {
                     List(new ImmutableEffect(t1.d, Four), new ImmutableEffect(t1.c, Two),
                          new ImmutableEffect(t2.d, Five), new ImmutableEffect(t2.c, Three)))
             val after = space.consult(move)
-            assertEq(after.value(t1.d), Four)
-            assertEq(after.value(t1.c), Two)
             assertEq(after.value(costs), False8)
             space.commit(move)
-            assertEq(now.value(t1.d), Four)
-            assertEq(now.value(t1.c), Two)
             assertEq(now.value(costs), False8)
         }
         space.initialize
@@ -192,20 +170,16 @@ final class CumulativeTest extends UnitTest {
             // resolve conflict by increasing capacity
             val move = new ChangeValue(space.nextMoveId, ub, Four)
             val after = space.consult(move)
-            assertEq(after.value(ub), Four)
             assertEq(after.value(costs), True)
             space.commit(move)
-            assertEq(now.value(ub), Four)
             assertEq(now.value(costs), True)
         }
         if (true) {
             // increase consumption to cause conflict
             val move = new ChangeValue(space.nextMoveId, t1.c, Five)
             val after = space.consult(move)
-            assertEq(after.value(t1.c), Five)
             assertEq(after.value(costs), False3)
             space.commit(move)
-            assertEq(now.value(t1.c), Five)
             assertEq(now.value(costs), False3)
         }
         space.initialize
@@ -236,20 +210,16 @@ final class CumulativeTest extends UnitTest {
             // increase capacity and hence duration and consumption of t1 and t2
             val move = new ChangeValue(space.nextMoveId, ub, One)
             val after = space.consult(move)
-            assertEq(after.value(ub), One)
             assertEq(after.value(costs), False)
             space.commit(move)
-            assertEq(now.value(ub), One)
             assertEq(now.value(costs), False)
         }
         if (true) {
             // increasing capacity once more makes t1 and t2 overlap t3
             val move = new ChangeValue(space.nextMoveId, ub, Two)
             val after = space.consult(move)
-            assertEq(after.value(ub), Two)
             assertEq(after.value(costs), False5)
             space.commit(move)
-            assertEq(now.value(ub), Two)
             assertEq(now.value(costs), False5)
         }
         space.initialize
@@ -276,14 +246,12 @@ final class CumulativeTest extends UnitTest {
             // resolve conflict by reducing consumption
             val move = new ChangeValue(space.nextMoveId, t1.c, One)
             val after = space.consult(move)
-            assertEq(after.value(t1.c), One)
             assertEq(after.value(costs), True)
         }
         if (true) {
             // resolve conflict by increasing capacity
             val move = new ChangeValue(space.nextMoveId, ub, Two)
             val after = space.consult(move)
-            assertEq(after.value(ub), Two)
             assertEq(after.value(costs), True)
         }
         space.initialize
@@ -314,14 +282,8 @@ final class CumulativeTest extends UnitTest {
                     space.nextMoveId,
                     List(new ImmutableEffect(t1.s, Two), new ImmutableEffect(t1.d, Seven), new ImmutableEffect(t1.c, Two)))
             val after = space.consult(move)
-            assertEq(after.value(t1.s), Two)
-            assertEq(after.value(t1.d), Seven)
-            assertEq(after.value(t1.c), Two)
             assertEq(after.value(costs), False8)
             space.commit(move)
-            assertEq(now.value(t1.s), Two)
-            assertEq(now.value(t1.d), Seven)
-            assertEq(now.value(t1.c), Two)
             assertEq(now.value(costs), False8)
         }
         if (true) {
@@ -333,18 +295,8 @@ final class CumulativeTest extends UnitTest {
                          new ImmutableEffect(t2.s, Seven), new ImmutableEffect(t2.c, Two),
                          new ImmutableEffect(ub, Four)))
             val after = space.consult(move)
-            assertEq(after.value(t1.d), Six)
-            assertEq(after.value(t1.c), Four)
-            assertEq(after.value(t2.s), Seven)
-            assertEq(after.value(t2.c), Two)
-            assertEq(after.value(ub), Four)
             assertEq(after.value(costs), False2)
             space.commit(move)
-            assertEq(now.value(t1.d), Six)
-            assertEq(now.value(t1.c), Four)
-            assertEq(now.value(t2.s), Seven)
-            assertEq(now.value(t2.c), Two)
-            assertEq(now.value(ub), Four)
             assertEq(now.value(costs), False2)
         }
         space.initialize
