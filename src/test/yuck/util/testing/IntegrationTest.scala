@@ -11,8 +11,8 @@ abstract class IntegrationTest extends YuckTest {
 
     protected def createAnnealingSchedule(numberOfSearchVariables: Int, randomGenerator: RandomGenerator): AnnealingSchedule = {
         val scheduleFactory = new StandardAnnealingScheduleFactory(numberOfSearchVariables, randomGenerator.nextGen)
-        val schedule = scheduleFactory.createRandomSchedule
-        scheduleFactory.startScheduleWithRandomTemperature(schedule)
+        val schedule = scheduleFactory.createHybridSchedule
+        schedule.start(DefaultStartTemperature, 0)
         schedule
     }
 

@@ -96,7 +96,7 @@ final class Alldistinct
                     val n = subspace.searchVariables.size * 4
                     val scheduleFactory = new StandardAnnealingScheduleFactory(n, randomGenerator.nextGen)
                     val schedule = scheduleFactory.createSlowSchedule
-                    scheduleFactory.startScheduleWithRandomTemperature(schedule)
+                    schedule.start(DefaultStartTemperature, 0)
                     val solver =
                         new SimulatedAnnealing(
                             "AlldistinctSolver",
