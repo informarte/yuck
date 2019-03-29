@@ -37,4 +37,5 @@ case class MiniZincTestTask(
     val logLevel: yuck.util.logging.LogLevel = yuck.util.logging.InfoLogLevel)
 {
     def effectiveInstanceName: String = if (instanceName.isEmpty) problemName else instanceName
+    override def toString = "%s/%s/%s".format(problemName, modelName, instanceName)
 }

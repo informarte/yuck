@@ -10,6 +10,8 @@ minizinc-examples: yuck.flatzinc.test.TractableMiniZincExamples
 
 minizinc-challenges: yuck.flatzinc.test.MiniZincChallenges
 
+minizinc-benchmarks: yuck.flatzinc.test.MiniZincBenchmarks
+
 yuck.test.% yuck.flatzinc.test.%:
 	sbt "test:runMain org.junit.runner.JUnitCore $@"
 
