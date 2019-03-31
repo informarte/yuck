@@ -61,7 +61,7 @@ final class Queens extends IntegrationTest {
                     space,
                     createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen),
                     new RandomCircularSwapGenerator(
-                        space, rows.toIndexedSeq, randomGenerator.nextGen, DEFAULT_MOVE_SIZE_DISTRIBUTION, None, None),
+                        space, rows.toIndexedSeq, randomGenerator.nextGen, DefaultMoveSizeDistribution, None, None),
                     randomGenerator.nextGen,
                     new MinimizationObjective(conflicts, True, None),
                     None,
@@ -78,7 +78,7 @@ final class Queens extends IntegrationTest {
         val randomGenerator = new JavaRandomGenerator(29071972)
         val sigint = new SettableSigint
         val solvers =
-            (1 to DEFAULT_RESTART_LIMIT).map(
+            (1 to DefaultRestartLimit).map(
                 i => new OnDemandGeneratedSolver(new QueensGenerator(n, i, randomGenerator.nextInt, sigint), logger, sigint))
         val solver = new ParallelSolver(solvers, Runtime.getRuntime.availableProcessors, "Queens", logger, sigint)
         val result = solver.call

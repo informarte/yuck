@@ -41,12 +41,12 @@ final class FlatZincResultFormatter(result: Result) extends Callable[Seq[String]
         val lines = mutable.ArrayBuffer[String]()
         for ((id, value) <- sortedMap) lines += "%s = %s;".format(id, value)
         if (result.isSolution) {
-            lines += FLATZINC_SOLUTION_SEPARATOR
+            lines += FlatZincSolutionSeparator
             if (result.objective.isInstanceOf[HierarchicalObjective] && result.isGoodEnough) {
-                lines += FLATZINC_BEST_SOLUTION_FOUND_INDICATOR
+                lines += FlatZincBestSolutionFoundIndicator
             }
         } else {
-            lines += FLATZINC_NO_SOLUTION_FOUND_INDICATOR
+            lines += FlatZincNoSolutionFoundIndicator
         }
         lines.toSeq
     }

@@ -241,7 +241,7 @@ class MiniZincBasedTest extends IntegrationTest {
             throw error
         case error: InconsistentProblemException =>
             nativeLogger.info(error.getMessage)
-            nativeLogger.info(FLATZINC_INCONSISTENT_PROBLEM_INDICATOR)
+            nativeLogger.info(FlatZincInconsistentProblemIndicator)
             throw error
         case error: Throwable =>
             nativeLogger.log(java.util.logging.Level.SEVERE, "", error)

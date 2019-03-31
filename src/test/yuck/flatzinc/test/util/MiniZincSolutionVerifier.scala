@@ -94,7 +94,7 @@ class MiniZincSolutionVerifier(
         val solutionFormatter = new FlatZincResultFormatter(result)
         val solution = solutionFormatter.call
         assert(checkIndicators(solution))
-        for (assignment <- solution.toIterator.takeWhile(_ != FLATZINC_SOLUTION_SEPARATOR)) {
+        for (assignment <- solution.toIterator.takeWhile(_ != FlatZincSolutionSeparator)) {
             solutionWriter.write("constraint %s\n".format(assignment))
         }
         // We include the MiniZinc model in the end because a few of them don't have a semicolon
@@ -117,14 +117,14 @@ class MiniZincSolutionVerifier(
         if (! dznFileName.isEmpty) minizincCommand += "%s/%s".format(includePath, dznFileName)
         val (outputLines, _) = new ProcessRunner(logger, minizincCommand).call
         val verified =
-            ! outputLines.contains(FLATZINC_INCONSISTENT_PROBLEM_INDICATOR) &&
+            ! outputLines.contains(FlatZincInconsistentProblemIndicator) &&
             checkObjective(outputLines)
         verified
     }
 
     private def checkIndicators(outputLines: Seq[String]): Boolean = {
-        val separatorIndex = outputLines.indexOf(FLATZINC_SOLUTION_SEPARATOR)
-        val bestSolutionFoundIndicatorIndex = outputLines.indexOf(FLATZINC_BEST_SOLUTION_FOUND_INDICATOR)
+        val separatorIndex = outputLines.indexOf(FlatZincSolutionSeparator)
+        val bestSolutionFoundIndicatorIndex = outputLines.indexOf(FlatZincBestSolutionFoundIndicator)
         if (result.objective.isInstanceOf[HierarchicalObjective]) {
             if (result.isGoodEnough) {
                 separatorIndex == outputLines.size - 2 &&

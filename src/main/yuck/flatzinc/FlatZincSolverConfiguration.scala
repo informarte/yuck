@@ -1,6 +1,6 @@
 package yuck.flatzinc
 
-import yuck.core.{DEFAULT_RESTART_LIMIT, DEFAULT_SEED, Distribution, DistributionFactory, Probability}
+import yuck.core.{DefaultRestartLimit, DefaultSeed, Distribution, DistributionFactory, Probability}
 
 /**
  * @author Michael Marte
@@ -19,8 +19,8 @@ case class FlatZincLevelConfiguration(
  *
  */
 case class FlatZincSolverConfiguration(
-    val seed: Long = DEFAULT_SEED,
-    val restartLimit: Int = DEFAULT_RESTART_LIMIT,
+    val seed: Long = DefaultSeed,
+    val restartLimit: Int = DefaultRestartLimit,
     val numberOfThreads: Int = Runtime.getRuntime.availableProcessors,
     val maybeRoundLimit: Option[Int] = None,
     val maybeRuntimeLimitInSeconds: Option[Int] = None,

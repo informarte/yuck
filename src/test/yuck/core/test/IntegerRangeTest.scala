@@ -41,18 +41,18 @@ final class IntegerRangeTest extends UnitTest {
 
     @Test
     def testOrdering {
-        val SAMPLE_SIZE = 32
+        val sampleSize = 32
         val testData =
-            helper.createTestData( baseRange, SAMPLE_SIZE)
+            helper.createTestData( baseRange, sampleSize)
                 .filter(_.isInstanceOf[IntegerRange]).map(_.asInstanceOf[IntegerRange])
         helper.testOrdering(testData, IntegerRange.ordering)
     }
 
     @Test
     def testOperations {
-        val SAMPLE_SIZE = 16
+        val sampleSize = 16
         val testData =
-            helper.createTestData(baseRange, SAMPLE_SIZE)
+            helper.createTestData(baseRange, sampleSize)
                 .filter(_.isInstanceOf[IntegerRange]).map(_.asInstanceOf[IntegerRange])
         val extendedBaseRange = new IntegerRange(baseRange.lb - One, baseRange.ub + One)
         helper.testOperations(testData, extendedBaseRange.values.toSeq)
@@ -60,9 +60,9 @@ final class IntegerRangeTest extends UnitTest {
 
     @Test
     def testRandomSubrangeCreation {
-        val SAMPLE_SIZE = 1000
+        val sampleSize = 1000
         val sample = new mutable.HashSet[IntegerRange]
-        for (i <- 1 to SAMPLE_SIZE) {
+        for (i <- 1 to sampleSize) {
             val e = baseRange.randomSubrange(randomGenerator)
             assert(e.isSubsetOf(baseRange))
             sample += e

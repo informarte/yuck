@@ -128,7 +128,7 @@ final class SendMostMoney extends IntegrationTest {
         val randomGenerator = new JavaRandomGenerator(29071972)
         val sigint = new SettableSigint
         val solvers =
-            (1 to DEFAULT_RESTART_LIMIT).toList.map(
+            (1 to DefaultRestartLimit).toList.map(
                 i => new OnDemandGeneratedSolver(new SendMostMoneyGenerator(i, randomGenerator.nextInt, sigint), logger, sigint))
         val solver = new ParallelSolver(solvers, Runtime.getRuntime.availableProcessors, "SendMostMoney", logger, sigint)
         val result = solver.call

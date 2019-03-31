@@ -52,17 +52,17 @@ final object IntegerValue {
 
     implicit def valueTraits = IntegerValueTraits
 
-    private val VALUE_RANGE = new Range(-10000, 10000, 1)
-    private val valueCache = VALUE_RANGE.map(new IntegerValue(_)).toArray
+    private val valueRange = new Range(-10000, 10000, 1)
+    private val valueCache = valueRange.map(new IntegerValue(_)).toArray
 
     /**
      * Returns an IntegerValue instance for the given integer.
      *
-     * Values in VALUE_RANGE are used as index into an array of prefabricated
+     * Values in valueRange are used as index into an array of prefabricated
      * IntegerValue instances, so the operation is cheap for them.
      * For other values, a new IntegerValue instance is created.
      */
     def get(a: Int): IntegerValue =
-       if (VALUE_RANGE.contains(a)) valueCache.apply(a - VALUE_RANGE.start) else new IntegerValue(a)
+       if (valueRange.contains(a)) valueCache.apply(a - valueRange.start) else new IntegerValue(a)
 
 }

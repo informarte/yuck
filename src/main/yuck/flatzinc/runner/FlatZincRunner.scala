@@ -181,7 +181,7 @@ object FlatZincRunner {
         val solver = solverGenerator.call
         val result = solver.call
         if (! result.isSolution) {
-            println(FLATZINC_NO_SOLUTION_FOUND_INDICATOR)
+            println(FlatZincNoSolutionFoundIndicator)
         } else {
             logger.criticalSection {
                 logger.withLogScope("Solution") {
@@ -202,7 +202,7 @@ object FlatZincRunner {
             System.err.println(error.getMessage)
         case error: InconsistentProblemException =>
             System.err.println(error.getMessage)
-            println(FLATZINC_INCONSISTENT_PROBLEM_INDICATOR)
+            println(FlatZincInconsistentProblemIndicator)
         case error: Throwable =>
             // JVM will print error
             throw error

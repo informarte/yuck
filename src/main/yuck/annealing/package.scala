@@ -8,6 +8,6 @@ import yuck.core.DistributionFactory
  */
 package object annealing {
 
-    val DEFAULT_MOVE_SIZE_DISTRIBUTION = DistributionFactory.createDistribution(1, List(90, 10))
+    val DefaultMoveSizeDistribution = DistributionFactory.createDistribution(1, List(90, 10))
 
 }

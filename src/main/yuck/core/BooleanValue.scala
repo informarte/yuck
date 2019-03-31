@@ -59,18 +59,18 @@ final object BooleanValue {
 
     implicit def valueTraits = BooleanValueTraits
 
-    private val VALUE_RANGE = new Range(0, 10000, 1)
-    private val valueCache = VALUE_RANGE.map(new BooleanValue(_)).toArray
+    private val valueRange = new Range(0, 10000, 1)
+    private val valueCache = valueRange.map(new BooleanValue(_)).toArray
 
     /**
      * Returns a BooleanValue instance for the given violation.
      *
-     * Violations in VALUE_RANGE are used as index into an array of prefabricated
+     * Violations in valueRange are used as index into an array of prefabricated
      * BooleanValue instances, so the operation is cheap for them.
      * For other violations, a new BooleanValue instance is created.
      */
     def get(a: Int): BooleanValue =
-        if (VALUE_RANGE.contains(a)) valueCache.apply(a - VALUE_RANGE.start) else new BooleanValue(a)
+        if (valueRange.contains(a)) valueCache.apply(a - valueRange.start) else new BooleanValue(a)
 
     def get(a: Long): BooleanValue =
         if (a >= Int.MinValue && a <= Int.MaxValue) get(a.toInt) else new BooleanValue(a)

@@ -88,8 +88,8 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
         }
         val randomGenerator = new JavaRandomGenerator
         val e = createDistribution(n)
-        val SAMPLE_SIZE = 1000
-        for (i <- 0 until SAMPLE_SIZE) {
+        val sampleSize = 1000
+        for (i <- 0 until sampleSize) {
             e.addFrequencyDelta(d.nextIndex(randomGenerator), 1)
         }
         assertEq(e.frequency(0), 0)

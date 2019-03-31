@@ -6,7 +6,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-final class JavaRandomGenerator(seed: Long = DEFAULT_SEED) extends RandomGenerator {
+final class JavaRandomGenerator(seed: Long = DefaultSeed) extends RandomGenerator {
     private val wrappee = new java.util.SplittableRandom(seed)
     // warm-up
     for (i <- 1 until 8192) nextInt

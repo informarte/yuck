@@ -133,25 +133,25 @@ final class IntegerRangeListTest extends UnitTest {
 
     @Test
     def testOrdering {
-        val SAMPLE_SIZE = 16
-        val testData = helper.createTestData(baseRange, SAMPLE_SIZE).map(IntegerDomain.ensureRangeList)
+        val sampleSize = 16
+        val testData = helper.createTestData(baseRange, sampleSize).map(IntegerDomain.ensureRangeList)
         helper.testOrdering(testData, IntegerRangeList.ordering)
     }
 
     @Test
     def testOperations {
-        val SAMPLE_SIZE = 8
-        val testData = helper.createTestData(baseRange, SAMPLE_SIZE).map(IntegerDomain.ensureRangeList)
+        val sampleSize = 8
+        val testData = helper.createTestData(baseRange, sampleSize).map(IntegerDomain.ensureRangeList)
         val extendedBaseRange = new IntegerRange(baseRange.lb - One, baseRange.ub + One)
         helper.testOperations(testData, extendedBaseRange.values.toSeq)
     }
 
     @Test
     def testRandomSubrangeCreation {
-        val SAMPLE_SIZE = 1000
+        val sampleSize = 1000
         val baseDomain = new IntegerRangeList(Vector(new IntegerRange(Zero, Four), new IntegerRange(Six, Nine)))
         val sample = new mutable.HashSet[IntegerRange]
-        for (i <- 1 to SAMPLE_SIZE) {
+        for (i <- 1 to sampleSize) {
             val e = baseDomain.randomSubrange(randomGenerator)
             assert(e.isSubsetOf(baseDomain))
             sample += e

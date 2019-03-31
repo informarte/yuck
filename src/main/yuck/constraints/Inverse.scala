@@ -263,7 +263,7 @@ final class Inverse
                                 schedule,
                                 new RandomReassignmentGenerator(
                                     subspace, subspace.searchVariables.toIndexedSeq, randomGenerator.nextGen,
-                                    DEFAULT_MOVE_SIZE_DISTRIBUTION, maybeHotSpotDistribution = None,
+                                    DefaultMoveSizeDistribution, maybeHotSpotDistribution = None,
                                     maybeFairVariableChoiceRate = None),
                                 randomGenerator.nextGen,
                                 new MinimizationObjective(subcosts, True, None),

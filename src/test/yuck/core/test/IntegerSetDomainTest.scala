@@ -34,12 +34,12 @@ final class IntegerSetDomainTest extends UnitTest {
     // so we test the ordering only once and here.
     @Test
     def testOrdering {
-        val SAMPLE_SIZE = 8
+        val sampleSize = 8
         val randomGenerator = new JavaRandomGenerator
         val helper1 = new IntegerDomainTestHelper(randomGenerator, logger)
         val baseRange = new IntegerRange(IntegerValue.get(-5), Five)
         val testData =
-            helper1.createTestData(baseRange, SAMPLE_SIZE)
+            helper1.createTestData(baseRange, sampleSize)
                 .map(r => List(new SingletonIntegerSetDomain(r), new IntegerPowersetDomain(r)))
                 .flatten
         val helper2 = new OrderingTestHelper[IntegerSetDomain]

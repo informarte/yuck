@@ -16,15 +16,15 @@ import yuck.util.testing.UnitTest
 final class RandomGeneratorTest extends UnitTest {
 
     private def testShuffling(shuffle: (RandomGenerator, IndexedSeq[Int]) => IndexedSeq[Int]): Unit = {
-        val N = 1000
-        val M = 10
-        var data: IndexedSeq[Int] = mutable.ArrayBuffer.tabulate(M)(identity)
+        val n = 1000
+        val m = 10
+        var data: IndexedSeq[Int] = mutable.ArrayBuffer.tabulate(m)(identity)
         val randomGenerator = new JavaRandomGenerator
-        val numberOfChangedPositionsDistribution = new Array[Int](M + 1)
-        for (i <- 1 to N) {
+        val numberOfChangedPositionsDistribution = new Array[Int](m + 1)
+        for (i <- 1 to n) {
             val shuffledData = shuffle(randomGenerator, data)
             var numberOfChangedPositions = 0
-            for (j <- 0 until M) {
+            for (j <- 0 until m) {
                 if (shuffledData(j) != data(j)) numberOfChangedPositions += 1
             }
             numberOfChangedPositionsDistribution(numberOfChangedPositions) += 1
