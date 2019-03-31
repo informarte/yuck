@@ -8,8 +8,6 @@ import yuck.core._
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 
-
-
 /**
  * Implements the ''all_different_int'' constraint as specified by MiniZinc.
  *
@@ -51,12 +49,12 @@ final class Alldistinct
     override def isCandidateForImplicitSolving(space: Space) = {
         val (xs, ys) = this.xs.partition(! _.domain.isSingleton)
         val as = ys.toIterator.map(_.domain.singleValue).toSet
-        ys.size == as.size &&
+        this.xs.forall(! space.isChannelVariable(_)) &&
         xs.size > 1 &&
         xs.toSet.size == xs.size &&
-        xs.forall(! space.isChannelVariable(_)) &&
         xs.forall(_.domain.isFinite) &&
-        xs.forall(x => ! as.exists(a => x.domain.contains(a)))
+        xs.forall(x => ! as.exists(a => x.domain.contains(a))) &&
+        ys.size == as.size
     }
 
     override def prepareForImplicitSolving(

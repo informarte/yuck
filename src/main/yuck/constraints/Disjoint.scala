@@ -44,11 +44,10 @@ abstract class Disjoint
     private var futureCosts = 0l
     protected def computeOverlap(e1: RTreeEntry, e2: RTreeEntry): Long
 
-    // By using a lazy val, we keep out variables that were pruned to parameters.
-    private lazy val x2is =
+    private val x2is =
         (0 until n)
         .toIterator
-        .map{case i => variablesIterator(i).filter(! _.domain.isSingleton).map((_, i))}
+        .map{case i => variablesIterator(i).map((_, i))}
         .flatten
         .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
             case (map, (x, i)) =>

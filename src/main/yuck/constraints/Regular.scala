@@ -87,12 +87,11 @@ final class Regular
     override def outVariables = List(costs)
 
     private lazy val x2i =
-        xs.toIterator.zipWithIndex.filterNot(_._1.domain.isSingleton).toMap[AnyVariable, Int]
+        xs.toIterator.zipWithIndex.toMap[AnyVariable, Int]
     private lazy val x2is =
         xs
         .toIterator
         .zipWithIndex
-        .filterNot(_._1.domain.isSingleton)
         .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
             case (map, (x, i)) =>
                 val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])

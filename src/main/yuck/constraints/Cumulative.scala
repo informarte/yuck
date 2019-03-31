@@ -98,11 +98,10 @@ final class Cumulative
     private var rTree: SpatialSearch[RTreeEntry] = null
     private var rTreeTransaction: RTreeTransaction[RTreeEntry] = null
 
-    // By using a lazy val, we keep out variables that were pruned to parameters.
-    private lazy val x2is =
+    private val x2is =
         (0 until n)
         .toIterator
-        .map{case i => variablesIterator(i).filter(! _.domain.isSingleton).map((_, i))}
+        .map{case i => variablesIterator(i).map((_, i))}
         .flatten
         .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
             case (map, (x, i)) =>
@@ -259,7 +258,7 @@ final class Cumulative
         rTreeTransaction.rollback
         futureCosts = currentCosts
         val beforeCapacity = before.value(capacity).value
-        val capacityChanged = ! capacity.domain.isSingleton && move.involves(capacity)
+        val capacityChanged = move.involves(capacity)
         val is = move.involvedVariables.toIterator.map(x2is.getOrElse(_, Nil)).flatten.to[mutable.Set]
         for (i <- is) {
             val beforeEntry = createRTreeEntry(i, before)
