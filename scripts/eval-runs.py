@@ -24,56 +24,58 @@ import statistics
 import sys
 
 def evalRuns(cursor, args):
-    jobQuery = 'SELECT DISTINCT problem, model, instance, problem_type FROM result'
-    if args.problemType:
-        jobQuery += ' WHERE problem_type = ?'
-    jobQuery += ' ORDER BY problem, model, instance';
-    jobs = list(cursor.execute(jobQuery, (args.problemType, )) if args.problemType else cursor.execute(jobQuery))
+    runsInScope = args.runs if args.ignoreOtherRuns else list(map(lambda result: result[0], cursor.execute('SELECT DISTINCT run from result')));
+    jobQuery = 'SELECT DISTINCT problem, model, instance, problem_type FROM result WHERE run IN (%s) ORDER BY problem, model, instance' % ','.join('?' for run in runsInScope)
+    jobs = list(cursor.execute(jobQuery, runsInScope))
     if not jobs:
         print('No results found', file = sys.stderr)
         return {}
-    runsInScope = args.runs if args.ignoreOtherRuns else list(map(lambda result: result[0], cursor.execute('SELECT DISTINCT run from result')));
     results = {}
     penalties = {}
     failures = {}
     for run in runsInScope:
-        resultQuery = 'SELECT solved, quality FROM result WHERE run = ?';
-        if args.problemType:
-            resultQuery += ' AND problem_type = ?'
-        resultQuery += ' ORDER BY problem, model, instance';
-        results[run] = list(cursor.execute(resultQuery, (run, args.problemType)) if args.problemType else cursor.execute(resultQuery, (run,)))
+        resultQuery = 'SELECT problem, model, instance, solved, quality FROM result WHERE run = ?';
+        for result in cursor.execute(resultQuery, (run,)):
+            (problem, model, instance, solved, quality) = result
+            if not run in results:
+                results[run] = {}
+            results[run][(problem, model, instance)] = (solved, quality)
         if len(results[run]) != len(jobs):
-            print('Expected {} results for run {}, but found {}'.format(len(jobs), run, len(results[run])), file = sys.stderr)
-            return {}
+            print('Warning: Expected {} results for run {}, but found {}'.format(len(jobs), run, len(results[run])), file = sys.stderr)
     for run in args.runs:
         penalties[run] = []
         failures[run] = 0
-    for i in range(0, len(jobs)):
-        (problem, model, instance, problemType) = jobs[i]
-        qualities = [int(result[1]) for result in [results[run][i] for run in runsInScope] if result[0] and result[1]]
-        optima = [int(result[0]) for result in cursor.execute('SELECT optimum FROM result WHERE problem = ? AND model = ? AND instance = ? AND optimum IS NOT NULL', (problem, model, instance))]
-        qualities += optima
-        highScores = [int(result[0]) for result in cursor.execute('SELECT high_score FROM result WHERE problem = ? AND model = ? AND instance = ? AND high_score IS NOT NULL', (problem, model, instance))]
-        qualities += highScores
-        (low, high) = (None, None) if not qualities else (min(qualities), max(qualities))
-        if args.verbose:
-            print('-' * 80)
-            print(problem, instance, problemType, low, high)
-        for run in args.runs:
-            (solved, quality) = results[run][i]
-            if solved:
-                if high == low:
-                    penalty = 0
-                elif problemType == 'MIN':
-                    penalty = (quality - low) / (high - low)
+    for (problem, model, instance, problemType) in jobs:
+        task = (problem, model, instance)
+        if not args.problemType or args.problemType == problemType:
+            qualities = [int(result[1]) for result in [results[run][task] for run in runsInScope if task in results[run]] if result[0] and result[1]]
+            optima = [int(result[0]) for result in cursor.execute('SELECT optimum FROM result WHERE problem = ? AND model = ? AND instance = ? AND optimum IS NOT NULL', (problem, model, instance))]
+            qualities += optima
+            highScores = [int(result[0]) for result in cursor.execute('SELECT high_score FROM result WHERE problem = ? AND model = ? AND instance = ? AND high_score IS NOT NULL', (problem, model, instance))]
+            qualities += highScores
+            (low, high) = (None, None) if not qualities else (min(qualities), max(qualities))
+            if args.verbose:
+                print('-' * 80)
+                print(problem, instance, problemType, low, high)
+            for run in args.runs:
+                if task in results[run]:
+                    (solved, quality) = results[run][task]
+                    if solved:
+                        if high == low:
+                            penalty = 0
+                        elif problemType == 'MIN':
+                            penalty = (quality - low) / (high - low)
+                        else:
+                            penalty = 1 - ((quality - low) / (high - low))
+                        if args.verbose:
+                            print(run, quality, penalty)
+                    else:
+                        failures[run] += 1
+                        penalty = 1
                 else:
-                    penalty = 1 - ((quality - low) / (high - low))
-                if args.verbose:
-                    print(run, quality, penalty)
-            else:
-                failures[run] += 1
-                penalty = 1
-            penalties[run] += [penalty]
+                    failures[run] += 1
+                    penalty = 1
+                penalties[run] += [penalty]
     return {run: {'failures': failures[run], 'penalties': penalties[run]} for run in args.runs}
 
 def postprocessResult(result):

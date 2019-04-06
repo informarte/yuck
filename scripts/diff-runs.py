@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-# Compares two runs and finds about lost and new solutions.
+# Compares two runs and finds out about lost and new solutions.
 
 import argparse
 import json

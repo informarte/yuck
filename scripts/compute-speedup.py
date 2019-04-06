@@ -23,7 +23,8 @@ def computeSpeedups(cursor, args):
         data[(run, task)] = mps
     result = {run: [data[(run, task)] / data[(args.referenceRun, task)]
                     for task in tasks
-                    if data[(run, task)] and data[(args.referenceRun, task)]]
+                    if (run, task) in data and data[(run, task)] and
+                       (args.referenceRun, task) in data and data[(args.referenceRun, task)]]
               for run in args.runs}
     return result
 
