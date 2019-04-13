@@ -42,7 +42,7 @@ abstract class NumericalObjective
         (SearchState, Option[AnyVariable]) =
     {
         val minimize = tighteningStep < valueTraits.zero
-        val costsOfCurrentProposal = rootObjective.costs(space.searchState)
+        val costsBeforeTightenining = rootObjective.costs(space.searchState)
         def bound(d: NumericalDomain[Value], a: Value): NumericalDomain[Value] =
             if (minimize) d.boundFromAbove(a) else d.boundFromBelow(a)
         def findActualObjectiveValue(d: NumericalDomain[Value]): Option[Value] =
@@ -53,17 +53,19 @@ abstract class NumericalObjective
             } else {
                 // binary search
                 val (d1, d2) = d.bisect
-                val (t1, t2) = (isFeasibleObjectiveValue(d1.ub), isFeasibleObjectiveValue(d2.lb))
-                if (t1 && t2) findActualObjectiveValue(if (minimize) d1 else d2)
-                else if (! t1 && ! t2) findActualObjectiveValue(if (minimize) d2 else d1)
-                else Some(if (minimize) d2.lb else d1.ub)
+                (isFeasibleObjectiveValue(d1.ub), isFeasibleObjectiveValue(d2.lb)) match {
+                    case (true, true) => findActualObjectiveValue(if (minimize) d1 else d2)
+                    case (false, false) => findActualObjectiveValue(if (minimize) d2 else d1)
+                    case (true, false) => if (minimize) findActualObjectiveValue(d1) else Some(d1.ub)
+                    case (false, true) => if (minimize) Some(d2.lb) else findActualObjectiveValue(d2)
+                }
             }
         def isFeasibleObjectiveValue(a: Value): Boolean = {
             val move = new ChangeValue(space.nextMoveId, x, a)
             val before = space.searchState
             val after = space.consult(move)
             val costsAfterMove = rootObjective.costs(after)
-            ! rootObjective.isHigherThan(costsAfterMove, costsOfCurrentProposal)
+            ! rootObjective.isHigherThan(costsAfterMove, costsBeforeTightenining)
         }
         def propagateBound(d: NumericalDomain[Value]) {
             val move = new ChangeValue(space.nextMoveId, x, if (minimize) d.ub else d.lb)
@@ -93,6 +95,8 @@ abstract class NumericalObjective
                     }
                     // Then we capture the resulting search state.
                     val bestFeasibleSearchState = space.searchState.clone
+                    val costsAfterTightening = rootObjective.costs(bestFeasibleSearchState)
+                    assert(! rootObjective.isHigherThan(costsAfterTightening, costsBeforeTightenining))
                     // Finally we constrain x to drive search towards a better solution.
                     if (! dx1.isEmpty) {
                         propagateBound(dx1)

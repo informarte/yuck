@@ -30,7 +30,7 @@ final class SimulatedAnnealing(
     private var roundCount = 0
     private var temperature = 0.0
     private var heatingPhase = false
-    private var numberOfMonteCarloAttempts = 0
+    private var numberOfRemainingMonteCarloAttempts = 0
     private val currentProposal = space.searchState
     private var proposalBeforeSuspension: SearchState = null
     private var costsOfCurrentProposal: Costs = null
@@ -126,7 +126,7 @@ final class SimulatedAnnealing(
     private def nextRound {
 
         // prepare for new round
-        if (numberOfMonteCarloAttempts == 0) {
+        if (numberOfRemainingMonteCarloAttempts == 0) {
             if (! result.roundLogs.isEmpty) {
                 if (schedule.temperature <= temperature) {
                     if (heatingPhase) {
@@ -143,12 +143,13 @@ final class SimulatedAnnealing(
                 }
             }
             temperature = schedule.temperature
-            numberOfMonteCarloAttempts = schedule.numberOfMonteCarloAttempts
+            numberOfRemainingMonteCarloAttempts = schedule.numberOfMonteCarloAttempts
             val roundLog = new RoundLog(result.roundLogs.size)
             result.roundLogs += roundLog
             roundLog.temperature = temperature
-            roundLog.costsOfInitialProposal = objective.costs(currentProposal)
-            roundLog.costsOfBestProposal = roundLog.costsOfInitialProposal
+            assert(costsOfCurrentProposal == objective.costs(currentProposal))
+            roundLog.costsOfInitialProposal = costsOfCurrentProposal
+            roundLog.costsOfBestProposal = costsOfCurrentProposal
         }
         val roundLog = result.roundLogs.last
 
@@ -159,19 +160,18 @@ final class SimulatedAnnealing(
 
         // book-keeping
         roundLog.runtimeInMillis += (endTime - startTime)
-        roundLog.numberOfMonteCarloAttempts = schedule.numberOfMonteCarloAttempts - numberOfMonteCarloAttempts
+        roundLog.numberOfMonteCarloAttempts = schedule.numberOfMonteCarloAttempts - numberOfRemainingMonteCarloAttempts
         roundLog.costsOfFinalProposal = costsOfCurrentProposal
         roundLog.updateAcceptanceRatio
-        assert(
-            roundLog.uphillAcceptanceRatio > 0.0 ||
-            ! objective.isHigherThan(roundLog.costsOfFinalProposal, roundLog.costsOfInitialProposal))
+        assert(! objective.isHigherThan(roundLog.costsOfBestProposal, roundLog.costsOfInitialProposal))
+        assert(! objective.isHigherThan(roundLog.costsOfBestProposal, roundLog.costsOfFinalProposal))
         roundLog.numberOfConsultations += space.numberOfConsultations
         space.numberOfConsultations = 0
         roundLog.numberOfCommitments += space.numberOfCommitments
         space.numberOfCommitments = 0
 
         // cool down
-        if (numberOfMonteCarloAttempts == 0) {
+        if (numberOfRemainingMonteCarloAttempts == 0) {
             roundLog.roundWasFutile =
                 roundCount > 0 &&
                 ! objective.isLowerThan(
@@ -188,7 +188,7 @@ final class SimulatedAnnealing(
 
     private def monteCarloSimulation {
         val roundLog = result.roundLogs.last
-        while (numberOfMonteCarloAttempts > 0 && ! wasInterrupted && ! result.isGoodEnough) {
+        while (numberOfRemainingMonteCarloAttempts > 0 && ! wasInterrupted && ! result.isGoodEnough) {
             val move = neighbourhood.nextMove
             val before = space.searchState
             val after = space.consult(move)
@@ -196,37 +196,38 @@ final class SimulatedAnnealing(
             if (delta <= 0 || randomGenerator.nextProbability <= scala.math.exp(-delta / temperature)) {
                 space.commit(move)
                 postprocessMove(roundLog)
+                if (delta > 0) {
+                    roundLog.numberOfAcceptedUphillMoves += 1
+                }
             } else {
                 roundLog.numberOfRejectedMoves += 1
             }
-            numberOfMonteCarloAttempts -= 1
+            numberOfRemainingMonteCarloAttempts -= 1
         }
     }
 
     private def postprocessMove(roundLog: RoundLog) {
-        val (newProposal, maybeConstrainedObjectiveVariable) = objective.tighten(space)
-        val newProposalIsMine = maybeConstrainedObjectiveVariable.isDefined
-        val costsOfNewProposal = objective.costs(newProposal)
-        if (objective.isLowerThan(costsOfCurrentProposal, costsOfNewProposal)) {
-            roundLog.numberOfAcceptedUphillMoves += 1
-        } else {
-            if (objective.isLowerThan(costsOfNewProposal, roundLog.costsOfBestProposal)) {
-                roundLog.costsOfBestProposal = costsOfNewProposal
-            }
-            if (objective.isLowerThan(costsOfNewProposal, result.costsOfBestProposal)) {
-                roundLog.bestProposalWasImproved = true
-                result.costsOfBestProposal = costsOfNewProposal
-                result.indexOfRoundWithBestProposal = result.roundLogs.length - 1
-                result.bestProposal = if (newProposalIsMine) newProposal else newProposal.clone
-                if (maybeMonitor.isDefined) {
-                    maybeMonitor.get.onBetterProposal(result)
-                }
+        val costsBeforeTightenining = objective.costs(currentProposal)
+        val (tightenedProposal, maybeConstrainedObjectiveVariable) = objective.tighten(space)
+        val tightenedProposalIsMine = maybeConstrainedObjectiveVariable.isDefined
+        val costsAfterTightening = objective.costs(tightenedProposal)
+        assert(! objective.isHigherThan(costsAfterTightening, costsBeforeTightenining))
+        if (objective.isLowerThan(costsAfterTightening, roundLog.costsOfBestProposal)) {
+            roundLog.costsOfBestProposal = costsAfterTightening
+        }
+        if (objective.isLowerThan(costsAfterTightening, result.costsOfBestProposal)) {
+            roundLog.bestProposalWasImproved = true
+            result.costsOfBestProposal = costsAfterTightening
+            result.indexOfRoundWithBestProposal = result.roundLogs.length - 1
+            result.bestProposal = if (tightenedProposalIsMine) tightenedProposal else tightenedProposal.clone
+            if (maybeMonitor.isDefined) {
+                maybeMonitor.get.onBetterProposal(result)
             }
         }
-        costsOfCurrentProposal = costsOfNewProposal
         if (maybeMonitor.isDefined && maybeConstrainedObjectiveVariable.isDefined) {
             maybeMonitor.get.onObjectiveTightened(maybeConstrainedObjectiveVariable.get)
         }
+        costsOfCurrentProposal = objective.costs(currentProposal)
     }
 
 }
