@@ -10,7 +10,7 @@ import yuck.util.arm.Sigint
  *
  * Domains in the compilation context do not get updated, so later stages should ask variables for domains!
  *
- * Domains of implicitely constrained search variables are restored after presolving.
+ * Domains of implicitly constrained search variables are restored after presolving.
  *
  * @author Michael Marte
  */
@@ -29,7 +29,7 @@ final class Presolver
 
     private def reduceDomains {
 
-        // collect domains of implicitely constrained search variables
+        // collect domains of implicitly constrained search variables
         val backup = new mutable.ArrayBuffer[(AnyVariable, AnyDomain)]
         for (x <- cc.implicitlyConstrainedVars) {
             backup += x -> x.domain
@@ -57,12 +57,12 @@ final class Presolver
                 throw new yuck.flatzinc.compiler.DomainWipeOutException2(error.x)
         }
 
-        // restore domains of implicitely constrained search variables
+        // restore domains of implicitly constrained search variables
         for ((x, dx) <- backup) {
             dx match {
-                case dx: BooleanDomain => BooleanValueTraits.safeDowncast(x).pruneDomain(dx)
-                case dx: IntegerDomain => IntegerValueTraits.safeDowncast(x).pruneDomain(dx)
-                case dx: IntegerSetDomain => IntegerSetValueTraits.safeDowncast(x).pruneDomain(dx)
+                case dx: BooleanDomain => BooleanValueTraits.safeDowncast(x).relaxDomain(dx)
+                case dx: IntegerDomain => IntegerValueTraits.safeDowncast(x).relaxDomain(dx)
+                case dx: IntegerSetDomain => IntegerSetValueTraits.safeDowncast(x).relaxDomain(dx)
             }
         }
 
