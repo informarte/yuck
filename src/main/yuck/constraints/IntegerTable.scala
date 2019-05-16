@@ -22,7 +22,7 @@ import yuck.core._
 final class IntegerTable
     (id: Id[Constraint], goal: Goal,
      xs: immutable.IndexedSeq[IntegerVariable],
-     rows: immutable.IndexedSeq[immutable.IndexedSeq[Int]],
+     var rows: immutable.IndexedSeq[immutable.IndexedSeq[Int]],
      costs: BooleanVariable)
     extends Constraint(id, goal)
 {
@@ -41,37 +41,40 @@ final class IntegerTable
     override def inVariables = xs
     override def outVariables = List(costs)
 
-    private var feasibleRows = rows
-    private lazy val cols = feasibleRows.transpose // columns improve data locality
-    private lazy val m = feasibleRows.size
+    private var cols: immutable.IndexedSeq[immutable.IndexedSeq[Int]] = null // columns improve data locality
 
     private var currentDistances: Array[Int] = null // for each row
     private var futureDistances: Array[Int] = null // for each row
     private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
 
-    private lazy val x2i =
-        xs.toIterator.zipWithIndex.toMap[AnyVariable, Int]
-    private lazy val x2is =
-        xs
-        .toIterator
-        .zipWithIndex
-        .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
-            case (map, (x, i)) =>
-                val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])
-                buf += i
-                map
+    private val x2i: immutable.Map[AnyVariable, Int] =
+        if (hasDuplicateVariables) null else xs.toIterator.zipWithIndex.toMap[AnyVariable, Int]
+    private val x2is: immutable.Map[AnyVariable, immutable.IndexedSeq[Int]] =
+        if (hasDuplicateVariables) {
+            xs
+            .toIterator
+            .zipWithIndex
+            .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
+                case (map, (x, i)) =>
+                    val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])
+                    buf += i
+                    map
+            }
+            .map{case (x, buf) => (x, buf.toIndexedSeq)}
+            .toMap
+        } else {
+            null
         }
-        .map{case (x, buf) => (x, buf.toIndexedSeq)}
-        .toMap
 
     override def propagate = {
         if (costs.domain == TrueDomain) {
-            feasibleRows =
-                feasibleRows.filter(row => (0 until n).forall(i => xs(i).domain.contains(IntegerValue.get(row(i)))))
+            cols = null
+            rows =
+                rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(IntegerValue.get(row(i)))))
             Variable.pruneDomains(
                 for (i <- 0 until n) yield {
-                    val feasibleValues = feasibleRows.toIterator.map(row => IntegerValue.get(row(i))).toSet
+                    val feasibleValues = rows.toIterator.map(row => IntegerValue.get(row(i))).toSet
                     val x = xs(i)
                     (x, x.domain.intersect(IntegerDomain.createDomain(feasibleValues)))
                 }
@@ -82,12 +85,14 @@ final class IntegerTable
     }
 
     override def initialize(now: SearchState) = {
+        val m = rows.size
         currentDistances = new Array[Int](m)
         futureDistances = new Array[Int](m)
         for (j <- 0 until m) {
+            val row = rows(j)
             for (i <- 0 until n) {
                 currentDistances(j) =
-                    safeAdd(currentDistances(j), abs(safeSub(now.value(xs(i)).value, cols(i)(j))))
+                    safeAdd(currentDistances(j), abs(safeSub(now.value(xs(i)).value, row(i))))
             }
         }
         effect.a = BooleanValue.get(currentDistances.min)
@@ -95,6 +100,10 @@ final class IntegerTable
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
+        val m = rows.size
+        if (cols == null) {
+            cols = rows.transpose
+        }
         Array.copy(currentDistances, 0, futureDistances, 0, m)
         val is = {
             val xs = move.involvedVariables.toIterator

@@ -86,20 +86,24 @@ final class Regular
     override def inVariables = xs
     override def outVariables = List(costs)
 
-    private lazy val x2i =
-        xs.toIterator.zipWithIndex.toMap[AnyVariable, Int]
-    private lazy val x2is =
-        xs
-        .toIterator
-        .zipWithIndex
-        .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
-            case (map, (x, i)) =>
-                val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])
-                buf += i
-                map
+    private val x2i: immutable.Map[AnyVariable, Int] =
+        if (hasDuplicateVariables) null else xs.toIterator.zipWithIndex.toMap[AnyVariable, Int]
+    private val x2is: immutable.Map[AnyVariable, immutable.IndexedSeq[Int]] =
+        if (hasDuplicateVariables) {
+            xs
+            .toIterator
+            .zipWithIndex
+            .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
+                case (map, (x, i)) =>
+                    val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])
+                    buf += i
+                    map
+            }
+            .map{case (x, buf) => (x, buf.toIndexedSeq)}
+            .toMap
+        } else {
+            null
         }
-        .map{case (x, buf) => (x, buf.toIndexedSeq)}
-        .toMap
 
     private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
