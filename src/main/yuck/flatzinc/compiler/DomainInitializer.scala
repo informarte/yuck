@@ -186,7 +186,7 @@ final class DomainInitializer
         (implicit valueTraits: ValueTraits[Value])
     {
         if (d.isEmpty) {
-            throw new DomainWipeOutException1(a)
+            throw new DomainWipeOutException(a)
         }
         assert(d.isSubsetOf(valueTraits.safeDowncast(domains(a))))
         domains += a -> d

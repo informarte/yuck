@@ -190,6 +190,14 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     }
 
     @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
+    def testEmptyTableInt {
+        assertEx(
+            solve(task.copy(problemName = "empty_table_int_test")),
+            classOf[InconsistentProblemException])
+    }
+
+    @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasExactlyConstraint]))
     def testExactly {
         solve(task.copy(problemName = "exactly_int_test"))

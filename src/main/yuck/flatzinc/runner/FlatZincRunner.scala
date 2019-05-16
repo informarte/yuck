@@ -7,8 +7,9 @@ import scala.math.max
 
 import scopt._
 
+import yuck.core.InconsistentProblemException
 import yuck.flatzinc.FlatZincSolverConfiguration
-import yuck.flatzinc.compiler.{InconsistentProblemException, UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
+import yuck.flatzinc.compiler.{UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
 import yuck.flatzinc.parser._
 import yuck.util.arm._
 

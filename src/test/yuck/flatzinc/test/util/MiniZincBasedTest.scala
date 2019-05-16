@@ -8,7 +8,7 @@ import spray.json._
 import yuck.annealing._
 import yuck.core._
 import yuck.flatzinc.ast._
-import yuck.flatzinc.compiler.{FlatZincCompilerResult, InconsistentProblemException}
+import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.flatzinc.parser._
 import yuck.flatzinc.runner._
 import yuck.util.arm._

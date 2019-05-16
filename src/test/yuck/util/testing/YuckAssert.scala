@@ -62,7 +62,12 @@ trait YuckAssert {
     }
 
     private def findExceptionType(throwable: Throwable, expectedExceptionType: Class[_ <: Throwable]): Boolean =
-        throwable.getClass == expectedExceptionType ||
+        findExceptionType(throwable.getClass, expectedExceptionType) ||
             (throwable.getCause != null && findExceptionType(throwable.getCause, expectedExceptionType))
+
+    private def findExceptionType(throwableType: Class[_], expectedExceptionType: Class[_ <: Throwable]): Boolean =
+        throwableType == expectedExceptionType ||
+            (throwableType.getSuperclass != null &&
+                findExceptionType(throwableType.getSuperclass, expectedExceptionType))
 
 }

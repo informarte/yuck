@@ -49,13 +49,7 @@ final class Presolver
                 pass(i + 1)
             }
         }
-        try {
-            pass(0)
-        }
-        catch {
-            case error: yuck.core.DomainWipeOutException =>
-                throw new yuck.flatzinc.compiler.DomainWipeOutException2(error.x)
-        }
+        pass(0)
 
         // restore domains of implicitly constrained search variables
         for ((x, dx) <- backup) {
