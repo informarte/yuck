@@ -27,7 +27,8 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
         MiniZincTestTask(
             directoryLayout = MiniZincExamplesLayout,
             suitePath = "resources/mzn/tests",
-            solverConfiguration = FlatZincSolverConfiguration(restartLimit = 0))
+            solverConfiguration = FlatZincSolverConfiguration(restartLimit = 0),
+            maybeRuntimeLimitInSeconds = Some(10))
 
     private val taskWithImplicitSolving =
         task.copy(

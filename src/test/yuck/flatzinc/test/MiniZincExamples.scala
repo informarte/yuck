@@ -24,7 +24,8 @@ final class MiniZincExamples extends MiniZincBasedTest {
     private val task =
         MiniZincTestTask(
             directoryLayout = MiniZincExamplesLayout,
-            suitePath = "resources/mzn/examples")
+            suitePath = "resources/mzn/examples",
+            maybeRuntimeLimitInSeconds = Some(10))
 
     private implicit def createTask(problemName: String): MiniZincTestTask = task.copy(problemName = problemName)
 
