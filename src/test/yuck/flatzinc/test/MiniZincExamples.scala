@@ -25,7 +25,8 @@ final class MiniZincExamples extends MiniZincBasedTest {
         MiniZincTestTask(
             directoryLayout = MiniZincExamplesLayout,
             suitePath = "resources/mzn/examples",
-            maybeRuntimeLimitInSeconds = Some(10))
+            maybeRuntimeLimitInSeconds = Some(10),
+            assertWhenUnsolved = true)
 
     private implicit def createTask(problemName: String): MiniZincTestTask = task.copy(problemName = problemName)
 

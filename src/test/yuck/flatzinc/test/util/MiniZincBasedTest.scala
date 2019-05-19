@@ -122,11 +122,13 @@ class MiniZincBasedTest extends IntegrationTest {
         jsonWriter.close
         Assert.assertTrue(
             "No solution found, quality of best proposal was %s".format(result.costsOfBestProposal),
-            result.isSolution)
-        logger.withTimedLogScope("Verifying solution") {
-            Assert.assertTrue(
-                "Solution not verified",
-                new MiniZincSolutionVerifier(task, result, logger).call)
+            result.isSolution || ! task.assertWhenUnsolved)
+        if (result.isSolution) {
+            logger.withTimedLogScope("Verifying solution") {
+                Assert.assertTrue(
+                    "Solution not verified",
+                    new MiniZincSolutionVerifier(task, result, logger).call)
+            }
         }
         result
     }
@@ -243,6 +245,8 @@ class MiniZincBasedTest extends IntegrationTest {
             nativeLogger.info(error.getMessage)
             nativeLogger.info(FlatZincInconsistentProblemIndicator)
             throw error
+        case error: SolverInterruptedException =>
+            throw new AssertionError("No solution found")
         case error: Throwable =>
             nativeLogger.log(java.util.logging.Level.SEVERE, "", error)
             throw error
