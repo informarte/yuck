@@ -107,3 +107,7 @@ linuxPackageMappings in Debian += {
     val file = yuckMscFileForDebianPackage.value
     packageMapping(file -> "/usr/share/minizinc/solvers/yuck.msc").withPerms("0644")
 }
+
+enablePlugins(BuildInfoPlugin)
+buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
+buildInfoPackage := "yuck"

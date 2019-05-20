@@ -7,6 +7,7 @@ import scala.math.max
 
 import scopt._
 
+import yuck.BuildInfo
 import yuck.core.InconsistentProblemException
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.{UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
@@ -43,8 +44,9 @@ object FlatZincRunner {
         val defaultCfg = defaultCl.cfg
         val logLevels = yuck.util.logging.logLevels
         val logLevelMap = logLevels.map(level => (level.toString -> level)).toMap
-        head("Yuck FlatZinc frontend")
+        head("Yuck FlatZinc frontend", BuildInfo.version)
         help("help").abbr("h").text("Show this help message")
+        version("version")
         opt[Int]('p', "number-of-threads")
             .text("Default value is %s".format(defaultCfg.numberOfThreads))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(numberOfThreads = max(1, x))))
