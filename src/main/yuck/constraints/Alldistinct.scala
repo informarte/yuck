@@ -86,7 +86,7 @@ final class Alldistinct
             } else {
                 // general case
                 val logger = space.logger
-                val subspace = new Space(logger, space.checkConstraintPropagation)
+                val subspace = new Space(logger, space.checkIncrementalCostUpdate)
                 val subxs = xs.map(x => valueTraits.createVariable(subspace, x.name, x.domain))
                 val result = logger.withTimedLogScope("Solving %s".format(this)) {
                     val subcosts = new BooleanVariable(subspace.nextVariableId, "", CompleteBooleanDomain)

@@ -27,7 +27,7 @@ import yuck.util.logging.LazyLogger
  */
 final class Space(
     val logger: LazyLogger,
-    val checkConstraintPropagation: Boolean = false,
+    val checkIncrementalCostUpdate: Boolean = false,
     val checkAssignmentsToNonChannelVariables: Boolean = false)
 {
 
@@ -455,7 +455,7 @@ final class Space(
             constraint: Constraint, before: SearchState, after: SearchState, move: Move) =
         {
             numberOfConsultations += 1
-            if (checkConstraintPropagation) {
+            if (checkIncrementalCostUpdate) {
                 checkedConsult(constraint, before, after, move)
             } else {
                 constraint.consult(before, after, move)
@@ -529,7 +529,7 @@ final class Space(
             constraint: Constraint, before: SearchState, after: SearchState, move: Move) =
         {
             numberOfCommitments += 1
-            if (checkConstraintPropagation) {
+            if (checkIncrementalCostUpdate) {
                 checkedCommit(constraint, before, after, move)
             } else {
                 constraint.commit(before, after, move)

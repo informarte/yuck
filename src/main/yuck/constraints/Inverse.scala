@@ -244,7 +244,7 @@ final class Inverse
                 } else {
                     // general case
                     val logger = space.logger
-                    val subspace = new Space(logger, space.checkConstraintPropagation)
+                    val subspace = new Space(logger, space.checkIncrementalCostUpdate)
                     val subf = new InverseFunction(f.xs.map(x => new IntegerVariable(subspace.nextVariableId, x.name, x.domain)), f.offset)
                     val subg = new InverseFunction(g.xs.map(y => new IntegerVariable(subspace.nextVariableId, y.name, y.domain)), g.offset)
                     val result = logger.withTimedLogScope("Solving %s".format(this)) {
