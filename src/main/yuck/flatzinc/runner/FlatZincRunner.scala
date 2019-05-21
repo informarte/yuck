@@ -104,6 +104,7 @@ object FlatZincRunner {
             scoped(new ManagedShutdownHook({})) {
                 scoped(logManager) {
                     setupLogging(cl)
+                    logVersion
                     val sigint = new SettableSigint
                     scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set})) {
                         maybeTimeboxed(cl.cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
@@ -159,6 +160,13 @@ object FlatZincRunner {
         case error: Throwable =>
             // JVM will print error
             throw error
+    }
+
+    private def logVersion {
+        logger.withLogScope("Yuck version") {
+            logger.log("Git branch: %s".format(BuildInfo.gitBranch))
+            logger.log("Git commit hash: %s".format(BuildInfo.gitCommitHash))
+        }
     }
 
     private def solve(cl: CommandLine, sigint: SettableSigint): Unit = {

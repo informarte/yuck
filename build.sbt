@@ -1,11 +1,11 @@
 import scala.sys.process._
 
-val gitHeadCommitSha = settingKey[String]("The current git commit SHA")
-gitHeadCommitSha := Process("git rev-parse HEAD").lineStream.head
-val currentGitBranch = settingKey[String]("The current git branch")
-currentGitBranch := Process("git rev-parse --abbrev-ref HEAD").lineStream.head
-val today = settingKey[String]("The current date")
-today := new java.text.SimpleDateFormat("yyyyMMdd").format(new java.util.Date)
+val gitCommitHash = settingKey[String]("The git commit hash")
+gitCommitHash := Process("git rev-parse HEAD").lineStream.head
+val gitCommitDate =  settingKey[String]("The git commit date")
+gitCommitDate := Process("git log -1  --pretty=format:%cd --date=format:%Y%m%d").lineStream.head
+val gitBranch = settingKey[String]("The git branch")
+gitBranch := Process("git rev-parse --abbrev-ref HEAD").lineStream.head
 
 def createMscFile(baseDir: java.io.File, version: String, exePath: String, mznLibPath: String): java.io.File = {
     val source = new java.io.File(baseDir / "resources" / "mzn", "yuck.msc.in")
@@ -26,7 +26,7 @@ name := "yuck"
 description := "Yuck is a constraint-based local-search solver with FlatZinc interface."
 startYear := Some(2013)
 // For creating a Debian package, the version must start with a digit.
-version := today.value
+version := gitCommitDate.value
 maintainer := "Michael Marte <informarte@freenet.de>"
 packageSummary := "FlatZinc interpreter"
 packageDescription := description.value
@@ -76,7 +76,7 @@ enablePlugins(UniversalPlugin)
 
 val yuckMscFileForUniversalPackage = taskKey[java.io.File]("Create yuck.msc file for universal package")
 yuckMscFileForUniversalPackage :=
-    createMscFile(baseDir = baseDirectory.value, version = today.value, exePath = "../bin/yuck", mznLibPath = "lib")
+    createMscFile(baseDir = baseDirectory.value, version = gitCommitDate.value, exePath = "../bin/yuck", mznLibPath = "lib")
 
 mappings in Universal +=
     (baseDirectory.value / "doc" / "copyright" -> "doc/copyright")
@@ -99,7 +99,7 @@ enablePlugins(DebianPlugin)
 
 val yuckMscFileForDebianPackage = taskKey[java.io.File]("Create yuck.msc file for Debian package")
 yuckMscFileForDebianPackage :=
-    createMscFile(baseDir = baseDirectory.value, version = today.value, exePath = "/usr/bin/yuck", mznLibPath = "/usr/share/yuck/mzn/lib")
+    createMscFile(baseDir = baseDirectory.value, version = gitCommitDate.value, exePath = "/usr/bin/yuck", mznLibPath = "/usr/share/yuck/mzn/lib")
 
 debianPackageDependencies in Debian ++= Seq("default-jre-headless (>= 1.8)")
 debianSection in Debian := "universe/interpreters"
@@ -109,5 +109,5 @@ linuxPackageMappings in Debian += {
 }
 
 enablePlugins(BuildInfoPlugin)
-buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
+buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion, gitBranch, gitCommitHash)
 buildInfoPackage := "yuck"

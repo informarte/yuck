@@ -5,6 +5,7 @@ import scala.collection._
 import org.junit._
 import spray.json._
 
+import yuck.BuildInfo
 import yuck.annealing._
 import yuck.core._
 import yuck.flatzinc.ast._
@@ -112,6 +113,7 @@ class MiniZincBasedTest extends IntegrationTest {
         logger.withLogScope("Best proposal") {
             new FlatZincResultFormatter(result).call.foreach(logger.log(_))
         }
+        logVersion
         logYuckModelStatistics(result.space)
         logResult(result)
         logSolverStatistics(monitor)
@@ -155,6 +157,13 @@ class MiniZincBasedTest extends IntegrationTest {
             taskNodes += "high-score" -> JsNumber(task.maybeHighScore.get)
         }
         jsonNodes += "task" -> JsObject(taskNodes.toMap)
+    }
+
+    private def logVersion {
+        jsonNodes +=
+          "yuck-version" -> JsObject(
+              "gitBranch" -> JsString(BuildInfo.gitBranch),
+              "gitCommitHash" -> JsString(BuildInfo.gitCommitHash))
     }
 
     private def logFlatZincModelStatistics(ast: FlatZincAst) {
