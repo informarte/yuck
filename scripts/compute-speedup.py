@@ -16,39 +16,51 @@ def computeSpeedups(cursor, args):
     runs = [args.referenceRun] + args.runs
     query = 'SELECT run, problem, model, instance, moves_per_second FROM result WHERE run IN (%s)' % ','.join('?' for run in runs)
     tasks = set()
-    data = {}
-    for (run, problem, model, instance, mps) in cursor.execute(query, runs):
+    mps = {}
+    for (run, problem, model, instance, movesPerSecond) in cursor.execute(query, runs):
         task = (problem, model, instance)
         tasks.add(task)
-        data[(run, task)] = mps
-    result = {run: [data[(run, task)] / data[(args.referenceRun, task)]
+        mps[(run, task)] = movesPerSecond
+    result = {run: {task: mps[(run, task)] / mps[(args.referenceRun, task)]
                     for task in tasks
-                    if (run, task) in data and data[(run, task)] and
-                       (args.referenceRun, task) in data and data[(args.referenceRun, task)]]
+                    if (run, task) in mps and mps[(run, task)] and
+                       (args.referenceRun, task) in mps and mps[(args.referenceRun, task)]}
               for run in args.runs}
     return result
 
-def analyzeSpeedups(speedups):
+def getSpeedups(result):
+    return [result[task] for task in result]
+
+def analyzeSpeedups(result):
+    speedups = getSpeedups(result)
     quartiles = numpy.percentile(speedups, [25, 50, 75])
+    q1 = quartiles[0]
+    q2 = quartiles[1]
+    q3 = quartiles[2]
+    iqr = q3 - q1
     return {
         'speedup-min': min(speedups),
-        'speedup-q1': quartiles[0],
-        'speedup-q2': quartiles[1],
-        'speedup-q3': quartiles[2],
+        'speedup-q1': q1,
+        'speedup-q2': q2,
+        'speedup-q3': q3,
         'speedup-max': max(speedups),
         # harmonic mean might be more appropriate, but it is available only from Python 3.6
         'speedup-mean': statistics.mean(speedups),
         'speedup-pstdev': statistics.pstdev(speedups),
-        'speedup-histogram': numpy.histogram(speedups, 'auto')[0].tolist()
+        'speedup-histogram': numpy.histogram(speedups, 'auto')[0].tolist(),
+        'extreme-values': {task[0] + "/" + task[1] + "/" + task[2]: result[task]
+                           for task in result
+                           if result[task] < q1 - 1.5 * iqr or result[task] > q3 + 1.5 * iqr}
     }
 
-def plotDiagrams(speedups):
+def plotDiagrams(results):
     fig, (ax1, ax2, ax3) = plt.subplots(ncols = 1, nrows = 3, sharex = True, constrained_layout=True)
     fig.suptitle('Speedups', fontsize = 'x-large')
-    for run in speedups:
-        ax1.hist(speedups[run], 100, histtype = 'step', cumulative = False, label = run)
-        ax2.hist(speedups[run], 100, histtype = 'step', cumulative = True, label = run)
-        ax3.boxplot([speedups[run] for run in speedups], vert = False, labels = [run for run in speedups], showmeans = True)
+    for run in results:
+        speedups = getSpeedups(results[run])
+        ax1.hist(speedups, 100, histtype = 'step', cumulative = False, label = run)
+        ax2.hist(speedups, 100, histtype = 'step', cumulative = True, label = run)
+    ax3.boxplot([getSpeedups(results[run]) for run in results], vert = False, labels = [run for run in results], showmeans = True)
     ax1.grid(True)
     ax1.legend(loc='center right', fontsize = 'medium')
     ax1.set_ylabel('Number of results')
