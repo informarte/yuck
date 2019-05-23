@@ -14,19 +14,24 @@ import sys
 
 def computeSpeedups(cursor, args):
     runs = [args.referenceRun] + args.runs
-    query = 'SELECT run, problem, model, instance, moves_per_second FROM result WHERE run IN (%s)' % ','.join('?' for run in runs)
+    query = 'SELECT run, problem, model, instance, moves_per_second, runtime_in_seconds FROM result WHERE run IN (%s)' % ','.join('?' for run in runs)
     tasks = set()
     mps = {}
-    for (run, problem, model, instance, movesPerSecond) in cursor.execute(query, runs):
+    rt = {}
+    for (run, problem, model, instance, movesPerSecond, runtimeInSeconds) in cursor.execute(query, runs):
         task = (problem, model, instance)
         tasks.add(task)
         mps[(run, task)] = movesPerSecond
+        rt[(run, task)] = runtimeInSeconds
     result = {run: {task: mps[(run, task)] / mps[(args.referenceRun, task)]
                     for task in tasks
                     if (run, task) in mps and mps[(run, task)] and
-                       (args.referenceRun, task) in mps and mps[(args.referenceRun, task)]}
+                       (args.referenceRun, task) in mps and mps[(args.referenceRun, task)] and
+                    (not (run, task) in rt or not rt[(run, task)] or
+                     not (args.referenceRun, task) in rt or not rt[(args.referenceRun, task)] or
+                     (rt[(run, task)] >= args.minRuntime and rt[(args.referenceRun, task)] >= args.minRuntime))}
               for run in args.runs}
-    return result
+    return {run: result[run] for run in result if result[run]}
 
 def getSpeedups(result):
     return [result[task] for task in result]
@@ -72,7 +77,8 @@ def plotDiagrams(results):
 
 def main():
     parser = argparse.ArgumentParser(description = 'Computes speedups for a given set of Yuck integration test runs')
-    parser.add_argument('-p', '--plot', dest = 'plotDiagrams', action='store_true', help = 'Plot diagrams')
+    parser.add_argument('-p', '--plot', dest = 'plotDiagrams', action = 'store_true', help = 'Plot diagrams')
+    parser.add_argument('--min-runtime', dest = 'minRuntime', type = int, default = 1, help = 'Ignore quicker runs')
     parser.add_argument('referenceRun', metavar = 'reference-run')
     parser.add_argument('runs', metavar = 'run', nargs = '+')
     args = parser.parse_args()
