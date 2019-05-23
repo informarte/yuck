@@ -41,7 +41,7 @@ final class CountConst
 
     private def computeDelta(before: SearchState, after: SearchState, move: Move): Int = {
         var delta = 0
-        for (x <- move.involvedVariables) {
+        for (x <- move) {
             if (before.anyValue(x) == a && after.anyValue(x) != a) {
                 delta -= 1
             } else if (before.anyValue(x) != a && after.anyValue(x) == a) {

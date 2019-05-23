@@ -25,6 +25,7 @@ final class BulkMove(id: Id[Move]) extends Move(id) {
 
     override def isEmpty = effectDir.isEmpty
     override def effects = effectDir.valuesIterator
+    override def foreach[U](f: AnyVariable => U) = effectDir.foreachKey(f)
     override def size = effectDir.size
     override def involvedVariables = effectDir.keysIterator
     override def involves(x: AnyVariable) = effectDir.contains(x)

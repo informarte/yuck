@@ -5,7 +5,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-abstract class Move(val id: Id[Move]) extends Ordered[Move] {
+abstract class Move(val id: Id[Move]) extends Ordered[Move] with Traversable[AnyVariable] {
 
     @inline final override def hashCode = id.hashCode
     override def toString = effects.toList.sortBy(_.anyVariable.id).mkString(", ")
@@ -15,10 +15,13 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] {
     def effects: TraversableOnce[AnyEffect]
 
     /** Returns true iff the move does not involve any variable. */
-    def isEmpty: Boolean = effects.isEmpty
+    override def isEmpty: Boolean = effects.isEmpty
 
     /** Returns the number of variables involved in the move. */
-    def size: Int = effects.size
+    override def size: Int = effects.size
+
+    /** Iterates the variables of the move. */
+    override def foreach[U](f: AnyVariable => U) = involvedVariables.foreach(f)
 
     /** Returns the variables involved in the move. */
     def involvedVariables: TraversableOnce[AnyVariable] = effects.toIterator.map(_.anyVariable)

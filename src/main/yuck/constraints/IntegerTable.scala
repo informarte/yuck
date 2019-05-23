@@ -109,7 +109,8 @@ final class IntegerTable
             val xs = move.involvedVariables.toIterator
             if (hasDuplicateVariables) xs.map(x2is).flatten else xs.map(x2i)
         }
-        for (i <- is) {
+        while (is.hasNext) {
+            val i = is.next
             val x = xs(i)
             val a = before.value(x).value
             val b = after.value(x).value

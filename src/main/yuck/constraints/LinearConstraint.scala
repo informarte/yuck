@@ -107,16 +107,12 @@ final class LinearConstraint
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         futureSum = currentSum
-        if (as == null) {
-            for (x0 <- move.involvedVariables) {
-                if (x0 != z) {
+        for (x0 <- move) {
+            if (x0 != z) {
+                if (as == null) {
                     val x = valueTraits.safeDowncast(x0)
                     futureSum = futureSum.addAndSub(after.value(x), before.value(x))
-                }
-            }
-        } else {
-            for (x0 <- move.involvedVariables) {
-                if (x0 != z) {
+                } else {
                     val i = x2i(x0)
                     val x = xs(i)
                     futureSum = futureSum.addAndSub(as(i), after.value(x), before.value(x))

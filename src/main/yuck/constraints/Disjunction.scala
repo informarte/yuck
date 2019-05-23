@@ -88,7 +88,7 @@ final class Disjunction
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         futureSum = sum
         futureTrueCount = trueCount
-        for (x <- move.involvedVariables) {
+        for (x <- move) {
             val y = x.asInstanceOf[BooleanVariable]
             val a = before.value(y).violation
             val b = after.value(y).violation

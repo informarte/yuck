@@ -69,7 +69,7 @@ final class BinPacking
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
        loadDeltas.clear
-       for (x <- move.involvedVariables) {
+       for (x <- move) {
            val item = x2Item(x)
            val j = before.value(item.bin).value
            val k = after.value(item.bin).value

@@ -46,9 +46,9 @@ final class Sum
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         effect.a = sum
-        for (x <- move.involvedVariables) {
-            val y = valueTraits.safeDowncast(x)
-            effect.a = effect.a.addAndSub(after.value(y), before.value(y))
+        for (x0 <- move) {
+            val x = valueTraits.safeDowncast(x0)
+            effect.a = effect.a.addAndSub(after.value(x), before.value(x))
         }
         effects
     }

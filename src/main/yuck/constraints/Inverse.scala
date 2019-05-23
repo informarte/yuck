@@ -145,7 +145,7 @@ final class Inverse
             }
         }
         futureCosts = currentCosts
-        for (x <- move.involvedVariables) {
+        for (x <- move) {
             val maybeI = f.x2i.get(x)
             if (maybeI.isDefined) {
                 val i = maybeI.get
@@ -181,7 +181,7 @@ final class Inverse
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
-        for (x <- move.involvedVariables) {
+        for (x <- move) {
             val maybeI = f.x2i.get(x)
             if (maybeI.isDefined) {
                 val i = maybeI.get

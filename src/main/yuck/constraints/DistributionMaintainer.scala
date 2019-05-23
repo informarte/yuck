@@ -44,7 +44,7 @@ final class DistributionMaintainer
         Nil
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
-        for (x <- move.involvedVariables) {
+        for (x <- move) {
             val (i, ax) = indexMap(x)
             distribution.setFrequency(i, computeFrequency(ax, after))
         }

@@ -22,7 +22,7 @@ final class LinearCombination
     override def inVariables = axs.toIterator.map(_.x)
     override def outVariables = List(y)
 
-    private val id2ax = immutable.HashMap[AnyVariable, AX[Value]]() ++ (axs.toIterator.map(_.x).zip(axs.toIterator))
+    private val x2ax = immutable.HashMap[AnyVariable, AX[Value]]() ++ (axs.toIterator.map(_.x).zip(axs.toIterator))
     private var sum = valueTraits.zero
     private val effects = List(new ReusableEffectWithFixedVariable[Value](y))
     private val effect = effects.head
@@ -38,7 +38,7 @@ final class LinearCombination
 
     override def initialize(now: SearchState) = {
         sum = valueTraits.zero
-        for ((_, ax) <- id2ax) {
+        for ((_, ax) <- x2ax) {
             sum += ax.a * now.value(ax.x)
         }
         effect.a = sum
@@ -47,8 +47,8 @@ final class LinearCombination
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         effect.a = sum
-        for (x <- move.involvedVariables) {
-            val ax = id2ax.get(x).get
+        for (x0 <- move) {
+            val ax = x2ax(x0)
             effect.a = effect.a.addAndSub(ax.a, after.value(ax.x), before.value(ax.x))
         }
         effects

@@ -55,11 +55,13 @@ abstract class ValueFrequencyTracker
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         futureValueRegistry = valueRegistry
-        for (x <- todo(move)) {
-            val y = valueTraits.safeDowncast(x)
-            val n = variableRegistry(x)
+        val it = todo(move).toIterator
+        while (it.hasNext) {
+            val x0 = it.next
+            val x = valueTraits.safeDowncast(x0)
+            val n = variableRegistry(x0)
             futureValueRegistry =
-                registerValue(deregisterValue(futureValueRegistry, before.value(y), n), after.value(y), n)
+                registerValue(deregisterValue(futureValueRegistry, before.value(x), n), after.value(x), n)
         }
         effect.a = computeResult(after, futureValueRegistry)
         effects
