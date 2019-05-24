@@ -2,6 +2,8 @@ dist: xenial
 
 language: scala
 
+jdk: openjdk11
+
 install:
   - wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.2.2/MiniZincIDE-2.2.2-bundle-linux-x86_64.tgz
   - tar xzf MiniZincIDE-2.2.2-bundle-linux-x86_64.tgz

@@ -65,7 +65,7 @@ libraryDependencies += "io.spray" %% "spray-json" % "1.3.3"
 testOptions in Test := Seq(Tests.Filter(s => s.endsWith("UnitTestSuite")))
 
 fork := true
-javaOptions += "-Xmx2g"
+javaOptions ++= Seq("-server", "-Xmx2G", "-XX:+UseParallelGC", "-XX:+AggressiveHeap")
 
 mainClass in (Compile, run) := Some("yuck.flatzinc.runner.FlatZincRunner")
 mainClass in (Compile, packageBin) := Some("yuck.flatzinc.runner.FlatZincRunner")
