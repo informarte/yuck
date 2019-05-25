@@ -10,7 +10,8 @@
 # In the end the script prints, for each given run, the number of instances it failed on,
 # and the penalties in terms of their mean, standard deviation, and median.
 #
-# The database is expected to reside in the working directory under the name results.db.
+# The result database is expected to reside in the working directory under the name results.db
+# unless another name is specified by way of the --db option.
 #
 # Notice that, by default, feature scaling uses all results that the database provides.
 # To restrict the analysis to the given runs, use the -r option.
@@ -19,6 +20,7 @@ import argparse
 import json
 import matplotlib.pyplot as plt
 import numpy
+from urllib.request import pathname2url
 import sqlite3
 import statistics
 import sys
@@ -110,14 +112,18 @@ def plotDiagrams(results):
     plt.show()
 
 def main():
-    parser = argparse.ArgumentParser(description = 'Helps to evaluate a given set of Yuck integration test runs')
-    parser.add_argument('-p', '--plot', dest = 'plotDiagrams', action='store_true', help = 'Plot diagrams')
-    parser.add_argument('-r', '--ignore-other-runs', dest = 'ignoreOtherRuns', action='store_true', help = 'Ignore results from runs other than the given ones')
+    parser = argparse.ArgumentParser(
+        description = 'Helps to evaluate a given set of Yuck integration test runs',
+        formatter_class = argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--db', '--database', dest = 'database', default = 'results.db', help = 'Define results database')
+    parser.add_argument('-p', '--plot', dest = 'plotDiagrams', action = 'store_true', help = 'Plot diagrams')
+    parser.add_argument('-r', '--ignore-other-runs', dest = 'ignoreOtherRuns', action = 'store_true', help = 'Ignore results from runs other than the given ones')
     parser.add_argument('-t', '--problem-type', dest = 'problemType', choices = ['SAT', 'MIN', 'MAX'], help = 'Restrict analysis to given problem type')
-    parser.add_argument('-v', '--verbose', action='store_true')
+    parser.add_argument('-v', '--verbose', action = 'store_true')
     parser.add_argument('runs', metavar = 'run', nargs = '+')
     args = parser.parse_args()
-    with sqlite3.connect("results.db") as conn:
+    dburi = 'file:{}?mode=ro'.format(pathname2url(args.database))
+    with sqlite3.connect(dburi, uri = True) as conn:
         cursor = conn.cursor()
         results = evalRuns(cursor, args)
         if results:

@@ -2,12 +2,14 @@
 
 # This script computes speedups for a given set of Yuck integration test runs.
 #
-# The result database is expected to reside in the working directory under the name results.db.
+# The result database is expected to reside in the working directory under the name results.db
+# unless another name is specified by way of the --db option.
 
 import argparse
 import json
 import numpy
 import matplotlib.pyplot as plt
+from urllib.request import pathname2url
 import sqlite3
 import statistics
 import sys
@@ -76,13 +78,17 @@ def plotDiagrams(results):
     plt.show()
 
 def main():
-    parser = argparse.ArgumentParser(description = 'Computes speedups for a given set of Yuck integration test runs')
+    parser = argparse.ArgumentParser(
+        description = 'Computes speedups for a given set of Yuck integration test runs',
+        formatter_class = argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--db', '--database', dest = 'database', default = 'results.db', help = 'Define results database')
     parser.add_argument('-p', '--plot', dest = 'plotDiagrams', action = 'store_true', help = 'Plot diagrams')
     parser.add_argument('--min-runtime', dest = 'minRuntime', type = int, default = 1, help = 'Ignore quicker runs')
     parser.add_argument('referenceRun', metavar = 'reference-run')
     parser.add_argument('runs', metavar = 'run', nargs = '+')
     args = parser.parse_args()
-    with sqlite3.connect("results.db") as conn:
+    dburi = 'file:{}?mode=ro'.format(pathname2url(args.database))
+    with sqlite3.connect(dburi, uri = True) as conn:
         cursor = conn.cursor()
         results = computeSpeedups(cursor, args)
         if results:

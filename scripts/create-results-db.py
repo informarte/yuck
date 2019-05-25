@@ -1,13 +1,18 @@
 #! /usr/bin/python3
 
-# This script creates a database of Yuck integration test results (results.db).
+# This script creates a database of Yuck integration test results.
 #
 # To import results, call the script with a list of JSON result files on the command line.
 # When the database already exists, the given results will be added unless they are
 # already in the database.
+#
+# The result database is created in the working directory under the name results.db
+# unless another name is specified by way of the --db option.
+
 
 import argparse
 import json
+from urllib.request import pathname2url
 import sqlite3
 from itertools import repeat
 
@@ -37,11 +42,15 @@ def importResults(run, file, cursor):
          results['yuck-model-statistics']['number-of-constraints']))
 
 def main():
-    parser = argparse.ArgumentParser(description = 'Puts Yuck integration test results into database')
+    parser = argparse.ArgumentParser(
+        description = 'Puts Yuck integration test results into a database',
+        formatter_class = argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--db', '--database', dest = 'database', default = 'results.db', help = 'Define results database')
     parser.add_argument('run', metavar = 'run')
     parser.add_argument('filenames', metavar = 'json-result-file', nargs = '+')
     args = parser.parse_args()
-    with sqlite3.connect("results.db") as conn:
+    dburi = 'file:{}?mode=rwc'.format(pathname2url(args.database))
+    with sqlite3.connect(dburi, uri = True) as conn:
         cursor = conn.cursor()
         createDb(cursor)
         cursor.execute('PRAGMA foreign_keys = ON');
