@@ -23,7 +23,8 @@ def createMscFile(baseDir: java.io.File, version: String, exePath: String, mznLi
 }
 
 name := "yuck"
-description := "Yuck is a constraint-based local-search solver with FlatZinc interface."
+description := "Yuck is a local-search constraint solver with FlatZinc interface"
+homepage := Some(url("https://github.com/informarte/yuck"))
 startYear := Some(2013)
 // For creating a Debian package, the version must start with a digit.
 version := gitCommitDate.value
