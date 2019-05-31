@@ -6,6 +6,10 @@ val gitCommitDate =  settingKey[String]("The git commit date")
 gitCommitDate := Process("git log -1  --pretty=format:%cd --date=format:%Y%m%d").lineStream.head
 val gitBranch = settingKey[String]("The git branch")
 gitBranch := Process("git rev-parse --abbrev-ref HEAD").lineStream.head
+val shortVersion = settingKey[String]("The short version string")
+shortVersion := gitCommitDate.value
+val longVersion = settingKey[String]("The long version string")
+longVersion := "%s-%s-%s".format(gitCommitDate.value, gitBranch.value, gitCommitHash.value.take(8))
 
 def createMscFile(baseDir: java.io.File, version: String, exePath: String, mznLibPath: String): java.io.File = {
     val source = new java.io.File(baseDir / "resources" / "mzn", "yuck.msc.in")
@@ -27,7 +31,7 @@ description := "Yuck is a local-search constraint solver with FlatZinc interface
 homepage := Some(url("https://github.com/informarte/yuck"))
 startYear := Some(2013)
 // For creating a Debian package, the version must start with a digit.
-version := gitCommitDate.value
+version := (if (gitBranch.value == "master") shortVersion.value else longVersion.value)
 maintainer := "Michael Marte <informarte@freenet.de>"
 packageSummary := "FlatZinc interpreter"
 packageDescription := description.value
