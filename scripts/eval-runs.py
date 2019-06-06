@@ -98,10 +98,12 @@ def postprocessResult(result):
 def plotDiagrams(results):
     fig, (ax1, ax2, ax3) = plt.subplots(ncols = 1, nrows = 3, sharex = True, constrained_layout=True)
     fig.suptitle('Run comparison', fontsize = 'x-large')
-    for run in results:
+    sortedRuns = sorted([run for run in results])
+    reverselySortedRuns = sorted(sortedRuns, reverse = True)
+    for run in sortedRuns:
         ax1.hist(results[run]['penalties'], 25, histtype = 'step', cumulative = False, label = run)
         ax2.hist(results[run]['penalties'], 100, histtype = 'step', cumulative = True, label = run)
-        ax3.boxplot([results[run]['penalties'] for run in results], vert = False, labels = [run for run in results], showmeans = True)
+    ax3.boxplot([results[run]['penalties'] for run in reverselySortedRuns], vert = False, labels = reverselySortedRuns, showmeans = True)
     ax1.grid(True)
     ax1.legend(loc='upper center', fontsize = 'medium')
     ax1.set_ylabel('Number of results')

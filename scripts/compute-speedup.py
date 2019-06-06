@@ -63,11 +63,13 @@ def analyzeSpeedups(result):
 def plotDiagrams(results):
     fig, (ax1, ax2, ax3) = plt.subplots(ncols = 1, nrows = 3, sharex = True, constrained_layout=True)
     fig.suptitle('Speedups', fontsize = 'x-large')
-    for run in results:
+    sortedRuns = sorted([run for run in results])
+    reverselySortedRuns = sorted(sortedRuns, reverse = True)
+    for run in sortedRuns:
         speedups = getSpeedups(results[run])
-        ax1.hist(speedups, 100, histtype = 'step', cumulative = False, label = run)
-        ax2.hist(speedups, 100, histtype = 'step', cumulative = True, label = run)
-    ax3.boxplot([getSpeedups(results[run]) for run in results], vert = False, labels = [run for run in results], showmeans = True)
+        ax1.hist(speedups, bins = 'auto', histtype = 'step', cumulative = False, label = run)
+        ax2.hist(speedups, bins = 'auto', histtype = 'step', cumulative = True, label = run)
+    ax3.boxplot([getSpeedups(results[run]) for run in reverselySortedRuns], vert = False, labels = reverselySortedRuns, showmeans = True)
     ax1.grid(True)
     ax1.legend(loc='center right', fontsize = 'medium')
     ax1.set_ylabel('Number of results')
