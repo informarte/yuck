@@ -19,7 +19,7 @@ import yuck.util.alg.rtree.test._
         classOf[DomainTestSuite],
         classOf[VariableTest],
         classOf[SpaceTest],
-        classOf[ObjectiveTest],
+        classOf[ObjectiveTestSuite],
         classOf[SolverTest],
         classOf[FenwickTreeTest],
         classOf[DistributionTest],
