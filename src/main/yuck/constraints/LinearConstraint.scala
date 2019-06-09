@@ -43,7 +43,7 @@ final class LinearConstraint
     private val effect = effects.head
 
     // Propagates sum a(i) * x(i) = y.
-    private def propagate1: Boolean = {
+    private def propagate1(effects: PropagationEffects): PropagationEffects = {
         // An Iterable does not compare other sequences, so we have to use a Seq to facilitate mocking.
         val lhs0 = new Seq[(Value, NumericalDomain[Value])] {
             override def iterator = (0 until xs.size).toIterator.map(apply)
@@ -52,11 +52,11 @@ final class LinearConstraint
         }
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.linEq(lhs0, rhs0)
-        Variable.pruneDomains(xs.toIterator.zip(lhs1.toIterator)) ||| y.pruneDomain(rhs1)
+        effects.pruneDomains(xs.toIterator.zip(lhs1.toIterator)).pruneDomain(y, rhs1)
     }
 
     // Propagates y relation z.
-    private def propagate2: Boolean = {
+    private def propagate2(effects: PropagationEffects): PropagationEffects = {
         type Domain = NumericalDomain[Value]
         val domainPruner = valueTraits.domainPruner
         val propagator = new ReifiedBinaryConstraintPropagator[Domain, Domain] {
@@ -77,10 +77,12 @@ final class LinearConstraint
         }
         val (dy0, dz0, costsDomain0) = (y.domain, z.domain, BooleanDomain.ensureDecisionDomain(costs.domain))
         val (dy1, dz1, costsDomain1) = propagator.propagate(dy0, dz0, costsDomain0)
-        Variable.pruneDomains(y, dy1, z, dz1, costs, costsDomain1)
+        effects.pruneDomains(y, dy1, z, dz1, costs, costsDomain1)
     }
 
-    override def propagate = propagate1 ||| propagate2
+    override def propagate = {
+        propagate2(propagate1(NoPropagationOccurred))
+    }
 
     private def computeCosts(a: Value, b: Value): BooleanValue = relation match {
         case EqRelation => valueTraits.orderingCostModel.eq(a, b)

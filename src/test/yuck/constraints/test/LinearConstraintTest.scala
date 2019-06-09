@@ -50,6 +50,7 @@ final class LinearConstraintTest
 
     @Test
     def testPropagation {
+        // We simulate a propagation process where the first call to propagate computes a fixed point.
         class DomainPruner extends NumericalDomainPruner[IntegerValue] {
             override type DomainImpl = IntegerDomain
         }
@@ -61,25 +62,34 @@ final class LinearConstraintTest
         val dy1 = nonEmptyRandomSubdomain(baseDomain)
         val dz1 = nonEmptyRandomSubdomain(dz0)
         when(domainPruner.linEq(lhs0, dy0)).thenReturn((lhs1, dy1))
+        when(domainPruner.linEq(for (i <- 0 until xs.size) yield (axs(i).a, lhs1(i)), dy1)).thenReturn((lhs1, dy1))
         if (costsDomain.containsTrue) relation match {
             case EqRelation =>
                 when(domainPruner.eq(dy1, dz0)).thenReturn((dy1, dz1))
+                when(domainPruner.eq(dy1, dz1)).thenReturn((dy1, dz1))
             case NeRelation =>
                 when(domainPruner.ne(dy1, dz0)).thenReturn((dy1, dz1))
+                when(domainPruner.ne(dy1, dz1)).thenReturn((dy1, dz1))
             case LtRelation =>
                 when(domainPruner.lt(dy1, dz0)).thenReturn((dy1, dz1))
+                when(domainPruner.lt(dy1, dz1)).thenReturn((dy1, dz1))
             case LeRelation =>
                 when(domainPruner.le(dy1, dz0)).thenReturn((dy1, dz1))
+                when(domainPruner.le(dy1, dz1)).thenReturn((dy1, dz1))
         }
         if (costsDomain.containsFalse) relation match {
             case EqRelation =>
                 when(domainPruner.ne(dy1, dz0)).thenReturn((dy1, dz1))
+                when(domainPruner.ne(dy1, dz1)).thenReturn((dy1, dz1))
             case NeRelation =>
                 when(domainPruner.eq(dy1, dz0)).thenReturn((dy1, dz1))
+                when(domainPruner.eq(dy1, dz1)).thenReturn((dy1, dz1))
             case LtRelation =>
                 when(domainPruner.le(dz0, dy1)).thenReturn((dz1, dy1))
+                when(domainPruner.le(dz1, dy1)).thenReturn((dz1, dy1))
             case LeRelation =>
                 when(domainPruner.lt(dz0, dy1)).thenReturn((dz1, dy1))
+                when(domainPruner.lt(dz1, dy1)).thenReturn((dz1, dy1))
         }
         implicit val valueTraits = mock(classOf[NumericalValueTraits[IntegerValue]], RETURNS_SMART_NULLS)
         when(valueTraits.one).thenReturn(One)
@@ -91,17 +101,17 @@ final class LinearConstraintTest
             }
         })
         LinearConstraint.postLinearConstraint(space, null, axs, relation, z, costs)
-        assert(space.prune)
+        space.propagate
         if (costsDomain.isSingleton) {
             for (i <- 0 until xs.size) {
                 assertEq(xs(i).domain, lhs1(i))
             }
             assertEq(z.domain, dz1)
-            verify(domainPruner, atMost(1)).eq(any[IntegerDomain], any[IntegerDomain])
-            verify(domainPruner, atMost(1)).ne(any[IntegerDomain], any[IntegerDomain])
-            verify(domainPruner, atMost(1)).lt(any[IntegerDomain], any[IntegerDomain])
-            verify(domainPruner, atMost(1)).le(any[IntegerDomain], any[IntegerDomain])
-            verify(domainPruner, times(1)).linEq(any[Iterable[(IntegerValue, IntegerDomain)]], any[IntegerDomain])
+            verify(domainPruner, atMost(2)).eq(any[IntegerDomain], any[IntegerDomain])
+            verify(domainPruner, atMost(2)).ne(any[IntegerDomain], any[IntegerDomain])
+            verify(domainPruner, atMost(2)).lt(any[IntegerDomain], any[IntegerDomain])
+            verify(domainPruner, atMost(2)).le(any[IntegerDomain], any[IntegerDomain])
+            verify(domainPruner, times(2)).linEq(any[Iterable[(IntegerValue, IntegerDomain)]], any[IntegerDomain])
         }
 
     }

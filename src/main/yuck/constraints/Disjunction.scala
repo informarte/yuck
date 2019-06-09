@@ -55,21 +55,22 @@ final class Disjunction
 
     override def propagate = {
         import BooleanDomain.ensureDecisionDomain
+        val result = NoPropagationOccurred
         val dy = ensureDecisionDomain(y.domain)
         if (dy == TrueDomain) {
             if (xs.forall(x => ensureDecisionDomain(x.domain) == FalseDomain)) {
-                y.pruneDomain(EmptyBooleanDomain)
+                result.pruneDomain(y, EmptyBooleanDomain)
             } else {
-                false
+                result
             }
         } else if (dy == FalseDomain) {
-            Variable.pruneDomains(xs.toIterator.map(x => (x, FalseDomain)))
+            result.pruneDomains(xs.toIterator.map(x => (x, FalseDomain)))
         } else if (xs.exists(x => ensureDecisionDomain(x.domain) == TrueDomain)) {
-            y.pruneDomain(TrueDomain)
+            result.pruneDomain(y, TrueDomain)
         } else if (xs.forall(x => ensureDecisionDomain(x.domain) == FalseDomain)) {
-            y.pruneDomain(FalseDomain)
+            result.pruneDomain(y, FalseDomain)
         } else {
-            false
+            result
         }
     }
 

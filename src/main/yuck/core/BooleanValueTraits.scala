@@ -23,7 +23,8 @@ final object BooleanValueTraits extends NumericalValueTraits[BooleanValue] {
     override def createVariable(space: Space, name: String, domain: Domain[BooleanValue]): BooleanVariable =
         new BooleanVariable(space.nextVariableId, name, safeDowncast(domain))
     override def createChannel(space: Space): BooleanVariable =
-        new BooleanVariable(space.nextVariableId, "", completeDomain)
+        // Using CompleteBooleanDecisionDomain instead of CompleteBooleanDomain speeds up propagation.
+        new BooleanVariable(space.nextVariableId, "", CompleteBooleanDecisionDomain)
     override def safeDowncast(a: AnyValue): BooleanValue = a.asInstanceOf[BooleanValue]
     override def safeDowncast(x: AnyDomain): BooleanDomain = x.asInstanceOf[BooleanDomain]
     override def safeDowncast(x: AnyVariable): BooleanVariable = x.asInstanceOf[BooleanVariable]

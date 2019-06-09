@@ -32,7 +32,7 @@ final class Sum
         }
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.linEq(lhs0, rhs0)
-        Variable.pruneDomains(xs.toIterator.zip(lhs1.toIterator)) ||| y.pruneDomain(rhs1)
+        NoPropagationOccurred.pruneDomains(xs.toIterator.zip(lhs1.toIterator)).pruneDomain(y, rhs1)
     }
 
     override def initialize(now: SearchState) = {

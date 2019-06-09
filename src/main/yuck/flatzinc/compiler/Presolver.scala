@@ -40,16 +40,8 @@ final class Presolver
             x.pruneDomain(TrueDomain)
         }
 
-        // propagate constraints (fixed-point iteration)
-        def pass(i: Integer) {
-            if (sigint.isSet) {
-                throw new FlatZincCompilerInterruptedException
-            }
-            if (logger.withTimedLogScope("Pass %d".format(i)) {space.prune}) {
-                pass(i + 1)
-            }
-        }
-        pass(0)
+        // propagate constraints
+        space.propagate
 
         // restore domains of implicitly constrained search variables
         for ((x, dx) <- backup) {

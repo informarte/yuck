@@ -33,7 +33,7 @@ final class LinearCombination
         }
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.linEq(lhs0, rhs0)
-        Variable.pruneDomains(axs.toIterator.map(_.x).zip(lhs1.toIterator)) ||| y.pruneDomain(rhs1)
+        NoPropagationOccurred.pruneDomains(axs.toIterator.map(_.x).zip(lhs1.toIterator)).pruneDomain(y, rhs1)
     }
 
     override def initialize(now: SearchState) = {

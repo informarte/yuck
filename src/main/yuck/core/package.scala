@@ -8,11 +8,6 @@ import scala.language.implicitConversions
  */
 package object core {
 
-    implicit final class RicherBoolean(val self: Boolean) extends AnyVal {
-        /** Strict disjunction */
-        def |||(other: Boolean) = self || other
-    }
-
     /**
      * `!!!` should be used for marking methods that cannot to be implemented.
      *

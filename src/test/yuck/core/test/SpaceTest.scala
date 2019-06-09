@@ -153,50 +153,54 @@ final class SpaceTest extends UnitTest {
         assertEq(space.numberOfCommitments, 1)
     }
 
-    // A spy constraint computes the sum and average of its input variables and,
+    // A spy constraint maintains the sum of its input variables and,
     // on each call to consult and commit, checks that Space calls these methods
     // according to their contracts.
     private final class Spy
-        (id: Id[Constraint],
-         xs: Set[IntegerVariable],
-         sum: IntegerVariable, avg: IntegerVariable)
+        (id: Id[Constraint], xs: Set[IntegerVariable], sum: IntegerVariable)
         extends Constraint(id, null)
     {
         require(! xs.isEmpty)
-        override def toString = "spy([%s], %s, %s)".format(xs.mkString(", "), sum, avg)
+
+        override def toString = "spy([%s], %s)".format(xs.mkString(", "), sum)
         override def inVariables = xs
-        override def outVariables = Vector(sum, avg)
-        private val effects =
-            Vector(
-                new ReusableMoveEffectWithFixedVariable[IntegerValue](sum),
-                new ReusableMoveEffectWithFixedVariable[IntegerValue](avg))
+        override def outVariables = List(sum)
+
+        private val effects = Vector(new ReusableMoveEffectWithFixedVariable[IntegerValue](sum))
+
         var numberOfPropagations = 0
         var numberOfInitializations = 0
         var numberOfConsultations = 0
         var numberOfCommitments = 0
+
         override def propagate = {
             numberOfPropagations += 1
-            numberOfPropagations <= xs.size
+            val lhs0 = new Iterable[(IntegerValue, IntegerDomain)] {
+                override def iterator = xs.toIterator.map(x => (One, x.domain))
+            }
+            val rhs0 = sum.domain
+            val (lhs1, rhs1) = IntegerValueTraits.domainPruner.linEq(lhs0, rhs0)
+            NoPropagationOccurred.pruneDomains(xs.toIterator.zip(lhs1.toIterator)).pruneDomain(sum, rhs1)
         }
+
         override def initialize(now: SearchState) = {
             numberOfInitializations += 1
-            effects(0).a = Zero
-            for (x <- xs) {
-                effects(0).a = effects(0).a + now.value(x)
-            }
-            effects(1).a = effects(0).a / IntegerValue.get(xs.size)
+            effects(0).a = IntegerValue.get(xs.toIterator.map(now.value(_).value).sum)
             effects
         }
+
         override def consult(before: SearchState, after: SearchState, move: Move) = {
             numberOfConsultations += 1
             checkContract(before, after, move)
             initialize(after)
         }
+
         override def commit(before: SearchState, after: SearchState, move: Move) = {
             numberOfCommitments += 1
             checkContract(before, after, move)
             initialize(after)
         }
+
         private def checkContract(before: SearchState, after: SearchState, move: Move) {
             for (x <- move.involvedVariables) {
                 assert(xs.contains(IntegerValueTraits.safeDowncast(x)))
@@ -204,6 +208,7 @@ final class SpaceTest extends UnitTest {
                 assertEq(after.anyValue(x), move.anyValue(x))
             }
         }
+
     }
 
     // To test constraint processing, we generate n random multi-layer networks of
@@ -215,29 +220,105 @@ final class SpaceTest extends UnitTest {
     //   2. we generate a spy constraint over each non-empty subset Q of P resulting in a set Y
     //      of new output variables
     //   3. we set X_{i} = X_{i - 1} union Y.
-    @Test
-    def testConstraintProcessing {
+    private def createRandomSpyNetwork(randomGenerator: RandomGenerator): (Space, Seq[IntegerVariable], Seq[Spy]) = {
 
         val k = 4 // number of variables per layer
         val l = 8 // number of layers
-        val m = 64 // number of moves per network
-        val n = 8 // number of networks
         val dx = new IntegerRange(One, IntegerValue.get(k * l))
-        val moveSizeDistribution = DistributionFactory.createDistribution(1, List(60, 30, 10))
 
+        val space = new Space(logger, sigint)
+        val spies = new mutable.ArrayBuffer[Spy]
+
+        // build constraint network (see above for how we do it)
+        val xs = new mutable.ArrayBuffer[IntegerVariable]
+        for (i <- 1 to k) {
+            xs += new IntegerVariable(space.nextVariableId, "x(0, %d)".format(i), dx)
+        }
+        for (i <- 1 to l) {
+            val ps = new mutable.HashSet[IntegerVariable]
+            while (ps.size < k) {
+                ps += xs(randomGenerator.nextInt(xs.size))
+            }
+            var j = 1
+            for (qs <- ps.subsets if ! qs.isEmpty) {
+                val sum = new IntegerVariable(space.nextVariableId, "sum(%d, %d)".format(i, j), NonNegativeIntegerRange)
+                xs += sum
+                val spy = new Spy(space.nextConstraintId, qs, sum)
+                space.post(spy)
+                spies += spy
+                j += 1
+            }
+        }
+
+        (space, xs, spies)
+    }
+
+    @Test
+    def testPropagation {
+
+        val n = 8 // number of networks
         val randomGenerator = new JavaRandomGenerator
 
         // generate and test n networks
         for (i <- 1 to n) {
 
-            val space = new Space(logger, sigint)
-            val spies = new mutable.ArrayBuffer[Spy]
+            val (space, xs, spies) = createRandomSpyNetwork(randomGenerator)
+
+            // check forward propagation
+            space.propagate
+            for (spy <- spies) {
+                assertGe(spy.numberOfPropagations, 2)
+                assertEq(spy.propagate, NoPropagationOccurred)
+                spy.numberOfPropagations = 0
+            }
+
+            // check criss-cross propagation departing from random variable until domain wipe-out
+            try {
+                var m = 0
+                while (true) {
+                    val x = xs(randomGenerator.nextInt(xs.size))
+                    x.pruneDomain(x.domain.randomSubrange(randomGenerator))
+                    space.propagate(x)
+                    for (spy <- spies) {
+                        assertEq(spy.propagate, NoPropagationOccurred)
+                        spy.numberOfPropagations = 0
+                    }
+                    m += 1
+                }
+                assertGt(m, 1)
+            }
+            catch {
+                case _: DomainWipeOutException =>
+            }
+
+            // check that neither initialize, nor consult, nor commit were called during propagation
+            for (spy <- spies) {
+                assertEq(spy.numberOfInitializations, 0)
+                assertEq(spy.numberOfConsultations, 0)
+                assertEq(spy.numberOfCommitments, 0)
+            }
+
+        }
+
+    }
+
+    @Test
+    def testConsultAndCommit {
+
+        val n = 8 // number of networks
+        val m = 64 // number of moves per network
+        val moveSizeDistribution = DistributionFactory.createDistribution(1, List(60, 30, 10))
+        val randomGenerator = new JavaRandomGenerator
+
+        // generate and test n networks
+        for (i <- 1 to n) {
+
+            val (space, _, spies) = createRandomSpyNetwork(randomGenerator)
 
             def checkResults(searchState: SearchState) {
                 for (spy <- spies) {
-                    val sum = spy.inVariables.toIterator.map(x => searchState.value(x).value).sum
+                    val sum = spy.inVariables.toIterator.map(searchState.value(_).value).sum
                     assertEq(searchState.value(spy.outVariables(0)).value, sum)
-                    assertEq(searchState.value(spy.outVariables(1)).value, sum / spy.inVariables.size)
                 }
             }
 
@@ -246,35 +327,6 @@ final class SpaceTest extends UnitTest {
                 for (x <- lhs.mappedVariables) {
                     assertEq(lhs.anyValue(x), rhs.anyValue(x))
                 }
-            }
-
-            // build constraint network (see above for how we do it)
-            val X = new mutable.ArrayBuffer[IntegerVariable]
-            for (i <- 1 to k) {
-                X += new IntegerVariable(space.nextVariableId, "x(0, %d)".format(i), dx)
-            }
-            for (i <- 1 to l) {
-                val P = new mutable.HashSet[IntegerVariable]
-                while (P.size < k) {
-                    P += X(randomGenerator.nextInt(X.size))
-                }
-                var j = 1
-                for (Q <- P.subsets if ! Q.isEmpty) {
-                    val sum = new IntegerVariable(space.nextVariableId, "sum(%d, %d)".format(i, j), NonNegativeIntegerRange)
-                    X += sum
-                    val avg = new IntegerVariable(space.nextVariableId, "avg(%d, %d)".format(i, j), NonNegativeIntegerRange)
-                    X += avg
-                    val spy = new Spy(space.nextConstraintId, Q, sum, avg)
-                    space.post(spy)
-                    spies += spy
-                    j += 1
-                }
-            }
-
-            // check spy propagation
-            do {} while (space.prune)
-            for (spy <- spies) {
-                assertEq(spy.numberOfPropagations, k + 1)
             }
 
             // initialize variables
@@ -318,7 +370,7 @@ final class SpaceTest extends UnitTest {
                 }
                 // check that no propagation happened during consult and commit
                 for (spy <- spies) {
-                    assertEq(spy.numberOfPropagations, k + 1)
+                    assertEq(spy.numberOfPropagations, 0)
                 }
                 // prepare for next round
                 for (spy <- spies) {
@@ -330,6 +382,6 @@ final class SpaceTest extends UnitTest {
         }
     }
 
-    // See Queens, SendMoreMoney, and SendMostMoney for more tests of initialize, consult, and commit.
+    // See Queens, SendMoreMoney, and SendMostMoney for more tests of propagate, initialize, consult, and commit.
 
 }

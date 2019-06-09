@@ -12,7 +12,6 @@ import yuck.util.alg.rtree.test._
 @runner.RunWith(classOf[runners.Suite])
 @runners.Suite.SuiteClasses(
     Array(
-        classOf[RicherBooleanTest],
         classOf[ProbabilityTest],
         classOf[RandomGeneratorTest],
         classOf[ValueTestSuite],
@@ -26,6 +25,7 @@ import yuck.util.alg.rtree.test._
         classOf[ConstraintTestSuite],
         classOf[NeighbourhoodTestSuite],
         classOf[ProgressiveTighteningTest],
+        classOf[PropagationEffectsTest],
         classOf[RTreeIntakeTest],
         classOf[RTreeTransactionTest],
         classOf[Queens],

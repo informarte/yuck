@@ -79,7 +79,7 @@ final class SendMoreMoney extends IntegrationTest {
 
             // propagate constraints
             costs.pruneDomain(TrueDomain)
-            do {} while (space.prune)
+            space.propagate
             assertEq(space.searchVariables, vars -- Set(M, O, S))
             assertEq(delta.domain, TrueDomain)
             assertEq(numberOfMissingValues.domain, TrueDomain)

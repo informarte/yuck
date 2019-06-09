@@ -33,13 +33,13 @@ final class Alldistinct
 
     override def propagate = {
         if (costs.domain == TrueDomain) {
-            Variable.pruneDomains(
+            NoPropagationOccurred.pruneDomains(
                 for (x <- xs.toIterator if x.domain.isSingleton;
                      y <- xs.toIterator if y != x && y.domain.contains(x.domain.singleValue))
                 yield (y, y.domain.diff(x.domain))
             )
         } else {
-            false
+            NoPropagationOccurred
         }
     }
 

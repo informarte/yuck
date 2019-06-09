@@ -28,6 +28,6 @@ final class Minimum
         }
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.min(lhs0, rhs0)
-        Variable.pruneDomains(xs.toIterator.zip(lhs1.toIterator)) ||| y.pruneDomain(rhs1)
+        NoPropagationOccurred.pruneDomains(xs.toIterator.zip(lhs1.toIterator)).pruneDomain(y, rhs1)
     }
 }

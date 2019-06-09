@@ -374,12 +374,64 @@ final class Space(
     /** Returns the number of constraints that were posted and later marked as implicit. */
     def numberOfImplicitConstraints: Int = implicitConstraints.size
 
+    /**
+      * Prunes domains by propagating constraints.
+      *
+      * Terminates when interrupted or when a fixpoint is reached.
+      *
+      * Throws a DomainWipeOutException when unsatisfiability was proved.
+      *
+      * Notice that, after propagation, there may be search variables with values outside their domains.
+      */
+    def propagate: Space = {
+        val tasks = new mutable.HashSet[Constraint]
+        for (constraint <- constraints) {
+            val effects = constraint.propagate
+            for (x <- effects.affectedVariables) {
+                tasks ++= directlyAffectedConstraints(x)
+                tasks ++= definingConstraint(x)
+            }
+            if (effects.rescheduleStep) {
+                tasks += constraint
+            }
+        }
+        propagate(tasks)
+        this
+    }
+
+    /**
+      * Departing from the given variable, prunes domains by propagating constraints.
+      *
+      * Terminates when interrupted or when a fixpoint is reached.
+      *
+      * Throws a DomainWipeOutException when unsatisfiability was proved.
+      *
+      * Notice that, after propagation, there may be search variables with values outside their domains.
+      */
+    def propagate(x: AnyVariable): Space = {
+        val tasks = new mutable.HashSet[Constraint]
+        tasks ++= directlyAffectedConstraints(x)
+        tasks ++= definingConstraint(x)
+        propagate(tasks)
+        this
+    }
+
+    private def propagate(tasks: mutable.HashSet[Constraint]) {
+        while (! tasks.isEmpty && ! sigint.isSet) {
+            val constraint = tasks.head
+            val effects = constraint.propagate
+            for (x <- effects.affectedVariables) {
+                tasks ++= directlyAffectedConstraints(x)
+                tasks ++= definingConstraint(x)
+            }
+            if (! effects.rescheduleStep) {
+                tasks.remove(constraint)
+            }
+        }
+    }
+
     /** Counts how often Constraint.initialize was called. */
     var numberOfInitializations = 0
-
-    /** Calls propagate on each constraint and returns true iff at least one domain was pruned. */
-    def prune: Boolean =
-        constraints.foldLeft(false){case (pruned, constraint) => constraint.propagate || pruned}
 
     /**
      * Initializes the constraint network for local search.

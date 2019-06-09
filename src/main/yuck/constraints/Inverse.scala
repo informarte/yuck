@@ -78,10 +78,10 @@ final class Inverse
         else 0
     }
 
-    private def propagate(f: InverseFunction, g: InverseFunction): Boolean = {
+    private def propagate(effects: PropagationEffects, f: InverseFunction, g: InverseFunction): PropagationEffects = {
         import IntegerDomain.createRange
-        val p =
-            Variable.pruneDomains(
+        effects
+            .pruneDomains(
                 for (i <- f.indexRange.toIterator;
                      x = f.xs(i - f.offset);
                      dx = x.domain;
@@ -90,8 +90,7 @@ final class Inverse
                      y = g.xs(j - g.offset))
                 yield
                     (y, y.domain.diff(di)))
-        val q =
-            Variable.pruneDomains(
+            .pruneDomains(
                 for (i <- f.indexRange.toIterator;
                      x = f.xs(i - f.offset);
                      dx = x.domain;
@@ -99,11 +98,14 @@ final class Inverse
                      y = g.xs(dx.singleValue.value - g.offset))
                 yield
                     (y, y.domain.intersect(createRange(IntegerValue.get(i), IntegerValue.get(i)))))
-        p || q
     }
 
     override def propagate =
-        if (costs.domain == TrueDomain) propagate(f, g) ||| propagate(g, f) else false
+        if (costs.domain == TrueDomain) {
+            propagate(propagate(NoPropagationOccurred, f, g), g, f)
+        } else {
+            NoPropagationOccurred
+        }
 
     override def initialize(now: SearchState) = {
         currentCosts = 0

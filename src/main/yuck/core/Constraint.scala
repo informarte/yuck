@@ -33,15 +33,11 @@ abstract class Constraint
     /**
      * Propgates the constraint by pruning the domains of its variables.
      *
-     * Returns true iff some pruning happened.
-     *
      * Does not need to compute a fixed point.
      *
-     * Intended for use before local search.
-     *
-     * The default implementation does nothing and returns false.
+     * The default implementation does nothing.
      */
-    def propagate: Boolean = false
+    def propagate: PropagationEffects = NoPropagationOccurred
 
     /**
      * Initializes the constraint's internal state according to the given search state

@@ -18,6 +18,6 @@ final class Not
         val dx0 = x.domain
         val dy0 = y.domain
         val (dx1, dy1) = BooleanDomainPruner.ne(dx0, dy0)
-        Variable.pruneDomains(x, dx1, y, dy1)
+        NoPropagationOccurred.pruneDomains(x, dx1, y, dy1)
     }
 }

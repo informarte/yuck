@@ -18,7 +18,7 @@ final class Eq
     override def op(a: Value, b: Value) = valueTraits.orderingCostModel.eq(a, b)
     override def propagate = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
-        Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
+        NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
     override protected def enforce(lhs: OrderedDomain[Value], rhs: OrderedDomain[Value]) =
         valueTraits.domainPruner.eq(lhs, rhs)
@@ -42,7 +42,7 @@ final class Ne
     override def op(a: Value, b: Value) = valueTraits.orderingCostModel.ne(a, b)
     override def propagate = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
-        Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
+        NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
     override protected def enforce(lhs: OrderedDomain[Value], rhs: OrderedDomain[Value]) =
         valueTraits.domainPruner.ne(lhs, rhs)
@@ -66,7 +66,7 @@ final class Lt
     override def op(a: Value, b: Value) = valueTraits.orderingCostModel.lt(a, b)
     override def propagate = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
-        Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
+        NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
     override protected def enforce(lhs: OrderedDomain[Value], rhs: OrderedDomain[Value]) =
         valueTraits.domainPruner.lt(lhs, rhs)
@@ -92,7 +92,7 @@ final class Le
     override def op(a: Value, b: Value) = valueTraits.orderingCostModel.le(a, b)
     override def propagate = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
-        Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
+        NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
     override protected def enforce(lhs: OrderedDomain[Value], rhs: OrderedDomain[Value]) =
         valueTraits.domainPruner.le(lhs, rhs)
@@ -118,7 +118,7 @@ final class Min
     override def propagate = {
         val (lhs1, dz1) = valueTraits.domainPruner.min(Seq(x.domain, y.domain), z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
-        Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
+        NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
 }
 
@@ -138,6 +138,6 @@ final class Max
     override def propagate = {
         val (lhs1, dz1) = valueTraits.domainPruner.max(Seq(x.domain, y.domain), z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
-        Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
+        NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
 }

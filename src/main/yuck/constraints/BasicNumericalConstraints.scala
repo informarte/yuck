@@ -20,7 +20,7 @@ final class Plus
         val lhs0 = Seq((one, x.domain), (one, y.domain))
         val (lhs1, dz1) = valueTraits.domainPruner.linEq(lhs0, z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
-        Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
+        NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
 }
 
@@ -42,7 +42,7 @@ final class Minus
         val lhs0 = Seq((one, x.domain), (zero - one, y.domain))
         val (lhs1, dz1) = valueTraits.domainPruner.linEq(lhs0, z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
-        Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
+        NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
 }
 
@@ -61,7 +61,7 @@ final class Times
     override def op(a: Value, b: Value) = a * b
     override def propagate = {
         val (dx1, dy1, dz1) = valueTraits.domainPruner.times(x.domain, y.domain, z.domain)
-        Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
+        NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
 }
 

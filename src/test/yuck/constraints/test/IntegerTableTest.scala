@@ -121,13 +121,13 @@ final class IntegerTableTest extends UnitTest {
                 .grouped(2).toIndexedSeq
         space.post(new IntegerTable(space.nextConstraintId, null, immutable.IndexedSeq(s, t), rows, costs))
         if (true) {
-            space.prune
+            space.propagate
             assertEq(s.domain, IntegerDomain.createDomain(List(Two, Three, Five)))
             assertEq(t.domain, IntegerDomain.createDomain(List(Two, Three)))
         }
         if (true) {
             t.pruneDomain(new IntegerRange(Two, Two))
-            space.prune
+            space.propagate
             assertEq(s.domain, IntegerDomain.createDomain(List(Two, Five)))
         }
     }
@@ -148,7 +148,7 @@ final class IntegerTableTest extends UnitTest {
                 .grouped(2).toIndexedSeq
         space.post(new IntegerTable(space.nextConstraintId, null, immutable.IndexedSeq(s, s), rows, costs))
         if (true) {
-            space.prune
+            space.propagate
             assertEq(s.domain, IntegerDomain.createDomain(List(Two, Four)))
         }
     }

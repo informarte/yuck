@@ -72,7 +72,7 @@ final class IntegerTable
             cols = null
             rows =
                 rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(IntegerValue.get(row(i)))))
-            Variable.pruneDomains(
+            NoPropagationOccurred.pruneDomains(
                 for (i <- 0 until n) yield {
                     val feasibleValues = rows.toIterator.map(row => IntegerValue.get(row(i))).toSet
                     val x = xs(i)
@@ -80,7 +80,7 @@ final class IntegerTable
                 }
             )
         } else {
-            false
+            NoPropagationOccurred
         }
     }
 

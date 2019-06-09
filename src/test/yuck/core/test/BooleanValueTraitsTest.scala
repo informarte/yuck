@@ -41,7 +41,7 @@ final class BooleanValueTraitsTest extends UnitTest {
         val c = createChannel(space)
         assertEq(x.name, "x")
         assertEq(x.domain, FalseDomain)
-        assertEq(c.domain, CompleteBooleanDomain)
+        assertEq(c.domain, CompleteBooleanDecisionDomain)
     }
 
     @Test
