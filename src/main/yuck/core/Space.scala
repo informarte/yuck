@@ -504,7 +504,7 @@ final class Space(
             sortConstraintsTopologically
         }
         for (constraint <- constraints.iterator.filterNot(isImplicitConstraint).toBuffer.sorted(ConstraintOrdering)) {
-            constraint.initialize(assignment).foreach(_.setValue(assignment))
+            constraint.initialize(assignment).foreach(_.affect(this))
             numberOfInitializations += 1
         }
         this
@@ -707,7 +707,7 @@ final class Space(
      */
     def commit(move: Move): Space = {
         require(move.id == idOfMostRecentlyAssessedMove)
-        new EffectPropagator(move).run.effectsIterator.foreach(_.setValue(assignment))
+        new EffectPropagator(move).run.effectsIterator.foreach(_.affect(this))
         this
     }
 

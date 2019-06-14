@@ -116,6 +116,7 @@ final class SendMostMoney extends IntegrationTest {
                     None,
                     Some(new StandardAnnealingMonitor(logger)),
                     Some(new ModelData(LHS, RHS)),
+                    false,
                     sigint)
 
             solver

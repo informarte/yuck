@@ -17,7 +17,7 @@ abstract class AnyMoveEffect extends Cloneable[AnyMoveEffect] {
 
     override def toString = (anyVariable -> anyValue).toString
 
-    /** Changes the given assignment such that it maps the variable to the value. */
-    def setValue(assignment: Assignment): Unit
+    /** Changes the given space's assignment such that it maps the variable to the value. */
+    def affect(space: Space): Unit
 
 }

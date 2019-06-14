@@ -20,10 +20,10 @@ abstract class AnyObjective {
     /** Measures the quality of the given search state. */
     def costs(searchState: SearchState): Costs
 
-    /** Decides whether the search state given in terms of its quality is a solution. */
+    /** Decides whether a search state (given in terms of its quality) is a solution. */
     def isSolution(costs: Costs): Boolean
 
-    /** Decides whether the search state given in terms of its quality satisfies the objective. */
+    /** Decides whether a search state (given in terms of its quality) satisfies the objective. */
     def isGoodEnough(costs: Costs): Boolean = ! isHigherThan(costs, targetCosts)
 
     /**

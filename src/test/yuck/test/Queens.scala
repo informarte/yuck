@@ -66,6 +66,7 @@ final class Queens extends IntegrationTest {
                     None,
                     Some(new StandardAnnealingMonitor(logger)),
                     None,
+                    false,
                     sigint)
 
             solver

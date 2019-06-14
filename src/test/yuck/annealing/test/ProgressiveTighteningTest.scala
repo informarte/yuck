@@ -2,6 +2,8 @@ package yuck.annealing.test
 
 import org.junit._
 
+import scala.jdk.CollectionConverters._
+
 import yuck.annealing._
 import yuck.core._
 import yuck.util.testing.IntegrationTest
@@ -13,22 +15,15 @@ import yuck.util.testing.IntegrationTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class ProgressiveTighteningTest extends IntegrationTest {
+@runner.RunWith(classOf[runners.Parameterized])
+final class ProgressiveTighteningTest
+    (mainObjectiveType: ProgressiveTighteningTest.ObjectiveType,
+     subordinateObjectiveType: ProgressiveTighteningTest.ObjectiveType,
+     propagateBound: Boolean)
+    extends IntegrationTest
+{
 
-    // To test progressive tightening of objectives, we use:
-    // - two variables x and y with d(x) = d(y) = [0, 9]
-    // - a dummy constraint over x and y (to turn both into search variables)
-    // - a neighbourhood over x (so y's value can only be changed by tightening)
-    // - a monitor that counts the number of tightening events
-    // Minimizing or maximizing (x, y), we expect one tightening event.
-
-    private val space = new Space(logger, sigint)
-    private val d = new IntegerRange(Zero, Nine)
-    private val x = new IntegerVariable(space.nextVariableId, "x", d)
-    private val y = new IntegerVariable(space.nextVariableId, "y", d)
-    private val randomGenerator = new JavaRandomGenerator
-    private val tighteningCounter = new TighteningCounter(y)
-    space.post(new DummyConstraint(space.nextConstraintId, List(x, y), Nil))
+    import ProgressiveTighteningTest._
 
     private final class TighteningCounter(val y: AnyVariable) extends StandardAnnealingMonitor(logger) {
         var n = 0
@@ -39,45 +34,76 @@ final class ProgressiveTighteningTest extends IntegrationTest {
         }
     }
 
-    private def createSolver(objective: AnyObjective): Solver = {
-        new SimulatedAnnealing(
-            "SA",
-            space,
-            createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen),
-            new RandomReassignmentGenerator(
-                space, Vector(x), randomGenerator.nextGen, DefaultMoveSizeDistribution, None, None),
-            randomGenerator.nextGen,
-            objective,
-            Some(1),
-            Some(tighteningCounter),
-            None,
-            sigint)
-    }
-
+    // To test progressive tightening of objectives, we use:
+    // - two variables x and y with d(x) = d(y) = [0, 9]
+    // - a dummy constraint over x and y (to turn both into search variables)
+    // - a neighbourhood over x (so y's value can only be changed by tightening)
+    // - a monitor that counts the number of tightening events
     @Test
-    def testMinimizationWithProgressiveTightening: Unit = {
-        space.setValue(x, Nine).setValue(y, Nine)
-        val objective =
-            new HierarchicalObjective(
-                List(new MinimizationObjective(x, Zero, None), new MinimizationObjective(y, Zero, Some(MinusOne))),
-                false)
-        val solver = createSolver(objective)
+    def testProgressiveTightening: Unit = {
+        val space = new Space(logger, sigint)
+        val baseDomain = new IntegerRange(Zero, Nine)
+        val x = new IntegerVariable(space.nextVariableId, "x", baseDomain)
+        val y = new IntegerVariable(space.nextVariableId, "y", baseDomain)
+        val randomGenerator = new JavaRandomGenerator
+        val tighteningCounter = new TighteningCounter(y)
+        space.post(new DummyConstraint(space.nextConstraintId, List(x, y), Nil))
+        val mainObjective = mainObjectiveType match {
+            case Min =>
+                space.setValue(x, Nine)
+                new MinimizationObjective(x, Zero, None)
+            case Max =>
+                space.setValue(x, Zero)
+                new MaximizationObjective(x, Nine, None)
+        }
+        val subordinateObjective = subordinateObjectiveType match {
+            case Min =>
+                space.setValue(y, Nine)
+                new MinimizationObjective(y, Zero, Some(MinusOne))
+            case Max =>
+                space.setValue(y, Zero)
+                new MaximizationObjective(y, Nine, Some(One))
+        }
+        val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false)
+        val solver =
+            new SimulatedAnnealing(
+                "SA",
+                space,
+                createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen),
+                new RandomReassignmentGenerator(
+                    space, Vector(x), randomGenerator.nextGen, DefaultMoveSizeDistribution, None, None),
+                randomGenerator.nextGen,
+                objective,
+                Some(1),
+                Some(tighteningCounter),
+                None,
+                propagateBound,
+                sigint)
         val result = solver.call
         assert(result.isGoodEnough)
         assertEq(tighteningCounter.n, 1)
+        assertEq(space.numberOfPropagations, if (propagateBound) 1 else 0)
     }
 
-    @Test
-    def testMaximizationWithProgressiveTightening: Unit = {
-        space.setValue(x, Zero).setValue(y, Zero)
-        val objective =
-            new HierarchicalObjective(
-                List(new MaximizationObjective(x, Nine, None), new MaximizationObjective(y, Nine, Some(One))),
-                false)
-        val solver = createSolver(objective)
-        val result = solver.call
-        assert(result.isGoodEnough)
-        assertEq(tighteningCounter.n, 1)
-    }
+}
+
+/**
+  * @author Michael Marte
+  *
+  */
+final object ProgressiveTighteningTest {
+
+    trait ObjectiveType
+    case object Min extends ObjectiveType
+    case object Max extends ObjectiveType
+
+    private def configurations =
+        for (mainObjectiveType <- List(Min, Max);
+             subordinateObjectiveType <- List(Min, Max);
+             propagateBound <- List(true, false))
+            yield Vector(mainObjectiveType, subordinateObjectiveType, propagateBound)
+
+    @runners.Parameterized.Parameters(name = "{index}: {0}, {1}, {2}")
+    def parameters = configurations.map(_.toArray).asJava
 
 }

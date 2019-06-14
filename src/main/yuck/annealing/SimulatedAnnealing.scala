@@ -1,5 +1,6 @@
 package yuck.annealing
 
+import scala.collection._
 import yuck.core._
 import yuck.util.arm.Sigint
 
@@ -11,6 +12,10 @@ import yuck.util.arm.Sigint
  * freezes up, or when the optional round limit is reached.
  *
  * Keeps track of the best proposal and restores it upon interruption or termination.
+ *
+ * Supports the propagation of the bounds established by progressive tightening.
+ * Notice that bound propagation may prove optimality and that, in such a case, the underlying
+ * space might be left unusable due to variables with empty domains.
  *
  * @author Michael Marte
  */
@@ -24,6 +29,7 @@ final class SimulatedAnnealing(
     maybeRoundLimit: Option[Int],
     maybeMonitor: Option[AnnealingMonitor],
     maybeUserData: Option[Object],
+    propagateBounds: Boolean,
     sigint: Sigint)
     extends Solver
 {
@@ -228,6 +234,34 @@ final class SimulatedAnnealing(
             maybeMonitor.get.onObjectiveTightened(maybeTightenedVariable.get)
         }
         costsOfCurrentProposal = objective.costs(currentProposal)
+        if (maybeTightenedVariable.isDefined && propagateBounds) {
+            propagateBound(maybeTightenedVariable.get, roundLog)
+        }
+    }
+
+    private def propagateBound(x: AnyVariable, roundLog: RoundLog): Unit = {
+        try {
+            // We propagate the new bound and, afterwards, fix assignments to search variables
+            // that were rendered invalid by domain reductions.
+            val searchVariables = space.searchVariables
+            space.propagate(x)
+            val effects = new mutable.ArrayBuffer[AnyMoveEffect]
+            for (y <- searchVariables) {
+                if (y != x && ! y.hasValidValue(space)) {
+                    effects += y.randomMoveEffect(randomGenerator)
+                }
+            }
+            if (! effects.isEmpty) {
+                val move = new ChangeAnyValues(space.nextMoveId, effects)
+                space.consult(move)
+                space.commit(move)
+                postprocessMove(roundLog)
+            }
+        } catch {
+            case _: DomainWipeOutException =>
+                // Propagation proved that the best proposal is optimal.
+                result.bestProposalIsOptimal = true
+        }
     }
 
 }

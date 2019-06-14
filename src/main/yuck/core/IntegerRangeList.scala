@@ -80,6 +80,7 @@ final class IntegerRangeList
             ranges.head.nextRandomValue(randomGenerator, currentValue)
         } else {
             val i = findIndexOfContainingRange(currentValue, 0, ranges.size - 1)
+            assert(i >= 0)
             try {
                 rangeDistribution.addFrequencyDelta(i, -1)
                 val j = rangeDistribution.nextIndex(randomGenerator)

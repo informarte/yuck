@@ -147,7 +147,7 @@ final class FlatZincCompiler
                 throw new VariableWithInfiniteDomainException(x)
             }
             cc.logger.logg("Assigning random value to dangling variable %s".format(x))
-            x.assignRandomValue(cc.space, randomGenerator)
+            x.randomMoveEffect(randomGenerator).affect(cc.space)
         }
     }
 

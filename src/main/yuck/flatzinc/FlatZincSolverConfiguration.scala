@@ -28,6 +28,7 @@ case class FlatZincSolverConfiguration(
     val maybeQualityTolerance: Option[Int] = None,
     val stopOnFirstSolution: Boolean = false,
     val useProgressiveTightening: Boolean = true,
+    val propagateBounds: Boolean = true,
     val preferImplicitSolvingOverDomainPruning: Boolean = false,
     val checkIncrementalCostUpdate: Boolean = false,
     val checkAssignmentsToNonChannelVariables: Boolean = false,

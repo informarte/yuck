@@ -4,8 +4,7 @@ package yuck.core
  * @author Michael Marte
  *
  */
-abstract class MoveEffect[Value <: AnyValue] extends AnyMoveEffect {
-}
+abstract class MoveEffect[Value <: AnyValue] extends AnyMoveEffect
 
 /**
  * @author Michael Marte
@@ -18,7 +17,7 @@ final class ImmutableMoveEffect
 {
     override def anyVariable = x
     override def anyValue = a
-    override def setValue(assignment: Assignment) = assignment.setValue(x, a)
+    override def affect(space: Space) = space.setValue(x, a)
     override def clone = this
 }
 
@@ -34,10 +33,10 @@ final class ReusableMoveEffectWithFixedVariable
     var a: Value = _
     override def anyVariable = x
     override def anyValue = a
-    override def setValue(assignment: Assignment) = assignment.setValue(x, a)
+    override def affect(space: Space) = space.setValue(x, a)
     override def clone = new ImmutableMoveEffect(x, a)
-    def setNextRandomValue(searchState: SearchState, randomGenerator: RandomGenerator): Unit = {
-        a = x.domain.nextRandomValue(randomGenerator, searchState.value(x))
+    def setValue(a: Value): Unit = {
+        this.a = a
     }
 }
 
@@ -53,7 +52,7 @@ final class ReusableMoveEffect
     var a: Value = _
     override def anyVariable = x
     override def anyValue = a
-    override def setValue(assignment: Assignment) = assignment.setValue(x, a)
+    override def affect(space: Space) = space.setValue(x, a)
     override def clone = new ImmutableMoveEffect(x, a)
     @inline def set(x: Variable[Value], a: Value): Unit = {
         this.x = x

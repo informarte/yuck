@@ -209,6 +209,9 @@ final class ParallelSolver(
                             catch {
                                 case error: InterruptedException =>
                                     logger.log(error.getMessage)
+                                case error: DomainWipeOutException =>
+                                    logger.log(error.getMessage)
+                                    throw error
                                 case error: Throwable =>
                                     logger.criticalSection {
                                         logger.withLogScope(error.toString) {

@@ -39,21 +39,22 @@ abstract class Variable
         }
     }
 
-    override def nextMove(space: Space, randomGenerator: RandomGenerator) =
-        new ChangeValue(
-            space.nextMoveId,
-            this,
-            domain.nextRandomValue(randomGenerator, space.searchState.value(this)))
-
-    override def assignRandomValue(space: Space, randomGenerator: RandomGenerator) = {
-        space.setValue(this, if (domain.isSingleton) domain.singleValue else domain.randomValue(randomGenerator))
-    }
+    final override def hasValidValue(space: Space) =
+        domain.contains(space.searchState.value(this))
 
     private val reuseableEffect = new ReusableMoveEffectWithFixedVariable[Value](this)
 
-    override def nextRandomMoveEffect(space: Space, randomGenerator: RandomGenerator) = {
-        reuseableEffect.setNextRandomValue(space.searchState, randomGenerator)
+    final override def randomMoveEffect(randomGenerator: RandomGenerator) = {
+        reuseableEffect.setValue(if (domain.isSingleton) domain.singleValue else domain.randomValue(randomGenerator))
         reuseableEffect
     }
+
+    final override def nextRandomMoveEffect(space: Space, randomGenerator: RandomGenerator) = {
+        reuseableEffect.setValue(domain.nextRandomValue(randomGenerator, space.searchState.value(this)))
+        reuseableEffect
+    }
+
+    final override def nextMove(space: Space, randomGenerator: RandomGenerator) =
+        new ChangeValues(space.nextMoveId, Some(nextRandomMoveEffect(space, randomGenerator)))
 
 }
