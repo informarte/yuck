@@ -18,7 +18,7 @@ final class InverseTest extends UnitTest {
 
     @Test
     def testInverseWithIdenticalOffsets {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(One, Three)
         val f1 = new IntegerVariable(space.nextVariableId, "f1", d)
         val f2 = new IntegerVariable(space.nextVariableId, "f2", d)
@@ -108,7 +108,7 @@ final class InverseTest extends UnitTest {
 
     @Test
     def testInverseWithDifferentOffsets {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val fd = new IntegerRange(Zero, Two)
         val gd = new IntegerRange(One, Three)
         val f1 = new IntegerVariable(space.nextVariableId, "f1", fd)

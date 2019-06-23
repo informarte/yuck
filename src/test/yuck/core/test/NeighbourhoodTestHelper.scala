@@ -3,6 +3,7 @@ package yuck.core.test
 import scala.collection._
 
 import yuck.core._
+import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 import yuck.util.testing.YuckAssert
 
@@ -150,10 +151,10 @@ final class NeighbourhoodTestHelper
 final object NeighbourhoodTestHelper {
 
     def createSpace
-        (logger: LazyLogger, randomGenerator: RandomGenerator, domains: Seq[IntegerDomain]):
+        (logger: LazyLogger, sigint: Sigint, randomGenerator: RandomGenerator, domains: Seq[IntegerDomain]):
         (Space, immutable.IndexedSeq[IntegerVariable]) =
     {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val xs =
             for ((i, domain) <- (0 until domains.size).zip(domains)) yield {
                 val x = new IntegerVariable(space.nextVariableId, "x%d".format(i), domain)

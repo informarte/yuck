@@ -56,7 +56,7 @@ final class FlatZincCompiler
     }
 
     private def preferDomainPruningOverImplicitSolving: CompilationContext = {
-        val cc = new CompilationContext(ast, cfg, logger)
+        val cc = new CompilationContext(ast, cfg, logger, sigint)
         run(new DomainInitializer(cc, randomGenerator.nextGen))
         finishCompilation(cc, true)
         cc
@@ -74,7 +74,7 @@ final class FlatZincCompiler
         val cc2 = {
 
             // stage 1: identify implicit constraints
-            val cc1 = new CompilationContext(ast, cfg, logger)
+            val cc1 = new CompilationContext(ast, cfg, logger, sigint)
             run(new DomainInitializer(cc1, randomGenerator.nextGen))
             finishCompilation(cc1, false)
 
@@ -83,7 +83,7 @@ final class FlatZincCompiler
 
             // stage 3: build final model, taking domain reductions into account as far as possible without
             // inhibiting implicit solving
-            val cc2 = new CompilationContext(ast, cfg, logger)
+            val cc2 = new CompilationContext(ast, cfg, logger, sigint)
             run(new DomainInitializer(cc2, randomGenerator.nextGen))
             for ((a, x) <- cc1.vars if ! cc1.implicitlyConstrainedVars.contains(x)) {
                 cc2.domains += a -> x.domain

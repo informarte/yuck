@@ -65,7 +65,6 @@ final class SolverTest extends UnitTest {
 
     @Test
     def testTimeboxingWithoutTimeout {
-        val sigint = new SettableSigint
         val result = new Result("0", null, null, null)
         val solver = new TimeboxedSolver(new GoodSolver(result, 0, sigint), 1, logger, sigint)
         solver.call
@@ -78,7 +77,6 @@ final class SolverTest extends UnitTest {
 
     @Test
     def testTimeboxingWithException {
-        val sigint = new SettableSigint
         val solver = new TimeboxedSolver(new BadSolver, 1, logger, sigint)
         assertEx(solver.call, classOf[BadSolverException])
         assert(! solver.hasFinished)
@@ -90,7 +88,6 @@ final class SolverTest extends UnitTest {
 
     @Test
     def testOnDemandGenerationWithResult {
-        val sigint = new SettableSigint
         val result = new Result("0", null, null, null)
         val solverGenerator = new SolverGenerator {
             override def solverName = result.solverName
@@ -109,7 +106,6 @@ final class SolverTest extends UnitTest {
 
     @Test
     def testOnDemandGenerationWithException {
-        val sigint = new SettableSigint
         val solverGenerator = new SolverGenerator {
             override def solverName = classOf[BadSolver].getSimpleName
             override def call = new BadSolver

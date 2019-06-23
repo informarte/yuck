@@ -29,7 +29,7 @@ final class IntegerSetValueTraitsTest extends UnitTest {
 
     @Test
     def testVariableFactories {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val dx = new IntegerPowersetDomain(NonNegativeIntegerRange)
         val x = createVariable(space, "x", dx)
         val c = createChannel(space)
@@ -53,7 +53,7 @@ final class IntegerSetValueTraitsTest extends UnitTest {
 
     @Test
     def testVariableCasting {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val b = space.createVariable("b", CompleteBooleanDecisionDomain)
         val s = space.createVariable("s", new IntegerPowersetDomain(CompleteIntegerRange))
         safeDowncast(s)

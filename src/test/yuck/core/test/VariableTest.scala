@@ -15,7 +15,7 @@ final class VariableTest extends UnitTest {
 
     @Test
     def testEquality {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -26,7 +26,7 @@ final class VariableTest extends UnitTest {
 
     @Test
     def testPruning1 {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         assertEq(false, x.pruneDomain(x.domain))
         assertEq(true, x.pruneDomain(NonNegativeIntegerRange))
@@ -36,7 +36,7 @@ final class VariableTest extends UnitTest {
 
     @Test
     def testPruning2 {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
         assertEq(false, Variable.pruneDomains(x, x.domain, y, y.domain))
@@ -47,7 +47,7 @@ final class VariableTest extends UnitTest {
 
     @Test
     def testPruning3 {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
         val z = space.createVariable("z", CompleteIntegerRange)
@@ -60,7 +60,7 @@ final class VariableTest extends UnitTest {
 
     @Test
     def testPruningN {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
         val z = space.createVariable("z", CompleteIntegerRange)

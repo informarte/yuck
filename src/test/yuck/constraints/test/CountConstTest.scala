@@ -18,7 +18,7 @@ final class CountConstTest extends UnitTest {
 
     @Test
     def testCountConst {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)

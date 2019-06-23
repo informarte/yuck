@@ -2,8 +2,6 @@ package yuck.core
 
 import scala.collection._
 
-import yuck.util.arm.Sigint
-
 /**
  * Provides the constraint interface for local search.
  *
@@ -98,8 +96,7 @@ abstract class Constraint
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
         hotSpotDistributionFactory: Seq[AnyVariable] => Option[Distribution],
-        maybeFairVariableChoiceRate: Option[Probability],
-        sigint: Sigint):
+        maybeFairVariableChoiceRate: Option[Probability]):
         Option[Neighbourhood] =
         None
 

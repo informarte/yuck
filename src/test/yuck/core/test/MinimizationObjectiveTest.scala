@@ -13,7 +13,7 @@ import yuck.util.testing.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class MinimizationObjectiveTest extends UnitTest {
 
-    private val space = new Space(logger)
+    private val space = new Space(logger, sigint)
     private val baseDomain = new IntegerRange(Zero, Nine)
     private val x = new IntegerVariable(space.nextVariableId, "x", baseDomain)
     private val objective = new MinimizationObjective(x, Zero, Some(MinusOne))

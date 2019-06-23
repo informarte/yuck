@@ -24,7 +24,7 @@ class NeighbourhoodCollectionTest
     private val domains =
         for (i <- 0 until numberOfVariables) yield new IntegerRange(Zero, IntegerValue.get(numberOfVariables - 1))
     private val (space, xs) =
-        NeighbourhoodTestHelper.createSpace(logger, randomGenerator, domains)
+        NeighbourhoodTestHelper.createSpace(logger, sigint, randomGenerator, domains)
     private val helper =
         new NeighbourhoodTestHelper(logger, xs, moveSizeDistribution, maybeHotSpotDistribution, maybeFairChoiceRate)
 

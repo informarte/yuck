@@ -9,6 +9,7 @@ import org.jgrapht.alg.shortestpath.DijkstraShortestPath
 import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge, DirectedAcyclicGraph}
 import org.jgrapht.traverse.TopologicalOrderIterator
 
+import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 
 /**
@@ -27,6 +28,7 @@ import yuck.util.logging.LazyLogger
  */
 final class Space(
     val logger: LazyLogger,
+    val sigint: Sigint,
     val checkIncrementalCostUpdate: Boolean = false,
     val checkAssignmentsToNonChannelVariables: Boolean = false)
 {

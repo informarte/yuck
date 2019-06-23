@@ -18,7 +18,7 @@ final class MinimumTest extends UnitTest {
 
     @Test
     def testMinimum {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = new IntegerVariable(space.nextVariableId, "s", d)
         val t = new IntegerVariable(space.nextVariableId, "t", d)

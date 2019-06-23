@@ -19,7 +19,7 @@ import yuck.util.testing.UnitTest
 class LinearConstraintPerformanceTest(relation: OrderingRelation, withUnitCoefficients: Boolean) extends UnitTest {
 
     private val randomGenerator = new JavaRandomGenerator
-    private val space = new Space(logger)
+    private val space = new Space(logger, sigint)
     private val baseDomain = new IntegerRange(Zero, Nine)
     private val numberOfTerms = 10
     private val initialDomains =

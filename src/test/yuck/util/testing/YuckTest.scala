@@ -1,7 +1,6 @@
 package yuck.util.testing
 
 import scala.annotation.meta.getter
-
 import org.junit._
 import org.junit.rules.RuleChain
 import org.junit.rules.TestName
@@ -25,6 +24,8 @@ abstract class YuckTest extends YuckAssert {
     logger.setThresholdLogLevel(yuck.util.logging.InfoLogLevel)
 
     protected val testName = new TestName
+
+    protected val sigint = new yuck.util.arm.SettableSigint
 
     @(Rule @getter)
     protected val environmentManagement =

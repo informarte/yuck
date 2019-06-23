@@ -123,7 +123,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                 val xs = constraint.inVariables.toSet
                 val maybeNeighbourhood =
                     if (constraint.isCandidateForImplicitSolving(space) && (xs & implicitlyConstrainedVars).isEmpty) {
-                        constraint.prepareForImplicitSolving(space, randomGenerator, cfg.moveSizeDistribution, _ => None, None, sigint)
+                        constraint.prepareForImplicitSolving(space, randomGenerator, cfg.moveSizeDistribution, _ => None, None)
                     } else {
                         None
                     }

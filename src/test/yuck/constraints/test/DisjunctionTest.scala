@@ -18,7 +18,7 @@ final class DisjunctionTest extends UnitTest {
 
     @Test
     def testDisjunction {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = CompleteBooleanDomain
         val s = new BooleanVariable(space.nextVariableId, "s", d)
         val t = new BooleanVariable(space.nextVariableId, "t", d)

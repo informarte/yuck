@@ -5,7 +5,6 @@ import org.junit._
 import yuck.annealing._
 import yuck.constraints._
 import yuck.core._
-import yuck.util.arm.{SettableSigint, Sigint}
 import yuck.util.testing.IntegrationTest
 
 /**
@@ -20,7 +19,7 @@ final class SendMoreMoney extends IntegrationTest {
         val LHS: List[(Int, IntegerVariable)],
         val RHS: List[(Int, IntegerVariable)])
 
-    private final class SendMoreMoneyGenerator(i: Int, seed: Int, sigint: Sigint) extends SolverGenerator {
+    private final class SendMoreMoneyGenerator(i: Int, seed: Int) extends SolverGenerator {
         override def solverName = "SA-%d".format(i)
         override def call = {
 
@@ -37,8 +36,7 @@ final class SendMoreMoney extends IntegrationTest {
              */
 
             // define problem
-            val space = new Space(logger)
-            val sigint = new SettableSigint
+            val space = new Space(logger, sigint)
             val d = new IntegerRange(Zero, Nine)
             val d1 = new IntegerRange(One, Nine)
             val S = new IntegerVariable(space.nextVariableId, "S", d1)
@@ -123,10 +121,9 @@ final class SendMoreMoney extends IntegrationTest {
     @Test
     def sendMoreMoney {
         val randomGenerator = new JavaRandomGenerator(29071972)
-        val sigint = new SettableSigint
         val solvers =
             (1 to DefaultRestartLimit).toList.map(
-                i => new OnDemandGeneratedSolver(new SendMoreMoneyGenerator(i, randomGenerator.nextInt, sigint), logger, sigint))
+                i => new OnDemandGeneratedSolver(new SendMoreMoneyGenerator(i, randomGenerator.nextInt), logger, sigint))
         val solver = new ParallelSolver(solvers, Runtime.getRuntime.availableProcessors, "SendMoreMoney", logger, sigint)
         val result = solver.call
         if (result.isSolution) {

@@ -6,7 +6,6 @@ import scala.collection._
 import yuck.annealing._
 import yuck.constraints._
 import yuck.core._
-import yuck.util.arm.SettableSigint
 import yuck.util.testing.UnitTest
 
 /**
@@ -19,7 +18,7 @@ final class AlldistinctTest extends UnitTest {
 
     @Test
     def testAlldistinct {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -48,7 +47,7 @@ final class AlldistinctTest extends UnitTest {
 
     @Test
     def testAlldistinctWithAVariableOccuringTwice {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -82,7 +81,7 @@ final class AlldistinctTest extends UnitTest {
 
     @Test
     def testAlldistinctWithImplicitSolving {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Two)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
@@ -99,7 +98,7 @@ final class AlldistinctTest extends UnitTest {
         assertEq(now.value(costs), False2)
         val maybeNeighbourhood =
             c.prepareForImplicitSolving(
-                space, new JavaRandomGenerator, DefaultMoveSizeDistribution, _ => None, None, new SettableSigint)
+                space, new JavaRandomGenerator, DefaultMoveSizeDistribution, _ => None, None)
         assert(maybeNeighbourhood.isDefined)
         val neighbourhood = maybeNeighbourhood.get
         assertNe(now.value(s), now.value(t))
@@ -119,7 +118,7 @@ final class AlldistinctTest extends UnitTest {
 
     @Test
     def testAlldistinctExceptZero {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = new IntegerVariable(space.nextVariableId, "s", d)
         val t = new IntegerVariable(space.nextVariableId, "t", d)
@@ -162,7 +161,7 @@ final class AlldistinctTest extends UnitTest {
 
     @Test
     def testAlldistinctExceptZeroWithAVariableOccuringTwice {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = new IntegerVariable(space.nextVariableId, "s", d)
         val t = new IntegerVariable(space.nextVariableId, "t", d)

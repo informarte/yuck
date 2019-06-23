@@ -36,7 +36,7 @@ final class BooleanValueTraitsTest extends UnitTest {
 
     @Test
     def testVariableFactories {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val x = createVariable(space, "x", FalseDomain)
         val c = createChannel(space)
         assertEq(x.name, "x")
@@ -58,7 +58,7 @@ final class BooleanValueTraitsTest extends UnitTest {
 
     @Test
     def testVariableCasting {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val b = space.createVariable("b", CompleteBooleanDecisionDomain)
         val i = space.createVariable("i", CompleteIntegerRange)
         safeDowncast(b)

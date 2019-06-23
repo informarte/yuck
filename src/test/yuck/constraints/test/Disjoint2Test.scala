@@ -25,7 +25,7 @@ final class Disjoint2Test extends UnitTest {
 
     @Test
     def testSearchVariables {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val rects = (1 to 2).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val Vector(r1, r2) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
@@ -35,7 +35,7 @@ final class Disjoint2Test extends UnitTest {
 
     @Test
     def testRectangleMovement {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val rects = (1 to 4).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val Vector(r1, r2, r3, r4) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
@@ -79,7 +79,7 @@ final class Disjoint2Test extends UnitTest {
 
     @Test
     def testRectangleResizing {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val rects = (1 to 2).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val Vector(r1, r2) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
@@ -121,7 +121,7 @@ final class Disjoint2Test extends UnitTest {
 
     @Test
     def testSimultaneousRectangleMovementAndResizing {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val rects = (1 to 2).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val Vector(r1, r2) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
@@ -163,7 +163,7 @@ final class Disjoint2Test extends UnitTest {
 
     @Test
     def testHandlingOfAdjacentRectangles {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val rects = (1 to 3).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val Vector(r1, r2, r3) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
@@ -179,7 +179,7 @@ final class Disjoint2Test extends UnitTest {
 
     @Test
     def testHandlingOfSharedVariables {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val r1 = createRect(space, 1, d)
         val r2 =
@@ -221,7 +221,7 @@ final class Disjoint2Test extends UnitTest {
 
     @Test
     def testConsultWithoutCommit {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val rects = (1 to 2).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val Vector(r1, r2) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
@@ -251,7 +251,7 @@ final class Disjoint2Test extends UnitTest {
 
     @Test
     def testNonStrictSemantics {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val rects = (1 to 2).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val Vector(r1, r2) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
@@ -285,7 +285,7 @@ final class Disjoint2Test extends UnitTest {
 
     @Test
     def testRectangleMovementWithStrictSemantics {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val rects = (1 to 9).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val Vector(r1, r2, r3, r4, vl1, vl2, hl1, hl2, p1) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
@@ -421,7 +421,7 @@ final class Disjoint2Test extends UnitTest {
 
     @Test
     def testRectangleResizingWithStrictSemantics {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val rects = (1 to 3).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val Vector(r1, r2, r3) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)

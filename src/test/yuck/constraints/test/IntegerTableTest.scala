@@ -18,7 +18,7 @@ final class IntegerTableTest extends UnitTest {
 
     @Test
     def testConsultAndCommit {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = new IntegerVariable(space.nextVariableId, "s", d)
         val t = new IntegerVariable(space.nextVariableId, "t", d)
@@ -59,7 +59,7 @@ final class IntegerTableTest extends UnitTest {
 
     @Test
     def testConsultAndCommitWithDuplicateVariables {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = new IntegerVariable(space.nextVariableId, "s", d)
         val u = new IntegerVariable(space.nextVariableId, "u", d)
@@ -106,7 +106,7 @@ final class IntegerTableTest extends UnitTest {
 
     @Test
     def testPropagation {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val s = new IntegerVariable(space.nextVariableId, "s", new IntegerRange(Two, Five))
         val t = new IntegerVariable(space.nextVariableId, "t", new IntegerRange(Two, Three))
         val costs = new BooleanVariable(space.nextVariableId, "costs", TrueDomain)
@@ -134,7 +134,7 @@ final class IntegerTableTest extends UnitTest {
 
     @Test
     def testPropagationWithDuplicateVariables {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val s = new IntegerVariable(space.nextVariableId, "s", new IntegerRange(Two, Five))
         val costs = new BooleanVariable(space.nextVariableId, "costs", TrueDomain)
         val rows =

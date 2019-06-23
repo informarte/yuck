@@ -4,7 +4,6 @@ import org.junit._
 
 import yuck.annealing._
 import yuck.core._
-import yuck.util.arm.SettableSigint
 import yuck.util.testing.IntegrationTest
 
 
@@ -23,7 +22,7 @@ final class ProgressiveTighteningTest extends IntegrationTest {
     // - a monitor that counts the number of tightening events
     // Minimizing or maximizing (x, y), we expect one tightening event.
 
-    private val space = new Space(logger)
+    private val space = new Space(logger, sigint)
     private val d = new IntegerRange(Zero, Nine)
     private val x = new IntegerVariable(space.nextVariableId, "x", d)
     private val y = new IntegerVariable(space.nextVariableId, "y", d)
@@ -52,7 +51,7 @@ final class ProgressiveTighteningTest extends IntegrationTest {
             Some(1),
             Some(tighteningCounter),
             None,
-            new SettableSigint)
+            sigint)
     }
 
     @Test

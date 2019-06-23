@@ -223,8 +223,7 @@ final class Inverse
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
         hotSpotDistributionFactory: Seq[AnyVariable] => Option[Distribution],
-        maybeFairVariableChoiceRate: Option[Probability],
-        sigint: Sigint):
+        maybeFairVariableChoiceRate: Option[Probability]):
         Option[Neighbourhood] =
     {
         if (isCandidateForImplicitSolving(space)) {
@@ -244,7 +243,8 @@ final class Inverse
                 } else {
                     // general case
                     val logger = space.logger
-                    val subspace = new Space(logger, space.checkIncrementalCostUpdate)
+                    val sigint = space.sigint
+                    val subspace = new Space(logger, sigint, space.checkIncrementalCostUpdate)
                     val subf = new InverseFunction(f.xs.map(x => new IntegerVariable(subspace.nextVariableId, x.name, x.domain)), f.offset)
                     val subg = new InverseFunction(g.xs.map(y => new IntegerVariable(subspace.nextVariableId, y.name, y.domain)), g.offset)
                     val result = logger.withTimedLogScope("Solving %s".format(this)) {

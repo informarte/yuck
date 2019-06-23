@@ -24,7 +24,7 @@ final class SpaceTest extends UnitTest {
          *
          * with variables s, ..., z and constraints c, d, and e.
          */
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         def domain(name: Char) = if (name == 'v') ZeroToZeroIntegerRange else CompleteIntegerRange
         val vars @ IndexedSeq(s, t, u, v, w, x, y, z): IndexedSeq[AnyVariable] =
             for (name <- 's' to 'z') yield space.createVariable(name.toString, domain(name))
@@ -99,7 +99,7 @@ final class SpaceTest extends UnitTest {
 
     @Test
     def testCycleDetection1 {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val c = new DummyConstraint(space.nextConstraintId, List(x, x), List(x))
         assert(space.wouldIntroduceCycle(c))
@@ -108,7 +108,7 @@ final class SpaceTest extends UnitTest {
 
     @Test
     def testCycleDetection2 {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
         val z = space.createVariable("z", CompleteIntegerRange)
@@ -130,7 +130,7 @@ final class SpaceTest extends UnitTest {
 
     @Test
     def testManagementOfImplicitConstraints {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
         val z = space.createVariable("z", CompleteIntegerRange)
@@ -230,7 +230,7 @@ final class SpaceTest extends UnitTest {
         // generate and test n networks
         for (i <- 1 to n) {
 
-            val space = new Space(logger)
+            val space = new Space(logger, sigint)
             val spies = new mutable.ArrayBuffer[Spy]
 
             def checkResults(searchState: SearchState) {

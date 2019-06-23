@@ -19,7 +19,7 @@ class DistributionMaintainerTest extends UnitTest {
     @Test
     def testMinimizationMode {
         val d = new ArrayBackedDistribution(2)
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val dx = new IntegerRange(IntegerValue.get(-10), IntegerValue.get(50))
         val dy = new IntegerRange(IntegerValue.get(0), IntegerValue.get(100))
         val x = new IntegerVariable(space.nextVariableId, "x", dx)
@@ -71,7 +71,7 @@ class DistributionMaintainerTest extends UnitTest {
     @Test
     def testMaximizationMode {
         val d = new ArrayBackedDistribution(2)
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val dx = new IntegerRange(IntegerValue.get(0), IntegerValue.get(100))
         val dy = new IntegerRange(IntegerValue.get(-10), IntegerValue.get(50))
         val x = new IntegerVariable(space.nextVariableId, "x", dx)

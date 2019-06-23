@@ -16,7 +16,7 @@ final class BinPackingTest extends UnitTest {
 
     @Test
     def testBinPacking {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         // We start with 1 because we want to test the handling of a bin range that does not start at 0.
         val binDomain = new IntegerRange(One, Three)
         val items =

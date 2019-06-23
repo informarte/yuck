@@ -5,7 +5,6 @@ import org.junit._
 import yuck.annealing._
 import yuck.constraints._
 import yuck.core._
-import yuck.util.arm.{SettableSigint, Sigint}
 import yuck.util.testing.IntegrationTest
 
 /**
@@ -16,12 +15,12 @@ import yuck.util.testing.IntegrationTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class Queens extends IntegrationTest {
 
-    private final class QueensGenerator(n: Int, i: Int, seed: Int, sigint: Sigint) extends SolverGenerator {
+    private final class QueensGenerator(n: Int, i: Int, seed: Int) extends SolverGenerator {
         override def solverName = "SA-%d".format(i)
         override def call = {
 
             // define problem
-            val space = new Space(logger)
+            val space = new Space(logger, sigint)
             val d = new IntegerRange(Zero, new IntegerValue(n - 1))
             var rows = new Array[IntegerVariable](n)
             var rowsMinusI = new Array[IntegerVariable](n)
@@ -74,12 +73,10 @@ final class Queens extends IntegrationTest {
     }
 
     private def queens(n: Int) {
-        val space = new Space(logger)
         val randomGenerator = new JavaRandomGenerator(29071972)
-        val sigint = new SettableSigint
         val solvers =
             (1 to DefaultRestartLimit).map(
-                i => new OnDemandGeneratedSolver(new QueensGenerator(n, i, randomGenerator.nextInt, sigint), logger, sigint))
+                i => new OnDemandGeneratedSolver(new QueensGenerator(n, i, randomGenerator.nextInt), logger, sigint))
         val solver = new ParallelSolver(solvers, Runtime.getRuntime.availableProcessors, "Queens", logger, sigint)
         val result = solver.call
         assert(result.isSolution)

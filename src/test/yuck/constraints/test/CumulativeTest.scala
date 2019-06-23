@@ -24,7 +24,7 @@ final class CumulativeTest extends UnitTest {
 
     @Test
     def testSearchVariables {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
         val Vector(t1, t2) = tasks
@@ -36,7 +36,7 @@ final class CumulativeTest extends UnitTest {
 
     @Test
     def testTaskMovement {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
         val Vector(t1, t2) = tasks
@@ -84,7 +84,7 @@ final class CumulativeTest extends UnitTest {
 
     @Test
     def testTaskResizing {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
         val Vector(t1, t2) = tasks
@@ -152,7 +152,7 @@ final class CumulativeTest extends UnitTest {
 
     @Test
     def testCapacityChanges {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val tasks = (1 to 1).map(createTask(space, _, d))
         val Vector(t1) = tasks
@@ -188,7 +188,7 @@ final class CumulativeTest extends UnitTest {
 
     @Test
     def testHandlingOfDuplicateVariables {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val s2 = new IntegerVariable(space.nextVariableId, "s2", d)
@@ -228,7 +228,7 @@ final class CumulativeTest extends UnitTest {
 
     @Test
     def testConsultWithoutCommit {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val tasks = (1 to 1).map(createTask(space, _, d))
         val Vector(t1) = tasks
@@ -260,7 +260,7 @@ final class CumulativeTest extends UnitTest {
 
     @Test
     def testComplexMoves {
-        val space = new Space(logger)
+        val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
         val Vector(t1, t2) = tasks

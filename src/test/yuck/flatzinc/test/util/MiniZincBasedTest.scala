@@ -85,7 +85,6 @@ class MiniZincBasedTest extends IntegrationTest {
                 maybeRuntimeLimitInSeconds = task.maybeRuntimeLimitInSeconds,
                 maybeTargetObjectiveValue = task.maybeOptimum,
                 maybeQualityTolerance = task.maybeQualityTolerance)
-        val sigint = new SettableSigint
         val monitor = new StandardAnnealingMonitor(logger)
         val result =
             scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set})) {

@@ -65,8 +65,7 @@ final class VariableDrivenNeighbourhoodFactory
                 val maybeNeighbourhood =
                     constraint.prepareForImplicitSolving(
                         space, randomGenerator, cfg.moveSizeDistribution,
-                        createHotSpotDistribution(hotSpotIndicators), levelCfg.maybeFairVariableChoiceRate,
-                        sigint)
+                        createHotSpotDistribution(hotSpotIndicators), levelCfg.maybeFairVariableChoiceRate)
                 if (maybeNeighbourhood.isDefined) {
                     implicitlyConstrainedVars ++= xs
                     space.markAsImplicit(constraint)
