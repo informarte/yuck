@@ -29,7 +29,8 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
             suitePath = "resources/mzn/tests",
             solverConfiguration = FlatZincSolverConfiguration(restartLimit = 0),
             maybeRuntimeLimitInSeconds = Some(10),
-            assertWhenUnsolved = true)
+            assertWhenUnsolved = true,
+            reusePreviousTestResult = false)
 
     private val taskWithImplicitSolving =
         task.copy(
@@ -46,28 +47,28 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testAlldifferentWithEqualDomains {
-        val result = solve(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_equal_domains"))
+        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_equal_domains"))
         assert(neighbourhood(result).isInstanceOf[AlldistinctNeighbourhood[_]])
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testAlldifferentWithEqualDomainsAndMoreValuesThanVariables {
-        val result = solve(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_equal_domains_and_more_values_than_variables"))
+        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_equal_domains_and_more_values_than_variables"))
         assert(neighbourhood(result).isInstanceOf[AlldistinctNeighbourhood[_]])
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testAlldifferentWithDifferentDomains {
-        val result = solve(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_different_domains"))
+        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_different_domains"))
         assert(neighbourhood(result).isInstanceOf[AlldistinctNeighbourhood[_]])
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testAlldifferentWithDifferentDomainsAndMoreValuesThanVariables {
-        val result = solve(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_different_domains_and_more_values_than_variables"))
+        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_different_domains_and_more_values_than_variables"))
         assert(neighbourhood(result).isInstanceOf[AlldistinctNeighbourhood[_]])
     }
 
@@ -232,28 +233,28 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseWithUnrestrictedPairing {
-        val result = solve(taskWithImplicitSolving.copy(problemName = "inverse_test_with_unrestricted_pairing"))
+        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_test_with_unrestricted_pairing"))
         assert(neighbourhood(result).isInstanceOf[SimpleInverseNeighbourhood])
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseWithRestrictedPairing {
-        val result = solve(taskWithImplicitSolving.copy(problemName = "inverse_test_with_restricted_pairing"))
+        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_test_with_restricted_pairing"))
         assert(neighbourhood(result).isInstanceOf[GeneralInverseNeighbourhood])
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseWithOneFunction {
-        val result = solve(taskWithImplicitSolving.copy(problemName = "inverse_test_with_one_function"))
+        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_test_with_one_function"))
         assert(neighbourhood(result).isInstanceOf[SelfInverseNeighbourhood])
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseDecomposition {
-        val result = solve(taskWithImplicitSolving.copy(problemName = "inverse_decomposition_test"))
+        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_decomposition_test"))
         assert(neighbourhood(result).isInstanceOf[NeighbourhoodCollection])
         assert(neighbourhood(result).asInstanceOf[NeighbourhoodCollection].children.forall(_.isInstanceOf[SimpleInverseNeighbourhood]))
     }
@@ -339,7 +340,7 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint]))
     def testMinimizationProblemWithImplicitlyConstrainedObjectiveVariable {
-        val result = solve(task.copy(problemName = "minimization_problem_with_implicitly_constrained_objective_variable"))
+        val result = solveWithResult(task.copy(problemName = "minimization_problem_with_implicitly_constrained_objective_variable"))
         assertEq(result.asInstanceOf[AnnealingResult].consultationsPerMove, 0)
     }
 
@@ -358,7 +359,7 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[MaximizationProblem], classOf[HasAlldifferentConstraint]))
     def testMaximizationProblemWithImplicitlyConstrainedObjectiveVariable {
-        val result = solve(task.copy(problemName = "maximization_problem_with_implicitly_constrained_objective_variable"))
+        val result = solveWithResult(task.copy(problemName = "maximization_problem_with_implicitly_constrained_objective_variable"))
         assertEq(result.asInstanceOf[AnnealingResult].consultationsPerMove, 0)
     }
 

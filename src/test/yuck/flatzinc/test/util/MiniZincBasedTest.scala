@@ -21,19 +21,17 @@ import yuck.util.testing.{IntegrationTest, ProcessRunner}
  */
 class MiniZincBasedTest extends IntegrationTest {
 
-    protected def solve(task: MiniZincTestTask): Result = {
-        logger.setThresholdLogLevel(task.logLevel)
-        try {
-            trySolve(task)
-        }
-        catch {
-            case error: Throwable => handleException(findUltimateCause(error))
-        }
-    }
-
     private val jsonNodes = new mutable.ArrayBuffer[JsField]
 
-    private def trySolve(task: MiniZincTestTask): Result = {
+    protected def solveWithResult(task: MiniZincTestTask): Result = {
+        solve(task.copy(reusePreviousTestResult = false)).get
+    }
+
+    // Asserts when something went wrong.
+    // Returns None when task.reusePreviousTestResult is true and the instance was already processed.
+    protected def solve(task: MiniZincTestTask): Option[Result] = {
+        logger.setThresholdLogLevel(task.logLevel)
+        logVersion
         val suitePath = task.suitePath
         val suiteName = if (task.suiteName.isEmpty) new java.io.File(suitePath).getName else task.suiteName
         val problemName = task.problemName
@@ -56,11 +54,47 @@ class MiniZincBasedTest extends IntegrationTest {
         new java.io.File(outputDirectoryPath).mkdirs
         val fznFilePath = "%s/problem.fzn".format(outputDirectoryPath)
         val logFilePath = "%s/yuck.log".format(outputDirectoryPath)
-        val logFileHandler = new java.util.logging.FileHandler(logFilePath)
-        logFileHandler.setFormatter(formatter)
-        nativeLogger.addHandler(logFileHandler)
-        logger.log("Processing %s".format(mznFilePath))
-        logger.log("Logging into %s".format(logFilePath))
+        val jsonFilePath = "%s/yuck.json".format(outputDirectoryPath)
+        if (task.reusePreviousTestResult && new java.io.File(jsonFilePath).exists() && ! task.assertWhenUnsolved) {
+            None
+        } else {
+            val logFileHandler = new java.util.logging.FileHandler(logFilePath)
+            logFileHandler.setFormatter(formatter)
+            nativeLogger.addHandler(logFileHandler)
+            logger.log("Processing %s".format(mznFilePath))
+            logger.log("Logging into %s".format(logFilePath))
+            try {
+                val result =
+                    trySolve(
+                        task.copy(suiteName = suiteName, modelName = modelName, instanceName = instanceName),
+                        mznFilePath, dznFilePath, fznFilePath, jsonFilePath)
+                Some(result)
+            }
+            catch {
+                case error: Throwable =>
+                    val cause = findUltimateCause(error)
+                    val errorNodes = new mutable.ArrayBuffer[JsField]
+                    errorNodes += "type" -> JsString(cause.getClass.getName)
+                    if (! cause.getMessage.isEmpty) {
+                        errorNodes += "message" -> JsString(cause.getMessage)
+                    }
+                    jsonNodes += "error" -> JsObject(errorNodes.toMap)
+                    handleException(task, cause)
+                    None
+            }
+            finally {
+                val jsonDoc = new JsObject(jsonNodes.toMap)
+                val jsonWriter = new java.io.FileWriter(jsonFilePath)
+                jsonWriter.write(jsonDoc.prettyPrint)
+                jsonWriter.close
+            }
+        }
+    }
+
+    private def trySolve(
+        task: MiniZincTestTask,
+        mznFilePath: String, dznFilePath: String, fznFilePath: String, jsonFilePath: String): Result =
+    {
         val mzn2fznCommand = mutable.ArrayBuffer(
             "mzn2fzn",
             "-v",
@@ -93,7 +127,7 @@ class MiniZincBasedTest extends IntegrationTest {
                         logger.withTimedLogScope("Parsing FlatZinc file") {
                             new FlatZincFileParser(fznFilePath, logger).call
                         }
-                    logTask(task.copy(suiteName = suiteName, modelName = modelName, instanceName = instanceName), ast)
+                    logTask(task, ast)
                     logFlatZincModelStatistics(ast)
                     scoped(monitor) {
                         new FlatZincSolverGenerator(ast, cfg, sigint, logger, monitor).call.call
@@ -112,15 +146,9 @@ class MiniZincBasedTest extends IntegrationTest {
         logger.withLogScope("Best proposal") {
             new FlatZincResultFormatter(result).call.foreach(logger.log(_))
         }
-        logVersion
         logYuckModelStatistics(result.space)
         logResult(result)
         logSolverStatistics(monitor)
-        val jsonDoc = new JsObject(jsonNodes.toMap)
-        val jsonFilePath = "%s/yuck.json".format(outputDirectoryPath)
-        val jsonWriter = new java.io.FileWriter(jsonFilePath)
-        jsonWriter.write(jsonDoc.prettyPrint)
-        jsonWriter.close
         Assert.assertTrue(
             "No solution found, quality of best proposal was %s".format(result.costsOfBestProposal),
             result.isSolution || ! task.assertWhenUnsolved)
@@ -245,7 +273,7 @@ class MiniZincBasedTest extends IntegrationTest {
         }
     }
 
-    private def handleException(error: Throwable): Result = error match {
+    private def handleException(task: MiniZincTestTask, error: Throwable) = error match {
         case error: FlatZincParserException =>
             nativeLogger.info(error.getMessage)
             throw error
@@ -254,7 +282,9 @@ class MiniZincBasedTest extends IntegrationTest {
             nativeLogger.info(FlatZincInconsistentProblemIndicator)
             throw error
         case error: SolverInterruptedException =>
-            throw new AssertionError("No solution found")
+            nativeLogger.info(error.getMessage)
+            nativeLogger.info(FlatZincNoSolutionFoundIndicator)
+            Assert.assertFalse(error.getMessage, task.assertWhenUnsolved)
         case error: Throwable =>
             nativeLogger.log(java.util.logging.Level.SEVERE, "", error)
             throw error
