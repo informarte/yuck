@@ -20,7 +20,7 @@ RUN apt-get install -y bison clang cmake flex git && \
     git checkout ${minizinc_version} && \
     mkdir build && \
     cd build && \
-    cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr/local .. && \
+    cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr/local .. && \
     cmake --build . --target install && \
     apt-get remove -y --purge --autoremove bison clang cmake flex git && \
     cd ../.. && \
