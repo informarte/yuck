@@ -14,15 +14,17 @@
 
 ## Download and installation
 
-Yuck downloads are available from the [Releases page](https://github.com/informarte/yuck/releases). You can choose the Debian package (suitable for all Debian based systems, including Ubuntu and its offspring) or the ZIP package (for all other systems).
+Yuck packages are available from the [Releases page](https://github.com/informarte/yuck/releases); there are a Debian package (suitable for all Debian based systems, including Ubuntu and its offspring) and a ZIP package (suitable for all other systems). Moreover, a Docker image is available from [DockerHub](https://hub.docker.com/r/informarte/yuck).
 
-When you installed the Debian package, you are already good to go; no further manual setup is required.
+When you installed the Debian package, you are already good to go; the package registers Yuck as a backend for the MiniZinc toolchain and no further manual setup is required.
 
 When you decided for the ZIP package, proceed as follows:
 
 1. Make sure that a [Java runtime environment](https://openjdk.java.net/install) is available on your system; Yuck requires at least version 8.
 2. Unzip the package in a suitable location.
 3. To register Yuck as a backend for the MiniZinc toolchain, define the ```MZN_SOLVER_PATH``` environment variable to point to the ```mzn``` subfolder of the Yuck distribution. (For other ways of providing a solver configuration file to the MiniZinc toolchain, see the section on [Solver Configuration Files](http://www.minizinc.org/doc-2.2.0/en/fzn-spec.html#solver-configuration-files) of *The MiniZinc Handbook*.)
+
+The Docker image contains a Java runtime, the MiniZinc compiler and Yuck itself; it neither contains the MiniZinc IDE nor other solvers.
 
 ## Usage as MiniZinc backend
 
@@ -67,6 +69,32 @@ In case you need Yuck's MiniZinc library, its location depends on how you instal
 
 * When you installed the Debian package, the library resides in `/usr/share/yuck/mzn/lib`.
 * When you installed the universal package, the library resides in the `mzn/lib` subfolder of the Yuck distribution.
+
+## Using the Docker image
+
+Say your home folder contains the directory `workspace` with the file `zebra.mzn` in it. To solve this problem by means of the Docker image, use the following command:
+
+```
+docker run -ti -v ~/workspace:/problems informarte/yuck:<tag> minizinc --solver yuck /problems/zebra.mzn
+```
+
+(Replace `<tag>` with the Yuck version you want to use.)
+
+By default, the Docker image limits the maximum heap size to 2 GB.
+
+## Setting the maximum heap size
+
+To set the maximum heap size to, say, 4GB, use the Java command line option `-Xmx` as follows:
+
+```
+minizinc --solver yuck --fzn-flags -J-Xmx4g zebra.mzn
+```
+
+or
+
+```
+yuck -J-Xmx4g zebra.fzn
+```
 
 ## Under the hood
 
