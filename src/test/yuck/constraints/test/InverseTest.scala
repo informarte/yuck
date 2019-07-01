@@ -50,7 +50,7 @@ final class InverseTest extends UnitTest {
             val move =
             new ChangeValues(
                 space.nextMoveId,
-                List(new ImmutableEffect(g1, Two), new ImmutableEffect(g3, Three)))
+                List(new ImmutableMoveEffect(g1, Two), new ImmutableMoveEffect(g3, Three)))
             val after = space.consult(move)
             assertEq(after.value(costs), False6)
             space.commit(move)
@@ -63,7 +63,7 @@ final class InverseTest extends UnitTest {
             val move =
             new ChangeValues(
                 space.nextMoveId,
-                List(new ImmutableEffect(f1, Two), new ImmutableEffect(f3, Three)))
+                List(new ImmutableMoveEffect(f1, Two), new ImmutableMoveEffect(f3, Three)))
             val after = space.consult(move)
             assertEq(after.value(costs), True)
             space.commit(move)
@@ -76,7 +76,7 @@ final class InverseTest extends UnitTest {
             val move =
             new ChangeValues(
                 space.nextMoveId,
-                List(new ImmutableEffect(f2, Two), new ImmutableEffect(g1, One)))
+                List(new ImmutableMoveEffect(f2, Two), new ImmutableMoveEffect(g1, One)))
             val after = space.consult(move)
             assertEq(after.value(costs), False2)
             space.commit(move)
@@ -141,7 +141,7 @@ final class InverseTest extends UnitTest {
             val move =
             new ChangeValues(
                 space.nextMoveId,
-                List(new ImmutableEffect(g1, Two), new ImmutableEffect(g3, Three)))
+                List(new ImmutableMoveEffect(g1, Two), new ImmutableMoveEffect(g3, Three)))
             val after = space.consult(move)
             assertEq(after.value(costs), False6)
             space.commit(move)
@@ -154,7 +154,7 @@ final class InverseTest extends UnitTest {
             val move =
             new ChangeValues(
                 space.nextMoveId,
-                List(new ImmutableEffect(f1, One), new ImmutableEffect(f3, Two)))
+                List(new ImmutableMoveEffect(f1, One), new ImmutableMoveEffect(f3, Two)))
             val after = space.consult(move)
             assertEq(after.value(costs), True)
             space.commit(move)

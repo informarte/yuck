@@ -35,7 +35,7 @@ class DistributionMaintainerTest extends UnitTest {
         assertEq(d.frequency(1), 196)
         if (true) {
             // change values a bit
-            val effects = List(new ImmutableEffect(x, Five), new ImmutableEffect(y, Ten))
+            val effects = List(new ImmutableMoveEffect(x, Five), new ImmutableMoveEffect(y, Ten))
             val move = new ChangeValues(space.nextMoveId, effects)
             space.consult(move)
             assertEq(d.frequency(0), 33)
@@ -46,7 +46,7 @@ class DistributionMaintainerTest extends UnitTest {
         }
         if (true) {
             // let scalar combination take optimum value
-            val effects = List(new ImmutableEffect(x, dx.lb), new ImmutableEffect(y, dy.ub))
+            val effects = List(new ImmutableMoveEffect(x, dx.lb), new ImmutableMoveEffect(y, dy.ub))
             val move = new ChangeValues(space.nextMoveId, effects)
             space.consult(move)
             assertEq(d.frequency(0), 45)
@@ -57,7 +57,7 @@ class DistributionMaintainerTest extends UnitTest {
         }
         if (true) {
             // let variables take values outside their domains
-            val effects = List(new ImmutableEffect(x, dx.lb - One), new ImmutableEffect(y, dy.ub + One))
+            val effects = List(new ImmutableMoveEffect(x, dx.lb - One), new ImmutableMoveEffect(y, dy.ub + One))
             val move = new ChangeValues(space.nextMoveId, effects)
             space.consult(move)
             assertEq(d.frequency(0), 0)
@@ -87,7 +87,7 @@ class DistributionMaintainerTest extends UnitTest {
         assertEq(d.frequency(1), 24)
         if (true) {
             // change values a bit
-            val effects = List(new ImmutableEffect(x, Five), new ImmutableEffect(y, Ten))
+            val effects = List(new ImmutableMoveEffect(x, Five), new ImmutableMoveEffect(y, Ten))
             val move = new ChangeValues(space.nextMoveId, effects)
             space.consult(move)
             assertEq(d.frequency(0), 297)
@@ -98,7 +98,7 @@ class DistributionMaintainerTest extends UnitTest {
         }
         if (true) {
             // let scalar combination take optimum value
-            val effects = List(new ImmutableEffect(x, dx.ub), new ImmutableEffect(y, dy.lb))
+            val effects = List(new ImmutableMoveEffect(x, dx.ub), new ImmutableMoveEffect(y, dy.lb))
             val move = new ChangeValues(space.nextMoveId, effects)
             space.consult(move)
             assertEq(d.frequency(0), 285)
@@ -109,7 +109,7 @@ class DistributionMaintainerTest extends UnitTest {
         }
         if (true) {
             // let variables take values outside their domains
-            val effects = List(new ImmutableEffect(x, dx.ub + One), new ImmutableEffect(y, dy.lb - One))
+            val effects = List(new ImmutableMoveEffect(x, dx.ub + One), new ImmutableMoveEffect(y, dy.lb - One))
             val move = new ChangeValues(space.nextMoveId, effects)
             space.consult(move)
             assertEq(d.frequency(0), 0)

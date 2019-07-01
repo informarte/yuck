@@ -50,7 +50,7 @@ final class Disjunction
     private var trueCount = 0
     private var futureSum = 0l
     private var futureTrueCount = 0
-    private val effects = List(new ReusableEffectWithFixedVariable(y))
+    private val effects = List(new ReusableMoveEffectWithFixedVariable(y))
     private val effect = effects.head
 
     override def propagate = {

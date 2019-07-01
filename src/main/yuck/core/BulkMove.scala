@@ -9,16 +9,16 @@ import scala.collection._
  */
 final class BulkMove(id: Id[Move]) extends Move(id) {
 
-    private var effectDir = new mutable.AnyRefMap[AnyVariable, AnyEffect]
+    private var effectDir = new mutable.AnyRefMap[AnyVariable, AnyMoveEffect]
 
     /** Adds the given effect. */
-    def +=(effect: AnyEffect): BulkMove = {
+    def +=(effect: AnyMoveEffect): BulkMove = {
         require(effectDir.put(effect.anyVariable, effect).isEmpty, "%s is re-assignment".format(effect))
         this
     }
 
     /** Adds the given effects. */
-    def ++=(effects: TraversableOnce[AnyEffect]): BulkMove = {
+    def ++=(effects: TraversableOnce[AnyMoveEffect]): BulkMove = {
         effects.foreach(this += _)
         this
     }

@@ -58,7 +58,7 @@ abstract class Disjoint
         .map{case (x, buf) => (x, buf.toIndexedSeq)}
         .toMap
 
-    private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
+    private val effects = List(new ReusableMoveEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
 
     final override def initialize(now: SearchState) = {

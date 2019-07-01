@@ -20,7 +20,7 @@ final class LexLessEq
     override def inVariables = xs.toIterator ++ ys.toIterator
     override def outVariables = List(costs)
 
-    private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
+    private val effects = List(new ReusableMoveEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
 
     override def initialize(now: SearchState) = {

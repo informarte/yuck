@@ -36,9 +36,9 @@ abstract class AnyVariable
      * Throws when the domain is empty or infinite.
      *
      * For the sake of efficiency, implementations should use and reuse an instance of
-     * [[yuck.core.ReusableEffectWithFixedVariable ReusableEffectWithFixedVariable]].
+     * [[yuck.core.ReusableMoveEffectWithFixedVariable ReusableEffectWithFixedVariable]].
      */
-    def nextRandomEffect(space: Space, randomGenerator: RandomGenerator): AnyEffect
+    def nextRandomMoveEffect(space: Space, randomGenerator: RandomGenerator): AnyMoveEffect
 
     /**
      * Creates a random move that involves only the variable.

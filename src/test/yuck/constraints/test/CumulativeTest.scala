@@ -72,7 +72,7 @@ final class CumulativeTest extends UnitTest {
             val move =
                 new ChangeValues(
                     space.nextMoveId,
-                    List(new ImmutableEffect(t1.s, One), new ImmutableEffect(t2.s, Two)))
+                    List(new ImmutableMoveEffect(t1.s, One), new ImmutableMoveEffect(t2.s, Two)))
             val after = space.consult(move)
             assertEq(after.value(costs), False4)
             space.commit(move)
@@ -120,7 +120,7 @@ final class CumulativeTest extends UnitTest {
             val move =
                 new ChangeValues(
                     space.nextMoveId,
-                    List(new ImmutableEffect(t1.d, Three), new ImmutableEffect(t1.c, Zero)))
+                    List(new ImmutableMoveEffect(t1.d, Three), new ImmutableMoveEffect(t1.c, Zero)))
             val after = space.consult(move)
             assertEq(after.value(costs), True)
             space.commit(move)
@@ -139,8 +139,8 @@ final class CumulativeTest extends UnitTest {
             val move =
                 new ChangeValues(
                     space.nextMoveId,
-                    List(new ImmutableEffect(t1.d, Four), new ImmutableEffect(t1.c, Two),
-                         new ImmutableEffect(t2.d, Five), new ImmutableEffect(t2.c, Three)))
+                    List(new ImmutableMoveEffect(t1.d, Four), new ImmutableMoveEffect(t1.c, Two),
+                         new ImmutableMoveEffect(t2.d, Five), new ImmutableMoveEffect(t2.c, Three)))
             val after = space.consult(move)
             assertEq(after.value(costs), False8)
             space.commit(move)
@@ -280,7 +280,7 @@ final class CumulativeTest extends UnitTest {
             val move =
                 new ChangeValues(
                     space.nextMoveId,
-                    List(new ImmutableEffect(t1.s, Two), new ImmutableEffect(t1.d, Seven), new ImmutableEffect(t1.c, Two)))
+                    List(new ImmutableMoveEffect(t1.s, Two), new ImmutableMoveEffect(t1.d, Seven), new ImmutableMoveEffect(t1.c, Two)))
             val after = space.consult(move)
             assertEq(after.value(costs), False8)
             space.commit(move)
@@ -291,9 +291,9 @@ final class CumulativeTest extends UnitTest {
             val move =
                 new ChangeValues(
                     space.nextMoveId,
-                    List(new ImmutableEffect(t1.d, Six), new ImmutableEffect(t1.c, Four),
-                         new ImmutableEffect(t2.s, Seven), new ImmutableEffect(t2.c, Two),
-                         new ImmutableEffect(ub, Four)))
+                    List(new ImmutableMoveEffect(t1.d, Six), new ImmutableMoveEffect(t1.c, Four),
+                         new ImmutableMoveEffect(t2.s, Seven), new ImmutableMoveEffect(t2.c, Two),
+                         new ImmutableMoveEffect(ub, Four)))
             val after = space.consult(move)
             assertEq(after.value(costs), False2)
             space.commit(move)

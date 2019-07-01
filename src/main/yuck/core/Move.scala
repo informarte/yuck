@@ -12,7 +12,7 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Traversable[Any
     @inline final override def compare(that: Move) = this.id.compare(that.id)
 
     /** Returns the effects of the move. */
-    def effects: TraversableOnce[AnyEffect]
+    def effects: TraversableOnce[AnyMoveEffect]
 
     /** Returns true iff the move does not involve any variable. */
     override def isEmpty: Boolean = effects.isEmpty

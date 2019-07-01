@@ -7,7 +7,7 @@ package yuck.core
  */
 class ChangeAnyValues
     (id: Id[Move],
-     override val effects: Iterable[AnyEffect])
+     override val effects: Iterable[AnyMoveEffect])
     extends Move(id)
 {
     override lazy val size = effects.size
@@ -21,7 +21,7 @@ class ChangeAnyValues
 class ChangeValues
     [Value <: AnyValue]
     (id: Id[Move],
-     override val effects: Iterable[Effect[Value]])
+     override val effects: Iterable[MoveEffect[Value]])
     extends Move(id)
 {
     override lazy val size = effects.size
@@ -36,5 +36,5 @@ final class ChangeValue
     [Value <: AnyValue]
     (id: Id[Move],
      val x: Variable[Value], val a: Value)
-    extends ChangeValues[Value](id, List(new ImmutableEffect(x, a)))
+    extends ChangeValues[Value](id, List(new ImmutableMoveEffect(x, a)))
 {}

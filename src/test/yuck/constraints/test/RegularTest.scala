@@ -54,7 +54,7 @@ final class RegularTest extends UnitTest {
             val move =
             new ChangeValues(
                 space.nextMoveId,
-                List(new ImmutableEffect(xs(4), One), new ImmutableEffect(xs(9), Two)))
+                List(new ImmutableMoveEffect(xs(4), One), new ImmutableMoveEffect(xs(9), Two)))
             val after = space.consult(move)
             assertEq(after.value(costs), False)
             space.commit(move)

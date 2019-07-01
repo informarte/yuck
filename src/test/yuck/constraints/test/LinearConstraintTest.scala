@@ -132,7 +132,7 @@ final class LinearConstraintTest
             assertEq(now.value(costs), c)
         }
         if (true) {
-            val move = new ChangeValues(space.nextMoveId, (xs :+ z).map(_.nextRandomEffect(space, randomGenerator)))
+            val move = new ChangeValues(space.nextMoveId, (xs :+ z).map(_.nextRandomMoveEffect(space, randomGenerator)))
             val a = axs.map{case AX(a, x) => a * move.value(x)}.foldLeft(Zero)(_ + _)
             val b = move.value(z)
             val c = BooleanValue.get(baseDomain.randomValue(randomGenerator).value)

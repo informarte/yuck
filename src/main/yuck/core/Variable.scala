@@ -42,9 +42,9 @@ abstract class Variable
         space.setValue(this, if (domain.isSingleton) domain.singleValue else domain.randomValue(randomGenerator))
     }
 
-    private val reuseableEffect = new ReusableEffectWithFixedVariable[Value](this)
+    private val reuseableEffect = new ReusableMoveEffectWithFixedVariable[Value](this)
 
-    override def nextRandomEffect(space: Space, randomGenerator: RandomGenerator) = {
+    override def nextRandomMoveEffect(space: Space, randomGenerator: RandomGenerator) = {
         reuseableEffect.setNextRandomValue(space.searchState, randomGenerator)
         reuseableEffect
     }

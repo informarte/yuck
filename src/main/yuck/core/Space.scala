@@ -417,7 +417,7 @@ final class Space(
         require(constraintOrder != null, "Call initialize after posting the last constraint")
         protected val diff = new BulkMove(move.id)
         private val diffs = new java.util.TreeMap[Constraint, BulkMove](ConstraintOrdering)
-        private def propagateEffect(effect: AnyEffect) {
+        private def propagateEffect(effect: AnyMoveEffect) {
             if (assignment.anyValue(effect.anyVariable) != effect.anyValue) {
                 val affectedConstraints = directlyAffectedConstraints(effect.anyVariable)
                 for (constraint <- affectedConstraints) {
@@ -434,8 +434,8 @@ final class Space(
             }
         }
         protected def processConstraint(
-            constraint: Constraint, before: SearchState, after: SearchState, move: Move): TraversableOnce[AnyEffect]
-        protected def recordEffect(effect: AnyEffect)
+            constraint: Constraint, before: SearchState, after: SearchState, move: Move): TraversableOnce[AnyMoveEffect]
+        protected def recordEffect(effect: AnyMoveEffect)
         def run: Move = {
             move.effects.foreach(propagateEffect)
             while (! diffs.isEmpty) {
@@ -463,7 +463,7 @@ final class Space(
                 constraint.consult(before, after, move)
             }
         }
-        override protected def recordEffect(effect: AnyEffect) {
+        override protected def recordEffect(effect: AnyMoveEffect) {
             if (objectiveVariables.isEmpty || objectiveVariables.contains(effect.anyVariable)) {
                 diff += effect
             }
@@ -538,7 +538,7 @@ final class Space(
             }
         }
 
-        override protected def recordEffect(effect: AnyEffect) {
+        override protected def recordEffect(effect: AnyMoveEffect) {
             diff += effect
         }
         private def checkedCommit(

@@ -39,7 +39,7 @@ final class LinearConstraint
 
     private var currentSum = valueTraits.zero
     private var futureSum = valueTraits.zero
-    private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
+    private val effects = List(new ReusableMoveEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
 
     // Propagates sum a(i) * x(i) = y.

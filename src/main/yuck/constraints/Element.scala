@@ -26,7 +26,7 @@ final class Element
     override def inVariables = xs.toIterator ++ List(i).toIterator
     override def outVariables = List(y)
 
-    private val effects = List(new ReusableEffectWithFixedVariable[Value](y))
+    private val effects = List(new ReusableMoveEffectWithFixedVariable[Value](y))
     private val effect = effects.head
 
     private def computeEffect(searchState: SearchState) {

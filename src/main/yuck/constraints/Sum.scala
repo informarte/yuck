@@ -23,7 +23,7 @@ final class Sum
     override def outVariables = List(y)
 
     private var sum = valueTraits.zero
-    private val effects = List(new ReusableEffectWithFixedVariable[Value](y))
+    private val effects = List(new ReusableMoveEffectWithFixedVariable[Value](y))
     private val effect = effects.head
 
     override def propagate = {

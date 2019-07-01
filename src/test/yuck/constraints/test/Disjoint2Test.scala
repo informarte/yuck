@@ -67,7 +67,7 @@ final class Disjoint2Test extends UnitTest {
         }
         if (true) {
             // move r1 and r3 back
-            val move = new ChangeValues(space.nextMoveId, List(new ImmutableEffect(r1.x, Zero), new ImmutableEffect(r3.y, One)))
+            val move = new ChangeValues(space.nextMoveId, List(new ImmutableMoveEffect(r1.x, Zero), new ImmutableMoveEffect(r3.y, One)))
             val after = space.consult(move)
             assertEq(after.value(costs), BooleanValue.get(20))
             space.commit(move)
@@ -93,7 +93,7 @@ final class Disjoint2Test extends UnitTest {
         assertEq(now.value(costs), False4)
         if (true) {
             // reduce height and width of r2 to 1
-            val move = new ChangeValues(space.nextMoveId, List(new ImmutableEffect(r2.w, One), new ImmutableEffect(r2.h, One)))
+            val move = new ChangeValues(space.nextMoveId, List(new ImmutableMoveEffect(r2.w, One), new ImmutableMoveEffect(r2.h, One)))
             val after = space.consult(move)
             assertEq(after.value(costs), False)
             space.commit(move)
@@ -138,8 +138,8 @@ final class Disjoint2Test extends UnitTest {
             val move =
                 new ChangeValues(
                     space.nextMoveId,
-                    List(new ImmutableEffect(r1.x, Two), new ImmutableEffect(r1.y, Three),
-                         new ImmutableEffect(r1.w, Three), new ImmutableEffect(r1.h, Two)))
+                    List(new ImmutableMoveEffect(r1.x, Two), new ImmutableMoveEffect(r1.y, Three),
+                         new ImmutableMoveEffect(r1.w, Three), new ImmutableMoveEffect(r1.h, Two)))
             val after = space.consult(move)
             assertEq(after.value(costs), False)
             space.commit(move)
@@ -150,8 +150,8 @@ final class Disjoint2Test extends UnitTest {
             val move =
                 new ChangeValues(
                     space.nextMoveId,
-                    List(new ImmutableEffect(r1.w, Four),
-                         new ImmutableEffect(r2.x, Three), new ImmutableEffect(r2.y, Two)))
+                    List(new ImmutableMoveEffect(r1.w, Four),
+                         new ImmutableMoveEffect(r2.x, Three), new ImmutableMoveEffect(r2.y, Two)))
             val after = space.consult(move)
             assertEq(after.value(costs), False6)
             space.commit(move)
@@ -235,13 +235,13 @@ final class Disjoint2Test extends UnitTest {
         assertEq(now.value(costs), False4)
         if (true) {
             // reduce height and width of r2 to 1
-            val move = new ChangeValues(space.nextMoveId, List(new ImmutableEffect(r2.w, One), new ImmutableEffect(r2.h, One)))
+            val move = new ChangeValues(space.nextMoveId, List(new ImmutableMoveEffect(r2.w, One), new ImmutableMoveEffect(r2.h, One)))
             val after = space.consult(move)
             assertEq(after.value(costs), False)
         }
         if (true) {
             // move r1 to fully overlap r2
-            val move = new ChangeValues(space.nextMoveId, List(new ImmutableEffect(r1.x, Two), new ImmutableEffect(r1.y, Three)))
+            val move = new ChangeValues(space.nextMoveId, List(new ImmutableMoveEffect(r1.x, Two), new ImmutableMoveEffect(r1.y, Three)))
             val after = space.consult(move)
             assertEq(after.value(costs), BooleanValue.get(16))
         }
@@ -385,7 +385,7 @@ final class Disjoint2Test extends UnitTest {
         }
         if (true) {
             // move p1 into r1
-            val move = new ChangeValues(space.nextMoveId, List(new ImmutableEffect(p1.x, One), new ImmutableEffect(p1.y, One)))
+            val move = new ChangeValues(space.nextMoveId, List(new ImmutableMoveEffect(p1.x, One), new ImmutableMoveEffect(p1.y, One)))
             val after = space.consult(move)
             assertEq(after.value(costs), False)
             space.commit(move)
@@ -393,7 +393,7 @@ final class Disjoint2Test extends UnitTest {
         }
         if (true) {
             // move p1 to where r1 through r4 meet
-            val move = new ChangeValues(space.nextMoveId, List(new ImmutableEffect(p1.x, Two), new ImmutableEffect(p1.y, Two)))
+            val move = new ChangeValues(space.nextMoveId, List(new ImmutableMoveEffect(p1.x, Two), new ImmutableMoveEffect(p1.y, Two)))
             val after = space.consult(move)
             assertEq(after.value(costs), True)
             space.commit(move)
@@ -401,7 +401,7 @@ final class Disjoint2Test extends UnitTest {
         }
         if (true) {
             // let hl2 and vl2 intersect without intersecting other rectangles
-            val move = new ChangeValues(space.nextMoveId, List(new ImmutableEffect(hl2.y, Two), new ImmutableEffect(vl2.x, Two)))
+            val move = new ChangeValues(space.nextMoveId, List(new ImmutableMoveEffect(hl2.y, Two), new ImmutableMoveEffect(vl2.x, Two)))
             val after = space.consult(move)
             assertEq(after.value(costs), False)
             space.commit(move)
@@ -409,7 +409,7 @@ final class Disjoint2Test extends UnitTest {
         }
         if (true) {
             // let hl2 and vl2 intersect each other and other rectangles
-            val move = new ChangeValues(space.nextMoveId, List(new ImmutableEffect(hl2.y, Three), new ImmutableEffect(vl2.x, Three)))
+            val move = new ChangeValues(space.nextMoveId, List(new ImmutableMoveEffect(hl2.y, Three), new ImmutableMoveEffect(vl2.x, Three)))
             val after = space.consult(move)
             assertEq(after.value(costs), False9)
             space.commit(move)
@@ -451,7 +451,7 @@ final class Disjoint2Test extends UnitTest {
         }
         if (true) {
             // moving r1 to (0, 0) does not create a conflict with adjacent lines r2 and r3
-            val move = new ChangeValues(space.nextMoveId, List(new ImmutableEffect(r1.x, Zero), new ImmutableEffect(r1.y, Zero)))
+            val move = new ChangeValues(space.nextMoveId, List(new ImmutableMoveEffect(r1.x, Zero), new ImmutableMoveEffect(r1.y, Zero)))
             val after = space.consult(move)
             assertEq(after.value(costs), True)
             space.commit(move)
@@ -459,7 +459,7 @@ final class Disjoint2Test extends UnitTest {
         }
         if (true) {
             // undoing changes to r2 and r4 creates conflicts
-            val move = new ChangeValues(space.nextMoveId, List(new ImmutableEffect(r2.h, One), new ImmutableEffect(r3.w, One)))
+            val move = new ChangeValues(space.nextMoveId, List(new ImmutableMoveEffect(r2.h, One), new ImmutableMoveEffect(r3.w, One)))
             val after = space.consult(move)
             assertEq(after.value(costs), False7)
             space.commit(move)

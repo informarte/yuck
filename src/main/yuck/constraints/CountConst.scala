@@ -20,7 +20,7 @@ final class CountConst
     override def outVariables = List(n)
 
     private var count = 0
-    private val effects = List(new ReusableEffectWithFixedVariable[IntegerValue](n))
+    private val effects = List(new ReusableMoveEffectWithFixedVariable[IntegerValue](n))
     private val effect = effects.head
 
     override def initialize(now: SearchState) = {

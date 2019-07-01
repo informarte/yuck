@@ -158,7 +158,7 @@ final class AlldistinctNeighbourhood
     private val probabilityOfSwappingInValues = moveSizeDistribution.probability(1)
     private val variablesHaveTheSameDomain = xs.forall(x => x.domain == xs.head.domain)
     private val swappingInValuesIsPossible = xs.toIterator.map(_.domain.values).flatten.toSet.size > n
-    private val effects = Vector.fill(3){new ReusableEffect[Value]}
+    private val effects = Vector.fill(3){new ReusableMoveEffect[Value]}
     private val swaps = for (n <- 1 to 3) yield effects.take(n)
     private def succeed(n: Int): Move = new ChangeValues[Value](space.nextMoveId, swaps(n - 1))
     private def fail: Move = new ChangeValues[Value](space.nextMoveId, Nil)

@@ -58,7 +58,7 @@ final class BinPackingTest extends UnitTest {
             val move =
             new ChangeValues(
                 space.nextMoveId,
-                List(new ImmutableEffect(items(2).bin, One), new ImmutableEffect(items(5).bin, Three)))
+                List(new ImmutableMoveEffect(items(2).bin, One), new ImmutableMoveEffect(items(5).bin, Three)))
             val after = space.consult(move)
             assertEq(after.value(loads(1)), Six)
             assertEq(after.value(loads(2)), Zero)

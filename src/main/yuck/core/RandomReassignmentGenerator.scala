@@ -48,10 +48,10 @@ final class RandomReassignmentGenerator
     (0 until n).foreach(i => uniformDistribution.setFrequency(i, 1))
     require(uniformDistribution.volume > 0)
     private val s = moveSizeDistribution.size
-    private val effectsByMoveSize = for (n <- 1 until s) yield new Array[AnyEffect](n)
+    private val effectsByMoveSize = for (n <- 1 until s) yield new Array[AnyMoveEffect](n)
     private val frequencyRestorers = for (i <- 1 until s) yield new FrequencyRestorer
-    @inline private def fillEffect(effects: Array[AnyEffect], i: Int, x: AnyVariable) {
-        effects.update(i, x.nextRandomEffect(space, randomGenerator))
+    @inline private def fillEffect(effects: Array[AnyMoveEffect], i: Int, x: AnyVariable) {
+        effects.update(i, x.nextRandomMoveEffect(space, randomGenerator))
     }
 
     override def searchVariables = xs.toSet

@@ -105,7 +105,7 @@ final class Regular
             null
         }
 
-    private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
+    private val effects = List(new ReusableMoveEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
     private var currentCosts = 0
     private var currentStates: immutable.IndexedSeq[Int] = null

@@ -110,7 +110,7 @@ class NeighbourhoodFactory
         (val costs: NumericalVariable[Value], val objective: AnyObjective)
     {
         val weight = createNonNegativeChannel[IntegerValue]
-        val effect = new ReusableEffectWithFixedVariable(weight)
+        val effect = new ReusableMoveEffectWithFixedVariable(weight)
         override def toString = (costs, weight).toString
     }
 

@@ -7,7 +7,7 @@ import scala.collection.mutable.Cloneable
  *
  * @author Michael Marte
  */
-abstract class AnyEffect extends Cloneable[AnyEffect] {
+abstract class AnyMoveEffect extends Cloneable[AnyMoveEffect] {
 
     /** Returns the affected variable. */
     def anyVariable: AnyVariable

@@ -45,7 +45,7 @@ final class IntegerTable
 
     private var currentDistances: Array[Int] = null // for each row
     private var futureDistances: Array[Int] = null // for each row
-    private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
+    private val effects = List(new ReusableMoveEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
 
     private val x2i: immutable.Map[AnyVariable, Int] =

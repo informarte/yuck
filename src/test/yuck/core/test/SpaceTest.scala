@@ -168,8 +168,8 @@ final class SpaceTest extends UnitTest {
         override def outVariables = Vector(sum, avg)
         private val effects =
             Vector(
-                new ReusableEffectWithFixedVariable[IntegerValue](sum),
-                new ReusableEffectWithFixedVariable[IntegerValue](avg))
+                new ReusableMoveEffectWithFixedVariable[IntegerValue](sum),
+                new ReusableMoveEffectWithFixedVariable[IntegerValue](avg))
         var numberOfPropagations = 0
         var numberOfInitializations = 0
         var numberOfConsultations = 0

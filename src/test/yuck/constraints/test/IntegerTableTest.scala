@@ -47,7 +47,7 @@ final class IntegerTableTest extends UnitTest {
             val move =
                 new ChangeValues(
                     space.nextMoveId,
-                    List(new ImmutableEffect(s, Zero), new ImmutableEffect(u, Three)))
+                    List(new ImmutableMoveEffect(s, Zero), new ImmutableMoveEffect(u, Three)))
             val after = space.consult(move)
             assertEq(after.value(costs), False)
             space.commit(move)
@@ -94,7 +94,7 @@ final class IntegerTableTest extends UnitTest {
             val move =
                 new ChangeValues(
                     space.nextMoveId,
-                    List(new ImmutableEffect(s, Zero), new ImmutableEffect(u, Two)))
+                    List(new ImmutableMoveEffect(s, Zero), new ImmutableMoveEffect(u, Two)))
             val after = space.consult(move)
             assertEq(after.value(costs), False2)
             space.commit(move)

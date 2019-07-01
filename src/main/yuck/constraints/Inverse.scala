@@ -64,7 +64,7 @@ final class Inverse
     override def inVariables = f.xs.toIterator ++ g.xs.toIterator
     override def outVariables = List(costs)
 
-    private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
+    private val effects = List(new ReusableMoveEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
     private var currentCosts = 0
     private var futureCosts = 0
@@ -389,7 +389,7 @@ final class SimpleInverseNeighbourhood
     require(g.xs.forall(x => x.domain == f.indexDomain))
 
     private val n = f.xs.size
-    private val effects = Vector.fill(4){new ReusableEffect[IntegerValue]}
+    private val effects = Vector.fill(4){new ReusableMoveEffect[IntegerValue]}
 
     override def nextMove = {
         val i1 = randomGenerator.nextInt(n)
@@ -432,7 +432,7 @@ final class GeneralInverseNeighbourhood
 
     require(f.xs.toSet.intersect(g.xs.toSet).isEmpty)
 
-    private val effects = Vector.fill(4){new ReusableEffect[IntegerValue]}
+    private val effects = Vector.fill(4){new ReusableMoveEffect[IntegerValue]}
     private val candidates1 =
          (0 until f.xs.size)
         .filter(i => f.xs(i).domain.size > 1 && g.xs(rawValue(f.xs(i)) - g.offset).domain.size > 1)
@@ -506,7 +506,7 @@ final class SelfInverseNeighbourhood
     require(n % 2 == 0)
     require(f.xs.forall(x => x.domain == f.indexDomain))
 
-    private val effects = Vector.fill(4){new ReusableEffect[IntegerValue]}
+    private val effects = Vector.fill(4){new ReusableMoveEffect[IntegerValue]}
 
     override def nextMove = {
         val i1 = randomGenerator.nextInt(n)

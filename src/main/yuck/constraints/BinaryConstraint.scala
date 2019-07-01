@@ -14,7 +14,7 @@ abstract class BinaryConstraint
 {
     override def inVariables = List(x)
     override def outVariables = List(y)
-    private val effects = List(new ReusableEffectWithFixedVariable[Out](y))
+    private val effects = List(new ReusableMoveEffectWithFixedVariable[Out](y))
     private val effect = effects.head
     def op(x: In): Out
     override def initialize(now: SearchState) = {
