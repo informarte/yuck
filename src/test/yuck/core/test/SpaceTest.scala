@@ -397,6 +397,19 @@ final class SpaceTest extends UnitTest {
         space.post(g)
         assertEx(space.markAsImplicit(g)) // because x is an out-variable of d
 
+        // check that implicit constraints are propagated and that domains of implicitly constrained variables
+        // get restored after propagation
+        u.pruneDomain(NonNegativeIntegerRange)
+        v.pruneDomain(NonNegativeIntegerRange)
+        w.pruneDomain(NonNegativeIntegerRange)
+        x.pruneDomain(ZeroToOneIntegerRange)
+        space.propagate
+        assertGt(d.numberOfPropagations, 0)
+        assertEq(u.domain, NonNegativeIntegerRange) // domain of u was restored
+        assertEq(v.domain, NonNegativeIntegerRange) // domain of v was restored
+        assertEq(w.domain, NonNegativeIntegerRange) // domain of w was restored
+        assertEq(y.domain, new IntegerRange(Zero, Two)) // domain of y was pruned via domains of u and v
+
         // check that implicit constraints are never initialized and consulted
         space.setValue(u, Zero).setValue(v, Zero).setValue(w, Zero).setValue(x, Zero).initialize
         assertEq(c.numberOfInitializations, 0)

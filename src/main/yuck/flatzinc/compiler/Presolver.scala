@@ -29,12 +29,6 @@ final class Presolver
 
     private def reduceDomains {
 
-        // collect domains of implicitly constrained search variables
-        val backup = new mutable.ArrayBuffer[(AnyVariable, AnyDomain)]
-        for (x <- cc.implicitlyConstrainedVars) {
-            backup += x -> x.domain
-        }
-
         // require that all constraints hold
         for (x <- costVars) {
             x.pruneDomain(TrueDomain)
@@ -42,15 +36,6 @@ final class Presolver
 
         // propagate constraints
         space.propagate
-
-        // restore domains of implicitly constrained search variables
-        for ((x, dx) <- backup) {
-            dx match {
-                case dx: BooleanDomain => BooleanValueTraits.safeDowncast(x).relaxDomain(dx)
-                case dx: IntegerDomain => IntegerValueTraits.safeDowncast(x).relaxDomain(dx)
-                case dx: IntegerSetDomain => IntegerSetValueTraits.safeDowncast(x).relaxDomain(dx)
-            }
-        }
 
     }
 

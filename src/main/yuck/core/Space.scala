@@ -409,21 +409,25 @@ final class Space(
       *
       * Throws a DomainWipeOutException when unsatisfiability was proved.
       *
+      * Restores domains of implicitly constrained search variables after propagation.
+      *
       * Notice that, after propagation, there may be search variables with values outside their domains.
       */
     def propagate: Space = {
-        val tasks = new mutable.HashSet[Constraint]
-        for (constraint <- constraints) {
-            val effects = constraint.propagate
-            for (x <- effects.affectedVariables) {
-                tasks ++= directlyAffectedConstraints(x)
-                tasks ++= definingConstraint(x)
+        propagate {
+            val tasks = new mutable.HashSet[Constraint]
+            for (constraint <- constraints) {
+                val effects = constraint.propagate
+                for (x <- effects.affectedVariables) {
+                    tasks ++= directlyAffectedConstraints(x)
+                    tasks ++= definingConstraint(x)
+                }
+                if (effects.rescheduleStep) {
+                    tasks += constraint
+                }
             }
-            if (effects.rescheduleStep) {
-                tasks += constraint
-            }
+            propagate(tasks)
         }
-        propagate(tasks)
         this
     }
 
@@ -434,13 +438,17 @@ final class Space(
       *
       * Throws a DomainWipeOutException when unsatisfiability was proved.
       *
+      * Restores domains of implicitly constrained search variables after propagation.
+      *
       * Notice that, after propagation, there may be search variables with values outside their domains.
       */
     def propagate(x: AnyVariable): Space = {
-        val tasks = new mutable.HashSet[Constraint]
-        tasks ++= directlyAffectedConstraints(x)
-        tasks ++= definingConstraint(x)
-        propagate(tasks)
+        propagate {
+            val tasks = new mutable.HashSet[Constraint]
+            tasks ++= directlyAffectedConstraints(x)
+            tasks ++= definingConstraint(x)
+            propagate(tasks)
+        }
         this
     }
 
@@ -456,6 +464,24 @@ final class Space(
                 tasks.remove(constraint)
             }
         }
+    }
+
+    private def propagate(propagationJob: => Unit) {
+
+        // collect domains of implicitly constrained search variables
+        val backup = new mutable.ArrayBuffer[(AnyVariable, Function0[Unit])]
+        for (x <- inVariablesOfImplicitConstraints) {
+            backup += x -> x.createDomainRestorer
+        }
+
+        // propagate constraints
+        propagationJob
+
+        // restore domains of implicitly constrained search variables
+        for ((x, domainRestorer) <- backup) {
+            domainRestorer.apply
+        }
+
     }
 
     /** Counts how often Constraint.initialize was called. */

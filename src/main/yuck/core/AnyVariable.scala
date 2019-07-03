@@ -17,6 +17,9 @@ abstract class AnyVariable
     /** Returns the variable's domain. */
     def domain: AnyDomain
 
+    /** Returns a function that will restore the domain of the variable. */
+    def createDomainRestorer: Function0[Unit]
+
     /** Returns the type of the elements of the variable's domain. */
     @inline final def valueType: Class[_] = domain.valueType
 

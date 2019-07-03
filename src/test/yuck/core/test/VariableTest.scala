@@ -34,4 +34,19 @@ final class VariableTest extends UnitTest {
         assertEx(x.pruneDomain(NegativeIntegerRange), classOf[DomainWipeOutException])
     }
 
+    @Test
+    def testDomainRestoration {
+        val space = new Space(logger, sigint)
+        val x = space.createVariable("x", CompleteIntegerRange)
+        val backup1 = x.createDomainRestorer
+        x.pruneDomain(NonNegativeIntegerRange)
+        val backup2 = x.createDomainRestorer
+        x.pruneDomain(PositiveIntegerRange)
+        assertEq(x.domain, PositiveIntegerRange)
+        backup2.apply
+        assertEq(x.domain, NonNegativeIntegerRange)
+        backup1.apply
+        assertEq(x.domain, CompleteIntegerRange)
+    }
+
 }

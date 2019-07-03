@@ -32,6 +32,13 @@ abstract class Variable
 
     override def domain: Domain[Value]
 
+    final override def createDomainRestorer = new Function0[Unit] {
+        private val backup = domain
+        override def apply {
+            relaxDomain(backup)
+        }
+    }
+
     override def nextMove(space: Space, randomGenerator: RandomGenerator) =
         new ChangeValue(
             space.nextMoveId,
