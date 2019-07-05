@@ -26,12 +26,14 @@ final class SpaceTest extends UnitTest {
          */
         val space = new Space(logger, sigint)
         def domain(name: Char) = if (name == 'v') ZeroToZeroIntegerRange else CompleteIntegerRange
-        val vars @ IndexedSeq(s, t, u, v, w, x, y, z): IndexedSeq[AnyVariable] =
+        val vars @ IndexedSeq(s, t, u, v, w, x, y, z) =
             for (name <- 's' to 'z') yield space.createVariable(name.toString, domain(name))
         val c = new DummyConstraint(space.nextConstraintId, List(s, t), List(u))
         val d = new DummyConstraint(space.nextConstraintId, List(s, v), List(w, x))
         val e = new DummyConstraint(space.nextConstraintId, List(u, w, x), List(y))
+        val f = new DummyConstraint(space.nextConstraintId, List(s, t), List(x, y))
         space.post(c).post(d).post(e)
+        assertEx(space.post(f))
 
         val problemParams = space.problemParameters
         assertEq(problemParams, Set(v))
@@ -126,31 +128,6 @@ final class SpaceTest extends UnitTest {
         assert(space.wouldIntroduceCycle(e))
         assertEq(space.findHypotheticalCycle(e), Some(List(e)))
         assertEx(space.post(e))
-    }
-
-    @Test
-    def testManagementOfImplicitConstraints {
-        val space = new Space(logger, sigint)
-        val x = space.createVariable("x", CompleteIntegerRange)
-        val y = space.createVariable("y", CompleteIntegerRange)
-        val z = space.createVariable("z", CompleteIntegerRange)
-        val c = new DummyConstraint(space.nextConstraintId, List(x), List(y))
-        val d = new DummyConstraint(space.nextConstraintId, List(x), List(z))
-        space.post(c).post(d)
-        assertEq(space.numberOfImplicitConstraints, 0)
-        assert(! space.isImplicitConstraint(c))
-        assert(! space.isImplicitConstraint(d))
-        space.markAsImplicit(d)
-        assertEq(space.numberOfImplicitConstraints, 1)
-        assert(! space.isImplicitConstraint(c))
-        assert(space.isImplicitConstraint(d))
-        space.setValue(x, Zero).setValue(y, Zero).initialize
-        assertEq(space.numberOfInitializations, 1)
-        val move = new ChangeValue(space.nextMoveId, x, One)
-        space.consult(move)
-        assertEq(space.numberOfConsultations, 1)
-        space.commit(move)
-        assertEq(space.numberOfCommitments, 1)
     }
 
     // A spy constraint maintains the sum of its input variables and,
@@ -380,6 +357,58 @@ final class SpaceTest extends UnitTest {
             }
 
         }
+
+    }
+
+    @Test
+    def testHandlingOfImplicitConstraints {
+
+        val space = new Space(logger, sigint)
+        val IndexedSeq(s, t, u, v, w, x, y, z) =
+            for (name <- 's' to 'z')
+                yield new IntegerVariable(space.nextVariableId, name.toString, CompleteIntegerRange)
+        val c = new Spy(space.nextConstraintId, Set(s), t)
+        val d = new Spy(space.nextConstraintId, Set(u, v, w), x)
+        val e = new Spy(space.nextConstraintId, Set(u, v), y)
+        val f = new Spy(space.nextConstraintId, Set(z), u)
+        val g = new Spy(space.nextConstraintId, Set(x), z)
+
+        // check book keeping and enforcement of invariants
+        assertEx(space.markAsImplicit(c)) // because c was not yet posted
+        space.post(c)
+        assert(! space.isImplicitConstraint(c))
+        space.post(d)
+        space.post(e)
+        assertEq(space.numberOfImplicitConstraints, 0)
+        space.markAsImplicit(c)
+        space.markAsImplicit(d)
+        assertEx(space.markAsImplicit(e)) // because u and v are already implicitly constrained by d
+        assertEq(space.numberOfImplicitConstraints, 2)
+        assert(space.isImplicitConstraint(c))
+        assert(space.isImplicitConstraint(d))
+        assert(! space.isImplicitConstraint(e))
+        assertEq(space.implicitlyConstrainedSearchVariables, Set(s, u, v, w))
+        for (x <- space.searchVariables) {
+            assertEq(
+                space.implicitlyConstrainedSearchVariables.contains(x),
+                space.isImplicitlyConstrainedSearchVariable(x))
+        }
+        assertEx(space.post(f)) // because u is already implicitly constrained by d
+        space.post(g)
+        assertEx(space.markAsImplicit(g)) // because x is an out-variable of d
+
+        // check that implicit constraints are never initialized and consulted
+        space.setValue(u, Zero).setValue(v, Zero).setValue(w, Zero).setValue(x, Zero).initialize
+        assertEq(c.numberOfInitializations, 0)
+        assertEq(d.numberOfInitializations, 0)
+        val move = new ChangeValue(space.nextMoveId, u, One)
+        space.consult(move)
+        assertEq(c.numberOfConsultations, 0)
+        assertEq(d.numberOfConsultations, 0)
+        space.commit(move)
+        assertEq(c.numberOfCommitments, 0)
+        assertEq(d.numberOfCommitments, 0)
+
     }
 
     // See Queens, SendMoreMoney, and SendMostMoney for more tests of propagate, initialize, consult, and commit.

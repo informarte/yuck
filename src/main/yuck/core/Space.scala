@@ -34,11 +34,10 @@ final class Space(
 {
 
     private val constraints = new mutable.ArrayBuffer[Constraint] // maintained by post
+    private val implicitConstraints = new mutable.HashSet[Constraint] // maintained by markAsImplicit
     private val inVariables = new mutable.HashSet[AnyVariable] // maintained by post
+    private val inVariablesOfImplicitConstraints = new mutable.HashSet[AnyVariable] // maintained by markAsImplicit
     private val outVariables = new mutable.HashSet[AnyVariable] // maintained by post
-
-    // Java's hash set is much faster than Scala's.
-    private val implicitConstraints = new java.util.HashSet[Constraint]
 
     // The inflow model allows to find out which constraints are affected by changing
     // the value of a given variable.
@@ -205,6 +204,14 @@ final class Space(
     def isSearchVariable(x: AnyVariable): Boolean =
         ! x.domain.isSingleton && inVariables.contains(x) && ! outVariables.contains(x)
 
+    /** Computes the set of search variables involved in implicit constraints. */
+    def implicitlyConstrainedSearchVariables: Set[AnyVariable] =
+        inVariablesOfImplicitConstraints.filter(! _.domain.isSingleton)
+
+    /** Decides whether the given variable is an implicitly constrained search variable. */
+    def isImplicitlyConstrainedSearchVariable(x: AnyVariable): Boolean =
+        ! x.domain.isSingleton && inVariablesOfImplicitConstraints.contains(x)
+
     /** Decides whether the given variable is a dangling variable. */
     def isDanglingVariable(x: AnyVariable): Boolean =
         ! isProblemParameter(x) && ! isSearchVariable(x) && ! isChannelVariable(x)
@@ -310,7 +317,7 @@ final class Space(
         }
 
     private def isCyclic(constraint: Constraint): Boolean =
-        constraint.outVariables.exists(constraint.inVariables.toIterator.contains(_))
+        constraint.outVariables.exists(constraint.inVariables.toIterator.contains)
 
     private def findPath
         (spalg: ShortestPathAlgorithm[AnyVariable, ConstraintEdge], from: AnyVariable, to: Constraint):
@@ -329,10 +336,15 @@ final class Space(
     def post(constraint: Constraint): Space = {
         logger.loggg("Adding %s".format(constraint))
         require(
-            ! constraint.outVariables.exists(outVariables.contains(_)),
+            ! constraint.outVariables.exists(outVariables.contains),
             "%s shares out-variables with the following constraints:\n%s".format(
                 constraint,
-                constraints.filter(_.outVariables.exists(constraint.outVariables.toIterator.contains(_))).mkString("\n")))
+                constraints.filter(_.outVariables.exists(constraint.outVariables.toIterator.contains)).mkString("\n")))
+        require(
+            ! constraint.outVariables.exists(inVariablesOfImplicitConstraints.contains),
+            "%s has out-variables that are in-variables to the following implicit constraints:\n%s".format(
+                constraint,
+                implicitConstraints.filter(_.inVariables.exists(constraint.outVariables.toIterator.contains)).mkString("\n")))
         if (flowModel == null) {
             // This is the first call to post or initialize was called before.
             rebuildFlowModel
@@ -359,17 +371,33 @@ final class Space(
      * Marks the given constraint as implicit.
      *
      * Implicit constraints will not be initialized and they will never be consulted.
+     *
+     * Throws when the constraint has not yet been posted or cannot be marked as implicit.
      */
     def markAsImplicit(constraint: Constraint): Space = {
         logger.loggg("Marking %s as implicit".format(constraint))
+        require(
+            constraints.contains(constraint),
+            "%s cannot be marked as implicit because it has not yet been posted".format(constraint))
+        require(
+            ! constraint.inVariables.exists(isChannelVariable),
+            "%s cannot be marked as implicit because the following in-variables are channels: %s".format(
+                constraint,
+                constraint.inVariables.filter(isChannelVariable).mkString(", ")))
+        require(
+            ! constraint.inVariables.exists(isImplicitlyConstrainedSearchVariable),
+            "%s cannot be marked as implicit because the following in-variables are already implicitly constrained: %s".format(
+                constraint,
+                constraint.inVariables.filter(isImplicitlyConstrainedSearchVariable).mkString(", ")))
         implicitConstraints.add(constraint)
+        inVariablesOfImplicitConstraints ++= constraint.inVariables
         constraintOrder = null
         this
     }
 
     /** Returns true iff the given constraint was marked as implicit. */
     @inline def isImplicitConstraint(constraint: Constraint): Boolean =
-        implicitConstraints.contains(constraint)
+        ! implicitConstraints.isEmpty && implicitConstraints.contains(constraint)
 
     /** Returns the number of constraints that were posted and later marked as implicit. */
     def numberOfImplicitConstraints: Int = implicitConstraints.size
