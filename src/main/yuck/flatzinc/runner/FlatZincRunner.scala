@@ -47,6 +47,8 @@ object FlatZincRunner {
         head("Yuck FlatZinc frontend", BuildInfo.version)
         help("help").abbr("h").text("Show this help message")
         version("version")
+        // -f is used by MiniZinc challenge scripts!
+        opt[Unit]('f', "free-search").text("Ignored")
         opt[Int]('p', "number-of-threads")
             .text("Default value is %s".format(defaultCfg.numberOfThreads))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(numberOfThreads = max(1, x))))
