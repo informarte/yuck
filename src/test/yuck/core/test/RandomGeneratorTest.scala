@@ -41,7 +41,7 @@ final class RandomGeneratorTest extends UnitTest {
     @Test
     def testEagerShuffling {
         testShuffling(
-            (randomGenerator, data) => randomGenerator.shuffle[Int, IndexedSeq, mutable.ArrayBuffer](data))
+            (randomGenerator, data) => randomGenerator.shuffle(data))
     }
 
     @Test

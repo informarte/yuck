@@ -186,7 +186,7 @@ final class DomainInitializer
         (implicit valueTraits: ValueTraits[Value])
     {
         if (d.isEmpty) {
-            throw new DomainWipeOutException(a)
+            throw new yuck.flatzinc.compiler.DomainWipeOutException(a)
         }
         assert(d.isSubsetOf(valueTraits.safeDowncast(domains(a))))
         domains += a -> d

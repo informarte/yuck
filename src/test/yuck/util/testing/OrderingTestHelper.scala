@@ -1,5 +1,7 @@
 package yuck.util.testing
 
+import scala.collection._
+
 /**
  * @author Michael Marte
  *

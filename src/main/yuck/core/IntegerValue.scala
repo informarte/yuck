@@ -55,7 +55,7 @@ final object IntegerValue {
 
     implicit def valueTraits = IntegerValueTraits
 
-    private val valueRange = new Range(-10000, 10000, 1)
+    private val valueRange = Range(-10000, 10000, 1)
     private val valueCache = valueRange.map(new IntegerValue(_)).toArray
 
     /**

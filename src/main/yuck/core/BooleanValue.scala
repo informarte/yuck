@@ -62,7 +62,7 @@ final object BooleanValue {
 
     implicit def valueTraits = BooleanValueTraits
 
-    private val valueRange = new Range(0, 10000, 1)
+    private val valueRange = Range(0, 10000, 1)
     private val valueCache = valueRange.map(new BooleanValue(_)).toArray
 
     /**

@@ -73,7 +73,7 @@ final class Alldistinct
                     // the number of values equals the number of variables or
                     // there are more values than variables
                     val domain = xs.head.domain
-                    for ((x, a) <- xs.toIterator.zip(randomGenerator.shuffle(domain.values).toIterator)) {
+                    for ((x, a) <- xs.toIterator.zip(randomGenerator.shuffle(domain.values.toBuffer).toIterator)) {
                         space.setValue(x, a)
                     }
                     space.setValue(costs, True)

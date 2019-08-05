@@ -1,8 +1,7 @@
 package yuck.core
 
+import scala.collection._
 import scala.language.higherKinds
-import scala.collection.generic.CanBuildFrom
-import scala.collection.mutable.ArrayBuffer
 
 /**
  * Provides an interface for random generation of decisions, integers, and probabilities.
@@ -43,18 +42,19 @@ abstract class RandomGenerator {
      * Implements the Fisher-Yates algorithm, see: http://en.wikipedia.org/wiki/Fisher–Yates_shuffle.
      */
     final def shuffle
-        [T, From[T] <: TraversableOnce[T], To[T] <: Seq[T]]
-        (source: From[T])
-        (implicit cbf: CanBuildFrom[_, T, To[T]]): To[T] =
+        [T, C[T] <: TraversableOnce[T]]
+        (source: C[T])
+        (implicit bf: BuildFrom[C[T], T, C[T]]): C[T] =
     {
-        val buf = new ArrayBuffer[T] ++= source
+        val buf = new mutable.ArrayBuffer[T]
+        buf.addAll(source)
         for (i <- buf.size - 1 to 1 by -1) {
             val j = nextInt(i + 1)
             val tmp = buf(i)
             buf(i) = buf(j)
             buf(j) = tmp
         }
-        (cbf() ++= buf).result
+        bf.newBuilder(source).addAll(buf).result
     }
 
     private final class LazyShuffleIterator[T](source: IndexedSeq[T]) extends Iterator[T] {

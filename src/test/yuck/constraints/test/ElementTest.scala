@@ -23,7 +23,7 @@ final class ElementTest extends UnitTest {
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
-        val xs = IndexedSeq(s, t, u)
+        val xs = immutable.IndexedSeq(s, t, u)
         val i = new IntegerVariable(space.nextVariableId, "i", d)
         val y = space.createVariable("y", NonNegativeIntegerRange)
         val c = new Element(space.nextConstraintId, null, xs, i, y, 0)

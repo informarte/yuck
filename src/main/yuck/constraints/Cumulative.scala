@@ -259,7 +259,7 @@ final class Cumulative
         futureCosts = currentCosts
         val beforeCapacity = before.value(capacity).value
         val capacityChanged = move.involves(capacity)
-        val is = move.involvedVariables.toIterator.map(x2is.getOrElse(_, Nil)).flatten.to[mutable.Set]
+        val is = move.involvedVariables.toIterator.map(x2is.getOrElse(_, Nil)).flatten.to(mutable.Set)
         for (i <- is) {
             val beforeEntry = createRTreeEntry(i, before)
             val beforeBbox = beforeEntry.bbox

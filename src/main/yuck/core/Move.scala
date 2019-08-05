@@ -24,6 +24,9 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Traversable[Any
     override def foreach[U](f: AnyVariable => U) = involvedVariables.foreach(f)
 
     /** Returns the variables involved in the move. */
+    override def iterator = involvedVariables.toIterator
+
+    /** Returns the variables involved in the move. */
     def involvedVariables: TraversableOnce[AnyVariable] = effects.toIterator.map(_.anyVariable)
 
     /** Returns true iff the given variable is involved in the move. */

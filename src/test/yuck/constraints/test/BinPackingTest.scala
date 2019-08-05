@@ -2,6 +2,8 @@ package yuck.constraints.test
 
 import org.junit._
 
+import scala.collection._
+
 import yuck.constraints._
 import yuck.core._
 import yuck.util.testing.UnitTest
@@ -20,7 +22,7 @@ final class BinPackingTest extends UnitTest {
         // We start with 1 because we want to test the handling of a bin range that does not start at 0.
         val binDomain = new IntegerRange(One, Three)
         val items =
-            (for (i <- (1 to 5).toIterator) yield {
+            (for (i <- 1 to 5) yield {
                 val bin = new IntegerVariable(space.nextVariableId, "bin%d".format(i), binDomain)
                 i -> new BinPackingItem(bin, IntegerValue.get(i))
             }).toMap
@@ -28,7 +30,7 @@ final class BinPackingTest extends UnitTest {
             (for (i <- binDomain.values) yield
                 i.value -> space.createVariable("load%d".format(i.value), CompleteIntegerRange)).toMap
         space
-            .post(new BinPacking(space.nextConstraintId, null, items.valuesIterator.to, loads))
+            .post(new BinPacking(space.nextConstraintId, null, items.valuesIterator.toIndexedSeq, loads))
             .setValue(items(1).bin, One)
             .setValue(items(2).bin, Two)
             .setValue(items(3).bin, Three)

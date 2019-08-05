@@ -86,7 +86,7 @@ object FlatZincRunner {
             .hidden()
             .action((x, cl) => cl.copy(fznFilePath = x))
         override def usageExample =
-            "%s <JVM option>* -- <Yuck option>* <FlatZinc file>".format(programName)
+            "yuck <JVM option>* -- <Yuck option>* <FlatZinc file>"
     }
 
     def main(args: Array[String]) {
