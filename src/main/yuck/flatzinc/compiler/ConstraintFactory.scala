@@ -45,7 +45,7 @@ final class ConstraintFactory
     {
         constraint
         .annotations
-        .toIterator
+        .iterator
         .map(_.term)
         .map(_ match {case Term("defines_var", List(a)) => Some(compileAnyExpr(a)); case _ => None})
         .contains(Some(out))
@@ -123,7 +123,7 @@ final class ConstraintFactory
     override def run {
         cc.costVars ++=
             cc.ast.constraints
-            .toIterator
+            .iterator
             .map(constraint => compileConstraint(new FlatZincGoal(constraint), constraint))
             .flatten
     }
@@ -229,7 +229,7 @@ final class ConstraintFactory
         case Constraint("bool_xor", _, _) =>
             compileTernaryBoolConstraint(new Ne[BooleanValue](_, _, _, _, _), goal, constraint)
         case Constraint("array_bool_and", List(as, b), _) =>
-            val as1 = ArrayConst(getArrayElems(as).toIterator.filter(a => ! compilesToConst(a, True)).toList)
+            val as1 = ArrayConst(getArrayElems(as).iterator.filter(a => ! compilesToConst(a, True)).toList)
             val as2 = if (as1.value.isEmpty) ArrayConst(List(BoolConst(true))) else as1
             val xs = compileBoolArray(as2)
             val y = compileBoolExpr(b)
@@ -260,7 +260,7 @@ final class ConstraintFactory
             }
             compileConstraint(constraint, xs, y, withFunctionalDependency, withoutFunctionalDependency)
         case Constraint("array_bool_or", List(as, b), _) =>
-            val as1 = ArrayConst(getArrayElems(as).toIterator.filter(a => ! compilesToConst(a, False)).toList)
+            val as1 = ArrayConst(getArrayElems(as).iterator.filter(a => ! compilesToConst(a, False)).toList)
             val as2 = if (as1.value.isEmpty) ArrayConst(List(BoolConst(false))) else as1
             val xs = compileBoolArray(as2)
             val y = compileBoolExpr(b)
@@ -307,8 +307,8 @@ final class ConstraintFactory
             compileConstraint(goal, Constraint("bool_le", List(b, a), Nil))
         case Constraint("bool_clause", List(as, bs), _) =>
             // as are positive literals, bs are negative literals
-            (getArrayElems(as).toIterator.filter(a => ! compilesToConst(a, False)).toList,
-             getArrayElems(bs).toIterator.filter(b => ! compilesToConst(b, True)).toList) match {
+            (getArrayElems(as).iterator.filter(a => ! compilesToConst(a, False)).toList,
+             getArrayElems(bs).iterator.filter(b => ! compilesToConst(b, True)).toList) match {
                 case (Nil, Nil) => throw new InconsistentConstraintException(constraint)
                 case (Nil, _) => compileConstraint(goal, Constraint("array_bool_and", List(bs, BoolConst(false)), Nil))
                 case (_, Nil) => compileConstraint(goal, Constraint("array_bool_or", List(as, BoolConst(true)), Nil))
@@ -423,7 +423,7 @@ final class ConstraintFactory
             "int_lin_eq",
             List(ArrayConst(as), ArrayConst(bs), c), annotations)
             if (! definesVar(constraint, c) &&
-                as.toIterator.zip(bs.toIterator).exists{
+                as.iterator.zip(bs.iterator).exists{
                     case ((IntConst(a), b)) => (a == -1 || a == 1) && definesVar(constraint, b)}) =>
             val abs = as.zip(bs)
             val (a, b) = abs.find{case ((IntConst(a), b)) => (a == -1 || a == 1) && definesVar(constraint, b)}.get
@@ -721,11 +721,11 @@ final class ConstraintFactory
             val weights = getArrayElems(weights0).map(getConst[IntegerValue](_))
             require(bins.size == weights.size)
             val itemGenerator =
-                for ((bin, weight) <- bins.toIterator.zip(weights.toIterator)) yield
+                for ((bin, weight) <- bins.iterator.zip(weights.iterator)) yield
                     new BinPackingItem(bin, weight)
             val items = itemGenerator.toIndexedSeq
             val loads1 = compileIntArray(loads0)
-            val loads = (minLoadIndex until minLoadIndex + loads1.size).toIterator.zip(loads1.toIterator).toMap
+            val loads = (minLoadIndex until minLoadIndex + loads1.size).iterator.zip(loads1.iterator).toMap
             compileBinPackingConstraint(goal, constraint, items, loads)
         case Constraint("yuck_global_cardinality", List(xs0, cover0, counts0), _) =>
             val xs = compileIntArray(xs0)
@@ -733,7 +733,7 @@ final class ConstraintFactory
             val cover = getArrayElems(cover0).map(getConst[IntegerValue](_).value)
             val counts = compileIntArray(counts0)
             require(cover.size == counts.size)
-            val loads = cover.toIterator.zip(counts.toIterator).toMap
+            val loads = cover.iterator.zip(counts.iterator).toMap
             compileBinPackingConstraint(goal, constraint, items, loads)
         case Constraint("lex_less_int", List(as, bs), _) =>
             val xs = compileIntArray(as)
@@ -870,7 +870,7 @@ final class ConstraintFactory
             bin2Weight += item.bin -> (bin2Weight.getOrElse(item.bin, valueTraits.zero) + item.weight)
         }
         val itemGenerator =
-            for ((bin, weight) <- bin2Weight.toIterator if weight > valueTraits.zero)
+            for ((bin, weight) <- bin2Weight.iterator if weight > valueTraits.zero)
                 yield new BinPackingItem(bin, weight)
         val items1 = itemGenerator.toIndexedSeq
         val loadGenerator = {
@@ -910,7 +910,7 @@ final class ConstraintFactory
         require(as.size == xs.size)
         val axs =
             AX.compact(
-                for ((x, y) <- as.toIterator.zip(xs.toIterator)
+                for ((x, y) <- as.iterator.zip(xs.iterator)
                      if x.domain.singleValue != zero && (! y.domain.isSingleton || y.domain.singleValue != zero))
                     yield new AX[Value](x.domain.singleValue, y))
         axs match {
@@ -931,7 +931,7 @@ final class ConstraintFactory
                         val List(AX(_, x), AX(_, y)) = axs
                         space.post(new Plus(nextConstraintId, goal, x, y, channel))
                     } else {
-                        val xs = axs.toIterator.map(_.x).toIndexedSeq
+                        val xs = axs.iterator.map(_.x).toIndexedSeq
                         space.post(new Sum(nextConstraintId, goal, xs , channel))
                     }
                 } else {
@@ -955,7 +955,7 @@ final class ConstraintFactory
         require(as.size == xs.size)
         val axs =
             AX.compact(
-                for ((x, y) <- as.toIterator.zip(xs.toIterator)
+                for ((x, y) <- as.iterator.zip(xs.iterator)
                      if x.domain.singleValue != zero && (! y.domain.isSingleton || y.domain.singleValue != zero))
                     yield new AX[Value](x.domain.singleValue, y))
         val z = compileNumExpr[Value](c)

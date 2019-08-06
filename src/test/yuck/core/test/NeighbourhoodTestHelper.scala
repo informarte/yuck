@@ -72,7 +72,7 @@ final class NeighbourhoodTestHelper
             }
             ok
         }
-        val failureCount = (1 until moveSizeDistribution.size).toIterator.map(checkMoveSizeFrequency).count(! _)
+        val failureCount = (1 until moveSizeDistribution.size).iterator.map(checkMoveSizeFrequency).count(! _)
         assertLe(failureCount, moveSizeDistribution.size * maxFailureRate)
     }
 
@@ -89,7 +89,7 @@ final class NeighbourhoodTestHelper
                 // https://math.stackexchange.com/a/202559
                 // https://en.wikipedia.org/wiki/Binomial_coefficient#Generalization_and_connection_to_the_binomial_series
                 def binCoeff(n: Int, k: Int): Double =
-                    (0 until k).toIterator.map(i => (n - i).toDouble / (k - i).toDouble).product
+                    (0 until k).iterator.map(i => (n - i).toDouble / (k - i).toDouble).product
                 def h(k: Int, N: Int, M: Int, n: Int): Double =
                     binCoeff(M, k) * binCoeff(N - M, n - k) / binCoeff(N, n)
                 // For biased move generation, we consider the move to consist of n positions that get populated
@@ -113,7 +113,7 @@ final class NeighbourhoodTestHelper
                                     p
                                 }
                             }
-                        (0 until xs.size).toIterator.map(Q).sum
+                        (0 until xs.size).iterator.map(Q).sum
                     }
                 val p =
                     (if (fairVariableChoiceRate > 0) fairVariableChoiceRate * h(1, xs.size, 1, n) else 0) +
@@ -121,7 +121,7 @@ final class NeighbourhoodTestHelper
                 result.moveSizeFrequencies(n) * p
             }
             val observation = result.variableFrequencies(xs(i))
-            val expectation = (1 until moveSizeDistribution.size).toIterator.map(E).sum
+            val expectation = (1 until moveSizeDistribution.size).iterator.map(E).sum
             if (expectation == 0) {
                 // A forbidden variable must not be chosen!
                 assertEq(observation, expectation)
@@ -138,7 +138,7 @@ final class NeighbourhoodTestHelper
                 ok
             }
         }
-        val failureCount = (0 until xs.size).toIterator.map(checkVariableFrequency).count(! _)
+        val failureCount = (0 until xs.size).iterator.map(checkVariableFrequency).count(! _)
         assertLe(failureCount, xs.size * maxFailureRate)
     }
 

@@ -45,7 +45,7 @@ class VariableClassifier
             // In case there is no search annotation, we initially consider all variables with
             // finite domain as subject to search except for variables that occur in a defines_var
             // annotation.
-            searchVars ++= declaredVars.toIterator.filter(domains(_).isFinite).map(compileAnyExpr)
+            searchVars ++= declaredVars.iterator.filter(domains(_).isFinite).map(compileAnyExpr)
             searchVars --= definedVars
         } else {
           // Sometimes variables with a defines_var annotation are also marked as search variables.

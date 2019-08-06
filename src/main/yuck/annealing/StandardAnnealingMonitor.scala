@@ -157,11 +157,11 @@ class StandardAnnealingMonitor(
 
     def wasSearchRequired: Boolean = ! solverStatistics.isEmpty
     def numberOfRestarts: Int = scala.math.max(0, solverStatistics.size - 1)
-    def runtimeInSeconds: Double = solverStatistics.toIterator.map(_.runtimeInSeconds).sum
-    def movesPerSecond: Double = solverStatistics.toIterator.map(_.movesPerSecond).sum / solverStatistics.size
-    def consultationsPerSecond: Double = solverStatistics.toIterator.map(_.consultationsPerSecond).sum / solverStatistics.size
-    def consultationsPerMove: Double = solverStatistics.toIterator.map(_.consultationsPerMove).sum / solverStatistics.size
-    def commitmentsPerSecond: Double = solverStatistics.toIterator.map(_.commitmentsPerSecond).sum / solverStatistics.size
-    def commitmentsPerMove: Double = solverStatistics.toIterator.map(_.commitmentsPerMove).sum / solverStatistics.size
+    def runtimeInSeconds: Double = solverStatistics.iterator.map(_.runtimeInSeconds).sum
+    def movesPerSecond: Double = solverStatistics.iterator.map(_.movesPerSecond).sum / solverStatistics.size
+    def consultationsPerSecond: Double = solverStatistics.iterator.map(_.consultationsPerSecond).sum / solverStatistics.size
+    def consultationsPerMove: Double = solverStatistics.iterator.map(_.consultationsPerMove).sum / solverStatistics.size
+    def commitmentsPerSecond: Double = solverStatistics.iterator.map(_.commitmentsPerSecond).sum / solverStatistics.size
+    def commitmentsPerMove: Double = solverStatistics.iterator.map(_.commitmentsPerMove).sum / solverStatistics.size
 
 }

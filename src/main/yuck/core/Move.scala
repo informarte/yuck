@@ -24,10 +24,10 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Traversable[Any
     override def foreach[U](f: AnyVariable => U) = involvedVariables.foreach(f)
 
     /** Returns the variables involved in the move. */
-    override def iterator = involvedVariables.toIterator
+    override def iterator = involvedVariables.iterator
 
     /** Returns the variables involved in the move. */
-    def involvedVariables: TraversableOnce[AnyVariable] = effects.toIterator.map(_.anyVariable)
+    def involvedVariables: TraversableOnce[AnyVariable] = effects.iterator.map(_.anyVariable)
 
     /** Returns true iff the given variable is involved in the move. */
     def involves(x: AnyVariable): Boolean = involvedVariables.exists(_ == x)
@@ -38,7 +38,7 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Traversable[Any
      * Throws when the given variable is not involved in the move.
      */
     def anyValue(x: AnyVariable): AnyValue =
-        effects.toIterator.filter(_.anyVariable == x).next.anyValue
+        effects.iterator.filter(_.anyVariable == x).next.anyValue
 
     /**
      * Returns None if the move does not involve the given variable x,

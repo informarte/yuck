@@ -204,6 +204,6 @@ final case class FlatZincAst(
     }
 
     final def involvedVariables(constraint: Constraint): immutable.Set[Expr] =
-        constraint.params.toIterator.map(involvedVariables).flatten.toSet
+        constraint.params.iterator.map(involvedVariables).flatten.toSet
 
 }

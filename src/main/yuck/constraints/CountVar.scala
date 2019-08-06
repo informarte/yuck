@@ -19,7 +19,7 @@ final class CountVar
         valueTraits)
 {
     override def toString = "%s = count(%s, [%s])".format(n, y, xs.mkString(", "))
-    override def inVariables = xs.toIterator ++ List(y).toIterator
+    override def inVariables = xs.iterator ++ List(y).iterator
     override def todo(move: Move) = super.todo(move).filter(x => x != y)
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
         IntegerValue.get(valueRegistry.getOrElse(searchState.value(y), 0))

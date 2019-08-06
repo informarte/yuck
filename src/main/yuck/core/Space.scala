@@ -113,7 +113,7 @@ final class Space(
                 }
             }
         }
-        constraintOrder = new ConstraintOrder(constraints.toIterator.map(_.id).max.rawId + 1)
+        constraintOrder = new ConstraintOrder(constraints.iterator.map(_.id).max.rawId + 1)
         // The topological ordering exists because it was possible to build the flow model.
         for ((constraint, i) <- new TopologicalOrderIterator[Constraint, DefaultEdge](constraintGraph).asScala.zipWithIndex) {
             constraintOrder.update(constraint.id.rawId, i)
@@ -312,17 +312,17 @@ final class Space(
         else if (constraints.isEmpty) None
         else {
             val spalg = new DijkstraShortestPath[AnyVariable, ConstraintEdge](flowModel)
-            constraint.outVariables.toIterator.map(x => findPath(spalg, x, constraint))
+            constraint.outVariables.iterator.map(x => findPath(spalg, x, constraint))
                 .collectFirst{case Some(path) => path.getEdgeList.asScala.map(_.constraint).+=:(constraint)}
         }
 
     private def isCyclic(constraint: Constraint): Boolean =
-        constraint.outVariables.exists(constraint.inVariables.toIterator.contains)
+        constraint.outVariables.exists(constraint.inVariables.iterator.contains)
 
     private def findPath
         (spalg: ShortestPathAlgorithm[AnyVariable, ConstraintEdge], from: AnyVariable, to: Constraint):
         Option[GraphPath[AnyVariable, ConstraintEdge]] =
-        to.inVariables.toIterator.map(x => findPath(spalg, from, x)).collectFirst{case Some(path) => path}
+        to.inVariables.iterator.map(x => findPath(spalg, from, x)).collectFirst{case Some(path) => path}
     private def findPath
         (spalg: ShortestPathAlgorithm[AnyVariable, ConstraintEdge], from: AnyVariable, to: AnyVariable):
         Option[GraphPath[AnyVariable, ConstraintEdge]] =
@@ -339,12 +339,12 @@ final class Space(
             ! constraint.outVariables.exists(outVariables.contains),
             "%s shares out-variables with the following constraints:\n%s".format(
                 constraint,
-                constraints.filter(_.outVariables.exists(constraint.outVariables.toIterator.contains)).mkString("\n")))
+                constraints.filter(_.outVariables.exists(constraint.outVariables.iterator.contains)).mkString("\n")))
         require(
             ! constraint.outVariables.exists(inVariablesOfImplicitConstraints.contains),
             "%s has out-variables that are in-variables to the following implicit constraints:\n%s".format(
                 constraint,
-                implicitConstraints.filter(_.inVariables.exists(constraint.outVariables.toIterator.contains)).mkString("\n")))
+                implicitConstraints.filter(_.inVariables.exists(constraint.outVariables.iterator.contains)).mkString("\n")))
         if (flowModel == null) {
             // This is the first call to post or initialize was called before.
             rebuildFlowModel
@@ -497,7 +497,7 @@ final class Space(
         if (constraintOrder == null) {
             sortConstraintsTopologically
         }
-        for (constraint <- constraints.toIterator.filterNot(isImplicitConstraint).toBuffer.sorted(ConstraintOrdering)) {
+        for (constraint <- constraints.iterator.filterNot(isImplicitConstraint).toBuffer.sorted(ConstraintOrdering)) {
             constraint.initialize(assignment).foreach(_.setValue(assignment))
             numberOfInitializations += 1
         }

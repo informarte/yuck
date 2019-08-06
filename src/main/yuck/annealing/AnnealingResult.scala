@@ -20,10 +20,10 @@ final class AnnealingResult(
     var costsOfFinalProposal: Costs = null
     val roundLogs = new mutable.ArrayBuffer[RoundLog]
     var indexOfRoundWithBestProposal: Int = 0
-    def runtimeInSeconds: Double = roundLogs.toIterator.map(_.runtimeInSeconds).sum
-    def movesPerSecond: Double = roundLogs.toIterator.map(_.movesPerSecond).sum / roundLogs.size
-    def consultationsPerSecond: Double = roundLogs.toIterator.map(_.consultationsPerSecond).sum / roundLogs.size
-    def consultationsPerMove: Double = roundLogs.toIterator.map(_.consultationsPerMove).sum / roundLogs.size
-    def commitmentsPerSecond: Double = roundLogs.toIterator.map(_.commitmentsPerSecond).sum / roundLogs.size
-    def commitmentsPerMove: Double = roundLogs.toIterator.map(_.commitmentsPerMove).sum / roundLogs.size
+    def runtimeInSeconds: Double = roundLogs.iterator.map(_.runtimeInSeconds).sum
+    def movesPerSecond: Double = roundLogs.iterator.map(_.movesPerSecond).sum / roundLogs.size
+    def consultationsPerSecond: Double = roundLogs.iterator.map(_.consultationsPerSecond).sum / roundLogs.size
+    def consultationsPerMove: Double = roundLogs.iterator.map(_.consultationsPerMove).sum / roundLogs.size
+    def commitmentsPerSecond: Double = roundLogs.iterator.map(_.commitmentsPerSecond).sum / roundLogs.size
+    def commitmentsPerMove: Double = roundLogs.iterator.map(_.commitmentsPerMove).sum / roundLogs.size
 }

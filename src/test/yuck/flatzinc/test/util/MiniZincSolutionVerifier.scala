@@ -94,7 +94,7 @@ class MiniZincSolutionVerifier(
         val solutionFormatter = new FlatZincResultFormatter(result)
         val solution = solutionFormatter.call
         assert(checkIndicators(solution))
-        for (assignment <- solution.toIterator.takeWhile(_ != FlatZincSolutionSeparator)) {
+        for (assignment <- solution.iterator.takeWhile(_ != FlatZincSolutionSeparator)) {
             solutionWriter.write("constraint %s\n".format(assignment))
         }
         // We include the MiniZinc model in the end because a few of them don't have a semicolon

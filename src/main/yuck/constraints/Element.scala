@@ -23,7 +23,7 @@ final class Element
     require(indexBase >= 0)
 
     override def toString = "%s = element(%s, [%s])".format(y, i, xs.mkString(", "))
-    override def inVariables = xs.toIterator ++ List(i).toIterator
+    override def inVariables = xs.iterator ++ List(i).iterator
     override def outVariables = List(y)
 
     private val effects = List(new ReusableMoveEffectWithFixedVariable[Value](y))
@@ -49,7 +49,7 @@ final class Element
                     di1.values.foldLeft(valueTraits.emptyDomain){case (u, i) => u.union(xs(i.value - indexBase).domain)})
             val di2 =
                 IntegerDomain.createDomain(
-                    di1.values.toIterator.filter(i => xs(i.value - indexBase).domain.intersects(dy1)).toSet)
+                    di1.values.iterator.filter(i => xs(i.value - indexBase).domain.intersects(dy1)).toSet)
             NoPropagationOccurred.pruneDomains(i, di2, y, dy1)
         }
     }

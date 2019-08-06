@@ -16,24 +16,24 @@ final class LinearCombination
     extends Constraint(id, goal)
 {
 
-    require(axs.toIterator.map(_.x).toSet.size == axs.size)
+    require(axs.iterator.map(_.x).toSet.size == axs.size)
 
     override def toString = "%s = sum([%s])".format(y, axs.mkString(", "))
-    override def inVariables = axs.toIterator.map(_.x)
+    override def inVariables = axs.iterator.map(_.x)
     override def outVariables = List(y)
 
-    private val x2ax = immutable.HashMap[AnyVariable, AX[Value]]() ++ (axs.toIterator.map(_.x).zip(axs.toIterator))
+    private val x2ax = immutable.HashMap[AnyVariable, AX[Value]]() ++ (axs.iterator.map(_.x).zip(axs.iterator))
     private var sum = valueTraits.zero
     private val effects = List(new ReusableMoveEffectWithFixedVariable[Value](y))
     private val effect = effects.head
 
     override def propagate = {
         val lhs0 = new Iterable[(Value, NumericalDomain[Value])] {
-            override def iterator = axs.toIterator.map(ax => (ax.a, ax.x.domain))
+            override def iterator = axs.iterator.map(ax => (ax.a, ax.x.domain))
         }
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.linEq(lhs0, rhs0)
-        NoPropagationOccurred.pruneDomains(axs.toIterator.map(_.x).zip(lhs1.toIterator)).pruneDomain(y, rhs1)
+        NoPropagationOccurred.pruneDomains(axs.iterator.map(_.x).zip(lhs1.iterator)).pruneDomain(y, rhs1)
     }
 
     override def initialize(now: SearchState) = {

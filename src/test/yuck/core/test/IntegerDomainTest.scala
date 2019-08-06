@@ -88,7 +88,7 @@ final class IntegerDomainTest extends UnitTest {
                     assertEq(result, expectation)
                     assertEq(result.getClass, expectation.getClass)
                 }
-                check(input.toIterator)
+                check(input.iterator)
                 check(input.toList)
                 check(input.toSet)
                 check(immutable.TreeSet[IntegerValue]() ++ input)

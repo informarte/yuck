@@ -64,7 +64,7 @@ final class Disjunction
                 result
             }
         } else if (dy == FalseDomain) {
-            result.pruneDomains(xs.toIterator.map(x => (x, FalseDomain)))
+            result.pruneDomains(xs.iterator.map(x => (x, FalseDomain)))
         } else if (xs.exists(x => ensureDecisionDomain(x.domain) == TrueDomain)) {
             result.pruneDomain(y, TrueDomain)
         } else if (xs.forall(x => ensureDecisionDomain(x.domain) == FalseDomain)) {

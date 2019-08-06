@@ -13,7 +13,7 @@ abstract class NumericalDomainPruner[Value <: NumericalValue[Value]] extends Ord
         [Domain >: DomainImpl <: NumericalDomain[Value]]
         (lhs: Iterable[(Value, Domain)], rhs: Domain):
         (TraversableOnce[Domain], Domain) =
-        (lhs.toIterator.map(_._2), rhs)
+        (lhs.iterator.map(_._2), rhs)
 
     def times
         [Domain >: DomainImpl <: NumericalDomain[Value]]

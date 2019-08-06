@@ -169,7 +169,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                 if (weights.isEmpty) {
                     None
                 } else {
-                    val xs = weights.toIterator.map(_.x.asInstanceOf[AnyVariable]).toBuffer.sorted.toIndexedSeq
+                    val xs = weights.iterator.map(_.x.asInstanceOf[AnyVariable]).toBuffer.sorted.toIndexedSeq
                     for (x <- xs if ! x.domain.isFinite) {
                         throw new VariableWithInfiniteDomainException(x)
                     }
@@ -209,14 +209,14 @@ final class ConstraintDrivenNeighbourhoodFactory
             () => {
                 val (weightedImplicitConstraintMaintainers, otherWeightedNeighbourhoods) =
                     weightedNeighbourhoodFactories
-                    .toIterator
+                    .iterator
                     .map{case (ax, neighbourhoodFactory) => (ax, neighbourhoodFactory.apply)}
                     .filter{case (_, maybeNeighbourhood) => maybeNeighbourhood.isDefined}
                     .map{case (ax, maybeNeighbourhood) => (ax, maybeNeighbourhood.get)}
                     .toIndexedSeq
                     .partition { case (_, ImplicitConstraintMaintainer(_)) => true; case _ => false }
                 val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
-                neighbourhoods ++= weightedImplicitConstraintMaintainers.toIterator.map(_._2.neighbourhood)
+                neighbourhoods ++= weightedImplicitConstraintMaintainers.iterator.map(_._2.neighbourhood)
                 if (! otherWeightedNeighbourhoods.isEmpty) {
                     val (weights, otherNeighbourhoods) =
                         otherWeightedNeighbourhoods

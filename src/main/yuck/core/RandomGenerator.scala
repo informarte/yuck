@@ -81,7 +81,7 @@ abstract class RandomGenerator {
      */
     @inline final def lazyShuffle[T](source: IndexedSeq[T]): Iterator[T] =
         if (source.isEmpty) Iterator.empty
-        else if (source.size == 1) source.toIterator
+        else if (source.size == 1) source.iterator
         else new LazyShuffleIterator[T](source)
 
 }

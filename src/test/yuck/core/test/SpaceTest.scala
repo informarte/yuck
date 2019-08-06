@@ -153,16 +153,16 @@ final class SpaceTest extends UnitTest {
         override def propagate = {
             numberOfPropagations += 1
             val lhs0 = new Iterable[(IntegerValue, IntegerDomain)] {
-                override def iterator = xs.toIterator.map(x => (One, x.domain))
+                override def iterator = xs.iterator.map(x => (One, x.domain))
             }
             val rhs0 = sum.domain
             val (lhs1, rhs1) = IntegerValueTraits.domainPruner.linEq(lhs0, rhs0)
-            NoPropagationOccurred.pruneDomains(xs.toIterator.zip(lhs1.toIterator)).pruneDomain(sum, rhs1)
+            NoPropagationOccurred.pruneDomains(xs.iterator.zip(lhs1.iterator)).pruneDomain(sum, rhs1)
         }
 
         override def initialize(now: SearchState) = {
             numberOfInitializations += 1
-            effects(0).a = IntegerValue.get(xs.toIterator.map(now.value(_).value).sum)
+            effects(0).a = IntegerValue.get(xs.iterator.map(now.value(_).value).sum)
             effects
         }
 
@@ -294,7 +294,7 @@ final class SpaceTest extends UnitTest {
 
             def checkResults(searchState: SearchState) {
                 for (spy <- spies) {
-                    val sum = spy.inVariables.toIterator.map(searchState.value(_).value).sum
+                    val sum = spy.inVariables.iterator.map(searchState.value(_).value).sum
                     assertEq(searchState.value(spy.outVariables(0)).value, sum)
                 }
             }

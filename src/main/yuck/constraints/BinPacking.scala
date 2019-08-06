@@ -35,11 +35,11 @@ final class BinPacking
 
     require(items.forall(_.weight >= valueTraits.zero))
     require(loads.valuesIterator.toSet.size == loads.size)
-    require(items.toIterator.map(_.bin).toSet.size == items.size)
+    require(items.iterator.map(_.bin).toSet.size == items.size)
 
     override def toString =
         "bin_packing([%s], [%s])".format(items.mkString(", "), loads.mkString(", "))
-    override def inVariables = items.toIterator.filter(_.weight > valueTraits.zero).map(_.bin)
+    override def inVariables = items.iterator.filter(_.weight > valueTraits.zero).map(_.bin)
     override def outVariables = loads.valuesIterator
 
     private val x2Item =

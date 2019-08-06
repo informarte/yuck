@@ -14,7 +14,7 @@ final class ByteArrayAsCharSequence(bytes: Array[Byte], start: Int, end: Int) ex
         throw new IndexOutOfBoundsException
     }
     override def toString =
-        (start until end).toIterator.map(i => bytes(i).toChar).takeWhile(_ != '\n').mkString
+        (start until end).iterator.map(i => bytes(i).toChar).takeWhile(_ != '\n').mkString
     override def length =
         end - start
     override def charAt(index: Int) = {

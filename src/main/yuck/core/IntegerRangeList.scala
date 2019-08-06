@@ -51,7 +51,7 @@ final class IntegerRangeList
     override def hull: IntegerRange = if (ranges.size == 1) ranges.head else createRange(lb, ub)
     override def values = {
         require(isFinite)
-        ranges.toIterator.flatMap(_.values)
+        ranges.iterator.flatMap(_.values)
     }
     override def singleValue = {
         require(isSingleton)

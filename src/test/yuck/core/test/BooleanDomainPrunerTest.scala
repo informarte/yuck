@@ -75,7 +75,7 @@ class BooleanDomainPrunerTest extends UnitTest {
         def linEq(u: State): State = {
             val (lhs0, rhs0) = u
             val (lhs1, rhs1) = BooleanDomainPruner.linEq(lhs0, rhs0)
-            (lhs0.toIterator.map(_._1).zip(lhs1.toIterator).toList, rhs1)
+            (lhs0.iterator.map(_._1).zip(lhs1.iterator).toList, rhs1)
         }
 
         def checkPruning(u: State, v: State) {

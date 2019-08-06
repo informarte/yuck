@@ -221,8 +221,8 @@ final object IntegerDomain {
             EmptyIntegerRange
         } else {
             val inIt =
-                if (values.isInstanceOf[SortedSet[IntegerValue]]) values.toIterator
-                else values.toBuffer.sorted.toIterator
+                if (values.isInstanceOf[SortedSet[IntegerValue]]) values.iterator
+                else values.toBuffer.sorted.iterator
             val outBuf = new mutable.ArrayBuffer[IntegerRange]
             var lb = inIt.next
             var ub = lb

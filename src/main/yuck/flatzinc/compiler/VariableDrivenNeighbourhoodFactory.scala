@@ -58,7 +58,7 @@ final class VariableDrivenNeighbourhoodFactory
             }
         val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
         val candidatesForImplicitSolving =
-            space.involvedConstraints(x).toIterator.filter(_.isCandidateForImplicitSolving(space)).toBuffer.sorted
+            space.involvedConstraints(x).iterator.filter(_.isCandidateForImplicitSolving(space)).toBuffer.sorted
         for (constraint <- randomGenerator.shuffle(candidatesForImplicitSolving)) {
             val xs = constraint.inVariables.toSet
             if ((xs & implicitlyConstrainedVars).isEmpty) {
@@ -151,7 +151,7 @@ final class VariableDrivenNeighbourhoodFactory
             s += x -> createNonNegativeChannel[Value]
             val zl = AX.compact(zs(x))
             if (zl.forall(ax => ax.a == valueTraits.one)) {
-               space.post(new Sum(nextConstraintId, null, zl.toIterator.map(ax => ax.x).toIndexedSeq, s(x)))
+               space.post(new Sum(nextConstraintId, null, zl.iterator.map(ax => ax.x).toIndexedSeq, s(x)))
             } else {
                space.post(new LinearCombination(nextConstraintId, null, zl.toIndexedSeq, s(x)))
             }
@@ -167,7 +167,7 @@ final class VariableDrivenNeighbourhoodFactory
         Option[Distribution] =
     {
         val hotSpotDistribution = DistributionFactory.createDistribution(xs.size)
-        val weightedIndicators = xs.toIterator.map(x => new AX(valueTraits.one, hotSpotIndicators(x))).toIndexedSeq
+        val weightedIndicators = xs.iterator.map(x => new AX(valueTraits.one, hotSpotIndicators(x))).toIndexedSeq
         space.post(new DistributionMaintainer(nextConstraintId, null, OptimizationMode.Min, weightedIndicators, hotSpotDistribution))
         Some(hotSpotDistribution)
     }

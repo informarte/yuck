@@ -15,7 +15,7 @@ class ProcessRunner(logger: LazyLogger, commandLine: Seq[String]) extends Callab
     override def call = {
         val processBuilder = new java.lang.ProcessBuilder(commandLine.asJava)
         val command = processBuilder.command.asScala
-        logger.withLogScope(command.toIterator.mkString(" ")) {
+        logger.withLogScope(command.iterator.mkString(" ")) {
             val process = processBuilder.start
             val stdout = scala.io.Source.fromInputStream(process.getInputStream)
             val stderr = scala.io.Source.fromInputStream(process.getErrorStream)

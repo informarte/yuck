@@ -17,14 +17,14 @@ final class LexLess
 {
 
     override def toString = "lex_less(%s, %s)".format(xs, ys)
-    override def inVariables = xs.toIterator ++ ys.toIterator
+    override def inVariables = xs.iterator ++ ys.iterator
     override def outVariables = List(costs)
 
     private val effects = List(new ReusableMoveEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
 
     override def initialize(now: SearchState) = {
-        val c = ord.compare(xs.toIterator.map(now.value(_)), ys.toIterator.map(now.value(_)))
+        val c = ord.compare(xs.iterator.map(now.value(_)), ys.iterator.map(now.value(_)))
         effect.a = if (c < 0) True else BooleanValue.get(safeInc(c))
         effects
     }

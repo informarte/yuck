@@ -55,7 +55,7 @@ abstract class ValueFrequencyTracker
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         futureValueRegistry = valueRegistry
-        val it = todo(move).toIterator
+        val it = todo(move).iterator
         while (it.hasNext) {
             val x0 = it.next
             val x = valueTraits.safeDowncast(x0)

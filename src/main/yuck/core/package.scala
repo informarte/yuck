@@ -83,8 +83,8 @@ package object core {
     implicit def createLexicographicOrderingForTraversableOnce[T](implicit ord: Ordering[T]): Ordering[TraversableOnce[T]] =
         new Ordering[TraversableOnce[T]] {
             override def compare(t: TraversableOnce[T], u: TraversableOnce[T]) = {
-                val i = t.toIterator
-                val j = u.toIterator
+                val i = t.iterator
+                val j = u.iterator
                 var result = 0
                 while (result == 0 && i.hasNext && j.hasNext) {
                     result = ord.compare(i.next, j.next)

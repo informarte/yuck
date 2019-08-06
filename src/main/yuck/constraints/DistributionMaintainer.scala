@@ -26,7 +26,7 @@ final class DistributionMaintainer
     require(axs.forall(_.a.toInt > Int.MinValue)) // see computeFrequency
 
     override def toString = "distributionMaintainer([%s], %s)".format(axs.mkString(", "), distribution)
-    override def inVariables = axs.toIterator.map(_.x)
+    override def inVariables = axs.iterator.map(_.x)
     override def outVariables = Nil
 
     private val indexMap: immutable.Map[AnyVariable, (Int, AX[Value])] =

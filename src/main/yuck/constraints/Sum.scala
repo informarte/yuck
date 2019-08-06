@@ -28,11 +28,11 @@ final class Sum
 
     override def propagate = {
         val lhs0 = new Iterable[(Value, NumericalDomain[Value])] {
-            override def iterator = xs.toIterator.map(x => (valueTraits.one, x.domain))
+            override def iterator = xs.iterator.map(x => (valueTraits.one, x.domain))
         }
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.linEq(lhs0, rhs0)
-        NoPropagationOccurred.pruneDomains(xs.toIterator.zip(lhs1.toIterator)).pruneDomain(y, rhs1)
+        NoPropagationOccurred.pruneDomains(xs.iterator.zip(lhs1.iterator)).pruneDomain(y, rhs1)
     }
 
     override def initialize(now: SearchState) = {

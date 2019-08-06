@@ -251,7 +251,7 @@ final class IntegerDomainTestHelper
     private def testSetContainment(d: IntegerDomain, a: IntegerValue) {
         val result = d.contains(a)
         if (d.isFinite) {
-            assertEq(result, d.values.toIterator.contains(a))
+            assertEq(result, d.values.iterator.contains(a))
         } else {
             assertEq(result, d.intersects(new IntegerRange(a, a)))
         }
