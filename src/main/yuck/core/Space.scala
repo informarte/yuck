@@ -540,7 +540,7 @@ final class Space(
             }
         }
         protected def processConstraint(
-            constraint: Constraint, before: SearchState, after: SearchState, move: Move): TraversableOnce[AnyMoveEffect]
+            constraint: Constraint, before: SearchState, after: SearchState, move: Move): IterableOnce[AnyMoveEffect]
         protected def recordEffect(effect: AnyMoveEffect)
         def run: Move = {
             move.effects.foreach(propagateEffect)

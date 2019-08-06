@@ -53,7 +53,7 @@ final object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
     override def min
         [Domain >: DomainImpl <: OrderedDomain[IntegerValue]]
         (lhs0: Iterable[Domain], rhs0: Domain):
-        (TraversableOnce[Domain], Domain) =
+        (IterableOnce[Domain], Domain) =
     {
         require(! lhs0.isEmpty)
         if (rhs0.isEmpty || lhs0.exists(_.isEmpty)) {
@@ -70,7 +70,7 @@ final object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
     override def max
         [Domain >: DomainImpl <: OrderedDomain[IntegerValue]]
         (lhs0: Iterable[Domain], rhs0: Domain):
-        (TraversableOnce[Domain], Domain) =
+        (IterableOnce[Domain], Domain) =
     {
         require(! lhs0.isEmpty)
         if (rhs0.isEmpty || lhs0.exists(_.isEmpty)) {
@@ -87,7 +87,7 @@ final object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
     override def linEq
         [Domain >: DomainImpl <: NumericalDomain[IntegerValue]]
         (lhs0: Iterable[(IntegerValue, Domain)], rhs0: Domain):
-        (TraversableOnce[Domain], Domain) =
+        (IterableOnce[Domain], Domain) =
     {
         //     sum a_i * x_i  = b
         // <-> sum a_i * x_i <= b & sum  a_i * x_i >=  b
@@ -110,7 +110,7 @@ final object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
     private def linLe
         [Domain >: DomainImpl <: NumericalDomain[IntegerValue]]
         (lhs0: Iterable[(IntegerValue, Domain)], rhs0: Domain):
-        (TraversableOnce[Domain], Domain) =
+        (IterableOnce[Domain], Domain) =
     {
         if (rhs0.isEmpty || lhs0.exists{case (_, d) => d.isEmpty}) {
             (for (_ <- lhs0.iterator) yield EmptyIntegerRange, EmptyIntegerRange)

@@ -80,9 +80,9 @@ package object core {
 
     val CompleteIntegerSetDomain = new IntegerPowersetDomain(CompleteIntegerRange)
 
-    implicit def createLexicographicOrderingForTraversableOnce[T](implicit ord: Ordering[T]): Ordering[TraversableOnce[T]] =
-        new Ordering[TraversableOnce[T]] {
-            override def compare(t: TraversableOnce[T], u: TraversableOnce[T]) = {
+    implicit def createLexicographicOrderingForIterableOnce[T](implicit ord: Ordering[T]): Ordering[IterableOnce[T]] =
+        new Ordering[IterableOnce[T]] {
+            override def compare(t: IterableOnce[T], u: IterableOnce[T]) = {
                 val i = t.iterator
                 val j = u.iterator
                 var result = 0

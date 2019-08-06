@@ -42,7 +42,7 @@ abstract class RandomGenerator {
      * Implements the Fisher-Yates algorithm, see: http://en.wikipedia.org/wiki/Fisher–Yates_shuffle.
      */
     final def shuffle
-        [T, C[T] <: TraversableOnce[T]]
+        [T, C[T] <: IterableOnce[T]]
         (source: C[T])
         (implicit bf: BuildFrom[C[T], T, C[T]]): C[T] =
     {

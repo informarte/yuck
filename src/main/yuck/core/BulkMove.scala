@@ -18,7 +18,7 @@ final class BulkMove(id: Id[Move]) extends Move(id) {
     }
 
     /** Adds the given effects. */
-    def ++=(effects: TraversableOnce[AnyMoveEffect]): BulkMove = {
+    def ++=(effects: IterableOnce[AnyMoveEffect]): BulkMove = {
         effects.foreach(this += _)
         this
     }

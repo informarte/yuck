@@ -5,14 +5,14 @@ package yuck.core
  *
  * @author Michael Marte
  */
-abstract class Move(val id: Id[Move]) extends Ordered[Move] with Traversable[AnyVariable] {
+abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVariable] {
 
     @inline final override def hashCode = id.hashCode
     override def toString = effects.toList.sortBy(_.anyVariable.id).mkString(", ")
     @inline final override def compare(that: Move) = this.id.compare(that.id)
 
     /** Returns the effects of the move. */
-    def effects: TraversableOnce[AnyMoveEffect]
+    def effects: IterableOnce[AnyMoveEffect]
 
     /** Returns true iff the move does not involve any variable. */
     override def isEmpty: Boolean = effects.isEmpty
@@ -27,7 +27,7 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Traversable[Any
     override def iterator = involvedVariables.iterator
 
     /** Returns the variables involved in the move. */
-    def involvedVariables: TraversableOnce[AnyVariable] = effects.iterator.map(_.anyVariable)
+    def involvedVariables: IterableOnce[AnyVariable] = effects.iterator.map(_.anyVariable)
 
     /** Returns true iff the given variable is involved in the move. */
     def involves(x: AnyVariable): Boolean = involvedVariables.exists(_ == x)

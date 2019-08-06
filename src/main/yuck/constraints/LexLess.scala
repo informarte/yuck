@@ -12,7 +12,7 @@ final class LexLess
     (id: Id[Constraint], goal: Goal,
      xs: Seq[OrderedVariable[Value]], ys: Seq[OrderedVariable[Value]],
      costs: BooleanVariable)
-    (implicit val ord: Ordering[TraversableOnce[Value]])
+    (implicit val ord: Ordering[IterableOnce[Value]])
     extends Constraint(id, goal)
 {
 

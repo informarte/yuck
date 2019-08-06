@@ -232,7 +232,7 @@ final object IntegerRangeList {
 
     /** A lexicographic ordering on the underlying range lists. */
     val ordering = new Ordering[IntegerRangeList] {
-        val rangeListOrdering = createLexicographicOrderingForTraversableOnce(IntegerRange.ordering)
+        val rangeListOrdering = createLexicographicOrderingForIterableOnce(IntegerRange.ordering)
         override def compare(lhs: IntegerRangeList, rhs: IntegerRangeList) =
             rangeListOrdering.compare(lhs.ranges, rhs.ranges)
     }

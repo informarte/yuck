@@ -13,7 +13,7 @@ abstract class Neighbourhood {
     def searchVariables: Set[AnyVariable]
 
     /** Returns the children of this neighbourhood. */
-    def children: TraversableOnce[Neighbourhood]
+    def children: IterableOnce[Neighbourhood]
 
     /** Creates a move. */
     def nextMove: Move

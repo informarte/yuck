@@ -64,7 +64,7 @@ final object BooleanDomainPruner extends NumericalDomainPruner[BooleanValue] {
     override def linEq
         [Domain >: DomainImpl <: NumericalDomain[BooleanValue]]
         (lhs0: Iterable[(BooleanValue, Domain)], rhs0: Domain):
-        (TraversableOnce[Domain], Domain) =
+        (IterableOnce[Domain], Domain) =
     {
         def lhs1 = lhs0.iterator.map(_._2)
         if (rhs0.isEmpty || lhs0.exists{case (_, d) => d.isEmpty}) {

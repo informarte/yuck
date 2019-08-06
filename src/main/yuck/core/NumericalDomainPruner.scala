@@ -12,7 +12,7 @@ abstract class NumericalDomainPruner[Value <: NumericalValue[Value]] extends Ord
     def linEq
         [Domain >: DomainImpl <: NumericalDomain[Value]]
         (lhs: Iterable[(Value, Domain)], rhs: Domain):
-        (TraversableOnce[Domain], Domain) =
+        (IterableOnce[Domain], Domain) =
         (lhs.iterator.map(_._2), rhs)
 
     def times

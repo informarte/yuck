@@ -133,7 +133,7 @@ final class ConstraintFactory
 
     // In Yuck, True < False, but in FlatZinc, false < true.
     private val booleanOrdering = BooleanValueTraits.valueOrdering.reverse
-    private val booleanSequenceOrdering = createLexicographicOrderingForTraversableOnce(booleanOrdering)
+    private val booleanSequenceOrdering = createLexicographicOrderingForIterableOnce(booleanOrdering)
 
     private def compileConstraint
         (goal: Goal, constraint: yuck.flatzinc.ast.Constraint):

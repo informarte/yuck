@@ -83,7 +83,7 @@ final class IntegerDomainTest extends UnitTest {
                 new IntegerRangeList(Vector(ZeroToOneIntegerRange, new IntegerRange(Three, Four))))
         for ((inputs, expectation) <- testData) {
             for (input <- inputs) {
-                def check(values: TraversableOnce[IntegerValue]) = {
+                def check(values: IterableOnce[IntegerValue]) = {
                     val result = createDomain(values)
                     assertEq(result, expectation)
                     assertEq(result.getClass, expectation.getClass)

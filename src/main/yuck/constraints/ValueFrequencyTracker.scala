@@ -23,7 +23,7 @@ abstract class ValueFrequencyTracker
     extends Constraint(id, goal)
 {
 
-    override def inVariables: TraversableOnce[AnyVariable] = xs
+    override def inVariables: IterableOnce[AnyVariable] = xs
     override def outVariables = List(result)
 
     type VariableRegistry = immutable.Map[AnyVariable, Int]
@@ -85,7 +85,7 @@ abstract class ValueFrequencyTracker
      * The default implementation returns all variables involved in the move but this hook
      * can be used to limit processing to a subset thereof.
      */
-    protected def todo(move: Move): TraversableOnce[AnyVariable] =
+    protected def todo(move: Move): IterableOnce[AnyVariable] =
         move.involvedVariables
 
 }

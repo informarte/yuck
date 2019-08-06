@@ -24,7 +24,7 @@ abstract class Domain[Value <: AnyValue] extends AnyDomain {
 
     override def toString = "{%s}".format(values.map(_.toString).mkString(", "))
 
-    override def values: TraversableOnce[Value]
+    override def values: IterableOnce[Value]
     override def singleValue: Value
 
     /** Decides whether the domain contains the given value. */

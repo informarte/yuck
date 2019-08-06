@@ -14,7 +14,7 @@ import scala.collection._
 abstract class PropagationEffects {
 
     /** The variables the domains of which were pruned. */
-    val affectedVariables: TraversableOnce[AnyVariable]
+    val affectedVariables: IterableOnce[AnyVariable]
 
     /** Whether the step needs rescheduling. */
     def rescheduleStep: Boolean
@@ -43,7 +43,7 @@ abstract class PropagationEffects {
     /** Prunes the domains of the given variables and records the events. */
     def pruneDomains
         [Value <: AnyValue]
-        (xds: TraversableOnce[(Variable[Value], Domain[Value])]):
+        (xds: IterableOnce[(Variable[Value], Domain[Value])]):
         PropagationEffects =
     {
         xds.foldLeft(this){case (result, (x, dx)) => result.pruneDomain(x, dx)}
