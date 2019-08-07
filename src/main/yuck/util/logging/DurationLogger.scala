@@ -9,7 +9,7 @@ import yuck.util.arm.ManagedResource
  */
 final class DurationLogger(logger: LazyLogger, operationName: String) extends ManagedResource {
 
-    private var startTime = 0l
+    private var startTime = 0L
 
     override def open = {
         startTime = System.currentTimeMillis

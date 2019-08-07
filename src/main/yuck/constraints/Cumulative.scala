@@ -115,8 +115,8 @@ final class Cumulative
     private val effects = List(new ReusableMoveEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
 
-    private var currentCosts = 0l
-    private var futureCosts = 0l
+    private var currentCosts = 0L
+    private var futureCosts = 0L
 
     private final class EventPoint(val x: Int, val bbox: Rect2d, val isBBoxStart: Boolean)
     private object EventPointOrdering extends Ordering[EventPoint] {
@@ -137,7 +137,7 @@ final class Cumulative
         )
         eventPoints.sort(EventPointOrdering) // sort in place without copying (infeasible with Scala facilities)
         val n = eventPoints.size
-        var costs = 0l
+        var costs = 0L
         if (n > 0) {
             assert(n > 1)
             var sweepLinePos = eventPoints.get(0).x
@@ -201,7 +201,7 @@ final class Cumulative
         var sweepLinePos = eventPoints.get(0).x
         var i = 0
         var consumption = 0
-        var costDelta = 0l
+        var costDelta = 0L
         do {
             do {
                 val p = eventPoints.get(i)

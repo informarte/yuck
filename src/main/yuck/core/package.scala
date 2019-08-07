@@ -96,7 +96,7 @@ package object core {
             }
         }
 
-    val DefaultSeed = 0x0a23d679a633c596l
+    val DefaultSeed = 0x0a23d679a633c596L
 
     val DefaultRestartLimit = 100
 

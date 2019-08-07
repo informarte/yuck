@@ -38,7 +38,7 @@ abstract class Distribution {
         if (i < 0 || i > size) {
             throw new ArrayIndexOutOfBoundsException
         }
-        var sum = 0l
+        var sum = 0L
         var j = 0
         while (j <= i) {sum = safeAdd(sum, frequency(j)); j += 1}
         sum
@@ -51,7 +51,7 @@ abstract class Distribution {
      */
     def inverseCdf(r: Long): Int = {
         require(r >= 0 && r < volume)
-        var sum = 0l
+        var sum = 0L
         var i = -1
         do {i += 1; sum = safeAdd(sum, frequency(i))} while (r >= sum)
         i

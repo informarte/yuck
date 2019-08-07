@@ -40,8 +40,8 @@ abstract class Disjoint
     private var rTree: SpatialSearch[RTreeEntry] = null
     private var rTreeTransaction: RTreeTransaction[RTreeEntry] = null
 
-    private var currentCosts = 0l
-    private var futureCosts = 0l
+    private var currentCosts = 0L
+    private var futureCosts = 0L
     protected def computeOverlap(e1: RTreeEntry, e2: RTreeEntry): Long
 
     private val x2is =
@@ -64,7 +64,7 @@ abstract class Disjoint
     final override def initialize(now: SearchState) = {
         rTree = SpatialSearches.rTree[RTreeEntry](rectBuilder)
         rTreeTransaction = new RTreeTransaction[RTreeEntry](rTree, rectBuilder)
-        currentCosts = 0l
+        currentCosts = 0L
         for (i <- 0 until n) {
             val newEntry = createRTreeEntry(i, now)
             rTree.intersects(

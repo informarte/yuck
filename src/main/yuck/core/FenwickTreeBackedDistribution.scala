@@ -10,7 +10,7 @@ package yuck.core
 final class FenwickTreeBackedDistribution(override val size: Int) extends Distribution {
     require(size > 0)
     private val ft = new FenwickTree(size)
-    private var frequencySum = 0l
+    private var frequencySum = 0L
     private var numberOfNonZeroFrequencies = 0
     override def clear = {
         ft.clear

@@ -8,7 +8,7 @@ package yuck.core
 final class ArrayBackedDistribution(override val size: Int) extends Distribution {
     require(size > 0)
     private val frequencies = new Array[Long](size)
-    private var frequencySum = 0l
+    private var frequencySum = 0L
     private var numberOfNonZeroFrequencies = 0
     override def clear = {
         for (i <- 0 until size) {

@@ -38,7 +38,7 @@ class FenwickTree(val size: Int) {
     def prefixSum(__i: Int): Long = {
         var i = __i
         checkIndex(i)
-        var result = 0l
+        var result = 0L
         while (i > 0) {
             result = safeAdd(result, tree(i))
             i -= (i & -i)

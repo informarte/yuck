@@ -103,7 +103,7 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
         val n = 2
         val d = createDistribution(n)
         d.setFrequency(0, Long.MaxValue)
-        assertEx(d.setFrequency(1, 1l), classOf[ArithmeticException])
+        assertEx(d.setFrequency(1, 1L), classOf[ArithmeticException])
     }
 
 }
