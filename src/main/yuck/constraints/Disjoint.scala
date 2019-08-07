@@ -70,7 +70,7 @@ abstract class Disjoint
             rTree.intersects(
                 newEntry.bbox,
                 new Consumer[RTreeEntry] {
-                    override def accept(intersectingEntry: RTreeEntry) {
+                    override def accept(intersectingEntry: RTreeEntry) = {
                         currentCosts =
                             safeAdd(currentCosts, computeOverlap(newEntry, intersectingEntry))
                     }
@@ -93,7 +93,7 @@ abstract class Disjoint
             rTreeTransaction.intersects(
                 beforeEntry.bbox,
                 new Consumer[RTreeEntry] {
-                    override def accept(intersectingEntry: RTreeEntry) {
+                    override def accept(intersectingEntry: RTreeEntry) = {
                         futureCosts -= computeOverlap(beforeEntry, intersectingEntry)
                     }
                 }
@@ -102,7 +102,7 @@ abstract class Disjoint
             rTreeTransaction.intersects(
                 afterEntry.bbox,
                 new Consumer[RTreeEntry] {
-                    override def accept(intersectingEntry: RTreeEntry) {
+                    override def accept(intersectingEntry: RTreeEntry) = {
                         futureCosts =
                             safeAdd(futureCosts, computeOverlap(afterEntry, intersectingEntry))
                     }

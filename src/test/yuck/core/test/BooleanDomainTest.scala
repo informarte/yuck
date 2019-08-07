@@ -18,7 +18,7 @@ final class BooleanDomainTest extends UnitTest {
         List(EmptyBooleanDomain, FalseDomain, TrueDomain, CompleteBooleanDecisionDomain, BooleanChannelDomain)
 
     @Test
-    def testEquality {
+    def testEquality: Unit = {
         for (a <- testData) {
             for (b <- testData) {
                 if ((a.isComplete && b.isComplete) || (a.isFinite && b.isFinite && a.values == b.values)) {
@@ -31,12 +31,12 @@ final class BooleanDomainTest extends UnitTest {
     }
 
     @Test
-    def testOrdering {
+    def testOrdering: Unit = {
         helper.testOrdering(testData, BooleanDomain.ordering)
     }
 
     @Test
-    def testSetOperations {
+    def testSetOperations: Unit = {
         for (a <- testData) {
             for (b <- testData) {
                 assertEq(a.asInstanceOf[BooleanDomain].isSubsetOf(b), a.isSubsetOf(b))
@@ -84,7 +84,7 @@ final class BooleanDomainTest extends UnitTest {
     }
 
     @Test
-    def testProjection {
+    def testProjection: Unit = {
         for (a <- testData) {
             val b = BooleanDomain.ensureDecisionDomain(a)
             if (a.isComplete) {

@@ -17,7 +17,7 @@ import yuck.util.testing.UnitTest
 final class CountConstTest extends UnitTest {
 
     @Test
-    def testCountConst {
+    def testCountConst: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)

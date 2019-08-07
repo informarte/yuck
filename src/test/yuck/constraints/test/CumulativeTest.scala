@@ -23,7 +23,7 @@ final class CumulativeTest extends UnitTest {
             new IntegerVariable(space.nextVariableId, "d%d".format(i), d))
 
     @Test
-    def testSearchVariables {
+    def testSearchVariables: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
@@ -35,7 +35,7 @@ final class CumulativeTest extends UnitTest {
     }
 
     @Test
-    def testTaskMovement {
+    def testTaskMovement: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
@@ -83,7 +83,7 @@ final class CumulativeTest extends UnitTest {
     }
 
     @Test
-    def testTaskResizing {
+    def testTaskResizing: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
@@ -151,7 +151,7 @@ final class CumulativeTest extends UnitTest {
     }
 
     @Test
-    def testCapacityChanges {
+    def testCapacityChanges: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val tasks = (1 to 1).map(createTask(space, _, d))
@@ -187,7 +187,7 @@ final class CumulativeTest extends UnitTest {
     }
 
     @Test
-    def testHandlingOfDuplicateVariables {
+    def testHandlingOfDuplicateVariables: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
@@ -227,7 +227,7 @@ final class CumulativeTest extends UnitTest {
     }
 
     @Test
-    def testConsultWithoutCommit {
+    def testConsultWithoutCommit: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val tasks = (1 to 1).map(createTask(space, _, d))
@@ -259,7 +259,7 @@ final class CumulativeTest extends UnitTest {
     }
 
     @Test
-    def testComplexMoves {
+    def testComplexMoves: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))

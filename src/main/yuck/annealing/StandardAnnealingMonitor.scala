@@ -26,17 +26,17 @@ class StandardAnnealingMonitor(
     }
     private var costsOfBestProposal: Costs = null
 
-    override def open {
+    override def open = {
         if (solverState.get == SolverIsRunnable) {
         }
     }
 
-    override def close {
+    override def close = {
         if (solverState.get == SolverIsRunning) {
         }
     }
 
-    override def onSolverLaunched(result: AnnealingResult) {
+    override def onSolverLaunched(result: AnnealingResult) = {
         require(solverState.get == ThreadIsIdle)
         solverState.set(SolverIsRunnable)
         open
@@ -44,7 +44,7 @@ class StandardAnnealingMonitor(
         solverState.set(SolverIsRunning)
     }
 
-    override def onSolverSuspended(result: AnnealingResult) {
+    override def onSolverSuspended(result: AnnealingResult) = {
         require(solverState.get == SolverIsRunning)
         close
         solverState.set(SolverIsRunnable)
@@ -59,7 +59,7 @@ class StandardAnnealingMonitor(
         }
     }
 
-    override def onSolverResumed(result: AnnealingResult) {
+    override def onSolverResumed(result: AnnealingResult) = {
         require(solverState.get == SolverIsRunnable)
         if (result.roundLogs.isEmpty) {
             logger.log("Resumed solver that was suspended before first round")
@@ -70,7 +70,7 @@ class StandardAnnealingMonitor(
         open
     }
 
-    override def onSolverFinished(result: AnnealingResult) {
+    override def onSolverFinished(result: AnnealingResult) = {
         require(solverState.get == SolverIsRunning)
         close
         solverState.set(ThreadIsIdle)
@@ -83,11 +83,11 @@ class StandardAnnealingMonitor(
         }
     }
 
-    override def onNextRound(result: AnnealingResult) {
+    override def onNextRound(result: AnnealingResult) = {
         logger.loggg("%s".format(result.roundLogs.last.toString))
     }
 
-    override def onBetterProposal(result: AnnealingResult) {
+    override def onBetterProposal(result: AnnealingResult) = {
         synchronized {
             if (costsOfBestProposal == null ||
                 result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestProposal))
@@ -107,25 +107,25 @@ class StandardAnnealingMonitor(
         }
     }
 
-    override def onReheatingStarted(result: AnnealingResult) {
+    override def onReheatingStarted(result: AnnealingResult) = {
         val roundLog = result.roundLogs.last
         logger.logg(
             "Reheating started after round %d from uphill acceptance ratio %1.6f at temperature %3.6f".format(
                 result.roundLogs.size - 1, roundLog.uphillAcceptanceRatio, roundLog.temperature))
     }
 
-    override def onReheatingFinished(result: AnnealingResult) {
+    override def onReheatingFinished(result: AnnealingResult) = {
         val roundLog = result.roundLogs.last
         logger.logg(
             "Reheating finished after round %d with uphill acceptance ratio %1.6f at temperature %3.6f".format(
                 result.roundLogs.size - 1, roundLog.uphillAcceptanceRatio, roundLog.temperature))
     }
 
-    override def onObjectiveTightened(x: AnyVariable) {
+    override def onObjectiveTightened(x: AnyVariable) = {
         logger.logg("Reduced domain of objective variable %s to %s".format(x, x.domain))
     }
 
-    private def logStatistics(result: AnnealingResult) {
+    private def logStatistics(result: AnnealingResult): Unit = {
         logger.withLogScope("Solver statistics".format(result.solverName)) {
             logger.log("Number of rounds: %d".format(result.roundLogs.size))
             if (result.roundLogs.size > 0) {
@@ -145,7 +145,7 @@ class StandardAnnealingMonitor(
 
     private val solverStatistics = new mutable.ArrayBuffer[SolverStatistics]
 
-    private def captureSolverStatistics(result: AnnealingResult) {
+    private def captureSolverStatistics(result: AnnealingResult): Unit = {
         if (! result.roundLogs.isEmpty) {
             solverStatistics +=
                 new SolverStatistics(

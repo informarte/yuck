@@ -19,7 +19,8 @@ class OrderedDomainTestHelper
 
     def testOrdering
         [Interface <: OrderedDomain[Value], Implementation <: Interface]
-        (testData: Seq[Implementation], ord: Ordering[Interface])
+        (testData: Seq[Implementation], ord: Ordering[Interface]):
+        Unit =
     {
         logger.withLogScope("Test data") {
             testData.foreach(item => logger.log(item.toString))

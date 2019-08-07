@@ -15,7 +15,7 @@ import yuck.util.testing.UnitTest
 final class SpaceTest extends UnitTest {
 
     @Test
-    def testBasicNetworkManagement {
+    def testBasicNetworkManagement: Unit = {
 
         /*
          * s, t -> c -> u    \
@@ -100,7 +100,7 @@ final class SpaceTest extends UnitTest {
     }
 
     @Test
-    def testCycleDetection1 {
+    def testCycleDetection1: Unit = {
         val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val c = new DummyConstraint(space.nextConstraintId, List(x, x), List(x))
@@ -109,7 +109,7 @@ final class SpaceTest extends UnitTest {
     }
 
     @Test
-    def testCycleDetection2 {
+    def testCycleDetection2: Unit = {
         val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
@@ -178,7 +178,7 @@ final class SpaceTest extends UnitTest {
             initialize(after)
         }
 
-        private def checkContract(before: SearchState, after: SearchState, move: Move) {
+        private def checkContract(before: SearchState, after: SearchState, move: Move): Unit = {
             for (x <- move.involvedVariables) {
                 assert(xs.contains(IntegerValueTraits.safeDowncast(x)))
                 assertNe(before.anyValue(x), after.anyValue(x))
@@ -231,7 +231,7 @@ final class SpaceTest extends UnitTest {
     }
 
     @Test
-    def testPropagation {
+    def testPropagation: Unit = {
 
         val n = 8 // number of networks
         val randomGenerator = new JavaRandomGenerator
@@ -280,7 +280,7 @@ final class SpaceTest extends UnitTest {
     }
 
     @Test
-    def testConsultAndCommit {
+    def testConsultAndCommit: Unit = {
 
         val n = 8 // number of networks
         val m = 64 // number of moves per network
@@ -292,14 +292,14 @@ final class SpaceTest extends UnitTest {
 
             val (space, _, spies) = createRandomSpyNetwork(randomGenerator)
 
-            def checkResults(searchState: SearchState) {
+            def checkResults(searchState: SearchState): Unit = {
                 for (spy <- spies) {
                     val sum = spy.inVariables.iterator.map(searchState.value(_).value).sum
                     assertEq(searchState.value(spy.outVariables(0)).value, sum)
                 }
             }
 
-            def checkSearchStateEquivalence(lhs: SearchState, rhs: SearchState) {
+            def checkSearchStateEquivalence(lhs: SearchState, rhs: SearchState): Unit = {
                 assertEq(lhs.mappedVariables, rhs.mappedVariables)
                 for (x <- lhs.mappedVariables) {
                     assertEq(lhs.anyValue(x), rhs.anyValue(x))
@@ -361,7 +361,7 @@ final class SpaceTest extends UnitTest {
     }
 
     @Test
-    def testHandlingOfImplicitConstraints {
+    def testHandlingOfImplicitConstraints: Unit = {
 
         val space = new Space(logger, sigint)
         val IndexedSeq(s, t, u, v, w, x, y, z) =

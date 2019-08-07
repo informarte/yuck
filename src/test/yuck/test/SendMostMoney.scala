@@ -123,7 +123,7 @@ final class SendMostMoney extends IntegrationTest {
     }
 
     @Test
-    def sendMostMoney {
+    def sendMostMoney: Unit = {
         val randomGenerator = new JavaRandomGenerator(29071972)
         val solvers =
             (1 to DefaultRestartLimit).toList.map(

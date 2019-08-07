@@ -59,12 +59,12 @@ abstract class SolverGenerator extends Callable[Solver] {
  * @author Michael Marte
  */
 class SolverMonitor[ResultImpl <: Result] {
-    def onSolverLaunched(result: ResultImpl) {}
-    def onSolverSuspended(result: ResultImpl) {}
-    def onSolverResumed(result: ResultImpl) {}
-    def onSolverFinished(result: ResultImpl) {}
-    def onBetterProposal(result: ResultImpl) {}
-    def onObjectiveTightened(x: AnyVariable) {}
+    def onSolverLaunched(result: ResultImpl): Unit = {}
+    def onSolverSuspended(result: ResultImpl): Unit = {}
+    def onSolverResumed(result: ResultImpl): Unit = {}
+    def onSolverFinished(result: ResultImpl): Unit = {}
+    def onBetterProposal(result: ResultImpl): Unit = {}
+    def onObjectiveTightened(x: AnyVariable): Unit = {}
 }
 
 /**
@@ -190,7 +190,7 @@ final class ParallelSolver(
         (maybeBestResult.isDefined && maybeBestResult.get.isGoodEnough) || solvers.forall(_.hasFinished)
 
     private class SolverRunner(child: Solver) extends Runnable {
-        override def run {
+        override def run = {
             if (! sigint.isSet) {
                 scoped(new TransientThreadRenaming(Thread.currentThread, child.name)) {
                     scoped(new LogScope(logger, indentation)) {

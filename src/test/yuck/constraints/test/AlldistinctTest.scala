@@ -17,7 +17,7 @@ import yuck.util.testing.UnitTest
 final class AlldistinctTest extends UnitTest {
 
     @Test
-    def testAlldistinct {
+    def testAlldistinct: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
@@ -46,7 +46,7 @@ final class AlldistinctTest extends UnitTest {
     }
 
     @Test
-    def testAlldistinctWithAVariableOccuringTwice {
+    def testAlldistinctWithAVariableOccuringTwice: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
@@ -80,7 +80,7 @@ final class AlldistinctTest extends UnitTest {
     }
 
     @Test
-    def testAlldistinctWithImplicitSolving {
+    def testAlldistinctWithImplicitSolving: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Two)
         val s = space.createVariable("s", d)
@@ -117,7 +117,7 @@ final class AlldistinctTest extends UnitTest {
     }
 
     @Test
-    def testAlldistinctExceptZero {
+    def testAlldistinctExceptZero: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = new IntegerVariable(space.nextVariableId, "s", d)
@@ -160,7 +160,7 @@ final class AlldistinctTest extends UnitTest {
     }
 
     @Test
-    def testAlldistinctExceptZeroWithAVariableOccuringTwice {
+    def testAlldistinctExceptZeroWithAVariableOccuringTwice: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = new IntegerVariable(space.nextVariableId, "s", d)

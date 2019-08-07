@@ -12,11 +12,11 @@ import yuck.util.logging.LazyLogger
  */
 final class ManagedExecutorService(executor: ExecutorService, logger: LazyLogger) extends ManagedResource {
 
-    override def open {
+    override def open = {
         logger.logg("Using %s".format(executor))
     }
 
-    override def close {
+    override def close = {
         logger.logg("Shutting down %s".format(executor))
         executor.shutdownNow
         executor.awaitTermination(1, TimeUnit.MINUTES)

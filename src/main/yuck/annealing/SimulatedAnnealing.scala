@@ -93,7 +93,7 @@ final class SimulatedAnnealing(
         result
     }
 
-    private def anneal {
+    private def anneal: Unit = {
 
         // main annealing loop
         while (! wasInterrupted && ! hasFinished) {
@@ -123,7 +123,7 @@ final class SimulatedAnnealing(
 
     }
 
-    private def nextRound {
+    private def nextRound: Unit = {
 
         // prepare for new round
         if (numberOfRemainingMonteCarloAttempts == 0) {
@@ -186,7 +186,7 @@ final class SimulatedAnnealing(
 
     }
 
-    private def monteCarloSimulation {
+    private def monteCarloSimulation: Unit = {
         val roundLog = result.roundLogs.last
         while (numberOfRemainingMonteCarloAttempts > 0 && ! wasInterrupted && ! result.isGoodEnough) {
             val move = neighbourhood.nextMove
@@ -206,7 +206,7 @@ final class SimulatedAnnealing(
         }
     }
 
-    private def postprocessMove(roundLog: RoundLog) {
+    private def postprocessMove(roundLog: RoundLog): Unit = {
         val costsBeforeTightenining = objective.costs(currentProposal)
         val (tightenedProposal, maybeConstrainedObjectiveVariable) = objective.tighten(space)
         val tightenedProposalIsMine = maybeConstrainedObjectiveVariable.isDefined

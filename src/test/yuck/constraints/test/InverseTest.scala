@@ -17,7 +17,7 @@ import yuck.util.testing.UnitTest
 final class InverseTest extends UnitTest {
 
     @Test
-    def testInverseWithIdenticalOffsets {
+    def testInverseWithIdenticalOffsets: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(One, Three)
         val f1 = new IntegerVariable(space.nextVariableId, "f1", d)
@@ -107,7 +107,7 @@ final class InverseTest extends UnitTest {
     }
 
     @Test
-    def testInverseWithDifferentOffsets {
+    def testInverseWithDifferentOffsets: Unit = {
         val space = new Space(logger, sigint)
         val fd = new IntegerRange(Zero, Two)
         val gd = new IntegerRange(One, Three)

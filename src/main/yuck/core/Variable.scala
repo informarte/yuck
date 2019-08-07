@@ -34,7 +34,7 @@ abstract class Variable
 
     final override def createDomainRestorer = new Function0[Unit] {
         private val backup = domain
-        override def apply {
+        override def apply = {
             relaxDomain(backup)
         }
     }

@@ -43,7 +43,7 @@ final class Space(
     // the value of a given variable.
     private type InflowModel = mutable.AnyRefMap[AnyVariable, mutable.HashSet[Constraint]]
     private val inflowModel = new InflowModel // maintained by post
-    private def registerInflow(x: AnyVariable, constraint: Constraint) {
+    private def registerInflow(x: AnyVariable, constraint: Constraint): Unit = {
         inflowModel += x -> (inflowModel.getOrElse(x, new mutable.HashSet[Constraint]) += constraint)
     }
 
@@ -55,7 +55,7 @@ final class Space(
     // given variable.
     private type OutflowModel = mutable.AnyRefMap[AnyVariable, Constraint]
     private val outflowModel = new OutflowModel // maintained by post
-    private def registerOutflow(x: AnyVariable, constraint: Constraint) {
+    private def registerOutflow(x: AnyVariable, constraint: Constraint): Unit = {
         outflowModel += x -> constraint
     }
 
@@ -68,7 +68,7 @@ final class Space(
     private case class ConstraintEdge(val from: AnyVariable, val to: AnyVariable, val constraint: Constraint)
     private type FlowModel = DirectedAcyclicGraph[AnyVariable, ConstraintEdge]
     private var flowModel: FlowModel = null // maintained by post and discarded by initialize
-    private def addToFlowModel(constraint: Constraint) {
+    private def addToFlowModel(constraint: Constraint): Unit = {
         if (isCyclic(constraint)) {
             throw new CyclicConstraintNetworkException(constraint)
         }
@@ -85,14 +85,14 @@ final class Space(
             }
         }
     }
-    private def removeFromFlowModel(constraint: Constraint) {
+    private def removeFromFlowModel(constraint: Constraint): Unit = {
         for (x <- constraint.inVariables) {
             for (y <- constraint.outVariables) {
                 flowModel.removeEdge(ConstraintEdge(x, y, constraint))
             }
         }
     }
-    private def rebuildFlowModel {
+    private def rebuildFlowModel: Unit = {
         require(flowModel == null)
         flowModel = new FlowModel(classOf[ConstraintEdge])
         constraints.foreach(addToFlowModel)
@@ -100,7 +100,7 @@ final class Space(
 
     private type ConstraintOrder = Array[Int]
     private var constraintOrder: ConstraintOrder = null // created by initialize
-    private def sortConstraintsTopologically {
+    private def sortConstraintsTopologically: Unit = {
         require(constraintOrder == null)
         val constraintGraph = new DefaultDirectedGraph[Constraint, DefaultEdge](classOf[DefaultEdge])
         for (constraint <- constraints) {
@@ -164,7 +164,7 @@ final class Space(
      * register all of them, otherwise the result of consultation will not provide the
      * effects on the variables that were not registered.
      */
-    def registerObjectiveVariable(x: AnyVariable) {
+    def registerObjectiveVariable(x: AnyVariable): Unit = {
         if (! objectiveVariables.contains(x)) {
             objectiveVariables.add(x)
         }
@@ -228,7 +228,7 @@ final class Space(
         result
     }
     private def addInvolvedSearchVariables(
-        x: AnyVariable, result: mutable.Set[AnyVariable], visited: mutable.Set[AnyVariable])
+        x: AnyVariable, result: mutable.Set[AnyVariable], visited: mutable.Set[AnyVariable]): Unit =
     {
         if (! visited.contains(x)) {
             visited += x
@@ -252,7 +252,7 @@ final class Space(
         result
     }
     private def addInvolvedSearchVariables(
-        constraint: Constraint, result: mutable.Set[AnyVariable], visited: mutable.Set[AnyVariable])
+        constraint: Constraint, result: mutable.Set[AnyVariable], visited: mutable.Set[AnyVariable]): Unit =
     {
         for (x <- constraint.inVariables) {
             if (isSearchVariable(x)) {
@@ -274,7 +274,7 @@ final class Space(
         result
     }
     private def addInvolvedConstraints(
-        x: AnyVariable, result: mutable.Set[Constraint], visited: mutable.Set[AnyVariable])
+        x: AnyVariable, result: mutable.Set[Constraint], visited: mutable.Set[AnyVariable]): Unit =
     {
         if (! visited.contains(x)) {
             visited += x
@@ -452,7 +452,7 @@ final class Space(
         this
     }
 
-    private def propagate(tasks: mutable.HashSet[Constraint]) {
+    private def propagate(tasks: mutable.HashSet[Constraint]): Unit = {
         while (! tasks.isEmpty && ! sigint.isSet) {
             val constraint = tasks.head
             val effects = constraint.propagate
@@ -466,7 +466,7 @@ final class Space(
         }
     }
 
-    private def propagate(propagationJob: => Unit) {
+    private def propagate(propagationJob: => Unit): Unit = {
 
         // collect domains of implicitly constrained search variables
         val backup = new mutable.ArrayBuffer[(AnyVariable, Function0[Unit])]
@@ -523,7 +523,7 @@ final class Space(
         require(constraintOrder != null, "Call initialize after posting the last constraint")
         protected val diff = new BulkMove(move.id)
         private val diffs = new java.util.TreeMap[Constraint, BulkMove](ConstraintOrdering)
-        private def propagateEffect(effect: AnyMoveEffect) {
+        private def propagateEffect(effect: AnyMoveEffect): Unit = {
             if (assignment.anyValue(effect.anyVariable) != effect.anyValue) {
                 val affectedConstraints = directlyAffectedConstraints(effect.anyVariable)
                 for (constraint <- affectedConstraints) {
@@ -541,7 +541,7 @@ final class Space(
         }
         protected def processConstraint(
             constraint: Constraint, before: SearchState, after: SearchState, move: Move): IterableOnce[AnyMoveEffect]
-        protected def recordEffect(effect: AnyMoveEffect)
+        protected def recordEffect(effect: AnyMoveEffect): Unit
         def run: Move = {
             move.effects.foreach(propagateEffect)
             while (! diffs.isEmpty) {
@@ -569,7 +569,7 @@ final class Space(
                 constraint.consult(before, after, move)
             }
         }
-        override protected def recordEffect(effect: AnyMoveEffect) {
+        override protected def recordEffect(effect: AnyMoveEffect): Unit = {
             if (objectiveVariables.isEmpty || objectiveVariables.contains(effect.anyVariable)) {
                 diff += effect
             }
@@ -644,7 +644,7 @@ final class Space(
             }
         }
 
-        override protected def recordEffect(effect: AnyMoveEffect) {
+        override protected def recordEffect(effect: AnyMoveEffect): Unit = {
             diff += effect
         }
         private def checkedCommit(

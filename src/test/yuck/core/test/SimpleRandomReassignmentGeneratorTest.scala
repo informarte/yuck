@@ -23,7 +23,7 @@ final class SimpleRandomReassignmentGeneratorTest extends UnitTest {
     private val helper = new NeighbourhoodTestHelper(logger, xs, createDistribution(1, List(100)), None, None)
 
     @Test
-    def testNeighbourhood {
+    def testNeighbourhood: Unit = {
         val neighbourhood = new SimpleRandomReassignmentGenerator(space, xs, randomGenerator)
         val result = helper.measure(neighbourhood)
         helper.checkMoveSizeFrequencies(result, 0, 0)

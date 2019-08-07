@@ -17,11 +17,11 @@ final class DomainFinalizer
     extends CompilationPhase(cc, randomGenerator)
 {
 
-    override def run {
+    override def run = {
         finalizeDomains
     }
 
-    private def finalizeDomains {
+    private def finalizeDomains: Unit = {
         val done = new mutable.HashSet[AnyVariable]
         for ((key, x) <- cc.vars if ! done.contains(x)) {
             x.domain match {
@@ -37,7 +37,7 @@ final class DomainFinalizer
         }
     }
 
-    private def finalizeBooleanDomain(x: BooleanVariable, dx: BooleanDomain) {
+    private def finalizeBooleanDomain(x: BooleanVariable, dx: BooleanDomain): Unit = {
         if (dx.isSingleton) {
             if (cc.space.isChannelVariable(x)) {
                 if (dx.singleValue.truthValue) {
@@ -53,7 +53,7 @@ final class DomainFinalizer
         }
     }
 
-    private def finalizeIntegerDomain(x: IntegerVariable, dx: IntegerDomain) {
+    private def finalizeIntegerDomain(x: IntegerVariable, dx: IntegerDomain): Unit = {
         if (dx.isBounded) {
             if (cc.space.isChannelVariable(x)) {
                 if (! cc.space.definingConstraint(x).get.isInstanceOf[Bool2Int1] || dx.isSingleton) {
@@ -69,7 +69,7 @@ final class DomainFinalizer
         }
     }
 
-    private def finalizeIntegerSetDomain(x: IntegerSetVariable, dx: IntegerPowersetDomain) {
+    private def finalizeIntegerSetDomain(x: IntegerSetVariable, dx: IntegerPowersetDomain): Unit = {
         if (dx.isBounded) {
             if (cc.space.isChannelVariable(x)) {
                 val costs = createBoolChannel

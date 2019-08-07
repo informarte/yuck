@@ -72,7 +72,7 @@ final class Queens extends IntegrationTest {
         }
     }
 
-    private def queens(n: Int) {
+    private def queens(n: Int): Unit = {
         val randomGenerator = new JavaRandomGenerator(29071972)
         val solvers =
             (1 to DefaultRestartLimit).map(
@@ -83,74 +83,74 @@ final class Queens extends IntegrationTest {
     }
 
     @Test
-    def queens00008() {
+    def queens00008: Unit = {
         queens(8)
     }
 
     @Test
-    def queens00016() {
+    def queens00016: Unit = {
         queens(16)
     }
 
     @Test
-    def queens00032() {
+    def queens00032: Unit = {
         queens(32)
     }
 
     @Test
-    def queens00064() {
+    def queens00064: Unit = {
         queens(64)
     }
 
     @Test
-    def queens00128() {
+    def queens00128: Unit = {
         queens(128)
     }
 
     @Test
-    def queens00256() {
+    def queens00256: Unit = {
         queens(256)
     }
 
     @Test
     @Ignore
-    def queens00512() {
+    def queens00512: Unit = {
         queens(512)
     }
 
     @Test
     @Ignore
-    def queens01024() {
+    def queens01024: Unit = {
         queens(1024)
     }
 
     @Test
     @Ignore
-    def queens02048() {
+    def queens02048: Unit = {
         queens(2048)
     }
 
     @Test
     @Ignore
-    def queens04096() {
+    def queens04096: Unit = {
         queens(4096)
     }
 
     @Test
     @Ignore
-    def queens08192() {
+    def queens08192: Unit = {
         queens(8192)
     }
 
     @Test
     @Ignore
-    def queens16384() {
+    def queens16384: Unit = {
         queens(16384)
     }
 
     @Test
     @Ignore
-    def queens32768() {
+    def queens32768: Unit = {
         queens(32768)
     }
 

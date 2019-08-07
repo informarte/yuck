@@ -56,7 +56,7 @@ final class NeighbourhoodTestHelper
         result
     }
 
-    def checkMoveSizeFrequencies(result: MeasurementResult, tolerance: Double, maxFailureRate: Double) {
+    def checkMoveSizeFrequencies(result: MeasurementResult, tolerance: Double, maxFailureRate: Double): Unit = {
         // checkMoveSizeFrequency(n) is true iff the observed frequency of moves of size n does not differ widely
         // from the frequency stipulated by moveSizeDistribution.
         def checkMoveSizeFrequency(n: Int): Boolean = {
@@ -76,7 +76,7 @@ final class NeighbourhoodTestHelper
         assertLe(failureCount, moveSizeDistribution.size * maxFailureRate)
     }
 
-    def checkVariableFrequencies(result: MeasurementResult, tolerance: Double, maxFailureRate: Double) {
+    def checkVariableFrequencies(result: MeasurementResult, tolerance: Double, maxFailureRate: Double): Unit = {
         lazy val hotSpotDistribution = maybeHotSpotDistribution.get
         // checkVariableFrequency(i) is true iff the observed frequency of xs(i) does not differ widely
         // from the frequency stipulated by hotSpotDistribution.

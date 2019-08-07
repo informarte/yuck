@@ -17,7 +17,7 @@ import yuck.util.testing.UnitTest
 final class MinimumTest extends UnitTest {
 
     @Test
-    def testMinimum {
+    def testMinimum: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = new IntegerVariable(space.nextVariableId, "s", d)

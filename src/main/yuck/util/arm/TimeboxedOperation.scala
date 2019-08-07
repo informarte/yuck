@@ -27,7 +27,7 @@ final class TimeboxedOperation
 
     override def call = {
         val watchdog = new Thread {
-            override def run {
+            override def run = {
                 val t0 = System.currentTimeMillis
                 try {
                     if (remainingRuntimeInMillis > 0) {

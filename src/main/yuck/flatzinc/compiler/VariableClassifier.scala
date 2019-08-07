@@ -20,11 +20,11 @@ class VariableClassifier
     private val definedVars = cc.definedVars
     private val domains = cc.domains
 
-    override def run {
+    override def run = {
         classifyVars
     }
 
-    private def classifyVars {
+    private def classifyVars: Unit = {
         for (constraint <- cc.ast.constraints) {
             for (Annotation(Term("defines_var", List(a))) <- constraint.annotations) {
                 definedVars += compileAnyExpr(a)
@@ -53,7 +53,7 @@ class VariableClassifier
         }
     }
 
-    private def findSearchVars(annotation: Expr) {
+    private def findSearchVars(annotation: Expr): Unit = {
         annotation match {
             case Term(search, ArrayConst(elems) :: _)
             if List("bool_search", "int_search", "set_search").contains(search) =>

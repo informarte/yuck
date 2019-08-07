@@ -15,7 +15,7 @@ final class FlatZincParserTest extends UnitTest {
 
     import FlatZincParser._
 
-    private def expectSuccess[Result](parser: Parser[Result], input: String, expectation: Result) {
+    private def expectSuccess[Result](parser: Parser[Result], input: String, expectation: Result): Unit = {
         parseAll(parser, input) match {
             case FlatZincParser.Success(result, rest) =>
                 Assert.assertEquals(expectation, result)
@@ -24,7 +24,7 @@ final class FlatZincParserTest extends UnitTest {
         }
     }
 
-    private def expectFailure[Result](parser: Parser[Result], input: String) {
+    private def expectFailure[Result](parser: Parser[Result], input: String): Unit = {
         parseAll(parser, input) match {
             case FlatZincParser.Success(result, rest) =>
                 Assert.fail("'%s' was parsed unexpectedly".format(input))
@@ -33,13 +33,13 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testBool {
+    def testBool: Unit = {
         expectSuccess(expr, "true", BoolConst(true))
         expectSuccess(expr, "false", BoolConst(false))
     }
 
     @Test
-    def testInt {
+    def testInt: Unit = {
         expectSuccess(expr, "1", IntConst(1))
         expectSuccess(expr, "-1", IntConst(-1))
         expectFailure(expr, "++1")
@@ -50,7 +50,7 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testFloat {
+    def testFloat: Unit = {
         expectSuccess(expr, "1.5", FloatConst(1.5))
         expectSuccess(expr, "+1.5", FloatConst(1.5))
         expectSuccess(expr, "-1.5", FloatConst(-1.5))
@@ -77,13 +77,13 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testIntRange {
+    def testIntRange: Unit = {
         expectSuccess(expr, "1..5", IntSetConst(IntRange(1, 5)))
         expectSuccess(expr, "1 .. 5", IntSetConst(IntRange(1, 5)))
     }
 
     @Test
-    def testIntSet {
+    def testIntSet: Unit = {
         expectSuccess(expr, "{}", IntSetConst(IntSet(Set())))
         expectSuccess(expr, "{1}", IntSetConst(IntSet(Set(1))))
         expectSuccess(expr, "{-2, 1, 1, 3, 5}", IntSetConst(IntSet(Set(-2, 1, 3, 5))))
@@ -93,7 +93,7 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testArray {
+    def testArray: Unit = {
         expectSuccess(expr, "[]", ArrayConst(Nil))
         expectSuccess(expr, "[1]", ArrayConst(List(IntConst(1))))
         expectSuccess(expr, "[2, 1]", ArrayConst(List(IntConst(2), IntConst(1))))
@@ -107,7 +107,7 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testTypes {
+    def testTypes: Unit = {
         val map = Map(
             "bool" -> BoolType,
             "float" -> FloatType(None),
@@ -125,7 +125,7 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testPredDecl {
+    def testPredDecl: Unit = {
         expectSuccess(
             pred_decl,
             "predicate all_different_int(array [int] of var int: x);",
@@ -133,7 +133,7 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testParamDecl {
+    def testParamDecl: Unit = {
         expectSuccess(
             param_decl,
             "array [1..4] of int: distance = [5, 5, 5, 5];",
@@ -144,7 +144,7 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testVarDecl {
+    def testVarDecl: Unit = {
         expectSuccess(
             var_decl,
             "var 0..1: INT____00091 :: is_defined_var :: var_is_introduced;",
@@ -172,7 +172,7 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testConstraint {
+    def testConstraint: Unit = {
         expectSuccess(
             constraint,
             "constraint bool2int(BOOL____00090, BOOL____00091) :: defines_var(INT____00091);",
@@ -183,7 +183,7 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testSolveGoal {
+    def testSolveGoal: Unit = {
         expectSuccess(solve_goal, "solve satisfy;", Satisfy(Nil))
         expectSuccess(solve_goal, "solve minimize x;", Minimize(Term("x", Nil), Nil))
         expectSuccess(solve_goal, "solve maximize x;", Maximize(Term("x", Nil), Nil))

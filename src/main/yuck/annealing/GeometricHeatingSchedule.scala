@@ -26,7 +26,7 @@ final class GeometricHeatingSchedule(
     private var targetUphillAcceptanceRatio = maximumUphillAcceptanceRatio
     private var lastRoundLog: RoundLog = null
 
-    override def nextRound(roundLog: RoundLog) {
+    override def nextRound(roundLog: RoundLog) = {
         require(! isFrozen)
         lastRoundLog = roundLog
         if (! isFrozen) {
@@ -49,7 +49,7 @@ final class GeometricHeatingSchedule(
      *  - Multiplies the given progress with the maximum acceptance ratio (for
      *    uphill moves) to obtain the target acceptance ratio for the next run.
      */
-    override def start(temperature: Double, progress: Double) {
+    override def start(temperature: Double, progress: Double) = {
         require(temperature >= 0.0)
         require(progress > 0.0 && progress <= 1.0)
         currentTemperature = temperature * heatingRate

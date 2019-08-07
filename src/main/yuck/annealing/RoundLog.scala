@@ -46,7 +46,7 @@ final class RoundLog(val roundIndex: Int) {
     def consultationsPerMove: Double = numberOfConsultations.toDouble / numberOfMonteCarloAttempts
     def commitmentsPerSecond: Double = numberOfCommitments.toDouble / runtimeInSeconds
     def commitmentsPerMove: Double = numberOfCommitments.toDouble / numberOfMonteCarloAttempts
-    def updateAcceptanceRatio {
+    def updateAcceptanceRatio: Unit = {
         val numberOfAcceptedMoves = numberOfMonteCarloAttempts - numberOfRejectedMoves
         traditionalAcceptanceRatio = numberOfAcceptedMoves.toDouble / numberOfMonteCarloAttempts
         val numberOfProposedUphillMoves = numberOfAcceptedUphillMoves + numberOfRejectedMoves

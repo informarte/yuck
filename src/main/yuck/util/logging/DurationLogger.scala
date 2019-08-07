@@ -11,12 +11,12 @@ final class DurationLogger(logger: LazyLogger, operationName: String) extends Ma
 
     private var startTime = 0l
 
-    override def open {
+    override def open = {
         startTime = System.currentTimeMillis
         logger.log("%s".format(operationName))
     }
 
-    override def close {
+    override def close = {
         val endTime = System.currentTimeMillis
         logger.log("%s took %f seconds".format(operationName, (endTime - startTime) / 1000.0))
     }

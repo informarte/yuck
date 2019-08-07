@@ -7,7 +7,7 @@ package yuck.core
  */
 final class RandomInitializer(space: Space, randomGenerator: RandomGenerator) extends Runnable {
 
-    override def run {
+    override def run = {
 
         // Problem parameters are not search variables, so they need special attention.
         for (x <- space.problemParameters) {

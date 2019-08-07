@@ -31,7 +31,7 @@ final class AdaptiveCoolingSchedule(
     private var numberOfSuccessiveFutileRounds = 0
     private var numberOfSuccessiveFutileRoundsInAttractionBasin = 0
 
-    override def nextRound(roundLog: RoundLog) {
+    override def nextRound(roundLog: RoundLog) = {
         require(! isFrozen)
         if (roundLog.roundWasFutile) {
             numberOfSuccessiveFutileRounds += 1
@@ -58,7 +58,7 @@ final class AdaptiveCoolingSchedule(
         currentTemperature <= finalTemperature ||
         numberOfSuccessiveFutileRoundsInAttractionBasin >= maximumNumberOfSuccessiveFutileRoundsInAttractionBasin
 
-    override def start(temperature: Double, progress: Double) {
+    override def start(temperature: Double, progress: Double) = {
         require(temperature > finalTemperature)
         currentTemperature = temperature
         numberOfSuccessiveFutileRounds = 0

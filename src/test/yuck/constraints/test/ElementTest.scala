@@ -17,7 +17,7 @@ import yuck.util.testing.UnitTest
 final class ElementTest extends UnitTest {
 
     @Test
-    def testElement {
+    def testElement: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)

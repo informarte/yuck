@@ -20,14 +20,14 @@ final class IntegerValueTest extends UnitTest {
     private val testData = testRange.map(IntegerValue.get)
 
     @Test
-    def testConstruction {
+    def testConstruction: Unit = {
         for (a <- testRange) {
             assertEq(new IntegerValue(a).value, a)
         }
     }
 
     @Test
-    def testSpecialValues {
+    def testSpecialValues: Unit = {
         assertEq(MinusOne.value, -1)
         assertEq(Zero.value, 0)
         assertEq(One.value, 1)
@@ -43,7 +43,7 @@ final class IntegerValueTest extends UnitTest {
     }
 
     @Test
-    def testValueFactory {
+    def testValueFactory: Unit = {
         for (a <- testRange) {
             assertEq(IntegerValue.get(a).value, a)
             assert(IntegerValue.get(a).eq(IntegerValue.get(a)))
@@ -51,7 +51,7 @@ final class IntegerValueTest extends UnitTest {
     }
 
     @Test
-    def testEquality {
+    def testEquality: Unit = {
         helper.testEquality(testData)
         for (a <- testData) {
             val b = new IntegerValue(a.value)
@@ -63,14 +63,14 @@ final class IntegerValueTest extends UnitTest {
     }
 
     @Test
-    def testOrdering {
+    def testOrdering: Unit = {
         helper.testOrdering(testData ++ testData)
         assertEq(IntegerValue.min(Zero, One), Zero)
         assertEq(IntegerValue.max(Zero, One), One)
     }
 
     @Test
-    def testOrderingCostModel {
+    def testOrderingCostModel: Unit = {
         val costModel = IntegerOrderingCostModel
         for (a <- testData) {
             for (b <- testData) {
@@ -89,7 +89,7 @@ final class IntegerValueTest extends UnitTest {
     }
 
     @Test
-    def testOverflowCheckingInCostComputation {
+    def testOverflowCheckingInCostComputation: Unit = {
         val costModel = IntegerOrderingCostModel
         costModel.lt(IntegerValue.get(Int.MaxValue - 1), Zero)
         assertEx(costModel.lt(IntegerValue.get(Int.MaxValue), Zero), classOf[ArithmeticException])
@@ -98,7 +98,7 @@ final class IntegerValueTest extends UnitTest {
     }
 
     @Test
-    def testNumericalOperations {
+    def testNumericalOperations: Unit = {
         for (a <- testData) {
             for (b <- testData) {
                 assertEq((a + b).value, a.value + b.value)
@@ -137,7 +137,7 @@ final class IntegerValueTest extends UnitTest {
     }
 
     @Test
-    def testOverflowCheckingInNumericalOperations {
+    def testOverflowCheckingInNumericalOperations: Unit = {
         IntegerValue.get(Int.MaxValue) + Zero
         assertEx(IntegerValue.get(Int.MaxValue) + One, classOf[ArithmeticException])
         IntegerValue.get(Int.MinValue) - Zero

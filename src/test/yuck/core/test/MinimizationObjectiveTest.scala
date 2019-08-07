@@ -19,7 +19,7 @@ final class MinimizationObjectiveTest extends UnitTest {
     private val objective = new MinimizationObjective(x, Zero, Some(MinusOne))
 
     @Test
-    def testCostComparison {
+    def testCostComparison: Unit = {
         val a = new Assignment
         a.setValue(x, Zero)
         assertEq(objective.costs(a), Zero)
@@ -30,7 +30,7 @@ final class MinimizationObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testMoveAssessment {
+    def testMoveAssessment: Unit = {
         val a = new Assignment
         a.setValue(x, Zero)
         val b = new Assignment
@@ -47,7 +47,7 @@ final class MinimizationObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testTightening {
+    def testTightening: Unit = {
         space
             .post(new DummyConstraint(space.nextConstraintId, List(x), Nil))
             .setValue(x, One)

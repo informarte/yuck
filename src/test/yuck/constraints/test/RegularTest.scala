@@ -17,7 +17,7 @@ import yuck.util.testing.UnitTest
 final class RegularTest extends UnitTest {
 
     @Test
-    def testRegular {
+    def testRegular: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(One, Two)
         val xs = for (i <- 1 to 10) yield new IntegerVariable(space.nextVariableId, "x[%d]".format(i), d)

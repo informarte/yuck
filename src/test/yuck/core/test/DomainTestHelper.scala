@@ -12,7 +12,7 @@ import yuck.util.testing.{EqualityTestHelper, YuckAssert}
  */
 class DomainTestHelper[Value <: AnyValue](logger: LazyLogger) extends YuckAssert {
 
-    def testEquality(testData: Seq[Domain[Value]]) {
+    def testEquality(testData: Seq[Domain[Value]]): Unit = {
         logger.withLogScope("Test data") {
             testData.foreach(item => logger.log(item.toString))
         }
@@ -21,10 +21,10 @@ class DomainTestHelper[Value <: AnyValue](logger: LazyLogger) extends YuckAssert
     }
 
     // Checks that values are chosen uniformly from the given domain.
-    def testUniformityOfDistribution(randomGenerator: RandomGenerator, d: Domain[Value]) {
+    def testUniformityOfDistribution(randomGenerator: RandomGenerator, d: Domain[Value]): Unit = {
         val sampleSize = 100000
         val maxError = 0.05
-        def checkDistribution(f: Map[Value, Int]) {
+        def checkDistribution(f: Map[Value, Int]): Unit = {
             for (a <- d.values) {
                 assertGt(f.getOrElse(a, 0), sampleSize / d.size * (1 - maxError))
                 assertLt(f.getOrElse(a, 0), sampleSize / d.size * (1 + maxError))

@@ -18,7 +18,7 @@ final class IntegerPowersetDomainTest extends UnitTest {
     private val helper = new DomainTestHelper[IntegerSetValue](logger)
 
     @Test
-    def testBasics {
+    def testBasics: Unit = {
         val randomGenerator = new JavaRandomGenerator
 
         // base domains
@@ -169,7 +169,7 @@ final class IntegerPowersetDomainTest extends UnitTest {
 
     @Test
     @Ignore
-    def testSetOperations {
+    def testSetOperations: Unit = {
         // All operations forward to their counterparts in IntegerDomain.
         // Hence we skip the testing.
     }

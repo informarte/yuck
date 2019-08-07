@@ -67,7 +67,7 @@ abstract class NumericalObjective
             val costsAfterMove = rootObjective.costs(after)
             ! rootObjective.isHigherThan(costsAfterMove, costsBeforeTightenining)
         }
-        def propagateBound(d: NumericalDomain[Value]) {
+        def propagateBound(d: NumericalDomain[Value]): Unit = {
             val move = new ChangeValue(space.nextMoveId, x, if (minimize) d.ub else d.lb)
             space.consult(move)
             space.commit(move)

@@ -128,7 +128,7 @@ final class Cumulative
         val eventPoints = new java.util.ArrayList[EventPoint]
         rTree.forEach(
             new Consumer[RTreeEntry] {
-                override def accept(entry: RTreeEntry) {
+                override def accept(entry: RTreeEntry) = {
                     val bbox = entry.bbox
                     eventPoints.add(new EventPoint(bbox.x1, bbox, true))
                     eventPoints.add(new EventPoint(bbox.x2, bbox, false))
@@ -175,7 +175,7 @@ final class Cumulative
         rTree.intersects(
             new Rect2d(x1, 0, x2, 1),
             new Consumer[RTreeEntry] {
-                override def accept(entry: RTreeEntry) {
+                override def accept(entry: RTreeEntry) = {
                     val bbox = entry.bbox
                     val p1 = new EventPoint(max(x1, bbox.x1), bbox, true)
                     val p2 = new EventPoint(min(x2, bbox.x2), bbox, false)

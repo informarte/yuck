@@ -22,7 +22,7 @@ final class AnnealingScheduleSequence(
     private var i = 0
     private var progress = 0.0
 
-    override def nextRound(roundLog: RoundLog) {
+    override def nextRound(roundLog: RoundLog) = {
         require(! isFrozen)
         val child = children(i)
         val temperature = child.temperature
@@ -48,7 +48,7 @@ final class AnnealingScheduleSequence(
         children(i).numberOfMonteCarloAttempts
     }
 
-    override def start(temperature: Double, progress: Double) {
+    override def start(temperature: Double, progress: Double) = {
         i = 0
         this.progress = progress
         (children(0)).start(temperature, progress)

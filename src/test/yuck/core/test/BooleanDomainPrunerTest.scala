@@ -47,27 +47,27 @@ class BooleanDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testEqPruning {
+    def testEqPruning: Unit = {
         testPruning(BooleanDomainPruner.eq, (a, b) => a.truthValue == b.truthValue)
     }
 
     @Test
-    def testNePruning {
+    def testNePruning: Unit = {
         testPruning(BooleanDomainPruner.ne, (a, b) => a.truthValue != b.truthValue)
     }
 
     @Test
-    def testLePruning {
+    def testLePruning: Unit = {
         testPruning(BooleanDomainPruner.le, (a, b) => ! a.truthValue || b.truthValue)
     }
 
     @Test
-    def testLtPruning {
+    def testLtPruning: Unit = {
         testPruning(BooleanDomainPruner.lt, (a, b) => ! a.truthValue && b.truthValue)
     }
 
     @Test
-    def testLinEqPruning {
+    def testLinEqPruning: Unit = {
 
         type LinearCombination = List[(BooleanValue, BooleanDomain)]
         type State = (LinearCombination, BooleanDomain)
@@ -78,7 +78,7 @@ class BooleanDomainPrunerTest extends UnitTest {
             (lhs0.iterator.map(_._1).zip(lhs1.iterator).toList, rhs1)
         }
 
-        def checkPruning(u: State, v: State) {
+        def checkPruning(u: State, v: State): Unit = {
             assertEq(fixedPoint[State](linEq, u), v)
         }
 

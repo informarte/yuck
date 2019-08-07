@@ -16,7 +16,7 @@ import yuck.util.testing.UnitTest
 final class SingletonIntegerSetDomainTest extends UnitTest {
 
     @Test
-    def testBasics {
+    def testBasics: Unit = {
         val randomGenerator = new JavaRandomGenerator
 
         // set domains
@@ -84,7 +84,7 @@ final class SingletonIntegerSetDomainTest extends UnitTest {
     }
 
     @Test
-    def testSetOperations {
+    def testSetOperations: Unit = {
         val esd = new SingletonIntegerSetDomain(EmptyIntegerRange)
         val usd = new SingletonIntegerSetDomain(CompleteIntegerRange)
         assert(esd.isSubsetOf(esd))

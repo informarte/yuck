@@ -22,7 +22,7 @@ final class RTreeTransactionTest extends UnitTest {
     private val r2 = new Rect2d(1, 1, 2, 2)
 
     @Test
-    def testAdd {
+    def testAdd: Unit = {
         rTreeTransaction.add(r1)
         rTreeTransaction.add(r2)
         rTreeTransaction.commit
@@ -32,7 +32,7 @@ final class RTreeTransactionTest extends UnitTest {
     }
 
     @Test
-    def testRemove {
+    def testRemove: Unit = {
         rTree.add(r1)
         rTree.add(r2)
         rTreeTransaction.remove(r1)
@@ -43,7 +43,7 @@ final class RTreeTransactionTest extends UnitTest {
     }
 
     @Test
-    def testAddAndRemove {
+    def testAddAndRemove: Unit = {
         rTreeTransaction.add(r1)
         rTreeTransaction.add(r2)
         rTreeTransaction.remove(r1)
@@ -54,7 +54,7 @@ final class RTreeTransactionTest extends UnitTest {
     }
 
     @Test
-    def testRemoveAndAdd {
+    def testRemoveAndAdd: Unit = {
         rTree.add(r1)
         rTreeTransaction.remove(r1)
         rTreeTransaction.add(r1)
@@ -66,7 +66,7 @@ final class RTreeTransactionTest extends UnitTest {
     }
 
     @Test
-    def testRollback {
+    def testRollback: Unit = {
         rTree.add(r1)
         rTreeTransaction.remove(r1)
         rTreeTransaction.add(r2)

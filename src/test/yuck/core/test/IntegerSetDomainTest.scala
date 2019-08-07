@@ -21,7 +21,7 @@ final class IntegerSetDomainTest extends UnitTest {
     // * Test that set operations return instances of OrderedDomain[IntegerSetValue].
 
     @Test
-    def testEquality {
+    def testEquality: Unit = {
         assertEq(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain], new SingletonIntegerSetDomain(EmptyIntegerRange))
         assertNe(new SingletonIntegerSetDomain(PositiveIntegerRange).asInstanceOf[IntegerSetDomain], new SingletonIntegerSetDomain(NegativeIntegerRange))
         assertEq(new SingletonIntegerSetDomain(EmptyIntegerRange), new IntegerPowersetDomain(EmptyIntegerRange))
@@ -33,7 +33,7 @@ final class IntegerSetDomainTest extends UnitTest {
     // The ordering is implemented in IntegerSetDomain and works for all its subclasses,
     // so we test the ordering only once and here.
     @Test
-    def testOrdering {
+    def testOrdering: Unit = {
         val sampleSize = 8
         val randomGenerator = new JavaRandomGenerator
         val helper1 = new IntegerDomainTestHelper(randomGenerator, logger)
@@ -47,7 +47,7 @@ final class IntegerSetDomainTest extends UnitTest {
     }
 
     @Test
-    def testSubsetRelation {
+    def testSubsetRelation: Unit = {
         assert(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].isSubsetOf(new SingletonIntegerSetDomain(EmptyIntegerRange)))
         assert(! new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].isSubsetOf(new SingletonIntegerSetDomain(CompleteIntegerRange)))
         assert(new SingletonIntegerSetDomain(EmptyIntegerRange).isSubsetOf(CompleteIntegerSetDomain))
@@ -59,7 +59,7 @@ final class IntegerSetDomainTest extends UnitTest {
     }
 
     @Test
-    def testSetIntersectionRelation {
+    def testSetIntersectionRelation: Unit = {
         assert(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].intersects(new SingletonIntegerSetDomain(EmptyIntegerRange)))
         assert(! new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].intersects(new SingletonIntegerSetDomain(CompleteIntegerRange)))
         assert(new SingletonIntegerSetDomain(EmptyIntegerRange).intersects(CompleteIntegerSetDomain))
@@ -71,7 +71,7 @@ final class IntegerSetDomainTest extends UnitTest {
     }
 
     @Test
-    def testSetIntersection {
+    def testSetIntersection: Unit = {
         assertEx(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].intersect(new SingletonIntegerSetDomain(EmptyIntegerRange)))
         assertEx(new SingletonIntegerSetDomain(EmptyIntegerRange).intersect(CompleteIntegerSetDomain))
         assertEq(CompleteIntegerSetDomain.asInstanceOf[IntegerSetDomain].intersect(new IntegerPowersetDomain(EmptyIntegerRange)), new IntegerPowersetDomain(EmptyIntegerRange))
@@ -81,7 +81,7 @@ final class IntegerSetDomainTest extends UnitTest {
     }
 
     @Test
-    def testSetUnion {
+    def testSetUnion: Unit = {
         assertEx(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].union(new SingletonIntegerSetDomain(EmptyIntegerRange)))
         assertEx(new SingletonIntegerSetDomain(EmptyIntegerRange).union(CompleteIntegerSetDomain))
         assertEx(new IntegerPowersetDomain(NonPositiveIntegerRange).asInstanceOf[IntegerSetDomain].union(new IntegerPowersetDomain(NonNegativeIntegerRange)))
@@ -89,7 +89,7 @@ final class IntegerSetDomainTest extends UnitTest {
     }
 
     @Test
-    def testSetDifference {
+    def testSetDifference: Unit = {
         assertEx(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].diff(new SingletonIntegerSetDomain(EmptyIntegerRange)))
         assertEx(new SingletonIntegerSetDomain(EmptyIntegerRange).diff(CompleteIntegerSetDomain))
         assertEx(CompleteIntegerSetDomain.asInstanceOf[IntegerSetDomain].diff(CompleteIntegerSetDomain))
@@ -97,7 +97,7 @@ final class IntegerSetDomainTest extends UnitTest {
     }
 
     @Test
-    def testSymmetricalSetDifference {
+    def testSymmetricalSetDifference: Unit = {
         assertEx(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].symdiff(new SingletonIntegerSetDomain(EmptyIntegerRange)))
         assertEx(new SingletonIntegerSetDomain(EmptyIntegerRange).symdiff(CompleteIntegerSetDomain))
         assertEx(CompleteIntegerSetDomain.asInstanceOf[IntegerSetDomain].symdiff(CompleteIntegerSetDomain))

@@ -35,13 +35,13 @@ final class DomainInitializer
         }
     }
 
-    override def run {
+    override def run = {
         initializeDomains
         propagateAssignments
         propagateEqualityConstraints
     }
 
-    private def initializeDomains {
+    private def initializeDomains: Unit = {
         for (decl <- cc.ast.varDecls) {
             decl.varType match {
                 case ArrayType(Some(IntRange(1, n)), baseType) =>
@@ -67,7 +67,7 @@ final class DomainInitializer
         }
     }
 
-    private def propagateAssignments {
+    private def propagateAssignments: Unit = {
         for (decl <- cc.ast.varDecls) {
             decl.varType match {
                 case ArrayType(Some(IntRange(1, n)), _) =>
@@ -98,7 +98,7 @@ final class DomainInitializer
         }
     }
 
-    private def propagateAssignment(a: Expr, b: Expr) {
+    private def propagateAssignment(a: Expr, b: Expr): Unit = {
         val exprType = getExprType(a)
         checkTypeCompatibility(exprType, getExprType(b))
         exprType match {
@@ -132,7 +132,7 @@ final class DomainInitializer
         }
     }
 
-    private def propagateEqualityConstraints {
+    private def propagateEqualityConstraints: Unit = {
         for (constraint <- cc.ast.constraints if ! impliedConstraints.contains(constraint)) {
             constraint match {
                 case Constraint("bool_eq", List(a, b), _) if ! a.isConst && ! b.isConst =>
@@ -161,7 +161,8 @@ final class DomainInitializer
     private def propagateEquality
         [Value <: AnyValue]
         (a: Expr, b: Expr, d: Domain[Value])
-        (implicit valueTraits: ValueTraits[Value])
+        (implicit valueTraits: ValueTraits[Value]):
+        Unit =
     {
         val e = equalVars(a)
         val f = equalVars(b)
@@ -183,7 +184,8 @@ final class DomainInitializer
     private def reduceDomain
         [Value <: AnyValue]
         (a: Expr, d: Domain[Value])
-        (implicit valueTraits: ValueTraits[Value])
+        (implicit valueTraits: ValueTraits[Value]):
+        Unit =
     {
         if (d.isEmpty) {
             throw new yuck.flatzinc.compiler.DomainWipeOutException(a)

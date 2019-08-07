@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
 final class VariableTest extends UnitTest {
 
     @Test
-    def testEquality {
+    def testEquality: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
@@ -25,7 +25,7 @@ final class VariableTest extends UnitTest {
     }
 
     @Test
-    def testPruning {
+    def testPruning: Unit = {
         val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         assert(! x.pruneDomain(x.domain))
@@ -35,7 +35,7 @@ final class VariableTest extends UnitTest {
     }
 
     @Test
-    def testDomainRestoration {
+    def testDomainRestoration: Unit = {
         val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val backup1 = x.createDomainRestorer

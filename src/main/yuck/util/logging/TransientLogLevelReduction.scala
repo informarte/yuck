@@ -12,13 +12,13 @@ import yuck.util.arm.ManagedResource
  */
 final class TransientLogLevelReduction(logger: LazyLogger, logLevelReduction: Int = 0) extends ManagedResource {
 
-    override def open {
+    override def open = {
         if (logLevelReduction > 0) {
             logger.increaseLogLevelReduction(logLevelReduction)
         }
     }
 
-    override def close {
+    override def close = {
         if (logLevelReduction > 0) {
             logger.restoreLogLevelReduction
         }

@@ -12,12 +12,12 @@ final class TransientThreadRenaming(thread: Thread, name: String) extends Manage
 
     private var previousName = ""
 
-    override def open {
+    override def open = {
         previousName = thread.getName
         thread.setName(name)
     }
 
-    override def close {
+    override def close = {
         thread.setName(previousName)
     }
 

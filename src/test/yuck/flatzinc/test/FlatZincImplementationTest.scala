@@ -46,155 +46,155 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testAlldifferentWithEqualDomains {
+    def testAlldifferentWithEqualDomains: Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_equal_domains"))
         assert(neighbourhood(result).isInstanceOf[AlldistinctNeighbourhood[_]])
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testAlldifferentWithEqualDomainsAndMoreValuesThanVariables {
+    def testAlldifferentWithEqualDomainsAndMoreValuesThanVariables: Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_equal_domains_and_more_values_than_variables"))
         assert(neighbourhood(result).isInstanceOf[AlldistinctNeighbourhood[_]])
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testAlldifferentWithDifferentDomains {
+    def testAlldifferentWithDifferentDomains: Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_different_domains"))
         assert(neighbourhood(result).isInstanceOf[AlldistinctNeighbourhood[_]])
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testAlldifferentWithDifferentDomainsAndMoreValuesThanVariables {
+    def testAlldifferentWithDifferentDomainsAndMoreValuesThanVariables: Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_different_domains_and_more_values_than_variables"))
         assert(neighbourhood(result).isInstanceOf[AlldistinctNeighbourhood[_]])
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExcept0Constraint]))
-    def testAlldifferentExcept0 {
+    def testAlldifferentExcept0: Unit = {
         solve(task.copy(problemName = "alldifferent_except_0_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAtLeastConstraint]))
-    def testAtLeast {
+    def testAtLeast: Unit = {
         solve(task.copy(problemName = "at_least_int_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAtMostConstraint]))
-    def testAtMost {
+    def testAtMost: Unit = {
         solve(task.copy(problemName = "at_most_int_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
-    def testBinPacking {
+    def testBinPacking: Unit = {
         solve(task.copy(problemName = "bin_packing_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
-    def testBinPackingCapa {
+    def testBinPackingCapa: Unit = {
         solve(task.copy(problemName = "bin_packing_capa_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
-    def testBinPackingLoadWithUnboundedLoadVariables {
+    def testBinPackingLoadWithUnboundedLoadVariables: Unit = {
         solve(task.copy(problemName = "bin_packing_load_test_with_unbounded_load_variables"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
-    def testBinPackingLoadWithEqualLoadVariables {
+    def testBinPackingLoadWithEqualLoadVariables: Unit = {
         solve(task.copy(problemName = "bin_packing_load_test_with_equal_load_variables"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
-    def testBinPackingLoadWithDuplicateBinVariables {
+    def testBinPackingLoadWithDuplicateBinVariables: Unit = {
         solve(task.copy(problemName = "bin_packing_load_test_with_duplicate_bin_variables"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
-    def testCountEq {
+    def testCountEq: Unit = {
         solve(task.copy(problemName = "count_eq_var_test"))
         solve(task.copy(problemName = "count_eq_const_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
-    def testCountLeq {
+    def testCountLeq: Unit = {
         solve(task.copy(problemName = "count_leq_var_test"))
         solve(task.copy(problemName = "count_leq_const_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
-    def testCountLt {
+    def testCountLt: Unit = {
         solve(task.copy(problemName = "count_lt_var_test"))
         solve(task.copy(problemName = "count_lt_const_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
-    def testCountGeq {
+    def testCountGeq: Unit = {
         solve(task.copy(problemName = "count_geq_var_test"))
         solve(task.copy(problemName = "count_geq_const_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
-    def testCountGt {
+    def testCountGt: Unit = {
         solve(task.copy(problemName = "count_gt_var_test"))
         solve(task.copy(problemName = "count_gt_const_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
-    def testCountNeq {
+    def testCountNeq: Unit = {
         solve(task.copy(problemName = "count_neq_var_test"))
         solve(task.copy(problemName = "count_neq_const_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCumulativeConstraint]))
-    def testCumulative {
+    def testCumulative: Unit = {
         solve(task.copy(problemName = "cumulative_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
-    def testDiffnNonstrict {
+    def testDiffnNonstrict: Unit = {
         solve(task.copy(problemName = "diffn_nonstrict_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
-    def testDiffnStrict {
+    def testDiffnStrict: Unit = {
         solve(task.copy(problemName = "diffn_strict_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDisjunctiveConstraint]))
-    def testDisjunctiveNonstrict {
+    def testDisjunctiveNonstrict: Unit = {
         solve(task.copy(problemName = "disjunctive_nonstrict_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDisjunctiveConstraint]))
-    def testDisjunctiveStrict {
+    def testDisjunctiveStrict: Unit = {
         solve(task.copy(problemName = "disjunctive_strict_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
-    def testEmptyTableInt {
+    def testEmptyTableInt: Unit = {
         assertEx(
             solve(task.copy(problemName = "empty_table_int_test")),
             classOf[InconsistentProblemException])
@@ -202,58 +202,58 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasExactlyConstraint]))
-    def testExactly {
+    def testExactly: Unit = {
         solve(task.copy(problemName = "exactly_int_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
-    def testGlobalCardinality {
+    def testGlobalCardinality: Unit = {
         solve(task.copy(problemName = "global_cardinality_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
-    def testInverseWithBoundedSearchVariables {
+    def testInverseWithBoundedSearchVariables: Unit = {
         solve(task.copy(problemName = "inverse_test_with_bounded_search_variables"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
-    def testInverseWithUnboundedSearchVariables {
+    def testInverseWithUnboundedSearchVariables: Unit = {
         solve(task.copy(problemName = "inverse_test_with_unbounded_search_variables"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
-    def testInverseWithChannelVariables {
+    def testInverseWithChannelVariables: Unit = {
         solve(task.copy(problemName = "inverse_test_with_channel_variables"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
-    def testInverseWithUnrestrictedPairing {
+    def testInverseWithUnrestrictedPairing: Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_test_with_unrestricted_pairing"))
         assert(neighbourhood(result).isInstanceOf[SimpleInverseNeighbourhood])
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
-    def testInverseWithRestrictedPairing {
+    def testInverseWithRestrictedPairing: Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_test_with_restricted_pairing"))
         assert(neighbourhood(result).isInstanceOf[GeneralInverseNeighbourhood])
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
-    def testInverseWithOneFunction {
+    def testInverseWithOneFunction: Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_test_with_one_function"))
         assert(neighbourhood(result).isInstanceOf[SelfInverseNeighbourhood])
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
-    def testInverseDecomposition {
+    def testInverseDecomposition: Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_decomposition_test"))
         assert(neighbourhood(result).isInstanceOf[NeighbourhoodCollection])
         assert(neighbourhood(result).asInstanceOf[NeighbourhoodCollection].children.forall(_.isInstanceOf[SimpleInverseNeighbourhood]))
@@ -261,117 +261,117 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
-    def testLexLessBool {
+    def testLexLessBool: Unit = {
         solve(task.copy(problemName = "lex_less_bool_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
-    def testLexLessEqBool {
+    def testLexLessEqBool: Unit = {
         solve(task.copy(problemName = "lex_lesseq_bool_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMaximumConstraint]))
-    def testMaximum {
+    def testMaximum: Unit = {
         solve(task.copy(problemName = "maximum_int_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMinimumConstraint]))
-    def testMinimum {
+    def testMinimum: Unit = {
         solve(task.copy(problemName = "minimum_int_test"))
     }
 
     @Test
     @Category(Array(classOf[MaximizationProblem], classOf[HasNValueConstraint]))
-    def testNValue {
+    def testNValue: Unit = {
         solve(task.copy(problemName = "nvalue_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasRegularConstraint]))
-    def testRegular {
+    def testRegular: Unit = {
         solve(task.copy(problemName = "regular_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
-    def testRegularWithDuplicateInputVariables {
+    def testRegularWithDuplicateInputVariables: Unit = {
         solve(task.copy(problemName = "regular_test_with_duplicate_input_variables"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
-    def testTableInt {
+    def testTableInt: Unit = {
         solve(task.copy(problemName = "table_int_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
-    def testArrayAccessWhereResultMustEqualIndex {
+    def testArrayAccessWhereResultMustEqualIndex: Unit = {
         solve(task.copy(problemName = "array_access_where_result_must_equal_index"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
-    def testArrayAccessWhereIndexIsChannelVariable {
+    def testArrayAccessWhereIndexIsChannelVariable: Unit = {
         solve(task.copy(problemName = "array_access_where_index_is_channel_variable"))
     }
 
     @Test
     @Category(Array(classOf[MinimizationProblem]))
-    def testMinimizationOfSumWithNegativeAddends {
+    def testMinimizationOfSumWithNegativeAddends: Unit = {
         solve(task.copy(problemName = "minimization_of_sum_with_negative_addends"))
     }
 
     @Test
     @Category(Array(classOf[MinimizationProblem]))
-    def testMinimizationProblemWithBoundedDanglingObjectiveVariable {
+    def testMinimizationProblemWithBoundedDanglingObjectiveVariable: Unit = {
         solve(task.copy(problemName = "minimization_problem_with_bounded_dangling_objective_variable"))
     }
 
     @Test
     @Category(Array(classOf[MinimizationProblem]))
-    def testMinimizationProblemWithUnboundedDanglingObjectiveVariable {
+    def testMinimizationProblemWithUnboundedDanglingObjectiveVariable: Unit = {
         solve(task.copy(problemName = "minimization_problem_with_unbounded_dangling_objective_variable"))
     }
 
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint]))
-    def testMinimizationProblemWithImplicitlyConstrainedObjectiveVariable {
+    def testMinimizationProblemWithImplicitlyConstrainedObjectiveVariable: Unit = {
         val result = solveWithResult(task.copy(problemName = "minimization_problem_with_implicitly_constrained_objective_variable"))
         assertEq(result.asInstanceOf[AnnealingResult].consultationsPerMove, 0)
     }
 
     @Test
     @Category(Array(classOf[MaximizationProblem]))
-    def testMaximizationProblemWithBoundedDanglingObjectiveVariable {
+    def testMaximizationProblemWithBoundedDanglingObjectiveVariable: Unit = {
         solve(task.copy(problemName = "maximization_problem_with_bounded_dangling_objective_variable"))
     }
 
     @Test
     @Category(Array(classOf[MaximizationProblem]))
-    def testMaximizationProblemWithUnboundedDanglingObjectiveVariable {
+    def testMaximizationProblemWithUnboundedDanglingObjectiveVariable: Unit = {
         solve(task.copy(problemName = "maximization_problem_with_unbounded_dangling_objective_variable"))
     }
 
     @Test
     @Category(Array(classOf[MaximizationProblem], classOf[HasAlldifferentConstraint]))
-    def testMaximizationProblemWithImplicitlyConstrainedObjectiveVariable {
+    def testMaximizationProblemWithImplicitlyConstrainedObjectiveVariable: Unit = {
         val result = solveWithResult(task.copy(problemName = "maximization_problem_with_implicitly_constrained_objective_variable"))
         assertEq(result.asInstanceOf[AnnealingResult].consultationsPerMove, 0)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
-    def testProblemWithBoundedDanglingVariable {
+    def testProblemWithBoundedDanglingVariable: Unit = {
         solve(task.copy(problemName = "problem_with_bounded_dangling_variable"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
-    def testProblemWithUnboundedDanglingVariable {
+    def testProblemWithUnboundedDanglingVariable: Unit = {
         assertEx(
             solve(task.copy(problemName = "problem_with_unbounded_dangling_variable")),
             classOf[VariableWithInfiniteDomainException])
@@ -379,13 +379,13 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
-    def testProblemWithBoundedIrrelevantSearchVariable {
+    def testProblemWithBoundedIrrelevantSearchVariable: Unit = {
         solve(task.copy(problemName = "problem_with_bounded_irrelevant_search_variable"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
-    def testProblemWithUnboundedIrrelevantSearchVariable {
+    def testProblemWithUnboundedIrrelevantSearchVariable: Unit = {
         assertEx(
             solve(task.copy(problemName = "problem_with_unbounded_irrelevant_search_variable")),
             classOf[VariableWithInfiniteDomainException])
@@ -393,7 +393,7 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
-    def testProblemWithUnboundedRelevantSearchVariable {
+    def testProblemWithUnboundedRelevantSearchVariable: Unit = {
         assertEx(
             solve(task.copy(problemName = "problem_with_unbounded_relevant_search_variable")),
             classOf[VariableWithInfiniteDomainException])

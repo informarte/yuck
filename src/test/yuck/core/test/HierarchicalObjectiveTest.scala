@@ -22,7 +22,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
     private val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false)
 
     @Test
-    def testCostComparison {
+    def testCostComparison: Unit = {
         val a = new Assignment
         a.setValue(x, Zero)
         a.setValue(y, One)
@@ -37,7 +37,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testMoveAssessment {
+    def testMoveAssessment: Unit = {
         val a = new Assignment
         a.setValue(x, Zero)
         a.setValue(y, One)
@@ -66,7 +66,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testTightening {
+    def testTightening: Unit = {
         // check tightening of subordinate (maximization) objective
         // starting out from a nearly optimal but infeasible search state
         space

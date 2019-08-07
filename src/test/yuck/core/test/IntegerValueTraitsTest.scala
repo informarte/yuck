@@ -16,19 +16,19 @@ final class IntegerValueTraitsTest extends UnitTest {
     import IntegerValueTraits._
 
     @Test
-    def testSpecialValues {
+    def testSpecialValues: Unit = {
         assertEq(zero, Zero)
         assertEq(one, One)
     }
 
     @Test
-    def testSpecialDomains {
+    def testSpecialDomains: Unit = {
         assertEq(emptyDomain, EmptyIntegerRange)
         assertEq(completeDomain, CompleteIntegerRange)
     }
 
     @Test
-    def testDomainFactories {
+    def testDomainFactories: Unit = {
         assertEq(createDomain(Set()), EmptyIntegerRange)
         assertEq(createDomain(Set(Zero)), ZeroToZeroIntegerRange)
         assertEq(createDomain(Set(Zero, One)), ZeroToOneIntegerRange)
@@ -38,7 +38,7 @@ final class IntegerValueTraitsTest extends UnitTest {
     }
 
     @Test
-    def testVariableFactories {
+    def testVariableFactories: Unit = {
         val space = new Space(logger, sigint)
         val x = createVariable(space, "x", NonNegativeIntegerRange)
         val c = createChannel(space)
@@ -48,20 +48,20 @@ final class IntegerValueTraitsTest extends UnitTest {
     }
 
     @Test
-    def testValueCasting {
+    def testValueCasting: Unit = {
         assertEx(safeDowncast(False), classOf[ClassCastException])
         safeDowncast(Zero)
     }
 
     @Test
-    def testDomainCasting {
+    def testDomainCasting: Unit = {
         safeDowncast(EmptyIntegerRange)
         safeDowncast(EmptyIntegerRangeList)
         assertEx(safeDowncast(EmptyBooleanDomain), classOf[ClassCastException])
     }
 
     @Test
-    def testVariableCasting {
+    def testVariableCasting: Unit = {
         val space = new Space(logger, sigint)
         val b = space.createVariable("b", CompleteBooleanDecisionDomain)
         val i = space.createVariable("i", CompleteIntegerRange)
@@ -70,7 +70,7 @@ final class IntegerValueTraitsTest extends UnitTest {
     }
 
     @Test
-    def testConfiguration {
+    def testConfiguration: Unit = {
         assertEq(valueType, classOf[IntegerValue])
         assertEq(orderingCostModel, IntegerOrderingCostModel)
         assertEq(domainPruner, IntegerDomainPruner)

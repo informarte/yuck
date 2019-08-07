@@ -15,7 +15,7 @@ class OrderedValueTestHelper
     extends ValueTestHelper[Value]
 {
 
-    def testOrdering(testData: Seq[Value]) {
+    def testOrdering(testData: Seq[Value]): Unit = {
         val helper = new OrderingTestHelper[Value]
         val sortedTestData1 = helper.testOrdering(testData, valueTraits.valueOrdering)
         val ord = new Ordering[Value] {

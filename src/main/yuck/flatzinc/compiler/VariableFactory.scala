@@ -25,14 +25,14 @@ class VariableFactory
     private val arrays = cc.arrays
     private val space = cc.space
 
-    override def run {
+    override def run = {
         cc.ast.paramDecls.foreach(createParameter)
         cc.ast.varDecls.foreach(createVariable)
     }
 
     import HighPriorityImplicits._
 
-    private def createParameter(decl: ParamDecl) {
+    private def createParameter(decl: ParamDecl): Unit = {
         decl.paramType match {
             case BoolType =>
                 val x = compileExpr[BooleanValue](decl.value)
@@ -60,7 +60,7 @@ class VariableFactory
         }
     }
 
-    private def createVariable(decl: VarDecl) {
+    private def createVariable(decl: VarDecl): Unit = {
         decl.varType match {
             case BoolType =>
                 createVariable[BooleanValue](Term(decl.id, Nil))

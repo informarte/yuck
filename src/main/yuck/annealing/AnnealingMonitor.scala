@@ -7,7 +7,7 @@ import yuck.core.SolverMonitor
  *
  */
 class AnnealingMonitor extends SolverMonitor[AnnealingResult] {
-    def onNextRound(result: AnnealingResult) {}
-    def onReheatingStarted(result: AnnealingResult) {}
-    def onReheatingFinished(result: AnnealingResult) {}
+    def onNextRound(result: AnnealingResult): Unit = {}
+    def onReheatingStarted(result: AnnealingResult): Unit = {}
+    def onReheatingFinished(result: AnnealingResult): Unit = {}
 }

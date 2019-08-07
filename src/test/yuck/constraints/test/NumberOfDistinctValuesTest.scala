@@ -15,7 +15,7 @@ import yuck.util.testing.UnitTest
 final class NumberOfDistinctValuesTest extends UnitTest {
 
     @Test
-    def testNumberOfDistinctValues {
+    def testNumberOfDistinctValues: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(One, Two)
         val xs = for (i <- 1 to 3) yield space.createVariable("x[%d]".format(i), d)

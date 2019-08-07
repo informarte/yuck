@@ -17,7 +17,7 @@ import yuck.util.testing.UnitTest
 final class DisjunctionTest extends UnitTest {
 
     @Test
-    def testDisjunction {
+    def testDisjunction: Unit = {
         val space = new Space(logger, sigint)
         val d = CompleteBooleanDomain
         val s = new BooleanVariable(space.nextVariableId, "s", d)

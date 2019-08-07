@@ -34,14 +34,14 @@ final class LazyLogger(logger: Logger) {
     private var thresholdLogLevel: LogLevel = InfoLogLevel
 
     /** Sets the log level below which no messages will be logged. */
-    def setThresholdLogLevel(logLevel: LogLevel) {
+    def setThresholdLogLevel(logLevel: LogLevel): Unit = {
         this.thresholdLogLevel = logLevel
     }
 
     private var indent = "  "
 
     /** Sets the whitespace to indent one level; the default value is two spaces. */
-    def setIndent(indent: String) {
+    def setIndent(indent: String): Unit = {
         this.indent = indent
     }
 
@@ -58,12 +58,12 @@ final class LazyLogger(logger: Logger) {
     }
 
     /** Increases the indentation by one level. */
-    def increaseIndentation {
+    def increaseIndentation: Unit = {
         indentLevel.set(indentLevel.get + 1)
     }
 
     /** Decreases the indentation by one level. */
-    def decreaseIndentation {
+    def decreaseIndentation: Unit = {
         require(indentLevel.get > 0)
         indentLevel.set(indentLevel.get - 1)
     }
@@ -83,14 +83,14 @@ final class LazyLogger(logger: Logger) {
     }
 
     /** Increases dynamic log-level reduction by the given value. */
-    def increaseLogLevelReduction(reduction: Int) {
+    def increaseLogLevelReduction(reduction: Int): Unit = {
         require(reduction > 0)
         val stack = logLevelReductions.get
         stack.push(stack.peek + reduction)
     }
 
     /** Undoes the previous change to dynamic log-level reduction. */
-    def restoreLogLevelReduction {
+    def restoreLogLevelReduction: Unit = {
         val stack = logLevelReductions.get
         stack.pop
         assert(! stack.isEmpty)
@@ -100,25 +100,25 @@ final class LazyLogger(logger: Logger) {
     def currentLogLevelReduction: Int = logLevelReductions.get.peek
 
     /** Logs on InfoLogLevel - currentLogLevelReduction. */
-    def log(msg: => String) {
+    def log(msg: => String): Unit = {
         write(InfoLogLevel, msg)
     }
     /** Logs on FineLogLevel - currentLogLevelReduction. */
-    def logg(msg: => String) {
+    def logg(msg: => String): Unit = {
         write(FineLogLevel, msg)
     }
     /** Logs on FinerLogLevel - currentLogLevelReduction. */
-    def loggg(msg: => String) {
+    def loggg(msg: => String): Unit = {
         write(FinerLogLevel, msg)
     }
     /** Logs on FinestLogLevel - currentLogLevelReduction. */
-    def logggg(msg: => String) {
+    def logggg(msg: => String): Unit = {
         write(FinestLogLevel, msg)
     }
 
     // ConsoleHandler does not print anything when logging on level ALL!?
     // So we use level INFO.
-    private def write(logLevel: LogLevel, msg: => String) {
+    private def write(logLevel: LogLevel, msg: => String): Unit = {
         if (thresholdLogLevel.intValue <= logLevel.intValue - currentLogLevelReduction) {
             yuck.util.arm.criticalSection(lock)(logger.log(Level.INFO, currentIndent(indentLevel.get) + msg))
         }
