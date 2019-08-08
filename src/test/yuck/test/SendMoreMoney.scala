@@ -129,8 +129,8 @@ final class SendMoreMoney extends IntegrationTest {
         if (result.isSolution) {
             val modelData = result.maybeUserData.get.asInstanceOf[ModelData]
             assertEq(
-                modelData.LHS./:(0){case (y, (a, x)) => y + a * result.bestProposal.value(x).value},
-                modelData.RHS./:(0){case (y, (a, x)) => y + a * result.bestProposal.value(x).value})
+                modelData.LHS.foldLeft(0){case (y, (a, x)) => y + a * result.bestProposal.value(x).value},
+                modelData.RHS.foldLeft(0){case (y, (a, x)) => y + a * result.bestProposal.value(x).value})
         }
         assert(result.isSolution)
     }
