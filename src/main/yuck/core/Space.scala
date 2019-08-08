@@ -1,7 +1,7 @@
 package yuck.core
 
 import scala.collection._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import org.jgrapht.GraphPath
 import org.jgrapht.alg.interfaces.ShortestPathAlgorithm

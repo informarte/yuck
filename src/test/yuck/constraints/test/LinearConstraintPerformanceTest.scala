@@ -3,7 +3,7 @@ package yuck.constraints.test
 import org.junit._
 
 import scala.collection._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import yuck.constraints._
 import yuck.core._

@@ -1,9 +1,10 @@
 package yuck.util.testing
 
-import scala.collection.JavaConverters._
-import scala.collection._
-
 import java.util.concurrent.Callable
+
+import scala.collection._
+import scala.jdk.CollectionConverters._
+
 import yuck.util.logging.LazyLogger
 
 /**

@@ -3,7 +3,7 @@ package yuck.flatzinc.test
 import java.io.{File, FileFilter}
 
 import scala.collection._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import org.junit._
 

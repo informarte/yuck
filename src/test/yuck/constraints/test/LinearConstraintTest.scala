@@ -8,7 +8,7 @@ import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 
 import scala.collection._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import yuck.constraints._
 import yuck.core._
