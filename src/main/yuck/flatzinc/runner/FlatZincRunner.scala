@@ -86,10 +86,10 @@ object FlatZincRunner {
             .hidden()
             .action((x, cl) => cl.copy(fznFilePath = x))
         override def usageExample =
-            "%s <JVM option>* -- <Yuck option>* <FlatZinc file>".format(programName)
+            "%s <JVM option>* -- <Yuck option>* <FlatZinc file>".format("yuck")
     }
 
-    def main(args: Array[String]) {
+    def main(args: Array[String]): Unit = {
         val parser = new CommandLineParser
         val maybeCl = parser.parse(args, new CommandLine)
         if (maybeCl.isEmpty) {
@@ -120,7 +120,7 @@ object FlatZincRunner {
         }
     }
 
-    private def setupLogging(cl: CommandLine) {
+    private def setupLogging(cl: CommandLine): Unit = {
         try {
             trySetupLogging(cl)
         }
@@ -131,7 +131,7 @@ object FlatZincRunner {
         }
     }
 
-    private def trySetupLogging(cl: CommandLine) {
+    private def trySetupLogging(cl: CommandLine): Unit = {
         nativeLogger.setUseParentHandlers(false); // otherwise our console handler would remain unused
         val formatter = new yuck.util.logging.Formatter
         if (cl.logFilePath.isEmpty) {
@@ -162,7 +162,7 @@ object FlatZincRunner {
             throw error
     }
 
-    private def logVersion {
+    private def logVersion: Unit = {
         logger.withLogScope("Yuck version") {
             logger.log("Git branch: %s".format(BuildInfo.gitBranch))
             logger.log("Git commit hash: %s".format(BuildInfo.gitCommitHash))
@@ -181,7 +181,7 @@ object FlatZincRunner {
         }
     }
 
-    private def trySolve(cl: CommandLine, sigint: SettableSigint) {
+    private def trySolve(cl: CommandLine, sigint: SettableSigint): Unit = {
         logger.log("Processing %s".format(cl.fznFilePath))
         val ast =
             logger.withTimedLogScope("Parsing FlatZinc file") {

@@ -1,5 +1,7 @@
 package yuck.core.test
 
+import scala.Ordering.Double.TotalOrdering
+
 import org.junit._
 
 import yuck.core._
@@ -14,7 +16,7 @@ import yuck.util.testing.UnitTest
 final class ObjectiveTest extends UnitTest {
 
     @Test
-    def testMinimizationObjective {
+    def testMinimizationObjective: Unit = {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
         val x = new IntegerVariable(space.nextVariableId, "x", d)
@@ -64,7 +66,7 @@ final class ObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testMaximizationObjective {
+    def testMaximizationObjective: Unit = {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
         val x = new IntegerVariable(space.nextVariableId, "x", d)
@@ -112,7 +114,7 @@ final class ObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testHierarchicalObjective {
+    def testHierarchicalObjective: Unit = {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
         val x = new IntegerVariable(space.nextVariableId, "x", d)

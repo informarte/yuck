@@ -33,7 +33,7 @@ final class ProgressiveTighteningTest extends IntegrationTest {
 
     private final class TighteningCounter(val y: AnyVariable) extends StandardAnnealingMonitor(logger) {
         var n = 0
-        override def onObjectiveTightened(x: AnyVariable) {
+        override def onObjectiveTightened(x: AnyVariable): Unit = {
             super.onObjectiveTightened(x)
             assert(x == y)
             n += 1
@@ -56,7 +56,7 @@ final class ProgressiveTighteningTest extends IntegrationTest {
     }
 
     @Test
-    def testMinimizationWithProgressiveTightening {
+    def testMinimizationWithProgressiveTightening: Unit = {
         space.setValue(x, Nine).setValue(y, Nine)
         val objective =
             new HierarchicalObjective(
@@ -69,7 +69,7 @@ final class ProgressiveTighteningTest extends IntegrationTest {
     }
 
     @Test
-    def testMaximizationWithProgressiveTightening {
+    def testMaximizationWithProgressiveTightening: Unit = {
         space.setValue(x, Zero).setValue(y, Zero)
         val objective =
             new HierarchicalObjective(

@@ -127,7 +127,7 @@ final case class FlatZincAst(
                 elems
             } else {
                 val ArrayType(Some(IntRange(n, m)), _) = decl.varType
-                (n to m).toStream.map(i => ArrayAccess(id, IntConst(i)))
+                (n to m).to(LazyList).map(i => ArrayAccess(id, IntConst(i)))
             }
         case Term(id, Nil) if paramDeclsByName.contains(id) =>
             val ArrayConst(elems) = paramDeclsByName(id).value
@@ -204,6 +204,6 @@ final case class FlatZincAst(
     }
 
     final def involvedVariables(constraint: Constraint): immutable.Set[Expr] =
-        constraint.params.toIterator.map(involvedVariables).flatten.toSet
+        constraint.params.iterator.flatMap(involvedVariables).toSet
 
 }

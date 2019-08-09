@@ -58,11 +58,11 @@ final class RandomCircularSwapGenerator
     private val effects = for (i <- 1 until s) yield new ReusableEffect[Value]
     private val swaps = for (n <- 1 until s) yield effects.take(n)
     private val frequencyRestorers = for (i <- 1 until s) yield new FrequencyRestorer
-    @inline private def fillEffect(effect: ReusableEffect[Value], x: Variable[Value]) {
+    @inline private def fillEffect(effect: ReusableEffect[Value], x: Variable[Value]): Unit = {
         effect.x = x
         effect.a = space.searchState.value(x)
     }
-    private def swapValues(swap: IndexedSeq[ReusableEffect[Value]]) {
+    private def swapValues(swap: IndexedSeq[ReusableEffect[Value]]): Unit = {
         // x <- y <- z <- x
         val m = swap.size
         val a0 = swap(0).a

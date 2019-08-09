@@ -21,12 +21,12 @@ final class IntegerRangeTest extends UnitTest {
     private def createRange(a: Int, b: Int) = new IntegerRange(IntegerValue.get(a), IntegerValue.get(b))
 
     @Test
-    def testRepresentation {
+    def testRepresentation: Unit = {
         helper.testRepresentation((a, b) => new IntegerRange(a, b))
     }
 
     @Test
-    def testEquality {
+    def testEquality: Unit = {
         val testData =
             List(EmptyIntegerRange) ++ helper.specialInfiniteRanges ++ List(baseRange, createRange(0, 0), createRange(0, 9))
         helper.testEquality(testData)
@@ -40,7 +40,7 @@ final class IntegerRangeTest extends UnitTest {
     }
 
     @Test
-    def testOrdering {
+    def testOrdering: Unit = {
         val sampleSize = 32
         val testData =
             helper.createTestData( baseRange, sampleSize)
@@ -49,7 +49,7 @@ final class IntegerRangeTest extends UnitTest {
     }
 
     @Test
-    def testOperations {
+    def testOperations: Unit = {
         val sampleSize = 16
         val testData =
             helper.createTestData(baseRange, sampleSize)
@@ -59,7 +59,7 @@ final class IntegerRangeTest extends UnitTest {
     }
 
     @Test
-    def testRandomSubrangeCreation {
+    def testRandomSubrangeCreation: Unit = {
         val sampleSize = 1000
         val sample = new mutable.HashSet[IntegerRange]
         for (i <- 1 to sampleSize) {
@@ -71,7 +71,7 @@ final class IntegerRangeTest extends UnitTest {
     }
 
     @Test
-    def testMultiplication {
+    def testMultiplication: Unit = {
         assertEq(EmptyIntegerRange.mult(EmptyIntegerRange), EmptyIntegerRange)
         assertEq(EmptyIntegerRange.mult(createRange(1, 10)), EmptyIntegerRange)
         assertEq(createRange(1, 10).mult(EmptyIntegerRange), EmptyIntegerRange)
@@ -81,7 +81,7 @@ final class IntegerRangeTest extends UnitTest {
     }
 
     @Test
-    def testDivision {
+    def testDivision: Unit = {
         assertEq(EmptyIntegerRange.div(EmptyIntegerRange), EmptyIntegerRange)
         assertEq(EmptyIntegerRange.div(createRange(1, 10)), EmptyIntegerRange)
         assertEq(createRange(1, 10).div(EmptyIntegerRange), EmptyIntegerRange)

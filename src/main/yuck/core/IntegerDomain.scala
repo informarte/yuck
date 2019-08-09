@@ -216,7 +216,7 @@ final object IntegerDomain {
         else new IntegerRangeList(ranges.toIndexedSeq)
 
     /** Creates an integer domain from a given value set. */
-    def createDomain(values: TraversableOnce[IntegerValue]): IntegerDomain =
+    def createDomain(values: Iterable[IntegerValue]): IntegerDomain =
         if (values.isEmpty) {
             EmptyIntegerRange
         } else {

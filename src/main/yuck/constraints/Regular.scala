@@ -87,11 +87,11 @@ final class Regular
     override def outVariables = List(costs)
 
     private val x2i: immutable.Map[AnyVariable, Int] =
-        if (hasDuplicateVariables) null else xs.toIterator.zipWithIndex.toMap[AnyVariable, Int]
+        if (hasDuplicateVariables) null else xs.iterator.zipWithIndex.toMap[AnyVariable, Int]
     private val x2is: immutable.Map[AnyVariable, immutable.IndexedSeq[Int]] =
         if (hasDuplicateVariables) {
             xs
-            .toIterator
+            .iterator
             .zipWithIndex
             .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
                 case (map, (x, i)) =>
@@ -149,8 +149,8 @@ final class Regular
         //    Whenever we pass the first i in is, we remove it from is (by increasing j).
         // 3. In case some i is left in is (j < m), we continue with step 2.
         val is = {
-            val xs = move.involvedVariables.toIterator
-            val is0 = if (hasDuplicateVariables) xs.map(x2is).flatten else xs.map(x2i)
+            val xs = move.involvedVariables.iterator
+            val is0 = if (hasDuplicateVariables) xs.flatMap(x2is) else xs.map(x2i)
             is0.filter(_ <= currentFailurePosition).toBuffer.sorted
         }
         val m = is.size

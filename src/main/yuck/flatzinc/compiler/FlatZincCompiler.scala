@@ -107,7 +107,7 @@ final class FlatZincCompiler
 
     }
 
-    private def finishCompilation(cc: CompilationContext, runPresolver: Boolean) {
+    private def finishCompilation(cc: CompilationContext, runPresolver: Boolean): Unit = {
         run(new VariableFactory(cc, randomGenerator.nextGen))
         run(new VariableClassifier(cc, randomGenerator.nextGen))
         run(new ConstraintFactory(cc, randomGenerator.nextGen, sigint))
@@ -120,7 +120,7 @@ final class FlatZincCompiler
     }
 
     // Use the optional root log level to focus on a particular compilation phase.
-    private def run(phase: CompilationPhase, rootLogLevel: yuck.util.logging.LogLevel = yuck.util.logging.FineLogLevel) {
+    private def run(phase: CompilationPhase, rootLogLevel: yuck.util.logging.LogLevel = yuck.util.logging.FineLogLevel): Unit = {
         if (sigint.isSet) {
             throw new FlatZincCompilerInterruptedException
         }
@@ -139,7 +139,7 @@ final class FlatZincCompiler
         }
     }
 
-    private def assignValuesToDanglingVariables(cc: CompilationContext) {
+    private def assignValuesToDanglingVariables(cc: CompilationContext): Unit = {
         for ((key, x) <- cc.vars
              if cc.space.isDanglingVariable(x) && ! cc.space.searchState.hasValue(x))
         {

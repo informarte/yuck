@@ -2,8 +2,6 @@ package yuck.flatzinc.test.util
 
 import java.util.concurrent.Callable
 
-import scala.collection._
-
 import yuck.core._
 import yuck.flatzinc.ast._
 import yuck.flatzinc.compiler.FlatZincCompilerResult
@@ -101,7 +99,7 @@ class MiniZincSolutionVerifier(
         // after the last line.
         solutionWriter.write("include \"%s\";".format(mznFileName));
         solutionWriter.close
-        val minizincCommand = mutable.ArrayBuffer(
+        val minizincCommand = scala.collection.mutable.ArrayBuffer(
             "minizinc",
             "-v",
             // Tell minizinc where to find the MiniZinc model.
@@ -115,7 +113,7 @@ class MiniZincSolutionVerifier(
             "--statistics")
         minizincCommand += solutionFilePath
         if (! dznFileName.isEmpty) minizincCommand += "%s/%s".format(includePath, dznFileName)
-        val (outputLines, _) = new ProcessRunner(logger, minizincCommand).call
+        val (outputLines, _) = new ProcessRunner(logger, minizincCommand.toList).call
         val verified =
             ! outputLines.contains(FlatZincInconsistentProblemIndicator) &&
             checkObjective(outputLines)

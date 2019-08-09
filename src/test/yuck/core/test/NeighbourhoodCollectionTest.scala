@@ -29,7 +29,7 @@ class NeighbourhoodCollectionTest
         new NeighbourhoodTestHelper(logger, xs, moveSizeDistribution, maybeHotSpotDistribution, maybeFairChoiceRate)
 
     @Test
-    def testNeighbourhood {
+    def testNeighbourhood: Unit = {
         val neighbourhoods =
             for (i <- 0 until numberOfVariables) yield
                 new SimpleRandomReassignmentGenerator(space, Vector(xs(i)), randomGenerator)

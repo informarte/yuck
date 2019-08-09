@@ -22,14 +22,14 @@ class FenwickTree(val size: Int) {
     private val tree = new Array[Long](size + 1)
 
     // Throws when the given index is out-of-range.
-    private def checkIndex(i: Int) {
+    private def checkIndex(i: Int): Unit = {
         if (i < 1 || i > size) {
             throw new ArrayIndexOutOfBoundsException
         }
     }
 
     /** Clears the Fenwick tree. */
-    def clear {
+    def clear: Unit = {
         for (i <- 1 to size)
             tree(i) = 0
     }
@@ -38,7 +38,7 @@ class FenwickTree(val size: Int) {
     def prefixSum(__i: Int): Long = {
         var i = __i
         checkIndex(i)
-        var result = 0l
+        var result = 0L
         while (i > 0) {
             result = safeAdd(result, tree(i))
             i -= (i & -i)
@@ -55,7 +55,7 @@ class FenwickTree(val size: Int) {
     }
 
     /** Updates the value at the given index by adding the given delta to it. */
-    def addDelta(__i: Int, delta: Long) {
+    def addDelta(__i: Int, delta: Long): Unit = {
         var i = __i
         checkIndex(i)
         while (i <= size) {
@@ -104,7 +104,7 @@ class FenwickTree(val size: Int) {
     }
 
     /** Divides all values by the given scaling factor. */
-    def scale(f: Long) {
+    def scale(f: Long): Unit = {
         for (i <- size until 0 by -1) {
             addDelta(i, -value(i) / f)
         }

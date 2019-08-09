@@ -18,7 +18,7 @@ final class BooleanValueTest extends UnitTest {
     private val testData = testRange.map(BooleanValue.get)
 
     @Test
-    def testConstruction {
+    def testConstruction: Unit = {
         for (a <- testRange) {
             assertEq(new BooleanValue(a).violation, a)
         }
@@ -26,7 +26,7 @@ final class BooleanValueTest extends UnitTest {
     }
 
     @Test
-    def testSpecialValues {
+    def testSpecialValues: Unit = {
         assertEq(True.violation, 0)
         assertEq(False.violation, 1)
         assertEq(False2.violation, 2)
@@ -41,7 +41,7 @@ final class BooleanValueTest extends UnitTest {
     }
 
     @Test
-    def testValueFactory {
+    def testValueFactory: Unit = {
         for (a <- testRange) {
             assertEq(BooleanValue.get(a).violation, a)
             assert(BooleanValue.get(a).eq(BooleanValue.get(a)))
@@ -50,7 +50,7 @@ final class BooleanValueTest extends UnitTest {
     }
 
     @Test
-    def testEquality {
+    def testEquality: Unit = {
         helper.testEquality(testData)
         for (a <- testData) {
             val b = new BooleanValue(a.violation)
@@ -62,12 +62,12 @@ final class BooleanValueTest extends UnitTest {
     }
 
     @Test
-    def testOrdering {
+    def testOrdering: Unit = {
         helper.testOrdering(testData ++ testData)
     }
 
     @Test
-    def testOrderingCostModel {
+    def testOrderingCostModel: Unit = {
         val costModel = BooleanOrderingCostModel
         for (a <- testData) {
             for (b <- testData) {
@@ -80,7 +80,7 @@ final class BooleanValueTest extends UnitTest {
     }
 
     @Test
-    def testOverflowCheckingInCostComputation {
+    def testOverflowCheckingInCostComputation: Unit = {
         val costModel = BooleanOrderingCostModel
         costModel.eq(True, BooleanValue.get(Long.MaxValue - 1))
         assertEx(costModel.eq(True, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
@@ -93,7 +93,7 @@ final class BooleanValueTest extends UnitTest {
     }
 
     @Test
-    def testNumericalOperations {
+    def testNumericalOperations: Unit = {
         for (a <- testData) {
             for (b <- testData) {
                 assertEq((a + b).violation, a.violation + b.violation)
@@ -133,7 +133,7 @@ final class BooleanValueTest extends UnitTest {
     }
 
     @Test
-    def testOverflowCheckingInNumericalOperations {
+    def testOverflowCheckingInNumericalOperations: Unit = {
         BooleanValue.get(Long.MaxValue) + True
         assertEx(BooleanValue.get(Long.MaxValue) + False, classOf[ArithmeticException])
         True - True
@@ -149,7 +149,7 @@ final class BooleanValueTest extends UnitTest {
     }
 
     @Test
-    def testNegation {
+    def testNegation: Unit = {
         assertEq(False.not, True)
         assertEq(False2.not, True)
         assertEq(True.not, False)

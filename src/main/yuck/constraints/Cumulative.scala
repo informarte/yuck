@@ -62,7 +62,7 @@ final class Cumulative
             }
         }
 
-    override def inVariables = (0 until n).toIterator.map(variablesIterator).flatten ++ List(capacity).toIterator
+    override def inVariables = (0 until n).flatMap(variablesIterator) :+ capacity
     override def outVariables = List(costs)
 
     // Rectangles may be identical, so we use the index of originating task to distinguish them.
@@ -100,9 +100,8 @@ final class Cumulative
 
     private val x2is =
         (0 until n)
-        .toIterator
-        .map{case i => variablesIterator(i).map((_, i))}
-        .flatten
+        .iterator
+        .flatMap{case i => variablesIterator(i).map((_, i))}
         .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
             case (map, (x, i)) =>
                 val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])
@@ -115,8 +114,8 @@ final class Cumulative
     private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
     private val effect = effects.head
 
-    private var currentCosts = 0l
-    private var futureCosts = 0l
+    private var currentCosts = 0L
+    private var futureCosts = 0L
 
     private final class EventPoint(val x: Int, val bbox: Rect2d, val isBBoxStart: Boolean)
     private object EventPointOrdering extends Ordering[EventPoint] {
@@ -128,7 +127,7 @@ final class Cumulative
         val eventPoints = new java.util.ArrayList[EventPoint]
         rTree.forEach(
             new Consumer[RTreeEntry] {
-                override def accept(entry: RTreeEntry) {
+                override def accept(entry: RTreeEntry): Unit = {
                     val bbox = entry.bbox
                     eventPoints.add(new EventPoint(bbox.x1, bbox, true))
                     eventPoints.add(new EventPoint(bbox.x2, bbox, false))
@@ -137,7 +136,7 @@ final class Cumulative
         )
         eventPoints.sort(EventPointOrdering) // sort in place without copying (infeasible with Scala facilities)
         val n = eventPoints.size
-        var costs = 0l
+        var costs = 0L
         if (n > 0) {
             assert(n > 1)
             var sweepLinePos = eventPoints.get(0).x
@@ -175,7 +174,7 @@ final class Cumulative
         rTree.intersects(
             new Rect2d(x1, 0, x2, 1),
             new Consumer[RTreeEntry] {
-                override def accept(entry: RTreeEntry) {
+                override def accept(entry: RTreeEntry): Unit = {
                     val bbox = entry.bbox
                     val p1 = new EventPoint(max(x1, bbox.x1), bbox, true)
                     val p2 = new EventPoint(min(x2, bbox.x2), bbox, false)
@@ -201,7 +200,7 @@ final class Cumulative
         var sweepLinePos = eventPoints.get(0).x
         var i = 0
         var consumption = 0
-        var costDelta = 0l
+        var costDelta = 0L
         do {
             do {
                 val p = eventPoints.get(i)
@@ -259,7 +258,7 @@ final class Cumulative
         futureCosts = currentCosts
         val beforeCapacity = before.value(capacity).value
         val capacityChanged = move.involves(capacity)
-        val is = move.involvedVariables.toIterator.map(x2is.getOrElse(_, Nil)).flatten.to[mutable.Set]
+        val is = move.involvedVariables.iterator.flatMap(x2is.getOrElse(_, Nil)).to(mutable.Set)
         for (i <- is) {
             val beforeEntry = createRTreeEntry(i, before)
             val beforeBbox = beforeEntry.bbox

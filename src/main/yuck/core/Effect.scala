@@ -36,7 +36,7 @@ final class ReusableEffectWithFixedVariable
     override def anyValue = a
     override def setValue(assignment: Assignment) = assignment.setValue(x, a)
     override def clone = new ImmutableEffect(x, a)
-    def setNextRandomValue(searchState: SearchState, randomGenerator: RandomGenerator) {
+    def setNextRandomValue(searchState: SearchState, randomGenerator: RandomGenerator): Unit = {
         a = x.domain.nextRandomValue(randomGenerator, searchState.value(x))
     }
 }
@@ -55,7 +55,7 @@ final class ReusableEffect
     override def anyValue = a
     override def setValue(assignment: Assignment) = assignment.setValue(x, a)
     override def clone = new ImmutableEffect(x, a)
-    @inline def set(x: Variable[Value], a: Value) {
+    @inline def set(x: Variable[Value], a: Value): Unit = {
         this.x = x
         this.a = a
     }

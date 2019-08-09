@@ -25,12 +25,12 @@ final class ShutdownInProgressException(error: IllegalStateException) extends Ru
  */
 final class ManagedShutdownHook(shutdownAction: => Unit) extends ManagedResource {
 
-    private val stop = new SyncVar[Boolean]
+    private val stop = new java.util.concurrent.LinkedBlockingQueue[Boolean](1)
 
     private val shutdownHook =
         new Thread(
             new Runnable {
-                override def run {
+                override def run: Unit = {
                     shutdownAction
                     // The JVM will terminate right after running all shutdown hooks and finalizers.
                     // Hence we have to keep this thread running until close tells us that
@@ -40,7 +40,7 @@ final class ManagedShutdownHook(shutdownAction: => Unit) extends ManagedResource
             }
         )
 
-    override def open {
+    override def open: Unit = {
         // Here we register our shutdown hook with the JVM.
         // This will fail in case a JVM shutdown is already in progress.
         try {
@@ -51,7 +51,7 @@ final class ManagedShutdownHook(shutdownAction: => Unit) extends ManagedResource
         }
     }
 
-    override def close {
+    override def close: Unit = {
         // First we try to remove our shutdown hook.
         // This will fail in case a JVM shutdown is already in progress.
         try {

@@ -27,7 +27,7 @@ final class IntegerRangeListTest extends UnitTest {
     }
 
     @Test
-    def testRepresentation {
+    def testRepresentation: Unit = {
 
         helper.testRepresentation((a, b) => new IntegerRangeList(a, b))
         val List(a, b, c, d) = testData
@@ -117,7 +117,7 @@ final class IntegerRangeListTest extends UnitTest {
     }
 
     @Test
-    def testEquality {
+    def testEquality: Unit = {
         val testData =
             (List(EmptyIntegerRange, new IntegerRange(Zero, Nine)) ++ helper.specialInfiniteRanges ++ this.testData)
                 .map(IntegerDomain.ensureRangeList)
@@ -132,14 +132,14 @@ final class IntegerRangeListTest extends UnitTest {
     }
 
     @Test
-    def testOrdering {
+    def testOrdering: Unit = {
         val sampleSize = 16
         val testData = helper.createTestData(baseRange, sampleSize).map(IntegerDomain.ensureRangeList)
         helper.testOrdering(testData, IntegerRangeList.ordering)
     }
 
     @Test
-    def testOperations {
+    def testOperations: Unit = {
         val sampleSize = 8
         val testData = helper.createTestData(baseRange, sampleSize).map(IntegerDomain.ensureRangeList)
         val extendedBaseRange = new IntegerRange(baseRange.lb - One, baseRange.ub + One)
@@ -147,7 +147,7 @@ final class IntegerRangeListTest extends UnitTest {
     }
 
     @Test
-    def testRandomSubrangeCreation {
+    def testRandomSubrangeCreation: Unit = {
         val sampleSize = 1000
         val baseDomain = new IntegerRangeList(Vector(new IntegerRange(Zero, Four), new IntegerRange(Six, Nine)))
         val sample = new mutable.HashSet[IntegerRange]

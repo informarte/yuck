@@ -23,20 +23,20 @@ final class IntegerSetValueTest extends UnitTest {
         baseData.map(new IntegerSetValue(_))
 
     @Test
-    def testConstruction {
+    def testConstruction: Unit = {
         for (a <- baseData) {
             assertEq(new IntegerSetValue(a).set, a)
         }
     }
 
     @Test
-    def testSpecialValues {
+    def testSpecialValues: Unit = {
         assert(EmptyIntegerSetValue.set.isEmpty)
         assert(CompleteIntegerSetValue.set.isComplete)
     }
 
     @Test
-    def testEquality {
+    def testEquality: Unit = {
         helper.testEquality(testData)
         for (a <- testData) {
             val b = new IntegerSetValue(a.set)
@@ -48,12 +48,12 @@ final class IntegerSetValueTest extends UnitTest {
     }
 
     @Test
-    def testOrdering {
+    def testOrdering: Unit = {
         helper.testOrdering(testData ++ testData)
     }
 
     @Test
-    def testOrderingCostModel {
+    def testOrderingCostModel: Unit = {
         val costModel = IntegerSetOrderingCostModel
         for (a <- testData) {
             for (b <- testData) {

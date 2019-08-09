@@ -1,6 +1,7 @@
 package yuck.core
 
 import scala.collection.Iterator
+import scala.Ordering.Double.TotalOrdering
 import scala.math.max
 
 import IntegerDomain.createRange
@@ -48,7 +49,7 @@ final class IntegerRange
     override def hull = this
     override def values = {
         require(isFinite)
-        (lb.value to ub.value).toIterator.map(a => IntegerValue.get(a))
+        (lb.value to ub.value).view.map(a => IntegerValue.get(a))
     }
     override def singleValue = {
         require(isSingleton)

@@ -2,8 +2,6 @@ package yuck.constraints.test
 
 import org.junit._
 
-import scala.collection._
-
 import yuck.constraints._
 import yuck.core._
 import yuck.util.testing.UnitTest
@@ -17,7 +15,7 @@ import yuck.util.testing.UnitTest
 final class ElementTest extends UnitTest {
 
     @Test
-    def testElement {
+    def testElement: Unit = {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)

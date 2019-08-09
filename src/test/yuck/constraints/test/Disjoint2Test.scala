@@ -3,6 +3,7 @@ package yuck.constraints.test
 import org.junit._
 
 import scala.collection._
+import scala.language.existentials
 
 import yuck.constraints._
 import yuck.core._
@@ -24,20 +25,18 @@ final class Disjoint2Test extends UnitTest {
             new IntegerVariable(space.nextVariableId, "h%d".format(i), d))
 
     @Test
-    def testSearchVariables {
+    def testSearchVariables: Unit = {
         val space = new Space(logger)
-        val rects = (1 to 2).map(createRect(space, _, new IntegerRange(Zero, Nine)))
-        val Vector(r1, r2) = rects
+        val rects @ Vector(r1, r2) = (1 to 2).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
         assertEq(space.searchVariables, Set(r1.x, r1.y, r1.w, r1.h, r2.x, r2.y, r2.w, r2.h))
     }
 
     @Test
-    def testRectangleMovement {
+    def testRectangleMovement: Unit = {
         val space = new Space(logger)
-        val rects = (1 to 4).map(createRect(space, _, new IntegerRange(Zero, Nine)))
-        val Vector(r1, r2, r3, r4) = rects
+        val rects @ Vector(r1, r2, r3, r4) = (1 to 4).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         // initial conflict: r1 and r3 are identical, r3 overlaps with r1 and r2
         space
@@ -78,7 +77,7 @@ final class Disjoint2Test extends UnitTest {
     }
 
     @Test
-    def testRectangleResizing {
+    def testRectangleResizing: Unit = {
         val space = new Space(logger)
         val rects = (1 to 2).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val Vector(r1, r2) = rects
@@ -120,7 +119,7 @@ final class Disjoint2Test extends UnitTest {
     }
 
     @Test
-    def testSimultaneousRectangleMovementAndResizing {
+    def testSimultaneousRectangleMovementAndResizing: Unit = {
         val space = new Space(logger)
         val rects = (1 to 2).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val Vector(r1, r2) = rects
@@ -162,7 +161,7 @@ final class Disjoint2Test extends UnitTest {
     }
 
     @Test
-    def testHandlingOfAdjacentRectangles {
+    def testHandlingOfAdjacentRectangles: Unit = {
         val space = new Space(logger)
         val rects = (1 to 3).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val Vector(r1, r2, r3) = rects
@@ -178,7 +177,7 @@ final class Disjoint2Test extends UnitTest {
     }
 
     @Test
-    def testHandlingOfSharedVariables {
+    def testHandlingOfSharedVariables: Unit = {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
         val r1 = createRect(space, 1, d)
@@ -220,7 +219,7 @@ final class Disjoint2Test extends UnitTest {
     }
 
     @Test
-    def testConsultWithoutCommit {
+    def testConsultWithoutCommit: Unit = {
         val space = new Space(logger)
         val rects = (1 to 2).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val Vector(r1, r2) = rects
@@ -250,7 +249,7 @@ final class Disjoint2Test extends UnitTest {
     }
 
     @Test
-    def testNonStrictSemantics {
+    def testNonStrictSemantics: Unit = {
         val space = new Space(logger)
         val rects = (1 to 2).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val Vector(r1, r2) = rects
@@ -284,7 +283,7 @@ final class Disjoint2Test extends UnitTest {
     }
 
     @Test
-    def testRectangleMovementWithStrictSemantics {
+    def testRectangleMovementWithStrictSemantics: Unit = {
         val space = new Space(logger)
         val rects = (1 to 9).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val Vector(r1, r2, r3, r4, vl1, vl2, hl1, hl2, p1) = rects
@@ -420,7 +419,7 @@ final class Disjoint2Test extends UnitTest {
     }
 
     @Test
-    def testRectangleResizingWithStrictSemantics {
+    def testRectangleResizingWithStrictSemantics: Unit = {
         val space = new Space(logger)
         val rects = (1 to 3).map(createRect(space, _, new IntegerRange(Zero, Nine)))
         val Vector(r1, r2, r3) = rects

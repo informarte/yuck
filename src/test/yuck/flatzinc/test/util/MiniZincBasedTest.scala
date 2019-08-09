@@ -69,7 +69,7 @@ class MiniZincBasedTest extends IntegrationTest {
         mzn2fznCommand += mznFilePath
         if (! dznFilePath.isEmpty) mzn2fznCommand += dznFilePath
         logger.withTimedLogScope("Flattening MiniZinc model") {
-            new ProcessRunner(logger, mzn2fznCommand).call
+            new ProcessRunner(logger, mzn2fznCommand.toList).call
         }
         val cfg =
             task.solverConfiguration.copy(
@@ -135,7 +135,7 @@ class MiniZincBasedTest extends IntegrationTest {
         result
     }
 
-    private def logTask(task: MiniZincTestTask, ast: FlatZincAst) {
+    private def logTask(task: MiniZincTestTask, ast: FlatZincAst): Unit = {
         val problemType =
             ast.solveGoal match {
                 case Satisfy(_) => "SAT"
@@ -159,14 +159,14 @@ class MiniZincBasedTest extends IntegrationTest {
         jsonNodes += "task" -> JsObject(taskNodes.toMap)
     }
 
-    private def logVersion {
+    private def logVersion: Unit = {
         jsonNodes +=
           "yuck-version" -> JsObject(
               "gitBranch" -> JsString(BuildInfo.gitBranch),
               "gitCommitHash" -> JsString(BuildInfo.gitCommitHash))
     }
 
-    private def logFlatZincModelStatistics(ast: FlatZincAst) {
+    private def logFlatZincModelStatistics(ast: FlatZincAst): Unit = {
         jsonNodes +=
             "flatzinc-model-statistics" -> JsObject(
                 "number-of-predicate-declarations" -> JsNumber(ast.predDecls.size),
@@ -176,7 +176,7 @@ class MiniZincBasedTest extends IntegrationTest {
             )
     }
 
-    private def logYuckModelStatistics(space: Space) {
+    private def logYuckModelStatistics(space: Space): Unit = {
         jsonNodes +=
             "yuck-model-statistics" -> JsObject(
                 "number-of-search-variables" -> JsNumber(space.searchVariables.size),
@@ -187,7 +187,7 @@ class MiniZincBasedTest extends IntegrationTest {
             )
     }
 
-    private def logResult(result: Result) {
+    private def logResult(result: Result): Unit = {
         val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
         val resultNodes = new mutable.ArrayBuffer[JsField]
         resultNodes += "solved" -> JsBoolean(result.isSolution)
@@ -200,7 +200,7 @@ class MiniZincBasedTest extends IntegrationTest {
         jsonNodes += "result" -> JsObject(resultNodes.toMap)
     }
 
-    private def logSolverStatistics(monitor: StandardAnnealingMonitor) {
+    private def logSolverStatistics(monitor: StandardAnnealingMonitor): Unit = {
         if (monitor.wasSearchRequired) {
             jsonNodes +=
                 "solver-statistics" -> JsObject(
@@ -215,7 +215,7 @@ class MiniZincBasedTest extends IntegrationTest {
         }
     }
 
-    private def logViolatedConstraints(result: Result) {
+    private def logViolatedConstraints(result: Result): Unit = {
         val visited = new mutable.HashSet[AnyVariable]
         val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
         result.space.definingConstraint(compilerResult.costVar).get match {
@@ -227,7 +227,7 @@ class MiniZincBasedTest extends IntegrationTest {
     }
 
     private def logViolatedConstraints(
-        result: Result, x: AnyVariable, visited: mutable.Set[AnyVariable])
+        result: Result, x: AnyVariable, visited: mutable.Set[AnyVariable]): Unit =
     {
         val a = result.bestProposal.anyValue(x)
         if (! visited.contains(x)) {

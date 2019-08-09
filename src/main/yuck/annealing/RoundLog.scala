@@ -40,13 +40,13 @@ final class RoundLog(val roundIndex: Int) {
     var numberOfConsultations: Int = 0
     /** How often Constraint.commit was called. */
     var numberOfCommitments: Int = 0
-    def runtimeInSeconds: Double = scala.math.max(1l, runtimeInMillis).toDouble / 1000
+    def runtimeInSeconds: Double = scala.math.max(1L, runtimeInMillis).toDouble / 1000
     def movesPerSecond: Double = numberOfMonteCarloAttempts.toDouble / runtimeInSeconds
     def consultationsPerSecond: Double = numberOfConsultations.toDouble / runtimeInSeconds
     def consultationsPerMove: Double = numberOfConsultations.toDouble / numberOfMonteCarloAttempts
     def commitmentsPerSecond: Double = numberOfCommitments.toDouble / runtimeInSeconds
     def commitmentsPerMove: Double = numberOfCommitments.toDouble / numberOfMonteCarloAttempts
-    def updateAcceptanceRatio {
+    def updateAcceptanceRatio: Unit = {
         val numberOfAcceptedMoves = numberOfMonteCarloAttempts - numberOfRejectedMoves
         traditionalAcceptanceRatio = numberOfAcceptedMoves.toDouble / numberOfMonteCarloAttempts
         val numberOfProposedUphillMoves = numberOfAcceptedUphillMoves + numberOfRejectedMoves

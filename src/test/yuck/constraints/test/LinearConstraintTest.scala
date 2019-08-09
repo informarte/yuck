@@ -40,16 +40,16 @@ final class LinearConstraintTest
     private val axs = xs.map(AX(if (withUnitCoefficients) One else baseDomain.randomValue(randomGenerator), _))
 
     private def nonEmptyRandomSubdomain(d: IntegerDomain) =
-        Stream.continually(d).map(_.randomSubdomain(randomGenerator)).dropWhile(_.isEmpty).head
+        LazyList.continually(d).map(_.randomSubdomain(randomGenerator)).dropWhile(_.isEmpty).head
 
     @Test
-    def testSearchVariables {
+    def testSearchVariables: Unit = {
         LinearConstraint.postLinearConstraint(space, null, axs, relation, z, costs)
         assertEq(space.searchVariables, (xs :+ z).toSet)
     }
 
     @Test
-    def testPropagation {
+    def testPropagation: Unit = {
         class DomainPruner extends NumericalDomainPruner[IntegerValue] {
             override type DomainImpl = IntegerDomain
         }
@@ -107,7 +107,7 @@ final class LinearConstraintTest
     }
 
     @Test
-    def testConsultAndCommit {
+    def testConsultAndCommit: Unit = {
         val orderingCostModel = mock(classOf[OrderingCostModel[IntegerValue]], RETURNS_SMART_NULLS)
         implicit val valueTraits = mock(classOf[NumericalValueTraits[IntegerValue]], RETURNS_SMART_NULLS)
         when(valueTraits.orderingCostModel).thenReturn(orderingCostModel)

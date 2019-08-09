@@ -27,10 +27,10 @@ abstract class Constraint
     @inline final override def compare(that: Constraint) = this.id.compare(that.id)
 
     /** Returns the input variables. */
-    def inVariables: TraversableOnce[AnyVariable]
+    def inVariables: Iterable[AnyVariable]
 
     /** Returns the output variables. */
-    def outVariables: TraversableOnce[AnyVariable]
+    def outVariables: Iterable[AnyVariable]
 
     /**
      * Propgates the constraint by pruning the domains of its variables.
@@ -49,7 +49,7 @@ abstract class Constraint
      * Initializes the constraint's internal state according to the given search state
      * and returns values for all output variables by means of effects.
      */
-    def initialize(now: SearchState): TraversableOnce[AnyEffect]
+    def initialize(now: SearchState): Iterable[AnyEffect]
 
     /**
      * Assesses the impact of the given move on the constraint's output variables.
@@ -59,7 +59,7 @@ abstract class Constraint
      * @param move is the move to be assessed and involves only input variables of the constraint
      * that are affected by the move.
      */
-    def consult(before: SearchState, after: SearchState, move: Move): TraversableOnce[AnyEffect]
+    def consult(before: SearchState, after: SearchState, move: Move): Iterable[AnyEffect]
 
     /**
      * Performs the given move by adapting the constraint's internal state accordingly.
@@ -70,7 +70,7 @@ abstract class Constraint
      *
      * A call to commit will only happen after a call to consult.
      */
-    def commit(before: SearchState, after: SearchState, move: Move): TraversableOnce[AnyEffect] =
+    def commit(before: SearchState, after: SearchState, move: Move): Iterable[AnyEffect] =
         consult(before, after, move)
 
     /**

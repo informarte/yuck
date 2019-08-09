@@ -1,7 +1,6 @@
 package yuck.core.test
 
-import scala.collection._
-
+import scala.collection.mutable
 import org.junit._
 
 import yuck.core._
@@ -15,10 +14,10 @@ import yuck.util.testing.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class RandomGeneratorTest extends UnitTest {
 
-    private def testShuffling(shuffle: (RandomGenerator, IndexedSeq[Int]) => IndexedSeq[Int]): Unit = {
+    private def testShuffling(shuffle: (RandomGenerator, scala.collection.IndexedSeq[Int]) => scala.collection.IndexedSeq[Int]): Unit = {
         val n = 1000
         val m = 10
-        var data: IndexedSeq[Int] = mutable.ArrayBuffer.tabulate(m)(identity)
+        var data: scala.collection.IndexedSeq[Int] = mutable.ArrayBuffer.tabulate(m)(identity)
         val randomGenerator = new JavaRandomGenerator
         val numberOfChangedPositionsDistribution = new Array[Int](m + 1)
         for (i <- 1 to n) {
@@ -39,13 +38,13 @@ final class RandomGeneratorTest extends UnitTest {
     }
 
     @Test
-    def testEagerShuffling {
+    def testEagerShuffling: Unit = {
         testShuffling(
-            (randomGenerator, data) => randomGenerator.shuffle[Int, IndexedSeq, mutable.ArrayBuffer](data))
+            (randomGenerator, data) => randomGenerator.shuffle[Int, scala.collection.IndexedSeq, mutable.ArrayBuffer](data))
     }
 
     @Test
-    def testLazyShuffling {
+    def testLazyShuffling: Unit = {
         testShuffling(
             (randomGenerator, data) => {
                 val shuffledData = new mutable.ArrayBuffer[Int]

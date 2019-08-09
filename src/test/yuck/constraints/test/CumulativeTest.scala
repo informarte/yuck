@@ -2,6 +2,7 @@ package yuck.constraints.test
 
 import org.junit._
 
+import scala.language.existentials
 import scala.collection._
 
 import yuck.constraints._
@@ -23,28 +24,28 @@ final class CumulativeTest extends UnitTest {
             new IntegerVariable(space.nextVariableId, "d%d".format(i), d))
 
     @Test
-    def testSearchVariables {
+    def testSearchVariables: Unit = {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val tasks = (1 to 2).map(createTask(space, _, d))
-        val Vector(t1, t2) = tasks
+        val t1 = createTask(space, 1, d)
+        val t2 = createTask(space, 2, d)
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
+        space.post(new Cumulative(space.nextConstraintId, null, Vector(t1, t2), ub, costs))
         assertEq(space.searchVariables, Set(t1.s, t1.d, t1.c, t2.s, t2.d, t2.c, ub))
     }
 
     @Test
-    def testTaskMovement {
+    def testTaskMovement: Unit = {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val tasks = (1 to 2).map(createTask(space, _, d))
-        val Vector(t1, t2) = tasks
+        val t1 = createTask(space, 1, d)
+        val t2 = createTask(space, 2, d)
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         // initial conflict: two tasks with same start time exceed capacity
         space
-            .post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
+            .post(new Cumulative(space.nextConstraintId, null, Vector(t1, t2), ub, costs))
             .setValue(t1.s, Zero).setValue(t1.d, Three).setValue(t1.c, Two)
             .setValue(t2.s, Zero).setValue(t2.d, Four).setValue(t2.c, Three)
             .setValue(ub, Three)
@@ -83,11 +84,10 @@ final class CumulativeTest extends UnitTest {
     }
 
     @Test
-    def testTaskResizing {
+    def testTaskResizing: Unit = {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
-        val tasks = (1 to 2).map(createTask(space, _, d))
-        val Vector(t1, t2) = tasks
+        val tasks @ Vector(t1, t2) = (1 to 2).map(createTask(space, _, d))
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         // initial conflict: two tasks with same start time exceed capacity
@@ -151,7 +151,7 @@ final class CumulativeTest extends UnitTest {
     }
 
     @Test
-    def testCapacityChanges {
+    def testCapacityChanges: Unit = {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
         val tasks = (1 to 1).map(createTask(space, _, d))
@@ -187,7 +187,7 @@ final class CumulativeTest extends UnitTest {
     }
 
     @Test
-    def testHandlingOfDuplicateVariables {
+    def testHandlingOfDuplicateVariables: Unit = {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
@@ -227,7 +227,7 @@ final class CumulativeTest extends UnitTest {
     }
 
     @Test
-    def testConsultWithoutCommit {
+    def testConsultWithoutCommit: Unit = {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
         val tasks = (1 to 1).map(createTask(space, _, d))
@@ -259,7 +259,7 @@ final class CumulativeTest extends UnitTest {
     }
 
     @Test
-    def testComplexMoves {
+    def testComplexMoves: Unit = {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))

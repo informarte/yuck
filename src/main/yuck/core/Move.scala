@@ -5,14 +5,14 @@ package yuck.core
  *
  * @author Michael Marte
  */
-abstract class Move(val id: Id[Move]) extends Ordered[Move] with Traversable[AnyVariable] {
+abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVariable] {
 
     @inline final override def hashCode = id.hashCode
     override def toString = effects.toList.sortBy(_.anyVariable.id).mkString(", ")
     @inline final override def compare(that: Move) = this.id.compare(that.id)
 
     /** Returns the effects of the move. */
-    def effects: TraversableOnce[AnyEffect]
+    def effects: Iterable[AnyEffect]
 
     /** Returns true iff the move does not involve any variable. */
     override def isEmpty: Boolean = effects.isEmpty
@@ -20,11 +20,14 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Traversable[Any
     /** Returns the number of variables involved in the move. */
     override def size: Int = effects.size
 
+    /** Returns an iterator over the variables involved in the move */
+    override def iterator: Iterator[AnyVariable] = involvedVariables.iterator
+
     /** Iterates the variables of the move. */
     override def foreach[U](f: AnyVariable => U) = involvedVariables.foreach(f)
 
     /** Returns the variables involved in the move. */
-    def involvedVariables: TraversableOnce[AnyVariable] = effects.toIterator.map(_.anyVariable)
+    def involvedVariables: Iterable[AnyVariable] = effects.view.map(_.anyVariable)
 
     /** Returns true iff the given variable is involved in the move. */
     def involves(x: AnyVariable): Boolean = involvedVariables.exists(_ == x)
@@ -35,7 +38,7 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Traversable[Any
      * Throws when the given variable is not involved in the move.
      */
     def anyValue(x: AnyVariable): AnyValue =
-        effects.toIterator.filter(_.anyVariable == x).next.anyValue
+        effects.iterator.filter(_.anyVariable == x).next.anyValue
 
     /**
      * Returns None if the move does not involve the given variable x,

@@ -13,13 +13,13 @@ abstract class Distribution {
     val size: Int
 
     /** Sets all frequencies to 0. */
-    def clear
+    def clear: Unit
 
     /** Sets the frequency of the given index to the given value. */
-    def setFrequency(i: Int, f: Long)
+    def setFrequency(i: Int, f: Long): Unit
 
     /** Adds the given delta to the frequency of the given index. */
-    def addFrequencyDelta(i: Int, delta: Long)
+    def addFrequencyDelta(i: Int, delta: Long): Unit
 
     /** Returns the frequency associated with the given index. */
     def frequency(i: Int): Long
@@ -38,7 +38,7 @@ abstract class Distribution {
         if (i < 0 || i > size) {
             throw new ArrayIndexOutOfBoundsException
         }
-        var sum = 0l
+        var sum = 0L
         var j = 0
         while (j <= i) {sum = safeAdd(sum, frequency(j)); j += 1}
         sum
@@ -51,7 +51,7 @@ abstract class Distribution {
      */
     def inverseCdf(r: Long): Int = {
         require(r >= 0 && r < volume)
-        var sum = 0l
+        var sum = 0L
         var i = -1
         do {i += 1; sum = safeAdd(sum, frequency(i))} while (r >= sum)
         i

@@ -23,13 +23,13 @@ final class Element
     require(indexBase >= 0)
 
     override def toString = "%s = element(%s, [%s])".format(y, i, xs.mkString(", "))
-    override def inVariables = xs.toIterator ++ List(i).toIterator
+    override def inVariables = xs.view :+ i
     override def outVariables = List(y)
 
     private val effects = List(new ReusableEffectWithFixedVariable[Value](y))
     private val effect = effects.head
 
-    private def computeEffect(searchState: SearchState) {
+    private def computeEffect(searchState: SearchState): Unit = {
         // When i is a channel variable, the value of i may be out-of-bounds!
         // Nevertheless, we have to provide some value for y.
         val j = scala.math.min(scala.math.max(0, searchState.value(i).value - indexBase), xs.size - 1)
@@ -49,7 +49,7 @@ final class Element
                     di1.values.foldLeft(valueTraits.emptyDomain){case (u, i) => u.union(xs(i.value - indexBase).domain)})
             val di2 =
                 IntegerDomain.createDomain(
-                    di1.values.toIterator.filter(i => xs(i.value - indexBase).domain.intersects(dy1)).toSet)
+                    di1.values.iterator.filter(i => xs(i.value - indexBase).domain.intersects(dy1)).toSet)
             Variable.pruneDomains(i, di2, y, dy1)
         }
     }

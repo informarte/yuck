@@ -47,7 +47,7 @@ final class SolverTest extends UnitTest {
     }
 
     @Test
-    def testTimeboxingWithTimeout {
+    def testTimeboxingWithTimeout: Unit = {
         val sigint = new RevocableSigint
         val result = new Result("0", null, null, null)
         val solver = new GoodSolver(result, 1, sigint)
@@ -64,7 +64,7 @@ final class SolverTest extends UnitTest {
     }
 
     @Test
-    def testTimeboxingWithoutTimeout {
+    def testTimeboxingWithoutTimeout: Unit = {
         val sigint = new SettableSigint
         val result = new Result("0", null, null, null)
         val solver = new TimeboxedSolver(new GoodSolver(result, 0, sigint), 1, logger, sigint)
@@ -77,7 +77,7 @@ final class SolverTest extends UnitTest {
     }
 
     @Test
-    def testTimeboxingWithException {
+    def testTimeboxingWithException: Unit = {
         val sigint = new SettableSigint
         val solver = new TimeboxedSolver(new BadSolver, 1, logger, sigint)
         assertEx(solver.call, classOf[BadSolverException])
@@ -89,7 +89,7 @@ final class SolverTest extends UnitTest {
     }
 
     @Test
-    def testOnDemandGenerationWithResult {
+    def testOnDemandGenerationWithResult: Unit = {
         val sigint = new SettableSigint
         val result = new Result("0", null, null, null)
         val solverGenerator = new SolverGenerator {
@@ -108,7 +108,7 @@ final class SolverTest extends UnitTest {
     }
 
     @Test
-    def testOnDemandGenerationWithException {
+    def testOnDemandGenerationWithException: Unit = {
         val sigint = new SettableSigint
         val solverGenerator = new SolverGenerator {
             override def solverName = classOf[BadSolver].getSimpleName
@@ -124,7 +124,7 @@ final class SolverTest extends UnitTest {
     }
 
     @Test
-    def testParallelSolvingWithSolution {
+    def testParallelSolvingWithSolution: Unit = {
         val sigint = new RevocableSigint
         val objective = new MinimizationObjective(null, Zero, None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
@@ -149,7 +149,7 @@ final class SolverTest extends UnitTest {
     }
 
     @Test
-    def testParallelSolvingWithoutSolution {
+    def testParallelSolvingWithoutSolution: Unit = {
         val sigint = new RevocableSigint
         val objective = new MinimizationObjective(null, Zero, None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
@@ -171,7 +171,7 @@ final class SolverTest extends UnitTest {
     }
 
     @Test
-    def testParallelSolvingWithException {
+    def testParallelSolvingWithException: Unit = {
         val sigint = new RevocableSigint
         val objective = new MinimizationObjective(null, Zero, None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
@@ -193,7 +193,7 @@ final class SolverTest extends UnitTest {
 
     // Tests on-demand solver generation, parallel solving, timeboxing, and resumption after timeout
     @Test
-    def testPracticalSetting {
+    def testPracticalSetting: Unit = {
         val sigint = new RevocableSigint
         val objective = new MinimizationObjective(null, Zero, None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))

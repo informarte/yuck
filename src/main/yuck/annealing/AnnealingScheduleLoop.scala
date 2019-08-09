@@ -25,7 +25,7 @@ final class AnnealingScheduleLoop(
     private var numberOfSuccessiveFutileIterations = 0
     private var iterationWasFutile = true
 
-    override def nextRound(roundLog: RoundLog) {
+    override def nextRound(roundLog: RoundLog): Unit = {
         require(! isFrozen)
         if (roundLog.bestProposalWasImproved) {
             iterationWasFutile = false
@@ -61,7 +61,7 @@ final class AnnealingScheduleLoop(
      *
      * Ignores the given progress, so be careful when nesting loops!
      */
-    override def start(temperature: Double, progress: Double) {
+    override def start(temperature: Double, progress: Double): Unit = {
         numberOfSuccessiveFutileIterations = 0
         iterationWasFutile = true
         child.start(temperature, 1.0 / maximumNumberOfSuccessiveFutileIterations.toDouble)

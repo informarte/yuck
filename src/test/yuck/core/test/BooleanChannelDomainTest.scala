@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
 final class BooleanChannelDomainTest extends UnitTest {
 
     @Test
-    def testEverything {
+    def testEverything: Unit = {
         val randomGenerator = new JavaRandomGenerator
         val d = BooleanChannelDomain
         assertEq(d, d)

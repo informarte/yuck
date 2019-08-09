@@ -16,19 +16,19 @@ final class IntegerSetValueTraitsTest extends UnitTest {
     import IntegerSetValueTraits._
 
     @Test
-    def testSpecialDomains {
+    def testSpecialDomains: Unit = {
         assertEx(emptyDomain)
         assertEq(completeDomain, CompleteIntegerSetDomain)
     }
 
     @Test
-    def testDomainFactories {
+    def testDomainFactories: Unit = {
         assertEx(createDomain(Set()))
         assertEx(createDomain(EmptyIntegerSetValue, CompleteIntegerSetValue))
     }
 
     @Test
-    def testVariableFactories {
+    def testVariableFactories: Unit = {
         val space = new Space(logger)
         val dx = new IntegerPowersetDomain(NonNegativeIntegerRange)
         val x = createVariable(space, "x", dx)
@@ -39,20 +39,20 @@ final class IntegerSetValueTraitsTest extends UnitTest {
     }
 
     @Test
-    def testValueCasting {
+    def testValueCasting: Unit = {
         assertEx(safeDowncast(Zero), classOf[ClassCastException])
         safeDowncast(new IntegerSetValue(CompleteIntegerRange))
     }
 
     @Test
-    def testDomainCasting {
+    def testDomainCasting: Unit = {
         safeDowncast(new SingletonIntegerSetDomain(CompleteIntegerRange))
         safeDowncast(new IntegerPowersetDomain(CompleteIntegerRange))
         assertEx(safeDowncast(CompleteIntegerRange), classOf[ClassCastException])
     }
 
     @Test
-    def testVariableCasting {
+    def testVariableCasting: Unit = {
         val space = new Space(logger)
         val b = space.createVariable("b", CompleteBooleanDecisionDomain)
         val s = space.createVariable("s", new IntegerPowersetDomain(CompleteIntegerRange))
@@ -61,7 +61,7 @@ final class IntegerSetValueTraitsTest extends UnitTest {
     }
 
     @Test
-    def testConfiguration {
+    def testConfiguration: Unit = {
         assertEq(valueType, classOf[IntegerSetValue])
         assertEq(orderingCostModel, IntegerSetOrderingCostModel)
         assertEq(domainPruner, IntegerSetDomainPruner)

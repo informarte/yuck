@@ -3,7 +3,7 @@ package yuck.flatzinc.test
 import java.io.{File, FileFilter}
 
 import scala.collection._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import org.junit._
 
@@ -21,10 +21,7 @@ import yuck.flatzinc.test.util._
 final class MiniZincBenchmarks(task: MiniZincTestTask) extends MiniZincBasedTest {
 
     @Test
-    def solve {
-        super.solve(task)
-    }
-
+    def solve: Unit = super.solve(task)
 }
 
 /**

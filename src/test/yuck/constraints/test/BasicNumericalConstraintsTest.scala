@@ -17,7 +17,7 @@ import yuck.util.testing.UnitTest
 final class BasicNumericalConstraintsTest extends UnitTest {
 
     @Test
-    def testPlus {
+    def testPlus: Unit = {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
         val s = new IntegerVariable(space.nextVariableId, "s", d)

@@ -50,7 +50,7 @@ final class RandomReassignmentGenerator
     private val s = moveSizeDistribution.size
     private val effectsByMoveSize = for (n <- 1 until s) yield new Array[AnyEffect](n)
     private val frequencyRestorers = for (i <- 1 until s) yield new FrequencyRestorer
-    @inline private def fillEffect(effects: Array[AnyEffect], i: Int, x: AnyVariable) {
+    @inline private def fillEffect(effects: Array[AnyEffect], i: Int, x: AnyVariable): Unit = {
         effects.update(i, x.nextRandomEffect(space, randomGenerator))
     }
 

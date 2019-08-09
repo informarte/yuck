@@ -31,11 +31,11 @@ final class LinearConstraint
         "sum([%s], %s, %s, %s)".format(
             (if (as == null) xs else for ((a, x) <- as.zip(xs)) yield AX(a, x)).mkString(", "),
             relation, z, costs)
-    override def inVariables = xs.toIterator ++ Iterator.single(z)
+    override def inVariables = xs :+ z
     override def outVariables = List(costs)
 
     private val x2i: immutable.Map[AnyVariable, Int] =
-        if (as == null) null else new immutable.HashMap[AnyVariable, Int] ++ (xs.toIterator.zipWithIndex)
+        if (as == null) null else new immutable.HashMap[AnyVariable, Int] ++ (xs.iterator.zipWithIndex)
 
     private var currentSum = valueTraits.zero
     private var futureSum = valueTraits.zero
@@ -46,13 +46,13 @@ final class LinearConstraint
     private def propagate1: Boolean = {
         // An Iterable does not compare other sequences, so we have to use a Seq to facilitate mocking.
         val lhs0 = new Seq[(Value, NumericalDomain[Value])] {
-            override def iterator = (0 until xs.size).toIterator.map(apply)
+            override def iterator = (0 until xs.size).iterator.map(apply)
             override def length = xs.size
             override def apply(i: Int) = (if (as == null) valueTraits.one else as(i), xs(i).domain)
         }
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.linEq(lhs0, rhs0)
-        Variable.pruneDomains(xs.toIterator.zip(lhs1.toIterator)) ||| y.pruneDomain(rhs1)
+        Variable.pruneDomains(xs.view.zip(lhs1.view)) ||| y.pruneDomain(rhs1)
     }
 
     // Propagates y relation z.
@@ -144,8 +144,8 @@ final object LinearConstraint {
         (implicit valueTraits: NumericalValueTraits[Value]):
         Constraint =
     {
-        val as = if (axs.forall(ax => ax.a == valueTraits.one)) null else axs.toIterator.map(_.a).toIndexedSeq
-        val xs = axs.toIterator.map(_.x).toIndexedSeq
+        val as = if (axs.forall(ax => ax.a == valueTraits.one)) null else axs.iterator.map(_.a).toIndexedSeq
+        val xs = axs.iterator.map(_.x).toIndexedSeq
         val y = valueTraits.createChannel(space)
         val constraint = new LinearConstraint(space.nextConstraintId, goal, as, xs, y, relation, z, costs)
         space.post(constraint)

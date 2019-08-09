@@ -18,6 +18,6 @@ abstract class AnyEffect extends Cloneable[AnyEffect] {
     override def toString = (anyVariable -> anyValue).toString
 
     /** Changes the given assignment such that it maps the variable to the value. */
-    def setValue(assignment: Assignment)
+    def setValue(assignment: Assignment): Unit
 
 }

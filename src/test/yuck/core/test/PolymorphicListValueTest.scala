@@ -16,7 +16,7 @@ final class PolymorphicListValueTest extends UnitTest {
     private type PLV = PolymorphicListValue
 
     @Test
-    def testComparison {
+    def testComparison: Unit = {
         val nil = new PLV(Nil)
         assertNe(nil, null)
         assertNe(nil, False)

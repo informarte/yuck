@@ -90,7 +90,7 @@ final object Variable {
      */
     def pruneDomains
         [Value <: AnyValue]
-        (xds: TraversableOnce[(Variable[Value], Domain[Value])]):
+        (xds: Iterable[(Variable[Value], Domain[Value])]):
         Boolean =
     {
         xds.foldLeft(false){case (z, (x, dx)) => z ||| x.pruneDomain(dx)}

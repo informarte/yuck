@@ -27,7 +27,7 @@ final class FlatZincAstTest extends UnitTest {
             solveGoal = Satisfy(Nil))
 
     @Test
-    def testGetArrayElems {
+    def testGetArrayElems: Unit = {
         assertEq(
             ast.getArrayElems(ArrayConst(List(BoolConst(true), BoolConst(false)))).toList,
             List(BoolConst(true), BoolConst(false)))
@@ -45,7 +45,7 @@ final class FlatZincAstTest extends UnitTest {
     }
 
     @Test
-    def testInvolvedVariables {
+    def testInvolvedVariables: Unit = {
 
         assertEq(
             ast.involvedVariables(BoolConst(false)),

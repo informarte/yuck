@@ -17,7 +17,7 @@ import yuck.util.testing.UnitTest
 final class LinearCombinationTest extends UnitTest {
 
     @Test
-    def testLinearCombination {
+    def testLinearCombination: Unit = {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, new IntegerValue(100))
         val x1 = new IntegerVariable(space.nextVariableId, "x1", d)

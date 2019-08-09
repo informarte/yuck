@@ -1,7 +1,8 @@
 package yuck.core
 
-import scala.collection._
-import scala.collection.JavaConverters._
+import scala.collection
+import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 import org.jgrapht.GraphPath
 import org.jgrapht.alg.interfaces.ShortestPathAlgorithm
@@ -42,19 +43,19 @@ final class Space(
     // the value of a given variable.
     private type InflowModel = mutable.AnyRefMap[AnyVariable, mutable.HashSet[Constraint]]
     private val inflowModel = new InflowModel // maintained by post
-    private def registerInflow(x: AnyVariable, constraint: Constraint) {
+    private def registerInflow(x: AnyVariable, constraint: Constraint): Unit = {
         inflowModel += x -> (inflowModel.getOrElse(x, new mutable.HashSet[Constraint]) += constraint)
     }
 
     /** Returns the set of constraints directly affected by changing the value of the given variable. */
-    @inline def directlyAffectedConstraints(x: AnyVariable): Set[Constraint] =
+    @inline def directlyAffectedConstraints(x: AnyVariable): collection.Set[Constraint] =
         inflowModel.getOrElse(x, Set.empty)
 
     // The outflow model allows to find out which constraint, if any, computes the value of a
     // given variable.
     private type OutflowModel = mutable.AnyRefMap[AnyVariable, Constraint]
     private val outflowModel = new OutflowModel // maintained by post
-    private def registerOutflow(x: AnyVariable, constraint: Constraint) {
+    private def registerOutflow(x: AnyVariable, constraint: Constraint): Unit = {
         outflowModel += x -> constraint
     }
 
@@ -67,7 +68,7 @@ final class Space(
     private case class ConstraintEdge(val from: AnyVariable, val to: AnyVariable, val constraint: Constraint)
     private type FlowModel = DirectedAcyclicGraph[AnyVariable, ConstraintEdge]
     private var flowModel: FlowModel = null // maintained by post and discarded by initialize
-    private def addToFlowModel(constraint: Constraint) {
+    private def addToFlowModel(constraint: Constraint): Unit = {
         if (isCyclic(constraint)) {
             throw new CyclicConstraintNetworkException(constraint)
         }
@@ -84,14 +85,14 @@ final class Space(
             }
         }
     }
-    private def removeFromFlowModel(constraint: Constraint) {
+    private def removeFromFlowModel(constraint: Constraint): Unit = {
         for (x <- constraint.inVariables) {
             for (y <- constraint.outVariables) {
                 flowModel.removeEdge(ConstraintEdge(x, y, constraint))
             }
         }
     }
-    private def rebuildFlowModel {
+    private def rebuildFlowModel: Unit = {
         require(flowModel == null)
         flowModel = new FlowModel(classOf[ConstraintEdge])
         constraints.foreach(addToFlowModel)
@@ -99,7 +100,7 @@ final class Space(
 
     private type ConstraintOrder = Array[Int]
     private var constraintOrder: ConstraintOrder = null // created by initialize
-    private def sortConstraintsTopologically {
+    private def sortConstraintsTopologically: Unit = {
         require(constraintOrder == null)
         val constraintGraph = new DefaultDirectedGraph[Constraint, DefaultEdge](classOf[DefaultEdge])
         for (constraint <- constraints) {
@@ -112,7 +113,7 @@ final class Space(
                 }
             }
         }
-        constraintOrder = new ConstraintOrder(constraints.toIterator.map(_.id).max.rawId + 1)
+        constraintOrder = new ConstraintOrder(constraints.iterator.map(_.id).max.rawId + 1)
         // The topological ordering exists because it was possible to build the flow model.
         for ((constraint, i) <- new TopologicalOrderIterator[Constraint, DefaultEdge](constraintGraph).asScala.zipWithIndex) {
             constraintOrder.update(constraint.id.rawId, i)
@@ -163,7 +164,7 @@ final class Space(
      * register all of them, otherwise the result of consultation will not provide the
      * effects on the variables that were not registered.
      */
-    def registerObjectiveVariable(x: AnyVariable) {
+    def registerObjectiveVariable(x: AnyVariable): Unit = {
         if (! objectiveVariables.contains(x)) {
             objectiveVariables.add(x)
         }
@@ -184,20 +185,20 @@ final class Space(
     def searchState: SearchState = assignment
 
     /** Computes the set of problem parameters. */
-    def problemParameters: Set[AnyVariable] = inVariables.filter(_.domain.isSingleton)
+    def problemParameters: collection.Set[AnyVariable] = inVariables.filter(_.domain.isSingleton)
 
     /** Decides whether the given variable is a problem parameter. */
     def isProblemParameter(x: AnyVariable): Boolean =
         x.domain.isSingleton && inVariables.contains(x) && ! outVariables.contains(x)
 
     /** Returns the set of channel variables. */
-    def channelVariables: Set[AnyVariable] = outVariables
+    def channelVariables: collection.Set[AnyVariable] = outVariables
 
     /** Decides whether the given variable is a channel variable. */
     def isChannelVariable(x: AnyVariable): Boolean = outVariables.contains(x)
 
     /** Computes the set of search variables. */
-    def searchVariables: Set[AnyVariable] = inVariables.filter(! _.domain.isSingleton) -- outVariables
+    def searchVariables: collection.Set[AnyVariable] = inVariables.filter(! _.domain.isSingleton) -- outVariables
 
     /** Decides whether the given variable is a search variable. */
     def isSearchVariable(x: AnyVariable): Boolean =
@@ -213,13 +214,13 @@ final class Space(
      *
      * Copes with cycles in the constraint network.
      */
-    def involvedSearchVariables(x: AnyVariable): Set[AnyVariable] = {
+    def involvedSearchVariables(x: AnyVariable): collection.Set[AnyVariable] = {
         val result = new mutable.HashSet[AnyVariable]
         addInvolvedSearchVariables(x, result, new mutable.HashSet[AnyVariable])
         result
     }
     private def addInvolvedSearchVariables(
-        x: AnyVariable, result: mutable.Set[AnyVariable], visited: mutable.Set[AnyVariable])
+        x: AnyVariable, result: mutable.Set[AnyVariable], visited: mutable.Set[AnyVariable]): Unit =
     {
         if (! visited.contains(x)) {
             visited += x
@@ -236,14 +237,14 @@ final class Space(
      *
      * Copes with cycles in the constraint network.
      */
-    def involvedSearchVariables(constraint: Constraint): Set[AnyVariable] = {
+    def involvedSearchVariables(constraint: Constraint): collection.Set[AnyVariable] = {
         val result = new mutable.HashSet[AnyVariable]
         val visited = new mutable.HashSet[AnyVariable]
         addInvolvedSearchVariables(constraint, result, visited)
         result
     }
     private def addInvolvedSearchVariables(
-        constraint: Constraint, result: mutable.Set[AnyVariable], visited: mutable.Set[AnyVariable])
+        constraint: Constraint, result: mutable.Set[AnyVariable], visited: mutable.Set[AnyVariable]): Unit =
     {
         for (x <- constraint.inVariables) {
             if (isSearchVariable(x)) {
@@ -259,13 +260,13 @@ final class Space(
      *
      * Copes with cycles in the constraint network.
      */
-    def involvedConstraints(x: AnyVariable): Set[Constraint] = {
+    def involvedConstraints(x: AnyVariable): collection.Set[Constraint] = {
         val result = new mutable.HashSet[Constraint]
         addInvolvedConstraints(x, result, new mutable.HashSet[AnyVariable])
         result
     }
     private def addInvolvedConstraints(
-        x: AnyVariable, result: mutable.Set[Constraint], visited: mutable.Set[AnyVariable])
+        x: AnyVariable, result: mutable.Set[Constraint], visited: mutable.Set[AnyVariable]): Unit =
     {
         if (! visited.contains(x)) {
             visited += x
@@ -298,22 +299,22 @@ final class Space(
         }
 
     /** Looks for a cycle that the given constraint would add to the constraint network. */
-    def findHypotheticalCycle(constraint: Constraint): Option[Seq[Constraint]] =
+    def findHypotheticalCycle(constraint: Constraint): Option[collection.Seq[Constraint]] =
         if (isCyclic(constraint)) Some(List(constraint))
         else if (constraints.isEmpty) None
         else {
             val spalg = new DijkstraShortestPath[AnyVariable, ConstraintEdge](flowModel)
-            constraint.outVariables.toIterator.map(x => findPath(spalg, x, constraint))
+            constraint.outVariables.iterator.map(x => findPath(spalg, x, constraint))
                 .collectFirst{case Some(path) => path.getEdgeList.asScala.map(_.constraint).+=:(constraint)}
         }
 
     private def isCyclic(constraint: Constraint): Boolean =
-        constraint.outVariables.exists(constraint.inVariables.toIterator.contains(_))
+        constraint.outVariables.exists(constraint.inVariables.iterator.contains(_))
 
     private def findPath
         (spalg: ShortestPathAlgorithm[AnyVariable, ConstraintEdge], from: AnyVariable, to: Constraint):
         Option[GraphPath[AnyVariable, ConstraintEdge]] =
-        to.inVariables.toIterator.map(x => findPath(spalg, from, x)).collectFirst{case Some(path) => path}
+        to.inVariables.iterator.map(x => findPath(spalg, from, x)).collectFirst{case Some(path) => path}
     private def findPath
         (spalg: ShortestPathAlgorithm[AnyVariable, ConstraintEdge], from: AnyVariable, to: AnyVariable):
         Option[GraphPath[AnyVariable, ConstraintEdge]] =
@@ -330,7 +331,7 @@ final class Space(
             ! constraint.outVariables.exists(outVariables.contains(_)),
             "%s shares out-variables with the following constraints:\n%s".format(
                 constraint,
-                constraints.filter(_.outVariables.exists(constraint.outVariables.toIterator.contains(_))).mkString("\n")))
+                constraints.filter(_.outVariables.exists(constraint.outVariables.iterator.contains(_))).mkString("\n")))
         if (flowModel == null) {
             // This is the first call to post or initialize was called before.
             rebuildFlowModel
@@ -389,7 +390,7 @@ final class Space(
         if (constraintOrder == null) {
             sortConstraintsTopologically
         }
-        for (constraint <- constraints.toIterator.filterNot(isImplicitConstraint).toBuffer.sorted(ConstraintOrdering)) {
+        for (constraint <- constraints.iterator.filterNot(isImplicitConstraint).toBuffer.sorted(ConstraintOrdering)) {
             constraint.initialize(assignment).foreach(_.setValue(assignment))
             numberOfInitializations += 1
         }
@@ -415,7 +416,7 @@ final class Space(
         require(constraintOrder != null, "Call initialize after posting the last constraint")
         protected val diff = new BulkMove(move.id)
         private val diffs = new java.util.TreeMap[Constraint, BulkMove](ConstraintOrdering)
-        private def propagateEffect(effect: AnyEffect) {
+        private def propagateEffect(effect: AnyEffect): Unit = {
             if (assignment.anyValue(effect.anyVariable) != effect.anyValue) {
                 val affectedConstraints = directlyAffectedConstraints(effect.anyVariable)
                 for (constraint <- affectedConstraints) {
@@ -432,8 +433,8 @@ final class Space(
             }
         }
         protected def processConstraint(
-            constraint: Constraint, before: SearchState, after: SearchState, move: Move): TraversableOnce[AnyEffect]
-        protected def recordEffect(effect: AnyEffect)
+            constraint: Constraint, before: SearchState, after: SearchState, move: Move): Iterable[AnyEffect]
+        protected def recordEffect(effect: AnyEffect): Unit
         def run: Move = {
             move.effects.foreach(propagateEffect)
             while (! diffs.isEmpty) {
@@ -461,7 +462,7 @@ final class Space(
                 constraint.consult(before, after, move)
             }
         }
-        override protected def recordEffect(effect: AnyEffect) {
+        override protected def recordEffect(effect: AnyEffect): Unit = {
             if (objectiveVariables.isEmpty || objectiveVariables.contains(effect.anyVariable)) {
                 diff += effect
             }
@@ -536,7 +537,7 @@ final class Space(
             }
         }
 
-        override protected def recordEffect(effect: AnyEffect) {
+        override protected def recordEffect(effect: AnyEffect): Unit = {
             diff += effect
         }
         private def checkedCommit(

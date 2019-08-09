@@ -11,7 +11,7 @@ final object BooleanValueTraits extends NumericalValueTraits[BooleanValue] {
     override val zero = True
     override val one = False
     override def createDomain(values: Set[BooleanValue]) = {
-        require(values.isEmpty || values.toIterator.map(_.violation).max < 2)
+        require(!values.exists(_.violation >= 2))
         BooleanDecisionDomain.createDomain(values.contains(False), values.contains(True))
     }
     override def createDomain(lb: BooleanValue, ub: BooleanValue) =

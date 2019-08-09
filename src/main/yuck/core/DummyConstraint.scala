@@ -6,8 +6,8 @@ package yuck.core
  */
 final class DummyConstraint
     (id: Id[Constraint],
-     override val inVariables: Traversable[AnyVariable],
-     override val outVariables: Traversable[AnyVariable])
+     override val inVariables: Iterable[AnyVariable],
+     override val outVariables: Iterable[AnyVariable])
     extends Constraint(id, null)
 {
     override def initialize(now: SearchState) = Nil

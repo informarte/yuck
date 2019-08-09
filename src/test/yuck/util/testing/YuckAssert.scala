@@ -8,43 +8,41 @@ import org.junit.Assert
  */
 trait YuckAssert {
 
-    protected def assert(b: Boolean) {
-        Assert.assertTrue(b)
-    }
+    protected def assert(b: Boolean): Unit = Assert.assertTrue(b)
 
-    protected def assertEq[T](a: T, b: T) {
+    protected def assertEq[T](a: T, b: T): Unit = {
         Assert.assertTrue("%s (testee) != %s".format(a, b), a == b)
         if (a != null && b != null) {
             Assert.assertTrue("%s.hashcode (testee) != %s.hashcode".format(a, b), a.hashCode == b.hashCode)
         }
     }
 
-    protected def assertNe[T](a: T, b: T) {
+    protected def assertNe[T](a: T, b: T): Unit = {
         Assert.assertTrue("%s (testee) == %s".format(a, b), a != b)
     }
 
-    protected def assertLe[T](a: T, b: T)(implicit ord: Ordering[T]) {
+    protected def assertLe[T](a: T, b: T)(implicit ord: Ordering[T]): Unit = {
         Assert.assertTrue("%s (testee) > %s".format(a, b), ord.compare(a, b) <= 0)
     }
 
-    protected def assertLt[T](a: T, b: T)(implicit ord: Ordering[T]) {
+    protected def assertLt[T](a: T, b: T)(implicit ord: Ordering[T]): Unit = {
         Assert.assertTrue("%s (testee) >= %s".format(a, b), ord.compare(a, b) < 0)
     }
 
-    protected def assertGe[T](a: T, b: T)(implicit ord: Ordering[T]) {
+    protected def assertGe[T](a: T, b: T)(implicit ord: Ordering[T]): Unit = {
         Assert.assertTrue("%s (testee) < %s".format(a, b), ord.compare(a, b) >= 0)
     }
 
-    protected def assertGt[T](a: T, b: T)(implicit ord: Ordering[T]) {
+    protected def assertGt[T](a: T, b: T)(implicit ord: Ordering[T]): Unit = {
         Assert.assertTrue("%s (testee) <= %s".format(a, b), ord.compare(a, b) > 0)
     }
 
     /** Expects an IllegalArgumentException. */
-    protected def assertEx(operation: => Unit) {
+    protected def assertEx(operation: => Unit): Unit = {
         assertEx(operation, classOf[IllegalArgumentException])
     }
 
-    protected def assertEx(operation: => Unit, expectedExceptionType: Class[_ <: Throwable]) {
+    protected def assertEx(operation: => Unit, expectedExceptionType: Class[_ <: Throwable]): Unit = {
         var failed = true
         try {
             operation

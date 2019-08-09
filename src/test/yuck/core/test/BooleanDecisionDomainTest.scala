@@ -18,7 +18,7 @@ final class BooleanDecisionDomainTest extends UnitTest {
     private val testData2 = List(EmptyBooleanDomain, FalseDomain, TrueDomain, CompleteBooleanDecisionDomain)
 
     @Test
-    def testBasics {
+    def testBasics: Unit = {
         val randomGenerator = new JavaRandomGenerator
         for ((f, t) <- testData1) {
             val d = new BooleanDecisionDomain(f, t)
@@ -69,7 +69,7 @@ final class BooleanDecisionDomainTest extends UnitTest {
     }
 
     @Test
-    def testEquality {
+    def testEquality: Unit = {
         helper.testEquality(testData2)
         for (a <- testData2) {
             val b = new BooleanDecisionDomain(a.containsFalse, a.containsTrue)
@@ -81,12 +81,12 @@ final class BooleanDecisionDomainTest extends UnitTest {
     }
 
     @Test
-    def testOrdering {
+    def testOrdering: Unit = {
         helper.testOrdering(testData2, BooleanDecisionDomain.ordering)
     }
 
     @Test
-    def testSetOperations {
+    def testSetOperations: Unit = {
         for ((f1, t1) <- testData1) {
             val d1 = new BooleanDecisionDomain(f1, t1)
             for ((f2, t2) <- testData1) {

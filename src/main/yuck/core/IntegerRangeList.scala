@@ -51,7 +51,7 @@ final class IntegerRangeList
     override def hull: IntegerRange = if (ranges.size == 1) ranges.head else createRange(lb, ub)
     override def values = {
         require(isFinite)
-        ranges.toIterator.flatMap(_.values)
+        ranges.view.flatMap(_.values)
     }
     override def singleValue = {
         require(isSingleton)
@@ -232,7 +232,7 @@ final object IntegerRangeList {
 
     /** A lexicographic ordering on the underlying range lists. */
     val ordering = new Ordering[IntegerRangeList] {
-        val rangeListOrdering = createLexicographicOrderingForTraversableOnce(IntegerRange.ordering)
+        val rangeListOrdering = createLexicographicOrderingForIterable(IntegerRange.ordering)
         override def compare(lhs: IntegerRangeList, rhs: IntegerRangeList) =
             rangeListOrdering.compare(lhs.ranges, rhs.ranges)
     }
@@ -267,7 +267,7 @@ final object IntegerRangeList {
         else isSubsetOf(lhs, i, rhs, j + 1)
 
     @tailrec
-    private def intersect(lhs: IntegerRangeList, i: Int, rhs: IntegerRangeList, j: Int, buf: mutable.Buffer[IntegerRange]) {
+    private def intersect(lhs: IntegerRangeList, i: Int, rhs: IntegerRangeList, j: Int, buf: mutable.Buffer[IntegerRange]): Unit = {
         if (i == lhs.ranges.size) {}
         else if (j == rhs.ranges.size) {}
         else {
@@ -321,7 +321,7 @@ final object IntegerRangeList {
         }
 
     @tailrec
-    private def diff(lhs: IntegerRangeList, i: Int, rhs: IntegerRangeList, j: Int, buf: mutable.Buffer[IntegerRange]) {
+    private def diff(lhs: IntegerRangeList, i: Int, rhs: IntegerRangeList, j: Int, buf: mutable.Buffer[IntegerRange]): Unit = {
         if (i == lhs.ranges.size) {
         }
         else {
@@ -364,8 +364,8 @@ final object IntegerRangeList {
     }
 
     @tailrec
-    private def union(lhs: IntegerRangeList, i: Int, rhs: IntegerRangeList, j: Int, buf: mutable.Buffer[IntegerRange]) {
-        def addRange(u: IntegerRange) {
+    private def union(lhs: IntegerRangeList, i: Int, rhs: IntegerRangeList, j: Int, buf: mutable.Buffer[IntegerRange]): Unit = {
+        def addRange(u: IntegerRange): Unit = {
             if (buf.isEmpty) {
                 buf += u
             } else {

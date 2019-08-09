@@ -61,7 +61,7 @@ final class Inverse
     override def toString =
         "inverse([%s], %d, [%s], %d, %s)".format(
             f.xs.mkString(", "), f.offset, g.xs.mkString(", "), g.offset, costs)
-    override def inVariables = f.xs.toIterator ++ g.xs.toIterator
+    override def inVariables = f.xs.view ++ g.xs.view
     override def outVariables = List(costs)
 
     private val effects = List(new ReusableEffectWithFixedVariable[BooleanValue](costs))
@@ -82,17 +82,17 @@ final class Inverse
         import IntegerDomain.createRange
         val p =
             Variable.pruneDomains(
-                for (i <- f.indexRange.toIterator;
+                for (i <- f.indexRange;
                      x = f.xs(i - f.offset);
                      dx = x.domain;
                      di = createRange(IntegerValue.get(i), IntegerValue.get(i));
-                     j <- g.indexDomain.diff(dx).values.toIterator.map(_.value);
+                     j <- g.indexDomain.diff(dx).values.view.map(_.value);
                      y = g.xs(j - g.offset))
                 yield
                     (y, y.domain.diff(di)))
         val q =
             Variable.pruneDomains(
-                for (i <- f.indexRange.toIterator;
+                for (i <- f.indexRange.view;
                      x = f.xs(i - f.offset);
                      dx = x.domain;
                      if dx.isSingleton;
@@ -233,10 +233,10 @@ final class Inverse
                     g.xs.forall(x => x.domain == f.indexDomain))
                 {
                     // simplest case
-                    for ((x, j) <- f.xs.toIterator.zip(g.indexRange.toIterator)) {
+                    for ((x, j) <- f.xs.iterator.zip(g.indexRange.iterator)) {
                         space.setValue(x, IntegerValue.get(j))
                     }
-                    for ((y, i) <- g.xs.toIterator.zip(f.indexRange.toIterator)) {
+                    for ((y, i) <- g.xs.iterator.zip(f.indexRange.iterator)) {
                         space.setValue(y, IntegerValue.get(i))
                     }
                     space.setValue(costs, True)
@@ -274,10 +274,10 @@ final class Inverse
                         solver.call
                     }
                     if (result.isSolution) {
-                        for ((x, subx) <- f.xs.toIterator.zip(subf.xs.toIterator)) {
+                        for ((x, subx) <- f.xs.iterator.zip(subf.xs.iterator)) {
                             space.setValue(x, subspace.searchState.value(subx))
                         }
-                        for ((y, suby) <- g.xs.toIterator.zip(subg.xs.toIterator)) {
+                        for ((y, suby) <- g.xs.iterator.zip(subg.xs.iterator)) {
                             space.setValue(y, subspace.searchState.value(suby))
                         }
                         space.setValue(costs, True)
@@ -452,7 +452,7 @@ final class GeneralInverseNeighbourhood
                 y1
                 .domain
                 .values
-                .toIterator
+                .iterator
                 .map(_.value - f.offset)
                 .filter(i2 => i2 != i1)
                 .filter(

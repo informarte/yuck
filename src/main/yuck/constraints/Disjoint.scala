@@ -27,7 +27,7 @@ abstract class Disjoint
 {
 
     protected def variablesIterator(i: Int): Iterator[IntegerVariable]
-    final override def inVariables = (0 until n).toIterator.map(variablesIterator).flatten
+    final override def inVariables = (0 until n).view.map(variablesIterator).flatten
     final override def outVariables = List(costs)
 
     protected type BBox <: HyperRect[_]
@@ -40,15 +40,14 @@ abstract class Disjoint
     private var rTree: SpatialSearch[RTreeEntry] = null
     private var rTreeTransaction: RTreeTransaction[RTreeEntry] = null
 
-    private var currentCosts = 0l
-    private var futureCosts = 0l
+    private var currentCosts = 0L
+    private var futureCosts = 0L
     protected def computeOverlap(e1: RTreeEntry, e2: RTreeEntry): Long
 
     private val x2is =
         (0 until n)
-        .toIterator
-        .map{case i => variablesIterator(i).map((_, i))}
-        .flatten
+        .iterator
+        .flatMap{case i => variablesIterator(i).map((_, i))}
         .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
             case (map, (x, i)) =>
                 val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])
@@ -64,13 +63,13 @@ abstract class Disjoint
     final override def initialize(now: SearchState) = {
         rTree = SpatialSearches.rTree[RTreeEntry](rectBuilder)
         rTreeTransaction = new RTreeTransaction[RTreeEntry](rTree, rectBuilder)
-        currentCosts = 0l
+        currentCosts = 0L
         for (i <- 0 until n) {
             val newEntry = createRTreeEntry(i, now)
             rTree.intersects(
                 newEntry.bbox,
                 new Consumer[RTreeEntry] {
-                    override def accept(intersectingEntry: RTreeEntry) {
+                    override def accept(intersectingEntry: RTreeEntry): Unit = {
                         currentCosts =
                             safeAdd(currentCosts, computeOverlap(newEntry, intersectingEntry))
                     }
@@ -86,14 +85,14 @@ abstract class Disjoint
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         rTreeTransaction.rollback
         futureCosts = currentCosts
-        val is = move.involvedVariables.toIterator.map(x2is).flatten.to[mutable.Set]
+        val is = move.involvedVariables.iterator.flatMap(x2is).to(mutable.Set)
         for (i <- is) {
             val beforeEntry = createRTreeEntry(i, before)
             rTreeTransaction.remove(beforeEntry)
             rTreeTransaction.intersects(
                 beforeEntry.bbox,
                 new Consumer[RTreeEntry] {
-                    override def accept(intersectingEntry: RTreeEntry) {
+                    override def accept(intersectingEntry: RTreeEntry): Unit = {
                         futureCosts -= computeOverlap(beforeEntry, intersectingEntry)
                     }
                 }
@@ -102,7 +101,7 @@ abstract class Disjoint
             rTreeTransaction.intersects(
                 afterEntry.bbox,
                 new Consumer[RTreeEntry] {
-                    override def accept(intersectingEntry: RTreeEntry) {
+                    override def accept(intersectingEntry: RTreeEntry): Unit = {
                         futureCosts =
                             safeAdd(futureCosts, computeOverlap(afterEntry, intersectingEntry))
                     }

@@ -32,7 +32,7 @@ abstract class AnyDomain {
      *
      * Throws when the domain is infinite.
      */
-    def values: TraversableOnce[_ <: AnyValue]
+    def values: Iterable[_ <: AnyValue]
 
     /** Returns the domain's value when the domain is singleton and throws otherwise. */
     def singleValue: AnyValue

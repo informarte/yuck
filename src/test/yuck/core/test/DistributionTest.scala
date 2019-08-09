@@ -1,7 +1,7 @@
 package yuck.core.test
 
 import scala.collection._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import org.junit._
 
@@ -19,7 +19,7 @@ import yuck.util.testing.UnitTest
 final class DistributionTest(createDistribution: Int => Distribution) extends UnitTest {
 
     @Test
-    def testBasics {
+    def testBasics: Unit = {
         val n = 256
         val d = createDistribution(n)
         var m = 0
@@ -64,7 +64,7 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
     }
 
     @Test
-    def testExceptionalCases {
+    def testExceptionalCases: Unit = {
         val n = 1
         val d = createDistribution(n)
         assertEx(d.setFrequency(-1, 0), classOf[ArrayIndexOutOfBoundsException])
@@ -80,7 +80,7 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
     }
 
     @Test
-    def testRandomIndexGeneration {
+    def testRandomIndexGeneration: Unit = {
         val n = 3
         val d = createDistribution(n)
         for (i <- 0 to 2) {
@@ -99,11 +99,11 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
     }
 
     @Test
-    def testOverflowChecking {
+    def testOverflowChecking: Unit ={
         val n = 2
         val d = createDistribution(n)
         d.setFrequency(0, Long.MaxValue)
-        assertEx(d.setFrequency(1, 1l), classOf[ArithmeticException])
+        assertEx(d.setFrequency(1, 1L), classOf[ArithmeticException])
     }
 
 }

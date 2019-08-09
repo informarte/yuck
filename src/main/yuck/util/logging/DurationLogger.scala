@@ -9,14 +9,14 @@ import yuck.util.arm.ManagedResource
  */
 final class DurationLogger(logger: LazyLogger, operationName: String) extends ManagedResource {
 
-    private var startTime = 0l
+    private var startTime = 0L
 
-    override def open {
+    override def open: Unit = {
         startTime = System.currentTimeMillis
         logger.log("%s".format(operationName))
     }
 
-    override def close {
+    override def close: Unit = {
         val endTime = System.currentTimeMillis
         logger.log("%s took %f seconds".format(operationName, (endTime - startTime) / 1000.0))
     }

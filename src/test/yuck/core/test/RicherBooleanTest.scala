@@ -16,7 +16,7 @@ import yuck.util.testing.UnitTest
 final class RicherBooleanTest extends UnitTest {
 
     @Test
-    def testStrictDisjunction {
+    def testStrictDisjunction: Unit = {
         for ((a, b) <- List((false, false), (false, true), (true, false), (true, true))) {
             val buf = new mutable.HashSet[String]
             assertEq({buf += "a"; a} ||| {buf += "b"; b}, a || b)

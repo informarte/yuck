@@ -13,7 +13,7 @@ final class FlatZincSolverMonitor(logger: LazyLogger) extends StandardAnnealingM
 
     private var costsOfBestSolution: Costs = null
 
-    override def onBetterProposal(result: AnnealingResult) {
+    override def onBetterProposal(result: AnnealingResult): Unit = {
         synchronized {
             super.onBetterProposal(result)
             if (result.isSolution &&

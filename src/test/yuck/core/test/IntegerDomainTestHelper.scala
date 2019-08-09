@@ -1,7 +1,5 @@
 package yuck.core.test
 
-import scala.collection._
-
 import yuck.core._
 import yuck.util.logging.LazyLogger
 
@@ -30,13 +28,13 @@ final class IntegerDomainTestHelper
         testData
     }
 
-    private def testEnsureRangeList(d: IntegerDomain) {
+    private def testEnsureRangeList(d: IntegerDomain): Unit = {
         val e = IntegerDomain.ensureRangeList(d)
         assert(e.isInstanceOf[IntegerRangeList])
         assertEq(e, d)
     }
 
-    private def testSpatialRelations(d: IntegerDomain, e: IntegerDomain) {
+    private def testSpatialRelations(d: IntegerDomain, e: IntegerDomain): Unit = {
         if (d.isEmpty || e.isEmpty) {
             assertEx(d.precedes(e))
             assertEx(d.precedesImmediately(e))
@@ -58,7 +56,7 @@ final class IntegerDomainTestHelper
     // - Try to avoid cyclic test dependencies by using more primitive functions only.
     // - If a function cannot be fully verified, issue a warning.
 
-    private def testSetSize(d: IntegerDomain) {
+    private def testSetSize(d: IntegerDomain): Unit = {
         if (d.isFinite) {
             assertEq(d.size, d.values.size)
         } else {
@@ -66,7 +64,7 @@ final class IntegerDomainTestHelper
         }
     }
 
-    private def testSubsetRelation(d: IntegerDomain, e: IntegerDomain) {
+    private def testSubsetRelation(d: IntegerDomain, e: IntegerDomain): Unit = {
         val result = d.isSubsetOf(e)
         if (d.isEmpty) {
             assert(result)
@@ -96,7 +94,7 @@ final class IntegerDomainTestHelper
         }
     }
 
-    private def testSetIntersectionRelation(d: IntegerDomain, e: IntegerDomain) {
+    private def testSetIntersectionRelation(d: IntegerDomain, e: IntegerDomain): Unit = {
         val result = d.intersects(e)
         if (d.isEmpty || e.isEmpty) {
             assert(! result)
@@ -119,7 +117,7 @@ final class IntegerDomainTestHelper
         }
     }
 
-    private def testSetIntersection(d: IntegerDomain, e: IntegerDomain) {
+    private def testSetIntersection(d: IntegerDomain, e: IntegerDomain): Unit = {
         val result = d.intersect(e)
         val maybeResultSize = d.maybeIntersectionSize(e)
         assert(result.isSubsetOf(d))
@@ -157,7 +155,7 @@ final class IntegerDomainTestHelper
         }
     }
 
-    private def testSetUnion(d: IntegerDomain, e: IntegerDomain) {
+    private def testSetUnion(d: IntegerDomain, e: IntegerDomain): Unit = {
         val result = d.union(e)
         assert(d.isSubsetOf(result))
         assert(e.isSubsetOf(result))
@@ -200,7 +198,7 @@ final class IntegerDomainTestHelper
     }
 
     private val specialDifferenceCases =
-        new immutable.HashMap[(IntegerDomain, IntegerDomain), IntegerDomain] ++
+        new scala.collection.immutable.HashMap[(IntegerDomain, IntegerDomain), IntegerDomain] ++
         List((CompleteIntegerRange, NegativeIntegerRange) -> NonNegativeIntegerRange,
              (CompleteIntegerRange, NonNegativeIntegerRange) -> NegativeIntegerRange,
              (CompleteIntegerRange, PositiveIntegerRange) -> NonPositiveIntegerRange,
@@ -210,7 +208,7 @@ final class IntegerDomainTestHelper
              (NonNegativeIntegerRange, NonPositiveIntegerRange) -> PositiveIntegerRange,
              (NonPositiveIntegerRange, NonNegativeIntegerRange) -> NegativeIntegerRange)
 
-    private def testSetDifference(d: IntegerDomain, e: IntegerDomain) {
+    private def testSetDifference(d: IntegerDomain, e: IntegerDomain): Unit = {
         val result = d.diff(e)
         val maybeResultSize = d.maybeResidueSize(e)
         assert(result.isSubsetOf(d))
@@ -244,20 +242,20 @@ final class IntegerDomainTestHelper
         }
     }
 
-    private def testSymmetricalSetDifference(d: IntegerDomain, e: IntegerDomain) {
+    private def testSymmetricalSetDifference(d: IntegerDomain, e: IntegerDomain): Unit = {
         assertEq(d.symdiff(e), d.union(e).diff(d.intersect(e)))
     }
 
-    private def testSetContainment(d: IntegerDomain, a: IntegerValue) {
+    private def testSetContainment(d: IntegerDomain, a: IntegerValue): Unit = {
         val result = d.contains(a)
         if (d.isFinite) {
-            assertEq(result, d.values.toIterator.contains(a))
+            assertEq(result, d.values.exists(_ == a))
         } else {
             assertEq(result, d.intersects(new IntegerRange(a, a)))
         }
     }
 
-    private def testDistanceToSet(d: IntegerDomain, a: IntegerValue) {
+    private def testDistanceToSet(d: IntegerDomain, a: IntegerValue): Unit = {
         if (d.isEmpty) {
             assertEx(d.distanceTo(a))
         } else {
@@ -277,7 +275,7 @@ final class IntegerDomainTestHelper
         }
     }
 
-    private def testBounding(d: IntegerDomain, a: IntegerValue) {
+    private def testBounding(d: IntegerDomain, a: IntegerValue): Unit = {
         val d1 = d.boundFromBelow(a)
         val d2 = d.boundFromAbove(a)
         if (! d1.isEmpty) {
@@ -297,7 +295,7 @@ final class IntegerDomainTestHelper
         }
     }
 
-    private def testBisecting(d: IntegerDomain) {
+    private def testBisecting(d: IntegerDomain): Unit = {
         if (d.isEmpty || ! d.isFinite) {
             assertEx(d.bisect)
         } else {
@@ -317,7 +315,7 @@ final class IntegerDomainTestHelper
         }
     }
 
-    def testRepresentation(createRange: (IntegerValue, IntegerValue) => IntegerDomain) {
+    def testRepresentation(createRange: (IntegerValue, IntegerValue) => IntegerDomain): Unit = {
 
         // {}
         val a = createRange(One, Zero)
@@ -458,7 +456,7 @@ final class IntegerDomainTestHelper
 
     }
 
-    def testOperations(dl: Seq[IntegerDomain], vl: Seq[IntegerValue]) {
+    def testOperations(dl: Seq[IntegerDomain], vl: Seq[IntegerValue]): Unit = {
         logger.withLogScope("Test data") {
             dl.foreach(d => logger.log(d.toString))
         }

@@ -23,11 +23,11 @@ final class Presolver
     private val costVars = cc.costVars
     private val logger = cc.logger
 
-    override def run {
+    override def run: Unit = {
         reduceDomains
     }
 
-    private def reduceDomains {
+    private def reduceDomains: Unit = {
 
         // collect domains of implicitly constrained search variables
         val backup = new mutable.ArrayBuffer[(AnyVariable, AnyDomain)]
@@ -41,7 +41,7 @@ final class Presolver
         }
 
         // propagate constraints (fixed-point iteration)
-        def pass(i: Integer) {
+        def pass(i: Integer): Unit = {
             if (sigint.isSet) {
                 throw new FlatZincCompilerInterruptedException
             }

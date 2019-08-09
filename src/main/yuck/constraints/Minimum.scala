@@ -24,10 +24,10 @@ final class Minimum
         valueRegistry.head._1
     override def propagate = {
         val lhs0 = new Iterable[OrderedDomain[Value]] {
-            override def iterator = xs.toIterator.map(x => x.domain)
+            override def iterator = xs.iterator.map(_.domain)
         }
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.min(lhs0, rhs0)
-        Variable.pruneDomains(xs.toIterator.zip(lhs1.toIterator)) ||| y.pruneDomain(rhs1)
+        Variable.pruneDomains(xs.view.zip(lhs1.view)) ||| y.pruneDomain(rhs1)
     }
 }

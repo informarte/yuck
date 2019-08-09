@@ -34,8 +34,8 @@ final class Alldistinct
     override def propagate = {
         if (costs.domain == TrueDomain) {
             Variable.pruneDomains(
-                for (x <- xs.toIterator if x.domain.isSingleton;
-                     y <- xs.toIterator if y != x && y.domain.contains(x.domain.singleValue))
+                for (x <- xs.view if x.domain.isSingleton;
+                     y <- xs.view if y != x && y.domain.contains(x.domain.singleValue))
                 yield (y, y.domain.diff(x.domain))
             )
         } else {
@@ -48,7 +48,7 @@ final class Alldistinct
 
     override def isCandidateForImplicitSolving(space: Space) = {
         val (xs, ys) = this.xs.partition(! _.domain.isSingleton)
-        val as = ys.toIterator.map(_.domain.singleValue).toSet
+        val as = ys.iterator.map(_.domain.singleValue).toSet
         this.xs.forall(! space.isChannelVariable(_)) &&
         xs.size > 1 &&
         xs.toSet.size == xs.size &&
@@ -74,7 +74,7 @@ final class Alldistinct
                     // the number of values equals the number of variables or
                     // there are more values than variables
                     val domain = xs.head.domain
-                    for ((x, a) <- xs.toIterator.zip(randomGenerator.shuffle(domain.values).toIterator)) {
+                    for ((x, a) <- xs.iterator.zip(randomGenerator.shuffle(domain.values).iterator)) {
                         space.setValue(x, a)
                     }
                     space.setValue(costs, True)
@@ -115,7 +115,7 @@ final class Alldistinct
                     solver.call
                 }
                 if (result.isSolution) {
-                    for ((x, subx) <- xs.toIterator.zip(subxs.toIterator)) {
+                    for ((x, subx) <- xs.iterator.zip(subxs.iterator)) {
                         space.setValue(x, subspace.searchState.value(subx))
                     }
                     space.setValue(costs, True)
@@ -157,7 +157,7 @@ final class AlldistinctNeighbourhood
 
     private val probabilityOfSwappingInValues = moveSizeDistribution.probability(1)
     private val variablesHaveTheSameDomain = xs.forall(x => x.domain == xs.head.domain)
-    private val swappingInValuesIsPossible = xs.toIterator.map(_.domain.values).flatten.toSet.size > n
+    private val swappingInValuesIsPossible = xs.flatMap(_.domain.values).toSet.size > n
     private val effects = Vector.fill(3){new ReusableEffect[Value]}
     private val swaps = for (n <- 1 to 3) yield effects.take(n)
     private def succeed(n: Int): Move = new ChangeValues[Value](space.nextMoveId, swaps(n - 1))
@@ -169,7 +169,7 @@ final class AlldistinctNeighbourhood
             swappingInValuesIsPossible &&
             (m == 1 || randomGenerator.nextDecision(probabilityOfSwappingInValues))
         if (swapInAValue) {
-            val usedValues = valueTraits.createDomain(xs.toIterator.map(value).toSet)
+            val usedValues = valueTraits.createDomain(xs.map(value).toSet)
             if (m == 1) {
                 val candidates =
                     randomGenerator

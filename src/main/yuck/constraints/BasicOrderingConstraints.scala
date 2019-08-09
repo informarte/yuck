@@ -117,7 +117,7 @@ final class Min
     override def op(a: Value, b: Value) = if (a < b) a else b
     override def propagate = {
         val (lhs1, dz1) = valueTraits.domainPruner.min(Seq(x.domain, y.domain), z.domain)
-        val Seq(dx1, dy1) = lhs1.toSeq
+        val Seq(dx1, dy1) = lhs1.iterator.toSeq
         Variable.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
 }

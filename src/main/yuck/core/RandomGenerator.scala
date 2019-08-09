@@ -1,7 +1,7 @@
 package yuck.core
 
 import scala.language.higherKinds
-import scala.collection.generic.CanBuildFrom
+import scala.collection.Factory
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -43,9 +43,9 @@ abstract class RandomGenerator {
      * Implements the Fisher-Yates algorithm, see: http://en.wikipedia.org/wiki/Fisher–Yates_shuffle.
      */
     final def shuffle
-        [T, From[T] <: TraversableOnce[T], To[T] <: Seq[T]]
+        [T, From[T] <: scala.collection.Iterable[T], To[T] <: scala.collection.Seq[T]]
         (source: From[T])
-        (implicit cbf: CanBuildFrom[_, T, To[T]]): To[T] =
+        (implicit cbf: Factory[T, To[T]]): To[T] =
     {
         val buf = new ArrayBuffer[T] ++= source
         for (i <- buf.size - 1 to 1 by -1) {
@@ -54,10 +54,10 @@ abstract class RandomGenerator {
             buf(i) = buf(j)
             buf(j) = tmp
         }
-        (cbf() ++= buf).result
+        cbf.fromSpecific(buf)
     }
 
-    private final class LazyShuffleIterator[T](source: IndexedSeq[T]) extends Iterator[T] {
+    private final class LazyShuffleIterator[T](source: scala.collection.IndexedSeq[T]) extends Iterator[T] {
         private var n = source.size
         private val buf = Array.tabulate(n)(identity)
         @inline override def hasNext = n > 0
@@ -79,9 +79,9 @@ abstract class RandomGenerator {
      * In case not all elements are needed, lazyShuffle is more efficient than
      * shuffle because less random numbers are generated.
      */
-    @inline final def lazyShuffle[T](source: IndexedSeq[T]): Iterator[T] =
+    @inline final def lazyShuffle[T](source: scala.collection.IndexedSeq[T]): Iterator[T] =
         if (source.isEmpty) Iterator.empty
-        else if (source.size == 1) source.toIterator
+        else if (source.size == 1) source.iterator
         else new LazyShuffleIterator[T](source)
 
 }

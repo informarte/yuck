@@ -29,7 +29,7 @@ final class RandomCircularSwapGeneratorTest
         new NeighbourhoodTestHelper(logger, xs, moveSizeDistribution, maybeHotSpotDistribution, maybeFairVariableChoiceRate)
 
     @Test
-    def testNeighbourhood {
+    def testNeighbourhood: Unit = {
         val neighbourhood =
             new RandomCircularSwapGenerator(
                 space, xs, randomGenerator, moveSizeDistribution, maybeHotSpotDistribution, maybeFairVariableChoiceRate)

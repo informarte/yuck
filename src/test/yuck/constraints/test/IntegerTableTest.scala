@@ -17,7 +17,7 @@ import yuck.util.testing.UnitTest
 final class IntegerTableTest extends UnitTest {
 
     @Test
-    def testConsultAndCommit {
+    def testConsultAndCommit: Unit = {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
         val s = new IntegerVariable(space.nextVariableId, "s", d)
@@ -58,7 +58,7 @@ final class IntegerTableTest extends UnitTest {
     }
 
     @Test
-    def testConsultAndCommitWithDuplicateVariables {
+    def testConsultAndCommitWithDuplicateVariables: Unit = {
         val space = new Space(logger)
         val d = new IntegerRange(Zero, Nine)
         val s = new IntegerVariable(space.nextVariableId, "s", d)
@@ -105,7 +105,7 @@ final class IntegerTableTest extends UnitTest {
     }
 
     @Test
-    def testPropagation {
+    def testPropagation: Unit = {
         val space = new Space(logger)
         val s = new IntegerVariable(space.nextVariableId, "s", new IntegerRange(Two, Five))
         val t = new IntegerVariable(space.nextVariableId, "t", new IntegerRange(Two, Three))
@@ -133,7 +133,7 @@ final class IntegerTableTest extends UnitTest {
     }
 
     @Test
-    def testPropagationWithDuplicateVariables {
+    def testPropagationWithDuplicateVariables: Unit = {
         val space = new Space(logger)
         val s = new IntegerVariable(space.nextVariableId, "s", new IntegerRange(Two, Five))
         val costs = new BooleanVariable(space.nextVariableId, "costs", TrueDomain)

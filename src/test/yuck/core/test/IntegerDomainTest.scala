@@ -1,7 +1,6 @@
 package yuck.core.test
 
 import org.junit._
-import scala.collection._
 
 import yuck.core._
 import yuck.util.testing.UnitTest
@@ -19,7 +18,7 @@ final class IntegerDomainTest extends UnitTest {
     private val baseRange = new IntegerRange(IntegerValue.get(-5), Five)
 
     @Test
-    def testEquality {
+    def testEquality: Unit = {
         val CompleteIntegerRangeList = new IntegerRangeList(CompleteIntegerRange)
         assertEq(EmptyIntegerRange.asInstanceOf[IntegerDomain], EmptyIntegerRange)
         assertNe(EmptyIntegerRange.asInstanceOf[IntegerDomain], CompleteIntegerRange)
@@ -34,14 +33,14 @@ final class IntegerDomainTest extends UnitTest {
     }
 
     @Test
-    def testOrdering {
+    def testOrdering: Unit = {
         val sampleSize = 16
         val testData = helper.createTestData(baseRange, sampleSize)
         helper.testOrdering(testData, IntegerDomain.ordering)
     }
 
     @Test
-    def testOperations {
+    def testOperations: Unit = {
         val sampleSize = 8
         val testData = helper.createTestData(baseRange, sampleSize)
         val extendedBaseRange = new IntegerRange(baseRange.lb - One, baseRange.ub + One)
@@ -49,9 +48,9 @@ final class IntegerDomainTest extends UnitTest {
     }
 
     @Test
-    def testRandomSubdomainCreation {
+    def testRandomSubdomainCreation: Unit = {
         val sampleSize = 1000
-        val sample = new mutable.HashSet[IntegerDomain]
+        val sample = new scala.collection.mutable.HashSet[IntegerDomain]
         for (i <- 1 to sampleSize) {
             val e = baseRange.randomSubdomain(randomGenerator)
             assert(e.isSubsetOf(baseRange))
@@ -61,7 +60,7 @@ final class IntegerDomainTest extends UnitTest {
     }
 
     @Test
-    def testDomainCreationFromRanges {
+    def testDomainCreationFromRanges: Unit = {
         import IntegerDomain.createDomain
         assert(createDomain(List[IntegerRange]()).isInstanceOf[IntegerRange])
         assert(createDomain(List[IntegerRange]()).isEmpty)
@@ -73,7 +72,7 @@ final class IntegerDomainTest extends UnitTest {
     }
 
     @Test
-    def testDomainCreationFromValues {
+    def testDomainCreationFromValues: Unit = {
         import IntegerDomain.createDomain
         val testData = List(
             List(List()) -> EmptyIntegerRange,
@@ -83,15 +82,15 @@ final class IntegerDomainTest extends UnitTest {
                 new IntegerRangeList(Vector(ZeroToOneIntegerRange, new IntegerRange(Three, Four))))
         for ((inputs, expectation) <- testData) {
             for (input <- inputs) {
-                def check(values: TraversableOnce[IntegerValue]) = {
+                def check(values: Iterable[IntegerValue]) = {
                     val result = createDomain(values)
                     assertEq(result, expectation)
                     assertEq(result.getClass, expectation.getClass)
                 }
-                check(input.toIterator)
+                check(input.toSeq)
                 check(input.toList)
                 check(input.toSet)
-                check(immutable.TreeSet[IntegerValue]() ++ input)
+                check(scala.collection.immutable.TreeSet[IntegerValue]() ++ input)
             }
         }
     }
