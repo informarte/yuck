@@ -44,8 +44,8 @@ final class BinPacking
 
     private val x2Item =
         (for (item <- items) yield item.bin -> item).toMap[AnyVariable, BinPackingItem[Load]]
-    private val currentLoads = new mutable.OpenHashMap[Int, Load] // bin -> load
-    private val loadDeltas = new mutable.OpenHashMap[Int, Load] // bin -> load delta
+    private val currentLoads = new mutable.HashMap[Int, Load] // bin -> load
+    private val loadDeltas = new mutable.HashMap[Int, Load] // bin -> load delta
     private val effects = // bin -> effect
         (for ((i, load) <- loads) yield i -> new ReusableMoveEffectWithFixedVariable[Load](load)).toMap
 
