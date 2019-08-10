@@ -3,6 +3,7 @@ package yuck.constraints.test
 import org.junit._
 
 import scala.collection._
+import scala.language.existentials
 
 import yuck.constraints._
 import yuck.core._
