@@ -179,6 +179,7 @@ final class IntegerRange
                 // case 5
                 // approximation (6.14)
                 val A = List(a.toDouble / c.toDouble, a.toDouble / d.toDouble, b.toDouble / c.toDouble, b.toDouble / d.toDouble)
+                import scala.math.Ordering.Double.TotalOrdering
                 createRange(IntegerValue.get(A.min.ceil.toInt), IntegerValue.get(A.max.floor.toInt))
             } else {
                 // Must not occur since the preceding case distinction covers all cases.

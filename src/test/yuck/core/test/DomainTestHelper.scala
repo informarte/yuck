@@ -26,6 +26,7 @@ class DomainTestHelper[Value <: AnyValue](logger: LazyLogger) extends YuckAssert
         val maxError = 0.05
         def checkDistribution(f: Map[Value, Int]): Unit = {
             for (a <- d.values) {
+                import scala.math.Ordering.Double.TotalOrdering
                 assertGt(f.getOrElse(a, 0), sampleSize / d.size * (1 - maxError))
                 assertLt(f.getOrElse(a, 0), sampleSize / d.size * (1 + maxError))
             }

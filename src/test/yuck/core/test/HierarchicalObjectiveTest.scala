@@ -38,6 +38,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
 
     @Test
     def testMoveAssessment: Unit = {
+        import scala.math.Ordering.Double.TotalOrdering
         val a = new Assignment
         a.setValue(x, Zero)
         a.setValue(y, One)

@@ -31,6 +31,7 @@ final class MinimizationObjectiveTest extends UnitTest {
 
     @Test
     def testMoveAssessment: Unit = {
+        import scala.math.Ordering.Double.TotalOrdering
         val a = new Assignment
         a.setValue(x, Zero)
         val b = new Assignment
