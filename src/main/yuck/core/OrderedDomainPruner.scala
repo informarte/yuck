@@ -24,13 +24,13 @@ abstract class OrderedDomainPruner[Value <: OrderedValue[Value]] extends DomainP
     def min
         [Domain >: DomainImpl <: OrderedDomain[Value]]
         (lhs: Iterable[Domain], rhs: Domain):
-        (IterableOnce[Domain], Domain) =
-        (lhs, rhs)
+        (Iterator[Domain], Domain) =
+        (lhs.iterator, rhs)
 
     def max
         [Domain >: DomainImpl <: OrderedDomain[Value]]
         (lhs: Iterable[Domain], rhs: Domain):
-        (IterableOnce[Domain], Domain) =
-        (lhs, rhs)
+        (Iterator[Domain], Domain) =
+        (lhs.iterator, rhs)
 
 }

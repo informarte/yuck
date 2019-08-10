@@ -27,7 +27,7 @@ abstract class Disjoint
 {
 
     protected def variablesIterator(i: Int): Iterator[IntegerVariable]
-    final override def inVariables = (0 until n).iterator.map(variablesIterator).flatten
+    final override def inVariables = (0 until n).view.flatMap(variablesIterator)
     final override def outVariables = List(costs)
 
     protected type BBox <: HyperRect[_]
@@ -47,8 +47,7 @@ abstract class Disjoint
     private val x2is =
         (0 until n)
         .iterator
-        .map{case i => variablesIterator(i).map((_, i))}
-        .flatten
+        .flatMap{case i => variablesIterator(i).map((_, i))}
         .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
             case (map, (x, i)) =>
                 val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])
@@ -86,7 +85,7 @@ abstract class Disjoint
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         rTreeTransaction.rollback
         futureCosts = currentCosts
-        val is = move.involvedVariables.iterator.map(x2is).flatten.to(mutable.Set)
+        val is = move.involvedVariablesIterator.flatMap(x2is).to(mutable.Set)
         for (i <- is) {
             val beforeEntry = createRTreeEntry(i, before)
             rTreeTransaction.remove(beforeEntry)

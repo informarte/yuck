@@ -73,7 +73,7 @@ final class Alldistinct
                     // the number of values equals the number of variables or
                     // there are more values than variables
                     val domain = xs.head.domain
-                    for ((x, a) <- xs.iterator.zip(randomGenerator.shuffle(domain.values.toBuffer).iterator)) {
+                    for ((x, a) <- xs.iterator.zip(randomGenerator.shuffle(domain.values).iterator)) {
                         space.setValue(x, a)
                     }
                     space.setValue(costs, True)
@@ -157,7 +157,7 @@ final class AlldistinctNeighbourhood
 
     private val probabilityOfSwappingInValues = moveSizeDistribution.probability(1)
     private val variablesHaveTheSameDomain = xs.forall(x => x.domain == xs.head.domain)
-    private val swappingInValuesIsPossible = xs.iterator.map(_.domain.values).flatten.toSet.size > n
+    private val swappingInValuesIsPossible = xs.iterator.flatMap(_.domain.valuesIterator).toSet.size > n
     private val effects = Vector.fill(3){new ReusableMoveEffect[Value]}
     private val swaps = for (n <- 1 to 3) yield effects.take(n)
     private def succeed(n: Int): Move = new ChangeValues[Value](space.nextMoveId, swaps(n - 1))

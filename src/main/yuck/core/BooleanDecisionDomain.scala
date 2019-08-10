@@ -22,9 +22,9 @@ final class BooleanDecisionDomain
     override def lb = if (containsTrue) True else False
     override def ub = if (containsFalse) False else True
     override def values =
-        if (containsFalse && containsTrue) List(False, True)
-        else if (containsFalse) List(False)
-        else if (containsTrue) List(True)
+        if (containsFalse && containsTrue) BooleanDecisionDomain.listWithFalseAndTrue
+        else if (containsFalse) BooleanDecisionDomain.listWithFalse
+        else if (containsTrue) BooleanDecisionDomain.listWithTrue
         else Nil
     override def singleValue = {
         require(isSingleton)
@@ -65,6 +65,10 @@ final class BooleanDecisionDomain
  * @author Michael Marte
  */
 final object BooleanDecisionDomain {
+
+    private val listWithFalseAndTrue = List(False, True)
+    private val listWithFalse = List(False)
+    private val listWithTrue = List(True)
 
     /** {}  < {false} < {true} < {false, true} */
     val ordering = new Ordering[BooleanDecisionDomain] {

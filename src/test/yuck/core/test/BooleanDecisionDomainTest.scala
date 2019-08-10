@@ -28,6 +28,7 @@ final class BooleanDecisionDomainTest extends UnitTest {
             assertEq(d, BooleanDecisionDomain.createDomain(if (t) True else False, if (f) False else True))
             assertEq(d.toString, if (f && t) "{false, true}" else if (f) "{false}" else if (t) "{true}" else "{}")
             assertEq(d.values, if (f && t) List(False, True) else if (f) List(False) else if (t) List(True) else Nil)
+            assertEq(d.valuesIterator.toList, d.values)
             assertNe(d, "")
             assertEq(d, d)
             assertNe(d, new BooleanDecisionDomain(! f, t))

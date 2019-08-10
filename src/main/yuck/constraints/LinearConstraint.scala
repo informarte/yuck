@@ -29,9 +29,9 @@ final class LinearConstraint
 
     override def toString =
         "sum([%s], %s, %s, %s)".format(
-            (if (as == null) xs else for ((a, x) <- as.zip(xs)) yield AX(a, x)).mkString(", "),
+            (if (as == null) xs else for ((a, x) <- as.iterator.zip(xs.iterator)) yield AX(a, x)).mkString(", "),
             relation, z, costs)
-    override def inVariables = xs.iterator ++ Iterator.single(z)
+    override def inVariables = xs.view :+ z
     override def outVariables = List(costs)
 
     private val x2i: immutable.Map[AnyVariable, Int] =

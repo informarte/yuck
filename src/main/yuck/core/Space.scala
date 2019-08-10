@@ -541,10 +541,10 @@ final class Space(
             }
         }
         protected def processConstraint(
-            constraint: Constraint, before: SearchState, after: SearchState, move: Move): IterableOnce[AnyMoveEffect]
+            constraint: Constraint, before: SearchState, after: SearchState, move: Move): Iterable[AnyMoveEffect]
         protected def recordEffect(effect: AnyMoveEffect): Unit
         def run: Move = {
-            move.effects.foreach(propagateEffect)
+            move.effectsIterator.foreach(propagateEffect)
             while (! diffs.isEmpty) {
                 val entry = diffs.pollFirstEntry
                 val constraint = entry.getKey
@@ -702,7 +702,7 @@ final class Space(
      */
     def commit(move: Move): Space = {
         require(move.id == idOfMostRecentlyAssessedMove)
-        new EffectPropagator(move).run.effects.foreach(_.setValue(assignment))
+        new EffectPropagator(move).run.effectsIterator.foreach(_.setValue(assignment))
         this
     }
 

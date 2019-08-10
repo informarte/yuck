@@ -61,7 +61,7 @@ final class Inverse
     override def toString =
         "inverse([%s], %d, [%s], %d, %s)".format(
             f.xs.mkString(", "), f.offset, g.xs.mkString(", "), g.offset, costs)
-    override def inVariables = f.xs.iterator ++ g.xs.iterator
+    override def inVariables = f.xs.view ++ g.xs.view
     override def outVariables = List(costs)
 
     private val effects = List(new ReusableMoveEffectWithFixedVariable[BooleanValue](costs))
@@ -86,7 +86,7 @@ final class Inverse
                      x = f.xs(i - f.offset);
                      dx = x.domain;
                      di = createRange(IntegerValue.get(i), IntegerValue.get(i));
-                     j <- g.indexDomain.diff(dx).values.iterator.map(_.value);
+                     j <- g.indexDomain.diff(dx).valuesIterator.map(_.value);
                      y = g.xs(j - g.offset))
                 yield
                     (y, y.domain.diff(di)))
@@ -453,8 +453,7 @@ final class GeneralInverseNeighbourhood
             val candidates2 =
                 y1
                 .domain
-                .values
-                .iterator
+                .valuesIterator
                 .map(_.value - f.offset)
                 .filter(i2 => i2 != i1)
                 .filter(

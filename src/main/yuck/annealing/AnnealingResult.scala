@@ -15,7 +15,7 @@ final class AnnealingResult(
     maybeUserData: Option[Object])
     extends Result(solverName, space, objective, maybeUserData)
 {
-    override def toString = roundLogs.map(_.toString).mkString("\n")
+    override def toString = roundLogs.iterator.map(_.toString).mkString("\n")
     var costsOfInitialProposal: Costs = null
     var costsOfFinalProposal: Costs = null
     val roundLogs = new mutable.ArrayBuffer[RoundLog]

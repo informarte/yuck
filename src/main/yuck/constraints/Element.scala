@@ -23,7 +23,7 @@ final class Element
     require(indexBase >= 0)
 
     override def toString = "%s = element(%s, [%s])".format(y, i, xs.mkString(", "))
-    override def inVariables = xs.iterator ++ List(i).iterator
+    override def inVariables = xs.view :+ i
     override def outVariables = List(y)
 
     private val effects = List(new ReusableMoveEffectWithFixedVariable[Value](y))
@@ -46,10 +46,10 @@ final class Element
                     IntegerDomain.createRange(IntegerValue.get(indexBase), IntegerValue.get(safeAdd(xs.size, indexBase) - 1)))
             val dy1 =
                 y.domain.intersect(
-                    di1.values.foldLeft(valueTraits.emptyDomain){case (u, i) => u.union(xs(i.value - indexBase).domain)})
+                    di1.valuesIterator.foldLeft(valueTraits.emptyDomain){case (u, i) => u.union(xs(i.value - indexBase).domain)})
             val di2 =
                 IntegerDomain.createDomain(
-                    di1.values.iterator.filter(i => xs(i.value - indexBase).domain.intersects(dy1)).toSet)
+                    di1.valuesIterator.filter(i => xs(i.value - indexBase).domain.intersects(dy1)).toSet)
             NoPropagationOccurred.pruneDomains(i, di2, y, dy1)
         }
     }

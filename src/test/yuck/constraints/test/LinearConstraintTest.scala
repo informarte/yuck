@@ -61,8 +61,8 @@ final class LinearConstraintTest
         val lhs1 = initialDomains.map(nonEmptyRandomSubdomain)
         val dy1 = nonEmptyRandomSubdomain(baseDomain)
         val dz1 = nonEmptyRandomSubdomain(dz0)
-        when(domainPruner.linEq(lhs0, dy0)).thenReturn((lhs1, dy1))
-        when(domainPruner.linEq(for (i <- 0 until xs.size) yield (axs(i).a, lhs1(i)), dy1)).thenReturn((lhs1, dy1))
+        when(domainPruner.linEq(lhs0, dy0)).thenReturn((lhs1.iterator, dy1))
+        when(domainPruner.linEq(for (i <- 0 until xs.size) yield (axs(i).a, lhs1(i)), dy1)).thenReturn((lhs1.iterator, dy1))
         if (costsDomain.containsTrue) relation match {
             case EqRelation =>
                 when(domainPruner.eq(dy1, dz0)).thenReturn((dy1, dz1))

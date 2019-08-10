@@ -28,7 +28,9 @@ final class IntegerPowersetDomain
     override def ub = new IntegerSetValue(base)
     override def hull = this
     override def values =
-        base.values.toSet.subsets.map(values => new IntegerSetValue(IntegerDomain.createDomain(values)))
+        base.values.toSet.subsets.to(LazyList).map(values => new IntegerSetValue(IntegerDomain.createDomain(values)))
+    override def valuesIterator =
+        base.values.toSet.subsets.iterator.map(values => new IntegerSetValue(IntegerDomain.createDomain(values)))
     override def singleValue = {
         require(isSingleton)
         new IntegerSetValue(base)

@@ -35,7 +35,7 @@ final class IntegerTable
     override def toString =
         "table([%s], [%s], %s)".format(
             xs.mkString(", "),
-            rows.map(row => "[%s]".format(row.mkString(", "))).mkString(", "),
+            rows.iterator.map(row => "[%s]".format(row.mkString(", "))).mkString(", "),
             costs)
 
     override def inVariables = xs
@@ -49,7 +49,7 @@ final class IntegerTable
     private val effect = effects.head
 
     private val x2i: immutable.Map[AnyVariable, Int] =
-        if (hasDuplicateVariables) null else xs.iterator.zipWithIndex.toMap[AnyVariable, Int]
+        if (hasDuplicateVariables) null else xs.iterator.zipWithIndex.toMap
     private val x2is: immutable.Map[AnyVariable, immutable.IndexedSeq[Int]] =
         if (hasDuplicateVariables) {
             xs
@@ -73,7 +73,7 @@ final class IntegerTable
             rows =
                 rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(IntegerValue.get(row(i)))))
             NoPropagationOccurred.pruneDomains(
-                for (i <- 0 until n) yield {
+                for (i <- (0 until n).iterator) yield {
                     val feasibleValues = rows.iterator.map(row => IntegerValue.get(row(i))).toSet
                     val x = xs(i)
                     (x, x.domain.intersect(IntegerDomain.createDomain(feasibleValues)))
@@ -106,8 +106,8 @@ final class IntegerTable
         }
         Array.copy(currentDistances, 0, futureDistances, 0, m)
         val is = {
-            val xs = move.involvedVariables.iterator
-            if (hasDuplicateVariables) xs.map(x2is).flatten else xs.map(x2i)
+            val xs = move.involvedVariablesIterator
+            if (hasDuplicateVariables) xs.flatMap(x2is) else xs.map(x2i)
         }
         while (is.hasNext) {
             val i = is.next

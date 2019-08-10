@@ -9,7 +9,7 @@ final class MoveSimulator(before: SearchState, move: Move) extends SearchState {
     override def clone =
         new Assignment(this)
     override def mappedVariables =
-        before.mappedVariables ++ move.involvedVariables
+        before.mappedVariables ++ move.involvedVariablesIterator
     override def hasValue(x: AnyVariable) =
         before.hasValue(x) || move.involves(x)
     override def anyValue(x: AnyVariable) =

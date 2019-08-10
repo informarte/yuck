@@ -22,9 +22,10 @@ abstract class Domain[Value <: AnyValue] extends AnyDomain {
     }
     def equals(that: Domain[Value]): Boolean
 
-    override def toString = "{%s}".format(values.map(_.toString).mkString(", "))
+    override def toString = "{%s}".format(valuesIterator.map(_.toString).mkString(", "))
 
-    override def values: IterableOnce[Value]
+    override def values: Iterable[Value]
+    override def valuesIterator: Iterator[Value] = values.iterator
     override def singleValue: Value
 
     /** Decides whether the domain contains the given value. */

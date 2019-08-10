@@ -19,7 +19,7 @@ final class LinearCombination
     require(axs.iterator.map(_.x).toSet.size == axs.size)
 
     override def toString = "%s = sum([%s])".format(y, axs.mkString(", "))
-    override def inVariables = axs.iterator.map(_.x)
+    override def inVariables = axs.view.map(_.x)
     override def outVariables = List(y)
 
     private val x2ax = immutable.HashMap[AnyVariable, AX[Value]]() ++ (axs.iterator.map(_.x).zip(axs.iterator))

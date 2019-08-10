@@ -39,8 +39,8 @@ final class BinPacking
 
     override def toString =
         "bin_packing([%s], [%s])".format(items.mkString(", "), loads.mkString(", "))
-    override def inVariables = items.iterator.filter(_.weight > valueTraits.zero).map(_.bin)
-    override def outVariables = loads.valuesIterator
+    override def inVariables = items.view.filter(_.weight > valueTraits.zero).map(_.bin)
+    override def outVariables = loads.view.values
 
     private val x2Item =
         (for (item <- items) yield item.bin -> item).toMap[AnyVariable, BinPackingItem[Load]]
@@ -64,7 +64,7 @@ final class BinPacking
             val effect = effects(i)
             effect.a = currentLoads(i)
         }
-        effects.valuesIterator
+        effects.view.values
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
@@ -83,14 +83,14 @@ final class BinPacking
        for ((j, loadDelta) <- loadDeltas) {
            effects(j).a = currentLoads(j) + loadDelta
        }
-       loadDeltas.keysIterator.map(effects(_))
+       loadDeltas.view.keys.map(effects(_))
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
        for ((j, loadDelta) <- loadDeltas) {
            currentLoads(j) += loadDelta
        }
-       loadDeltas.keysIterator.map(effects(_))
+       loadDeltas.view.keys.map(effects(_))
     }
 
 }

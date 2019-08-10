@@ -83,12 +83,11 @@ final class IntegerDomainTest extends UnitTest {
                 new IntegerRangeList(Vector(ZeroToOneIntegerRange, new IntegerRange(Three, Four))))
         for ((inputs, expectation) <- testData) {
             for (input <- inputs) {
-                def check(values: IterableOnce[IntegerValue]) = {
+                def check(values: Iterable[IntegerValue]) = {
                     val result = createDomain(values)
                     assertEq(result, expectation)
                     assertEq(result.getClass, expectation.getClass)
                 }
-                check(input.iterator)
                 check(input.toList)
                 check(input.toSet)
                 check(immutable.TreeSet[IntegerValue]() ++ input)

@@ -10,6 +10,7 @@ class ChangeAnyValues
      override val effects: Iterable[AnyMoveEffect])
     extends Move(id)
 {
+    override def effectsIterator = effects.iterator
     override lazy val size = effects.size
 }
 
@@ -24,6 +25,7 @@ class ChangeValues
      override val effects: Iterable[MoveEffect[Value]])
     extends Move(id)
 {
+    override def effectsIterator = effects.iterator
     override lazy val size = effects.size
 }
 

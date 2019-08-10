@@ -26,6 +26,7 @@ final class BooleanChannelDomainTest extends UnitTest {
         assert(! d.isEmpty)
         assert(! d.isSingleton)
         assertEx(d.values)
+        assertEx(d.valuesIterator)
         assertEx(d.singleValue)
         assert(d.contains(True))
         assert(d.contains(False))

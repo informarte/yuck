@@ -8,11 +8,14 @@ package yuck.core
 abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVariable] {
 
     @inline final override def hashCode = id.hashCode
-    override def toString = effects.toList.sortBy(_.anyVariable.id).mkString(", ")
+    override def toString = effectsIterator.toList.sortBy(_.anyVariable.id).mkString(", ")
     @inline final override def compare(that: Move) = this.id.compare(that.id)
 
     /** Returns the effects of the move. */
-    def effects: IterableOnce[AnyMoveEffect]
+    def effects: Iterable[AnyMoveEffect]
+
+    /** Returns the effects of the move. */
+    def effectsIterator: Iterator[AnyMoveEffect]
 
     /** Returns true iff the move does not involve any variable. */
     override def isEmpty: Boolean = effects.isEmpty
@@ -21,16 +24,19 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVar
     override def size: Int = effects.size
 
     /** Iterates the variables of the move. */
-    override def foreach[U](f: AnyVariable => U) = involvedVariables.foreach(f)
+    override def foreach[U](f: AnyVariable => U) = involvedVariablesIterator.foreach(f)
 
     /** Returns the variables involved in the move. */
-    override def iterator = involvedVariables.iterator
+    override def iterator = involvedVariablesIterator
 
     /** Returns the variables involved in the move. */
-    def involvedVariables: IterableOnce[AnyVariable] = effects.iterator.map(_.anyVariable)
+    def involvedVariables: Iterable[AnyVariable] = effects.view.map(_.anyVariable)
+
+    /** Returns the variables involved in the move. */
+    def involvedVariablesIterator: Iterator[AnyVariable] = effectsIterator.map(_.anyVariable)
 
     /** Returns true iff the given variable is involved in the move. */
-    def involves(x: AnyVariable): Boolean = involvedVariables.exists(_ == x)
+    def involves(x: AnyVariable): Boolean = involvedVariablesIterator.exists(_ == x)
 
     /**
      * Returns the value the move would assign to the given variable.
@@ -38,7 +44,7 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVar
      * Throws when the given variable is not involved in the move.
      */
     def anyValue(x: AnyVariable): AnyValue =
-        effects.iterator.filter(_.anyVariable == x).next.anyValue
+        effectsIterator.filter(_.anyVariable == x).next.anyValue
 
     /**
      * Returns None if the move does not involve the given variable x,
@@ -46,7 +52,7 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVar
      * by the move.
      */
     def maybeAnyValue(x: AnyVariable): Option[AnyValue] =
-        effects.find(_.anyVariable == x).map(_.anyValue)
+        effectsIterator.find(_.anyVariable == x).map(_.anyValue)
 
     /** Typed version of anyValue. */
     @inline final def value[Value <: AnyValue](x: Variable[Value]): Value =

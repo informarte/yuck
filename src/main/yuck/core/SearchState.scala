@@ -13,7 +13,7 @@ abstract class SearchState extends mutable.Cloneable[SearchState] {
     def mappedVariables: Set[AnyVariable]
 
     override def toString =
-        "{%s}".format(mappedVariables.toList.sortBy(_.name).map(x => (x -> anyValue(x)).toString).mkString(", "))
+        "{%s}".format(mappedVariables.toList.sortBy(_.name).iterator.map(x => (x -> anyValue(x)).toString).mkString(", "))
 
     /** Returns true iff the given variable has a value assignment. */
     def hasValue(x: AnyVariable): Boolean = maybeAnyValue(x).isDefined

@@ -102,7 +102,7 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
      */
     final def randomSubdomain(randomGenerator: RandomGenerator): IntegerDomain = {
         val choice = new mutable.HashSet[IntegerValue]
-        values.foreach(a => if (randomGenerator.nextDecision) choice += a)
+        valuesIterator.foreach(a => if (randomGenerator.nextDecision) choice += a)
         createDomain(choice)
     }
 
@@ -216,7 +216,7 @@ final object IntegerDomain {
         else new IntegerRangeList(ranges.toIndexedSeq)
 
     /** Creates an integer domain from a given value set. */
-    def createDomain(values: IterableOnce[IntegerValue]): IntegerDomain =
+    def createDomain(values: Iterable[IntegerValue]): IntegerDomain =
         if (values.isEmpty) {
             EmptyIntegerRange
         } else {

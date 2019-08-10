@@ -62,6 +62,6 @@ abstract class Distribution {
         inverseCdf(randomGenerator.nextLong(volume))
 
     override def toString =
-        (0 until size).map(i => frequency(i)).toString
+        (0 until size).iterator.map(i => frequency(i)).mkString(", ")
 
 }

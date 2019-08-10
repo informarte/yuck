@@ -38,7 +38,7 @@ final class IntegerRangeList
 
     def equals(that: IntegerRangeList): Boolean = this.eq(that) || this.ranges == that.ranges
 
-    override def toString = if (isEmpty) "{}" else ranges.map(_.toString).mkString(" union ")
+    override def toString = if (isEmpty) "{}" else ranges.iterator.map(_.toString).mkString(" union ")
 
     @inline override def isEmpty = ranges.isEmpty
     override lazy val size = ranges.map(_.size).foldLeft(0)(safeAdd)
@@ -51,7 +51,11 @@ final class IntegerRangeList
     override def hull: IntegerRange = if (ranges.size == 1) ranges.head else createRange(lb, ub)
     override def values = {
         require(isFinite)
-        ranges.iterator.flatMap(_.values)
+        ranges.view.flatMap(_.values)
+    }
+    override def valuesIterator = {
+        require(isFinite)
+        ranges.iterator.flatMap(_.valuesIterator)
     }
     override def singleValue = {
         require(isSingleton)
@@ -232,7 +236,7 @@ final object IntegerRangeList {
 
     /** A lexicographic ordering on the underlying range lists. */
     val ordering = new Ordering[IntegerRangeList] {
-        val rangeListOrdering = createLexicographicOrderingForIterableOnce(IntegerRange.ordering)
+        val rangeListOrdering = createLexicographicOrderingForIterable(IntegerRange.ordering)
         override def compare(lhs: IntegerRangeList, rhs: IntegerRangeList) =
             rangeListOrdering.compare(lhs.ranges, rhs.ranges)
     }

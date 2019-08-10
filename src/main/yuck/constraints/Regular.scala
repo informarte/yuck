@@ -75,13 +75,13 @@ final class Regular
                 for (j <- 0 until Q)
                     if (d(i)(k) < Int.MaxValue && d(k)(j) < Int.MaxValue && d(i)(j) > d(i)(k) + d(k)(j))
                         d(i)(j) = d(i)(k) + d(k)(j)
-        for (i <- 0 until Q) yield F.values.map(f => d(i)(f.value - 1)).min
+        for (i <- 0 until Q) yield F.valuesIterator.map(f => d(i)(f.value - 1)).min
     }
 
     override def toString =
         "regular([%s], %d, %d, [%s], %d, %s, %s)".format(
             xs.mkString(", "), Q, S,
-            delta.map(row => "[%s]".format(row.mkString(", "))).mkString(", "), q0, F, costs)
+            delta.iterator.map(row => "[%s]".format(row.mkString(", "))).mkString(", "), q0, F, costs)
 
     override def inVariables = xs
     override def outVariables = List(costs)
@@ -149,8 +149,8 @@ final class Regular
         //    Whenever we pass the first i in is, we remove it from is (by increasing j).
         // 3. In case some i is left in is (j < m), we continue with step 2.
         val is = {
-            val xs = move.involvedVariables.iterator
-            val is0 = if (hasDuplicateVariables) xs.map(x2is).flatten else xs.map(x2i)
+            val xs = move.involvedVariablesIterator
+            val is0 = if (hasDuplicateVariables) xs.flatMap(x2is) else xs.map(x2i)
             is0.filter(_ <= currentFailurePosition).toBuffer.sorted
         }
         val m = is.size

@@ -251,7 +251,8 @@ final class IntegerDomainTestHelper
     private def testSetContainment(d: IntegerDomain, a: IntegerValue): Unit = {
         val result = d.contains(a)
         if (d.isFinite) {
-            assertEq(result, d.values.iterator.contains(a))
+            assertEq(result, d.values.exists(_ == a))
+            assertEq(result, d.valuesIterator.contains(a))
         } else {
             assertEq(result, d.intersects(new IntegerRange(a, a)))
         }
@@ -265,7 +266,7 @@ final class IntegerDomainTestHelper
             if (d.contains(a)) {
                 assertEq(result, 0)
             } else if (d.isFinite) {
-                assertEq(result, (d.values.map(b => (a - b).abs).min).value)
+                assertEq(result, (d.valuesIterator.map(b => (a - b).abs).min).value)
             } else if (d.hasLb && a < d.lb) {
                 assertEq(result, (d.lb - a).value)
             } else if (d.hasUb && a > d.ub) {
@@ -330,6 +331,7 @@ final class IntegerDomainTestHelper
         assert(! a.contains(Zero))
         assertEx(a.singleValue)
         assertEq(a.values.toList, Nil)
+        assertEq(a.valuesIterator.toList, Nil)
         assert(a.isBounded)
         assert(a.hasLb)
         assert(a.hasUb)
@@ -354,6 +356,7 @@ final class IntegerDomainTestHelper
         assert(! b.contains(One))
         assertEq(b.singleValue, Zero)
         assertEq(b.values.toList, List(Zero))
+        assertEq(b.valuesIterator.toList, b.values.toList)
         assert(b.isBounded)
         assert(b.hasLb)
         assert(b.hasUb)
@@ -380,6 +383,7 @@ final class IntegerDomainTestHelper
         assertEx(c.singleValue)
         assertEq(c.values.size, 10)
         assertEq(c.values.toList, List(Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine))
+        assertEq(c.valuesIterator.toList, c.values.toList)
         assert(c.isBounded)
         assert(c.hasLb)
         assert(c.hasUb)
@@ -403,6 +407,7 @@ final class IntegerDomainTestHelper
         assert(d.contains(Zero))
         assertEx(d.singleValue)
         assertEx(d.values)
+        assertEx(d.valuesIterator)
         assert(! d.isBounded)
         assert(! d.hasLb)
         assert(! d.hasUb)
@@ -425,6 +430,7 @@ final class IntegerDomainTestHelper
         assert(! e.contains(One))
         assertEx(e.singleValue)
         assertEx(e.values)
+        assertEx(e.valuesIterator)
         assert(e.isBounded)
         assert(! e.hasLb)
         assert(e.hasUb)
@@ -447,6 +453,7 @@ final class IntegerDomainTestHelper
         assert(f.contains(One))
         assertEx(f.singleValue)
         assertEx(f.values)
+        assertEx(f.valuesIterator)
         assert(f.isBounded)
         assert(f.hasLb)
         assert(! f.hasUb)

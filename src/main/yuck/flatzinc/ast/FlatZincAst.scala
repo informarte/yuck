@@ -9,7 +9,7 @@ final case class IntRange(val lb: Int, val ub: Int) extends ValueSet[Int] {
 final case class IntSet(val value: Set[Int]) extends ValueSet[Int] {
     override def toString =
         "{%s%s}".format(
-            value.toList.sorted.take(10).map(_.toString).mkString(", "),
+            value.toBuffer.sorted.iterator.take(10).map(_.toString).mkString(", "),
             if (value.size > 10) ", ..." else "")
 }
 // The representation of floats is left to the implementation by the Zinc specification.
@@ -34,7 +34,7 @@ final case class FloatConst(val value: Double) extends ConstExpr {
 }
 final case class IntSetConst(value: ValueSet[Int]) extends ConstExpr
 final case class ArrayConst(val value: List[Expr]) extends ConstExpr {
-    override def toString = "[%s]".format(value.map(_.toString).mkString(", "))
+    override def toString = "[%s]".format(value.iterator.map(_.toString).mkString(", "))
 }
 final case class ArrayAccess(val id: String, val idx: Expr) extends Expr {
     override def toString = "%s[%s]".format(id, idx)
@@ -42,7 +42,7 @@ final case class ArrayAccess(val id: String, val idx: Expr) extends Expr {
 // In expressions, parameters and variables are represented as 0-ary terms.
 final case class Term(val id: String, val params: List[Expr]) extends Expr {
     override def toString =
-        if (params.isEmpty) id else "%s(%s)".format(id, params.map(_.toString).mkString(", "))
+        if (params.isEmpty) id else "%s(%s)".format(id, params.iterator.map(_.toString).mkString(", "))
 }
 
 trait Type {
@@ -90,9 +90,9 @@ final case class Constraint(val id: String, params: List[Expr], annotations: Lis
     override def toString = {
         val tmp =
             if (params.isEmpty) id
-            else "%s(%s)".format(id, params.map(_.toString).mkString(", "))
+            else "%s(%s)".format(id, params.iterator.map(_.toString).mkString(", "))
         if (annotations.isEmpty) tmp
-        else "%s :: %s".format(tmp, annotations.map(_.toString).mkString(", "))
+        else "%s :: %s".format(tmp, annotations.iterator.map(_.toString).mkString(", "))
     }
 }
 
@@ -141,7 +141,7 @@ final case class FlatZincAst(
         case BoolConst(_) | IntConst(_) | FloatConst(_) | IntSetConst(_) =>
             immutable.Set()
         case ArrayConst(elems) =>
-            elems.map(involvedVariables).flatten.toSet
+            elems.iterator.flatMap(involvedVariables).toSet
         case ArrayAccess(id, idx) if varDeclsByName.contains(id) =>
             val decl = varDeclsByName(id)
             if (decl.optionalValue.isDefined) {
@@ -159,7 +159,7 @@ final case class FlatZincAst(
         case ArrayAccess(id, _) if paramDeclsByName.contains(id) =>
             immutable.Set()
         case Term(id, Nil) if varDeclsByName.contains(id) =>
-            if (varDeclsByName(id).varType.isArrayType) getArrayElems(expr).map(involvedVariables).flatten.toSet
+            if (varDeclsByName(id).varType.isArrayType) getArrayElems(expr).iterator.flatMap(involvedVariables).toSet
             else immutable.Set(expr)
         case Term(id, Nil) if paramDeclsByName.contains(id) =>
             immutable.Set()
@@ -204,6 +204,6 @@ final case class FlatZincAst(
     }
 
     final def involvedVariables(constraint: Constraint): immutable.Set[Expr] =
-        constraint.params.iterator.map(involvedVariables).flatten.toSet
+        constraint.params.iterator.flatMap(involvedVariables).toSet
 
 }

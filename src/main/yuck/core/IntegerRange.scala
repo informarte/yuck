@@ -48,6 +48,10 @@ final class IntegerRange
     override def hull = this
     override def values = {
         require(isFinite)
+        (lb.value to ub.value).view.map(a => IntegerValue.get(a))
+    }
+    override def valuesIterator = {
+        require(isFinite)
         (lb.value to ub.value).iterator.map(a => IntegerValue.get(a))
     }
     override def singleValue = {

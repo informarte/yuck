@@ -124,8 +124,7 @@ final class ConstraintFactory
         cc.costVars ++=
             cc.ast.constraints
             .iterator
-            .map(constraint => compileConstraint(new FlatZincGoal(constraint), constraint))
-            .flatten
+            .flatMap(constraint => compileConstraint(new FlatZincGoal(constraint), constraint))
     }
 
     private val IntLin = "int_lin_(.*)".r
@@ -133,7 +132,7 @@ final class ConstraintFactory
 
     // In Yuck, True < False, but in FlatZinc, false < true.
     private val booleanOrdering = BooleanValueTraits.valueOrdering.reverse
-    private val booleanSequenceOrdering = createLexicographicOrderingForIterableOnce(booleanOrdering)
+    private val booleanSequenceOrdering = createLexicographicOrderingForIterable(booleanOrdering)
 
     private def compileConstraint
         (goal: Goal, constraint: yuck.flatzinc.ast.Constraint):
@@ -715,7 +714,7 @@ final class ConstraintFactory
             val constraint = new Inverse(nextConstraintId, goal, new InverseFunction(f, fOffset), new InverseFunction(g, gOffset), costs)
             val constraints = constraint.decompose(space)
             constraints.foreach(space.post)
-            constraints.map(_.outVariables).flatten
+            constraints.view.flatMap(_.outVariables)
         case Constraint("yuck_bin_packing", List(loads0, bins0, weights0, IntConst(minLoadIndex)), _) =>
             val bins = compileIntArray(bins0)
             val weights = getArrayElems(weights0).map(getConst[IntegerValue](_))
@@ -910,7 +909,7 @@ final class ConstraintFactory
         require(as.size == xs.size)
         val axs =
             AX.compact(
-                for ((x, y) <- as.iterator.zip(xs.iterator)
+                for ((x, y) <- as.view.zip(xs.view)
                      if x.domain.singleValue != zero && (! y.domain.isSingleton || y.domain.singleValue != zero))
                     yield new AX[Value](x.domain.singleValue, y))
         axs match {
@@ -955,7 +954,7 @@ final class ConstraintFactory
         require(as.size == xs.size)
         val axs =
             AX.compact(
-                for ((x, y) <- as.iterator.zip(xs.iterator)
+                for ((x, y) <- as.view.zip(xs.view)
                      if x.domain.singleValue != zero && (! y.domain.isSingleton || y.domain.singleValue != zero))
                     yield new AX[Value](x.domain.singleValue, y))
         val z = compileNumExpr[Value](c)

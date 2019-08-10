@@ -62,7 +62,7 @@ final class Cumulative
             }
         }
 
-    override def inVariables = (0 until n).iterator.map(variablesIterator).flatten ++ List(capacity).iterator
+    override def inVariables = (0 until n).flatMap(variablesIterator) :+ capacity
     override def outVariables = List(costs)
 
     // Rectangles may be identical, so we use the index of originating task to distinguish them.
@@ -101,8 +101,7 @@ final class Cumulative
     private val x2is =
         (0 until n)
         .iterator
-        .map{case i => variablesIterator(i).map((_, i))}
-        .flatten
+        .flatMap{case i => variablesIterator(i).map((_, i))}
         .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
             case (map, (x, i)) =>
                 val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])
@@ -259,7 +258,7 @@ final class Cumulative
         futureCosts = currentCosts
         val beforeCapacity = before.value(capacity).value
         val capacityChanged = move.involves(capacity)
-        val is = move.involvedVariables.iterator.map(x2is.getOrElse(_, Nil)).flatten.to(mutable.Set)
+        val is = move.involvedVariablesIterator.flatMap(x2is.getOrElse(_, Nil)).to(mutable.Set)
         for (i <- is) {
             val beforeEntry = createRTreeEntry(i, before)
             val beforeBbox = beforeEntry.bbox
