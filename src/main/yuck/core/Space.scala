@@ -198,7 +198,8 @@ final class Space(
     def isChannelVariable(x: AnyVariable): Boolean = outVariables.contains(x)
 
     /** Computes the set of search variables. */
-    def searchVariables: Set[AnyVariable] = inVariables.filter(! _.domain.isSingleton) -- outVariables
+    def searchVariables: Set[AnyVariable] =
+        inVariables.filter(x => ! x.domain.isSingleton && ! outVariables.contains(x))
 
     /** Decides whether the given variable is a search variable. */
     def isSearchVariable(x: AnyVariable): Boolean =

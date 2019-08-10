@@ -139,7 +139,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                         throw new FlatZincCompilerInterruptedException
                     }
                     val xs =
-                        (space.involvedSearchVariables(constraint) -- implicitlyConstrainedVars)
+                        (space.involvedSearchVariables(constraint).diff(implicitlyConstrainedVars))
                         .toBuffer.sorted.toIndexedSeq
                     if (xs.isEmpty) {
                         None
@@ -261,7 +261,7 @@ final class ConstraintDrivenNeighbourhoodFactory
         val rate = (levelCfg.maybeFairVariableChoiceRate.getOrElse(Probability.from(0)).value * 100).toInt
         if (rate == 0) neighbourhood0
         else {
-            val xs = (neighbourhood0.searchVariables -- implicitlyConstrainedVars).toBuffer.sorted.toIndexedSeq
+            val xs = (neighbourhood0.searchVariables.diff(implicitlyConstrainedVars)).toBuffer.sorted.toIndexedSeq
             if (xs.isEmpty) neighbourhood0
             else {
                 val neighbourhood1 =

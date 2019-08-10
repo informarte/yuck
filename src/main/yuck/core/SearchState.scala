@@ -1,13 +1,13 @@
 package yuck.core
 
-import scala.collection.mutable.Cloneable
+import scala.collection._
 
 /**
  * Provides an interface for inspecting the current state of search.
  *
  * @author Michael Marte
  */
-abstract class SearchState extends Cloneable[SearchState] {
+abstract class SearchState extends mutable.Cloneable[SearchState] {
 
     /** Returns the set of variables with value assignment. */
     def mappedVariables: Set[AnyVariable]
