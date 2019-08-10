@@ -127,7 +127,7 @@ final case class FlatZincAst(
                 elems
             } else {
                 val ArrayType(Some(IntRange(n, m)), _) = decl.varType
-                (n to m).toStream.map(i => ArrayAccess(id, IntConst(i)))
+                (n to m).map(i => ArrayAccess(id, IntConst(i)))
             }
         case Term(id, Nil) if paramDeclsByName.contains(id) =>
             val ArrayConst(elems) = paramDeclsByName(id).value

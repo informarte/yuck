@@ -40,7 +40,7 @@ final class LinearConstraintTest
     private val axs = xs.map(AX(if (withUnitCoefficients) One else baseDomain.randomValue(randomGenerator), _))
 
     private def nonEmptyRandomSubdomain(d: IntegerDomain) =
-        Stream.continually(d).map(_.randomSubdomain(randomGenerator)).dropWhile(_.isEmpty).head
+        LazyList.continually(d).map(_.randomSubdomain(randomGenerator)).dropWhile(_.isEmpty).head
 
     @Test
     def testSearchVariables: Unit = {
