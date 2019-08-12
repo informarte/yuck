@@ -95,7 +95,7 @@ final class IntegerTable
                     safeAdd(currentDistances(j), abs(safeSub(now.value(xs(i)).value, row(i))))
             }
         }
-        effect.a = BooleanValue.get(currentDistances.min)
+        effect.a = BooleanValue.get(computeMinDistance(currentDistances))
         effects
     }
 
@@ -123,7 +123,7 @@ final class IntegerTable
                 j += 1
             }
         }
-        effect.a = BooleanValue.get(futureDistances.min)
+        effect.a = BooleanValue.get(computeMinDistance(futureDistances))
         effects
     }
 
@@ -132,6 +132,17 @@ final class IntegerTable
         currentDistances = futureDistances
         futureDistances = tmp
         effects
+    }
+
+    private def computeMinDistance(distances: Array[Int]): Int = {
+        var result = distances(0)
+        var j = 1
+        val m = rows.size
+        while (j < m) {
+            result = scala.math.min(result, distances(j))
+            j += 1
+        }
+        result
     }
 
 }
