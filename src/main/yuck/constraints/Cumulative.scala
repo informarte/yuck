@@ -119,7 +119,7 @@ final class Cumulative
 
     private final class EventPoint(val x: Int, val bbox: Rect2d, val isBBoxStart: Boolean)
     private object EventPointOrdering extends Ordering[EventPoint] {
-        override def compare(p1: EventPoint, p2: EventPoint) = p1.x.compare(p2.x)
+        override def compare(p1: EventPoint, p2: EventPoint) = java.lang.Integer.compare(p1.x, p2.x)
     }
 
     private def computeCosts(rTree: SpatialSearch[RTreeEntry], capacity: Int): Long = {
