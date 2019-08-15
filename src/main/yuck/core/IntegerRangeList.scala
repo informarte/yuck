@@ -2,7 +2,6 @@ package yuck.core
 
 import scala.collection._
 import scala.annotation.tailrec
-import scala.math.{max, min}
 
 import IntegerDomain.{createRange, createDomain}
 

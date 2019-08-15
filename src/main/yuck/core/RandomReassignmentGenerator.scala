@@ -1,7 +1,6 @@
 package yuck.core
 
 import scala.collection._
-import scala.math._
 
 /**
  * Generates random moves of random size.
@@ -64,10 +63,7 @@ final class RandomReassignmentGenerator
             maybeHotSpotDistribution.get.volume == 0 ||
             (maybeFairVariableChoiceRate.isDefined && randomGenerator.nextDecision(maybeFairVariableChoiceRate.get))
         val priorityDistribution = if (useUniformDistribution) uniformDistribution else maybeHotSpotDistribution.get
-        val m =
-            scala.math.min(
-                moveSizeDistribution.nextIndex(randomGenerator),
-                priorityDistribution.numberOfAlternatives)
+        val m = min(moveSizeDistribution.nextIndex(randomGenerator), priorityDistribution.numberOfAlternatives)
         assert(m > 0)
         val effects = effectsByMoveSize(m - 1)
         var i = 0

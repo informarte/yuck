@@ -1,7 +1,6 @@
 package yuck.constraints
 
 import scala.collection._
-import scala.math.abs
 
 import yuck.core._
 
@@ -139,7 +138,7 @@ final class IntegerTable
         var j = 1
         val m = rows.size
         while (j < m) {
-            result = scala.math.min(result, distances(j))
+            result = min(result, distances(j))
             j += 1
         }
         result

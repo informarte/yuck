@@ -1,7 +1,5 @@
 package yuck.core
 
-import scala.math._
-
 /**
  * Objective for maximizing the value of a variable.
  *

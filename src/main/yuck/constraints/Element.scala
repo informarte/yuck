@@ -32,7 +32,7 @@ final class Element
     private def computeEffect(searchState: SearchState): Unit = {
         // When i is a channel variable, the value of i may be out-of-bounds!
         // Nevertheless, we have to provide some value for y.
-        val j = scala.math.min(scala.math.max(0, searchState.value(i).value - indexBase), xs.size - 1)
+        val j = min(max(0, searchState.value(i).value - indexBase), xs.size - 1)
         effect.a = searchState.value(xs(j))
     }
 

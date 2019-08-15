@@ -1,6 +1,6 @@
 package yuck.core
 
-import scala.math.{ceil, floor}
+import java.lang.Math.{ceil, floor}
 
 import yuck.core.IntegerDomain.createRange
 

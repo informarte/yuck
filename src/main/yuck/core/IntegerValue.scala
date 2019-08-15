@@ -1,5 +1,7 @@
 package yuck.core
 
+import java.lang.Math.pow
+
 /**
  * Implements immutable integer values.
  *
@@ -21,7 +23,7 @@ final class IntegerValue(val value: Int) extends NumericalValue[IntegerValue] {
     override def *(that: IntegerValue) = IntegerValue.get(safeMul(this.value, that.value))
     override def /(that: IntegerValue) = IntegerValue.get(this.value / that.value)
     override def ^(that: IntegerValue) = {
-        val result: Double = scala.math.pow(this.value, that.value)
+        val result: Double = pow(this.value, that.value)
         if (result == java.lang.Double.NEGATIVE_INFINITY || result == java.lang.Double.POSITIVE_INFINITY ||
             result < Int.MinValue || result > Int.MaxValue)
         {

@@ -1,8 +1,5 @@
 package yuck.core
 
-import scala.collection.Iterator
-import scala.math.max
-
 import IntegerDomain.createRange
 
 /**

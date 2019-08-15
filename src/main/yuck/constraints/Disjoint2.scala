@@ -4,7 +4,6 @@ import com.conversantmedia.util.collection.geometry.{Point2d, Rect2d}
 import com.conversantmedia.util.collection.spatial.{HyperPoint, HyperRect, RectBuilder}
 
 import scala.collection._
-import scala.math.{max, min}
 
 import yuck.core._
 import yuck.util.alg.rtree.RicherPoint2d

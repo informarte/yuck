@@ -7,7 +7,7 @@ package yuck.core
  */
 final object IntegerOrderingCostModel extends OrderingCostModel[IntegerValue] {
     override def eq(lhs: IntegerValue, rhs: IntegerValue) =
-        BooleanValue.get(scala.math.abs(safeSub(lhs.value, rhs.value)))
+        BooleanValue.get(abs(safeSub(lhs.value, rhs.value)))
     override def ne(lhs: IntegerValue, rhs: IntegerValue) =
         if (lhs != rhs) True else False
     override def lt(lhs: IntegerValue, rhs: IntegerValue) =

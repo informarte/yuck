@@ -1,7 +1,6 @@
 package yuck.constraints
 
 import scala.collection._
-import scala.math.{abs, max, min}
 
 import yuck.annealing._
 import yuck.core._

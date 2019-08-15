@@ -1,6 +1,6 @@
 package yuck.core
 
-import scala.math._
+import java.lang.Math.{abs, log, signum}
 
 /**
  * Objective for optimizing the value of a numerical variable.

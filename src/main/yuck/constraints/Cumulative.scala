@@ -2,10 +2,10 @@ package yuck.constraints
 
 import com.conversantmedia.util.collection.geometry.{Point2d, Rect2d}
 import com.conversantmedia.util.collection.spatial.{HyperPoint, HyperRect, RectBuilder, SpatialSearch, SpatialSearches}
+
 import java.util.function.Consumer
 
 import scala.collection._
-import scala.math.{max, min}
 
 import yuck.core._
 import yuck.util.alg.rtree.{RTreeTransaction, RicherRect2d}

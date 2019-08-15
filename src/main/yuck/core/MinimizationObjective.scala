@@ -1,7 +1,5 @@
 package yuck.core
 
-import scala.math._
-
 /**
  * Objective for minimizing the value of a variable.
  *

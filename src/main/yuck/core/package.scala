@@ -21,6 +21,9 @@ package object core {
     @inline def safeInc(a: Int): Int = java.lang.Math.incrementExact(a)
     @inline def safeDec(a: Int): Int = java.lang.Math.decrementExact(a)
     @inline def safeNeg(a: Int): Int = java.lang.Math.negateExact(a)
+    @inline def min(a: Int, b: Int): Int = java.lang.Math.min(a, b)
+    @inline def max(a: Int, b: Int): Int = java.lang.Math.max(a, b)
+    @inline def abs(a: Int): Int = java.lang.Math.abs(a)
 
     @inline def safeAdd(a: Long, b: Long): Long = java.lang.Math.addExact(a, b)
     @inline def safeSub(a: Long, b: Long): Long = java.lang.Math.subtractExact(a, b)
@@ -29,6 +32,9 @@ package object core {
     @inline def safeDec(a: Long): Long = java.lang.Math.decrementExact(a)
     @inline def safeNeg(a: Long): Long = java.lang.Math.negateExact(a)
     @inline def safeToInt(a: Long): Int = java.lang.Math.toIntExact(a)
+    @inline def min(a: Long, b: Long): Long = java.lang.Math.min(a, b)
+    @inline def max(a: Long, b: Long): Long = java.lang.Math.max(a, b)
+    @inline def abs(a: Long): Long = java.lang.Math.abs(a)
 
     type Costs = AnyValue
 

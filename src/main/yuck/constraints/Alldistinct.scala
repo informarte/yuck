@@ -1,7 +1,6 @@
 package yuck.constraints
 
 import scala.collection._
-import scala.math.{max, min}
 
 import yuck.annealing._
 import yuck.core._
@@ -347,8 +346,8 @@ final class AlldistinctNeighbourhood
     override def children = Nil
 
     override def nextMove = {
-        val m1 = scala.math.min(n, moveSizeDistribution.nextIndex(randomGenerator))
-        val m2 = if (swappingInValuesIsPossible) m1 else scala.math.max(m1, 2)
+        val m1 = min(n, moveSizeDistribution.nextIndex(randomGenerator))
+        val m2 = if (swappingInValuesIsPossible) m1 else max(m1, 2)
         nextMove(m2)
     }
 
