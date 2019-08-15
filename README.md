@@ -75,10 +75,8 @@ In case you need Yuck's MiniZinc library, its location depends on how you instal
 Say your home folder contains the directory `workspace` with the file `zebra.mzn` in it. To solve this problem by means of the Docker image, use the following command:
 
 ```
-docker run -ti -v ~/workspace:/problems informarte/yuck:<tag> minizinc --solver yuck /problems/zebra.mzn
+docker run -ti -v ~/workspace:/problems informarte/yuck:latest minizinc --solver yuck /problems/zebra.mzn
 ```
-
-(Replace `<tag>` with the Yuck version you want to use.)
 
 By default, the Docker image limits the maximum heap size to 2 GB.
 
@@ -120,7 +118,7 @@ Yuck provides dedicated solvers for the following global MiniZinc constraints:
 * diffn, diffn_nonstrict
 * disjunctive, disjunctive_strict
 * exactly
-* global_cardinality and friends
+* global_cardinality, global_cardinality_closed, global_cardinality_low_up, global_cardinality_low_up_closed
 * inverse
 * lex_less, lex_lesseq
 * maximum
@@ -169,7 +167,7 @@ To build and rebuild Yuck and its documentation, use the sbt standard targets:
 ### Testing
 
 Yuck tests are based on [JUnit 4](http://junit.org/junit4/) and
-[MiniZinc 2.2.x](http://www.minizinc.org/software.html).
+[MiniZinc 2.3.x](http://www.minizinc.org/software.html).
 
 * `make unit-tests` builds and runs all unit tests.
 * `make minizinc-tests` runs all FlatZinc frontend tests.
