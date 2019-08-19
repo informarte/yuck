@@ -1,6 +1,13 @@
 package yuck.core
 
 /**
+  * Helper class for passing the result of tightening.
+  *
+  * @author Michael Marte
+  */
+case class TighteningResult(val searchState: SearchState, val maybeTightenedVariable: Option[AnyVariable])
+
+/**
  * Represents an optimization goal for use in local search.
  *
  * @author Michael Marte
@@ -65,12 +72,10 @@ abstract class AnyObjective {
      *
      * The result of this method is twofold:
      * 1. The search state resulting from the first step.
+     *    (This may be the search state of the given space.)
      * 2. Some(x) if the domain of x was reduced in the process, and None otherwise.
-     *
-     * Only if the domain of x was reduced, the ownership of the returned search state lies
-     * with the caller.
      */
-    final def tighten(space: Space): (SearchState, Option[AnyVariable]) = tighten(space, this)
+    final def tighten(space: Space): TighteningResult = tighten(space, this)
 
-    def tighten(space: Space, topLevelObjective: AnyObjective): (SearchState, Option[AnyVariable])
+    def tighten(space: Space, topLevelObjective: AnyObjective): TighteningResult
 }

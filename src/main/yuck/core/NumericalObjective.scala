@@ -39,7 +39,7 @@ abstract class NumericalObjective
 
     protected final def tighten
         (space: Space, rootObjective: AnyObjective, tighteningStep: Value):
-        (SearchState, Option[AnyVariable]) =
+        TighteningResult =
     {
         val minimize = tighteningStep < valueTraits.zero
         val costsBeforeTightenining = rootObjective.costs(space.searchState)
@@ -67,11 +67,11 @@ abstract class NumericalObjective
             val costsAfterMove = rootObjective.costs(after)
             ! rootObjective.isHigherThan(costsAfterMove, costsBeforeTightenining)
         }
-        def propagateBound(d: NumericalDomain[Value]): Unit = {
-            val move = new ChangeValue(space.nextMoveId, x, if (minimize) d.ub else d.lb)
+        def constrainObjective(dx: NumericalDomain[Value]): Unit = {
+            val move = new ChangeValue(space.nextMoveId, x, if (minimize) dx.ub else dx.lb)
             space.consult(move)
             space.commit(move)
-            x.pruneDomain(d)
+            x.pruneDomain(dx)
         }
         if (  space.isSearchVariable(x) &&
             ! space.directlyAffectedConstraints(x).exists(space.isImplicitConstraint))
@@ -83,31 +83,29 @@ abstract class NumericalObjective
             val maybeB = findActualObjectiveValue(bound(dx0, a))
             if (maybeB.isDefined) {
                 val b = maybeB.get
+                val dx1 = bound(dx0, b)
                 val c = b + tighteningStep
-                val dx1 = bound(dx0, c)
-                // So b is the actual objective value and dx1 is the future domain of x.
-                if (b == a && dx1.isEmpty) {
-                    (space.searchState, None)
+                val dx2 = bound(dx0, c)
+                // So b is the actual objective value and dx2 is the future domain of x.
+                // First we assign b to x.
+                constrainObjective(dx1)
+                val costsAfterTightening = rootObjective.costs(space.searchState)
+                assert(! rootObjective.isHigherThan(costsAfterTightening, costsBeforeTightenining))
+                if (dx2.isEmpty) {
+                    // x cannot be constrained any further.
+                    TighteningResult(space.searchState, if (b == a) None else Some(x))
                 } else {
-                    // First we assign b to x.
-                    if (b != a) {
-                        propagateBound(bound(dx0, b))
-                    }
                     // Then we capture the resulting search state.
                     val bestFeasibleSearchState = space.searchState.clone
-                    val costsAfterTightening = rootObjective.costs(bestFeasibleSearchState)
-                    assert(! rootObjective.isHigherThan(costsAfterTightening, costsBeforeTightenining))
                     // Finally we constrain x to drive search towards a better solution.
-                    if (! dx1.isEmpty) {
-                        propagateBound(dx1)
-                    }
-                    (bestFeasibleSearchState, Some(x))
+                    constrainObjective(dx2)
+                    TighteningResult(bestFeasibleSearchState, Some(x))
                 }
             } else {
-                (space.searchState, None)
+                TighteningResult(space.searchState, None)
             }
         } else {
-            (space.searchState, None)
+            TighteningResult(space.searchState, None)
         }
     }
 

@@ -49,10 +49,10 @@ final class HierarchicalObjective(
         tighten(space, objectives, rootObjective)
     private def tighten
         (space: Space, objectives: List[AnyObjective], rootObjective: AnyObjective):
-        (SearchState, Option[AnyVariable]) =
+        TighteningResult =
     {
         objectives match {
-            case Nil => (space.searchState, None)
+            case Nil => TighteningResult(space.searchState, None)
             case (h :: t) =>
                 if (h.isGoodEnough(h.costs(space.searchState))) tighten(space, t, rootObjective)
                 else h.tighten(space, rootObjective)

@@ -55,20 +55,18 @@ final class MinimizationObjectiveTest extends UnitTest {
             .initialize
         // check that tightening finds lower bound of x
         if (true) {
-            val tighteningResult = objective.tighten(space)
-            assert(! tighteningResult._1.eq(space.searchState))
-            assertEq(tighteningResult._1.mappedVariables, Set(x))
-            assertEq(tighteningResult._1.value(x), Zero)
-            assertEq(tighteningResult._2, Some(x))
+            val TighteningResult(tightenedState, maybeTightenedVariable) = objective.tighten(space)
+            assertEq(tightenedState.mappedVariables, Set(x))
+            assertEq(tightenedState.value(x), Zero)
+            assertEq(maybeTightenedVariable, Some(x))
             assertEq(space.searchState.value(x), Zero)
             assert(x.domain.isSingleton)
             assertEq(x.domain.singleValue, Zero)
         }
         // check that further tightening is not possible
         if (true) {
-            val tighteningResult = objective.tighten(space)
-            assert(tighteningResult._1.eq(space.searchState))
-            assertEq(tighteningResult._2, None)
+            val TighteningResult(tightenedState, maybeTightenedObjective) = objective.tighten(space)
+            assertEq(maybeTightenedObjective, None)
         }
     }
 

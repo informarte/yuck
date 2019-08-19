@@ -20,13 +20,13 @@ final class MinimizationObjective
         costs.asInstanceOf[Value] <= targetCosts
     override def compareCosts(lhs: Costs, rhs: Costs) =
         lhs.asInstanceOf[Value].compare(rhs.asInstanceOf[Value])
-    protected override def computeDelta(before: SearchState, after: SearchState) =
+    override protected def computeDelta(before: SearchState, after: SearchState) =
         costs(after).toDouble - costs(before).toDouble
     override def tighten(space: Space, rootObjective: AnyObjective) = {
         if (maybeTighteningStep.isDefined) {
             tighten(space, rootObjective, maybeTighteningStep.get)
         } else {
-            (space.searchState, None)
+            TighteningResult(space.searchState, None)
         }
     }
 }

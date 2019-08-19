@@ -2,6 +2,7 @@ package yuck.core.test
 
 import org.junit._
 
+import yuck.constraints.Lt
 import yuck.core._
 import yuck.util.testing.UnitTest
 
@@ -17,12 +18,12 @@ final class HierarchicalObjectiveTest extends UnitTest {
     private val baseDomain = new IntegerRange(Zero, Nine)
     private val x = new IntegerVariable(space.nextVariableId, "x", baseDomain)
     private val y = new IntegerVariable(space.nextVariableId, "y", baseDomain)
-    private val mainObjective = new MinimizationObjective(x, Zero, None)
-    private val subordinateObjective = new MaximizationObjective(y, Nine, Some(One))
-    private val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false)
 
     @Test
     def testCostComparison: Unit = {
+        val mainObjective = new MinimizationObjective(x, Zero, None)
+        val subordinateObjective = new MaximizationObjective(y, Nine, Some(One))
+        val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false)
         val a = new Assignment
         a.setValue(x, Zero)
         a.setValue(y, One)
@@ -39,6 +40,9 @@ final class HierarchicalObjectiveTest extends UnitTest {
     @Test
     def testMoveAssessment: Unit = {
         import scala.math.Ordering.Double.TotalOrdering
+        val mainObjective = new MinimizationObjective(x, Zero, None)
+        val subordinateObjective = new MaximizationObjective(y, Nine, Some(One))
+        val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false)
         val a = new Assignment
         a.setValue(x, Zero)
         a.setValue(y, One)
@@ -67,42 +71,74 @@ final class HierarchicalObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testTightening: Unit = {
-        // check tightening of subordinate (maximization) objective
-        // starting out from a nearly optimal but infeasible search state
-        space
-            .post(new DummyConstraint(space.nextConstraintId, List(x, y), Nil))
-            .setValue(x, One)
-            .setValue(y, Eight)
-            .initialize
-        if (true) {
-            val tighteningResult = objective.tighten(space)
-            assert(tighteningResult._1.eq(space.searchState))
-            assertEq(tighteningResult._2, None)
-            assertEq(space.searchState.value(x), One)
-            assertEq(space.searchState.value(y), Eight)
-            assertEq(x.domain.size, 10)
-            assertEq(y.domain.size, 10)
+    def testTighteningWithMinimization: Unit = {
+        val z = new BooleanVariable(space.nextVariableId, "z", TrueDomain)
+        val mainObjective = new MinimizationObjective(z, True, None)
+        val subordinateObjective = new MinimizationObjective(y, baseDomain.lb, Some(MinusOne))
+        val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false)
+        val now = space.searchState
+        space.post(new Lt(space.nextConstraintId, null, x, y, z))
+        for (a <- x.domain.values; b <- y.domain.values) {
+            space.setValue(x, a).setValue(y, b).initialize
+            assertEq(now.value(z).truthValue, a < b)
+            val TighteningResult(tightenedState, maybeTightenedVariable) = objective.tighten(space)
+            assertEq(tightenedState.mappedVariables, Set(x, y, z))
+            if (a < b) {
+                assertEq(tightenedState.value(x), a)
+                assertEq(tightenedState.value(y), a + One)
+                assertEq(maybeTightenedVariable, Some(y))
+                assertEq(x.domain, baseDomain)
+                assertEq(y.domain.ub, a)
+                assertEq(now.value(x), a)
+                assertEq(now.value(y), a)
+            } else {
+                assertEq(tightenedState.value(x), a)
+                assertEq(tightenedState.value(y), b)
+                assertEq(maybeTightenedVariable, None)
+                assertEq(x.domain, baseDomain)
+                assertEq(y.domain, baseDomain)
+                assertEq(now.value(x), a)
+                assertEq(now.value(y), b)
+            }
+            assertEq(now.value(z).truthValue, false)
+            x.relaxDomain(baseDomain)
+            y.relaxDomain(baseDomain)
         }
-        // now move to a solution to facilitate tightening of y
-        if (true) {
-            space.setValue(x, Zero).initialize
-            val tighteningResult = objective.tighten(space)
-            assert(! tighteningResult._1.eq(space.searchState))
-            assertEq(tighteningResult._1.mappedVariables, Set(x, y))
-            assertEq(tighteningResult._1.value(x), Zero)
-            assertEq(tighteningResult._1.value(y), Nine)
-            assertEq(tighteningResult._2, Some(y))
-            assertEq(space.searchState.value(x), Zero)
-            assertEq(space.searchState.value(y), Nine)
-            assertEq(x.domain.size, 10)
-            assertEq(y.domain.size, 1)
-        }
-        // check that further tightening is not possible
-        if (true) {
-            val tighteningResult = objective.tighten(space)
-            assert(tighteningResult._1.eq(space.searchState))
-            assertEq(tighteningResult._2, None)
+    }
+
+    @Test
+    def testTighteningWithMaximization: Unit = {
+        val z = new BooleanVariable(space.nextVariableId, "z", TrueDomain)
+        val mainObjective = new MinimizationObjective(z, True, None)
+        val subordinateObjective = new MaximizationObjective(y, baseDomain.ub, Some(One))
+        val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false)
+        val now = space.searchState
+        space.post(new Lt(space.nextConstraintId, null, y, x, z))
+        for (a <- x.domain.values; b <- y.domain.values) {
+            space.setValue(x, a).setValue(y, b).initialize
+            assertEq(now.value(z).truthValue, a > b)
+            val TighteningResult(tightenedState, maybeTightenedVariable) = objective.tighten(space)
+            assertEq(tightenedState.mappedVariables, Set(x, y, z))
+            if (a > b) {
+                assertEq(tightenedState.value(x), a)
+                assertEq(tightenedState.value(y), a - One)
+                assertEq(maybeTightenedVariable, Some(y))
+                assertEq(x.domain, baseDomain)
+                assertEq(y.domain.lb, a)
+                assertEq(now.value(x), a)
+                assertEq(now.value(y), a)
+            } else {
+                assertEq(tightenedState.value(x), a)
+                assertEq(tightenedState.value(y), b)
+                assertEq(maybeTightenedVariable, None)
+                assertEq(x.domain, baseDomain)
+                assertEq(y.domain, baseDomain)
+                assertEq(now.value(x), a)
+                assertEq(now.value(y), b)
+            }
+            assertEq(now.value(z).truthValue, false)
+            x.relaxDomain(baseDomain)
+            y.relaxDomain(baseDomain)
         }
     }
 

@@ -208,8 +208,7 @@ final class SimulatedAnnealing(
 
     private def postprocessMove(roundLog: RoundLog): Unit = {
         val costsBeforeTightenining = objective.costs(currentProposal)
-        val (tightenedProposal, maybeConstrainedObjectiveVariable) = objective.tighten(space)
-        val tightenedProposalIsMine = maybeConstrainedObjectiveVariable.isDefined
+        val TighteningResult(tightenedProposal, maybeTightenedVariable) = objective.tighten(space)
         val costsAfterTightening = objective.costs(tightenedProposal)
         assert(! objective.isHigherThan(costsAfterTightening, costsBeforeTightenining))
         if (objective.isLowerThan(costsAfterTightening, roundLog.costsOfBestProposal)) {
@@ -219,13 +218,14 @@ final class SimulatedAnnealing(
             roundLog.bestProposalWasImproved = true
             result.costsOfBestProposal = costsAfterTightening
             result.indexOfRoundWithBestProposal = result.roundLogs.length - 1
-            result.bestProposal = if (tightenedProposalIsMine) tightenedProposal else tightenedProposal.clone
+            result.bestProposal =
+                if (tightenedProposal.eq(space.searchState)) tightenedProposal.clone else tightenedProposal
             if (maybeMonitor.isDefined) {
                 maybeMonitor.get.onBetterProposal(result)
             }
         }
-        if (maybeMonitor.isDefined && maybeConstrainedObjectiveVariable.isDefined) {
-            maybeMonitor.get.onObjectiveTightened(maybeConstrainedObjectiveVariable.get)
+        if (maybeMonitor.isDefined && maybeTightenedVariable.isDefined) {
+            maybeMonitor.get.onObjectiveTightened(maybeTightenedVariable.get)
         }
         costsOfCurrentProposal = objective.costs(currentProposal)
     }

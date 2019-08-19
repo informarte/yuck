@@ -53,20 +53,18 @@ final class MaximizationObjectiveTest extends UnitTest {
             .initialize
         // check that tightening finds upper bound of x
         if (true) {
-            val tighteningResult = objective.tighten(space)
-            assert(! tighteningResult._1.eq(space.searchState))
-            assertEq(tighteningResult._1.mappedVariables, Set(x))
-            assertEq(tighteningResult._1.value(x), Nine)
-            assertEq(tighteningResult._2, Some(x))
+            val TighteningResult(tightenedState, maybeTightenedVariable) = objective.tighten(space)
+            assertEq(tightenedState.mappedVariables, Set(x))
+            assertEq(tightenedState.value(x), Nine)
+            assertEq(maybeTightenedVariable, Some(x))
             assertEq(space.searchState.value(x), Nine)
             assert(x.domain.isSingleton)
             assertEq(x.domain.singleValue, Nine)
         }
         // check that further tightening is not possible
         if (true) {
-            val tighteningResult = objective.tighten(space)
-            assert(tighteningResult._1.eq(space.searchState))
-            assertEq(tighteningResult._2, None)
+            val TighteningResult(_, maybeTightenedObjective) = objective.tighten(space)
+            assertEq(maybeTightenedObjective, None)
         }
     }
 

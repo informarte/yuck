@@ -122,7 +122,9 @@ final class SolverTest extends UnitTest {
     @Test
     def testParallelSolvingWithSolution: Unit = {
         val sigint = new RevocableSigint
-        val objective = new MinimizationObjective(null, Zero, None)
+        val space = new Space(logger, sigint)
+        val x = new IntegerVariable(space.nextVariableId, "x", NonNegativeIntegerRange)
+        val objective = new MinimizationObjective(x, Zero, None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = if (i == 8) Zero else One)
         val solvers = results.map(result => new GoodSolver(result, 1, sigint))
@@ -147,7 +149,9 @@ final class SolverTest extends UnitTest {
     @Test
     def testParallelSolvingWithoutSolution: Unit = {
         val sigint = new RevocableSigint
-        val objective = new MinimizationObjective(null, Zero, None)
+        val space = new Space(logger, sigint)
+        val x = new IntegerVariable(space.nextVariableId, "x", NonNegativeIntegerRange)
+        val objective = new MinimizationObjective(x, Zero, None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = One)
         val solvers = results.map(result => new GoodSolver(result, 0, sigint))
@@ -169,7 +173,9 @@ final class SolverTest extends UnitTest {
     @Test
     def testParallelSolvingWithException: Unit = {
         val sigint = new RevocableSigint
-        val objective = new MinimizationObjective(null, Zero, None)
+        val space = new Space(logger, sigint)
+        val x = new IntegerVariable(space.nextVariableId, "x", NonNegativeIntegerRange)
+        val objective = new MinimizationObjective(x, Zero, None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = One)
         val solvers = (0 until results.size).map(i => if (i == 8) new BadSolver else new GoodSolver(results(i), 1, sigint))
@@ -191,7 +197,9 @@ final class SolverTest extends UnitTest {
     @Test
     def testPracticalSetting: Unit = {
         val sigint = new RevocableSigint
-        val objective = new MinimizationObjective(null, Zero, None)
+        val space = new Space(logger, sigint)
+        val x = new IntegerVariable(space.nextVariableId, "x", NonNegativeIntegerRange)
+        val objective = new MinimizationObjective(x, Zero, None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = if (i == 8) Zero else One)
         class GoodSolverGenerator(result: Result) extends SolverGenerator {
