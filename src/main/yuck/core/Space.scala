@@ -403,6 +403,9 @@ final class Space(
     /** Returns the number of constraints that were posted and later marked as implicit. */
     def numberOfImplicitConstraints: Int = implicitConstraints.size
 
+    /** Counts how often Constraint.propagate was called. */
+    var numberOfPropagations = 0
+
     /**
       * Prunes domains by propagating constraints.
       *
@@ -419,6 +422,7 @@ final class Space(
             val tasks = new mutable.HashSet[Constraint]
             for (constraint <- constraints) {
                 val effects = constraint.propagate
+                numberOfPropagations += 1
                 for (x <- effects.affectedVariables) {
                     tasks ++= directlyAffectedConstraints(x)
                     tasks ++= definingConstraint(x)
@@ -457,6 +461,7 @@ final class Space(
         while (! tasks.isEmpty && ! sigint.isSet) {
             val constraint = tasks.head
             val effects = constraint.propagate
+            numberOfPropagations += 1
             for (x <- effects.affectedVariables) {
                 tasks ++= directlyAffectedConstraints(x)
                 tasks ++= definingConstraint(x)

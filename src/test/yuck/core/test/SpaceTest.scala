@@ -246,8 +246,12 @@ final class SpaceTest extends UnitTest {
             for (spy <- spies) {
                 assertGe(spy.numberOfPropagations, 2)
                 assertEq(spy.propagate, NoPropagationOccurred)
+            }
+            assertEq(space.numberOfPropagations, spies.iterator.map(_.numberOfPropagations - 1).sum)
+            for (spy <- spies) {
                 spy.numberOfPropagations = 0
             }
+            space.numberOfPropagations = 0
 
             // check criss-cross propagation departing from random variable until domain wipe-out
             try {
@@ -258,8 +262,12 @@ final class SpaceTest extends UnitTest {
                     space.propagate(x)
                     for (spy <- spies) {
                         assertEq(spy.propagate, NoPropagationOccurred)
+                    }
+                    assertEq(space.numberOfPropagations, spies.iterator.map(_.numberOfPropagations - 1).sum)
+                    for (spy <- spies) {
                         spy.numberOfPropagations = 0
                     }
+                    space.numberOfPropagations = 0
                     m += 1
                 }
                 assertGt(m, 1)
@@ -314,6 +322,7 @@ final class SpaceTest extends UnitTest {
             for (spy <- spies) {
                 assertEq(spy.numberOfInitializations, 1)
             }
+            assertEq(space.numberOfInitializations, spies.size)
             // check that results are correct
             checkResults(space.searchState)
 
@@ -330,6 +339,7 @@ final class SpaceTest extends UnitTest {
                 for (spy <- spies) {
                     assertLe(spy.numberOfConsultations, 1)
                 }
+                assertEq(space.numberOfConsultations, spies.iterator.map(_.numberOfConsultations).sum)
                 // check that consult considered the move
                 for (x <- move.involvedVariables) {
                     assertEq(afterConsult.anyValue(x), move.anyValue(x))
@@ -345,15 +355,19 @@ final class SpaceTest extends UnitTest {
                 for (spy <- spies) {
                     assertLe(spy.numberOfCommitments, 1)
                 }
+                assertEq(space.numberOfCommitments, spies.iterator.map(_.numberOfCommitments).sum)
                 // check that no propagation happened during consult and commit
                 for (spy <- spies) {
                     assertEq(spy.numberOfPropagations, 0)
                 }
+                assertEq(space.numberOfPropagations, 0)
                 // prepare for next round
                 for (spy <- spies) {
-                    spy.numberOfCommitments = 0
                     spy.numberOfConsultations = 0
+                    spy.numberOfCommitments = 0
                 }
+                space.numberOfConsultations = 0
+                space.numberOfCommitments = 0
             }
 
         }
