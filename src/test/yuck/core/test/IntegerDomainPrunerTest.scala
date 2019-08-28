@@ -278,6 +278,11 @@ class IntegerDomainPrunerTest extends UnitTest {
             (List((2, EmptyIntegerRange), (-3, -10 to -1)), CompleteIntegerRange),
             ((List((2, EmptyIntegerRange), (-3, EmptyIntegerRange)), EmptyIntegerRange)))
 
+        // integer overflow handling
+        checkPruning(
+            (List((-1, new IntegerRange(0, Int.MaxValue)), (-1, ZeroToOneIntegerRange)), CompleteIntegerRange),
+            (List((-1, new IntegerRange(0, Int.MaxValue)), (-1, ZeroToOneIntegerRange)), CompleteIntegerRange))
+
     }
 
     @Test

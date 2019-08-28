@@ -89,6 +89,20 @@ final object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         (lhs0: Iterable[(IntegerValue, Domain)], rhs0: Domain):
         (Iterator[Domain], Domain) =
     {
+        try {
+            unsafeLinEq(lhs0, rhs0)
+        }
+        catch {
+            case _: ArithmeticException =>
+                (lhs0.iterator.map(_._2), rhs0)
+        }
+    }
+
+    private def unsafeLinEq
+        [Domain >: DomainImpl <: NumericalDomain[IntegerValue]]
+        (lhs0: Iterable[(IntegerValue, Domain)], rhs0: Domain):
+        (Iterator[Domain], Domain) =
+    {
         //     sum a_i * x_i  = b
         // <-> sum a_i * x_i <= b & sum  a_i * x_i >=  b
         // <-> sum a_i * x_i <= b & sum -a_i * x_i <= -b
@@ -104,10 +118,24 @@ final object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         (lhs3, rhs3)
     }
 
+    private def linLe
+        [Domain >: DomainImpl <: NumericalDomain[IntegerValue]]
+        (lhs0: Iterable[(IntegerValue, Domain)], rhs0: Domain):
+        (Iterator[Domain], Domain) =
+    {
+        try {
+            unsafeLinLe(lhs0, rhs0)
+        }
+        catch {
+            case _: ArithmeticException =>
+                (lhs0.iterator.map(_._2), rhs0)
+        }
+    }
+
     // We follow K. R. Apt, Principles of Constraint Programming, p. 194.
     // This code implements rule LINEAR_EQUALITY 1 with extensions to prune rhs.
     // Does not compute a fixed point!
-    private def linLe
+    private def unsafeLinLe
         [Domain >: DomainImpl <: NumericalDomain[IntegerValue]]
         (lhs0: Iterable[(IntegerValue, Domain)], rhs0: Domain):
         (Iterator[Domain], Domain) =
