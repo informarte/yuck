@@ -22,26 +22,32 @@ def createDb(cursor):
 
 def importResults(run, file, cursor):
     data = json.load(file)
+    task = data.get('task')
+    modelStatistics = data.get('yuck-model-statistics')
     result = data.get('result')
     solverStatistics = data.get('solver-statistics')
-    modelStatistics = data.get('yuck-model-statistics')
-    cursor.execute(
-        'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        (run,
-         data['task']['suite'],
-         data['task']['problem'],
-         data['task']['model'],
-         data['task']['instance'],
-         data['task']['problem-type'],
-         data['task'].get('optimum'),
-         data['task'].get('high-score'),
-         result['solved'] if result else False,
-         result.get('violation') if result else None,
-         result.get('quality') if result else None,
-         solverStatistics['runtime-in-seconds'] if solverStatistics else None,
-         solverStatistics['moves-per-second'] if solverStatistics else None,
-         modelStatistics['number-of-search-variables'] + modelStatistics['number-of-channel-variables'] if modelStatistics else None,
-         modelStatistics['number-of-constraints'] if modelStatistics else None))
+    if not task:
+         print("No task (MiniZinc compiler error?)")
+    elif not modelStatistics:
+        print("No model statistics (FlatZinc compiler error?)")
+    else:
+        cursor.execute(
+            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            (run,
+             task['suite'],
+             task['problem'],
+             task['model'],
+             task['instance'],
+             task['problem-type'],
+             task.get('optimum'),
+             task.get('high-score'),
+             result['solved'] if result else False,
+             result.get('violation') if result else None,
+             result.get('quality') if result else None,
+             solverStatistics['runtime-in-seconds'] if solverStatistics else None,
+             solverStatistics['moves-per-second'] if solverStatistics else None,
+             modelStatistics['number-of-search-variables'] + modelStatistics['number-of-channel-variables'],
+             modelStatistics['number-of-constraints']))
 
 def main():
     parser = argparse.ArgumentParser(
@@ -57,6 +63,7 @@ def main():
         createDb(cursor)
         cursor.execute('PRAGMA foreign_keys = ON');
         for filename in args.filenames:
+            print("Importing ", filename)
             with open(filename) as file:
                 importResults(args.run, file, cursor)
                 conn.commit()
