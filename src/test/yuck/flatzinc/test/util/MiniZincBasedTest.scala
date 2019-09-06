@@ -21,7 +21,33 @@ import yuck.util.testing.{IntegrationTest, ProcessRunner}
  */
 class MiniZincBasedTest extends IntegrationTest {
 
-    private val jsonNodes = new mutable.ArrayBuffer[JsField]
+    private abstract class JsNode {
+        def value: JsValue
+    }
+    private class JsEntry(override val value: JsValue) extends JsNode
+    private object JsEntry {
+        def apply(value: JsValue): JsEntry = new JsEntry(value)
+    }
+    private class JsSection extends JsNode {
+        private val fields = new mutable.HashMap[String, JsNode]
+        override def value =
+            JsObject(fields.iterator.map{case (name, node) => (name, node.value)}.to(immutable.TreeMap))
+        def +=(field: (String, JsNode)): JsSection = {
+            fields += field
+            this
+        }
+        def ++=(fields: IterableOnce[(String, JsNode)]): JsSection = {
+            this.fields ++= fields
+            this
+        }
+    }
+    private object JsSection {
+        def apply(fields: (String, JsValue)*): JsSection =
+            new JsSection ++= fields.iterator.map{case (name, value) => (name, JsEntry(value))}
+    }
+
+    private val jsonRoot = new JsSection
+    private val envNode = new JsSection
 
     protected def solveWithResult(task: MiniZincTestTask): Result = {
         solve(task.copy(reusePreviousTestResult = false)).get
@@ -31,7 +57,10 @@ class MiniZincBasedTest extends IntegrationTest {
     // Returns None when task.reusePreviousTestResult is true and the instance was already processed.
     protected def solve(task: MiniZincTestTask): Option[Result] = {
         logger.setThresholdLogLevel(task.logLevel)
-        logVersion
+        jsonRoot += "env" -> envNode
+        logOsVersion
+        logJavaVersion
+        logYuckVersion
         val suitePath = task.suitePath
         val suiteName = if (task.suiteName.isEmpty) new java.io.File(suitePath).getName else task.suiteName
         val problemName = task.problemName
@@ -73,17 +102,17 @@ class MiniZincBasedTest extends IntegrationTest {
             catch {
                 case error: Throwable =>
                     val cause = findUltimateCause(error)
-                    val errorNodes = new mutable.ArrayBuffer[JsField]
-                    errorNodes += "type" -> JsString(cause.getClass.getName)
-                    if (! cause.getMessage.isEmpty) {
-                        errorNodes += "message" -> JsString(cause.getMessage)
+                    val errorNode = new JsSection
+                    errorNode += "type" -> JsEntry(JsString(cause.getClass.getName))
+                    if (cause.getMessage != null && ! cause.getMessage.isEmpty) {
+                        errorNode += "message" -> JsEntry(JsString(cause.getMessage))
                     }
-                    jsonNodes += "error" -> JsObject(errorNodes.toMap)
+                    jsonRoot += "error" -> errorNode
                     handleException(task, cause)
                     None
             }
             finally {
-                val jsonDoc = new JsObject(jsonNodes.toMap)
+                val jsonDoc = jsonRoot.value
                 val jsonWriter = new java.io.FileWriter(jsonFilePath)
                 jsonWriter.write(jsonDoc.prettyPrint)
                 jsonWriter.close
@@ -102,9 +131,10 @@ class MiniZincBasedTest extends IntegrationTest {
             "--no-output-ozn", "--output-fzn-to-file", fznFilePath)
         mzn2fznCommand += mznFilePath
         if (! dznFilePath.isEmpty) mzn2fznCommand += dznFilePath
-        logger.withTimedLogScope("Flattening MiniZinc model") {
+        val (_, errorLines) = logger.withTimedLogScope("Flattening MiniZinc model") {
             new ProcessRunner(logger, mzn2fznCommand).call
         }
+        logMiniZincVersion(errorLines.head)
         val cfg =
             task.solverConfiguration.copy(
                 restartLimit =
@@ -169,8 +199,7 @@ class MiniZincBasedTest extends IntegrationTest {
                 case Minimize(_, _) => "MIN"
                 case Maximize(_, _) => "MAX"
             }
-        val taskNodes = new mutable.ArrayBuffer[JsField]
-        taskNodes ++= List(
+        val taskNode = JsSection(
             "suite" -> JsString(task.suiteName),
             "problem" -> JsString(task.problemName),
             "model" -> JsString(task.modelName),
@@ -178,24 +207,59 @@ class MiniZincBasedTest extends IntegrationTest {
             "problem-type" -> JsString(problemType)
         )
         if (task.maybeOptimum.isDefined) {
-            taskNodes += "optimum" -> JsNumber(task.maybeOptimum.get)
+            taskNode += "optimum" -> JsEntry(JsNumber(task.maybeOptimum.get))
         }
         if (task.maybeHighScore.isDefined) {
-            taskNodes += "high-score" -> JsNumber(task.maybeHighScore.get)
+            taskNode += "high-score" -> JsEntry(JsNumber(task.maybeHighScore.get))
         }
-        jsonNodes += "task" -> JsObject(taskNodes.toMap)
+        jsonRoot += "task" -> taskNode
     }
 
-    private def logVersion: Unit = {
-        jsonNodes +=
-          "yuck-version" -> JsObject(
-              "gitBranch" -> JsString(BuildInfo.gitBranch),
-              "gitCommitHash" -> JsString(BuildInfo.gitCommitHash))
+    private def logOsVersion: Unit = {
+        envNode +=
+            "os" -> JsSection(
+                "arch" -> JsString(System.getProperty("os.arch", "")),
+                "name" -> JsString(System.getProperty("os.name", "")),
+                "version" -> JsString(System.getProperty("os.version", ""))
+            )
+    }
+
+    private def logJavaVersion: Unit = {
+        val runtime = java.lang.Runtime.getRuntime
+        envNode +=
+            "java" -> JsSection(
+                "vm" -> JsString(System.getProperty("java.vm.name", "")),
+                "vendor" -> JsString(System.getProperty("java.vendor", "")),
+                "version" -> JsString(System.getProperty("java.version", "")),
+                "date" -> JsString(System.getProperty("java.version.date", "")),
+                "number-of-virtual-cores" -> JsNumber(runtime.availableProcessors),
+                "max-memory" -> JsNumber(runtime.maxMemory)
+            )
+    }
+
+    private def logYuckVersion: Unit = {
+        envNode +=
+            "yuck" -> JsSection(
+                "gitBranch" -> JsString(BuildInfo.gitBranch),
+                "gitCommitHash" -> JsString(BuildInfo.gitCommitHash))
+    }
+
+    private def logMiniZincVersion(versionInfo: String): Unit = {
+        // MiniZinc to FlatZinc converter, version 2.3.1, build 70205949
+        val pattern = java.util.regex.Pattern.compile(".*, version ([\\.\\d]+), build (\\d+)")
+        val matcher = pattern.matcher(versionInfo)
+        if (matcher.matches) {
+            envNode +=
+                "minizinc" -> JsSection(
+                    "version" -> JsString(matcher.group(1)),
+                    "build" -> JsString(matcher.group(2))
+                )
+        }
     }
 
     private def logFlatZincModelStatistics(ast: FlatZincAst): Unit = {
-        jsonNodes +=
-            "flatzinc-model-statistics" -> JsObject(
+        jsonRoot +=
+            "flatzinc-model-statistics" -> JsSection(
                 "number-of-predicate-declarations" -> JsNumber(ast.predDecls.size),
                 "number-of-parameter-declarations" -> JsNumber(ast.paramDecls.size),
                 "number-of-variable-declarations" -> JsNumber(ast.varDecls.size),
@@ -204,8 +268,8 @@ class MiniZincBasedTest extends IntegrationTest {
     }
 
     private def logYuckModelStatistics(space: Space): Unit = {
-        jsonNodes +=
-            "yuck-model-statistics" -> JsObject(
+        jsonRoot +=
+            "yuck-model-statistics" -> JsSection(
                 "number-of-search-variables" -> JsNumber(space.searchVariables.size),
                 "number-of-channel-variables" -> JsNumber(space.channelVariables.size),
                 // dangling variables are not readily available
@@ -216,21 +280,21 @@ class MiniZincBasedTest extends IntegrationTest {
 
     private def logResult(result: Result): Unit = {
         val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
-        val resultNodes = new mutable.ArrayBuffer[JsField]
-        resultNodes += "solved" -> JsBoolean(result.isSolution)
+        val resultNode = new JsSection
+        resultNode += "solved" -> JsEntry(JsBoolean(result.isSolution))
         if (! result.isSolution) {
-            resultNodes += "violation" -> JsNumber(result.bestProposal.value(compilerResult.costVar).violation)
+            resultNode += "violation" -> JsEntry(JsNumber(result.bestProposal.value(compilerResult.costVar).violation))
         }
         if (compilerResult.maybeObjectiveVar.isDefined) {
-            resultNodes += "quality" -> JsNumber(result.bestProposal.value(compilerResult.maybeObjectiveVar.get).value)
+            resultNode += "quality" -> JsEntry(JsNumber(result.bestProposal.value(compilerResult.maybeObjectiveVar.get).value))
         }
-        jsonNodes += "result" -> JsObject(resultNodes.toMap)
+        jsonRoot += "result" -> resultNode
     }
 
     private def logSolverStatistics(monitor: StandardAnnealingMonitor): Unit = {
         if (monitor.wasSearchRequired) {
-            jsonNodes +=
-                "solver-statistics" -> JsObject(
+            jsonRoot +=
+                "solver-statistics" -> JsSection(
                     "number-of-restarts" -> JsNumber(monitor.numberOfRestarts),
                     "runtime-in-seconds" -> JsNumber(monitor.runtimeInSeconds),
                     "moves-per-second" -> JsNumber(monitor.movesPerSecond),
