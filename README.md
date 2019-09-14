@@ -24,7 +24,7 @@ When you decided for the ZIP package, proceed as follows:
 2. Unzip the package in a suitable location.
 3. To register Yuck as a backend for the MiniZinc toolchain, define the ```MZN_SOLVER_PATH``` environment variable to point to the ```mzn``` subfolder of the Yuck distribution. (For other ways of providing a solver configuration file to the MiniZinc toolchain, see the section on [Solver Configuration Files](http://www.minizinc.org/doc-2.2.0/en/fzn-spec.html#solver-configuration-files) of *The MiniZinc Handbook*.)
 
-The Docker image contains a Java runtime, the MiniZinc compiler and Yuck itself; it neither contains the MiniZinc IDE nor other solvers.
+The Docker image contains an OpenJDK Java runtime, the MiniZinc compiler and Yuck itself; it neither contains the MiniZinc IDE nor other solvers.
 
 ## Usage as MiniZinc backend
 
