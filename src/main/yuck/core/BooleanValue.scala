@@ -35,9 +35,7 @@ final class BooleanValue(val violation: Long) extends NumericalValue[BooleanValu
     override def +(that: BooleanValue) = BooleanValue.get(safeAdd(this.violation, that.violation))
     override def -(that: BooleanValue) = BooleanValue.get(safeSub(this.violation, that.violation))
     override def *(that: BooleanValue) = BooleanValue.get(safeMul(this.violation, that.violation))
-    override def /(that: BooleanValue) = ???
     override def ^(that: BooleanValue) = ???
-    override def %(that: BooleanValue) = ???
     override def addAndSub(a: BooleanValue, b: BooleanValue) =
         BooleanValue.get(safeSub(safeAdd(this.violation, a.violation), b.violation))
     override def addAndSub(s: BooleanValue, a: BooleanValue, b: BooleanValue) =
@@ -45,12 +43,12 @@ final class BooleanValue(val violation: Long) extends NumericalValue[BooleanValu
             safeSub(
                 safeAdd(this.violation, safeMul(s.violation, a.violation)),
                 safeMul(s.violation, b.violation)))
-    override def abs = ???
-    override def neg = !!!
+    override def abs = this
+    override def negate = !!!
     override def toInt = safeToInt(violation)
     override def toLong = violation
+    override def toFloat = violation.toFloat
     override def toDouble = violation.toDouble
-    override def isEven = ???
 }
 
 /**
@@ -61,6 +59,8 @@ final class BooleanValue(val violation: Long) extends NumericalValue[BooleanValu
 final object BooleanValue {
 
     implicit def valueTraits = BooleanValueTraits
+    implicit def numericalOperations = BooleanValueOperations
+    implicit def domainOrdering = BooleanDomainOrdering
 
     private val valueRange = Range(0, 10000, 1)
     private val valueCache = valueRange.map(new BooleanValue(_)).toArray

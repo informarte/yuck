@@ -11,7 +11,7 @@ import yuck.util.logging.LazyLogger
  */
 final class IntegerDomainTestHelper
     (randomGenerator: RandomGenerator, logger: LazyLogger)
-    extends OrderedDomainTestHelper[IntegerValue](logger)
+    extends OrderedDomainTestHelper[IntegerValue](logger, randomGenerator)
 {
 
     val specialInfiniteRanges = IntegerDomainTestHelper.specialInfiniteRanges

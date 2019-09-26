@@ -42,8 +42,8 @@ final class IntegerSetDomainTest extends UnitTest {
             helper1.createTestData(baseRange, sampleSize)
                 .map(r => List(new SingletonIntegerSetDomain(r), new IntegerPowersetDomain(r)))
                 .flatten
-        val helper2 = new OrderingTestHelper[IntegerSetDomain]
-        helper2.testOrdering(testData, IntegerSetDomain.ordering)
+        val helper2 = new OrderingTestHelper[IntegerSetDomain](randomGenerator)
+        helper2.testOrdering(testData, IntegerSetDomainOrdering)
     }
 
     @Test

@@ -10,9 +10,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-abstract class OrderedDomain[Value <: OrderedValue[Value]] extends Domain[Value] with Ordered[Domain[Value]] {
-
-    override def valueTraits: OrderedValueTraits[Value]
+abstract class OrderedDomain[Value <: OrderedValue[Value]] extends Domain[Value] with Ordered[OrderedDomain[Value]] {
 
     /** Returns true iff the domain has a lower or an upper bound. */
     def isBounded: Boolean

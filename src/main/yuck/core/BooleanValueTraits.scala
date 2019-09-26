@@ -1,5 +1,7 @@
 package yuck.core
 
+import scala.collection._
+
 /**
  * Provides traits of Boolean values.
  *
@@ -7,9 +9,11 @@ package yuck.core
  */
 final object BooleanValueTraits extends NumericalValueTraits[BooleanValue] {
     override val valueType = classOf[BooleanValue]
-    override val orderingCostModel = BooleanOrderingCostModel
     override val zero = True
     override val one = False
+    override val valueOrdering = BooleanValueOperations
+    override val numericalOperations = BooleanValueOperations
+    override val orderingCostModel = BooleanValueOrderingCostModel
     override def createDomain(values: Set[BooleanValue]) = {
         require(! values.exists(_.violation >= 2))
         BooleanDecisionDomain.createDomain(values.contains(False), values.contains(True))
@@ -19,6 +23,7 @@ final object BooleanValueTraits extends NumericalValueTraits[BooleanValue] {
     override val emptyDomain = EmptyBooleanDomain
     override val completeDomain = CompleteBooleanDomain
     override val nonNegativeDomain = completeDomain
+    override val domainOrdering = BooleanDomainOrdering
     override val domainPruner = BooleanDomainPruner
     override def createVariable(space: Space, name: String, domain: Domain[BooleanValue]): BooleanVariable =
         new BooleanVariable(space.nextVariableId, name, safeDowncast(domain))

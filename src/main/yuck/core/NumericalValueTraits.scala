@@ -1,5 +1,7 @@
 package yuck.core
 
+import scala.collection._
+
 /**
  * Provides properties of numerical values.
  *
@@ -16,6 +18,9 @@ abstract class NumericalValueTraits[Value <: NumericalValue[Value]] extends Orde
     override def safeDowncast(x: AnyDomain): NumericalDomain[Value]
     override def safeDowncast(x: AnyVariable): NumericalVariable[Value]
 
+    /** Integrates Yuck values with the Scala library. */
+    val numericalOperations: Numeric[Value]
+
     /** Returns the additive identity. */
     val zero: Value
 
@@ -23,6 +28,6 @@ abstract class NumericalValueTraits[Value <: NumericalValue[Value]] extends Orde
     val one: Value
 
     /** Returns the domain that contains all non-negative values. */
-    val nonNegativeDomain: Domain[Value]
+    val nonNegativeDomain: NumericalDomain[Value]
 
 }

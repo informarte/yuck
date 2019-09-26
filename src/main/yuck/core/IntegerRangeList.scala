@@ -234,13 +234,6 @@ final class IntegerRangeList
  */
 final object IntegerRangeList {
 
-    /** A lexicographic ordering on the underlying range lists. */
-    val ordering = new Ordering[IntegerRangeList] {
-        val rangeListOrdering = createLexicographicOrderingForIterable(IntegerRange.ordering)
-        override def compare(lhs: IntegerRangeList, rhs: IntegerRangeList) =
-            rangeListOrdering.compare(lhs.ranges, rhs.ranges)
-    }
-
     private def createRangeDistribution(ranges: immutable.IndexedSeq[IntegerRange]): Distribution = {
         val result = DistributionFactory.createDistribution(ranges.size)
         for (i <- ranges.indices) {

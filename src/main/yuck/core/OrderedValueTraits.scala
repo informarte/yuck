@@ -1,5 +1,7 @@
 package yuck.core
 
+import scala.collection._
+
 /**
  * Provides properties of ordered values.
  *
@@ -16,15 +18,11 @@ abstract class OrderedValueTraits[Value <: OrderedValue[Value]] extends ValueTra
     override def safeDowncast(d: AnyDomain): OrderedDomain[Value]
     override def safeDowncast(x: AnyVariable): OrderedVariable[Value]
 
-    /** A total ordering induced by Value.compare. */
-    implicit final val valueOrdering: Ordering[Value] = new Ordering[Value] {
-        override def compare(x: Value, y: Value) = x.compare(y)
-    }
+    /** A total ordering on Value. */
+    val valueOrdering: Ordering[Value]
 
-    /** A total ordering induced by OrderedDomain[Value].compare. */
-    implicit final val domainOrdering: Ordering[OrderedDomain[Value]] = new Ordering[OrderedDomain[Value]] {
-        override def compare(x: OrderedDomain[Value], y: OrderedDomain[Value]) = x.compare(y)
-    }
+    /** A total ordering on OrderedDomain[Value]. */
+    val domainOrdering: Ordering[OrderedDomain[Value]]
 
     /** The cost model for ordering operations over Value. */
     val orderingCostModel: OrderingCostModel[Value]

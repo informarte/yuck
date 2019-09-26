@@ -2,7 +2,8 @@ package yuck.core.test
 
 import scala.collection.Seq
 
-import yuck.core.{OrderedValue, OrderedValueTraits}
+import yuck.core.{OrderedValue, RandomGenerator}
+import yuck.util.OrderingFromOrdered
 import yuck.util.testing.OrderingTestHelper
 
 /**
@@ -11,19 +12,14 @@ import yuck.util.testing.OrderingTestHelper
  */
 class OrderedValueTestHelper
     [Value <: OrderedValue[Value]]
-    (implicit valueTraits: OrderedValueTraits[Value])
+    (randomGenerator: RandomGenerator)
     extends ValueTestHelper[Value]
 {
 
     def testOrdering(testData: Seq[Value]): Unit = {
-        val helper = new OrderingTestHelper[Value]
-        val sortedTestData1 = helper.testOrdering(testData, valueTraits.valueOrdering)
-        val ord = new Ordering[Value] {
-            override def compare(a: Value, b: Value) = a.compare(b)
-        }
-        val sortedTestData2 = helper.testOrdering(testData, ord)
-        assertEq(sortedTestData1, sortedTestData2)
+        val helper = new OrderingTestHelper[Value](randomGenerator)
+        val ord = new OrderingFromOrdered[Value]
+        helper.testOrdering(testData, ord)
     }
 
 }
-

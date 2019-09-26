@@ -1,12 +1,14 @@
 package yuck.util.testing
 
+import yuck.core.RandomGenerator
+
 import scala.collection._
 
 /**
  * @author Michael Marte
  *
  */
-class OrderingTestHelper[T] extends EqualityTestHelper[T] {
+class OrderingTestHelper[T](randomGenerator: RandomGenerator) extends EqualityTestHelper[T] {
 
     // compare induces a couple of relations: =, <=, >=, <, >
     // We check that:
@@ -14,7 +16,8 @@ class OrderingTestHelper[T] extends EqualityTestHelper[T] {
     // <= is a total order
     // >= is the inverse of <=
     // > is the inverse of <
-    def testOrdering(testData: Seq[T], ord: Ordering[U] forSome {type U >: T}): Seq[T] = {
+    // For efficiency, testData should not contain duplicates.
+    def testOrdering(testData: Seq[T], ord: Ordering[U] forSome {type U >: T}): Unit = {
         for (a <- testData) {
             // reflexivity of =
             assertEq(ord.compare(a, a), 0)
@@ -41,11 +44,9 @@ class OrderingTestHelper[T] extends EqualityTestHelper[T] {
                 }
             }
         }
-        val sortedTestData = testData.sorted(ord)
-        for (Seq(a, b) <- sortedTestData.combinations(2)) {
+        for (Seq(a, b) <- randomGenerator.shuffle(testData ++ testData).sorted(ord).combinations(2)) {
             assertLe(ord.compare(a, b), 0)
         }
-        sortedTestData
     }
 
 }

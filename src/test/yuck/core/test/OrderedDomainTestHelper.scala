@@ -3,6 +3,7 @@ package yuck.core.test
 import scala.collection.Seq
 
 import yuck.core._
+import yuck.util.OrderingFromOrdered
 import yuck.util.logging.LazyLogger
 import yuck.util.testing.OrderingTestHelper
 
@@ -12,23 +13,21 @@ import yuck.util.testing.OrderingTestHelper
  */
 class OrderedDomainTestHelper
     [Value <: OrderedValue[Value]]
-    (logger: LazyLogger)
-    (implicit valueTraits: OrderedValueTraits[Value])
+    (logger: LazyLogger, randomGenerator: RandomGenerator)
     extends DomainTestHelper[Value](logger)
 {
 
     def testOrdering
-        [Interface <: OrderedDomain[Value], Implementation <: Interface]
-        (testData: Seq[Implementation], ord: Ordering[Interface]):
+        [Domain <: OrderedDomain[Value]]
+        (testData: Seq[Domain]):
         Unit =
     {
         logger.withLogScope("Test data") {
             testData.foreach(item => logger.log(item.toString))
         }
-        val helper = new OrderingTestHelper[Interface]
-        val sortedTestData1 = helper.testOrdering(testData, valueTraits.domainOrdering)
-        val sortedTestData2 = helper.testOrdering(testData, ord)
-        assertEq(sortedTestData1, sortedTestData2)
+        val helper = new OrderingTestHelper[Domain](randomGenerator)
+        val ord = new OrderingFromOrdered[Domain]
+        helper.testOrdering(testData, ord)
     }
 
 }

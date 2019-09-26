@@ -12,7 +12,7 @@ import yuck.util.testing.{EqualityTestHelper, YuckAssert}
 class ValueTestHelper[Value <: AnyValue] extends YuckAssert {
 
     def testEquality(testData: Seq[Value]): Unit = {
-        val helper = new EqualityTestHelper[Value] {}
+        val helper = new EqualityTestHelper[Value]
         helper.testEquality(testData)
     }
 

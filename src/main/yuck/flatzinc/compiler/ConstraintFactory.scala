@@ -386,10 +386,10 @@ final class ConstraintFactory
             compileTernaryIntConstraint(new Times(_, _, _, _, _), goal, constraint)
         case Constraint("int_div", List(a, b, c), _) =>
             compileTernaryIntConstraint(new Div(_, _, _, _, _), goal, constraint)
-        case Constraint("int_pow", List(a, b, c), _) =>
-            compileTernaryIntConstraint(new Power(_, _, _, _, _), goal, constraint)
         case Constraint("int_mod", List(a, b, c), _) =>
             compileTernaryIntConstraint(new Mod(_, _, _, _, _), goal, constraint)
+        case Constraint("int_pow", List(a, b, c), _) =>
+            compileTernaryIntConstraint(new Power(_, _, _, _, _), goal, constraint)
         case Constraint("int_abs", List(a, b), _) =>
             compileBinaryConstraint[IntegerValue, IntegerVariable, IntegerValue, IntegerVariable](new Abs(_, _, _, _), goal, constraint)
        // expansion of terms in parameters
@@ -903,7 +903,7 @@ final class ConstraintFactory
     {
         val zero = valueTraits.zero
         val one = valueTraits.one
-        val minusOne = one.neg
+        val minusOne = one.negate
         val as = compileNumArray[Value](as0)
         val xs = compileNumArray[Value](bs)
         require(as.size == xs.size)

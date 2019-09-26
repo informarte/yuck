@@ -5,7 +5,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-final object IntegerOrderingCostModel extends OrderingCostModel[IntegerValue] {
+final object IntegerValueOrderingCostModel extends OrderingCostModel[IntegerValue] {
     override def eq(lhs: IntegerValue, rhs: IntegerValue) =
         BooleanValue.get(abs(safeSub(lhs.value, rhs.value)))
     override def ne(lhs: IntegerValue, rhs: IntegerValue) =

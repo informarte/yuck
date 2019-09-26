@@ -7,9 +7,7 @@ package yuck.core
  */
 abstract class BooleanDomain extends NumericalDomain[BooleanValue] {
 
-    import BooleanDomain._
-
-    final override def valueTraits = BooleanValueTraits
+    final override def valueType = classOf[BooleanValue]
 
     final override def equals(that: Domain[BooleanValue]): Boolean = (this, that) match {
         case (lhs: BooleanDecisionDomain, rhs: BooleanDecisionDomain) => lhs.equals(rhs)
@@ -19,7 +17,7 @@ abstract class BooleanDomain extends NumericalDomain[BooleanValue] {
         case _ => ???
     }
 
-    final override def compare(that: Domain[BooleanValue]): Int = (this, that) match {
+    final override def compare(that: OrderedDomain[BooleanValue]): Int = (this, that) match {
         case (lhs: BooleanDecisionDomain, rhs: BooleanDecisionDomain) =>
             BooleanDecisionDomain.ordering.compare(lhs, rhs)
         case (lhs: BooleanDecisionDomain, rhs: BooleanChannelDomain.type) => -1
@@ -74,11 +72,6 @@ abstract class BooleanDomain extends NumericalDomain[BooleanValue] {
  * @author Michael Marte
  */
 final object BooleanDomain {
-
-    /** A total ordering on Boolean domains. */
-    val ordering = new Ordering[BooleanDomain] {
-        override def compare(lhs: BooleanDomain, rhs: BooleanDomain) = lhs.compare(rhs)
-    }
 
     /**
      * Projects the given domain onto a logically equivalent decision domain, if necessary.

@@ -43,9 +43,9 @@ final class IntegerRangeTest extends UnitTest {
     def testOrdering: Unit = {
         val sampleSize = 32
         val testData =
-            helper.createTestData( baseRange, sampleSize)
+            helper.createTestData(baseRange, sampleSize)
                 .filter(_.isInstanceOf[IntegerRange]).map(_.asInstanceOf[IntegerRange])
-        helper.testOrdering(testData, IntegerRange.ordering)
+        helper.testOrdering(testData)
     }
 
     @Test

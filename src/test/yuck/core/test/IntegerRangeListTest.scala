@@ -135,7 +135,7 @@ final class IntegerRangeListTest extends UnitTest {
     def testOrdering: Unit = {
         val sampleSize = 16
         val testData = helper.createTestData(baseRange, sampleSize).map(IntegerDomain.ensureRangeList)
-        helper.testOrdering(testData, IntegerRangeList.ordering)
+        helper.testOrdering(testData)
     }
 
     @Test

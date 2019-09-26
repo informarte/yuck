@@ -7,11 +7,6 @@ package yuck.core
  */
 abstract class Domain[Value <: AnyValue] extends AnyDomain {
 
-    /** Provides the traits of the type of the domain's elements. */
-    def valueTraits: ValueTraits[Value]
-
-    @inline final override def valueType = valueTraits.valueType
-
     override def equals(that: Any) = that match {
         case rhs: Domain[_] => {
             val lhs = this

@@ -26,5 +26,7 @@ final class IntegerSetValue(val set: IntegerDomain) extends OrderedValue[Integer
 final object IntegerSetValue {
 
     implicit def valueTraits = IntegerSetValueTraits
+    implicit def valueOrdering = IntegerSetValueOrdering
+    implicit def domainOrdering = IntegerSetDomainOrdering
 
 }

@@ -7,7 +7,7 @@ import java.lang.Math.pow
  *
  * @author Michael Marte
  */
-final class IntegerValue(val value: Int) extends NumericalValue[IntegerValue] {
+final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
     @inline override def hashCode = value
     override def equals(that: Any) = that match {
         case rhs: IntegerValue => {
@@ -22,6 +22,7 @@ final class IntegerValue(val value: Int) extends NumericalValue[IntegerValue] {
     override def -(that: IntegerValue) = IntegerValue.get(safeSub(this.value, that.value))
     override def *(that: IntegerValue) = IntegerValue.get(safeMul(this.value, that.value))
     override def /(that: IntegerValue) = IntegerValue.get(this.value / that.value)
+    override def %(that: IntegerValue) = IntegerValue.get(this.value % that.value)
     override def ^(that: IntegerValue) = {
         val result: Double = pow(this.value, that.value)
         if (result == java.lang.Double.NEGATIVE_INFINITY || result == java.lang.Double.POSITIVE_INFINITY ||
@@ -31,15 +32,15 @@ final class IntegerValue(val value: Int) extends NumericalValue[IntegerValue] {
         }
         IntegerValue.get(result.toInt)
     }
-    override def %(that: IntegerValue) = IntegerValue.get(this.value % that.value)
     override def addAndSub(a: IntegerValue, b: IntegerValue) =
         IntegerValue.get(safeAdd(this.value, safeSub(a.value, b.value)))
     override def addAndSub(s: IntegerValue, a: IntegerValue, b: IntegerValue) =
         IntegerValue.get(safeAdd(this.value, safeMul(s.value, safeSub(a.value, b.value))))
     override def abs = if (value < 0) IntegerValue.get(safeNeg(value)) else this
-    override def neg = IntegerValue.get(safeNeg(value))
+    override def negate = IntegerValue.get(safeNeg(value))
     override def toInt = value
     override def toLong = value.toLong
+    override def toFloat = value.toFloat
     override def toDouble = value.toDouble
     override def isEven = value % 2 == 0
 }
@@ -56,6 +57,8 @@ final object IntegerValue {
     def max(a: IntegerValue, b: IntegerValue): IntegerValue = if (a > b) a else b
 
     implicit def valueTraits = IntegerValueTraits
+    implicit def numericalOperations = IntegerValueOperations
+    implicit def domainOrdering = IntegerDomainOrdering
 
     private val valueRange = Range(-10000, 10000, 1)
     private val valueCache = valueRange.map(new IntegerValue(_)).toArray

@@ -197,15 +197,4 @@ final class IntegerRange
  * @author Michael Marte
  */
 final object IntegerRange {
-
-    private def lessThan(lhs: IntegerRange, rhs: IntegerRange) =
-        ! rhs.isSubsetOf(lhs) && (lhs.isSubsetOf(rhs) || lhs.startsBefore(rhs))
-
-    /**
-     * An intuitive ordering with A.isSubsetOf(B) -> A < B.
-     * If neither A.isSubsetOf(B) nor B.isSubsetOf(A), then A < B <-> (lb(A), ub(A)) < (lb(B), ub(B)).
-     */
-    // Yes, this is total ordering, I proved it on paper.
-    val ordering = Ordering.fromLessThan(lessThan)
-
 }

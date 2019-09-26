@@ -68,7 +68,10 @@ final class BooleanValueTraitsTest extends UnitTest {
     @Test
     def testConfiguration: Unit = {
         assertEq(valueType, classOf[BooleanValue])
-        assertEq(orderingCostModel, BooleanOrderingCostModel)
+        assertEq(valueOrdering, BooleanValueOperations)
+        assertEq(numericalOperations, BooleanValueOperations)
+        assertEq(orderingCostModel, BooleanValueOrderingCostModel)
+        assertEq(domainOrdering, BooleanDomainOrdering)
         assertEq(domainPruner, BooleanDomainPruner)
     }
 

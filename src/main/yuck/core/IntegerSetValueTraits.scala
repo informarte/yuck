@@ -1,5 +1,7 @@
 package yuck.core
 
+import scala.collection._
+
 /**
  * Provides traits of integer-set values.
  *
@@ -7,12 +9,14 @@ package yuck.core
  */
 final object IntegerSetValueTraits extends OrderedValueTraits[IntegerSetValue] {
     override val valueType = classOf[IntegerSetValue]
-    override val orderingCostModel = IntegerSetOrderingCostModel
+    override val valueOrdering = IntegerSetValueOrdering
+    override val orderingCostModel = IntegerSetValueOrderingCostModel
     override def createDomain(values: Set[IntegerSetValue]): IntegerSetDomain = !!!
     override def createDomain(lb: IntegerSetValue, ub: IntegerSetValue): IntegerSetDomain = !!!
     override lazy val emptyDomain: IntegerSetDomain = !!!
     override val completeDomain: IntegerSetDomain = CompleteIntegerSetDomain
     override val domainPruner = IntegerSetDomainPruner
+    override val domainOrdering = IntegerSetDomainOrdering
     override def createVariable(space: Space, name: String, domain: Domain[IntegerSetValue]): IntegerSetVariable =
         new IntegerSetVariable(space.nextVariableId, name, safeDowncast(domain))
     override def createChannel(space: Space): IntegerSetVariable =

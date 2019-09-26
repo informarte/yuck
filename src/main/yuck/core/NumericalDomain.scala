@@ -7,8 +7,6 @@ package yuck.core
  */
 abstract class NumericalDomain[Value <: NumericalValue[Value]] extends OrderedDomain[Value] {
 
-    override def valueTraits: NumericalValueTraits[Value]
-
     /**
      * Returns a domain that contains all elements of this domain except for those
      * smaller than the given lower bound.

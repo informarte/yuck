@@ -37,7 +37,7 @@ final class IntegerDomainTest extends UnitTest {
     def testOrdering: Unit = {
         val sampleSize = 16
         val testData = helper.createTestData(baseRange, sampleSize)
-        helper.testOrdering(testData, IntegerDomain.ordering)
+        helper.testOrdering(testData)
     }
 
     @Test

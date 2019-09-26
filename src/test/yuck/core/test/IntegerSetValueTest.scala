@@ -11,16 +11,10 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class IntegerSetValueTest extends UnitTest {
+final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
 
-    private val helper = new OrderedValueTestHelper[IntegerSetValue]
-    private val baseData =
-        List(
-            EmptyIntegerRange, NonNegativeIntegerRange, CompleteIntegerRange,
-            new IntegerRange(Zero, Two), new IntegerRange(One, Three), new IntegerRange(Two, Four),
-            new IntegerRange(Zero, Five))
-    private val testData =
-        baseData.map(new IntegerSetValue(_))
+    private val randomGenerator = new JavaRandomGenerator
+    private val helper = new OrderedValueTestHelper[IntegerSetValue](randomGenerator)
 
     @Test
     def testConstruction: Unit = {
@@ -49,20 +43,15 @@ final class IntegerSetValueTest extends UnitTest {
 
     @Test
     def testOrdering: Unit = {
-        helper.testOrdering(testData ++ testData)
+        helper.testOrdering(testData)
     }
 
     @Test
-    def testOrderingCostModel: Unit = {
-        val costModel = IntegerSetOrderingCostModel
-        for (a <- testData) {
-            for (b <- testData) {
-                assertEq(costModel.eq(a, b).truthValue, a == b)
-                assertEq(costModel.ne(a, b).truthValue, a != b)
-                assertEq(costModel.lt(a, b).truthValue, a < b)
-                assertEq(costModel.le(a, b).truthValue, a <= b)
-            }
-        }
+    def testConfiguration: Unit = {
+        import IntegerSetValue._
+        assertEq(valueTraits, IntegerSetValueTraits)
+        assertEq(valueOrdering, IntegerSetValueOrdering)
+        assertEq(domainOrdering, IntegerSetDomainOrdering)
     }
 
 }

@@ -11,11 +11,10 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class BooleanValueTest extends UnitTest {
+final class BooleanValueTest extends UnitTest with BooleanValueTestData {
 
-    private val helper = new OrderedValueTestHelper[BooleanValue]
-    private val testRange = 0 to 5
-    private val testData = testRange.map(BooleanValue.get)
+    private val randomGenerator = new JavaRandomGenerator
+    private val helper = new OrderedValueTestHelper[BooleanValue](randomGenerator)
 
     @Test
     def testConstruction: Unit = {
@@ -63,33 +62,7 @@ final class BooleanValueTest extends UnitTest {
 
     @Test
     def testOrdering: Unit = {
-        helper.testOrdering(testData ++ testData)
-    }
-
-    @Test
-    def testOrderingCostModel: Unit = {
-        val costModel = BooleanOrderingCostModel
-        for (a <- testData) {
-            for (b <- testData) {
-                assertEq(costModel.eq(a, b).truthValue, a.truthValue == b.truthValue)
-                assertEq(costModel.ne(a, b).truthValue, a.truthValue != b.truthValue)
-                assertEq(costModel.lt(a, b).truthValue, ! a.truthValue && b.truthValue)
-                assertEq(costModel.le(a, b).truthValue, ! a.truthValue || b.truthValue)
-            }
-        }
-    }
-
-    @Test
-    def testOverflowCheckingInCostComputation: Unit = {
-        val costModel = BooleanOrderingCostModel
-        costModel.eq(True, BooleanValue.get(Long.MaxValue - 1))
-        assertEx(costModel.eq(True, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
-        costModel.ne(False, BooleanValue.get(Long.MaxValue - 1))
-        assertEx(costModel.ne(False, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
-        costModel.lt(True, BooleanValue.get(Long.MaxValue - 1))
-        assertEx(costModel.lt(True, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
-        costModel.le(True, BooleanValue.get(Long.MaxValue - 1))
-        assertEx(costModel.le(True, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
+        helper.testOrdering(testData)
     }
 
     @Test
@@ -103,8 +76,6 @@ final class BooleanValueTest extends UnitTest {
                     assertEq((a - b).violation, a.violation - b.violation)
                 }
                 assertEq((a * b).violation, a.violation * b.violation)
-                assertEx(a / b, classOf[NotImplementedError])
-                assertEx(a % b, classOf[NotImplementedError])
                 assertEx(a ^ b, classOf[NotImplementedError])
                 for (c <- testData) {
                     val result = a.violation + b.violation - c.violation
@@ -123,12 +94,12 @@ final class BooleanValueTest extends UnitTest {
                     }
                 }
             }
-            assertEx(a.abs, classOf[NotImplementedError])
-            assertEx(a.neg)
+            assertEq(a.abs, a)
+            assertEx(a.negate)
             assertEq(a.toInt, a.violation.toInt)
             assertEq(a.toLong, a.violation.toLong)
+            assertEq(a.toFloat, a.violation.toFloat)
             assertEq(a.toDouble, a.violation.toDouble)
-            assertEx(a.isEven, classOf[NotImplementedError])
         }
     }
 
@@ -153,6 +124,14 @@ final class BooleanValueTest extends UnitTest {
         assertEq(False.not, True)
         assertEq(False2.not, True)
         assertEq(True.not, False)
+    }
+
+    @Test
+    def testConfiguration: Unit = {
+        import BooleanValue._
+        assertEq(valueTraits, BooleanValueTraits)
+        assertEq(numericalOperations, BooleanValueOperations)
+        assertEq(domainOrdering, BooleanDomainOrdering)
     }
 
 }

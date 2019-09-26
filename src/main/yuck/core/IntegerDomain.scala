@@ -11,7 +11,7 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
 
     import IntegerDomain._
 
-    final override def valueTraits = IntegerValueTraits
+    final override def valueType = classOf[IntegerValue]
 
     final override def equals(that: Domain[IntegerValue]): Boolean = (this, that) match {
         case (lhs: IntegerRange, rhs: IntegerRange) => lhs.equals(rhs)
@@ -26,15 +26,15 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
         (3 * (3 + (if (isEmpty || lb == null) 0 else lb.hashCode)) +
             (if (isEmpty || ub == null) 0 else ub.hashCode))
 
-    final override def compare(that: Domain[IntegerValue]): Int = (this, that) match {
+    final override def compare(that: OrderedDomain[IntegerValue]): Int = (this, that) match {
         case (lhs: IntegerRange, rhs: IntegerRange) =>
-            IntegerRange.ordering.compare(lhs, rhs)
+            rangeOrdering.compare(lhs, rhs)
         case (lhs: IntegerRange, rhs: IntegerRangeList) =>
-            IntegerRangeList.ordering.compare(ensureRangeList(lhs), rhs)
+            rangeListOrdering.compare(ensureRangeList(lhs), rhs)
         case (lhs: IntegerRangeList, rhs: IntegerRangeList) =>
-            IntegerRangeList.ordering.compare(lhs, rhs)
+            rangeListOrdering.compare(lhs, rhs)
         case (lhs: IntegerRangeList, rhs: IntegerRange) =>
-            IntegerRangeList.ordering.compare(lhs, ensureRangeList(rhs))
+            rangeListOrdering.compare(lhs, ensureRangeList(rhs))
         case _ => ???
     }
 
@@ -192,9 +192,19 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
  */
 final object IntegerDomain {
 
-    /** A total ordering on integer domains. */
-    val ordering = new Ordering[IntegerDomain] {
-        override def compare(lhs: IntegerDomain, rhs: IntegerDomain) = lhs.compare(rhs)
+    private def rangeLessThan(lhs: IntegerRange, rhs: IntegerRange) =
+        ! rhs.isSubsetOf(lhs) && (lhs.isSubsetOf(rhs) || lhs.startsBefore(rhs))
+
+    // An intuitive ordering on integer ranges with A.isSubsetOf(B) -> A < B.
+    // If neither A.isSubsetOf(B) nor B.isSubsetOf(A), then A < B <-> (lb(A), ub(A)) < (lb(B), ub(B)).
+    // Yes, this is total ordering, I proved it on paper.
+    private def rangeOrdering = Ordering.fromLessThan(rangeLessThan)
+
+    // The lexicographic ordering on the underlying range lists.
+    private def rangeListOrdering = new Ordering[IntegerRangeList] {
+        val ordering = createLexicographicOrderingForIterable(rangeOrdering)
+        override def compare(lhs: IntegerRangeList, rhs: IntegerRangeList) =
+            ordering.compare(lhs.ranges, rhs.ranges)
     }
 
     /** Turns the given integer domain into a range list, if necessary. */

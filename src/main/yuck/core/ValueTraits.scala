@@ -1,5 +1,7 @@
 package yuck.core
 
+import scala.collection._
+
 /**
  * Provides general value properties.
  *

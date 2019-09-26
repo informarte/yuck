@@ -22,7 +22,7 @@ final class DistributionMaintainer
 {
 
     require(distribution.size == axs.size)
-    require(axs.forall(_.a.toInt > Int.MinValue)) // see computeFrequency
+    require(axs.forall(_.a.toLong > Long.MinValue)) // see computeFrequency
 
     override def toString = "distributionMaintainer([%s], %s)".format(axs.mkString(", "), distribution)
     override def inVariables = axs.view.map(_.x)

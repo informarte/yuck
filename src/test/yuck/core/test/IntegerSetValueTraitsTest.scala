@@ -63,7 +63,9 @@ final class IntegerSetValueTraitsTest extends UnitTest {
     @Test
     def testConfiguration: Unit = {
         assertEq(valueType, classOf[IntegerSetValue])
-        assertEq(orderingCostModel, IntegerSetOrderingCostModel)
+        assertEq(valueOrdering, IntegerSetValueOrdering)
+        assertEq(orderingCostModel, IntegerSetValueOrderingCostModel)
+        assertEq(domainOrdering, IntegerSetDomainOrdering)
         assertEq(domainPruner, IntegerSetDomainPruner)
     }
 

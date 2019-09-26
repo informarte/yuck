@@ -1,7 +1,5 @@
 package yuck.core.test
 
-import scala.math.{abs, signum}
-
 import org.junit._
 
 import yuck.core._
@@ -13,11 +11,10 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class IntegerValueTest extends UnitTest {
+final class IntegerValueTest extends UnitTest with IntegerValueTestData {
 
-    private val helper = new OrderedValueTestHelper[IntegerValue]
-    private val testRange = -5 to 5
-    private val testData = testRange.map(IntegerValue.get)
+    private val randomGenerator = new JavaRandomGenerator
+    private val helper = new OrderedValueTestHelper[IntegerValue](randomGenerator)
 
     @Test
     def testConstruction: Unit = {
@@ -64,37 +61,9 @@ final class IntegerValueTest extends UnitTest {
 
     @Test
     def testOrdering: Unit = {
-        helper.testOrdering(testData ++ testData)
+        helper.testOrdering(testData)
         assertEq(IntegerValue.min(Zero, One), Zero)
         assertEq(IntegerValue.max(Zero, One), One)
-    }
-
-    @Test
-    def testOrderingCostModel: Unit = {
-        val costModel = IntegerOrderingCostModel
-        for (a <- testData) {
-            for (b <- testData) {
-                assertEq(costModel.eq(a, b).truthValue, a == b)
-                assertEq(costModel.ne(a, b).truthValue, a != b)
-                assertEq(costModel.lt(a, b).truthValue, a < b)
-                assertEq(costModel.le(a, b).truthValue, a <= b)
-                for (c <- testData) {
-                    if (a < b && a < c && b < c) {
-                        assertLe(costModel.eq(a, b).violation, costModel.eq(a, c).violation)
-                        assertLe(costModel.lt(a, b).violation, costModel.lt(a, c).violation)
-                    }
-                }
-            }
-        }
-    }
-
-    @Test
-    def testOverflowCheckingInCostComputation: Unit = {
-        val costModel = IntegerOrderingCostModel
-        costModel.lt(IntegerValue.get(Int.MaxValue - 1), Zero)
-        assertEx(costModel.lt(IntegerValue.get(Int.MaxValue), Zero), classOf[ArithmeticException])
-        costModel.le(IntegerValue.get(Int.MaxValue), Zero)
-        assertEx(costModel.le(IntegerValue.get(Int.MaxValue), MinusOne), classOf[ArithmeticException])
     }
 
     @Test
@@ -128,9 +97,10 @@ final class IntegerValueTest extends UnitTest {
             } else {
                 assertEq(a.abs, a)
             }
-            assertEq(a.neg, IntegerValue.get(-a.value))
+            assertEq(a.negate, IntegerValue.get(-a.value))
             assertEq(a.toInt, a.value)
             assertEq(a.toLong, a.value.toLong)
+            assertEq(a.toFloat, a.value.toFloat)
             assertEq(a.toDouble, a.value.toDouble)
             assertEq(a.isEven, a.value % 2 == 0)
         }
@@ -151,13 +121,21 @@ final class IntegerValueTest extends UnitTest {
         assertEx(IntegerValue.get(Int.MaxValue).addAndSub(One, One, Zero), classOf[ArithmeticException])
         IntegerValue.get(Int.MinValue + 1).abs
         assertEx(IntegerValue.get(Int.MinValue).abs, classOf[ArithmeticException])
-        IntegerValue.get(Int.MaxValue).neg
-        assertEx(IntegerValue.get(Int.MinValue).neg, classOf[ArithmeticException])
+        IntegerValue.get(Int.MaxValue).negate
+        assertEx(IntegerValue.get(Int.MinValue).negate, classOf[ArithmeticException])
         IntegerValue.get(-2) ^ IntegerValue.get(31)
         assertEx(IntegerValue.get(-2) ^ IntegerValue.get(32), classOf[ArithmeticException])
         Two ^ IntegerValue.get(30)
         assertEx(Two ^ IntegerValue.get(31), classOf[ArithmeticException])
         assertEx(IntegerValue.get(Int.MaxValue) ^ IntegerValue.get(Int.MaxValue), classOf[ArithmeticException])
+    }
+
+    @Test
+    def testConfiguration: Unit = {
+        import IntegerValue._
+        assertEq(valueTraits, IntegerValueTraits)
+        assertEq(numericalOperations, IntegerValueOperations)
+        assertEq(domainOrdering, IntegerDomainOrdering)
     }
 
 }

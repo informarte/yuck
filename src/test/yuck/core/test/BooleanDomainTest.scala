@@ -13,7 +13,8 @@ import yuck.util.testing.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class BooleanDomainTest extends UnitTest {
 
-    private val helper = new OrderedDomainTestHelper[BooleanValue](logger)
+    private val randomGenerator = new JavaRandomGenerator
+    private val helper = new OrderedDomainTestHelper[BooleanValue](logger, randomGenerator)
     private val testData =
         List(EmptyBooleanDomain, FalseDomain, TrueDomain, CompleteBooleanDecisionDomain, BooleanChannelDomain)
 
@@ -32,7 +33,7 @@ final class BooleanDomainTest extends UnitTest {
 
     @Test
     def testOrdering: Unit = {
-        helper.testOrdering(testData, BooleanDomain.ordering)
+        helper.testOrdering(testData)
     }
 
     @Test

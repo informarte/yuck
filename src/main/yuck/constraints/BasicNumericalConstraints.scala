@@ -70,13 +70,27 @@ final class Times
  *
  */
 final class Div
-    [Value <: NumericalValue[Value]]
+    [Value <: IntegralValue[Value]]
     (id: Id[Constraint], goal: Goal,
      x: NumericalVariable[Value], y: NumericalVariable[Value], z: NumericalVariable[Value])
     extends TernaryConstraint(id, goal, x, y, z)
 {
     override def toString = "%s = %s / %s".format(z, x, y)
     override def op(a: Value, b: Value) = a / b
+}
+
+/**
+ * @author Michael Marte
+ *
+ */
+final class Mod
+    [Value <: IntegralValue[Value]]
+    (id: Id[Constraint], goal: Goal,
+     x: NumericalVariable[Value], y: NumericalVariable[Value], z: NumericalVariable[Value])
+    extends TernaryConstraint(id, goal, x, y, z)
+{
+    override def toString = "%s = %s % %s".format(z, x, y)
+    override def op(a: Value, b: Value) = a % b
 }
 
 /**
@@ -91,20 +105,6 @@ final class Power
 {
     override def toString = "%s = %s ^ %s".format(z, x, y)
     override def op(a: Value, b: Value) = a ^ b
-}
-
-/**
- * @author Michael Marte
- *
- */
-final class Mod
-    [Value <: NumericalValue[Value]]
-    (id: Id[Constraint], goal: Goal,
-     x: NumericalVariable[Value], y: NumericalVariable[Value], z: NumericalVariable[Value])
-    extends TernaryConstraint(id, goal, x, y, z)
-{
-    override def toString = "%s = %s % %s".format(z, x, y)
-    override def op(a: Value, b: Value) = a % b
 }
 
 /**
@@ -126,7 +126,7 @@ final class Abs
  *
  */
 final class Even
-    [Value <: NumericalValue[Value]]
+    [Value <: IntegralValue[Value]]
     (id: Id[Constraint], goal: Goal,
      x: NumericalVariable[Value], y: BooleanVariable)
     extends BinaryConstraint(id, goal, x, y)
@@ -140,7 +140,7 @@ final class Even
  *
  */
 final class Uneven
-    [Value <: NumericalValue[Value]]
+    [Value <: IntegralValue[Value]]
     (id: Id[Constraint], goal: Goal,
      x: NumericalVariable[Value], y: BooleanVariable)
     extends BinaryConstraint(id, goal, x, y)
