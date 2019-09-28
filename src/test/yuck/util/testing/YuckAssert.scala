@@ -9,34 +9,42 @@ import org.junit.Assert
 trait YuckAssert {
 
     protected def assert(b: Boolean): Unit = {
-        Assert.assertTrue(b)
+        if (! b) {
+            Assert.fail
+        }
+    }
+
+    protected def assert(message: => String, b: Boolean): Unit = {
+        if (! b) {
+            Assert.fail(message)
+        }
     }
 
     protected def assertEq[T](a: T, b: T): Unit = {
-        Assert.assertTrue("%s (testee) != %s".format(a, b), a == b)
+        assert("%s (testee) != %s".format(a, b), a == b)
         if (a != null && b != null) {
-            Assert.assertTrue("%s.hashcode (testee) != %s.hashcode".format(a, b), a.hashCode == b.hashCode)
+            assert("%s.hashcode (testee) != %s.hashcode".format(a, b), a.hashCode == b.hashCode)
         }
     }
 
     protected def assertNe[T](a: T, b: T): Unit = {
-        Assert.assertTrue("%s (testee) == %s".format(a, b), a != b)
+        assert("%s (testee) == %s".format(a, b), a != b)
     }
 
     protected def assertLe[T](a: T, b: T)(implicit ord: Ordering[T]): Unit = {
-        Assert.assertTrue("%s (testee) > %s".format(a, b), ord.compare(a, b) <= 0)
+        assert("%s (testee) > %s".format(a, b), ord.compare(a, b) <= 0)
     }
 
     protected def assertLt[T](a: T, b: T)(implicit ord: Ordering[T]): Unit = {
-        Assert.assertTrue("%s (testee) >= %s".format(a, b), ord.compare(a, b) < 0)
+        assert("%s (testee) >= %s".format(a, b), ord.compare(a, b) < 0)
     }
 
     protected def assertGe[T](a: T, b: T)(implicit ord: Ordering[T]): Unit = {
-        Assert.assertTrue("%s (testee) < %s".format(a, b), ord.compare(a, b) >= 0)
+        assert("%s (testee) < %s".format(a, b), ord.compare(a, b) >= 0)
     }
 
     protected def assertGt[T](a: T, b: T)(implicit ord: Ordering[T]): Unit = {
-        Assert.assertTrue("%s (testee) <= %s".format(a, b), ord.compare(a, b) > 0)
+        assert("%s (testee) <= %s".format(a, b), ord.compare(a, b) > 0)
     }
 
     /** Expects an IllegalArgumentException. */
@@ -52,7 +60,7 @@ trait YuckAssert {
         }
         catch {
             case throwable: Throwable =>
-                Assert.assertTrue(
+                assert(
                     "Expected %s but got %s".format(expectedExceptionType, throwable.getClass),
                     findExceptionType(throwable, expectedExceptionType))
         }

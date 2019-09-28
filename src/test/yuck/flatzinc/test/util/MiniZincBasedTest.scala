@@ -2,7 +2,6 @@ package yuck.flatzinc.test.util
 
 import scala.collection._
 
-import org.junit._
 import spray.json._
 
 import yuck.BuildInfo
@@ -179,12 +178,12 @@ class MiniZincBasedTest extends IntegrationTest {
         logYuckModelStatistics(result.space)
         logResult(result)
         logSolverStatistics(monitor)
-        Assert.assertTrue(
+        assert(
             "No solution found, quality of best proposal was %s".format(result.costsOfBestProposal),
             result.isSolution || ! task.assertWhenUnsolved)
         if (result.isSolution) {
             logger.withTimedLogScope("Verifying solution") {
-                Assert.assertTrue(
+                assert(
                     "Solution not verified",
                     new MiniZincSolutionVerifier(task, result, logger).call)
             }
@@ -348,7 +347,7 @@ class MiniZincBasedTest extends IntegrationTest {
         case error: SolverInterruptedException =>
             nativeLogger.info(error.getMessage)
             nativeLogger.info(FlatZincNoSolutionFoundIndicator)
-            Assert.assertFalse(error.getMessage, task.assertWhenUnsolved)
+            assert(error.getMessage, ! task.assertWhenUnsolved)
         case error: Throwable =>
             nativeLogger.log(java.util.logging.Level.SEVERE, "", error)
             throw error
