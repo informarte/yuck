@@ -524,7 +524,7 @@ final class IntegerDomainTestHelper
  * @author Michael Marte
  *
  */
-final object IntegerDomainTestHelper {
+object IntegerDomainTestHelper {
 
     val specialInfiniteRanges =
         List(CompleteIntegerRange,

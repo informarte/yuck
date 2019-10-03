@@ -56,7 +56,7 @@ final class BooleanValue(val violation: Long) extends NumericalValue[BooleanValu
  *
  * @author Michael Marte
  */
-final object BooleanValue {
+object BooleanValue {
 
     implicit def valueTraits = BooleanValueTraits
     implicit def numericalOperations = BooleanValueOperations

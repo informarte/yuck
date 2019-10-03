@@ -18,7 +18,7 @@ final case class AX
  *
  * @author Michael Marte
  */
-final object AX {
+object AX {
 
     /**
      * Interprets the given sequence of scalar-variable pairs as linear combination

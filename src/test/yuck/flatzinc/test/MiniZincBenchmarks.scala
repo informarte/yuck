@@ -31,7 +31,7 @@ final class MiniZincBenchmarks(task: MiniZincTestTask) extends MiniZincBasedTest
  * @author Michael Marte
  *
  */
-final object MiniZincBenchmarks {
+object MiniZincBenchmarks {
 
     private val InstancesPerProblem = 5
 

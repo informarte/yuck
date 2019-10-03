@@ -5,7 +5,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-final object IntegerSetDomainPruner extends OrderedDomainPruner[IntegerSetValue] {
+object IntegerSetDomainPruner extends OrderedDomainPruner[IntegerSetValue] {
 
     type DomainImpl = IntegerSetDomain
 

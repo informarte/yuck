@@ -7,7 +7,7 @@ import scala.collection._
  *
  * @author Michael Marte
  */
-final object IntegerSetValueTraits extends OrderedValueTraits[IntegerSetValue] {
+object IntegerSetValueTraits extends OrderedValueTraits[IntegerSetValue] {
     override val valueType = classOf[IntegerSetValue]
     override val valueOrdering = IntegerSetValueOrdering
     override val orderingCostModel = IntegerSetValueOrderingCostModel

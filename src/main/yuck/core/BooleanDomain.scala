@@ -71,7 +71,7 @@ abstract class BooleanDomain extends NumericalDomain[BooleanValue] {
  *
  * @author Michael Marte
  */
-final object BooleanDomain {
+object BooleanDomain {
 
     /**
      * Projects the given domain onto a logically equivalent decision domain, if necessary.

@@ -23,7 +23,7 @@ final class IntegerSetValue(val set: IntegerDomain) extends OrderedValue[Integer
  *
  * @author Michael Marte
  */
-final object IntegerSetValue {
+object IntegerSetValue {
 
     implicit def valueTraits = IntegerSetValueTraits
     implicit def valueOrdering = IntegerSetValueOrdering

@@ -5,7 +5,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-final object BooleanChannelDomain extends BooleanDomain {
+object BooleanChannelDomain extends BooleanDomain {
     override def toString = "{%s, %s, %s, ...}".format(True, False, False2)
     override def size = !!!
     override def isComplete = true

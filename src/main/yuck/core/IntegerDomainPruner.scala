@@ -9,7 +9,7 @@ import yuck.core.IntegerDomain.createRange
  *
  * @author Michael Marte
  */
-final object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
+object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
 
     type DomainImpl = IntegerDomain
 

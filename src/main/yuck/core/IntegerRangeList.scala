@@ -232,7 +232,7 @@ final class IntegerRangeList
  *
  * @author Michael Marte
  */
-final object IntegerRangeList {
+object IntegerRangeList {
 
     private def createRangeDistribution(ranges: immutable.IndexedSeq[IntegerRange]): Distribution = {
         val result = DistributionFactory.createDistribution(ranges.size)

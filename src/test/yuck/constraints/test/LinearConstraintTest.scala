@@ -173,7 +173,7 @@ final class LinearConstraintTest
  * @author Michael Marte
  *
  */
-final object LinearConstraintTest {
+object LinearConstraintTest {
 
     private def configurations =
         for (relation <- List(EqRelation, NeRelation, LtRelation, LeRelation);

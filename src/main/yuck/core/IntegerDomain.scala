@@ -190,7 +190,7 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
  *
  * @author Michael Marte
  */
-final object IntegerDomain {
+object IntegerDomain {
 
     private def rangeLessThan(lhs: IntegerRange, rhs: IntegerRange) =
         ! rhs.isSubsetOf(lhs) && (lhs.isSubsetOf(rhs) || lhs.startsBefore(rhs))

@@ -47,7 +47,7 @@ final class Bool2Int2
  * @author Michael Marte
  *
  */
-final object Bool2IntPropagator {
+object Bool2IntPropagator {
 
     def bool2Int(lhs0: BooleanDomain, rhs0: IntegerDomain) = {
         val lhs1 = BooleanDomain.ensureDecisionDomain(lhs0)

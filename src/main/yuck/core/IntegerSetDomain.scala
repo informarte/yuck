@@ -54,5 +54,5 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
  *
  * @author Michael Marte
  */
-final object IntegerSetDomain {
+object IntegerSetDomain {
 }

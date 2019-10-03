@@ -44,7 +44,7 @@ final class RandomCircularSwapGeneratorTest
  * @author Michael Marte
  *
  */
-final object RandomCircularSwapGeneratorTest extends NeighbourhoodTestGenerator {
+object RandomCircularSwapGeneratorTest extends NeighbourhoodTestGenerator {
 
     import DistributionFactory.createDistribution
 

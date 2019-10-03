@@ -5,7 +5,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-final object BooleanValueOrderingCostModel extends OrderingCostModel[BooleanValue] {
+object BooleanValueOrderingCostModel extends OrderingCostModel[BooleanValue] {
     override def eq(lhs: BooleanValue, rhs: BooleanValue) =
         if (lhs.truthValue == rhs.truthValue) True
         else BooleanValue.get(safeInc(safeAdd(lhs.violation, rhs.violation)) / 2)

@@ -119,7 +119,7 @@ final class Space(
             constraintOrder.update(constraint.id.rawId, i)
         }
     }
-    private final object ConstraintOrdering extends Ordering[Constraint] {
+    private object ConstraintOrdering extends Ordering[Constraint] {
         @inline override def compare(lhs: Constraint, rhs: Constraint) =
             constraintOrder(lhs.id.rawId) - constraintOrder(rhs.id.rawId)
     }

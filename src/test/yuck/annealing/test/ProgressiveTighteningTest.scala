@@ -91,7 +91,7 @@ final class ProgressiveTighteningTest
   * @author Michael Marte
   *
   */
-final object ProgressiveTighteningTest {
+object ProgressiveTighteningTest {
 
     trait ObjectiveType
     case object Min extends ObjectiveType

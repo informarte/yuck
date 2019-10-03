@@ -9,7 +9,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-final object BooleanDomainPruner extends NumericalDomainPruner[BooleanValue] {
+object BooleanDomainPruner extends NumericalDomainPruner[BooleanValue] {
 
     import BooleanDecisionDomain.createDomain
     import BooleanDomain.ensureDecisionDomain

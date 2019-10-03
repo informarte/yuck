@@ -5,7 +5,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-final object DistributionFactory {
+object DistributionFactory {
 
     /**
      * Creates a distribution of the given size.

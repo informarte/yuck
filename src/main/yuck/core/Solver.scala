@@ -72,7 +72,7 @@ class SolverMonitor[ResultImpl <: Result] {
  *
  * @author Michael Marte
  */
-final object FinishedSolver extends Solver {
+object FinishedSolver extends Solver {
     override def hasFinished = true
     override def call = {
         require(! hasFinished, "Use a new solver")

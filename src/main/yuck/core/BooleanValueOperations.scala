@@ -5,7 +5,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-final object BooleanValueOperations extends Numeric[BooleanValue] {
+object BooleanValueOperations extends Numeric[BooleanValue] {
     override def compare(a: BooleanValue, b: BooleanValue) = a.compare(b)
     override def plus(a: BooleanValue, b: BooleanValue) = a + b
     override def minus(a: BooleanValue, b: BooleanValue) = a - b

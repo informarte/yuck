@@ -7,7 +7,7 @@ import scala.collection._
  *
  * @author Michael Marte
  */
-final object BooleanValueTraits extends NumericalValueTraits[BooleanValue] {
+object BooleanValueTraits extends NumericalValueTraits[BooleanValue] {
     override val valueType = classOf[BooleanValue]
     override val zero = True
     override val one = False

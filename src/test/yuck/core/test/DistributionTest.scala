@@ -112,7 +112,7 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
  * @author Michael Marte
  *
  */
-final object DistributionTest {
+object DistributionTest {
 
     @runners.Parameterized.Parameters
     def parameters =

@@ -7,4 +7,4 @@ import yuck.util.OrderingFromOrdered
  *
  * @author Michael Marte
  */
-final object IntegerSetValueOrdering extends OrderingFromOrdered[IntegerSetValue]
+object IntegerSetValueOrdering extends OrderingFromOrdered[IntegerSetValue]

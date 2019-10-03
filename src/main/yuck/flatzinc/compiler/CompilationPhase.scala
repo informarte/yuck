@@ -306,21 +306,21 @@ abstract class CompilationPhase(
     protected abstract class NumericalCompilationHelper[Value <: NumericalValue[Value], Variable <: NumericalVariable[Value]]
     extends OrderedCompilationHelper[Value, Variable]
 
-    implicit protected final object BooleanCompilationHelper extends NumericalCompilationHelper[BooleanValue, BooleanVariable] {
+    implicit protected object BooleanCompilationHelper extends NumericalCompilationHelper[BooleanValue, BooleanVariable] {
         import HighPriorityImplicits._
         override def compileExpr(expr: Expr) = compileBoolExpr(expr)
         override def compileArray(expr: Expr) = compileBoolArray(expr)
         override def createChannel = createBoolChannel
     }
 
-    implicit protected final object IntegerCompilationHelper extends NumericalCompilationHelper[IntegerValue, IntegerVariable] {
+    implicit protected object IntegerCompilationHelper extends NumericalCompilationHelper[IntegerValue, IntegerVariable] {
         import HighPriorityImplicits._
         override def compileExpr(expr: Expr) = compileIntExpr(expr)
         override def compileArray(expr: Expr) = compileIntArray(expr)
         override def createChannel = createIntChannel
     }
 
-    implicit protected final object IntegerSetCompilationHelper extends OrderedCompilationHelper[IntegerSetValue, IntegerSetVariable] {
+    implicit protected object IntegerSetCompilationHelper extends OrderedCompilationHelper[IntegerSetValue, IntegerSetVariable] {
         import HighPriorityImplicits._
         override def compileExpr(expr: Expr) = compileIntSetExpr(expr)
         override def compileArray(expr: Expr) = compileIntSetArray(expr)

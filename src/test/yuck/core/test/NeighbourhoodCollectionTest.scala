@@ -46,7 +46,7 @@ class NeighbourhoodCollectionTest
  * @author Michael Marte
  *
  */
-final object NeighbourhoodCollectionTest extends NeighbourhoodTestGenerator {
+object NeighbourhoodCollectionTest extends NeighbourhoodTestGenerator {
 
     import DistributionFactory.createDistribution
 

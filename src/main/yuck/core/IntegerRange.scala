@@ -196,5 +196,5 @@ final class IntegerRange
  *
  * @author Michael Marte
  */
-final object IntegerRange {
+object IntegerRange {
 }

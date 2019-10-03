@@ -136,7 +136,7 @@ final class LinearConstraint
  * @author Michael Marte
  *
  */
-final object LinearConstraint {
+object LinearConstraint {
 
     def postLinearConstraint
         [Value <: NumericalValue[Value]]

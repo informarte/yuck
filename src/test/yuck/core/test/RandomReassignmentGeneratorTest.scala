@@ -44,7 +44,7 @@ final class RandomReassignmentGeneratorTest
  * @author Michael Marte
  *
  */
-final object RandomReassignmentGeneratorTest extends NeighbourhoodTestGenerator {
+object RandomReassignmentGeneratorTest extends NeighbourhoodTestGenerator {
 
     import DistributionFactory.createDistribution
 

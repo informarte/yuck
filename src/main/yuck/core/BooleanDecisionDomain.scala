@@ -64,7 +64,7 @@ final class BooleanDecisionDomain
  *
  * @author Michael Marte
  */
-final object BooleanDecisionDomain {
+object BooleanDecisionDomain {
 
     private val listWithFalseAndTrue = List(False, True)
     private val listWithFalse = List(False)

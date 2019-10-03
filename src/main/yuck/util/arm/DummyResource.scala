@@ -5,7 +5,7 @@ package yuck.util.arm
  *
  * @author Michael Marte
  */
-final object DummyResource extends ManagedResource {
+object DummyResource extends ManagedResource {
     override def open = {}
     override def close = {}
 }

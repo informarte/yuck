@@ -65,7 +65,7 @@ class LinearConstraintPerformanceTest(relation: OrderingRelation, withUnitCoeffi
   * @author Michael Marte
   *
   */
-final object LinearConstraintPerformanceTest {
+object LinearConstraintPerformanceTest {
 
     private def configurations =
         for (relation <- List(EqRelation, NeRelation, LtRelation, LeRelation);

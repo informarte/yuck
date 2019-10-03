@@ -7,4 +7,4 @@ import yuck.util.OrderingFromOrdered
  *
  * @author Michael Marte
  */
-final object BooleanDomainOrdering extends OrderingFromOrdered[OrderedDomain[BooleanValue]]
+object BooleanDomainOrdering extends OrderingFromOrdered[OrderedDomain[BooleanValue]]

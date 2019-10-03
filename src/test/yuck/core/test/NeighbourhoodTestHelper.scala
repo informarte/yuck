@@ -150,7 +150,7 @@ final class NeighbourhoodTestHelper
  * @author Michael Marte
  *
  */
-final object NeighbourhoodTestHelper {
+object NeighbourhoodTestHelper {
 
     def createSpace
         (logger: LazyLogger, sigint: Sigint, randomGenerator: RandomGenerator, domains: Seq[IntegerDomain]):

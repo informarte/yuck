@@ -50,7 +50,7 @@ final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
  *
  * @author Michael Marte
  */
-final object IntegerValue {
+object IntegerValue {
 
     def min(a: IntegerValue, b: IntegerValue): IntegerValue = if (a < b) a else b
 

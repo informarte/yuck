@@ -9,4 +9,4 @@ import yuck.util.OrderingFromOrdered
  *
  * @author Michael Marte
  */
-final object IntegerSetDomainOrdering extends OrderingFromOrdered[OrderedDomain[IntegerSetValue]]
+object IntegerSetDomainOrdering extends OrderingFromOrdered[OrderedDomain[IntegerSetValue]]
