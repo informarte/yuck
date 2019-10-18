@@ -1,7 +1,5 @@
 package yuck.core
 
-import scala.language.higherKinds
-
 /**
  * Provides general value properties.
  *
