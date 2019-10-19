@@ -27,10 +27,11 @@ final class VariableTest extends UnitTest {
     @Test
     def testPruning: Unit = {
         val space = new Space(logger, sigint)
-        val x = space.createVariable("x", CompleteIntegerRange)
+        val x = space.createVariable("x", NonNegativeIntegerRange)
         assert(! x.pruneDomain(x.domain))
-        assert(x.pruneDomain(NonNegativeIntegerRange))
-        assertEq(x.domain, NonNegativeIntegerRange)
+        assert(! x.pruneDomain(CompleteIntegerRange))
+        assert(x.pruneDomain(PositiveIntegerRange))
+        assertEq(x.domain, PositiveIntegerRange)
         assertEx(x.pruneDomain(NegativeIntegerRange), classOf[DomainWipeOutException])
     }
 

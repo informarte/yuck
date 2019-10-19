@@ -13,17 +13,20 @@ trait DomainHolder[Value <: AnyValue, Domain <: yuck.core.Domain[Value]] {
 
     final def pruneDomainImpl(restriction: Domain): Boolean = {
         if (restriction != currentDomain) {
-            // Assuming that restriction is usually a subset of currentDomain,
-            // we avoid useless and expensive intersections.
-            if (restriction.isSubsetOf(currentDomain)) {
-                currentDomain = restriction
+            // We try to avoid useless and expensive intersections.
+            if (currentDomain.isSubsetOf(restriction)) {
+                false
             } else {
-                currentDomain = intersectCurrentDomainWith(restriction)
+                if (restriction.isSubsetOf(currentDomain)) {
+                    currentDomain = restriction
+                } else {
+                    currentDomain = intersectCurrentDomainWith(restriction)
+                }
+                if (currentDomain.isEmpty) {
+                    throw new DomainWipeOutException(thisVariable)
+                }
+                true
             }
-            if (currentDomain.isEmpty) {
-                throw new DomainWipeOutException(thisVariable)
-            }
-            true
         } else {
             false
         }
