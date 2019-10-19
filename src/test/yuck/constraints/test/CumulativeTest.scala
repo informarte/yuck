@@ -304,4 +304,41 @@ final class CumulativeTest extends UnitTest {
         assertEq(now.value(costs), False2)
     }
 
+    @Test
+    def testHandlingOfNegativeDurationAndConsumption: Unit = {
+        val space = new Space(logger, sigint)
+        val d = new IntegerRange(Zero, Nine)
+        val tasks = (1 to 2).map(createTask(space, _, d))
+        val Vector(t1, t2) = tasks
+        val ub = new IntegerVariable(space.nextVariableId, "ub", d)
+        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+        // initial conflict
+        space
+            .post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
+            .setValue(t1.s, Zero).setValue(t1.d, One).setValue(t1.c, One)
+            .setValue(t2.s, Zero).setValue(t2.d, One).setValue(t2.c, One)
+            .setValue(ub, Zero)
+            .initialize
+        val now = space.searchState
+        assertEq(now.value(costs), False2)
+        if (true) {
+            // reduce conflict by setting duration of t1 to -1
+            val move = new ChangeValue(space.nextMoveId, t1.d, MinusOne)
+            val after = space.consult(move)
+            assertEq(after.value(costs), False)
+            space.commit(move)
+            assertEq(now.value(costs), False)
+        }
+        if (true) {
+            // resolve conflict by setting consumption of t2 to -1
+            val move = new ChangeValue(space.nextMoveId, t2.c, MinusOne)
+            val after = space.consult(move)
+            assertEq(after.value(costs), True)
+            space.commit(move)
+            assertEq(now.value(costs), True)
+        }
+        space.initialize
+        assertEq(now.value(costs), True)
+    }
+
 }

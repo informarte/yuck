@@ -34,6 +34,8 @@ final class CumulativeTask
  *
  * Uses an R tree to track task placements and sweeping to compute costs and cost deltas.
  *
+ * Ignores tasks with negative duration or consumption.
+ *
  * @author Michael Marte
  */
 final class Cumulative
@@ -89,8 +91,8 @@ final class Cumulative
     private def createRTreeEntry(i: Int, searchState: SearchState) = {
         val t = tasks(i)
         val s = searchState.value(t.s).value
-        val d = searchState.value(t.d).value
-        val c = searchState.value(t.c).value
+        val d = max(0, searchState.value(t.d).value)
+        val c = max(0, searchState.value(t.c).value)
         val entry = new RTreeEntry(i, new Rect2d(s, 0, safeAdd(s, d), c))
         entry
     }
