@@ -12,6 +12,7 @@ final class CountConst
     [Value <: AnyValue]
     (id: Id[Constraint], goal: Goal,
      xs: Seq[Variable[Value]], a: Value, val n: IntegerVariable)
+    (implicit valueTraits: ValueTraits[Value])
     extends Constraint(id, goal)
 {
 
@@ -22,6 +23,40 @@ final class CountConst
     private var count = 0
     private val effects = List(new ReusableMoveEffectWithFixedVariable[IntegerValue](n))
     private val effect = effects.head
+
+    private def propagate1(effects: PropagationEffects): PropagationEffects = {
+        var lb = 0
+        var ub = 0
+        for (x <- xs) {
+            val dx = x.domain
+            if (dx.isSingleton) {
+                if (dx.singleValue == a) {
+                    lb += 1
+                    ub += 1
+                }
+            } else {
+                if (dx.contains(a)) {
+                    ub += 1
+                }
+            }
+        }
+        effects.pruneDomain(n, IntegerDomain.createRange(IntegerValue.get(lb), IntegerValue.get(ub)))
+    }
+
+    private def propagate2(effects: PropagationEffects): PropagationEffects = {
+        if (n.domain.isSingleton &&
+            xs.count(_.domain.contains(a)) == n.domain.singleValue.value)
+        {
+            val dx = valueTraits.createDomain(Set(a))
+            xs.iterator.filter(_.domain.contains(a)).foldLeft(effects){case (effects, x) => effects.pruneDomain(x, dx)}
+        } else {
+            effects
+        }
+    }
+
+    override def propagate = {
+        propagate2(propagate1(NoPropagationOccurred))
+    }
 
     override def initialize(now: SearchState) = {
         count = xs.count(x => now.value(x) == a)
