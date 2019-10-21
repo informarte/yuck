@@ -470,4 +470,39 @@ final class Disjoint2Test extends UnitTest {
         assertEq(now.value(costs), False7)
     }
 
+    @Test
+    def testHandlingOfNegativeWidthAndHeight: Unit = {
+        val space = new Space(logger, sigint)
+        val rects = (1 to 3).map(createRect(space, _, new IntegerRange(Zero, Nine)))
+        val Vector(r1, r2, r3) = rects
+        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+        // initial conflict: r1 and r2 are identical and covered by r0
+        space
+            .post(new Disjoint2(space.nextConstraintId, null, rects, true, costs))
+            .setValue(r1.x, Zero).setValue(r1.y, Zero).setValue(r1.w, Three).setValue(r1.h, Three)
+            .setValue(r2.x, Zero).setValue(r2.y, Zero).setValue(r2.w, One).setValue(r2.h, One)
+            .setValue(r3.x, Zero).setValue(r3.y, Zero).setValue(r3.w, One).setValue(r3.h, One)
+            .initialize
+        val now = space.searchState
+        assertEq(now.value(costs), False3)
+        if (true) {
+            // reduce conflict by setting the width of r2 to -1
+            val move = new ChangeValue(space.nextMoveId, r2.w, MinusOne)
+            val after = space.consult(move)
+            assertEq(after.value(costs), False)
+            space.commit(move)
+            assertEq(now.value(costs), False)
+        }
+        if (true) {
+            // resolve conflict by setting the height of r3 to -1
+            val move = new ChangeValue(space.nextMoveId, r3.h, MinusOne)
+            val after = space.consult(move)
+            assertEq(after.value(costs), True)
+            space.commit(move)
+            assertEq(now.value(costs), True)
+        }
+        space.initialize
+        assertEq(now.value(costs), True)
+    }
+
 }

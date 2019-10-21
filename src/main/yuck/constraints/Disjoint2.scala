@@ -16,12 +16,7 @@ import yuck.util.alg.rtree.RicherPoint2d
 final class Disjoint2Rect
     (val x: IntegerVariable, val y: IntegerVariable, val w: IntegerVariable, val h: IntegerVariable)
 {
-
-    require(w.domain.lb >= Zero)
-    require(h.domain.lb >= Zero)
-
     override def toString = "(%s, %s, %s, %s)".format(x, y, w, h)
-
 }
 
 /**
@@ -29,6 +24,8 @@ final class Disjoint2Rect
  *
  * Uses an R tree to keep track of rectangle placements in order to provide the total overlap
  * as measure of constraint violation.
+ *
+ * Ignores rectangles with negative width or height.
  *
  * @author Michael Marte
  */
@@ -98,8 +95,8 @@ final class Disjoint2
         val h = searchState.value(r.h).value
         val hasZeroWidth = w == 0
         val hasZeroHeight = h == 0
-        val x2 = safeAdd(x1, if (hasZeroWidth && isStrict) 1 else w)
-        val y2 = safeAdd(y1, if (hasZeroHeight && isStrict) 1 else h)
+        val x2 = safeAdd(x1, if (hasZeroWidth && isStrict) 1 else max(w, 0))
+        val y2 = safeAdd(y1, if (hasZeroHeight && isStrict) 1 else max(h, 0))
         val entry = new RTreeEntry(i, hasZeroWidth, hasZeroHeight, new Rect2d(x1, y1, x2, y2))
         entry
     }
