@@ -14,13 +14,12 @@ object BooleanDomainPruner extends NumericalDomainPruner[BooleanValue] {
     import BooleanDecisionDomain.createDomain
     import BooleanDomain.ensureDecisionDomain
 
-    type DomainImpl = BooleanDomain
+    override protected val valueTraits = BooleanValueTraits
 
     // iff
     override def eq
-        [Domain >: DomainImpl <: yuck.core.Domain[BooleanValue]]
-        (lhs0: Domain, rhs0: Domain):
-        (Domain, Domain) =
+        (lhs0: Domain[BooleanValue], rhs0: Domain[BooleanValue]):
+        (BooleanDomain, BooleanDomain) =
     {
         val lhs1 = ensureDecisionDomain(lhs0)
         val rhs1 = ensureDecisionDomain(rhs0)
@@ -30,9 +29,8 @@ object BooleanDomainPruner extends NumericalDomainPruner[BooleanValue] {
 
     // negation
     override def ne
-        [Domain >: DomainImpl <: yuck.core.Domain[BooleanValue]]
-        (lhs0: Domain, rhs0: Domain):
-        (Domain, Domain) =
+        (lhs0: Domain[BooleanValue], rhs0: Domain[BooleanValue]):
+        (BooleanDomain, BooleanDomain) =
     {
         val lhs1 = ensureDecisionDomain(lhs0)
         val rhs1 = ensureDecisionDomain(rhs0)
@@ -41,18 +39,16 @@ object BooleanDomainPruner extends NumericalDomainPruner[BooleanValue] {
     }
 
     override def lt
-        [Domain >: BooleanDomain <: OrderedDomain[BooleanValue]]
-        (lhs: Domain, rhs: Domain):
-        (Domain, Domain) =
+        (lhs: OrderedDomain[BooleanValue], rhs: OrderedDomain[BooleanValue]):
+        (BooleanDomain, BooleanDomain) =
     {
         (FalseDomain.intersect(lhs), TrueDomain.intersect(rhs))
     }
 
     // implication
     override def le
-        [Domain >: BooleanDomain <: OrderedDomain[BooleanValue]]
-        (lhs0: Domain, rhs0: Domain):
-        (Domain, Domain) =
+        (lhs0: OrderedDomain[BooleanValue], rhs0: OrderedDomain[BooleanValue]):
+        (BooleanDomain, BooleanDomain) =
     {
         val lhs1 = ensureDecisionDomain(lhs0)
         val rhs1 = ensureDecisionDomain(rhs0)
@@ -60,11 +56,34 @@ object BooleanDomainPruner extends NumericalDomainPruner[BooleanValue] {
          if (lhs1.isSingleton && lhs1.singleValue == True) createDomain(false, rhs1.contains(True)) else rhs1)
     }
 
+    override def min
+        (lhs: Iterable[OrderedDomain[BooleanValue]], rhs: OrderedDomain[BooleanValue]):
+        (Iterator[BooleanDomain], BooleanDomain) =
+    {
+        (lhs.iterator.map(ensureDecisionDomain(_)), ensureDecisionDomain(rhs))
+    }
+
+    override def max
+        (lhs: Iterable[OrderedDomain[BooleanValue]], rhs: OrderedDomain[BooleanValue]):
+        (Iterator[BooleanDomain], BooleanDomain) =
+    {
+        (lhs.iterator.map(ensureDecisionDomain(_)), ensureDecisionDomain(rhs))
+    }
+
     // conjunction
     override def linEq
-        [Domain >: DomainImpl <: NumericalDomain[BooleanValue]]
-        (lhs0: Iterable[(BooleanValue, Domain)], rhs0: Domain):
-        (Iterator[Domain], Domain) =
+        (lhs0: Iterable[(BooleanValue, NumericalDomain[BooleanValue])], rhs0: NumericalDomain[BooleanValue]):
+        (Iterator[BooleanDomain], BooleanDomain) =
+    {
+        val lhs1 = lhs0.view.map{case (a, d) => (a, ensureDecisionDomain(d))}
+        val rhs1 = ensureDecisionDomain(rhs0)
+        val (lhs2, rhs2) = linEq(lhs1, rhs1)
+        (lhs2, rhs2)
+    }
+
+    private def linEq
+        (lhs0: Iterable[(BooleanValue, BooleanDomain)], rhs0: BooleanDomain):
+        (Iterator[BooleanDomain], BooleanDomain) =
     {
         def lhs1 = lhs0.iterator.map(_._2)
         if (rhs0.isEmpty || lhs0.exists{case (_, d) => d.isEmpty}) {

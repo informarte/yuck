@@ -7,17 +7,16 @@ package yuck.core
  */
 abstract class DomainPruner[Value <: AnyValue] {
 
-    type DomainImpl <: Domain[Value]
+    protected val valueTraits: ValueTraits[Value]
 
     def eq
-        [Domain >: DomainImpl <: yuck.core.Domain[Value]]
-        (lhs: Domain, rhs: Domain): (Domain, Domain) =
+        (lhs: Domain[Value], rhs: Domain[Value]):
+        (Domain[Value], Domain[Value]) =
         (lhs, rhs)
 
     def ne
-        [Domain >: DomainImpl <: yuck.core.Domain[Value]]
-        (lhs: Domain, rhs: Domain):
-        (Domain, Domain) =
+        (lhs: Domain[Value], rhs: Domain[Value]):
+        (Domain[Value], Domain[Value]) =
         (lhs, rhs)
 
 }

@@ -51,8 +51,7 @@ final class LinearConstraintTest
     @Test
     def testPropagation: Unit = {
         // We simulate a propagation process where the first call to propagate computes a fixed point.
-        class DomainPruner extends NumericalDomainPruner[IntegerValue] {
-            override type DomainImpl = IntegerDomain
+        abstract class DomainPruner extends NumericalDomainPruner[IntegerValue] {
         }
         val domainPruner = mock(classOf[DomainPruner], RETURNS_SMART_NULLS)
         val lhs0 = for (i <- 0 until xs.size) yield (axs(i).a, initialDomains(i))

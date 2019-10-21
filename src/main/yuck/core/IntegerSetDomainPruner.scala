@@ -7,14 +7,13 @@ package yuck.core
  */
 object IntegerSetDomainPruner extends OrderedDomainPruner[IntegerSetValue] {
 
-    type DomainImpl = IntegerSetDomain
+    override protected val valueTraits = IntegerSetValueTraits
 
     override def eq
-        [Domain >: DomainImpl <: yuck.core.Domain[IntegerSetValue]]
-        (lhs: Domain, rhs: Domain):
-        (Domain, Domain) =
+        (lhs: Domain[IntegerSetValue], rhs: Domain[IntegerSetValue]):
+        (IntegerSetDomain, IntegerSetDomain) =
     {
-        val intersection = lhs.asInstanceOf[DomainImpl].intersect(rhs)
+        val intersection = lhs.asInstanceOf[IntegerSetDomain].intersect(rhs)
         (intersection, intersection)
     }
 

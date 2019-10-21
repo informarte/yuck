@@ -11,30 +11,29 @@ import yuck.core.IntegerDomain.createRange
  */
 object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
 
-    type DomainImpl = IntegerDomain
+    override protected val valueTraits = IntegerValueTraits
 
     override def eq
-        [Domain >: DomainImpl <: yuck.core.Domain[IntegerValue]]
-        (lhs: Domain, rhs: Domain):
-        (Domain, Domain) =
+        (lhs: Domain[IntegerValue], rhs: Domain[IntegerValue]):
+        (IntegerDomain, IntegerDomain) =
     {
-        val intersection = lhs.asInstanceOf[DomainImpl].intersect(rhs)
+        val intersection = lhs.asInstanceOf[IntegerDomain].intersect(rhs)
         (intersection, intersection)
     }
 
     override def ne
-        [Domain >: DomainImpl <: yuck.core.Domain[IntegerValue]]
-        (lhs: Domain, rhs: Domain):
-        (Domain, Domain) =
+        (lhs0: Domain[IntegerValue], rhs0: Domain[IntegerValue]):
+        (IntegerDomain, IntegerDomain) =
     {
-        (if (rhs.isSingleton) lhs.asInstanceOf[DomainImpl].diff(rhs) else lhs,
-         if (lhs.isSingleton) rhs.asInstanceOf[DomainImpl].diff(lhs) else rhs)
+        val lhs1 = lhs0.asInstanceOf[IntegerDomain]
+        val rhs1 = rhs0.asInstanceOf[IntegerDomain]
+        (if (rhs1.isSingleton) lhs1.diff(rhs1) else lhs1,
+         if (lhs1.isSingleton) rhs1.diff(lhs1) else rhs1)
     }
 
     override def lt
-        [Domain >: DomainImpl <: OrderedDomain[IntegerValue]]
-        (lhs: Domain, rhs: Domain):
-        (Domain, Domain) =
+        (lhs: OrderedDomain[IntegerValue], rhs: OrderedDomain[IntegerValue]):
+        (IntegerDomain, IntegerDomain) =
     {
         if (lhs.isEmpty || rhs.isEmpty) (EmptyIntegerRange, EmptyIntegerRange)
         else (createRange(null, if (! rhs.hasUb) null else rhs.ub - One).intersect(lhs),
@@ -42,18 +41,16 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
     }
 
     override def le
-        [Domain >: DomainImpl <: OrderedDomain[IntegerValue]]
-        (lhs: Domain, rhs: Domain):
-        (Domain, Domain) =
+        (lhs: OrderedDomain[IntegerValue], rhs: OrderedDomain[IntegerValue]):
+        (IntegerDomain, IntegerDomain) =
     {
         if (lhs.isEmpty || rhs.isEmpty) (EmptyIntegerRange, EmptyIntegerRange)
         else (createRange(null, rhs.ub).intersect(lhs), createRange(lhs.lb, null).intersect(rhs))
     }
 
     override def min
-        [Domain >: DomainImpl <: OrderedDomain[IntegerValue]]
-        (lhs0: Iterable[Domain], rhs0: Domain):
-        (Iterator[Domain], Domain) =
+        (lhs0: Iterable[OrderedDomain[IntegerValue]], rhs0: OrderedDomain[IntegerValue]):
+        (Iterator[IntegerDomain], IntegerDomain) =
     {
         require(! lhs0.isEmpty)
         if (rhs0.isEmpty || lhs0.exists(_.isEmpty)) {
@@ -68,15 +65,14 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
     }
 
     override def max
-        [Domain >: DomainImpl <: OrderedDomain[IntegerValue]]
-        (lhs0: Iterable[Domain], rhs0: Domain):
-        (Iterator[Domain], Domain) =
+        (lhs0: Iterable[OrderedDomain[IntegerValue]], rhs0: OrderedDomain[IntegerValue]):
+        (Iterator[IntegerDomain], IntegerDomain) =
     {
         require(! lhs0.isEmpty)
         if (rhs0.isEmpty || lhs0.exists(_.isEmpty)) {
             (for (_ <- lhs0.iterator) yield EmptyIntegerRange, EmptyIntegerRange)
         } else {
-            val lhs1 = lhs0.iterator.map(d => le[Domain](d, rhs0)._1)
+            val lhs1 = lhs0.iterator.map(d => le(d, rhs0)._1)
             val maxLb = lhs0.iterator.filter(_.hasLb).map(_.lb).reduceLeftOption((a, b) => if (a > b) a else b)
             val maxUb = lhs0.iterator.filter(_.hasUb).map(_.ub).reduceLeftOption((a, b) => if (a > b) a else b)
             val rhs1 = createRange(maxLb.orNull, maxUb.orNull).intersect(rhs0)
@@ -85,23 +81,21 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
     }
 
     override def linEq
-        [Domain >: DomainImpl <: NumericalDomain[IntegerValue]]
-        (lhs0: Iterable[(IntegerValue, Domain)], rhs0: Domain):
-        (Iterator[Domain], Domain) =
+        (lhs: Iterable[(IntegerValue, NumericalDomain[IntegerValue])], rhs: NumericalDomain[IntegerValue]):
+        (Iterator[IntegerDomain], IntegerDomain) =
     {
         try {
-            unsafeLinEq(lhs0, rhs0)
+            unsafeLinEq(lhs, rhs)
         }
         catch {
             case _: ArithmeticException =>
-                (lhs0.iterator.map(_._2), rhs0)
+                (lhs.iterator.map(_._2.asInstanceOf[IntegerDomain]), rhs.asInstanceOf[IntegerDomain])
         }
     }
 
     private def unsafeLinEq
-        [Domain >: DomainImpl <: NumericalDomain[IntegerValue]]
-        (lhs0: Iterable[(IntegerValue, Domain)], rhs0: Domain):
-        (Iterator[Domain], Domain) =
+        (lhs0: Iterable[(IntegerValue, NumericalDomain[IntegerValue])], rhs0: NumericalDomain[IntegerValue]):
+        (Iterator[IntegerDomain], IntegerDomain) =
     {
         //     sum a_i * x_i  = b
         // <-> sum a_i * x_i <= b & sum  a_i * x_i >=  b
@@ -113,22 +107,21 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
             else createRange(range.maybeUb.map(negativeValue).orNull, range.maybeLb.map(negativeValue).orNull)
         val (lhs1, rhs1) = linLe(lhs0, rhs0)
         val (lhs2, rhs2) = linLe(lhs0.map{case (a, d) => (negativeValue(a), d)}, mirrorRange(rhs0.hull))
-        val lhs3 = for ((d, e) <- lhs1.iterator.zip(lhs2.iterator)) yield d.asInstanceOf[DomainImpl].intersect(e)
-        val rhs3 = rhs1.asInstanceOf[DomainImpl].intersect(mirrorRange(rhs2))
+        val lhs3 = for ((d, e) <- lhs1.iterator.zip(lhs2.iterator)) yield d.intersect(e)
+        val rhs3 = rhs1.intersect(mirrorRange(rhs2))
         (lhs3, rhs3)
     }
 
     private def linLe
-        [Domain >: DomainImpl <: NumericalDomain[IntegerValue]]
-        (lhs0: Iterable[(IntegerValue, Domain)], rhs0: Domain):
-        (Iterator[Domain], Domain) =
+        (lhs: Iterable[(IntegerValue, NumericalDomain[IntegerValue])], rhs: NumericalDomain[IntegerValue]):
+        (Iterator[IntegerDomain], IntegerDomain) =
     {
         try {
-            unsafeLinLe(lhs0, rhs0)
+            unsafeLinLe(lhs, rhs)
         }
         catch {
             case _: ArithmeticException =>
-                (lhs0.iterator.map(_._2), rhs0)
+                (lhs.iterator.map(_._2.asInstanceOf[IntegerDomain]), rhs.asInstanceOf[IntegerDomain])
         }
     }
 
@@ -136,9 +129,8 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
     // This code implements rule LINEAR_EQUALITY 1 with extensions to prune rhs.
     // Does not compute a fixed point!
     private def unsafeLinLe
-        [Domain >: DomainImpl <: NumericalDomain[IntegerValue]]
-        (lhs0: Iterable[(IntegerValue, Domain)], rhs0: Domain):
-        (Iterator[Domain], Domain) =
+        (lhs0: Iterable[(IntegerValue, NumericalDomain[IntegerValue])], rhs0: NumericalDomain[IntegerValue]):
+        (Iterator[IntegerDomain], IntegerDomain) =
     {
         if (rhs0.isEmpty || lhs0.exists{case (_, d) => d.isEmpty}) {
             (for (_ <- lhs0.iterator) yield EmptyIntegerRange, EmptyIntegerRange)
@@ -158,25 +150,24 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
                         }
                     }
                 } else {
-                    lhs0.iterator.map(_._2)
+                    lhs0.iterator.map(_._2.asInstanceOf[IntegerDomain])
                 }
             val lhs0Lb = lhs0.foldLeft(0){case (sum, (a, d)) => safeAdd(sum, safeMul(a.value, if (a.value >= 0) d.lb.value else d.ub.value))}
             val rhs1 = createRange(IntegerValue.get(lhs0Lb), null).intersect(rhs0)
             (lhs1, rhs1)
         } else {
-            (lhs0.iterator.map(_._2), rhs0)
+            (lhs0.iterator.map(_._2.asInstanceOf[IntegerDomain]), rhs0.asInstanceOf[IntegerDomain])
         }
     }
 
     // We follow K. R. Apt, Principles of Constraint Programming, p. 217.
     override def times
-        [Domain >: DomainImpl <: NumericalDomain[IntegerValue]]
-        (dx0: Domain, dy0: Domain, dz0: Domain):
-        (Domain, Domain, Domain) =
+        (dx0: NumericalDomain[IntegerValue], dy0: NumericalDomain[IntegerValue], dz0: NumericalDomain[IntegerValue]):
+        (IntegerDomain, IntegerDomain, IntegerDomain) =
     {
-        val dx1 = dx0.asInstanceOf[DomainImpl]
-        val dy1 = dy0.asInstanceOf[DomainImpl]
-        val dz1 = dz0.asInstanceOf[DomainImpl]
+        val dx1 = dx0.asInstanceOf[IntegerDomain]
+        val dy1 = dy0.asInstanceOf[IntegerDomain]
+        val dz1 = dz0.asInstanceOf[IntegerDomain]
         // MULTIPLICATION 1
         val dz2 =
             if (dx1.isFinite && dy1.isFinite) {

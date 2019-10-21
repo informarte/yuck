@@ -20,7 +20,8 @@ class BooleanDomainPrunerTest extends UnitTest {
     }
 
     private def testPruning
-        (prune: (BooleanDomain, BooleanDomain) => (BooleanDomain, BooleanDomain),
+        [InputDomain >: BooleanDomain <: Domain[BooleanValue]]
+        (prune: (InputDomain, InputDomain) => (BooleanDomain, BooleanDomain),
          predicate: (BooleanValue, BooleanValue) => Boolean): Unit =
     {
         val testData =
@@ -69,17 +70,22 @@ class BooleanDomainPrunerTest extends UnitTest {
     @Test
     def testLinEqPruning: Unit = {
 
-        type LinearCombination = List[(BooleanValue, BooleanDomain)]
+        type LinearCombination = Iterable[(BooleanValue, BooleanDomain)]
         type State = (LinearCombination, BooleanDomain)
 
         def linEq(u: State): State = {
             val (lhs0, rhs0) = u
             val (lhs1, rhs1) = BooleanDomainPruner.linEq(lhs0, rhs0)
-            (lhs0.iterator.map(_._1).zip(lhs1.iterator).toList, rhs1)
+            (lhs0.view.map(_._1).zip(lhs1).toList, rhs1)
         }
 
         def checkPruning(u: State, v: State): Unit = {
-            assertEq(fixedPoint[State](linEq, u), v)
+            val (lhs0, rhs0) = fixedPoint[State](linEq, u)
+            val (lhs1, rhs1) = v
+            for (((_, d0), (_, d1)) <- lhs0.view.zip(lhs1)) {
+                assertEq(ensureDecisionDomain(d0), ensureDecisionDomain(d1))
+            }
+            assertEq(ensureDecisionDomain(rhs0), ensureDecisionDomain(rhs1))
         }
 
         // propagate from rhs to lhs: enforce conjunction
