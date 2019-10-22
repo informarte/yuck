@@ -166,7 +166,8 @@ To build and rebuild Yuck and its documentation, use the sbt standard targets:
 
 ### Testing
 
-Yuck tests are based on [JUnit 4](http://junit.org/junit4/) and
+Yuck tests are based on [JUnit 4](http://junit.org/junit4/),
+[ScalaMock](http://scalamock.org), and
 [MiniZinc 2.3.x](http://www.minizinc.org/software.html).
 
 * `make unit-tests` builds and runs all unit tests.

@@ -44,7 +44,7 @@ final class LinearConstraint
 
     // Propagates sum a(i) * x(i) = y.
     private def propagate1(effects: PropagationEffects): PropagationEffects = {
-        // An Iterable does not compare other sequences, so we have to use a Seq to facilitate mocking.
+        // An Iterable does not compare to other sequences, so we have to use a Seq to facilitate mocking.
         val lhs0 = new Seq[(Value, NumericalDomain[Value])] {
             override def iterator = (0 until xs.size).iterator.map(apply)
             override def length = xs.size
@@ -105,7 +105,6 @@ final class LinearConstraint
         effect.a = computeCosts(currentSum, now.value(z))
         effects
     }
-
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         futureSum = currentSum

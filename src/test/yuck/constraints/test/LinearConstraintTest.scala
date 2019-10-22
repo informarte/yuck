@@ -2,17 +2,11 @@ package yuck.constraints.test
 
 import org.junit._
 
-import org.mockito.invocation.InvocationOnMock
-import org.mockito.stubbing.Answer
-import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito._
-
-import scala.collection._
 import scala.jdk.CollectionConverters._
 
 import yuck.constraints._
 import yuck.core._
-import yuck.util.testing.UnitTest
+import yuck.util.testing.{UnitTest, Mocking}
 
 /**
  * @author Michael Marte
@@ -24,6 +18,7 @@ import yuck.util.testing.UnitTest
 final class LinearConstraintTest
     (relation: OrderingRelation, costsDomain: BooleanDecisionDomain, withUnitCoefficients: Boolean)
     extends UnitTest
+    with Mocking
 {
 
     private val randomGenerator = new JavaRandomGenerator
@@ -53,74 +48,80 @@ final class LinearConstraintTest
         // We simulate a propagation process where the first call to propagate computes a fixed point.
         abstract class DomainPruner extends NumericalDomainPruner[IntegerValue] {
         }
-        val domainPruner = mock(classOf[DomainPruner], RETURNS_SMART_NULLS)
+        abstract class ValueTraits extends NumericalValueTraits[IntegerValue] {
+            final override val domainPruner = mock[DomainPruner]
+            final override val zero = Zero
+            final override def createChannel(space: Space) = IntegerValueTraits.createChannel(space)
+        }
+        implicit val valueTraits = stub[ValueTraits]
+        val domainPruner = valueTraits.domainPruner
         val lhs0 = for (i <- 0 until xs.size) yield (axs(i).a, initialDomains(i))
         val dy0 = CompleteIntegerRange
         val dz0 = z.domain
-        val lhs1 = initialDomains.map(nonEmptyRandomSubdomain)
+        val lhs1 = for ((a, d) <- lhs0) yield (a, nonEmptyRandomSubdomain(d))
         val dy1 = nonEmptyRandomSubdomain(baseDomain)
         val dz1 = nonEmptyRandomSubdomain(dz0)
-        when(domainPruner.linEqRule(lhs0, dy0)).thenReturn((lhs1.iterator, dy1))
-        when(domainPruner.linEqRule(for (i <- 0 until xs.size) yield (axs(i).a, lhs1(i)), dy1)).thenReturn((lhs1.iterator, dy1))
-        if (costsDomain.containsTrue) relation match {
+        (domainPruner.linEqRule _).expects(lhs0, dy0).returns((lhs1.iterator.map(_._2), dy1))
+        (domainPruner.linEqRule _).expects(lhs1, dy1).returns((lhs1.iterator.map(_._2), dy1))
+        if (costsDomain == TrueDomain) relation match {
             case EqRelation =>
-                when(domainPruner.eqRule(dy1, dz0)).thenReturn((dy1, dz1))
-                when(domainPruner.eqRule(dy1, dz1)).thenReturn((dy1, dz1))
+                (domainPruner.eqRule _).expects(dy1, dz0).returns((dy1, dz1))
+                (domainPruner.eqRule _).expects(dy1, dz1).returns((dy1, dz1))
             case NeRelation =>
-                when(domainPruner.neRule(dy1, dz0)).thenReturn((dy1, dz1))
-                when(domainPruner.neRule(dy1, dz1)).thenReturn((dy1, dz1))
+                (domainPruner.neRule _).expects(dy1, dz0).returns((dy1, dz1))
+                (domainPruner.neRule _).expects(dy1, dz1).returns((dy1, dz1))
             case LtRelation =>
-                when(domainPruner.ltRule(dy1, dz0)).thenReturn((dy1, dz1))
-                when(domainPruner.ltRule(dy1, dz1)).thenReturn((dy1, dz1))
+                (domainPruner.ltRule _).expects(dy1, dz0).returns((dy1, dz1))
+                (domainPruner.ltRule _).expects(dy1, dz1).returns((dy1, dz1))
             case LeRelation =>
-                when(domainPruner.leRule(dy1, dz0)).thenReturn((dy1, dz1))
-                when(domainPruner.leRule(dy1, dz1)).thenReturn((dy1, dz1))
+                (domainPruner.leRule _).expects(dy1, dz0).returns((dy1, dz1))
+                (domainPruner.leRule _).expects(dy1, dz1).returns((dy1, dz1))
         }
-        if (costsDomain.containsFalse) relation match {
+        else if (costsDomain == FalseDomain) relation match {
             case EqRelation =>
-                when(domainPruner.neRule(dy1, dz0)).thenReturn((dy1, dz1))
-                when(domainPruner.neRule(dy1, dz1)).thenReturn((dy1, dz1))
+                (domainPruner.neRule _).expects(dy1, dz0).returns((dy1, dz1))
+                (domainPruner.neRule _).expects(dy1, dz1).returns((dy1, dz1))
             case NeRelation =>
-                when(domainPruner.eqRule(dy1, dz0)).thenReturn((dy1, dz1))
-                when(domainPruner.eqRule(dy1, dz1)).thenReturn((dy1, dz1))
+                (domainPruner.eqRule _).expects(dy1, dz0).returns((dy1, dz1))
+                (domainPruner.eqRule _).expects(dy1, dz1).returns((dy1, dz1))
             case LtRelation =>
-                when(domainPruner.leRule(dz0, dy1)).thenReturn((dz1, dy1))
-                when(domainPruner.leRule(dz1, dy1)).thenReturn((dz1, dy1))
+                (domainPruner.leRule _).expects(dz0, dy1).returns((dz1, dy1))
+                (domainPruner.leRule _).expects(dz1, dy1).returns((dz1, dy1))
             case LeRelation =>
-                when(domainPruner.ltRule(dz0, dy1)).thenReturn((dz1, dy1))
-                when(domainPruner.ltRule(dz1, dy1)).thenReturn((dz1, dy1))
+                (domainPruner.ltRule _).expects(dz0, dy1).returns((dz1, dy1))
+                (domainPruner.ltRule _).expects(dz1, dy1).returns((dz1, dy1))
+        } else if (costsDomain == CompleteBooleanDecisionDomain) relation match {
+            case EqRelation =>
+                (domainPruner.eqRule _).expects(dy1, dz0).returns((dy1, dz1)).twice()
+                (domainPruner.neRule _).expects(dy1, dz0).returns((dy1, dz1)).twice()
+            case NeRelation =>
+                (domainPruner.neRule _).expects(dy1, dz0).returns((dy1, dz1)).twice()
+                (domainPruner.eqRule _).expects(dy1, dz0).returns((dy1, dz1)).twice()
+            case LtRelation =>
+                (domainPruner.ltRule _).expects(dy1, dz0).returns((dy1, dz1)).twice()
+                (domainPruner.leRule _).expects(dz0, dy1).returns((dz1, dy1)).twice()
+            case LeRelation =>
+                (domainPruner.leRule _).expects(dy1, dz0).returns((dy1, dz1)).twice()
+                (domainPruner.ltRule _).expects(dz0, dy1).returns((dz1, dy1)).twice()
         }
-        implicit val valueTraits = mock(classOf[NumericalValueTraits[IntegerValue]], RETURNS_SMART_NULLS)
-        when(valueTraits.one).thenReturn(One)
-        when(valueTraits.domainPruner).thenReturn(domainPruner)
-        when(valueTraits.createChannel(space)).thenAnswer(new Answer[NumericalVariable[IntegerValue]] {
-            override def answer(invocation: InvocationOnMock) = {
-                val space = invocation.getArgument(0, classOf[Space])
-                IntegerValueTraits.createChannel(space)
-            }
-        })
         LinearConstraint.postLinearConstraint(space, null, axs, relation, z, costs)
         space.propagate
         if (costsDomain.isSingleton) {
             for (i <- 0 until xs.size) {
-                assertEq(xs(i).domain, lhs1(i))
+                assertEq(xs(i).domain, lhs1(i)._2)
             }
             assertEq(z.domain, dz1)
-            verify(domainPruner, atMost(2)).eqRule(any[IntegerDomain], any[IntegerDomain])
-            verify(domainPruner, atMost(2)).neRule(any[IntegerDomain], any[IntegerDomain])
-            verify(domainPruner, atMost(2)).ltRule(any[IntegerDomain], any[IntegerDomain])
-            verify(domainPruner, atMost(2)).leRule(any[IntegerDomain], any[IntegerDomain])
-            verify(domainPruner, times(2)).linEqRule(any[Iterable[(IntegerValue, IntegerDomain)]], any[IntegerDomain])
         }
-
     }
 
     @Test
     def testConsultAndCommit: Unit = {
-        val orderingCostModel = mock(classOf[OrderingCostModel[IntegerValue]], RETURNS_SMART_NULLS)
-        implicit val valueTraits = mock(classOf[NumericalValueTraits[IntegerValue]], RETURNS_SMART_NULLS)
-        when(valueTraits.orderingCostModel).thenReturn(orderingCostModel)
-        when(valueTraits.zero).thenReturn(Zero)
+        abstract class ValueTraits extends NumericalValueTraits[IntegerValue] {
+            final override val orderingCostModel = mock[OrderingCostModel[IntegerValue]]
+            final override val zero = Zero
+        }
+        implicit val valueTraits = stub[ValueTraits]
+        val orderingCostModel = valueTraits.orderingCostModel
         LinearConstraint.postLinearConstraint(space, null, axs, relation, z, costs)
         for (x <- xs) {
             space.setValue(x, x.domain.randomValue(randomGenerator))
@@ -128,28 +129,28 @@ final class LinearConstraintTest
         space.setValue(z, z.domain.randomValue(randomGenerator))
         val now = space.searchState
         if (true) {
-            val a = axs.map{case AX(a, x) => a * now.value(x)}.foldLeft(Zero)(_ + _)
+            val a = axs.map{case AX(a, x) => a * now.value(x)}.sum
             val b = now.value(z)
             val c = BooleanValue.get(baseDomain.randomValue(randomGenerator).value)
             relation match {
-                case EqRelation => when(orderingCostModel.eqViolation(a, b)).thenReturn(c)
-                case NeRelation => when(orderingCostModel.neViolation(a, b)).thenReturn(c)
-                case LtRelation => when(orderingCostModel.ltViolation(a, b)).thenReturn(c)
-                case LeRelation => when(orderingCostModel.leViolation(a, b)).thenReturn(c)
+                case EqRelation => (orderingCostModel.eqViolation _).expects(a, b).returns(c)
+                case NeRelation => (orderingCostModel.neViolation _).expects(a, b).returns(c)
+                case LtRelation => (orderingCostModel.ltViolation _).expects(a, b).returns(c)
+                case LeRelation => (orderingCostModel.leViolation _).expects(a, b).returns(c)
             }
             space.initialize
             assertEq(now.value(costs), c)
         }
         if (true) {
             val move = new ChangeValues(space.nextMoveId, (xs :+ z).map(_.nextRandomMoveEffect(space, randomGenerator)))
-            val a = axs.map{case AX(a, x) => a * move.value(x)}.foldLeft(Zero)(_ + _)
+            val a = axs.map{case AX(a, x) => a * move.value(x)}.sum
             val b = move.value(z)
             val c = BooleanValue.get(baseDomain.randomValue(randomGenerator).value)
             relation match {
-                case EqRelation => when(orderingCostModel.eqViolation(a, b)).thenReturn(c)
-                case NeRelation => when(orderingCostModel.neViolation(a, b)).thenReturn(c)
-                case LtRelation => when(orderingCostModel.ltViolation(a, b)).thenReturn(c)
-                case LeRelation => when(orderingCostModel.leViolation(a, b)).thenReturn(c)
+                case EqRelation => (orderingCostModel.eqViolation _).expects(a, b).returns(c).twice()
+                case NeRelation => (orderingCostModel.neViolation _).expects(a, b).returns(c).twice()
+                case LtRelation => (orderingCostModel.ltViolation _).expects(a, b).returns(c).twice()
+                case LeRelation => (orderingCostModel.leViolation _).expects(a, b).returns(c).twice()
             }
             val after = space.consult(move)
             assertEq(after.value(costs), c)
@@ -157,12 +158,6 @@ final class LinearConstraintTest
             assertEq(now.value(costs), c)
             space.initialize
             assertEq(now.value(costs), c)
-        }
-        relation match {
-            case EqRelation => verify(orderingCostModel, times(3)).eqViolation(any[IntegerValue], any[IntegerValue])
-            case NeRelation => verify(orderingCostModel, times(3)).neViolation(any[IntegerValue], any[IntegerValue])
-            case LtRelation => verify(orderingCostModel, times(3)).ltViolation(any[IntegerValue], any[IntegerValue])
-            case LeRelation => verify(orderingCostModel, times(3)).leViolation(any[IntegerValue], any[IntegerValue])
         }
     }
 
