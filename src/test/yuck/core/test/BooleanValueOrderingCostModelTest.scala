@@ -19,24 +19,24 @@ final class BooleanValueOrderingCostModelTest extends UnitTest with BooleanValue
     def testOrderingCostModel: Unit = {
         for (a <- testData) {
             for (b <- testData) {
-                assertEq(costModel.eq(a, b).truthValue, a.truthValue == b.truthValue)
-                assertEq(costModel.ne(a, b).truthValue, a.truthValue != b.truthValue)
-                assertEq(costModel.lt(a, b).truthValue, ! a.truthValue && b.truthValue)
-                assertEq(costModel.le(a, b).truthValue, ! a.truthValue || b.truthValue)
+                assertEq(costModel.eqViolation(a, b).truthValue, a.truthValue == b.truthValue)
+                assertEq(costModel.neViolation(a, b).truthValue, a.truthValue != b.truthValue)
+                assertEq(costModel.ltViolation(a, b).truthValue, ! a.truthValue && b.truthValue)
+                assertEq(costModel.leViolation(a, b).truthValue, ! a.truthValue || b.truthValue)
             }
         }
     }
 
     @Test
     def testOverflowCheckingInCostComputation: Unit = {
-        costModel.eq(True, BooleanValue.get(Long.MaxValue - 1))
-        assertEx(costModel.eq(True, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
-        costModel.ne(False, BooleanValue.get(Long.MaxValue - 1))
-        assertEx(costModel.ne(False, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
-        costModel.lt(True, BooleanValue.get(Long.MaxValue - 1))
-        assertEx(costModel.lt(True, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
-        costModel.le(True, BooleanValue.get(Long.MaxValue - 1))
-        assertEx(costModel.le(True, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
+        costModel.eqViolation(True, BooleanValue.get(Long.MaxValue - 1))
+        assertEx(costModel.eqViolation(True, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
+        costModel.neViolation(False, BooleanValue.get(Long.MaxValue - 1))
+        assertEx(costModel.neViolation(False, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
+        costModel.ltViolation(True, BooleanValue.get(Long.MaxValue - 1))
+        assertEx(costModel.ltViolation(True, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
+        costModel.leViolation(True, BooleanValue.get(Long.MaxValue - 1))
+        assertEx(costModel.leViolation(True, BooleanValue.get(Long.MaxValue)), classOf[ArithmeticException])
     }
 
 }

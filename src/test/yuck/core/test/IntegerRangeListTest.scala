@@ -19,9 +19,9 @@ final class IntegerRangeListTest extends UnitTest {
     private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
     private val baseRange = new IntegerRange(IntegerValue.get(-5), Five)
     private val testData = {
-        val (a, _) = IntegerDomainPruner.ne(new IntegerRange(Zero, Nine), new IntegerRange(Five, Five))
-        val (b, _) = IntegerDomainPruner.ne(a, new IntegerRange(Seven, Seven))
-        val (c, _) = IntegerDomainPruner.ne(b, new IntegerRange(Six, Six))
+        val (a, _) = IntegerDomainPruner.neRule(new IntegerRange(Zero, Nine), new IntegerRange(Five, Five))
+        val (b, _) = IntegerDomainPruner.neRule(a, new IntegerRange(Seven, Seven))
+        val (c, _) = IntegerDomainPruner.neRule(b, new IntegerRange(Six, Six))
         val d = new IntegerRangeList(CompleteIntegerRange).diff(b)
         List(a, b, c, d)
     }

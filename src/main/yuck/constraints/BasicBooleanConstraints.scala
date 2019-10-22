@@ -17,7 +17,7 @@ final class Not
     override def propagate = {
         val dx0 = x.domain
         val dy0 = y.domain
-        val (dx1, dy1) = BooleanDomainPruner.ne(dx0, dy0)
+        val (dx1, dy1) = BooleanDomainPruner.neRule(dx0, dy0)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1)
     }
 }

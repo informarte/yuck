@@ -17,7 +17,7 @@ object BooleanDomainPruner extends NumericalDomainPruner[BooleanValue] {
     override protected val valueTraits = BooleanValueTraits
 
     // iff
-    override def eq
+    override def eqRule
         (lhs0: Domain[BooleanValue], rhs0: Domain[BooleanValue]):
         (BooleanDomain, BooleanDomain) =
     {
@@ -28,7 +28,7 @@ object BooleanDomainPruner extends NumericalDomainPruner[BooleanValue] {
     }
 
     // negation
-    override def ne
+    override def neRule
         (lhs0: Domain[BooleanValue], rhs0: Domain[BooleanValue]):
         (BooleanDomain, BooleanDomain) =
     {
@@ -38,7 +38,7 @@ object BooleanDomainPruner extends NumericalDomainPruner[BooleanValue] {
          if (lhs1.isSingleton) rhs1.diff(lhs1) else rhs1)
     }
 
-    override def lt
+    override def ltRule
         (lhs: OrderedDomain[BooleanValue], rhs: OrderedDomain[BooleanValue]):
         (BooleanDomain, BooleanDomain) =
     {
@@ -46,7 +46,7 @@ object BooleanDomainPruner extends NumericalDomainPruner[BooleanValue] {
     }
 
     // implication
-    override def le
+    override def leRule
         (lhs0: OrderedDomain[BooleanValue], rhs0: OrderedDomain[BooleanValue]):
         (BooleanDomain, BooleanDomain) =
     {
@@ -56,14 +56,14 @@ object BooleanDomainPruner extends NumericalDomainPruner[BooleanValue] {
          if (lhs1.isSingleton && lhs1.singleValue == True) createDomain(false, rhs1.contains(True)) else rhs1)
     }
 
-    override def min
+    override def minRule
         (lhs: Iterable[OrderedDomain[BooleanValue]], rhs: OrderedDomain[BooleanValue]):
         (Iterator[BooleanDomain], BooleanDomain) =
     {
         (lhs.iterator.map(ensureDecisionDomain(_)), ensureDecisionDomain(rhs))
     }
 
-    override def max
+    override def maxRule
         (lhs: Iterable[OrderedDomain[BooleanValue]], rhs: OrderedDomain[BooleanValue]):
         (Iterator[BooleanDomain], BooleanDomain) =
     {
@@ -71,17 +71,17 @@ object BooleanDomainPruner extends NumericalDomainPruner[BooleanValue] {
     }
 
     // conjunction
-    override def linEq
+    override def linEqRule
         (lhs0: Iterable[(BooleanValue, NumericalDomain[BooleanValue])], rhs0: NumericalDomain[BooleanValue]):
         (Iterator[BooleanDomain], BooleanDomain) =
     {
         val lhs1 = lhs0.view.map{case (a, d) => (a, ensureDecisionDomain(d))}
         val rhs1 = ensureDecisionDomain(rhs0)
-        val (lhs2, rhs2) = linEq(lhs1, rhs1)
+        val (lhs2, rhs2) = linEqRule(lhs1, rhs1)
         (lhs2, rhs2)
     }
 
-    private def linEq
+    private def linEqRule
         (lhs0: Iterable[(BooleanValue, BooleanDomain)], rhs0: BooleanDomain):
         (Iterator[BooleanDomain], BooleanDomain) =
     {

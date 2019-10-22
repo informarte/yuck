@@ -30,37 +30,36 @@ class IntegerDomainPrunerTest extends UnitTest {
     private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
     private val testData = helper.createTestData(baseRange = -5 to 5, sampleSize = 32)
 
-    private def testEqPruning(d: IntegerDomain, e: IntegerDomain): Unit = {
-        assertEq(IntegerDomainPruner.eq(d, e), (d.intersect(e), d.intersect(e)))
+    private def testEqRule(d: IntegerDomain, e: IntegerDomain): Unit = {
+        assertEq(IntegerDomainPruner.eqRule(d, e), (d.intersect(e), d.intersect(e)))
     }
 
     @Test
-    def testEqPruning: Unit = {
+    def testEqRule: Unit = {
         for (d <- testData) {
             for (e <- testData) {
-                testEqPruning(d, e)
+                testEqRule(d, e)
             }
         }
     }
 
-    private def testNePruning(d: IntegerDomain, e: IntegerDomain): Unit = {
-        val (f, g) = IntegerDomainPruner.ne(d, e)
+    private def testNeRule(d: IntegerDomain, e: IntegerDomain): Unit = {
+        val (f, g) = IntegerDomainPruner.neRule(d, e)
         assertEq(f, if (e.isSingleton) d.diff(e) else d)
         assertEq(g, if (d.isSingleton) e.diff(d) else e)
     }
 
     @Test
-    def testNePruning: Unit = {
+    def testNeRule: Unit = {
         for (d <- testData) {
             for (e <- testData) {
-                testNePruning(d, e)
+                testNeRule(d, e)
             }
-
         }
     }
 
-    private def testLePruning(d: IntegerDomain, e: IntegerDomain): Unit = {
-        val (f, g) = IntegerDomainPruner.le(d, e)
+    private def testLeRule(d: IntegerDomain, e: IntegerDomain): Unit = {
+        val (f, g) = IntegerDomainPruner.leRule(d, e)
         assert(f.isSubsetOf(d))
         assert(g.isSubsetOf(e))
         if (d.isEmpty || e.isEmpty || e.precedes(d)) {
@@ -98,16 +97,16 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testLePruning: Unit = {
+    def testLeRule: Unit = {
         for (d <- testData) {
             for (e <- testData) {
-                testLePruning(d, e)
+                testLeRule(d, e)
             }
         }
     }
 
-    private def testLtPruning(d: IntegerDomain, e: IntegerDomain): Unit = {
-        val (f, g) = IntegerDomainPruner.lt(d, e)
+    private def testLtRule(d: IntegerDomain, e: IntegerDomain): Unit = {
+        val (f, g) = IntegerDomainPruner.ltRule(d, e)
         assert(f.isSubsetOf(d))
         assert(g.isSubsetOf(e))
         if (d.isFinite && e.isFinite) {
@@ -147,27 +146,27 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testLtPruning: Unit = {
+    def testLtRule: Unit = {
         for (d <- testData) {
             for (e <- testData) {
-                testLtPruning(d, e)
+                testLtRule(d, e)
             }
         }
     }
 
     @Test
-    def testMinPruning: Unit = {
+    def testMinRule: Unit = {
 
         type State = (List[IntegerDomain], IntegerDomain)
 
-        def min(u: State): State = {
+        def minRule(u: State): State = {
             val (lhs0, rhs0) = u
-            val (lhs1, rhs1) = IntegerDomainPruner.min(lhs0, rhs0)
+            val (lhs1, rhs1) = IntegerDomainPruner.minRule(lhs0, rhs0)
             (lhs1.toList, rhs1)
         }
 
         def checkPruning(u: State, v: State): Unit = {
-            assertEq(fixedPoint[State](min, u), v)
+            assertEq(fixedPoint[State](minRule, u), v)
         }
 
         // ?- X in 1..3, Y in 2..5, Z #= min(X, Y).
@@ -190,18 +189,18 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testMaxPruning: Unit = {
+    def testMaxRule: Unit = {
 
         type State = (List[IntegerDomain], IntegerDomain)
 
-        def max(u: State): State = {
+        def maxRule(u: State): State = {
             val (lhs0, rhs0) = u
-            val (lhs1, rhs1) = IntegerDomainPruner.max(lhs0, rhs0)
+            val (lhs1, rhs1) = IntegerDomainPruner.maxRule(lhs0, rhs0)
             (lhs1.toList, rhs1)
         }
 
         def checkPruning(u: State, v: State): Unit = {
-            assertEq(fixedPoint[State](max, u), v)
+            assertEq(fixedPoint[State](maxRule, u), v)
         }
 
         // ?- X in 1..3, Y in 2..5, Z #= max(X, Y).
@@ -224,19 +223,19 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testLinEqPruning: Unit = {
+    def testLinEqRule: Unit = {
 
         type LinearCombination = List[(IntegerValue, IntegerDomain)]
         type State = (LinearCombination, IntegerDomain)
 
-        def linEq(u: State): State = {
+        def linEqRule(u: State): State = {
             val (lhs0, rhs0) = u
-            val (lhs1, rhs1) = IntegerDomainPruner.linEq(lhs0, rhs0)
+            val (lhs1, rhs1) = IntegerDomainPruner.linEqRule(lhs0, rhs0)
             (lhs0.iterator.map(_._1).zip(lhs1.iterator).toList, rhs1)
         }
 
         def checkPruning(u: State, v: State): Unit = {
-            assertEq(fixedPoint[State](linEq, u), v)
+            assertEq(fixedPoint[State](linEqRule, u), v)
         }
 
         val lhs1: LinearCombination = List((3, 1 to 10))
@@ -286,17 +285,17 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testTimesPruning: Unit = {
+    def testTimesRule: Unit = {
 
         type State = (IntegerDomain, IntegerDomain, IntegerDomain)
 
-        def times(u: State): State = {
+        def timesRule(u: State): State = {
             val (dx0, dy0, dz0) = u
-            IntegerDomainPruner.times(dx0, dy0, dz0)
+            IntegerDomainPruner.timesRule(dx0, dy0, dz0)
         }
 
         def checkPruning(u: State, v: State): Unit = {
-            assertEq(fixedPoint[State](times, u), v)
+            assertEq(fixedPoint[State](timesRule, u), v)
         }
 
         // ?- X in 1..20, Y in 9..11, Z in 155..161, X * Y #= Z.

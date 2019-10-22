@@ -9,32 +9,32 @@ abstract class OrderedDomainPruner[Value <: OrderedValue[Value]] extends DomainP
 
     override protected val valueTraits: OrderedValueTraits[Value]
 
-    override def eq
+    override def eqRule
         (lhs: Domain[Value], rhs: Domain[Value]):
         (OrderedDomain[Value], OrderedDomain[Value]) =
         (valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
 
-    override def ne
+    override def neRule
         (lhs: Domain[Value], rhs: Domain[Value]):
         (OrderedDomain[Value], OrderedDomain[Value]) =
         (valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
 
-    def lt
+    def ltRule
         (lhs: OrderedDomain[Value], rhs: OrderedDomain[Value]):
         (OrderedDomain[Value], OrderedDomain[Value]) =
         (lhs, rhs)
 
-    def le
+    def leRule
         (lhs: OrderedDomain[Value], rhs: OrderedDomain[Value]):
         (OrderedDomain[Value], OrderedDomain[Value]) =
         (lhs, rhs)
 
-    def min
+    def minRule
         (lhs: Iterable[OrderedDomain[Value]], rhs: OrderedDomain[Value]):
         (Iterator[OrderedDomain[Value]], OrderedDomain[Value]) =
         (lhs.iterator, rhs)
 
-    def max
+    def maxRule
         (lhs: Iterable[OrderedDomain[Value]], rhs: OrderedDomain[Value]):
         (Iterator[OrderedDomain[Value]], OrderedDomain[Value]) =
         (lhs.iterator, rhs)

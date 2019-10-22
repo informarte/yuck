@@ -19,14 +19,14 @@ final class IntegerValueOrderingCostModelTest extends UnitTest with IntegerValue
     def testOrderingCostModel: Unit = {
         for (a <- testData) {
             for (b <- testData) {
-                assertEq(costModel.eq(a, b).truthValue, a == b)
-                assertEq(costModel.ne(a, b).truthValue, a != b)
-                assertEq(costModel.lt(a, b).truthValue, a < b)
-                assertEq(costModel.le(a, b).truthValue, a <= b)
+                assertEq(costModel.eqViolation(a, b).truthValue, a == b)
+                assertEq(costModel.neViolation(a, b).truthValue, a != b)
+                assertEq(costModel.ltViolation(a, b).truthValue, a < b)
+                assertEq(costModel.leViolation(a, b).truthValue, a <= b)
                 for (c <- testData) {
                     if (a < b && a < c && b < c) {
-                        assertLe(costModel.eq(a, b).violation, costModel.eq(a, c).violation)
-                        assertLe(costModel.lt(a, b).violation, costModel.lt(a, c).violation)
+                        assertLe(costModel.eqViolation(a, b).violation, costModel.eqViolation(a, c).violation)
+                        assertLe(costModel.ltViolation(a, b).violation, costModel.ltViolation(a, c).violation)
                     }
                 }
             }
@@ -35,10 +35,10 @@ final class IntegerValueOrderingCostModelTest extends UnitTest with IntegerValue
 
     @Test
     def testOverflowCheckingInCostComputation: Unit = {
-        costModel.lt(IntegerValue.get(Int.MaxValue - 1), Zero)
-        assertEx(costModel.lt(IntegerValue.get(Int.MaxValue), Zero), classOf[ArithmeticException])
-        costModel.le(IntegerValue.get(Int.MaxValue), Zero)
-        assertEx(costModel.le(IntegerValue.get(Int.MaxValue), MinusOne), classOf[ArithmeticException])
+        costModel.ltViolation(IntegerValue.get(Int.MaxValue - 1), Zero)
+        assertEx(costModel.ltViolation(IntegerValue.get(Int.MaxValue), Zero), classOf[ArithmeticException])
+        costModel.leViolation(IntegerValue.get(Int.MaxValue), Zero)
+        assertEx(costModel.leViolation(IntegerValue.get(Int.MaxValue), MinusOne), classOf[ArithmeticException])
     }
 
 }

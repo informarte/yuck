@@ -9,7 +9,7 @@ object IntegerSetDomainPruner extends OrderedDomainPruner[IntegerSetValue] {
 
     override protected val valueTraits = IntegerSetValueTraits
 
-    override def eq
+    override def eqRule
         (lhs: Domain[IntegerSetValue], rhs: Domain[IntegerSetValue]):
         (IntegerSetDomain, IntegerSetDomain) =
     {

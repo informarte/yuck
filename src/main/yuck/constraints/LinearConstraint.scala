@@ -51,7 +51,7 @@ final class LinearConstraint
             override def apply(i: Int) = (if (as == null) valueTraits.one else as(i), xs(i).domain)
         }
         val rhs0 = y.domain
-        val (lhs1, rhs1) = valueTraits.domainPruner.linEq(lhs0, rhs0)
+        val (lhs1, rhs1) = valueTraits.domainPruner.linEqRule(lhs0, rhs0)
         effects.pruneDomains(xs.iterator.zip(lhs1.iterator)).pruneDomain(y, rhs1)
     }
 
@@ -62,17 +62,17 @@ final class LinearConstraint
         val propagator = new ReifiedBinaryConstraintPropagator[Domain, Domain] {
             override protected def enforce(lhs: Domain, rhs: Domain) =
                 relation match {
-                    case EqRelation => domainPruner.eq(lhs, rhs)
-                    case NeRelation => domainPruner.ne(lhs, rhs)
-                    case LtRelation => domainPruner.lt(lhs, rhs)
-                    case LeRelation => domainPruner.le(lhs, rhs)
+                    case EqRelation => domainPruner.eqRule(lhs, rhs)
+                    case NeRelation => domainPruner.neRule(lhs, rhs)
+                    case LtRelation => domainPruner.ltRule(lhs, rhs)
+                    case LeRelation => domainPruner.leRule(lhs, rhs)
                 }
             override protected def prohibit(lhs0: Domain, rhs0: Domain) =
                 relation match {
-                    case EqRelation => domainPruner.ne(lhs0, rhs0)
-                    case NeRelation => domainPruner.eq(lhs0, rhs0)
-                    case LtRelation => domainPruner.le(rhs0, lhs0).swap
-                    case LeRelation => domainPruner.lt(rhs0, lhs0).swap
+                    case EqRelation => domainPruner.neRule(lhs0, rhs0)
+                    case NeRelation => domainPruner.eqRule(lhs0, rhs0)
+                    case LtRelation => domainPruner.leRule(rhs0, lhs0).swap
+                    case LeRelation => domainPruner.ltRule(rhs0, lhs0).swap
                 }
         }
         val (dy0, dz0, costsDomain0) = (y.domain, z.domain, BooleanDomain.ensureDecisionDomain(costs.domain))
@@ -85,10 +85,10 @@ final class LinearConstraint
     }
 
     private def computeCosts(a: Value, b: Value): BooleanValue = relation match {
-        case EqRelation => valueTraits.orderingCostModel.eq(a, b)
-        case NeRelation => valueTraits.orderingCostModel.ne(a, b)
-        case LtRelation => valueTraits.orderingCostModel.lt(a, b)
-        case LeRelation => valueTraits.orderingCostModel.le(a, b)
+        case EqRelation => valueTraits.orderingCostModel.eqViolation(a, b)
+        case NeRelation => valueTraits.orderingCostModel.neViolation(a, b)
+        case LtRelation => valueTraits.orderingCostModel.ltViolation(a, b)
+        case LeRelation => valueTraits.orderingCostModel.leViolation(a, b)
     }
 
     override def initialize(now: SearchState) = {

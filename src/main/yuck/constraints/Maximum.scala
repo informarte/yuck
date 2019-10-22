@@ -27,7 +27,7 @@ final class Maximum
             override def iterator = xs.iterator.map(x => x.domain)
         }
         val rhs0 = y.domain
-        val (lhs1, rhs1) = valueTraits.domainPruner.max(lhs0, rhs0)
+        val (lhs1, rhs1) = valueTraits.domainPruner.maxRule(lhs0, rhs0)
         NoPropagationOccurred.pruneDomains(xs.iterator.zip(lhs1.iterator)).pruneDomain(y, rhs1)
    }
 }

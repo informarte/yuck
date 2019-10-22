@@ -19,10 +19,10 @@ final class IntegerSetValueOrderingCostModelTest extends UnitTest with IntegerSe
     def testOrderingCostModel: Unit = {
         for (a <- testData) {
             for (b <- testData) {
-                assertEq(costModel.eq(a, b).truthValue, a == b)
-                assertEq(costModel.ne(a, b).truthValue, a != b)
-                assertEq(costModel.lt(a, b).truthValue, a < b)
-                assertEq(costModel.le(a, b).truthValue, a <= b)
+                assertEq(costModel.eqViolation(a, b).truthValue, a == b)
+                assertEq(costModel.neViolation(a, b).truthValue, a != b)
+                assertEq(costModel.ltViolation(a, b).truthValue, a < b)
+                assertEq(costModel.leViolation(a, b).truthValue, a <= b)
             }
         }
     }

@@ -32,7 +32,7 @@ final class LinearCombination
             override def iterator = axs.iterator.map(ax => (ax.a, ax.x.domain))
         }
         val rhs0 = y.domain
-        val (lhs1, rhs1) = valueTraits.domainPruner.linEq(lhs0, rhs0)
+        val (lhs1, rhs1) = valueTraits.domainPruner.linEqRule(lhs0, rhs0)
         NoPropagationOccurred.pruneDomains(axs.iterator.map(_.x).zip(lhs1.iterator)).pruneDomain(y, rhs1)
     }
 

@@ -60,35 +60,35 @@ final class LinearConstraintTest
         val lhs1 = initialDomains.map(nonEmptyRandomSubdomain)
         val dy1 = nonEmptyRandomSubdomain(baseDomain)
         val dz1 = nonEmptyRandomSubdomain(dz0)
-        when(domainPruner.linEq(lhs0, dy0)).thenReturn((lhs1.iterator, dy1))
-        when(domainPruner.linEq(for (i <- 0 until xs.size) yield (axs(i).a, lhs1(i)), dy1)).thenReturn((lhs1.iterator, dy1))
+        when(domainPruner.linEqRule(lhs0, dy0)).thenReturn((lhs1.iterator, dy1))
+        when(domainPruner.linEqRule(for (i <- 0 until xs.size) yield (axs(i).a, lhs1(i)), dy1)).thenReturn((lhs1.iterator, dy1))
         if (costsDomain.containsTrue) relation match {
             case EqRelation =>
-                when(domainPruner.eq(dy1, dz0)).thenReturn((dy1, dz1))
-                when(domainPruner.eq(dy1, dz1)).thenReturn((dy1, dz1))
+                when(domainPruner.eqRule(dy1, dz0)).thenReturn((dy1, dz1))
+                when(domainPruner.eqRule(dy1, dz1)).thenReturn((dy1, dz1))
             case NeRelation =>
-                when(domainPruner.ne(dy1, dz0)).thenReturn((dy1, dz1))
-                when(domainPruner.ne(dy1, dz1)).thenReturn((dy1, dz1))
+                when(domainPruner.neRule(dy1, dz0)).thenReturn((dy1, dz1))
+                when(domainPruner.neRule(dy1, dz1)).thenReturn((dy1, dz1))
             case LtRelation =>
-                when(domainPruner.lt(dy1, dz0)).thenReturn((dy1, dz1))
-                when(domainPruner.lt(dy1, dz1)).thenReturn((dy1, dz1))
+                when(domainPruner.ltRule(dy1, dz0)).thenReturn((dy1, dz1))
+                when(domainPruner.ltRule(dy1, dz1)).thenReturn((dy1, dz1))
             case LeRelation =>
-                when(domainPruner.le(dy1, dz0)).thenReturn((dy1, dz1))
-                when(domainPruner.le(dy1, dz1)).thenReturn((dy1, dz1))
+                when(domainPruner.leRule(dy1, dz0)).thenReturn((dy1, dz1))
+                when(domainPruner.leRule(dy1, dz1)).thenReturn((dy1, dz1))
         }
         if (costsDomain.containsFalse) relation match {
             case EqRelation =>
-                when(domainPruner.ne(dy1, dz0)).thenReturn((dy1, dz1))
-                when(domainPruner.ne(dy1, dz1)).thenReturn((dy1, dz1))
+                when(domainPruner.neRule(dy1, dz0)).thenReturn((dy1, dz1))
+                when(domainPruner.neRule(dy1, dz1)).thenReturn((dy1, dz1))
             case NeRelation =>
-                when(domainPruner.eq(dy1, dz0)).thenReturn((dy1, dz1))
-                when(domainPruner.eq(dy1, dz1)).thenReturn((dy1, dz1))
+                when(domainPruner.eqRule(dy1, dz0)).thenReturn((dy1, dz1))
+                when(domainPruner.eqRule(dy1, dz1)).thenReturn((dy1, dz1))
             case LtRelation =>
-                when(domainPruner.le(dz0, dy1)).thenReturn((dz1, dy1))
-                when(domainPruner.le(dz1, dy1)).thenReturn((dz1, dy1))
+                when(domainPruner.leRule(dz0, dy1)).thenReturn((dz1, dy1))
+                when(domainPruner.leRule(dz1, dy1)).thenReturn((dz1, dy1))
             case LeRelation =>
-                when(domainPruner.lt(dz0, dy1)).thenReturn((dz1, dy1))
-                when(domainPruner.lt(dz1, dy1)).thenReturn((dz1, dy1))
+                when(domainPruner.ltRule(dz0, dy1)).thenReturn((dz1, dy1))
+                when(domainPruner.ltRule(dz1, dy1)).thenReturn((dz1, dy1))
         }
         implicit val valueTraits = mock(classOf[NumericalValueTraits[IntegerValue]], RETURNS_SMART_NULLS)
         when(valueTraits.one).thenReturn(One)
@@ -106,11 +106,11 @@ final class LinearConstraintTest
                 assertEq(xs(i).domain, lhs1(i))
             }
             assertEq(z.domain, dz1)
-            verify(domainPruner, atMost(2)).eq(any[IntegerDomain], any[IntegerDomain])
-            verify(domainPruner, atMost(2)).ne(any[IntegerDomain], any[IntegerDomain])
-            verify(domainPruner, atMost(2)).lt(any[IntegerDomain], any[IntegerDomain])
-            verify(domainPruner, atMost(2)).le(any[IntegerDomain], any[IntegerDomain])
-            verify(domainPruner, times(2)).linEq(any[Iterable[(IntegerValue, IntegerDomain)]], any[IntegerDomain])
+            verify(domainPruner, atMost(2)).eqRule(any[IntegerDomain], any[IntegerDomain])
+            verify(domainPruner, atMost(2)).neRule(any[IntegerDomain], any[IntegerDomain])
+            verify(domainPruner, atMost(2)).ltRule(any[IntegerDomain], any[IntegerDomain])
+            verify(domainPruner, atMost(2)).leRule(any[IntegerDomain], any[IntegerDomain])
+            verify(domainPruner, times(2)).linEqRule(any[Iterable[(IntegerValue, IntegerDomain)]], any[IntegerDomain])
         }
 
     }
@@ -132,10 +132,10 @@ final class LinearConstraintTest
             val b = now.value(z)
             val c = BooleanValue.get(baseDomain.randomValue(randomGenerator).value)
             relation match {
-                case EqRelation => when(orderingCostModel.eq(a, b)).thenReturn(c)
-                case NeRelation => when(orderingCostModel.ne(a, b)).thenReturn(c)
-                case LtRelation => when(orderingCostModel.lt(a, b)).thenReturn(c)
-                case LeRelation => when(orderingCostModel.le(a, b)).thenReturn(c)
+                case EqRelation => when(orderingCostModel.eqViolation(a, b)).thenReturn(c)
+                case NeRelation => when(orderingCostModel.neViolation(a, b)).thenReturn(c)
+                case LtRelation => when(orderingCostModel.ltViolation(a, b)).thenReturn(c)
+                case LeRelation => when(orderingCostModel.leViolation(a, b)).thenReturn(c)
             }
             space.initialize
             assertEq(now.value(costs), c)
@@ -146,10 +146,10 @@ final class LinearConstraintTest
             val b = move.value(z)
             val c = BooleanValue.get(baseDomain.randomValue(randomGenerator).value)
             relation match {
-                case EqRelation => when(orderingCostModel.eq(a, b)).thenReturn(c)
-                case NeRelation => when(orderingCostModel.ne(a, b)).thenReturn(c)
-                case LtRelation => when(orderingCostModel.lt(a, b)).thenReturn(c)
-                case LeRelation => when(orderingCostModel.le(a, b)).thenReturn(c)
+                case EqRelation => when(orderingCostModel.eqViolation(a, b)).thenReturn(c)
+                case NeRelation => when(orderingCostModel.neViolation(a, b)).thenReturn(c)
+                case LtRelation => when(orderingCostModel.ltViolation(a, b)).thenReturn(c)
+                case LeRelation => when(orderingCostModel.leViolation(a, b)).thenReturn(c)
             }
             val after = space.consult(move)
             assertEq(after.value(costs), c)
@@ -159,10 +159,10 @@ final class LinearConstraintTest
             assertEq(now.value(costs), c)
         }
         relation match {
-            case EqRelation => verify(orderingCostModel, times(3)).eq(any[IntegerValue], any[IntegerValue])
-            case NeRelation => verify(orderingCostModel, times(3)).ne(any[IntegerValue], any[IntegerValue])
-            case LtRelation => verify(orderingCostModel, times(3)).lt(any[IntegerValue], any[IntegerValue])
-            case LeRelation => verify(orderingCostModel, times(3)).le(any[IntegerValue], any[IntegerValue])
+            case EqRelation => verify(orderingCostModel, times(3)).eqViolation(any[IntegerValue], any[IntegerValue])
+            case NeRelation => verify(orderingCostModel, times(3)).neViolation(any[IntegerValue], any[IntegerValue])
+            case LtRelation => verify(orderingCostModel, times(3)).ltViolation(any[IntegerValue], any[IntegerValue])
+            case LeRelation => verify(orderingCostModel, times(3)).leViolation(any[IntegerValue], any[IntegerValue])
         }
     }
 

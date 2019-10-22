@@ -6,7 +6,7 @@ package yuck.core
  * @author Michael Marte
  */
 object IntegerSetValueOrderingCostModel extends OrderingCostModel[IntegerSetValue] {
-    override def eq(lhs: IntegerSetValue, rhs: IntegerSetValue) =
+    override def eqViolation(lhs: IntegerSetValue, rhs: IntegerSetValue) =
         BooleanValue.get(
             safeAdd(lhs.set.maybeResidueSize(rhs.set).getOrElse(1), rhs.set.maybeResidueSize(lhs.set).getOrElse(1)))
 }

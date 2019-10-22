@@ -13,7 +13,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
 
     override protected val valueTraits = IntegerValueTraits
 
-    override def eq
+    override def eqRule
         (lhs: Domain[IntegerValue], rhs: Domain[IntegerValue]):
         (IntegerDomain, IntegerDomain) =
     {
@@ -21,7 +21,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         (intersection, intersection)
     }
 
-    override def ne
+    override def neRule
         (lhs0: Domain[IntegerValue], rhs0: Domain[IntegerValue]):
         (IntegerDomain, IntegerDomain) =
     {
@@ -31,7 +31,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
          if (lhs1.isSingleton) rhs1.diff(lhs1) else rhs1)
     }
 
-    override def lt
+    override def ltRule
         (lhs: OrderedDomain[IntegerValue], rhs: OrderedDomain[IntegerValue]):
         (IntegerDomain, IntegerDomain) =
     {
@@ -40,7 +40,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
               createRange(if (! lhs.hasLb) null else lhs.lb + One, null).intersect(rhs))
     }
 
-    override def le
+    override def leRule
         (lhs: OrderedDomain[IntegerValue], rhs: OrderedDomain[IntegerValue]):
         (IntegerDomain, IntegerDomain) =
     {
@@ -48,7 +48,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         else (createRange(null, rhs.ub).intersect(lhs), createRange(lhs.lb, null).intersect(rhs))
     }
 
-    override def min
+    override def minRule
         (lhs0: Iterable[OrderedDomain[IntegerValue]], rhs0: OrderedDomain[IntegerValue]):
         (Iterator[IntegerDomain], IntegerDomain) =
     {
@@ -56,7 +56,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         if (rhs0.isEmpty || lhs0.exists(_.isEmpty)) {
             (for (_ <- lhs0.iterator) yield EmptyIntegerRange, EmptyIntegerRange)
         } else {
-            val lhs1 = lhs0.iterator.map(d => le(rhs0, d)._2)
+            val lhs1 = lhs0.iterator.map(d => leRule(rhs0, d)._2)
             val minLb = lhs0.iterator.filter(_.hasLb).map(_.lb).reduceLeftOption((a, b) => if (a < b) a else b)
             val minUb = lhs0.iterator.filter(_.hasUb).map(_.ub).reduceLeftOption((a, b) => if (a < b) a else b)
             val rhs1 = createRange(minLb.orNull, minUb.orNull).intersect(rhs0)
@@ -64,7 +64,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         }
     }
 
-    override def max
+    override def maxRule
         (lhs0: Iterable[OrderedDomain[IntegerValue]], rhs0: OrderedDomain[IntegerValue]):
         (Iterator[IntegerDomain], IntegerDomain) =
     {
@@ -72,7 +72,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         if (rhs0.isEmpty || lhs0.exists(_.isEmpty)) {
             (for (_ <- lhs0.iterator) yield EmptyIntegerRange, EmptyIntegerRange)
         } else {
-            val lhs1 = lhs0.iterator.map(d => le(d, rhs0)._1)
+            val lhs1 = lhs0.iterator.map(d => leRule(d, rhs0)._1)
             val maxLb = lhs0.iterator.filter(_.hasLb).map(_.lb).reduceLeftOption((a, b) => if (a > b) a else b)
             val maxUb = lhs0.iterator.filter(_.hasUb).map(_.ub).reduceLeftOption((a, b) => if (a > b) a else b)
             val rhs1 = createRange(maxLb.orNull, maxUb.orNull).intersect(rhs0)
@@ -80,12 +80,12 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         }
     }
 
-    override def linEq
+    override def linEqRule
         (lhs: Iterable[(IntegerValue, NumericalDomain[IntegerValue])], rhs: NumericalDomain[IntegerValue]):
         (Iterator[IntegerDomain], IntegerDomain) =
     {
         try {
-            unsafeLinEq(lhs, rhs)
+            unsafeLinEqRule(lhs, rhs)
         }
         catch {
             case _: ArithmeticException =>
@@ -93,7 +93,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         }
     }
 
-    private def unsafeLinEq
+    private def unsafeLinEqRule
         (lhs0: Iterable[(IntegerValue, NumericalDomain[IntegerValue])], rhs0: NumericalDomain[IntegerValue]):
         (Iterator[IntegerDomain], IntegerDomain) =
     {
@@ -105,19 +105,19 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         def mirrorRange(range: NumericalDomain[IntegerValue]): NumericalDomain[IntegerValue] =
             if (range.isEmpty) range
             else createRange(range.maybeUb.map(negativeValue).orNull, range.maybeLb.map(negativeValue).orNull)
-        val (lhs1, rhs1) = linLe(lhs0, rhs0)
-        val (lhs2, rhs2) = linLe(lhs0.map{case (a, d) => (negativeValue(a), d)}, mirrorRange(rhs0.hull))
+        val (lhs1, rhs1) = linLeRule(lhs0, rhs0)
+        val (lhs2, rhs2) = linLeRule(lhs0.map{case (a, d) => (negativeValue(a), d)}, mirrorRange(rhs0.hull))
         val lhs3 = for ((d, e) <- lhs1.iterator.zip(lhs2.iterator)) yield d.intersect(e)
         val rhs3 = rhs1.intersect(mirrorRange(rhs2))
         (lhs3, rhs3)
     }
 
-    private def linLe
+    private def linLeRule
         (lhs: Iterable[(IntegerValue, NumericalDomain[IntegerValue])], rhs: NumericalDomain[IntegerValue]):
         (Iterator[IntegerDomain], IntegerDomain) =
     {
         try {
-            unsafeLinLe(lhs, rhs)
+            unsafeLinLeRule(lhs, rhs)
         }
         catch {
             case _: ArithmeticException =>
@@ -128,7 +128,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
     // We follow K. R. Apt, Principles of Constraint Programming, p. 194.
     // This code implements rule LINEAR_EQUALITY 1 with extensions to prune rhs.
     // Does not compute a fixed point!
-    private def unsafeLinLe
+    private def unsafeLinLeRule
         (lhs0: Iterable[(IntegerValue, NumericalDomain[IntegerValue])], rhs0: NumericalDomain[IntegerValue]):
         (Iterator[IntegerDomain], IntegerDomain) =
     {
@@ -161,7 +161,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
     }
 
     // We follow K. R. Apt, Principles of Constraint Programming, p. 217.
-    override def times
+    override def timesRule
         (dx0: NumericalDomain[IntegerValue], dy0: NumericalDomain[IntegerValue], dz0: NumericalDomain[IntegerValue]):
         (IntegerDomain, IntegerDomain, IntegerDomain) =
     {

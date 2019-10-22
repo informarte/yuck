@@ -9,12 +9,12 @@ abstract class DomainPruner[Value <: AnyValue] {
 
     protected val valueTraits: ValueTraits[Value]
 
-    def eq
+    def eqRule
         (lhs: Domain[Value], rhs: Domain[Value]):
         (Domain[Value], Domain[Value]) =
         (lhs, rhs)
 
-    def ne
+    def neRule
         (lhs: Domain[Value], rhs: Domain[Value]):
         (Domain[Value], Domain[Value]) =
         (lhs, rhs)
