@@ -26,7 +26,9 @@ abstract class BooleanDomain extends NumericalDomain[BooleanValue] {
         case _ => ???
     }
 
-    override def hull: BooleanDomain = this
+    final override def randomSubdomain(randomGenerator: RandomGenerator): BooleanDomain = ???
+
+    final override def hull: BooleanDomain = this
 
     final override def isSubsetOf(that: Domain[BooleanValue]): Boolean = (this, that) match {
         case (lhs: BooleanDecisionDomain, rhs: BooleanDecisionDomain) => lhs.isSubsetOf(rhs)

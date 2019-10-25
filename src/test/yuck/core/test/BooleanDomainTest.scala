@@ -85,6 +85,13 @@ final class BooleanDomainTest extends UnitTest {
     }
 
     @Test
+    def testRandomSubdomainCreation: Unit = {
+        for (a <- testData) {
+            assertEx(a.randomSubdomain(randomGenerator), classOf[NotImplementedError])
+        }
+    }
+
+    @Test
     def testProjection: Unit = {
         for (a <- testData) {
             val b = BooleanDomain.ensureDecisionDomain(a)

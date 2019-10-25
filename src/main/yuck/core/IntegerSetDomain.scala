@@ -23,6 +23,7 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         else if (this.ub < that.ub) -1
         else if (this.ub > that.ub) +1
         else 0
+    final override def randomSubdomain(randomGenerator: RandomGenerator): IntegerSetDomain = ???
     final override def isSubsetOf(that: Domain[IntegerSetValue]): Boolean = (this, that) match {
         case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) => lhs.isSubsetOf(rhs)
         case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowersetDomain) => lhs.base.isSubsetOf(rhs.base)

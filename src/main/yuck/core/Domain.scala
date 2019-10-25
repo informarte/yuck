@@ -43,6 +43,13 @@ abstract class Domain[Value <: AnyValue] extends AnyDomain {
      */
     def nextRandomValue(randomGenerator: RandomGenerator, currentValue: Value): Value
 
+    /**
+     * Chooses a random subdomain from the domain.
+     *
+     * Throws when the domain is infinite.
+     */
+    def randomSubdomain(randomGenerator: RandomGenerator): Domain[Value]
+
     /** Decides whether this is a subset of that. */
     def isSubsetOf(that: Domain[Value]): Boolean
 

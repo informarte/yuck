@@ -28,6 +28,7 @@ abstract class NumericalDomain[Value <: NumericalValue[Value]] extends OrderedDo
 
     override def hull: NumericalDomain[Value]
 
+    override def randomSubdomain(randomGenerator: RandomGenerator): NumericalDomain[Value]
     override def intersect(that: Domain[Value]): NumericalDomain[Value]
     override def union(that: Domain[Value]): NumericalDomain[Value]
     override def diff(that: Domain[Value]): NumericalDomain[Value]

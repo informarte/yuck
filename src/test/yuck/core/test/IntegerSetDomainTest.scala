@@ -20,6 +20,14 @@ final class IntegerSetDomainTest extends UnitTest {
     //   with different results.
     // * Test that set operations return instances of OrderedDomain[IntegerSetValue].
 
+    private val randomGenerator = new JavaRandomGenerator
+    private val helper1 = new IntegerDomainTestHelper(randomGenerator, logger)
+    private val baseRange = new IntegerRange(IntegerValue.get(-5), Five)
+    private def createTestData(sampleSize: Int) =
+        helper1
+            .createTestData(baseRange, sampleSize)
+            .flatMap(r => List(new SingletonIntegerSetDomain(r), new IntegerPowersetDomain(r)))
+
     @Test
     def testEquality: Unit = {
         assertEq(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain], new SingletonIntegerSetDomain(EmptyIntegerRange))
@@ -35,13 +43,7 @@ final class IntegerSetDomainTest extends UnitTest {
     @Test
     def testOrdering: Unit = {
         val sampleSize = 8
-        val randomGenerator = new JavaRandomGenerator
-        val helper1 = new IntegerDomainTestHelper(randomGenerator, logger)
-        val baseRange = new IntegerRange(IntegerValue.get(-5), Five)
-        val testData =
-            helper1.createTestData(baseRange, sampleSize)
-                .map(r => List(new SingletonIntegerSetDomain(r), new IntegerPowersetDomain(r)))
-                .flatten
+        val testData = createTestData(sampleSize)
         val helper2 = new OrderingTestHelper[IntegerSetDomain](randomGenerator)
         helper2.testOrdering(testData, IntegerSetDomainOrdering)
     }
@@ -102,6 +104,15 @@ final class IntegerSetDomainTest extends UnitTest {
         assertEx(new SingletonIntegerSetDomain(EmptyIntegerRange).symdiff(CompleteIntegerSetDomain))
         assertEx(CompleteIntegerSetDomain.asInstanceOf[IntegerSetDomain].symdiff(CompleteIntegerSetDomain))
         assertEx(CompleteIntegerSetDomain.symdiff(new SingletonIntegerSetDomain(EmptyIntegerRange)))
+    }
+
+    @Test
+    def testRandomSubdomainCreation: Unit = {
+        val sampleSize = 8
+        val testData = createTestData(sampleSize)
+        for (a <- testData) {
+            assertEx(a.randomSubdomain(randomGenerator), classOf[NotImplementedError])
+        }
     }
 
 }

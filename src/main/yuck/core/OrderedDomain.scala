@@ -36,6 +36,7 @@ abstract class OrderedDomain[Value <: OrderedValue[Value]] extends Domain[Value]
     /** Returns [lb, ub]. */
     def hull: OrderedDomain[Value]
 
+    override def randomSubdomain(randomGenerator: RandomGenerator): OrderedDomain[Value]
     override def intersect(that: Domain[Value]): OrderedDomain[Value]
     override def union(that: Domain[Value]): OrderedDomain[Value]
     override def diff(that: Domain[Value]): OrderedDomain[Value]

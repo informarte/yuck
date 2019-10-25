@@ -95,12 +95,7 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
      */
     def distanceTo(a: IntegerValue): Int
 
-    /**
-     * Chooses a random subdomain from the domain.
-     *
-     * Throws when the domain is infinite.
-     */
-    final def randomSubdomain(randomGenerator: RandomGenerator): IntegerDomain = {
+    final override def randomSubdomain(randomGenerator: RandomGenerator): IntegerDomain = {
         val choice = new mutable.HashSet[IntegerValue]
         valuesIterator.foreach(a => if (randomGenerator.nextDecision) choice += a)
         createDomain(choice)
