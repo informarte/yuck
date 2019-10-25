@@ -957,9 +957,14 @@ final class ConstraintFactory
                 for ((x, y) <- as.view.zip(xs.view)
                      if x.domain.singleValue != zero && (! y.domain.isSingleton || y.domain.singleValue != zero))
                     yield new AX[Value](x.domain.singleValue, y))
+        val y = createNumChannel[Value]
         val z = compileNumExpr[Value](c)
         val costs = maybeCosts.getOrElse(createBoolChannel)
-        LinearConstraint.postLinearConstraint(space, goal, axs, relation, z, costs)
+        if (axs.forall(_.a == valueTraits.one)) {
+            space.post(new SumConstraint(nextConstraintId, goal, axs.map(_.x).toIndexedSeq, y, relation, z, costs))
+        } else {
+            space.post(new LinearConstraint(nextConstraintId, goal, axs.toIndexedSeq, y, relation, z, costs))
+        }
         costs
     }
 

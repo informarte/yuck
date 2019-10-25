@@ -28,6 +28,7 @@ import org.junit._
         classOf[MinimumTest],
         classOf[NumberOfDistinctValuesTest],
         classOf[RegularTest],
+        classOf[SumConstraintTest],
         classOf[SumTest],
         classOf[IntegerTableTest]))
 @Test

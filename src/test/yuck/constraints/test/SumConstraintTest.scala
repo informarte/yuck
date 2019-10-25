@@ -15,7 +15,7 @@ import yuck.util.testing.{UnitTest, Mocking}
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
-final class LinearConstraintTest
+final class SumConstraintTest
     (override protected val relation: OrderingRelation,
      override protected val costsDomain: BooleanDecisionDomain)
     extends LinearConstraintLikeTest[IntegerValue]
@@ -25,18 +25,18 @@ final class LinearConstraintTest
     private val numberOfTerms = 3
     override protected val axs =
         for (i <- 0 until numberOfTerms) yield AX(
-            baseDomain.randomValue(randomGenerator),
+            One,
             new IntegerVariable(
                 space.nextVariableId, "x%d".format(i + 1), baseDomain.randomSubdomain(randomGenerator)))
     override protected def createConstraint(implicit valueTraits: NumericalValueTraits[IntegerValue]) =
-        new LinearConstraint(space.nextConstraintId, null, axs, y, relation, z, costs)(valueTraits)
+        new SumConstraint(space.nextConstraintId, null, axs.map(_.x), y, relation, z, costs)(valueTraits)
 }
 
 /**
  * @author Michael Marte
  *
  */
-object LinearConstraintTest {
+object SumConstraintTest {
 
     private def configurations =
         for (relation <- List(EqRelation, NeRelation, LtRelation, LeRelation);
