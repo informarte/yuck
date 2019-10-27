@@ -14,10 +14,10 @@ import yuck.core._
  */
 final class Element
     [Value <: AnyValue]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: IndexedSeq[Variable[Value]], i: IntegerVariable, y: Variable[Value], indexBase: Int)
     (implicit valueTraits: ValueTraits[Value])
-    extends Constraint(id, goal)
+    extends Constraint(id)
 {
 
     require(indexBase >= 0)

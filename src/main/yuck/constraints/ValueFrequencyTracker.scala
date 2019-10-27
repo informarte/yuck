@@ -15,16 +15,17 @@ import yuck.core._
 abstract class ValueFrequencyTracker
     [Value <: AnyValue,
      Result <: AnyValue]
-    (id: Id[Constraint], goal: Goal,
-     xs: immutable.Seq[Variable[Value]], result: Variable[Result],
+    (id: Id[Constraint],
+     protected val xs: immutable.Seq[Variable[Value]],
+     protected val y: Variable[Result],
      val variableRegistryFactory: immutable.Map[AnyVariable, Int],
      val valueRegistryFactory: immutable.Map[Value, Int])
     (implicit valueTraits: ValueTraits[Value])
-    extends Constraint(id, goal)
+    extends Constraint(id)
 {
 
     override def inVariables: Iterable[AnyVariable] = xs
-    override def outVariables = List(result)
+    override def outVariables = List(y)
 
     type VariableRegistry = immutable.Map[AnyVariable, Int]
     private def registerVariable(registry: VariableRegistry, x: AnyVariable) =
@@ -41,7 +42,7 @@ abstract class ValueFrequencyTracker
         val occurenceCount = valueRegistry(a) - n
         if (occurenceCount == 0) valueRegistry - a else valueRegistry + (a -> occurenceCount)
     }
-    private val effects = List(new ReusableMoveEffectWithFixedVariable[Result](result))
+    private val effects = List(new ReusableMoveEffectWithFixedVariable[Result](y))
     private val effect = effects.head
 
     override def initialize(now: SearchState) = {

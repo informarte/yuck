@@ -30,11 +30,11 @@ final class Disjoint2Rect
  * @author Michael Marte
  */
 final class Disjoint2
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      rects: immutable.IndexedSeq[Disjoint2Rect],
      isStrict: Boolean,
      costs: BooleanVariable)
-    extends Disjoint(id, goal, rects.size, costs)
+    extends Disjoint(id, rects.size, costs)
 {
 
     override def toString = "disjoint2(%s, %s)".format(rects.mkString(", "), costs)

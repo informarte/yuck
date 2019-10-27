@@ -19,11 +19,11 @@ import yuck.util.logging.LazyLogger
  */
 final class Alldistinct
     [Value <: AnyValue]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.IndexedSeq[Variable[Value]], costs: BooleanVariable)
     (implicit valueTraits: ValueTraits[Value])
     extends ValueFrequencyTracker[Value, BooleanValue](
-        id, goal, xs, costs,
+        id, xs, costs,
         immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[Value, Int]())(
         valueTraits)
 {
@@ -89,7 +89,7 @@ final class Alldistinct
                 val subxs = xs.map(x => valueTraits.createVariable(subspace, x.name, x.domain))
                 val result = logger.withTimedLogScope("Solving %s".format(this)) {
                     val subcosts = new BooleanVariable(subspace.nextVariableId, "", CompleteBooleanDomain)
-                    subspace.post(new Alldistinct(subspace.nextConstraintId, goal, subxs, subcosts))
+                    subspace.post(new Alldistinct(subspace.nextConstraintId, maybeGoal, subxs, subcosts))
                     val initializer = new RandomInitializer(subspace, randomGenerator.nextGen)
                     initializer.run
                     val n = subspace.searchVariables.size * 4

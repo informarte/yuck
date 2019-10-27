@@ -10,10 +10,10 @@ import yuck.core._
  */
 final class Sum
     [Value <: NumericalValue[Value]]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      val xs: immutable.Seq[NumericalVariable[Value]], y: NumericalVariable[Value])
     (implicit valueTraits: NumericalValueTraits[Value])
-    extends Constraint(id, goal)
+    extends Constraint(id)
 {
 
     require(xs.toSet.size == xs.size)

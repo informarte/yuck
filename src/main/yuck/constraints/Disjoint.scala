@@ -21,8 +21,8 @@ import yuck.util.alg.rtree.RTreeTransaction
  * @author Michael Marte
  */
 abstract class Disjoint
-    (id: Id[Constraint], goal: Goal, n: Int, costs: BooleanVariable)
-    extends Constraint(id, goal)
+    (id: Id[Constraint], n: Int, costs: BooleanVariable)
+    extends Constraint(id)
 {
 
     protected def variablesIterator(i: Int): Iterator[IntegerVariable]

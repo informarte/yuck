@@ -39,10 +39,10 @@ final class CumulativeTask
  * @author Michael Marte
  */
 final class Cumulative
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      tasks: immutable.IndexedSeq[CumulativeTask], capacity: IntegerVariable,
      costs: BooleanVariable)
-    extends Constraint(id, goal)
+    extends Constraint(id)
 {
 
     private val n = tasks.size

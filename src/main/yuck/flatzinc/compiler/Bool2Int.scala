@@ -8,9 +8,9 @@ import yuck.constraints.{BinaryConstraint, TernaryConstraint, ReifiedBinaryConst
  *
  */
 final class Bool2Int1
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: BooleanVariable, y: IntegerVariable)
-    extends BinaryConstraint(id, goal, x, y)
+    extends BinaryConstraint(id, x, y)
 {
     override def toString = "bool2int(%s, %s)".format(x, y)
     override def op(a: BooleanValue) = if (a.truthValue) One else Zero
@@ -25,9 +25,9 @@ final class Bool2Int1
  *
  */
 final class Bool2Int2
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: BooleanVariable, y: IntegerVariable, z: BooleanVariable)
-    extends TernaryConstraint(id, goal, x, y, z)
+    extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[BooleanDomain, IntegerDomain]
 {
     override def toString = "bool2int(%s, %s, %s)".format(x, y, z)

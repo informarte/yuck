@@ -10,11 +10,11 @@ import yuck.core._
  */
 final class Maximum
     [Value <: OrderedValue[Value]]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.Seq[OrderedVariable[Value]], y: OrderedVariable[Value])
     (implicit valueTraits: OrderedValueTraits[Value])
     extends ValueFrequencyTracker[Value, Value](
-        id, goal, xs, y,
+        id, xs, y,
         immutable.TreeMap[AnyVariable, Int](), immutable.TreeMap[Value, Int]())(
         valueTraits)
 {

@@ -10,10 +10,10 @@ import yuck.core._
  */
 final class CountConst
     [Value <: AnyValue]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: Seq[Variable[Value]], a: Value, val n: IntegerVariable)
     (implicit valueTraits: ValueTraits[Value])
-    extends Constraint(id, goal)
+    extends Constraint(id)
 {
 
     override def toString = "%s = count(%s, [%s])".format(n, a, xs.mkString(", "))

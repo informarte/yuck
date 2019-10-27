@@ -8,9 +8,9 @@ import yuck.core._
  * @author Michael Marte
  */
 final class Not
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: BooleanVariable, y: BooleanVariable)
-    extends BinaryConstraint(id, goal, x, y)
+    extends BinaryConstraint(id, x, y)
 {
     override def toString = "not(%s, %s)".format(x, y)
     override def op(a: BooleanValue) = if (a.truthValue) False else True

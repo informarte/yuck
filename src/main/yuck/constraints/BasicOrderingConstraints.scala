@@ -8,10 +8,10 @@ import yuck.core._
  */
 final class Eq
     [Value <: OrderedValue[Value]]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: OrderedVariable[Value], y: OrderedVariable[Value], z: BooleanVariable)
     (implicit valueTraits: OrderedValueTraits[Value])
-    extends TernaryConstraint(id, goal, x, y, z)
+    extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[OrderedDomain[Value], OrderedDomain[Value]]
 {
     override def toString = "%s = %s == %s".format(z, x, y)
@@ -32,10 +32,10 @@ final class Eq
  */
 final class Ne
     [Value <: OrderedValue[Value]]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: OrderedVariable[Value], y: OrderedVariable[Value], z: BooleanVariable)
     (implicit valueTraits: OrderedValueTraits[Value])
-    extends TernaryConstraint(id, goal, x, y, z)
+    extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[OrderedDomain[Value], OrderedDomain[Value]]
 {
     override def toString = "%s = %s != %s".format(z, x, y)
@@ -56,10 +56,10 @@ final class Ne
  */
 final class Lt
     [Value <: OrderedValue[Value]]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: OrderedVariable[Value], y: OrderedVariable[Value], z: BooleanVariable)
     (implicit valueTraits: OrderedValueTraits[Value])
-    extends TernaryConstraint(id, goal, x, y, z)
+    extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[OrderedDomain[Value], OrderedDomain[Value]]
 {
     override def toString = "%s = %s < %s".format(z, x, y)
@@ -82,10 +82,10 @@ final class Lt
  */
 final class Le
     [Value <: OrderedValue[Value]]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: OrderedVariable[Value], y: OrderedVariable[Value], z: BooleanVariable)
     (implicit valueTraits: OrderedValueTraits[Value])
-    extends TernaryConstraint(id, goal, x, y, z)
+    extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[OrderedDomain[Value], OrderedDomain[Value]]
 {
     override def toString = "%s = %s <= %s".format(z, x, y)
@@ -108,10 +108,10 @@ final class Le
  */
 final class Min
     [Value <: OrderedValue[Value]]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: OrderedVariable[Value], y: OrderedVariable[Value], z: OrderedVariable[Value])
     (implicit valueTraits: OrderedValueTraits[Value])
-    extends TernaryConstraint(id, goal, x, y, z)
+    extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = min(%s, %s)".format(z, x, y)
     override def op(a: Value, b: Value) = if (a < b) a else b
@@ -128,10 +128,10 @@ final class Min
  */
 final class Max
     [Value <: OrderedValue[Value]]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: OrderedVariable[Value], y: OrderedVariable[Value], z: OrderedVariable[Value])
     (implicit valueTraits: OrderedValueTraits[Value])
-    extends TernaryConstraint(id, goal, x, y, z)
+    extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = max(%s, %s)".format(z, x, y)
     override def op(a: Value, b: Value) = if (a > b) a else b

@@ -10,11 +10,11 @@ import yuck.core._
  */
 class NumberOfDistinctValues
     [Value <: OrderedValue[Value]]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.Seq[Variable[Value]], n: IntegerVariable)
     (implicit valueTraits: OrderedValueTraits[Value])
     extends ValueFrequencyTracker[Value, IntegerValue](
-        id, goal, xs, n,
+        id, xs, n,
         immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[Value, Int]())(
         valueTraits)
 {

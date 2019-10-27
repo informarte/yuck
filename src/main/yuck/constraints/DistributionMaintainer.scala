@@ -14,11 +14,11 @@ import yuck.core._
  */
 final class DistributionMaintainer
     [Value <: NumericalValue[Value]]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      mode: OptimizationMode.Value,
      axs: immutable.Seq[AX[Value]], distribution: Distribution)
     (implicit valueTraits: NumericalValueTraits[Value])
-    extends Constraint(id, goal)
+    extends Constraint(id)
 {
 
     require(distribution.size == axs.size)

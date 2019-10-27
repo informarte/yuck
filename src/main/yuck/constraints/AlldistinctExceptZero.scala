@@ -17,11 +17,11 @@ import yuck.core._
  */
 final class AlldistinctExceptZero
     [Value <: NumericalValue[Value]]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.Seq[NumericalVariable[Value]], costs: BooleanVariable)
     (implicit valueTraits: NumericalValueTraits[Value])
     extends ValueFrequencyTracker[Value, BooleanValue](
-        id, goal, xs, costs,
+        id, xs, costs,
         immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[Value, Int]())(
         valueTraits)
 {

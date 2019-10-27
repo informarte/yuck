@@ -135,7 +135,7 @@ final class SpaceTest extends UnitTest {
     // according to their contracts.
     private final class Spy
         (id: Id[Constraint], xs: Set[IntegerVariable], sum: IntegerVariable)
-        extends Constraint(id, null)
+        extends Constraint(id)
     {
         require(! xs.isEmpty)
 

@@ -19,6 +19,7 @@ case class FlatZincLevelConfiguration(
  *
  */
 case class FlatZincSolverConfiguration(
+    val attachGoals: Boolean = false,
     val seed: Long = DefaultSeed,
     val restartLimit: Int = DefaultRestartLimit,
     val numberOfThreads: Int = Runtime.getRuntime.availableProcessors,

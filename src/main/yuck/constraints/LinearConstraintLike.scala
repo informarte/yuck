@@ -13,8 +13,8 @@ import yuck.core._
  */
 abstract class LinearConstraintLike
     [Value <: NumericalValue[Value]]
-    (id: Id[Constraint], goal: Goal)
-    extends Constraint(id, goal)
+    (id: Id[Constraint])
+    extends Constraint(id)
 {
 
     protected val valueTraits: NumericalValueTraits[Value]

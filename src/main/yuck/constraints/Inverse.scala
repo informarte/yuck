@@ -50,11 +50,11 @@ final class InverseFunction
  * @author Michael Marte
  */
 final class Inverse
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      f: InverseFunction,
      g: InverseFunction,
      costs: BooleanVariable)
-    extends Constraint(id, goal)
+    extends Constraint(id)
 {
 
     override def toString =
@@ -250,7 +250,7 @@ final class Inverse
                     val subg = new InverseFunction(g.xs.map(y => new IntegerVariable(subspace.nextVariableId, y.name, y.domain)), g.offset)
                     val result = logger.withTimedLogScope("Solving %s".format(this)) {
                         val subcosts = new BooleanVariable(subspace.nextVariableId, "", CompleteBooleanDomain)
-                        subspace.post(new Inverse(subspace.nextConstraintId, goal, subf, subg, subcosts))
+                        subspace.post(new Inverse(subspace.nextConstraintId, maybeGoal, subf, subg, subcosts))
                         val initializer = new RandomInitializer(subspace, randomGenerator.nextGen)
                         initializer.run
                         val n = subspace.searchVariables.size * 4
@@ -338,7 +338,7 @@ final class Inverse
                 val offset = domain.lb.value
                 val costs = new BooleanVariable(space.nextVariableId, "", CompleteBooleanDomain)
                 new Inverse(
-                    space.nextConstraintId, goal,
+                    space.nextConstraintId, maybeGoal,
                     new InverseFunction(fPartitionByDomain(domain).toIndexedSeq, offset),
                     new InverseFunction(gPartitionByDomain(domain).toIndexedSeq, offset),
                     costs)

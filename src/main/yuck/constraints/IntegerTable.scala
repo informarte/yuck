@@ -19,11 +19,11 @@ import yuck.core._
  * @author Michael Marte
  */
 final class IntegerTable
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.IndexedSeq[IntegerVariable],
      var rows: immutable.IndexedSeq[immutable.IndexedSeq[Int]],
      costs: BooleanVariable)
-    extends Constraint(id, goal)
+    extends Constraint(id)
 {
 
     private val n = xs.size // number of variables/ columns

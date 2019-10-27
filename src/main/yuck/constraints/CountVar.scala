@@ -10,11 +10,11 @@ import yuck.core._
  */
 final class CountVar
     [Value <: AnyValue]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.Seq[Variable[Value]], y: Variable[Value], n: IntegerVariable)
     (implicit valueTraits: ValueTraits[Value])
     extends ValueFrequencyTracker[Value, IntegerValue](
-        id, goal, xs, n,
+        id, xs, n,
         immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[Value, Int]())(
         valueTraits)
 {

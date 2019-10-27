@@ -33,7 +33,7 @@ import yuck.core._
  * @author Michael Marte
  */
 final class Regular
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.IndexedSeq[IntegerVariable],
      Q: Int,
      S: Int,
@@ -41,7 +41,7 @@ final class Regular
      q0: Int,
      F: IntegerDomain,
      costs: BooleanVariable)
-    extends Constraint(id, goal)
+    extends Constraint(id)
 {
 
     require(Q > 0)

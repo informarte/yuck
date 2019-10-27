@@ -8,9 +8,9 @@ import yuck.core._
  */
 abstract class TernaryConstraint
     [In1 <: AnyValue, In2 <: AnyValue, Out <: AnyValue]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint],
      x: Variable[In1], y: Variable[In2], z: Variable[Out])
-    extends Constraint(id, goal)
+    extends Constraint(id)
 {
     final override def inVariables = List(x, y)
     final override def outVariables = List(z)

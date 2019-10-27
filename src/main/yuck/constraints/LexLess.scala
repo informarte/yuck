@@ -9,11 +9,11 @@ import yuck.core._
  */
 final class LexLess
     [Value <: OrderedValue[Value]]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: Seq[OrderedVariable[Value]], ys: Seq[OrderedVariable[Value]],
      costs: BooleanVariable)
     (implicit val ord: Ordering[Iterable[Value]])
-    extends Constraint(id, goal)
+    extends Constraint(id)
 {
 
     override def toString = "lex_less(%s, %s)".format(xs, ys)

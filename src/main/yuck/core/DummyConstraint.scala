@@ -8,7 +8,7 @@ final class DummyConstraint
     (id: Id[Constraint],
      override val inVariables: Iterable[AnyVariable],
      override val outVariables: Iterable[AnyVariable])
-    extends Constraint(id, null)
+    extends Constraint(id)
 {
     override def initialize(now: SearchState) = Nil
     override def consult(before: SearchState, after: SearchState, move: Move) = Nil

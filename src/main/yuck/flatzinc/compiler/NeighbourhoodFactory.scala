@@ -115,8 +115,8 @@ class NeighbourhoodFactory
     }
 
     private final class LevelWeightMaintainer
-        (id: Id[yuck.core.Constraint], goal: Goal, level0: Level[BooleanValue], level1: Level[IntegerValue])
-        extends Constraint(id, goal)
+        (id: Id[yuck.core.Constraint], level0: Level[BooleanValue], level1: Level[IntegerValue])
+        extends Constraint(id)
     {
         override def inVariables = List(level0.costs, level1.costs)
         override def outVariables = List(level0.weight, level1.weight)
@@ -147,7 +147,7 @@ class NeighbourhoodFactory
                 val List(objective0, objective1) = cc.objective.asInstanceOf[HierarchicalObjective].objectives
                 val level0 = new Level(costs0, objective0)
                 val level1 = new Level(costs1, objective1)
-                space.post(new LevelWeightMaintainer(nextConstraintId, null, level0, level1))
+                space.post(new LevelWeightMaintainer(nextConstraintId, level0, level1))
                 val hotSpotDistribution = new ArrayBackedDistribution(2)
                 space.post(
                     new DistributionMaintainer(

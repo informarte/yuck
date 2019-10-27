@@ -32,10 +32,10 @@ import yuck.core._
  */
 final class Disjunction
     (id: Id[Constraint],
-     goal: Goal,
+     override val maybeGoal: Option[Goal],
      xs: immutable.Seq[BooleanVariable],
      y: BooleanVariable)
-    extends Constraint(id, goal)
+    extends Constraint(id)
 {
 
     require(! xs.isEmpty)

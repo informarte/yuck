@@ -26,11 +26,11 @@ final class BinPackingItem
  */
 final class BinPacking
     [Load <: NumericalValue[Load]]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      items: immutable.Seq[BinPackingItem[Load]],
      loads: immutable.Map[Int, Variable[Load]]) // bin -> load
     (implicit valueTraits: NumericalValueTraits[Load])
-    extends Constraint(id, goal)
+    extends Constraint(id)
 {
 
     require(items.forall(_.weight >= valueTraits.zero))

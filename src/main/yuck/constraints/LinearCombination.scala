@@ -10,10 +10,10 @@ import yuck.core._
  */
 final class LinearCombination
     [Value <: NumericalValue[Value]]
-    (id: Id[Constraint], goal: Goal,
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      val axs: immutable.Seq[AX[Value]], y: NumericalVariable[Value])
     (implicit valueTraits: NumericalValueTraits[Value])
-    extends Constraint(id, goal)
+    extends Constraint(id)
 {
 
     require(axs.iterator.map(_.x).toSet.size == axs.size)

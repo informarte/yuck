@@ -325,7 +325,7 @@ class MiniZincBasedTest extends IntegrationTest {
             val maybeConstraint = result.space.definingConstraint(x)
             if (maybeConstraint.isDefined) {
                 val constraint = maybeConstraint.get
-                logger.withLogScope("%s = %s computed by %s [%s]".format(x, a, constraint, constraint.goal)) {
+                logger.withLogScope("%s = %s computed by %s [%s]".format(x, a, constraint, constraint.maybeGoal)) {
                     for (x <- constraint.inVariables) {
                         logViolatedConstraints(result, x, visited)
                     }
