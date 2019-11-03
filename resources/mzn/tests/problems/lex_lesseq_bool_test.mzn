@@ -1,13 +1,13 @@
 include "lex_lesseq.mzn";
 
-int: n = 10;
-int: m = 10;
+int: N = 10;
+int: M = 10;
 
-array[1..10] of var bool: x;
-array[1..10] of var bool: y;
+array [1..N] of var bool: x;
+array [1..N] of var bool: y;
 
 constraint lex_lesseq(x, y);
-constraint forall (i in 1..m)(x[i] = true);
+constraint forall(i in 1..M)(x[i] = true);
 
 solve satisfy;
 

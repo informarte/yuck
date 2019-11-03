@@ -613,17 +613,17 @@ final class ConstraintFactory
         case Constraint("set_symdiff", List(a, b, c), _) =>
             compileTernaryIntSetConstraint(
                 new SymmetricalSetDifference(_, _, _, _, _), maybeGoal, constraint)
-        case Constraint("all_different_int", List(as), _) =>
+        case Constraint("fzn_all_different_int", List(as), _) =>
             val xs = compileIntArray(as)
             val costs = createBoolChannel
             space.post(new Alldistinct(nextConstraintId, maybeGoal, xs, costs))
             List(costs)
-        case Constraint("alldifferent_except_0", List(as), _) =>
+        case Constraint("fzn_alldifferent_except_0", List(as), _) =>
             val xs = compileIntArray(as)
             val costs = createBoolChannel
             space.post(new AlldistinctExceptZero(nextConstraintId, maybeGoal, xs, costs))
             List(costs)
-        case Constraint("nvalue", List(n0, as), _) =>
+        case Constraint("fzn_nvalue", List(n0, as), _) =>
             val xs = compileIntArray(as)
             val n = compileIntExpr(n0)
             def withFunctionalDependency = {
@@ -638,33 +638,15 @@ final class ConstraintFactory
                 List(costs)
             }
             compileConstraint(constraint, xs, n, withFunctionalDependency, withoutFunctionalDependency)
-        case Constraint("at_most_int", List(n, as, v), _) =>
-            compileConstraint(maybeGoal, Constraint("count_geq", List(as, v, n), constraint.annotations))
-        case Constraint("at_least_int", List(n, as, v), _) =>
-            compileConstraint(maybeGoal, Constraint("count_leq", List(as, v, n), constraint.annotations))
-        case Constraint("exactly_int", List(n, as, v), _) =>
-            compileConstraint(maybeGoal, Constraint("count_eq", List(as, v, n), constraint.annotations))
-        case Constraint("count_eq", _, _) =>
+        case Constraint("fzn_count_eq", _, _) =>
             compileCountConstraint[IntegerValue](maybeGoal, constraint, new Eq[IntegerValue](_, _, _, _, _))
-        case Constraint("count_neq", _, _) =>
-            compileCountConstraint[IntegerValue](maybeGoal, constraint, new Ne[IntegerValue](_, _, _, _, _))
-        case Constraint("count_leq", _, _) =>
-            compileCountConstraint[IntegerValue](
-                maybeGoal, constraint, (id, goal, x, y, z) => new Le[IntegerValue](id, goal, y, x, z))
-        case Constraint("count_lt", _, _) =>
-            compileCountConstraint[IntegerValue](
-                maybeGoal, constraint, (id, goal, x, y, z) => new Lt[IntegerValue](id, goal, y, x, z))
-        case Constraint("count_geq", _, _) =>
-            compileCountConstraint[IntegerValue](maybeGoal, constraint, new Le[IntegerValue](_, _, _, _, _))
-        case Constraint("count_gt", _, _) =>
-            compileCountConstraint[IntegerValue](maybeGoal, constraint, new Lt[IntegerValue](_, _, _, _, _))
-        case Constraint("member_bool", _, _) =>
+        case Constraint("fzn_member_bool", _, _) =>
             compileMemberConstraint[BooleanValue](maybeGoal, constraint)
-        case Constraint("member_int", _, _) =>
+        case Constraint("fzn_member_int", _, _) =>
             compileMemberConstraint[IntegerValue](maybeGoal, constraint)
-        case Constraint("member_set", _, _) =>
+        case Constraint("fzn_member_set", _, _) =>
             compileMemberConstraint[IntegerSetValue](maybeGoal, constraint)
-        case Constraint("yuck_cumulative", List(s, d, r, b), _) =>
+        case Constraint("fzn_cumulative", List(s, d, r, b), _) =>
             val xs = compileIntArray(s)
             val ys = compileIntArray(d)
             val zs = compileIntArray(r)
@@ -674,7 +656,17 @@ final class ConstraintFactory
             val costs = createBoolChannel
             space.post(new Cumulative(nextConstraintId, maybeGoal, tasks, b, costs))
             List(costs)
-        case Constraint("yuck_disjoint2", List(x, y, w, h, BoolConst(strict)), _) =>
+        case Constraint("yuck_disjunctive", List(x, w, BoolConst(strict)), _) =>
+            val xs = compileIntArray(x)
+            val ws = compileIntArray(w)
+            assert(xs.size == ws.size)
+            val y = compileConstant(Zero)
+            val h = compileConstant(One)
+            val rects = for (i <- 0 until xs.size) yield new Disjoint2Rect(xs(i), y, ws(i), h)
+            val costs = createBoolChannel
+            space.post(new Disjoint2(nextConstraintId, maybeGoal, rects, strict, costs))
+            List(costs)
+        case Constraint("yuck_diffn", List(x, y, w, h, BoolConst(strict)), _) =>
             val xs = compileIntArray(x)
             val ys = compileIntArray(y)
             val ws = compileIntArray(w)
@@ -686,7 +678,7 @@ final class ConstraintFactory
             val costs = createBoolChannel
             space.post(new Disjoint2(nextConstraintId, maybeGoal, rects, strict, costs))
             List(costs)
-        case Constraint("yuck_table_int", List(as, flatT), _) =>
+        case Constraint("fzn_table_int", List(as, flatT), _) =>
             val xs = compileIntArray(as)
             val t = compileIntArray(flatT)
             val n = xs.size
@@ -702,7 +694,7 @@ final class ConstraintFactory
             // This approach is cheap and generic but comes at the price of a poor cost model.
             space.post(new IntegerTable(nextConstraintId, maybeGoal, xs, rows, costs))
             List(costs)
-        case Constraint("yuck_regular", List(xs, IntConst(q), IntConst(s), flatDelta, IntConst(q0), f), _) =>
+        case Constraint("fzn_regular", List(xs, IntConst(q), IntConst(s), flatDelta, IntConst(q0), f), _) =>
             val Q = q
             val S = s
             val delta = compileIntArray(flatDelta).map(_.domain.singleValue.value).grouped(s).toIndexedSeq
@@ -716,7 +708,7 @@ final class ConstraintFactory
             val constraints = constraint.decompose(space)
             constraints.foreach(space.post)
             constraints.view.flatMap(_.outVariables)
-        case Constraint("yuck_bin_packing", List(loads0, bins0, weights0, IntConst(minLoadIndex)), _) =>
+        case Constraint("yuck_bin_packing_load", List(loads0, bins0, weights0, IntConst(minLoadIndex)), _) =>
             val bins = compileIntArray(bins0)
             val weights = getArrayElems(weights0).map(getConst[IntegerValue](_))
             require(bins.size == weights.size)
@@ -727,7 +719,7 @@ final class ConstraintFactory
             val loads1 = compileIntArray(loads0)
             val loads = (minLoadIndex until minLoadIndex + loads1.size).iterator.zip(loads1.iterator).toMap
             compileBinPackingConstraint(maybeGoal, constraint, items, loads)
-        case Constraint("yuck_global_cardinality", List(xs0, cover0, counts0), _) =>
+        case Constraint("fzn_global_cardinality", List(xs0, cover0, counts0), _) =>
             val xs = compileIntArray(xs0)
             val items = xs.map(new BinPackingItem(_, One))
             val cover = getArrayElems(cover0).map(getConst[IntegerValue](_).value)
@@ -735,37 +727,37 @@ final class ConstraintFactory
             require(cover.size == counts.size)
             val loads = cover.iterator.zip(counts.iterator).toMap
             compileBinPackingConstraint(maybeGoal, constraint, items, loads)
-        case Constraint("lex_less_int", List(as, bs), _) =>
+        case Constraint("fzn_lex_less_int", List(as, bs), _) =>
             val xs = compileIntArray(as)
             val ys = compileIntArray(bs)
             val costs = createBoolChannel
             space.post(new LexLess(nextConstraintId, maybeGoal, xs, ys, costs))
             List(costs)
-        case Constraint("lex_less_bool", List(as, bs), _) =>
+        case Constraint("fzn_lex_less_bool", List(as, bs), _) =>
             val xs = compileBoolArray(as)
             val ys = compileBoolArray(bs)
             val costs = createBoolChannel
             space.post(new LexLess(nextConstraintId, maybeGoal, xs, ys, costs)(booleanSequenceOrdering))
             List(costs)
-        case Constraint("lex_less_set", List(as, bs), _) =>
+        case Constraint("fzn_lex_less_set", List(as, bs), _) =>
             val xs = compileIntSetArray(as)
             val ys = compileIntSetArray(bs)
             val costs = createBoolChannel
             space.post(new LexLess(nextConstraintId, maybeGoal, xs, ys, costs))
             List(costs)
-        case Constraint("lex_lesseq_int", List(as, bs), _) =>
+        case Constraint("fzn_lex_lesseq_int", List(as, bs), _) =>
             val xs = compileIntArray(as)
             val ys = compileIntArray(bs)
             val costs = createBoolChannel
             space.post(new LexLessEq(nextConstraintId, maybeGoal, xs, ys, costs))
             List(costs)
-        case Constraint("lex_lesseq_bool", List(as, bs), _) =>
+        case Constraint("fzn_lex_lesseq_bool", List(as, bs), _) =>
             val xs = compileBoolArray(as)
             val ys = compileBoolArray(bs)
             val costs = createBoolChannel
             space.post(new LexLessEq(nextConstraintId, maybeGoal, xs, ys, costs)(booleanSequenceOrdering))
             List(costs)
-        case Constraint("lex_lesseq_set", List(as, bs), _) =>
+        case Constraint("fzn_lex_lesseq_set", List(as, bs), _) =>
             val xs = compileIntSetArray(as)
             val ys = compileIntSetArray(bs)
             val costs = createBoolChannel
@@ -858,7 +850,8 @@ final class ConstraintFactory
 
     private def compileBinPackingConstraint
         [Load <: NumericalValue[Load]]
-        (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint,
+        (maybeGoal: Option[Goal],
+         constraint: yuck.flatzinc.ast.Constraint,
          items: immutable.Seq[BinPackingItem[Load]],
          loads: immutable.Map[Int, NumericalVariable[Load]]) // bin -> load
         (implicit valueTraits: NumericalValueTraits[Load]):
@@ -971,13 +964,15 @@ final class ConstraintFactory
 
     private def compileCountConstraint
         [Value <: AnyValue]
-        (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint,
+        (maybeGoal: Option[Goal],
+         constraint: yuck.flatzinc.ast.Constraint,
          comparatorFactory: TernaryConstraintFactory[IntegerVariable, IntegerVariable, BooleanVariable])
         (implicit valueTraits: ValueTraits[Value]):
         Iterable[BooleanVariable] =
     {
-        val Constraint(_, List(as, a, m), _) = constraint
+        val Constraint(_, List(as, a, b), _) = constraint
         val xs = compileArray[Value](as)
+        val m = compileIntExpr(b)
         if (compilesToConst(a)) {
             val y = compileExpr[Value](a).domain.singleValue
             def withFunctionalDependency = {
@@ -1016,8 +1011,8 @@ final class ConstraintFactory
         Iterable[BooleanVariable] =
         compileCountConstraint(
             maybeGoal,
-            constraint.copy(id = "count_leq", params = constraint.params ++ List(IntConst(1))),
-            (id, goal, n, m, costs) => new Le[IntegerValue](id, maybeGoal, m, n, costs))
+            constraint.copy(id = "fzn_count_leq", params = constraint.params ++ List(IntConst(1))),
+            new Eq[IntegerValue](_, _, _, _, _))
 
     private def compileElementConstraint
         [Value <: OrderedValue[Value]]

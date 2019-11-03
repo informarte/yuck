@@ -5,10 +5,10 @@ language: scala
 jdk: openjdk11
 
 install:
-  - wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.2.2/MiniZincIDE-2.2.2-bundle-linux-x86_64.tgz
-  - tar xzf MiniZincIDE-2.2.2-bundle-linux-x86_64.tgz
-  - export PATH=$PWD/MiniZincIDE-2.2.2-bundle-linux/bin:$PATH
-  - export LD_LIBRARY_PATH=$PWD/MiniZincIDE-2.2.2-bundle-linux/lib:$LD_LIBRARY_PATH
+  - wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.3.2/MiniZincIDE-2.3.2-bundle-linux-x86_64.tgz
+  - tar xzf MiniZincIDE-2.3.2-bundle-linux-x86_64.tgz
+  - export PATH=$PWD/MiniZincIDE-2.3.2-bundle-linux/bin:$PATH
+  - export LD_LIBRARY_PATH=$PWD/MiniZincIDE-2.3.2-bundle-linux/lib:$LD_LIBRARY_PATH
 
 script:
   - make ci-tests

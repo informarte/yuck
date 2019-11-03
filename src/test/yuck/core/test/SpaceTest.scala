@@ -34,6 +34,9 @@ final class SpaceTest extends UnitTest {
         val f = new DummyConstraint(space.nextConstraintId, List(s, t), List(x, y))
         space.post(c).post(d).post(e)
         assertEx(space.post(f))
+        assertEq(space.numberOfConstraints, 3)
+        assertEq(space.numberOfConstraints(_.isInstanceOf[DummyConstraint]), 3)
+        assertEq(space.numberOfConstraints(_ => false), 0)
 
         val problemParams = space.problemParameters
         assertEq(problemParams, Set(v))

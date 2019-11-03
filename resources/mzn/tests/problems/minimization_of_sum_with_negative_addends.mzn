@@ -1,6 +1,6 @@
-array[1..9,1..9] of int: w;
-array[1..9] of var 1..9: n;
-array[1..9] of var 0..30: c;
+array [1..9,1..9] of int: w;
+array [1..9] of var 1..9: n;
+array [1..9] of var 0..30: c;
 var 0..270: objective;
 constraint objective = sum(c);
 constraint forall(i in 1..9)(c[i] = w[i, n[i]]);

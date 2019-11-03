@@ -181,7 +181,7 @@ class MiniZincBasedTest extends IntegrationTest {
         assert(
             "No solution found, quality of best proposal was %s".format(result.costsOfBestProposal),
             result.isSolution || ! task.assertWhenUnsolved)
-        if (result.isSolution) {
+        if (result.isSolution && task.verifySolution) {
             logger.withTimedLogScope("Verifying solution") {
                 assert(
                     "Solution not verified",

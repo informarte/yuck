@@ -2,14 +2,13 @@ package yuck.flatzinc.test
 
 import org.junit._
 import org.junit.experimental.categories._
-import org.junit.experimental.categories.Categories._
-import org.junit.runner.RunWith
-import org.junit.runners.Suite.SuiteClasses
 
 import scala.language.implicitConversions
+
 import yuck.annealing.AnnealingResult
 import yuck.constraints.{AlldistinctNeighbourhood, GeneralInverseNeighbourhood, SelfInverseNeighbourhood, SimpleInverseNeighbourhood}
 import yuck.core._
+import yuck.constraints._
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.{FlatZincCompilerResult, VariableWithInfiniteDomainException}
 import yuck.flatzinc.test.util._
@@ -73,123 +72,158 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     }
 
     @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    def testAlldifferentReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "alldifferent_int_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Alldistinct[_]]), 2)
+    }
+
+    @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExcept0Constraint]))
     def testAlldifferentExcept0: Unit = {
-        solve(task.copy(problemName = "alldifferent_except_0_test"))
+        val result = solveWithResult(task.copy(problemName = "alldifferent_except_0_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[AlldistinctExceptZero[_]]), 1)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAtLeastConstraint]))
-    def testAtLeast: Unit = {
-        solve(task.copy(problemName = "at_least_int_test"))
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAtMostConstraint]))
-    def testAtMost: Unit = {
-        solve(task.copy(problemName = "at_most_int_test"))
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExcept0Constraint]))
+    def testAlldifferentExcept0Reif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "alldifferent_except_0_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[AlldistinctExceptZero[_]]), 2)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPacking: Unit = {
-        solve(task.copy(problemName = "bin_packing_test"))
+        val result = solveWithResult(task.copy(problemName = "bin_packing_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Cumulative]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    def testBinPackingReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "bin_packing_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Cumulative]), 2)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingCapa: Unit = {
-        solve(task.copy(problemName = "bin_packing_capa_test"))
+        val result = solveWithResult(task.copy(problemName = "bin_packing_capa_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Cumulative]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    def testBinPackingCapaReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "bin_packing_capa_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Cumulative]), 2)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingLoadWithUnboundedLoadVariables: Unit = {
-        solve(task.copy(problemName = "bin_packing_load_test_with_unbounded_load_variables"))
+        val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_unbounded_load_variables"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingLoadWithEqualLoadVariables: Unit = {
-        solve(task.copy(problemName = "bin_packing_load_test_with_equal_load_variables"))
+        val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_equal_load_variables"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingLoadWithDuplicateBinVariables: Unit = {
-        solve(task.copy(problemName = "bin_packing_load_test_with_duplicate_bin_variables"))
+        val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_duplicate_bin_variables"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    def testBinPackingLoadReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "bin_packing_load_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 2)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
     def testCountEq: Unit = {
-        solve(task.copy(problemName = "count_eq_var_test"))
-        solve(task.copy(problemName = "count_eq_const_test"))
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
-    def testCountLeq: Unit = {
-        solve(task.copy(problemName = "count_leq_var_test"))
-        solve(task.copy(problemName = "count_leq_const_test"))
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
-    def testCountLt: Unit = {
-        solve(task.copy(problemName = "count_lt_var_test"))
-        solve(task.copy(problemName = "count_lt_const_test"))
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
-    def testCountGeq: Unit = {
-        solve(task.copy(problemName = "count_geq_var_test"))
-        solve(task.copy(problemName = "count_geq_const_test"))
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
-    def testCountGt: Unit = {
-        solve(task.copy(problemName = "count_gt_var_test"))
-        solve(task.copy(problemName = "count_gt_const_test"))
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
-    def testCountNeq: Unit = {
-        solve(task.copy(problemName = "count_neq_var_test"))
-        solve(task.copy(problemName = "count_neq_const_test"))
+        val result = solveWithResult(task.copy(problemName = "count_eq_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[CountConst[_]]), 2)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[CountVar[_]]), 2)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCumulativeConstraint]))
     def testCumulative: Unit = {
-        solve(task.copy(problemName = "cumulative_test"))
+        val result = solveWithResult(task.copy(problemName = "cumulative_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Cumulative]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCumulativeConstraint]))
+    def testCumulativeReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "cumulative_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Cumulative]), 2)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
     def testDiffnNonstrict: Unit = {
-        solve(task.copy(problemName = "diffn_nonstrict_test"))
+        val result = solveWithResult(task.copy(problemName = "diffn_nonstrict_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Disjoint2]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
+    def testDiffnNonstrictReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "diffn_nonstrict_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Disjoint2]), 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
     def testDiffnStrict: Unit = {
-        solve(task.copy(problemName = "diffn_strict_test"))
+        val result = solveWithResult(task.copy(problemName = "diffn_strict_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Disjoint2]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
+    def testDiffnStrictReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "diffn_strict_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Disjoint2]), 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDisjunctiveConstraint]))
     def testDisjunctiveNonstrict: Unit = {
-        solve(task.copy(problemName = "disjunctive_nonstrict_test"))
+        val result = solveWithResult(task.copy(problemName = "disjunctive_nonstrict_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Disjoint2]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDisjunctiveConstraint]))
+    def testDisjunctiveNonstrictReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "disjunctive_nonstrict_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Disjoint2]), 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDisjunctiveConstraint]))
     def testDisjunctiveStrict: Unit = {
-        solve(task.copy(problemName = "disjunctive_strict_test"))
+        val result = solveWithResult(task.copy(problemName = "disjunctive_strict_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Disjoint2]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDisjunctiveConstraint]))
+    def testDisjunctiveStrictReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "disjunctive_strict_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Disjoint2]), 1)
     }
 
     @Test
@@ -201,33 +235,52 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasExactlyConstraint]))
-    def testExactly: Unit = {
-        solve(task.copy(problemName = "exactly_int_test"))
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
+    def testGlobalCardinality: Unit = {
+        val result = solveWithResult(task.copy(problemName = "global_cardinality_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
-    def testGlobalCardinality: Unit = {
-        solve(task.copy(problemName = "global_cardinality_test"))
+    def testGlobalCardinalityReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "global_cardinality_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
+    def testGlobalCardinalityLowUp: Unit = {
+        val result = solveWithResult(task.copy(problemName = "global_cardinality_low_up_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
+    def testGlobalCardinalityLowUpReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "global_cardinality_low_up_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseWithBoundedSearchVariables: Unit = {
-        solve(task.copy(problemName = "inverse_test_with_bounded_search_variables"))
+        val result = solveWithResult(task.copy(problemName = "inverse_test_with_bounded_search_variables"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Inverse]), 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseWithUnboundedSearchVariables: Unit = {
-        solve(task.copy(problemName = "inverse_test_with_unbounded_search_variables"))
+        val result = solveWithResult(task.copy(problemName = "inverse_test_with_unbounded_search_variables"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Inverse]), 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseWithChannelVariables: Unit = {
-        solve(task.copy(problemName = "inverse_test_with_channel_variables"))
+        val result = solveWithResult(task.copy(problemName = "inverse_test_with_channel_variables"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Inverse]), 1)
     }
 
     @Test
@@ -260,15 +313,66 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     }
 
     @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
+    def testInverseReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "inverse_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Inverse]), 2)
+    }
+
+    @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
     def testLexLessBool: Unit = {
-        solve(task.copy(problemName = "lex_less_bool_test"))
+        val result = solveWithResult(task.copy(problemName = "lex_less_bool_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[LexLess[_]]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
+    def testLexLessBoolReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "lex_less_bool_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[LexLess[_]]), 2)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
     def testLexLessEqBool: Unit = {
-        solve(task.copy(problemName = "lex_lesseq_bool_test"))
+        val result = solveWithResult(task.copy(problemName = "lex_lesseq_bool_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[LexLessEq[_]]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
+    def testLexLessEqBoolReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "lex_lesseq_bool_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[LexLessEq[_]]), 2)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
+    def testLexLessInt: Unit = {
+        val result = solveWithResult(task.copy(problemName = "lex_less_int_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[LexLess[_]]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
+    def testLexLessIntReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "lex_less_int_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[LexLess[_]]), 2)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
+    def testLexLessEqInt: Unit = {
+        val result = solveWithResult(task.copy(problemName = "lex_lesseq_int_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[LexLessEq[_]]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
+    def testLexLessEqIntReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "lex_lesseq_int_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[LexLessEq[_]]), 2)
     }
 
     @Test
@@ -284,27 +388,96 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     }
 
     @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
+    def testMemberInt: Unit = {
+        val result = solveWithResult(task.copy(problemName = "member_int_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[CountVar[_]]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
+    def testMemberIntReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "member_int_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[CountVar[_]]), 2)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
+    def testMemberBool: Unit = {
+        val result = solveWithResult(task.copy(problemName = "member_bool_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[CountVar[_]]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
+    def testMemberBoolReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "member_bool_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[CountVar[_]]), 2)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
+    def testMemberSet: Unit = {
+        val result = solveWithResult(task.copy(problemName = "member_set_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[CountVar[_]]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
+    def testMemberSetReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "member_set_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[CountVar[_]]), 2)
+    }
+
+    @Test
     @Category(Array(classOf[MaximizationProblem], classOf[HasNValueConstraint]))
     def testNValue: Unit = {
-        solve(task.copy(problemName = "nvalue_test"))
+        val result = solveWithResult(task.copy(problemName = "nvalue_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[NumberOfDistinctValues[_]]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[MaximizationProblem], classOf[HasNValueConstraint]))
+    def testNValueReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "nvalue_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[NumberOfDistinctValues[_]]), 2)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasRegularConstraint]))
     def testRegular: Unit = {
-        solve(task.copy(problemName = "regular_test"))
+        val result = solveWithResult(task.copy(problemName = "regular_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Regular]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasRegularConstraint]))
+    def testRegularReif: Unit = {
+        // The std library does not provide a decomposition for regular_reif,
+        // so we cannot verify the solution.
+        val result = solveWithResult(task.copy(problemName = "regular_reif_test", verifySolution = false))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Regular]), 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testRegularWithDuplicateInputVariables: Unit = {
-        solve(task.copy(problemName = "regular_test_with_duplicate_input_variables"))
+        val result = solveWithResult(task.copy(problemName = "regular_test_with_duplicate_input_variables"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Regular]), 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
     def testTableInt: Unit = {
-        solve(task.copy(problemName = "table_int_test"))
+        val result = solveWithResult(task.copy(problemName = "table_int_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IntegerTable]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
+    def testTableIntReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "table_int_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IntegerTable]), 1)
     }
 
     @Test

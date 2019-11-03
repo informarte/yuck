@@ -7,7 +7,7 @@
 * Yuck is a [FlatZinc](http://www.minizinc.org/downloads/doc-1.6/flatzinc-spec.pdf) interpreter that integrates with the [MiniZinc toolchain](http://www.minizinc.org/software).
 * Yuck's approach to problem solving is based in local search.
 * Yuck implements Boolean, integer, and integer set variables.
-* Yuck implements many global constraints, see [FlatZinc support](#flatzinc-support).
+* Yuck implements many global constraints and their reified counterparts, see [FlatZinc support](#flatzinc-support).
 * Yuck is provided under the terms of the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0).
 * In the [2017 MiniZinc challenge](http://www.minizinc.org/challenge2017/challenge.html), Yuck ranked second among local-search solvers.
 * In the [2018 MiniZinc challenge](http://www.minizinc.org/challenge2018/challenge.html), Yuck defended its second place in the local-search category.
@@ -22,13 +22,13 @@ When you decided for the ZIP package, proceed as follows:
 
 1. Make sure that a [Java runtime environment](https://openjdk.java.net/install) is available on your system; Yuck requires at least version 8.
 2. Unzip the package in a suitable location.
-3. To register Yuck as a backend for the MiniZinc toolchain, define the ```MZN_SOLVER_PATH``` environment variable to point to the ```mzn``` subfolder of the Yuck distribution. (For other ways of providing a solver configuration file to the MiniZinc toolchain, see the section on [Solver Configuration Files](http://www.minizinc.org/doc-2.2.0/en/fzn-spec.html#solver-configuration-files) of *The MiniZinc Handbook*.)
+3. To register Yuck as a backend for the MiniZinc toolchain, define the ```MZN_SOLVER_PATH``` environment variable to point to the ```mzn``` subfolder of the Yuck distribution. (For other ways of providing a solver configuration file to the MiniZinc toolchain, see the section on [Solver Configuration Files](http://www.minizinc.org/doc-2.3.2/en/fzn-spec.html#solver-configuration-files) of *The MiniZinc Handbook*.)
 
 The Docker image contains an OpenJDK Java runtime, the MiniZinc compiler and Yuck itself; it neither contains the MiniZinc IDE nor other solvers.
 
 ## Usage as MiniZinc backend
 
-To apply Yuck to MiniZinc models, you need a working [MiniZinc](https://www.minizinc.org/software.html) installation. This section assumes that you have at least version 2.2.2 installed and that Yuck has been properly registered as a MiniZinc backend (see above).
+To apply Yuck to MiniZinc models, you need a working [MiniZinc](https://www.minizinc.org/software.html) installation. This section assumes that you have at least version 2.3.2 installed and that Yuck has been properly registered as a MiniZinc backend (see above).
 
 To use Yuck from inside the MiniZinc IDE, just select it from the menu of solver configurations before running your model.
 
@@ -108,7 +108,7 @@ yuck -J-Xmx4g zebra.fzn
 
 Yuck's FlatZinc frontend supports all of FlatZinc except for float variables and float constraints.
 
-Yuck provides dedicated solvers for the following global MiniZinc constraints:
+Yuck provides dedicated solvers for the following global MiniZinc constraints and their reified counterparts:
 
 * all_different, all_different_except_0
 * at_least, at_most

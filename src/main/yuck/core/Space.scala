@@ -368,6 +368,10 @@ final class Space(
     /** Returns the number of constraints that were posted. */
     def numberOfConstraints: Int = constraints.size
 
+    /** Returns the number of constraints that were posted and satisfy the given predicate. */
+    def numberOfConstraints(p: Constraint => Boolean): Int =
+        constraints.iterator.filter(p).size
+
     /**
      * Marks the given constraint as implicit.
      *

@@ -46,7 +46,7 @@ object FlatZincParser extends RegexParsers {
         }
     lazy val index_set: Parser[Option[IntRange]] =
         "[" ~> int_range <~ "]" ^^ {case range => Some(range)} |
-        "[" ~ "int" ~ "]" ^^^ None
+        "[" ~ repsep("int", ",") ~ "]" ^^^ None
     lazy val int_set: Parser[IntSet] =
         "{" ~> repsep(int_const, ",") <~ "}" ^^ {
             l => IntSet((for (IntConst(e) <- l) yield e).toSet)

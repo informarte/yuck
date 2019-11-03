@@ -12,7 +12,7 @@ include "alldifferent.mzn";
 % will be skipped.)
 int: N = 512;
 
-array[1..N] of var 1..N: x;
+array [1..N] of var 1..N: x;
 
 % This is the implicit constraint.
 constraint alldifferent(x);
