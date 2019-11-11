@@ -107,8 +107,9 @@ class MiniZincSolutionVerifier(
             // Tell minizinc where to find the MiniZinc model.
             "-I", includePath,
             // To facilitate the verification of solutions found by Yuck, the following directory
-            // contains a redefinitions file that causes minizinc to ignore redundant constraints.
-            "-I", "resources/mzn/lib/std",
+            // contains a copy of the standard library with a redefinitions file that causes minizinc
+            // to ignore redundant constraints.
+            "--stdlib-dir", "resources/mzn/lib/verification",
             "--solver", "Gecode",
             "--output-mode", "dzn",
             "--output-objective",
