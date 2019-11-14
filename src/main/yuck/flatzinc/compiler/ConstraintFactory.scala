@@ -754,7 +754,7 @@ final class ConstraintFactory
             val xs = compileBoolArray(as)
             val ys = compileBoolArray(bs)
             val costs = createBoolChannel
-            space.post(new LexLess(nextConstraintId, maybeGoal, xs, ys, costs)(booleanSequenceOrdering))
+            space.post(new LexLess(nextConstraintId, maybeGoal, xs, ys, costs)(booleanOrdering))
             List(costs)
         case Constraint("fzn_lex_less_set", List(as, bs), _) =>
             val xs = compileIntSetArray(as)
@@ -772,7 +772,7 @@ final class ConstraintFactory
             val xs = compileBoolArray(as)
             val ys = compileBoolArray(bs)
             val costs = createBoolChannel
-            space.post(new LexLessEq(nextConstraintId, maybeGoal, xs, ys, costs)(booleanSequenceOrdering))
+            space.post(new LexLessEq(nextConstraintId, maybeGoal, xs, ys, costs)(booleanOrdering))
             List(costs)
         case Constraint("fzn_lex_lesseq_set", List(as, bs), _) =>
             val xs = compileIntSetArray(as)

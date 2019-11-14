@@ -388,6 +388,34 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
+    def testLexLessSet: Unit = {
+        val result = solveWithResult(task.copy(problemName = "lex_less_set_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[LexLess[_]]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
+    def testLexLessSetReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "lex_less_set_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[LexLess[_]]), 2)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
+    def testLexLessEqSet: Unit = {
+        val result = solveWithResult(task.copy(problemName = "lex_lesseq_set_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[LexLessEq[_]]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
+    def testLexLessEqSetReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "lex_lesseq_set_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[LexLessEq[_]]), 2)
+    }
+
+    @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMaximumConstraint]))
     def testMaximum: Unit = {
         solve(task.copy(problemName = "maximum_int_test"))

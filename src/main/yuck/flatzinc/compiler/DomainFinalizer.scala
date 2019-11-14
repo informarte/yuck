@@ -29,7 +29,7 @@ final class DomainFinalizer
                     finalizeBooleanDomain(BooleanValueTraits.safeDowncast(x), dx)
                 case dx: IntegerDomain =>
                     finalizeIntegerDomain(IntegerValueTraits.safeDowncast(x), dx)
-                case dx: IntegerPowersetDomain =>
+                case dx: IntegerSetDomain =>
                     finalizeIntegerSetDomain(IntegerSetValueTraits.safeDowncast(x), dx)
             }
             cc.logger.logg("Domain of %s is %s".format(x, x.domain))
@@ -69,11 +69,16 @@ final class DomainFinalizer
         }
     }
 
-    private def finalizeIntegerSetDomain(x: IntegerSetVariable, dx: IntegerPowersetDomain): Unit = {
+    private def finalizeIntegerSetDomain(x: IntegerSetVariable, dx: IntegerSetDomain): Unit = {
         if (dx.isBounded) {
             if (cc.space.isChannelVariable(x)) {
                 val costs = createBoolChannel
-                cc.space.post(new Subset(nextConstraintId, null, x, dx.base, costs))
+                dx match {
+                    case dx: IntegerPowersetDomain =>
+                        cc.space.post(new Subset(nextConstraintId, null, x, dx.base, costs))
+                    case dx: SingletonIntegerSetDomain =>
+                        cc.space.post(new Eq(nextConstraintId, null, x, dx.base, costs))
+                }
                 cc.costVars += costs
             } else {
                 if (dx.isSingleton) {

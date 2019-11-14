@@ -39,8 +39,15 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         case _ => ???
     }
     final override def intersect(that: Domain[IntegerSetValue]): IntegerSetDomain = (this, that) match {
-        case (lhs: IntegerPowersetDomain, rhs: IntegerPowersetDomain) => lhs.intersect(rhs)
-        case _ => !!!
+        case (lhs: IntegerPowersetDomain, rhs: IntegerPowersetDomain) =>
+            lhs.intersect(rhs)
+        case (lhs: IntegerPowersetDomain, rhs: SingletonIntegerSetDomain) =>
+            if (rhs.singleValue.set.isSubsetOf(lhs.base)) rhs else ???
+        case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowersetDomain) =>
+            if (lhs.singleValue.set.isSubsetOf(rhs.base)) lhs else ???
+        case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) =>
+            if (lhs == rhs) lhs else ???
+        case _ => ???
     }
     final override def union(that: Domain[IntegerSetValue]): IntegerSetDomain = (this, that) match {
         case _ => !!!

@@ -2,9 +2,7 @@ package yuck.constraints.test
 
 import org.junit._
 
-import scala.collection._
-
-import yuck.constraints._
+import yuck.constraints.LtRelation
 import yuck.core._
 import yuck.util.testing.UnitTest
 
@@ -14,49 +12,52 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class LexLessTest extends UnitTest {
+final class LexLessTest extends UnitTest with LexTestTooling[IntegerValue] {
+
+    override protected val valueTraits = IntegerValueTraits
+    override protected val space = new  Space(logger, sigint)
 
     @Test
-    def testLexLess: Unit = {
-        val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
-        val s = new IntegerVariable(space.nextVariableId, "s", d)
-        val t = new IntegerVariable(space.nextVariableId, "t", d)
-        val u = new IntegerVariable(space.nextVariableId, "u", d)
-        val v = new IntegerVariable(space.nextVariableId, "v", d)
-        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        val c =
-            new LexLess(
-                space.nextConstraintId, null,
-                immutable.IndexedSeq(s, t), immutable.IndexedSeq(u, v), costs)
-        space
-            .post(c)
-            .setValue(s, One)
-            .setValue(t, One)
-            .setValue(u, One)
-            .setValue(v, One)
-            .initialize
-        assertEq(space.searchVariables, Set(s, t, u, v))
-        val now = space.searchState
-        assertEq(now.value(costs), False)
-        if (true) {
-            // t = 5
-            val move = new ChangeValue(space.nextMoveId, t, Five)
-            val after = space.consult(move)
-            assertEq(after.value(costs), False5)
-            space.commit(move)
-            assertEq(now.value(costs), False5)
-        }
-        if (true) {
-            // s = 0
-            val move = new ChangeValue(space.nextMoveId, s, Zero)
-            val after = space.consult(move)
-            assertEq(after.value(costs), True)
-            space.commit(move)
-            assertEq(now.value(costs), True)
-        }
-        space.initialize
-        assertEq(now.value(costs), True)
+    def test33: Unit = {
+        runScenario(
+            TestScenario(
+                LtRelation,
+                3, 3,
+                TestStep(False, (X(1), One), (X(2), One), (X(3), One), (Y(1), One), (Y(2), One), (Y(3), One)),
+                TestStep(True, (X(1), Zero)),
+                TestStep(True, (X(1), One), (X(2), Zero)),
+                TestStep(True, (X(2), One), (X(3), Zero)),
+                TestStep(False, (Y(3), Zero)),
+                TestStep(False2, (Y(2), Zero)),
+                TestStep(False3, (Y(1), Zero))))
+    }
+
+    @Test
+    def test23: Unit = {
+        runScenario(
+            TestScenario(
+                LtRelation,
+                2, 3,
+                TestStep(True, (X(1), One), (X(2), One), (Y(1), One), (Y(2), One), (Y(3), One)),
+                TestStep(True, (Y(3), Zero)),
+                TestStep(False, (Y(2), Zero)),
+                TestStep(False2, (Y(1), Zero)),
+                TestStep(False, (X(1), Zero)),
+                TestStep(True, (X(2), Zero))))
+    }
+
+    @Test
+    def test32: Unit = {
+        runScenario(
+            TestScenario(
+                LtRelation,
+                3, 2,
+                TestStep(False, (X(1), One), (X(2), One), (X(3), One), (Y(1), One), (Y(2), One)),
+                TestStep(False, (X(3), Zero)),
+                TestStep(True, (X(2), Zero)),
+                TestStep(True, (X(1), Zero)),
+                TestStep(True, (Y(1), Zero)),
+                TestStep(False, (Y(2), Zero))))
     }
 
 }
