@@ -8,6 +8,7 @@
 * Yuck's approach to problem solving is based in local search.
 * Yuck implements Boolean, integer, and integer set variables.
 * Yuck implements many global constraints and their reified counterparts, see [FlatZinc support](#flatzinc-support).
+* Yuck features a mechanism to turn Boolean MiniZinc expressions (including applications of global constraints) into soft constraints, see [bool2costs](#bool2costs).
 * Yuck is provided under the terms of the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0).
 * In the [2017 MiniZinc challenge](http://www.minizinc.org/challenge2017/challenge.html), Yuck ranked second among local-search solvers.
 * In the [2018 MiniZinc challenge](http://www.minizinc.org/challenge2018/challenge.html), Yuck defended its second place in the local-search category.
@@ -143,10 +144,77 @@ When used as a FlatZinc interpreter, Yuck proceeds as follows:
 * It uses restarting to increase robustness: When a solver terminates without having reached its objective, it gets replaced by a new one starting out from another random assignment.
 * When Yuck is configured to use multiple threads, restarting turns into parallel solving: Given a thread pool and a stream of solvers with a common objective, Yuck submits the solvers to the thread pool and, when one of the solvers provides a solution that satisfies the objective, Yuck discards all running and pending solvers.
 
+## bool2costs
+
+bool2costs is a function which measures how much the current assignment of values to problem variables violates a given Boolean MiniZinc expression. The smaller the violation, the lower the result and 0 means that the expression is satisfied.
+
+bool2costs can be used to turn Boolean MiniZinc expressions into soft constraints, for example:
+
+```
+include "disjunctive.mzn";
+include "yuck.mzn";
+
+array [1..4] of var int: o;
+array [1..4] of var int: d;
+
+constraint o[1] in 2..5 /\ d[1] in 2..4;
+constraint o[2] in 2..4 /\ d[2] in 1..6;
+constraint o[3] in 3..6 /\ d[3] in 4..4;
+constraint o[4] in 2..7 /\ d[4] in 1..3;
+
+var int: overlap = bool2costs(disjunctive(o, d));
+
+solve minimize(overlap);
+
+output [
+    "o = ", show(o), "\n",
+    "d = ", show(d), "\n",
+    "overlap = ", show(overlap)];
+```
+
+Applying Yuck to this problem will result in:
+
+```
+o = [2, 4, 5, 2]
+d = [2, 6, 4, 3]
+overlap = 7
+----------
+o = [2, 4, 5, 7]
+d = [2, 4, 4, 3]
+overlap = 6
+----------
+o = [2, 4, 5, 7]
+d = [2, 2, 4, 3]
+overlap = 3
+----------
+o = [2, 4, 6, 4]
+d = [2, 1, 4, 3]
+overlap = 2
+----------
+o = [2, 4, 6, 4]
+d = [2, 1, 4, 1]
+overlap = 1
+----------
+o = [4, 2, 6, 3]
+d = [2, 1, 4, 1]
+overlap = 0
+----------
+==========
+```
+
+bool2costs is defined for every constraint implemented by Yuck, including all the global constraints listed above. The underlying cost models are not yet documented in detail but most of them are quite intuitive. For example:
+
+- bool2costs(*x* = *y*) = abs(value assigned to *x* - value assigned to *y*)
+- bool2costs(e1 /\ e2) = bool2costs(e1) + bool2costs(e2)
+- bool2costs(disjunctive(s, d)) computes how much each pair of tasks overlaps and returns the sum of these overlaps.
+
+To use bool2costs, you have to include `yuck.mzn`.
+
+Keep in mind, though, that bool2costs is a non-standard MiniZinc extension which is not supported by other MiniZinc backends.
+
 ## Future work
 
 * Implement among, circuit, subcircuit, ...
-* Provide soft constraints
 * Reduce dependence on integration testing by adding more unit tests
 * Provide libraries with Yuck core functionality
 

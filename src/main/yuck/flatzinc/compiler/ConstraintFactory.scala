@@ -176,6 +176,20 @@ final class ConstraintFactory
             }
             compileConstraint(constraint, List(a), b, withFunctionalDependency, withoutFunctionalDependency)
         }
+        case Constraint("bool2costs", List(a, b), _) => {
+            val x = compileBoolExpr(a)
+            val y = compileIntExpr(b)
+            def withFunctionalDependency = {
+                space.post(new Bool2Costs1(nextConstraintId, maybeGoal, x, y))
+                Nil
+            }
+            def withoutFunctionalDependency = {
+                val costs = createBoolChannel
+                space.post(new Bool2Costs2(nextConstraintId, maybeGoal, x, y, costs))
+                List(costs)
+            }
+            compileConstraint(constraint, List(a), b, withFunctionalDependency, withoutFunctionalDependency)
+        }
         case Constraint("bool_not", List(a, b), _) =>
             def withFunctionalDependency = {
                 space.post(new Not(nextConstraintId, maybeGoal, a, b))

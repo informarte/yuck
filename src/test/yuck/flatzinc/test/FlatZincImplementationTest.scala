@@ -41,6 +41,9 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     private def neighbourhood(result: Result): Neighbourhood =
         result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult].maybeNeighbourhood.get
 
+    private def quality(result: Result): AnyValue =
+        result.costsOfBestProposal.asInstanceOf[PolymorphicListValue].value(1)
+
     private implicit def createTask(problemName: String): MiniZincTestTask = task.copy(problemName = problemName)
 
     @Test
@@ -146,6 +149,14 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     def testBinPackingLoadReif: Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_reif_test"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 2)
+    }
+
+    @Test
+    @Category(Array(classOf[MinimizationProblem], classOf[HasDisjunctiveConstraint]))
+    def testBool2CostsFunction: Unit = {
+        val result = solveWithResult(task.copy(problemName = "bool2costs_function_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Disjoint2]), 1)
+        assertEq(quality(result), Zero)
     }
 
     @Test
