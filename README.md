@@ -6,8 +6,8 @@
 
 * Yuck is a [FlatZinc](http://www.minizinc.org/downloads/doc-1.6/flatzinc-spec.pdf) interpreter that integrates with the [MiniZinc toolchain](http://www.minizinc.org/software).
 * Yuck's approach to problem solving is based in local search.
-* Yuck implements Boolean, integer, and integer set variables.
-* Yuck implements many global constraints and their reified counterparts, see [FlatZinc support](#flatzinc-support).
+* Yuck implements Boolean, integer, and integer set variables, see [FlatZinc support](#flatzinc-support).
+* Yuck implements many global constraints and their reified counterparts, see [Global constraints](#global-constraints).
 * Yuck features a mechanism to turn Boolean MiniZinc expressions (including applications of global constraints) into soft constraints, see [bool2costs](#bool2costs).
 * Yuck is provided under the terms of the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0).
 * In the [2017 MiniZinc challenge](http://www.minizinc.org/challenge2017/challenge.html), Yuck ranked second among local-search solvers.
@@ -109,6 +109,18 @@ yuck -J-Xmx4g zebra.fzn
 
 Yuck's FlatZinc frontend supports all of FlatZinc except for float variables and float constraints.
 
+When used as a FlatZinc interpreter, Yuck proceeds as follows:
+
+* It performs a limited amount of constraint propagation to reduce variable domains before starting local search.
+* It eliminates variables by exploiting equality constraints.
+* It identifies and exploits functional dependencies to reduce the number of decision variables.
+* It uses an annealing schedule that interleaves adaptive cooling with geometric reheating.
+* In move generation, it concentrates on variables that are involved in constraint violations.
+* It uses restarting to increase robustness: When a solver terminates without having reached its objective, it gets replaced by a new one starting out from another random assignment.
+* When Yuck is configured to use multiple threads, restarting turns into parallel solving: Given a thread pool and a stream of solvers with a common objective, Yuck submits the solvers to the thread pool and, when one of the solvers provides a solution that satisfies the objective, Yuck discards all running and pending solvers.
+
+## Global constraints
+
 Yuck provides dedicated solvers for the following global MiniZinc constraints and their reified counterparts:
 
 * all_different, all_different_except_0
@@ -133,16 +145,6 @@ Yuck provides dedicated neighbourhoods for the following global MiniZinc constra
 
 * all_different
 * inverse
-
-When used as a FlatZinc interpreter, Yuck proceeds as follows:
-
-* It performs a limited amount of constraint propagation to reduce variable domains before starting local search.
-* It eliminates variables by exploiting equality constraints.
-* It identifies and exploits functional dependencies to reduce the number of decision variables.
-* It uses an annealing schedule that interleaves adaptive cooling with geometric reheating.
-* In move generation, it concentrates on variables that are involved in constraint violations.
-* It uses restarting to increase robustness: When a solver terminates without having reached its objective, it gets replaced by a new one starting out from another random assignment.
-* When Yuck is configured to use multiple threads, restarting turns into parallel solving: Given a thread pool and a stream of solvers with a common objective, Yuck submits the solvers to the thread pool and, when one of the solvers provides a solution that satisfies the objective, Yuck discards all running and pending solvers.
 
 ## bool2costs
 
