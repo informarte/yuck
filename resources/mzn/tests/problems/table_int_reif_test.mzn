@@ -1,6 +1,7 @@
 include "table_int_test_scenario.mzn";
 include "table.mzn";
+include "yuck.mzn";
 
-constraint bool2int(table(x, t), 1);
+constraint bool2costs(table(x, t), 0);
 
 solve satisfy;
