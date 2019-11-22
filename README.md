@@ -13,6 +13,10 @@
 * In the [2017 MiniZinc challenge](http://www.minizinc.org/challenge2017/challenge.html), Yuck ranked second among local-search solvers.
 * In the [2018 MiniZinc challenge](http://www.minizinc.org/challenge2018/challenge.html), Yuck defended its second place in the local-search category.
 
+## Contact
+
+When you are using Yuck or you are considering to use it, and you have a question, want to report an issue, request a feature, share a success story, give feedback, or even get involved in development, then there are two ways to get into contact: Either raise an issue on the [Yuck issue tracker](https://github.com/informarte/yuck/issues) or send an email to yuck-solver@freenet.de.
+
 ## Download and installation
 
 Yuck packages are available from the [Releases page](https://github.com/informarte/yuck/releases); there are a Debian package (suitable for all Debian based systems, including Ubuntu and its offspring) and a ZIP package (suitable for all other systems). Moreover, a Docker image is available from [DockerHub](https://hub.docker.com/r/informarte/yuck).
