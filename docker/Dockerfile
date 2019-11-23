@@ -8,6 +8,7 @@ RUN apt-get update
 
 # Install Java runtime
 RUN apt-get install -y default-jre-headless && \
+    apt-get clean && \
     java -version
 ENV JAVA_OPTS -server -Xmx2G -XX:+UseParallelGC -XX:+AggressiveHeap
 
@@ -23,6 +24,7 @@ RUN apt-get install -y bison clang cmake flex git && \
     cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr/local .. && \
     cmake --build . --target install && \
     apt-get remove -y --purge --autoremove bison clang cmake flex git && \
+    apt-get clean && \
     cd ../.. && \
     rm -fr libminizinc
 
@@ -34,4 +36,5 @@ RUN apt-get install -y wget && \
     dpkg -i yuck.deb && \
     yuck --version && \
     apt-get remove -y --purge --autoremove wget && \
+    apt-get clean && \
     rm -f yuck.deb
