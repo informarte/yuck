@@ -1,9 +1,8 @@
 package yuck.core.test
 
 import scala.collection._
-
 import yuck.core._
-import yuck.util.logging.LazyLogger
+import yuck.util.logging.{FineLogLevel, LazyLogger}
 import yuck.util.testing.{EqualityTestHelper, YuckAssert}
 
 /**
@@ -13,8 +12,10 @@ import yuck.util.testing.{EqualityTestHelper, YuckAssert}
 class DomainTestHelper[Value <: AnyValue](logger: LazyLogger) extends YuckAssert {
 
     def testEquality(testData: Seq[Domain[Value]]): Unit = {
-        logger.withLogScope("Test data") {
-            testData.foreach(item => logger.log(item.toString))
+        logger.withRootLogLevel(FineLogLevel) {
+            logger.withLogScope("Test data") {
+                testData.foreach(item => logger.log(item.toString))
+            }
         }
         val helper = new EqualityTestHelper[Domain[Value]]
         helper.testEquality(testData)

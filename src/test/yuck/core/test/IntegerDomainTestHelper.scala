@@ -1,9 +1,8 @@
 package yuck.core.test
 
 import scala.collection._
-
 import yuck.core._
-import yuck.util.logging.LazyLogger
+import yuck.util.logging.{FineLogLevel, LazyLogger}
 
 /**
  * @author Michael Marte
@@ -466,8 +465,10 @@ final class IntegerDomainTestHelper
     }
 
     def testOperations(dl: Seq[IntegerDomain], vl: Seq[IntegerValue]): Unit = {
-        logger.withLogScope("Test data") {
-            dl.foreach(d => logger.log(d.toString))
+        logger.withRootLogLevel(FineLogLevel) {
+            logger.withLogScope("Test data") {
+                dl.foreach(d => logger.log(d.toString))
+            }
         }
         require(dl.size > 1)
         require(! vl.isEmpty)

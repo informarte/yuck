@@ -1,10 +1,9 @@
 package yuck.core.test
 
 import scala.collection.Seq
-
 import yuck.core._
 import yuck.util.OrderingFromOrdered
-import yuck.util.logging.LazyLogger
+import yuck.util.logging.{FineLogLevel, LazyLogger}
 import yuck.util.testing.OrderingTestHelper
 
 /**
@@ -22,8 +21,10 @@ class OrderedDomainTestHelper
         (testData: Seq[Domain]):
         Unit =
     {
-        logger.withLogScope("Test data") {
-            testData.foreach(item => logger.log(item.toString))
+        logger.withRootLogLevel(FineLogLevel) {
+            logger.withLogScope("Test data") {
+                testData.foreach(item => logger.log(item.toString))
+            }
         }
         val helper = new OrderingTestHelper[Domain](randomGenerator)
         val ord = new OrderingFromOrdered[Domain]

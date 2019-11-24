@@ -103,7 +103,7 @@ class MiniZincSolutionVerifier(
         solutionWriter.close
         val minizincCommand = mutable.ArrayBuffer(
             "minizinc",
-            "-v",
+             "-v",
             // Tell minizinc where to find the MiniZinc model.
             "-I", includePath,
             // To facilitate the verification of solutions found by Yuck, the following directory

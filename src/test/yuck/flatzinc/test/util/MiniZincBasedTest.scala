@@ -1,9 +1,7 @@
 package yuck.flatzinc.test.util
 
 import scala.collection._
-
 import spray.json._
-
 import yuck.BuildInfo
 import yuck.annealing._
 import yuck.core._
@@ -12,6 +10,7 @@ import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.flatzinc.parser._
 import yuck.flatzinc.runner._
 import yuck.util.arm._
+import yuck.util.logging.FineLogLevel
 import yuck.util.testing.{IntegrationTest, ProcessRunner}
 
 /**
@@ -130,9 +129,12 @@ class MiniZincBasedTest extends IntegrationTest {
             "--no-output-ozn", "--output-fzn-to-file", fznFilePath)
         mzn2fznCommand += mznFilePath
         if (! dznFilePath.isEmpty) mzn2fznCommand += dznFilePath
-        val (_, errorLines) = logger.withTimedLogScope("Flattening MiniZinc model") {
-            new ProcessRunner(logger, mzn2fznCommand).call
-        }
+        val (_, errorLines) =
+            logger.withTimedLogScope("Flattening MiniZinc model") {
+                logger.withRootLogLevel(FineLogLevel) {
+                    new ProcessRunner(logger, mzn2fznCommand).call
+                }
+            }
         logMiniZincVersion(errorLines.head)
         val cfg =
             task.solverConfiguration.copy(
@@ -183,9 +185,11 @@ class MiniZincBasedTest extends IntegrationTest {
             result.isSolution || ! task.assertWhenUnsolved)
         if (result.isSolution && task.verifySolution) {
             logger.withTimedLogScope("Verifying solution") {
-                assert(
-                    "Solution not verified",
-                    new MiniZincSolutionVerifier(task, result, logger).call)
+                logger.withRootLogLevel(FineLogLevel) {
+                    assert(
+                        "Solution not verified",
+                        new MiniZincSolutionVerifier(task, result, logger).call)
+                }
             }
         }
         result
