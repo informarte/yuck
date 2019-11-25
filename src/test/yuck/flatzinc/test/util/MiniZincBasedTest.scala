@@ -123,8 +123,10 @@ class MiniZincBasedTest extends IntegrationTest {
         mznFilePath: String, dznFilePath: String, fznFilePath: String, jsonFilePath: String): Result =
     {
         val mzn2fznCommand = mutable.ArrayBuffer(
-            "mzn2fzn",
+            "minizinc",
             "-v",
+            "-c",
+            "--solver", "org.minizinc.mzn-fzn",
             "-I", "resources/mzn/lib/yuck",
             "--no-output-ozn", "--output-fzn-to-file", fznFilePath)
         mzn2fznCommand += mznFilePath
