@@ -26,8 +26,12 @@ class VariableClassifier
 
     private def classifyVars: Unit = {
         for (constraint <- cc.ast.constraints) {
-            for (Annotation(Term("defines_var", List(a))) <- constraint.annotations) {
-                definedVars += compileAnyExpr(a)
+            for (annotation <- constraint.annotations) {
+                annotation match {
+                    case Annotation(Term("defines_var", List(a))) => definedVars += compileAnyExpr(a)
+                    case Annotation(Term("defines_vars", List(a))) => definedVars ++= compileAnyArray(a)
+                    case _ =>
+                }
             }
         }
         for (Annotation(expr) <- cc.ast.solveGoal.annotations) {

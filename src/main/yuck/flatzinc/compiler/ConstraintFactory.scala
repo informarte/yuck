@@ -46,9 +46,12 @@ final class ConstraintFactory
         constraint
         .annotations
         .iterator
-        .map(_.term)
-        .map(_ match {case Term("defines_var", List(a)) => Some(compileAnyExpr(a)); case _ => None})
-        .contains(Some(out))
+        .flatMap(_.term match {
+            case Term("defines_var", List(a)) => List(compileAnyExpr(a))
+            case Term("defines_vars", List(a)) => compileAnyArray(a)
+            case _ => Nil
+        })
+        .contains(out)
     }
 
     private val fakeConstraintId = new Id[yuck.core.Constraint](-1)

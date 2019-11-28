@@ -8,8 +8,7 @@ predicate fzn_global_cardinality_low_up_reif(
     var bool: satisfied)
 =
     let {
-        array [index_set(cover)] of var int: counts;
+        array [int] of var int: count = global_cardinality(x, cover);
     } in satisfied <-> (
-        forall(i in index_set(cover))(counts[i] in lb[i]..ub[i]) /\
-        global_cardinality(x, cover, counts)
+        forall(i in index_set(cover))(count[i] in lb[i]..ub[i])
     );

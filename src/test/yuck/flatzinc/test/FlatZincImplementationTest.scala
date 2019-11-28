@@ -250,6 +250,7 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     def testGlobalCardinality: Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_test"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+        assertEq(result.space.searchVariables.size, 4)
     }
 
     @Test
@@ -257,6 +258,23 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     def testGlobalCardinalityReif: Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_reif_test"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+        assertEq(result.space.searchVariables.size, 4)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
+    def testGlobalCardinalityFn: Unit = {
+        val result = solveWithResult(task.copy(problemName = "global_cardinality_fn_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+        assertEq(result.space.searchVariables.size, 3)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
+    def testGlobalCardinalityClosedFn: Unit = {
+        val result = solveWithResult(task.copy(problemName = "global_cardinality_closed_fn_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+        assertEq(result.space.searchVariables.size, 3)
     }
 
     @Test
@@ -264,6 +282,7 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     def testGlobalCardinalityLowUp: Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_low_up_test"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+        assertEq(result.space.searchVariables.size, 3)
     }
 
     @Test
@@ -271,6 +290,7 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     def testGlobalCardinalityLowUpReif: Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_low_up_reif_test"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+        assertEq(result.space.searchVariables.size, 3)
     }
 
     @Test
