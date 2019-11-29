@@ -1,21 +1,16 @@
-include "cumulative.mzn";
+include "bin_packing_load_fn.mzn";
 
 predicate fzn_bin_packing_capa(
-    array [int] of int: c,
+    array [int] of int: capacity,
     array [int] of var int: bin,
-    array [int] of int: w)
+    array [int] of int: weight)
 =
     forall(i in index_set(bin))(
-        min(index_set(c)) <= bin[i] /\ bin[i] <= max(index_set(c))
+        min(index_set(capacity)) <= bin[i] /\ bin[i] <= max(index_set(capacity))
     )
     /\
     let {
-        int: maxc = max(c);
-        array [int] of int: fixed = [i | i in index_set(c) where c[i] < maxc];
+        array [int] of var int: load = bin_packing_load(bin, weight);
     } in (
-        cumulative(
-            bin ++ fixed,
-            [1 | i in bin ++ fixed],
-            w ++ [maxc - c[i] | i in fixed],
-            maxc)
+        forall(i in index_set(load))(load[i] <= capacity[i])
     );

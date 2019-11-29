@@ -1,14 +1,8 @@
 include "bin_packing.mzn";
+include "bin_packing_test_scenario.mzn";
 
-int: N = 5;
-int: B = 2;
+int: capacity = 10;
 
-array [1..N] of var 1..B: bin;
-array [1..N] of int: w = [1, 2, 3, 4, 5];
-int: c = 10;
-
-constraint bin_packing(c, bin, w) \/ bin_packing(c, bin, reverse(w));
+constraint bin_packing(capacity, bin, weight) \/ bin_packing(capacity, bin, reverse(weight));
 
 solve satisfy;
-
-output ["bin = ", show(bin)];

@@ -99,28 +99,33 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPacking: Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_test"))
-        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Cumulative]), 1)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+        assertEq(result.space.searchVariables.size, 6)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingReif: Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_reif_test"))
-        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Cumulative]), 2)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 2)
+        assertEq(result.space.searchVariables.size, 6)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingCapa: Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_capa_test"))
-        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Cumulative]), 1)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+        assertEq(result.space.searchVariables.size, 6)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingCapaReif: Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_capa_reif_test"))
-        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Cumulative]), 2)
+        // minizinc eliminates one of the bin_packing_load constraints :-)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+        assertEq(result.space.searchVariables.size, 6)
     }
 
     @Test
@@ -128,6 +133,7 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     def testBinPackingLoadWithUnboundedLoadVariables: Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_unbounded_load_variables"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+        assertEq(result.space.searchVariables.size, 6)
     }
 
     @Test
@@ -135,6 +141,7 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     def testBinPackingLoadWithEqualLoadVariables: Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_equal_load_variables"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+        assertEq(result.space.searchVariables.size, 7)
     }
 
     @Test
@@ -142,6 +149,7 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     def testBinPackingLoadWithDuplicateBinVariables: Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_duplicate_bin_variables"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+        assertEq(result.space.searchVariables.size, 8)
     }
 
     @Test
@@ -149,6 +157,15 @@ final class FlatZincImplementationTest extends MiniZincBasedTest {
     def testBinPackingLoadReif: Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_reif_test"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 2)
+        assertEq(result.space.searchVariables.size, 9)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    def testBinPackingLoadFn: Unit = {
+        val result = solveWithResult(task.copy(problemName = "bin_packing_load_fn_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+        assertEq(result.space.searchVariables.size, 6)
     }
 
     @Test
