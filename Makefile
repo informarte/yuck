@@ -4,7 +4,7 @@ ci-tests: yuck.test.ContinuousIntegrationTestSuite
 
 unit-tests: yuck.test.UnitTestSuite
 
-minizinc-tests: yuck.flatzinc.test.FlatZincImplementationTest
+front-end-tests: yuck.flatzinc.test.FrontEndTestSuite
 
 minizinc-examples: yuck.flatzinc.test.TractableMiniZincExamples
 

@@ -111,7 +111,7 @@ yuck -J-Xmx4g zebra.fzn
 
 ## FlatZinc support
 
-Yuck's FlatZinc frontend supports all of FlatZinc except for float variables and float constraints.
+Yuck's FlatZinc front end supports all of FlatZinc except for float variables and float constraints.
 
 When used as a FlatZinc interpreter, Yuck proceeds as follows:
 
@@ -245,7 +245,7 @@ Yuck tests are based on [JUnit 4](http://junit.org/junit4/),
 [MiniZinc 2.3.x](http://www.minizinc.org/software.html).
 
 * `make unit-tests` builds and runs all unit tests.
-* `make minizinc-tests` runs all FlatZinc frontend tests.
+* `make front-end-tests` runs all FlatZinc front-end tests.
 * `make minizinc-examples` exercises Yuck on a subset of the MiniZinc 1.6 examples.
 * `make ci-tests` runs all these tests.
 

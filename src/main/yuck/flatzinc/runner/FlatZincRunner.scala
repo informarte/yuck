@@ -44,7 +44,7 @@ object FlatZincRunner {
         val defaultCfg = defaultCl.cfg
         val logLevels = yuck.util.logging.logLevels
         val logLevelMap = logLevels.map(level => (level.toString -> level)).toMap
-        head("Yuck FlatZinc frontend", BuildInfo.version)
+        head("Yuck FlatZinc front end", BuildInfo.version)
         help("help").abbr("h").text("Show this help message")
         version("version")
         // -f is used by MiniZinc challenge scripts!

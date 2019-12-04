@@ -3,9 +3,9 @@ package yuck.flatzinc.test
 import org.junit._
 
 /**
- * @author Michael Marte
+ * Big integration test suite
  *
- * Big suite for testing the compiler.
+ * @author Michael Marte
  */
 @runner.RunWith(classOf[runners.Suite])
 @runners.Suite.SuiteClasses(
