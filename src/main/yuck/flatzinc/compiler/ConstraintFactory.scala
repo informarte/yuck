@@ -60,7 +60,7 @@ final class ConstraintFactory
     // introducing a cycle.
     // Notice that this method may be quite expensive!
     private def definesVar(
-        constraint: yuck.flatzinc.ast.Constraint, in: Seq[AnyVariable], out: AnyVariable): Boolean =
+        constraint: yuck.flatzinc.ast.Constraint, in: Iterable[AnyVariable], out: AnyVariable): Boolean =
     {
         ! out.domain.isSingleton &&
         ! cc.searchVars.contains(out) &&
@@ -874,18 +874,19 @@ final class ConstraintFactory
         (implicit valueTraits: NumericalValueTraits[Load]):
         Iterable[BooleanVariable] =
     {
-        val bin2Weight = new mutable.AnyRefMap[IntegerVariable, Load]
-        for (item <- items) {
-            require(item.weight >= valueTraits.zero)
-            bin2Weight += item.bin -> (bin2Weight.getOrElse(item.bin, valueTraits.zero) + item.weight)
-        }
-        val itemGenerator =
-            for ((bin, weight) <- bin2Weight.iterator if weight > valueTraits.zero)
-                yield new BinPackingItem(bin, weight)
-        val items1 = itemGenerator.toIndexedSeq
-        val loadGenerator = {
+        require(items.forall(_.weight >= valueTraits.zero))
+        val items1: immutable.IndexedSeq[BinPackingItem[Load]] =
+            items
+            .foldLeft(immutable.Map.empty[IntegerVariable, Load]){
+                case (map, item) => map.updated(item.bin, map.getOrElse(item.bin, valueTraits.zero) + item.weight)
+            }
+            .iterator
+            .filter{case (_, weight) => weight > valueTraits.zero}
+            .map{case (bin, weight) => new BinPackingItem(bin, weight)}
+            .toIndexedSeq
+        val loads1: immutable.Map[Int, NumericalVariable[Load]] = {
             val bins = items1.map(_.bin)
-            val definedVars = new mutable.HashSet[Variable[Load]]
+            val definedVars = new mutable.HashSet[NumericalVariable[Load]]
             for ((bin, load) <- loads) yield
                 if (! definedVars.contains(load) && definesVar(constraint, bins, loads(bin))) {
                     definedVars += load
@@ -893,15 +894,14 @@ final class ConstraintFactory
                 }
                 else bin -> createNonNegativeChannel[Load]
         }
-        val loads1 = loadGenerator.toMap
         space.post(new BinPacking[Load](nextConstraintId, maybeGoal, items1, loads1))
-        val deltaGenerator =
+        val deltas: immutable.Iterable[BooleanVariable] =
             for ((bin, load) <- loads if load != loads1(bin)) yield {
                 val delta = createBoolChannel
                 space.post(new Eq[Load](nextConstraintId, maybeGoal, load, loads1(bin), delta))
                 delta
             }
-        deltaGenerator.toSeq
+        deltas
     }
 
     private def compileLinearCombination
