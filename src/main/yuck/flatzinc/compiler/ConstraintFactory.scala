@@ -1092,22 +1092,18 @@ final class ConstraintFactory
             }
             compileConstraint(reifiedConstraint, Nil, satisfied, withFunctionalDependency, withoutFunctionalDependency)
         } else {
-            val costs0 = compileConstraint(maybeGoal, constraint).toList
+            val costs0 = compileConstraint(maybeGoal, constraint).toIndexedSeq
             def withFunctionalDependency = {
                 space.post(new Sum(nextConstraintId, maybeGoal, costs0, satisfied))
                 Nil
             }
             def withoutFunctionalDependency = {
-                val costs1 =
-                    if (costs0.size == 1)
-                        costs0.head
-                    else {
-                        val costs2 = createBoolChannel
-                        space.post(new Sum(nextConstraintId, maybeGoal, costs0, costs2))
-                        costs2
-                    }
                 val costs = createBoolChannel
-                space.post(new Eq[BooleanValue](nextConstraintId, maybeGoal, costs1, satisfied, costs))
+                if (costs0.size == 1) {
+                    space.post(new Eq(nextConstraintId, maybeGoal, costs0.head, satisfied, costs))
+                } else {
+                    space.post(new SumConstraint(nextConstraintId, maybeGoal, costs0, createBoolChannel, EqRelation, satisfied, costs))
+                }
                 List(costs)
             }
             compileConstraint(reifiedConstraint, costs0, satisfied, withFunctionalDependency, withoutFunctionalDependency)
