@@ -196,7 +196,7 @@ object IntegerDomain {
     private def rangeOrdering = Ordering.fromLessThan(rangeLessThan)
 
     // The lexicographic ordering on the underlying range lists.
-    private def rangeListOrdering = new Ordering[IntegerRangeList] {
+    private val rangeListOrdering = new Ordering[IntegerRangeList] {
         val ordering = createLexicographicOrderingForIterable(rangeOrdering)
         override def compare(lhs: IntegerRangeList, rhs: IntegerRangeList) =
             ordering.compare(lhs.ranges, rhs.ranges)

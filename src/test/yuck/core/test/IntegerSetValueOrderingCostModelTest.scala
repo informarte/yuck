@@ -13,6 +13,7 @@ import yuck.util.testing.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerSetValueOrderingCostModelTest extends UnitTest with IntegerSetValueTestData {
 
+    override protected val randomGenerator = new JavaRandomGenerator
     private val costModel = IntegerSetValueOrderingCostModel
 
     @Test

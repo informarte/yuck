@@ -63,6 +63,11 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
     @Test
     def testOrdering: Unit = {
         helper.testOrdering(testData)
+        for (a <- testData) {
+            for (b <- testData) {
+                assertEq(a.compare(b).sign, a.violation.compare(b.violation).sign)
+            }
+        }
     }
 
     @Test

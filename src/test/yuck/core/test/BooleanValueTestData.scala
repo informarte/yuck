@@ -9,6 +9,6 @@ import yuck.core.BooleanValue
 trait BooleanValueTestData {
 
     protected val testRange = 0 to 5
-    protected val testData = testRange.map(BooleanValue.get)
+    protected lazy val testData = testRange.map(BooleanValue.get)
 
 }

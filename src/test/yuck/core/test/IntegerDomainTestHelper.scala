@@ -15,19 +15,8 @@ final class IntegerDomainTestHelper
 
     val specialInfiniteRanges = IntegerDomainTestHelper.specialInfiniteRanges
 
-    def createTestData(baseRange: IntegerRange, sampleSize: Int): Seq[IntegerDomain] = {
-        val singletonRanges = baseRange.values.map(a => new IntegerRange(a, a)).toVector
-        val randomFiniteRanges = for (i <- 1 to sampleSize) yield baseRange.randomSubrange(randomGenerator)
-        val randomFiniteRangeLists = for (i <- 1 to sampleSize) yield baseRange.randomSubdomain(randomGenerator)
-        val randomFiniteIntegerDomains = randomFiniteRanges ++ randomFiniteRangeLists
-        val randomInfiniteRangeLists = (randomFiniteIntegerDomains).map(CompleteIntegerRange.diff)
-        for ((d, e) <- randomFiniteIntegerDomains.zip(randomInfiniteRangeLists)) {
-            assert(d.union(e).isComplete)
-        }
-        val edgeCases = List(EmptyIntegerRange, baseRange) ++ specialInfiniteRanges ++ singletonRanges
-        val testData = randomFiniteIntegerDomains ++ randomInfiniteRangeLists ++ edgeCases
-        testData
-    }
+    def createTestData(baseRange: IntegerRange, sampleSize: Int): Seq[IntegerDomain] =
+        IntegerDomainTestHelper.createTestData(baseRange, sampleSize, randomGenerator)
 
     private def testEnsureRangeList(d: IntegerDomain): Unit = {
         val e = IntegerDomain.ensureRangeList(d)
@@ -531,5 +520,19 @@ object IntegerDomainTestHelper {
         List(CompleteIntegerRange,
             NegativeIntegerRange, NonNegativeIntegerRange,
             PositiveIntegerRange, NonPositiveIntegerRange)
+
+    def createTestData(baseRange: IntegerRange, sampleSize: Int, randomGenerator: RandomGenerator): Seq[IntegerDomain] = {
+        val singletonRanges = baseRange.values.map(a => new IntegerRange(a, a)).toVector
+        val randomFiniteRanges = for (i <- 1 to sampleSize) yield baseRange.randomSubrange(randomGenerator)
+        val randomFiniteRangeLists = for (i <- 1 to sampleSize) yield baseRange.randomSubdomain(randomGenerator)
+        val randomFiniteIntegerDomains = randomFiniteRanges ++ randomFiniteRangeLists
+        val randomInfiniteRangeLists =
+            for (infiniteRange <- specialInfiniteRanges;
+                 finiteDomain <- randomFiniteIntegerDomains;
+                 if infiniteRange.intersects(finiteDomain)) yield infiniteRange.diff(finiteDomain)
+        val edgeCases = List(EmptyIntegerRange, baseRange) ++ specialInfiniteRanges ++ singletonRanges
+        val testData = (randomFiniteIntegerDomains ++ randomInfiniteRangeLists ++ edgeCases).distinct
+        testData
+    }
 
 }

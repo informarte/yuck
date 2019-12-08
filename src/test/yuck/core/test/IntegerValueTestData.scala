@@ -9,6 +9,6 @@ import yuck.core.IntegerValue
 trait IntegerValueTestData {
 
     protected val testRange = -5 to 5
-    protected val testData = testRange.map(IntegerValue.get)
+    protected lazy val testData = testRange.map(IntegerValue.get)
 
 }

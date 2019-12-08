@@ -62,6 +62,11 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
     @Test
     def testOrdering: Unit = {
         helper.testOrdering(testData)
+        for (a <- testData) {
+            for (b <- testData) {
+                assertEq(a.compare(b).sign, a.value.compare(b.value).sign)
+            }
+        }
         assertEq(IntegerValue.min(Zero, One), Zero)
         assertEq(IntegerValue.max(Zero, One), One)
     }
