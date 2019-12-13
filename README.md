@@ -101,7 +101,7 @@ yuck -J-Xmx4g zebra.fzn
 
 ## Under the hood
 
-* Yuck's approach to problem solving is comparable to Comet [HM05] and [OscaR](http://oscarlib.bitbucket.org)/CBLS [BMFP15].
+* Yuck's approach to problem solving is comparable to Comet [HM05] and OscaR/CBLS [BMFP15].
 * Yuck implements simulated annealing along with some basic annealing schedules and some schedule combinators.
 * Yuck supports lexicographic cost functions with both minimization and maximization goals.
 * Yuck allows to timebox and parallelize solvers by means of solver combinators.
