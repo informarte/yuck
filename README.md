@@ -128,13 +128,11 @@ When used as a FlatZinc interpreter, Yuck proceeds as follows:
 Yuck provides dedicated solvers for the following global MiniZinc constraints and their reified counterparts:
 
 * all_different, all_different_except_0
-* at_least, at_most
 * bin_packing, bin_packing_capa, bin_packing_load
 * count_eq, count_geq, count_gt, count_leq, count_lt, count_neq
 * cumulative
 * diffn, diffn_nonstrict
 * disjunctive, disjunctive_strict
-* exactly
 * global_cardinality, global_cardinality_closed, global_cardinality_low_up, global_cardinality_low_up_closed
 * inverse
 * lex_less, lex_lesseq
