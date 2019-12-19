@@ -131,13 +131,13 @@ class MiniZincBasedTest extends IntegrationTest {
             "--no-output-ozn", "--output-fzn-to-file", fznFilePath)
         mzn2fznCommand += mznFilePath
         if (! dznFilePath.isEmpty) mzn2fznCommand += dznFilePath
-        val (_, errorLines) =
+        val outputLines =
             logger.withTimedLogScope("Flattening MiniZinc model") {
                 logger.withRootLogLevel(FineLogLevel) {
                     new ProcessRunner(logger, mzn2fznCommand).call
                 }
             }
-        logMiniZincVersion(errorLines.head)
+        logMiniZincVersion(outputLines.head)
         val cfg =
             task.solverConfiguration.copy(
                 restartLimit =

@@ -118,7 +118,7 @@ class MiniZincSolutionVerifier(
             "--statistics")
         minizincCommand += solutionFilePath
         if (! dznFileName.isEmpty) minizincCommand += "%s/%s".format(includePath, dznFileName)
-        val (outputLines, _) = new ProcessRunner(logger, minizincCommand).call
+        val outputLines = new ProcessRunner(logger, minizincCommand).call
         val verified =
             ! outputLines.contains(FlatZincInconsistentProblemIndicator) &&
             checkObjective(outputLines)
