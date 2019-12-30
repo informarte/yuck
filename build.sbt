@@ -54,14 +54,16 @@ javaSource in Compile := baseDirectory.value / "src/main"
 scalaSource in Test := baseDirectory.value / "src/test"
 javaSource in Test := baseDirectory.value / "src/test"
 
-libraryDependencies += "junit" % "junit" % "4.12" % "test"
-libraryDependencies += "com.conversantmedia" % "rtree" % "1.0.5"
-libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
-libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
-libraryDependencies += "org.scalamock" %% "scalamock" % "4.4.0" % "test"
-libraryDependencies += "org.jgrapht" % "jgrapht-core" % "1.3.1"
-libraryDependencies += "com.github.scopt" %% "scopt" % "3.7.1"
-libraryDependencies += "io.spray" %% "spray-json" % "1.3.5"
+libraryDependencies ++= Seq(
+    "com.conversantmedia" % "rtree" % "1.0.5",
+    "com.github.scopt" %% "scopt" % "3.7.1",
+    "com.novocode" % "junit-interface" % "0.11" % "test",
+    "io.spray" %% "spray-json" % "1.3.5",
+    "junit" % "junit" % "4.12" % "test",
+    "org.jgrapht" % "jgrapht-core" % "1.3.1",
+    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2",
+    "org.scalamock" %% "scalamock" % "4.4.0" % "test",
+)
 
 // See https://github.com/sbt/junit-interface/issues/66 for why it does not work!
 testOptions in Test := Seq(Tests.Filter(s => s.endsWith("UnitTestSuite")))
