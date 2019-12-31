@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class MaximumTest extends UnitTest {
+final class MaximumTest extends UnitTest with StandardConstraintTestTooling[IntegerValue] {
 
     @Test
     def testMaximum: Unit = {
@@ -24,32 +24,15 @@ final class MaximumTest extends UnitTest {
         val t = new IntegerVariable(space.nextVariableId, "t", d)
         val u = new IntegerVariable(space.nextVariableId, "u", d)
         val max = new IntegerVariable(space.nextVariableId, "costs", CompleteIntegerRange)
-        val c = new Maximum(space.nextConstraintId, null, List(s, t, u), max)
-        space
-            .post(c)
-            .setValue(s, One)
-            .setValue(t, Two)
-            .setValue(u, Three)
-            .initialize
+        space.post(new Maximum(space.nextConstraintId, null, List(s, t, u), max))
         assertEq(space.searchVariables, Set(s, t, u))
-        val now = space.searchState
-        assertEq(now.value(max), Three)
-        if (true) {
-            val move = new ChangeValue(space.nextMoveId, u, Two)
-            val after = space.consult(move)
-            assertEq(after.value(max), Two)
-            space.commit(move)
-            assertEq(now.value(max), Two)
-        }
-        if (true) {
-            val move = new ChangeValue(space.nextMoveId, s, Three)
-            val after = space.consult(move)
-            assertEq(after.value(max), Three)
-            space.commit(move)
-            assertEq(now.value(max), Three)
-        }
-        space.initialize
-        assertEq(now.value(max), Three)
+        runScenario(
+            TestScenario(
+                space,
+                max,
+                Initialize("setup", Three, (s, One), (t, Two), (u, Three)),
+                ConsultAndCommit("1", Two, (u, Two)),
+                ConsultAndCommit("2", Three, (s, Three))))
     }
 
 }

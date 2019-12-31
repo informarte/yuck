@@ -1,7 +1,6 @@
 package yuck.constraints.test
 
 import org.junit._
-
 import scala.collection._
 
 import yuck.constraints._
@@ -14,7 +13,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class IntegerTableTest extends UnitTest {
+final class IntegerTableTest extends UnitTest with StandardConstraintTestTooling[BooleanValue] {
 
     @Test
     def testConsultAndCommit: Unit = {
@@ -25,36 +24,15 @@ final class IntegerTableTest extends UnitTest {
         val u = new IntegerVariable(space.nextVariableId, "u", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         val rows = immutable.IndexedSeq(immutable.IndexedSeq(0, 0, 0), immutable.IndexedSeq(1, 2, 3))
-        space
-            .post(new IntegerTable(space.nextConstraintId, null, immutable.IndexedSeq(s, t, u), rows, costs))
-            .setValue(s, One)
-            .setValue(t, One)
-            .setValue(u, One)
-            .initialize
+        space.post(new IntegerTable(space.nextConstraintId, null, immutable.IndexedSeq(s, t, u), rows, costs))
         assertEq(space.searchVariables, Set(s, t, u))
-        val now = space.searchState
-        assertEq(now.value(costs), False3)
-        if (true) {
-            // move away from the first row and approach the second row
-            val move = new ChangeValue(space.nextMoveId, t, Two)
-            val after = space.consult(move)
-            assertEq(after.value(costs), False2)
-            space.commit(move)
-            assertEq(now.value(costs), False2)
-        }
-        if (true) {
-            // change two values at once
-            val move =
-                new ChangeValues(
-                    space.nextMoveId,
-                    List(new ImmutableMoveEffect(s, Zero), new ImmutableMoveEffect(u, Three)))
-            val after = space.consult(move)
-            assertEq(after.value(costs), False)
-            space.commit(move)
-            assertEq(now.value(costs), False)
-        }
-        space.initialize
-        assertEq(now.value(costs), False)
+        runScenario(
+            TestScenario(
+                space,
+                costs,
+                Initialize("initial conflict", False3, (s, One), (t, One), (u, One)),
+                ConsultAndCommit("move away from the first row and approach the second row", False2, (t, Two)),
+                ConsultAndCommit("change two values at once", False, (s, Zero), (u, Three))))
     }
 
     @Test
@@ -65,43 +43,16 @@ final class IntegerTableTest extends UnitTest {
         val u = new IntegerVariable(space.nextVariableId, "u", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         val rows = immutable.IndexedSeq(immutable.IndexedSeq(0, 0, 0), immutable.IndexedSeq(1, 2, 3), immutable.IndexedSeq(2, 2, 3))
-        space
-            .post(new IntegerTable(space.nextConstraintId, null, immutable.IndexedSeq(s, s, u), rows, costs))
-            .setValue(s, One)
-            .setValue(u, One)
-            .initialize
+        space.post(new IntegerTable(space.nextConstraintId, null, immutable.IndexedSeq(s, s, u), rows, costs))
         assertEq(space.searchVariables, Set(s, u))
-        val now = space.searchState
-        assertEq(now.value(costs), False3)
-        if (true) {
-            // fix first two columns
-            val move = new ChangeValue(space.nextMoveId, s, Two)
-            val after = space.consult(move)
-            assertEq(after.value(costs), False2)
-            space.commit(move)
-            assertEq(now.value(costs), False2)
-        }
-        if (true) {
-            // fix last column
-            val move = new ChangeValue(space.nextMoveId, u, Three)
-            val after = space.consult(move)
-            assertEq(after.value(costs), True)
-            space.commit(move)
-            assertEq(now.value(costs), True)
-        }
-        if (true) {
-            // change two values at once
-            val move =
-                new ChangeValues(
-                    space.nextMoveId,
-                    List(new ImmutableMoveEffect(s, Zero), new ImmutableMoveEffect(u, Two)))
-            val after = space.consult(move)
-            assertEq(after.value(costs), False2)
-            space.commit(move)
-            assertEq(now.value(costs), False2)
-        }
-        space.initialize
-        assertEq(now.value(costs), False2)
+        runScenario(
+            TestScenario(
+                space,
+                costs,
+                Initialize("initial conflict", False3, (s, One), (u, One)),
+                ConsultAndCommit("fix first two columns", False2, (s, Two)),
+                ConsultAndCommit(" fix last column", True, (u, Three)),
+                ConsultAndCommit("change two values at once", False2, (s, Zero), (u, Two))))
     }
 
     @Test

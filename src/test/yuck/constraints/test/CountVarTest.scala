@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class CountVarTest extends UnitTest {
+final class CountVarTest extends UnitTest with StandardConstraintTestTooling[IntegerValue] {
 
     @Test
     def testCountVar: Unit = {
@@ -25,33 +25,15 @@ final class CountVarTest extends UnitTest {
         val u = space.createVariable("u", d)
         val what = space.createVariable("what", d)
         val n = new IntegerVariable(space.nextVariableId, "n", NonNegativeIntegerRange)
-        val c = new CountVar(space.nextConstraintId, null, List(s, t, u), what, n)
-        space
-            .post(c)
-            .setValue(s, One)
-            .setValue(t, One)
-            .setValue(u, One)
-            .setValue(what, One)
-            .initialize
+        space.post(new CountVar(space.nextConstraintId, null, List(s, t, u), what, n))
         assertEq(space.searchVariables, Set(s, t, u, what))
-        val now = space.searchState
-        assertEq(now.value(n), Three)
-        if (true) {
-            val move = new ChangeValue(space.nextMoveId, s, Two)
-            val after = space.consult(move)
-            assertEq(after.value(n), Two)
-            space.commit(move)
-            assertEq(now.value(n), Two)
-        }
-        if (true) {
-            val move = new ChangeValue(space.nextMoveId, what, Two)
-            val after = space.consult(move)
-            assertEq(after.value(n), One)
-            space.commit(move)
-            assertEq(now.value(n), One)
-        }
-        space.initialize
-        assertEq(now.value(n), One)
+        runScenario(
+            TestScenario(
+                space,
+                n,
+                Initialize("setup", Three, (s, One), (t, One), (u, One), (what, One)),
+                ConsultAndCommit("1", Two, (s, Two)),
+                ConsultAndCommit("2", One, (what, Two))))
     }
 
 }

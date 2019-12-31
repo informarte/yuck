@@ -15,7 +15,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class CumulativeTest extends UnitTest {
+final class CumulativeTest extends UnitTest with StandardConstraintTestTooling[BooleanValue] {
 
     private def createTask(space: Space, i: Int, d: IntegerDomain): CumulativeTask =
         new CumulativeTask(
@@ -43,44 +43,18 @@ final class CumulativeTest extends UnitTest {
         val Vector(t1, t2) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        // initial conflict: two tasks with same start time exceed capacity
-        space
-            .post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
-            .setValue(t1.s, Zero).setValue(t1.d, Three).setValue(t1.c, Two)
-            .setValue(t2.s, Zero).setValue(t2.d, Four).setValue(t2.c, Three)
-            .setValue(ub, Three)
-            .initialize
-        val now = space.searchState
-        assertEq(now.value(costs), False6)
-        if (true) {
-            // move t2 to reduce conflict
-            val move = new ChangeValue(space.nextMoveId, t2.s, One)
-            val after = space.consult(move)
-            assertEq(after.value(costs), False4)
-            space.commit(move)
-            assertEq(now.value(costs), False4)
-        }
-        if (true) {
-            // move t2 to resolve conflict
-            val move = new ChangeValue(space.nextMoveId, t2.s, Three)
-            val after = space.consult(move)
-            assertEq(after.value(costs), True)
-            space.commit(move)
-            assertEq(now.value(costs), True)
-        }
-        if (true) {
-            // move both tasks in one move
-            val move =
-                new ChangeValues(
-                    space.nextMoveId,
-                    List(new ImmutableMoveEffect(t1.s, One), new ImmutableMoveEffect(t2.s, Two)))
-            val after = space.consult(move)
-            assertEq(after.value(costs), False4)
-            space.commit(move)
-            assertEq(now.value(costs), False4)
-        }
-        space.initialize
-        assertEq(now.value(costs), False4)
+        space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
+        runScenario(
+            TestScenario(
+                space,
+                costs,
+                Initialize(
+                    "initial conflict: two tasks with same start time exceed capacity",
+                    False6,
+                    (t1.s, Zero), (t1.d, Three), (t1.c, Two), (t2.s, Zero), (t2.d, Four), (t2.c, Three), (ub, Three)),
+                ConsultAndCommit("move t2 to reduce conflict", False4, (t2.s, One)),
+                ConsultAndCommit("move t2 to resolve conflict", True, (t2.s, Three)),
+                ConsultAndCommit("move both tasks in one move", False4, (t1.s, One), (t2.s, Two))))
     }
 
     @Test
@@ -91,64 +65,26 @@ final class CumulativeTest extends UnitTest {
         val Vector(t1, t2) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        // initial conflict: two tasks with same start time exceed capacity
-        space
-            .post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
-            .setValue(t1.s, Zero).setValue(t1.d, Three).setValue(t1.c, Two)
-            .setValue(t2.s, Zero).setValue(t2.d, Four).setValue(t2.c, Three)
-            .setValue(ub, Three)
-            .initialize
-        val now = space.searchState
-        assertEq(now.value(costs), False6)
-        if (true) {
-            // reduce conflict by reducing the the duration of t1
-            val move = new ChangeValue(space.nextMoveId, t1.d, One)
-            val after = space.consult(move)
-            assertEq(after.value(costs), False2)
-            space.commit(move)
-            assertEq(now.value(costs), False2)
-        }
-        if (true) {
-            // resolve conflict by setting the duration of t1 to zero
-            val move = new ChangeValue(space.nextMoveId, t1.d, Zero)
-            val after = space.consult(move)
-            assertEq(after.value(costs), True)
-            space.commit(move)
-            assertEq(now.value(costs), True)
-        }
-        if (true) {
-            // restore duration of t1 and, instead, set its consumption to zero
-            val move =
-                new ChangeValues(
-                    space.nextMoveId,
-                    List(new ImmutableMoveEffect(t1.d, Three), new ImmutableMoveEffect(t1.c, Zero)))
-            val after = space.consult(move)
-            assertEq(after.value(costs), True)
-            space.commit(move)
-            assertEq(now.value(costs), True)
-        }
-        if (true) {
-            // increase consumption of t2 beyond capacity
-            val move = new ChangeValue(space.nextMoveId, t2.c, Four)
-            val after = space.consult(move)
-            assertEq(after.value(costs), False4)
-            space.commit(move)
-            assertEq(now.value(costs), False4)
-        }
-        if (true) {
-            // change duration and resource consumption of both tasks in one move
-            val move =
-                new ChangeValues(
-                    space.nextMoveId,
-                    List(new ImmutableMoveEffect(t1.d, Four), new ImmutableMoveEffect(t1.c, Two),
-                         new ImmutableMoveEffect(t2.d, Five), new ImmutableMoveEffect(t2.c, Three)))
-            val after = space.consult(move)
-            assertEq(after.value(costs), False8)
-            space.commit(move)
-            assertEq(now.value(costs), False8)
-        }
-        space.initialize
-        assertEq(now.value(costs), False8)
+        space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
+        runScenario(
+            TestScenario(
+                space,
+                costs,
+                Initialize(
+                    "initial conflict: two tasks with same start time exceed capacity",
+                    False6,
+                    (t1.s, Zero), (t1.d, Three), (t1.c, Two), (t2.s, Zero), (t2.d, Four), (t2.c, Three), (ub, Three)),
+                ConsultAndCommit("reduce conflict by reducing the the duration of t1", False2, (t1.d, One)),
+                ConsultAndCommit("resolve conflict by setting the duration of t1 to zero", True, (t1.d, Zero)),
+                ConsultAndCommit(
+                    "restore duration of t1 and, instead, set its consumption to zero",
+                    True,
+                    (t1.d, Three), (t1.c, Zero)),
+                ConsultAndCommit("increase consumption of t2 beyond capacity", False4, (t2.c, Four)),
+                ConsultAndCommit(
+                    "change duration and resource consumption of both tasks in one move",
+                    False8,
+                    (t1.d, Four), (t1.c, Two), (t2.d, Five), (t2.c, Three))))
     }
 
     @Test
@@ -159,32 +95,17 @@ final class CumulativeTest extends UnitTest {
         val Vector(t1) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        // initial conflict: consumption exceeds capacity
-        space
-            .post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
-            .setValue(t1.s, Zero).setValue(t1.d, Three).setValue(t1.c, Four)
-            .setValue(ub, Three)
-            .initialize
-        val now = space.searchState
-        assertEq(now.value(costs), False3)
-        if (true) {
-            // resolve conflict by increasing capacity
-            val move = new ChangeValue(space.nextMoveId, ub, Four)
-            val after = space.consult(move)
-            assertEq(after.value(costs), True)
-            space.commit(move)
-            assertEq(now.value(costs), True)
-        }
-        if (true) {
-            // increase consumption to cause conflict
-            val move = new ChangeValue(space.nextMoveId, t1.c, Five)
-            val after = space.consult(move)
-            assertEq(after.value(costs), False3)
-            space.commit(move)
-            assertEq(now.value(costs), False3)
-        }
-        space.initialize
-        assertEq(now.value(costs), False3)
+        space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
+        runScenario(
+            TestScenario(
+                space,
+                costs,
+                Initialize(
+                    "initial conflict: consumption exceeds capacity",
+                    False3,
+                    (t1.s, Zero), (t1.d, Three), (t1.c, Four), (ub, Three)),
+                ConsultAndCommit("resolve conflict by increasing capacity", True, (ub, Four)),
+                ConsultAndCommit("increase consumption to cause conflict", False3, (t1.c, Five))))
     }
 
     @Test
@@ -199,32 +120,17 @@ final class CumulativeTest extends UnitTest {
         val t2 = new CumulativeTask(ub, ub, ub)
         val t3 = new CumulativeTask(s2, d2, c2)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        // baseline: capacity is zero, so t1 and t2 are empty and t3 exceeds capacity
-        space
-            .post(new Cumulative(space.nextConstraintId, null, Vector(t1, t2, t3), ub, costs))
-            .setValue(ub, Zero)
-            .setValue(s2, Three).setValue(d2, One).setValue(c2, One)
-            .initialize
-        val now = space.searchState
-        assertEq(now.value(costs), False)
-        if (true) {
-            // increase capacity and hence duration and consumption of t1 and t2
-            val move = new ChangeValue(space.nextMoveId, ub, One)
-            val after = space.consult(move)
-            assertEq(after.value(costs), False)
-            space.commit(move)
-            assertEq(now.value(costs), False)
-        }
-        if (true) {
-            // increasing capacity once more makes t1 and t2 overlap t3
-            val move = new ChangeValue(space.nextMoveId, ub, Two)
-            val after = space.consult(move)
-            assertEq(after.value(costs), False5)
-            space.commit(move)
-            assertEq(now.value(costs), False5)
-        }
-        space.initialize
-        assertEq(now.value(costs), False5)
+        space.post(new Cumulative(space.nextConstraintId, null, Vector(t1, t2, t3), ub, costs))
+        runScenario(
+            TestScenario(
+                space,
+                costs,
+                Initialize(
+                    "baseline: capacity is zero, so t1 and t2 are empty and t3 exceeds capacity",
+                    False,
+                    (ub, Zero), (s2, Three), (d2, One), (c2, One)),
+                ConsultAndCommit("increase capacity and hence duration and consumption of t1 and t2", False, (ub, One)),
+                ConsultAndCommit("increasing capacity once more makes t1 and t2 overlap t3", False5, (ub, Two))))
     }
 
     @Test
@@ -235,28 +141,17 @@ final class CumulativeTest extends UnitTest {
         val Vector(t1) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        // initial conflict: consumption is too high
-        space
-            .post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
-            .setValue(t1.s, Zero).setValue(t1.d, Three).setValue(t1.c, Two)
-            .setValue(ub, One)
-            .initialize
-        val now = space.searchState
-        assertEq(now.value(costs), False3)
-        if (true) {
-            // resolve conflict by reducing consumption
-            val move = new ChangeValue(space.nextMoveId, t1.c, One)
-            val after = space.consult(move)
-            assertEq(after.value(costs), True)
-        }
-        if (true) {
-            // resolve conflict by increasing capacity
-            val move = new ChangeValue(space.nextMoveId, ub, Two)
-            val after = space.consult(move)
-            assertEq(after.value(costs), True)
-        }
-        space.initialize
-        assertEq(now.value(costs), False3)
+        space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
+        runScenario(
+            TestScenario(
+                space,
+                costs,
+                Initialize(
+                    "initial conflict: consumption is too high",
+                    False3,
+                    (t1.s, Zero), (t1.d, Three), (t1.c, Two),  (ub, One)),
+                Consult("resolve conflict by reducing consumption", True, (t1.c, One)),
+                Consult("resolve conflict by increasing capacity", True, (ub, Two))))
     }
 
     @Test
@@ -267,41 +162,20 @@ final class CumulativeTest extends UnitTest {
         val Vector(t1, t2) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        // no initial conflict
-        space
-            .post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
-            .setValue(t1.s, Zero).setValue(t1.d, Three).setValue(t1.c, One)
-            .setValue(t2.s, Three).setValue(t2.d, Four).setValue(t2.c, Three)
-            .setValue(ub, Three)
-            .initialize
-        val now = space.searchState
-        assertEq(now.value(costs), True)
-        if (true) {
-            // move and resize t1 in one move
-            val move =
-                new ChangeValues(
-                    space.nextMoveId,
-                    List(new ImmutableMoveEffect(t1.s, Two), new ImmutableMoveEffect(t1.d, Seven), new ImmutableMoveEffect(t1.c, Two)))
-            val after = space.consult(move)
-            assertEq(after.value(costs), False8)
-            space.commit(move)
-            assertEq(now.value(costs), False8)
-        }
-        if (true) {
-            // change consumption of both tasks and capacity in one move
-            val move =
-                new ChangeValues(
-                    space.nextMoveId,
-                    List(new ImmutableMoveEffect(t1.d, Six), new ImmutableMoveEffect(t1.c, Four),
-                         new ImmutableMoveEffect(t2.s, Seven), new ImmutableMoveEffect(t2.c, Two),
-                         new ImmutableMoveEffect(ub, Four)))
-            val after = space.consult(move)
-            assertEq(after.value(costs), False2)
-            space.commit(move)
-            assertEq(now.value(costs), False2)
-        }
-        space.initialize
-        assertEq(now.value(costs), False2)
+        space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
+        runScenario(
+            TestScenario(
+                space,
+                costs,
+                Initialize(
+                    "no initial conflict",
+                    True,
+                    (t1.s, Zero), (t1.d, Three), (t1.c, One), (t2.s, Three), (t2.d, Four), (t2.c, Three), (ub, Three)),
+                ConsultAndCommit("move and resize t1 in one move", False8, (t1.s, Two), (t1.d, Seven), (t1.c, Two)),
+                ConsultAndCommit(
+                    "change consumption of both tasks and capacity in one move",
+                    False2,
+                    (t1.d, Six), (t1.c, Four), (t2.s, Seven), (t2.c, Two), (ub, Four))))
     }
 
     @Test
@@ -312,33 +186,17 @@ final class CumulativeTest extends UnitTest {
         val Vector(t1, t2) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        // initial conflict
-        space
-            .post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
-            .setValue(t1.s, Zero).setValue(t1.d, One).setValue(t1.c, One)
-            .setValue(t2.s, Zero).setValue(t2.d, One).setValue(t2.c, One)
-            .setValue(ub, Zero)
-            .initialize
-        val now = space.searchState
-        assertEq(now.value(costs), False2)
-        if (true) {
-            // reduce conflict by setting duration of t1 to -1
-            val move = new ChangeValue(space.nextMoveId, t1.d, MinusOne)
-            val after = space.consult(move)
-            assertEq(after.value(costs), False)
-            space.commit(move)
-            assertEq(now.value(costs), False)
-        }
-        if (true) {
-            // resolve conflict by setting consumption of t2 to -1
-            val move = new ChangeValue(space.nextMoveId, t2.c, MinusOne)
-            val after = space.consult(move)
-            assertEq(after.value(costs), True)
-            space.commit(move)
-            assertEq(now.value(costs), True)
-        }
-        space.initialize
-        assertEq(now.value(costs), True)
+        space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
+        runScenario(
+            TestScenario(
+                space,
+                costs,
+                Initialize(
+                    "initial conflict",
+                    False2,
+                    (t1.s, Zero), (t1.d, One), (t1.c, One), (t2.s, Zero), (t2.d, One), (t2.c, One), (ub, Zero)),
+                ConsultAndCommit("reduce conflict by setting duration of t1 to -1", False, (t1.d, MinusOne)),
+                ConsultAndCommit("resolve conflict by setting consumption of t2 to -1", True, (t2.c, MinusOne))))
     }
 
 }

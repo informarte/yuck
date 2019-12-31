@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class SumTest extends UnitTest {
+final class SumTest extends UnitTest with StandardConstraintTestTooling[IntegerValue] {
 
     @Test
     def testSum: Unit = {
@@ -24,23 +24,14 @@ final class SumTest extends UnitTest {
         val x2 = new IntegerVariable(space.nextVariableId, "x2", d)
         val x3 = new IntegerVariable(space.nextVariableId, "x3", d)
         val y = new IntegerVariable(space.nextVariableId, "y", d)
-        val c = new Sum(space.nextConstraintId, null, List(x1, x2, x3), y)
-        space
-            .post(c)
-            .setValue(x1, One)
-            .setValue(x2, Two)
-            .setValue(x3, Three)
-            .initialize
+        space.post(new Sum(space.nextConstraintId, null, List(x1, x2, x3), y))
         assertEq(space.searchVariables, Set(x1, x2, x3))
-        val now = space.searchState
-        assertEq(now.value(y), Six)
-        val move = new ChangeValue(space.nextMoveId, x2, Three)
-        val after = space.consult(move)
-        assertEq(after.value(y), Seven)
-        space.commit(move)
-        assertEq(now.value(y), Seven)
-        space.initialize
-        assertEq(now.value(y), Seven)
+        runScenario(
+            TestScenario(
+                space,
+                y,
+                Initialize("setup", Six, (x1, One), (x2, Two), (x3, Three)),
+                ConsultAndCommit("1", Seven, (x2, Three))))
     }
 
 }

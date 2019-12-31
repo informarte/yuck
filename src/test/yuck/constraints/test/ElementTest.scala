@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class ElementTest extends UnitTest {
+final class ElementTest extends UnitTest with StandardConstraintTestTooling[IntegerValue] {
 
     @Test
     def testElement: Unit = {
@@ -26,33 +26,15 @@ final class ElementTest extends UnitTest {
         val xs = immutable.IndexedSeq(s, t, u)
         val i = new IntegerVariable(space.nextVariableId, "i", d)
         val y = space.createVariable("y", NonNegativeIntegerRange)
-        val c = new Element(space.nextConstraintId, null, xs, i, y, 0)
-        space
-            .post(c)
-            .setValue(s, One)
-            .setValue(t, Two)
-            .setValue(u, Three)
-            .setValue(i, Zero)
-            .initialize
+        space.post(new Element(space.nextConstraintId, null, xs, i, y, 0))
         assertEq(space.searchVariables, Set(s, t, u, i))
-        val now = space.searchState
-        assertEq(now.value(y), One)
-        if (true) {
-            val move = new ChangeValue(space.nextMoveId, s, Zero)
-            val after = space.consult(move)
-            assertEq(after.value(y), Zero)
-            space.commit(move)
-            assertEq(now.value(y), Zero)
-        }
-        if (true) {
-            val move = new ChangeValue(space.nextMoveId, i, One)
-            val after = space.consult(move)
-            assertEq(after.value(y), Two)
-            space.commit(move)
-            assertEq(now.value(y), Two)
-        }
-        space.initialize
-        assertEq(now.value(y), Two)
+        runScenario(
+            TestScenario(
+                space,
+                y,
+                Initialize("setup", One, (s, One), (t, Two), (u, Three), (i, Zero)),
+                ConsultAndCommit("1", Zero, (s, Zero)),
+                ConsultAndCommit("2", Two, (i, One))))
     }
 
 }

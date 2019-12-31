@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class LinearCombinationTest extends UnitTest {
+final class LinearCombinationTest extends UnitTest with StandardConstraintTestTooling[IntegerValue] {
 
     @Test
     def testLinearCombination: Unit = {
@@ -24,26 +24,17 @@ final class LinearCombinationTest extends UnitTest {
         val x2 = new IntegerVariable(space.nextVariableId, "x2", d)
         val x3 = new IntegerVariable(space.nextVariableId, "x3", d)
         val y = new IntegerVariable(space.nextVariableId, "y", d)
-        val c =
+        space.post(
             new LinearCombination(
                 space.nextConstraintId, null,
-                List(new AX(Zero, x1), new AX(One, x2), new AX(One, x3)), y)
-        space
-            .post(c)
-            .setValue(x1, One)
-            .setValue(x2, Two)
-            .setValue(x3, Three)
-            .initialize
+                List(new AX(Zero, x1), new AX(One, x2), new AX(One, x3)), y))
         assertEq(space.searchVariables, Set(x1, x2, x3))
-        val now = space.searchState
-        assertEq(now.value(y), Five)
-        val move = new ChangeValue(space.nextMoveId, x2, Three)
-        val after = space.consult(move)
-        assertEq(after.value(y), Six)
-        space.commit(move)
-        assertEq(now.value(y), Six)
-        space.initialize
-        assertEq(now.value(y), Six)
+        runScenario(
+            TestScenario(
+                space,
+                y,
+                Initialize("setup", Five, (x1, One), (x2, Two), (x3, Three)),
+                ConsultAndCommit("1", Six, (x2, Three))))
     }
 
 }

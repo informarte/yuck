@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class DisjunctionTest extends UnitTest {
+final class DisjunctionTest extends UnitTest with StandardConstraintTestTooling[BooleanValue] {
 
     @Test
     def testDisjunction: Unit = {
@@ -24,39 +24,16 @@ final class DisjunctionTest extends UnitTest {
         val t = new BooleanVariable(space.nextVariableId, "t", d)
         val u = new BooleanVariable(space.nextVariableId, "u", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        val c = new Disjunction(space.nextConstraintId, null, List(s, t, u), costs)
-        space
-            .post(c)
-            .setValue(s, BooleanValue.get(1))
-            .setValue(t, BooleanValue.get(2))
-            .setValue(u, BooleanValue.get(3))
-            .initialize
+        space.post(new Disjunction(space.nextConstraintId, null, List(s, t, u), costs))
         assertEq(space.searchVariables, Set(s, t, u))
-        val now = space.searchState
-        assertEq(now.value(costs), BooleanValue.get(2))
-        if (true) {
-            val move = new ChangeValue(space.nextMoveId, u, BooleanValue.get(2))
-            val after = space.consult(move)
-            assertEq(after.value(costs), False)
-            space.commit(move)
-            assertEq(now.value(costs), False)
-        }
-        if (true) {
-            val move = new ChangeValue(space.nextMoveId, s, True)
-            val after = space.consult(move)
-            assertEq(after.value(costs).violation, 0)
-            space.commit(move)
-            assertEq(now.value(costs).violation, 0)
-        }
-        if (true) {
-            val move = new ChangeValue(space.nextMoveId, s, BooleanValue.get(3))
-            val after = space.consult(move)
-            assertEq(after.value(costs), False2)
-            space.commit(move)
-            assertEq(now.value(costs), False2)
-        }
-        space.initialize
-        assertEq(now.value(costs), False2)
+        runScenario(
+            TestScenario(
+                space,
+                costs,
+                Initialize("init", False2, (s, False), (t, False2), (u, False3)),
+                ConsultAndCommit("1", False, (u, False2)),
+                ConsultAndCommit("2", True, (s, True)),
+                ConsultAndCommit("2", False2, (s, False3))))
     }
 
 }
