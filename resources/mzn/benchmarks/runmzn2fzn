@@ -1,8 +1,0 @@
-#!/bin/sh
-
-MZN_LIB_DIR=$1
-TARGET_ROOT_DIR=$2
-MODEL_FILE=$3
-TARGET_DIR=$TARGET_ROOT_DIR/$(dirname $MODEL_FILE)
-mkdir -p $TARGET_DIR
-mzn2fzn -I $MZN_LIB_DIR --output-base $TARGET_DIR/$(basename -s .mzn $MODEL_FILE) $MODEL_FILE

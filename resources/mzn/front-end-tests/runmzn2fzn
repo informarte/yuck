@@ -1,4 +1,0 @@
-#!/bin/sh
-
-INSTANCE=$1
-mzn2fzn -I ../../lib/yuck/ $INSTANCE
