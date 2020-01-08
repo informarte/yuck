@@ -15,7 +15,11 @@ import yuck.flatzinc.test.util._
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class MiniZincChallenge2012 extends MiniZincBasedTest {
 
-    private val task = MiniZincTestTask(directoryLayout = StandardMiniZincBenchmarksLayout, suitePath = "resources/mzn/benchmarks", suiteName = "mznc12")
+    private val task =
+        MiniZincTestTask(
+            directoryLayout = StandardMiniZincBenchmarksLayout,
+            suitePath = "resources/mzn/tests/minizinc-benchmarks",
+            suiteName = "mznc12")
 
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasCountConstraint]))

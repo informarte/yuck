@@ -24,7 +24,7 @@ final class MiniZincExamples extends MiniZincBasedTest {
     private val task =
         MiniZincTestTask(
             directoryLayout = MiniZincExamplesLayout,
-            suitePath = "resources/mzn/examples",
+            suitePath = "resources/mzn/tests/minizinc-examples",
             maybeRuntimeLimitInSeconds = Some(10),
             assertWhenUnsolved = true,
             reusePreviousTestResult = false)

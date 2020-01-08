@@ -16,7 +16,7 @@ abstract class FrontEndTest extends MiniZincBasedTest {
     protected val task =
         MiniZincTestTask(
             directoryLayout = MiniZincExamplesLayout,
-            suitePath = "resources/mzn/front-end-tests",
+            suitePath = "resources/mzn/tests/front-end-tests",
             solverConfiguration = FlatZincSolverConfiguration(restartLimit = 0),
             maybeRuntimeLimitInSeconds = Some(10),
             assertWhenUnsolved = true,

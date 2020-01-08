@@ -66,15 +66,15 @@ class MiniZincBasedTest extends IntegrationTest {
         val instanceName = if (task.instanceName.isEmpty) modelName else task.instanceName
         val (mznFilePath, dznFilePath, outputDirectoryPath) = task.directoryLayout match {
             case MiniZincExamplesLayout =>
-                ("%s/problems/%s.mzn".format(suitePath, problemName),
+                ("%s/%s.mzn".format(suitePath, problemName),
                  "",
                  "tmp/%s/%s".format(suiteName, problemName))
             case StandardMiniZincBenchmarksLayout =>
-                ("%s/problems/%s/%s.mzn".format(suitePath, problemName, modelName),
-                 "%s/problems/%s/%s.dzn".format(suitePath, problemName, instanceName),
+                ("%s/%s/%s.mzn".format(suitePath, problemName, modelName),
+                 "%s/%s/%s.dzn".format(suitePath, problemName, instanceName),
                  "tmp/%s/%s/%s/%s".format(suiteName, problemName, modelName, instanceName))
             case NonStandardMiniZincBenchmarksLayout =>
-                ("%s/problems/%s/%s.mzn".format(suitePath, problemName, instanceName),
+                ("%s/%s/%s.mzn".format(suitePath, problemName, instanceName),
                  "",
                  "tmp/%s/%s/%s".format(suiteName, problemName, instanceName))
         }

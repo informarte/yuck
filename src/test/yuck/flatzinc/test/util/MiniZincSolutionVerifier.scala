@@ -31,10 +31,10 @@ class MiniZincSolutionVerifier(
     private def checkExpectations: Boolean = {
         val (searchPath, instanceName) = task.directoryLayout match {
             case MiniZincExamplesLayout =>
-                ("%s/problems".format(task.suitePath),
+                ("%s".format(task.suitePath),
                  task.problemName)
             case _ =>
-                ("%s/problems/%s".format(task.suitePath, task.problemName),
+                ("%s/%s".format(task.suitePath, task.problemName),
                  task.instanceName)
         }
         val expectationFiles =
@@ -73,17 +73,17 @@ class MiniZincSolutionVerifier(
         val instanceName = task.instanceName
         val (includePath, mznFileName, dznFileName, outputDirectoryPath) = task.directoryLayout match {
             case MiniZincExamplesLayout =>
-                ("%s/problems".format(suitePath),
+                ("%s".format(suitePath),
                  "%s.mzn".format(problemName),
                  "",
                  "tmp/%s/%s".format(suiteName, problemName))
             case StandardMiniZincBenchmarksLayout =>
-                ("%s/problems/%s".format(suitePath, problemName),
+                ("%s/%s".format(suitePath, problemName),
                  "%s.mzn".format(modelName),
                  "%s.dzn".format(instanceName),
                  "tmp/%s/%s/%s/%s".format(suiteName, problemName, modelName, instanceName))
             case NonStandardMiniZincBenchmarksLayout =>
-                ("%s/problems/%s".format(suitePath, problemName),
+                ("%s/%s".format(suitePath, problemName),
                  "%s.mzn".format(instanceName),
                  "",
                  "tmp/%s/%s/%s".format(suiteName, problemName, instanceName))
@@ -103,7 +103,7 @@ class MiniZincSolutionVerifier(
         solutionWriter.close
         val minizincCommand = mutable.ArrayBuffer(
             "minizinc",
-             "-v",
+            "-v",
             // Tell minizinc where to find the MiniZinc model.
             "-I", includePath,
             // The following directory contains definitions of predicates and functions supported
