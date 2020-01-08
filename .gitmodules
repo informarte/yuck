@@ -1,0 +1,3 @@
+[submodule "resources/mzn/tests/minizinc-benchmarks"]
+	path = resources/mzn/tests/minizinc-benchmarks
+	url = https://github.com/informarte/minizinc-benchmarks.git
