@@ -23,20 +23,16 @@ final class FlatZincCompiler
 
     override def call = {
 
-        val cc =
-            if (cfg.preferImplicitSolvingOverDomainPruning) {
-                try {
-                    preferImplicitSolvingOverDomainPruning
-                }
-                catch {
-                    case error: VariableWithInfiniteDomainException =>
-                        logger.log(error.getMessage)
-                        logger.log("Trying again, now with pruning before neighbourhood generation")
-                        preferDomainPruningOverImplicitSolving
-                }
-            } else {
-                preferDomainPruningOverImplicitSolving
-            }
+        val cc = new CompilationContext(ast, cfg, logger, sigint)
+
+        run(new DomainInitializer(cc, randomGenerator.nextGen))
+        run(new VariableFactory(cc, randomGenerator.nextGen))
+        run(new VariableClassifier(cc, randomGenerator.nextGen))
+        run(new ConstraintFactory(cc, randomGenerator.nextGen, sigint))
+        run(new Presolver(cc, randomGenerator.nextGen, sigint))
+        run(new DomainFinalizer(cc, randomGenerator.nextGen))
+        run(new ObjectiveFactory(cc, randomGenerator.nextGen))
+        run(new ConstraintDrivenNeighbourhoodFactory(cc, randomGenerator.nextGen, sigint))
 
         checkSearchVariableDomains(cc)
         assignValuesToDanglingVariables(cc)
@@ -53,70 +49,6 @@ final class FlatZincCompiler
             cc.ast, cc.space, vars, arrays, cc.costVar, Option(cc.objectiveVar), cc.objective,
             cc.maybeNeighbourhood)
 
-    }
-
-    private def preferDomainPruningOverImplicitSolving: CompilationContext = {
-        val cc = new CompilationContext(ast, cfg, logger, sigint)
-        run(new DomainInitializer(cc, randomGenerator.nextGen))
-        finishCompilation(cc, true)
-        cc
-    }
-
-    private def preferImplicitSolvingOverDomainPruning: CompilationContext = {
-
-        // The compilation proceeds in three stages:
-        // The first stage identifies implicit constraints.
-        // The second stage computes domain reductions.
-        // The third stage builds the final model where implicit solving takes precedence over domain pruning.
-        // The purpose of this approach is to take domain reductions into account as far as possible without
-        // inhibiting implicit solving.
-
-        val cc2 = {
-
-            // stage 1: identify implicit constraints
-            val cc1 = new CompilationContext(ast, cfg, logger, sigint)
-            run(new DomainInitializer(cc1, randomGenerator.nextGen))
-            finishCompilation(cc1, false)
-
-            // stage 2: propagate constraints to reduce domains
-            run(new Presolver(cc1, randomGenerator.nextGen, sigint))
-
-            // stage 3: build final model, taking domain reductions into account as far as possible without
-            // inhibiting implicit solving
-            val cc2 = new CompilationContext(ast, cfg, logger, sigint)
-            run(new DomainInitializer(cc2, randomGenerator.nextGen))
-            for ((a, x) <- cc1.vars if ! cc1.implicitlyConstrainedVars.contains(x)) {
-                cc2.domains += a -> x.domain
-            }
-            cc2.equalVars ++= cc1.equalVars
-            for (constraint <- cc1.impliedConstraints
-                 if ast.involvedVariables(constraint).map(cc1.vars).intersect(cc1.implicitlyConstrainedVars).isEmpty)
-            {
-                cc2.impliedConstraints += constraint
-            }
-
-            // From this point on, we don't need cc1 anymore, so let it go out of scope to free up memory.
-            cc2
-
-        }
-
-        // continuation of stage 3
-        finishCompilation(cc2, false)
-
-        cc2
-
-    }
-
-    private def finishCompilation(cc: CompilationContext, runPresolver: Boolean): Unit = {
-        run(new VariableFactory(cc, randomGenerator.nextGen))
-        run(new VariableClassifier(cc, randomGenerator.nextGen))
-        run(new ConstraintFactory(cc, randomGenerator.nextGen, sigint))
-        if (runPresolver) {
-            run(new Presolver(cc, randomGenerator.nextGen, sigint))
-        }
-        run(new DomainFinalizer(cc, randomGenerator.nextGen))
-        run(new ObjectiveFactory(cc, randomGenerator.nextGen))
-        run(new ConstraintDrivenNeighbourhoodFactory(cc, randomGenerator.nextGen, sigint))
     }
 
     // Use the optional root log level to focus on a particular compilation phase.

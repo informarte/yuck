@@ -23,7 +23,6 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         task.copy(
             solverConfiguration =
                 task.solverConfiguration.copy(
-                    preferImplicitSolvingOverDomainPruning = false,
                     maybeRoundLimit = Some(1)))
 
     @Test
