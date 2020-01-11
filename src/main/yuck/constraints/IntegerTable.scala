@@ -68,16 +68,19 @@ final class IntegerTable
 
     override def propagate = {
         if (costs.domain == TrueDomain) {
-            cols = null
             rows =
                 rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(IntegerValue.get(row(i)))))
-            NoPropagationOccurred.pruneDomains(
+            val effects = NoPropagationOccurred.pruneDomains(
                 for (i <- (0 until n).iterator) yield {
                     val feasibleValues = rows.iterator.map(row => IntegerValue.get(row(i))).toSet
                     val x = xs(i)
                     (x, x.domain.intersect(IntegerDomain.createDomain(feasibleValues)))
                 }
             )
+            if (! effects.affectedVariables.isEmpty) {
+                cols = null
+            }
+            effects
         } else {
             NoPropagationOccurred
         }
@@ -85,6 +88,7 @@ final class IntegerTable
 
     override def initialize(now: SearchState) = {
         val m = rows.size
+        cols = rows.transpose
         currentDistances = new Array[Int](m)
         futureDistances = new Array[Int](m)
         for (j <- 0 until m) {
@@ -101,7 +105,7 @@ final class IntegerTable
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         val m = rows.size
         if (cols == null) {
-            cols = rows.transpose
+            initialize(before)
         }
         Array.copy(currentDistances, 0, futureDistances, 0, m)
         val is = {
