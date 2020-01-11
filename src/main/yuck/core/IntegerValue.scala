@@ -16,7 +16,10 @@ final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
         }
         case _ => false
     }
-    @inline override def compare(that: IntegerValue) = safeSub(this.value, that.value)
+    @inline override def compare(that: IntegerValue) =
+        if (this.value < that.value) -1
+        else if (this.value > that.value) 1
+        else 0
     override def toString = value.toString
     override def +(that: IntegerValue) = IntegerValue.get(safeAdd(this.value, that.value))
     override def -(that: IntegerValue) = IntegerValue.get(safeSub(this.value, that.value))

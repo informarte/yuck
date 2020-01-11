@@ -25,7 +25,10 @@ final class BooleanValue(val violation: Long) extends NumericalValue[BooleanValu
         }
         case _ => false
     }
-    @inline override def compare(that: BooleanValue) = this.violation.compare(that.violation)
+    @inline override def compare(that: BooleanValue) =
+        if (this.violation < that.violation) -1
+        else if (this.violation > that.violation) 1
+        else 0
     override def toString =
         if (violation == 0) "true" else if (violation == 1) "false" else "false(%d)".format(violation)
     /** Returns true iff the violation is zero. */
