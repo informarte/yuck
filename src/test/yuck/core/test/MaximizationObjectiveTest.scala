@@ -16,7 +16,7 @@ final class MaximizationObjectiveTest extends UnitTest {
     private val space = new Space(logger, sigint)
     private val baseDomain = new IntegerRange(Zero, Nine)
     private val x = new IntegerVariable(space.nextVariableId, "x", baseDomain)
-    private val objective = new MaximizationObjective(x, Zero, Some(One))
+    private val objective = new MaximizationObjective(x, Some(Zero), Some(One))
 
     @Test
     def testCostComparison: Unit = {

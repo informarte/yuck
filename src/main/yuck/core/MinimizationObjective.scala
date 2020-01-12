@@ -8,7 +8,7 @@ package yuck.core
 final class MinimizationObjective
     [Value <: NumericalValue[Value]]
     (x: NumericalVariable[Value],
-     override val targetCosts: Value,
+     maybeTargetCosts: Option[Value],
      maybeTighteningStep: Option[Value])
     (implicit valueTraits: NumericalValueTraits[Value])
     extends NumericalObjective[Value](x)
@@ -16,6 +16,13 @@ final class MinimizationObjective
     require(maybeTighteningStep.isEmpty || maybeTighteningStep.get < valueTraits.zero)
     override def toString =
         "min %s".format(x)
+    override def targetCosts: Value = {
+        val dx = x.domain
+        if (dx.hasLb && maybeTargetCosts.isDefined) valueTraits.valueOrdering.max(dx.lb, maybeTargetCosts.get)
+        else if (dx.hasLb) dx.lb
+        else if (maybeTargetCosts.isDefined) maybeTargetCosts.get
+        else valueTraits.minValue
+    }
     override def isSolution(costs: Costs) =
         costs.asInstanceOf[Value] <= targetCosts
     override def compareCosts(lhs: Costs, rhs: Costs) =

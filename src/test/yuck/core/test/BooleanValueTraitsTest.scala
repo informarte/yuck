@@ -16,6 +16,14 @@ final class BooleanValueTraitsTest extends UnitTest {
     import BooleanValueTraits._
 
     @Test
+    def testSpecialValue: Unit = {
+        assertEq(zero, True)
+        assertEq(one, False)
+        assertEq(minValue, True)
+        assertEq(maxValue.violation, Long.MaxValue)
+    }
+
+    @Test
     def testSpecialDomains: Unit = {
         assertEq(emptyDomain, EmptyBooleanDomain)
         assertEq(completeDomain, CompleteBooleanDomain)

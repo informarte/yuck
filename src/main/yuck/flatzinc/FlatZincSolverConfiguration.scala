@@ -26,7 +26,6 @@ case class FlatZincSolverConfiguration(
     val maybeRoundLimit: Option[Int] = None,
     val maybeRuntimeLimitInSeconds: Option[Int] = None,
     val maybeTargetObjectiveValue: Option[Int] = None,
-    val maybeQualityTolerance: Option[Int] = None,
     val stopOnFirstSolution: Boolean = false,
     val runPresolver: Boolean = true,
     val useProgressiveTightening: Boolean = true,

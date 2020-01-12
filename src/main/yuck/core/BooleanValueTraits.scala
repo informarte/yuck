@@ -11,6 +11,8 @@ object BooleanValueTraits extends NumericalValueTraits[BooleanValue] {
     override val valueType = classOf[BooleanValue]
     override val zero = True
     override val one = False
+    override val minValue = True
+    override val maxValue = BooleanValue.get(Long.MaxValue)
     override val valueOrdering = BooleanValueOperations
     override val numericalOperations = BooleanValueOperations
     override val orderingCostModel = BooleanValueOrderingCostModel

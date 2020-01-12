@@ -152,7 +152,7 @@ final class MiniZincExamples extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
     def testOss: Unit = {
-        solve(task.copy(problemName = "oss", maybeOptimum = Some(1168), maybeQualityTolerance = Some(100)))
+        solve(task.copy(problemName = "oss", maybeOptimum = Some(1168), maybeTargetObjectiveValue = Some(1250)))
     }
 
     @Test
@@ -194,7 +194,7 @@ final class MiniZincExamples extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
     def testProductFd: Unit = {
-        solve(task.copy(problemName = "product_fd", maybeOptimum = Some(37200), maybeQualityTolerance = Some(200)))
+        solve(task.copy(problemName = "product_fd", maybeOptimum = Some(37200), maybeTargetObjectiveValue = Some(37400)))
     }
 
     // Variables inside and outside do not have infinite domains and pruning cannot make them finite.
@@ -210,7 +210,7 @@ final class MiniZincExamples extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
     def testRadiation: Unit = {
-        solve(task.copy(problemName = "radiation", maybeOptimum = Some(553), maybeQualityTolerance = Some(1500)))
+        solve(task.copy(problemName = "radiation", maybeOptimum = Some(553), maybeTargetObjectiveValue = Some(2000)))
     }
 
     @Test

@@ -21,8 +21,8 @@ final class HierarchicalObjectiveTest extends UnitTest {
 
     @Test
     def testCostComparison: Unit = {
-        val mainObjective = new MinimizationObjective(x, Zero, None)
-        val subordinateObjective = new MaximizationObjective(y, Nine, Some(One))
+        val mainObjective = new MinimizationObjective(x, Some(Zero), None)
+        val subordinateObjective = new MaximizationObjective(y, Some(Nine), Some(One))
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false)
         val a = new Assignment
         a.setValue(x, Zero)
@@ -40,8 +40,8 @@ final class HierarchicalObjectiveTest extends UnitTest {
     @Test
     def testMoveAssessment: Unit = {
         import scala.math.Ordering.Double.TotalOrdering
-        val mainObjective = new MinimizationObjective(x, Zero, None)
-        val subordinateObjective = new MaximizationObjective(y, Nine, Some(One))
+        val mainObjective = new MinimizationObjective(x, Some(Zero), None)
+        val subordinateObjective = new MaximizationObjective(y, Some(Nine), Some(One))
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false)
         val a = new Assignment
         a.setValue(x, Zero)
@@ -73,8 +73,8 @@ final class HierarchicalObjectiveTest extends UnitTest {
     @Test
     def testTighteningWithMinimization: Unit = {
         val z = new BooleanVariable(space.nextVariableId, "z", TrueDomain)
-        val mainObjective = new MinimizationObjective(z, True, None)
-        val subordinateObjective = new MinimizationObjective(y, baseDomain.lb, Some(MinusOne))
+        val mainObjective = new MinimizationObjective(z, Some(True), None)
+        val subordinateObjective = new MinimizationObjective(y, Some(baseDomain.lb), Some(MinusOne))
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false)
         val now = space.searchState
         space.post(new Lt(space.nextConstraintId, null, x, y, z))
@@ -109,8 +109,8 @@ final class HierarchicalObjectiveTest extends UnitTest {
     @Test
     def testTighteningWithMaximization: Unit = {
         val z = new BooleanVariable(space.nextVariableId, "z", TrueDomain)
-        val mainObjective = new MinimizationObjective(z, True, None)
-        val subordinateObjective = new MaximizationObjective(y, baseDomain.ub, Some(One))
+        val mainObjective = new MinimizationObjective(z, Some(True), None)
+        val subordinateObjective = new MaximizationObjective(y, Some(baseDomain.ub), Some(One))
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false)
         val now = space.searchState
         space.post(new Lt(space.nextConstraintId, null, y, x, z))

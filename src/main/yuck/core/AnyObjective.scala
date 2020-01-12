@@ -15,7 +15,7 @@ case class TighteningResult(val searchState: SearchState, val maybeTightenedVari
 abstract class AnyObjective {
 
     /** Returns the quality to achieve. */
-    val targetCosts: Costs
+    def targetCosts: Costs
 
     /** Measures the quality of the given search state. */
     def costs(searchState: SearchState): Costs

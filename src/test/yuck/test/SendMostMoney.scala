@@ -110,8 +110,8 @@ final class SendMostMoney extends IntegrationTest {
                     randomGenerator.nextGen,
                     // cf. http://gecoder.rubyforge.org/examples/send-most-money.html
                     new HierarchicalObjective(
-                        List(new MinimizationObjective(costs, True, None),
-                             new MaximizationObjective(rhs, new IntegerValue(10876), None)),
+                        List(new MinimizationObjective(costs, Some(True), None),
+                             new MaximizationObjective(rhs, Some(IntegerValue.get(10876)), None)),
                         false),
                     None,
                     Some(new StandardAnnealingMonitor(logger)),

@@ -31,16 +31,14 @@ final class ObjectiveFactory
             case Minimize(a, _) =>
                 val x = compileIntExpr(a)
                 val dx = x.domain
-                val lb =
-                    cfg.maybeTargetObjectiveValue
-                    .orElse(dx.maybeLb.map(_.value))
-                    .getOrElse(Int.MinValue)
-                    .+(cfg.maybeQualityTolerance.getOrElse(0))
-                logger.log("Target objective value for minimization: %s".format(lb))
                 val maybeObjectiveVar =
                     if (space.isDanglingVariable(x)) {
+                        val lb =
+                            dx.maybeLb.getOrElse(
+                                cfg.maybeTargetObjectiveValue.map(IntegerValue.get).getOrElse(
+                                    IntegerValueTraits.minValue))
                         logger.log("Objective variable %s is dangling, assigning %s to it".format(x, lb))
-                        space.setValue(x, IntegerValue.get(lb))
+                        space.setValue(x, lb)
                         None
                     }
                     else if (
@@ -60,22 +58,22 @@ final class ObjectiveFactory
                         Some(x)
                     }
                 if (maybeObjectiveVar.isDefined) {
-                    objectives += new MinimizationObjective[IntegerValue](maybeObjectiveVar.get, IntegerValue.get(lb), Some(MinusOne))
+                    objectives +=
+                        new MinimizationObjective[IntegerValue](
+                            maybeObjectiveVar.get, cfg.maybeTargetObjectiveValue.map(IntegerValue.get), Some(MinusOne))
                     cc.objectiveVar = maybeObjectiveVar.get
                 }
             case Maximize(a, _) =>
                 val x = compileIntExpr(a)
                 val dx = x.domain
-                val ub =
-                    cfg.maybeTargetObjectiveValue
-                    .orElse(dx.maybeUb.map(_.value))
-                    .getOrElse(Int.MaxValue)
-                    .-(cfg.maybeQualityTolerance.getOrElse(0))
-                logger.log("Target objective value for maximization: %s".format(ub))
                 val maybeObjectiveVar =
                     if (space.isDanglingVariable(x)) {
+                        val ub =
+                            dx.maybeUb.getOrElse(
+                                cfg.maybeTargetObjectiveValue.map(IntegerValue.get).getOrElse(
+                                    IntegerValueTraits.maxValue))
                         logger.log("Objective variable %s is dangling, assigning %s to it".format(x, ub))
-                        space.setValue(x, IntegerValue.get(ub))
+                        space.setValue(x, ub)
                         None
                     }
                     else if (
@@ -95,13 +93,15 @@ final class ObjectiveFactory
                         Some(x)
                     }
                 if (maybeObjectiveVar.isDefined) {
-                    objectives += new MaximizationObjective[IntegerValue](maybeObjectiveVar.get, IntegerValue.get(ub), Some(One))
+                    objectives +=
+                        new MaximizationObjective[IntegerValue](
+                            maybeObjectiveVar.get, cfg.maybeTargetObjectiveValue.map(IntegerValue.get), Some(One))
                     cc.objectiveVar = maybeObjectiveVar.get
                 }
         }
         cc.costVar = createBoolChannel
         space.post(new Sum(nextConstraintId, null, costVars.toIndexedSeq, cc.costVar))
-        objectives += new MinimizationObjective(cc.costVar, True, None)
+        objectives += new MinimizationObjective(cc.costVar, Some(True), None)
         cc.objective =
             if (objectives.size == 1) objectives.head
             else new HierarchicalObjective(objectives.toList.reverse, cfg.stopOnFirstSolution)

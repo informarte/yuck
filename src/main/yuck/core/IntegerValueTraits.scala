@@ -11,6 +11,8 @@ object IntegerValueTraits extends IntegralValueTraits[IntegerValue] {
     override val valueType = classOf[IntegerValue]
     override val zero = Zero
     override val one = One
+    override val minValue = IntegerValue.get(Int.MinValue)
+    override val maxValue = IntegerValue.get(Int.MaxValue)
     override val valueOrdering = IntegerValueOperations
     override val numericalOperations = IntegerValueOperations
     override val orderingCostModel = IntegerValueOrderingCostModel

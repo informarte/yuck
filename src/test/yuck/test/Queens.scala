@@ -62,7 +62,7 @@ final class Queens extends IntegrationTest {
                     new RandomCircularSwapGenerator(
                         space, rows.toIndexedSeq, randomGenerator.nextGen, DefaultMoveSizeDistribution, None, None),
                     randomGenerator.nextGen,
-                    new MinimizationObjective(conflicts, True, None),
+                    new MinimizationObjective(conflicts, Some(True), None),
                     None,
                     Some(new StandardAnnealingMonitor(logger)),
                     None,

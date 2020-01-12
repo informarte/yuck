@@ -11,7 +11,7 @@ final class HierarchicalObjective(
     extends AnyObjective
 {
     require(! objectives.isEmpty)
-    override val targetCosts =
+    override def targetCosts =
         new PolymorphicListValue(objectives.map(_.targetCosts))
     override def toString =
         objectives.toString

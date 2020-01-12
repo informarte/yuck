@@ -33,7 +33,7 @@ case class MiniZincTestTask(
     val maybeRuntimeLimitInSeconds: Option[Int] = Some(300), // overrules solverConfiguration.maybeRuntimeLimitInSeconds
     val maybeOptimum: Option[Int] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
     val maybeHighScore: Option[Int] = None, // best ever recorded objective value
-    val maybeQualityTolerance: Option[Int] = None, // overrules solverConfiguration.maybeQualityTolerance
+    val maybeTargetObjectiveValue: Option[Int] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
     val logLevel: yuck.util.logging.LogLevel = yuck.util.logging.InfoLogLevel,
     val assertWhenUnsolved: Boolean = false,
     val reusePreviousTestResult: Boolean = true,

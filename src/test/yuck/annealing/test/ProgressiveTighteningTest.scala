@@ -51,18 +51,18 @@ final class ProgressiveTighteningTest
         val mainObjective = mainObjectiveType match {
             case Min =>
                 space.setValue(x, Nine)
-                new MinimizationObjective(x, Zero, None)
+                new MinimizationObjective(x, Some(Zero), None)
             case Max =>
                 space.setValue(x, Zero)
-                new MaximizationObjective(x, Nine, None)
+                new MaximizationObjective(x, Some(Nine), None)
         }
         val subordinateObjective = subordinateObjectiveType match {
             case Min =>
                 space.setValue(y, Nine)
-                new MinimizationObjective(y, Zero, Some(MinusOne))
+                new MinimizationObjective(y, Some(Zero), Some(MinusOne))
             case Max =>
                 space.setValue(y, Zero)
-                new MaximizationObjective(y, Nine, Some(One))
+                new MaximizationObjective(y, Some(Nine), Some(One))
         }
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false)
         val solver =

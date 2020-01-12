@@ -19,6 +19,8 @@ final class IntegerValueTraitsTest extends UnitTest {
     def testSpecialValues: Unit = {
         assertEq(zero, Zero)
         assertEq(one, One)
+        assertEq(minValue.value, Int.MinValue)
+        assertEq(maxValue.value, Int.MaxValue)
     }
 
     @Test

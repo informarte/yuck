@@ -27,6 +27,12 @@ abstract class NumericalValueTraits[Value <: NumericalValue[Value]] extends Orde
     /** Returns the multiplicative identity. */
     val one: Value
 
+    /** Returns the smallest representable value. */
+    val minValue: Value
+
+    /** Returns the greatest representable value. */
+    val maxValue: Value
+
     /** Returns the domain that contains all non-negative values. */
     val nonNegativeDomain: NumericalDomain[Value]
 
