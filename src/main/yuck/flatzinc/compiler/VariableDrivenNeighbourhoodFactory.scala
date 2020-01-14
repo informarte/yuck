@@ -58,7 +58,11 @@ final class VariableDrivenNeighbourhoodFactory
             }
         val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
         val candidatesForImplicitSolving =
-            space.involvedConstraints(x).iterator.filter(_.isCandidateForImplicitSolving(space)).toBuffer.sorted
+            if (cfg.useImplicitSolving) {
+                space.involvedConstraints(x).iterator.filter(_.isCandidateForImplicitSolving(space)).toBuffer.sorted
+            } else {
+                Nil
+            }
         for (constraint <- randomGenerator.shuffle(candidatesForImplicitSolving)) {
             val xs = constraint.inVariables.toSet
             if ((xs & implicitlyConstrainedVars).isEmpty) {
