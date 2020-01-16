@@ -16,7 +16,6 @@ final class IntegerRange
     (override val lb: IntegerValue, override val ub: IntegerValue)
     extends IntegerDomain
 {
-
     def equals(that: IntegerRange): Boolean =
         this.eq(that) || (this.isEmpty && that.isEmpty) || this.lb == that.lb && this.ub == that.ub
 
@@ -126,6 +125,10 @@ final class IntegerRange
             val b = randomValue(randomGenerator)
             if (a < b) createRange(a, b) else createRange(b, a)
         }
+
+    override def mirrored: IntegerRange =
+        if (isEmpty) this
+        else createRange(maybeUb.map(_.negate).orNull, maybeLb.map(_.negate).orNull)
 
     /**
      * Implements range multiplication as described in:

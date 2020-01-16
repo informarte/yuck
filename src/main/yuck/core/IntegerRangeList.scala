@@ -183,6 +183,10 @@ final class IntegerRangeList
         if (isEmpty) EmptyIntegerRange
         else ranges(randomGenerator.nextInt(ranges.size)).randomSubrange(randomGenerator)
 
+    override def mirrored: IntegerRangeList =
+        if (isEmpty) this
+        else new IntegerRangeList(ranges.reverseIterator.map(_.mirrored).toIndexedSeq)
+
     private def cannotIntersect(that: IntegerRangeList): Boolean =
         this.isEmpty ||
         that.isEmpty ||

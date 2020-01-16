@@ -39,6 +39,11 @@ abstract class NumericalDomainPruner[Value <: NumericalValue[Value]] extends Ord
         (Iterator[NumericalDomain[Value]], NumericalDomain[Value]) =
         (lhs.iterator.map(valueTraits.safeDowncast), valueTraits.safeDowncast(rhs))
 
+    def absRule
+        (lhs: NumericalDomain[Value], rhs: NumericalDomain[Value]):
+        (NumericalDomain[Value], NumericalDomain[Value]) =
+        (lhs, rhs)
+
     def linEqRule
         (lhs: Iterable[(Value, NumericalDomain[Value])], rhs: NumericalDomain[Value]):
         (Iterator[NumericalDomain[Value]], NumericalDomain[Value]) =

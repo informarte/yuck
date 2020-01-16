@@ -25,4 +25,5 @@ object BooleanChannelDomain extends BooleanDomain {
     override def boundFromBelow(lb: BooleanValue) = !!!
     override def boundFromAbove(ub: BooleanValue) = !!!
     override def bisect = !!!
+    override def mirrored = !!!
 }

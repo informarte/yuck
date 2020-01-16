@@ -306,6 +306,23 @@ final class IntegerDomainTestHelper
         }
     }
 
+    private def testMirroring(d: IntegerDomain): Unit = {
+        val e = d.mirrored
+        if (d.isFinite) {
+            assert(e.isFinite)
+            d.valuesIterator.forall(a => e.contains(a.negate))
+            e.valuesIterator.forall(a => d.contains(a.negate))
+        } else {
+            d match {
+                case _: IntegerRange =>
+                    assertEq(e.lb, if (d.hasUb) d.ub.negate else null)
+                    assertEq(e.ub, if (d.hasLb) d.lb.negate else null)
+                case d: IntegerRangeList =>
+                    assertEq(e, new IntegerRangeList(d.ranges.reverseIterator.map(_.mirrored).toIndexedSeq))
+            }
+        }
+    }
+
     def testRepresentation(createRange: (IntegerValue, IntegerValue) => IntegerDomain): Unit = {
 
         // {}
@@ -505,6 +522,7 @@ final class IntegerDomainTestHelper
                 }
             }
             testBisecting(d)
+            testMirroring(d)
         }
     }
 

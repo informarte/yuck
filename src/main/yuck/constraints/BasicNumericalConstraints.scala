@@ -115,10 +115,15 @@ final class Abs
     [Value <: NumericalValue[Value]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: NumericalVariable[Value], y: NumericalVariable[Value])
+    (implicit valueTraits: NumericalValueTraits[Value])
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "%s = |%s|".format(y, x)
     override def op(a: Value) = a.abs
+    override def propagate = {
+        val (dx1, dy1) = valueTraits.domainPruner.absRule(x.domain, y.domain)
+        NoPropagationOccurred.pruneDomains(x, dx1, y, dy1)
+    }
 }
 
 /**

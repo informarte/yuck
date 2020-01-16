@@ -28,6 +28,11 @@ abstract class NumericalDomain[Value <: NumericalValue[Value]] extends OrderedDo
 
     override def hull: NumericalDomain[Value]
 
+    /**
+     * Negates all values of this domain and returns the domain created from the resulting values.
+     */
+    def mirrored: NumericalDomain[Value]
+
     override def randomSubdomain(randomGenerator: RandomGenerator): NumericalDomain[Value]
     override def intersect(that: Domain[Value]): NumericalDomain[Value]
     override def union(that: Domain[Value]): NumericalDomain[Value]

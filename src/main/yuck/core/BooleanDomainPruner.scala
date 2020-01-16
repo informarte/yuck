@@ -56,20 +56,6 @@ object BooleanDomainPruner extends NumericalDomainPruner[BooleanValue] {
          if (lhs1.isSingleton && lhs1.singleValue == True) createDomain(false, rhs1.contains(True)) else rhs1)
     }
 
-    override def minRule
-        (lhs: Iterable[OrderedDomain[BooleanValue]], rhs: OrderedDomain[BooleanValue]):
-        (Iterator[BooleanDomain], BooleanDomain) =
-    {
-        (lhs.iterator.map(ensureDecisionDomain(_)), ensureDecisionDomain(rhs))
-    }
-
-    override def maxRule
-        (lhs: Iterable[OrderedDomain[BooleanValue]], rhs: OrderedDomain[BooleanValue]):
-        (Iterator[BooleanDomain], BooleanDomain) =
-    {
-        (lhs.iterator.map(ensureDecisionDomain(_)), ensureDecisionDomain(rhs))
-    }
-
     // conjunction
     override def linEqRule
         (lhs0: Iterable[(BooleanValue, NumericalDomain[BooleanValue])], rhs0: NumericalDomain[BooleanValue]):

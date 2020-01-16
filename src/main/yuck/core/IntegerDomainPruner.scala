@@ -57,9 +57,9 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
             (for (_ <- lhs0.iterator) yield EmptyIntegerRange, EmptyIntegerRange)
         } else {
             val lhs1 = lhs0.iterator.map(d => leRule(rhs0, d)._2)
-            val minLb = lhs0.iterator.filter(_.hasLb).map(_.lb).reduceLeftOption((a, b) => if (a < b) a else b)
-            val minUb = lhs0.iterator.filter(_.hasUb).map(_.ub).reduceLeftOption((a, b) => if (a < b) a else b)
-            val rhs1 = createRange(minLb.orNull, minUb.orNull).intersect(rhs0)
+            val maybeMinLb = lhs0.iterator.filter(_.hasLb).map(_.lb).reduceLeftOption((a, b) => if (a < b) a else b)
+            val maybeMinUb = lhs0.iterator.filter(_.hasUb).map(_.ub).reduceLeftOption((a, b) => if (a < b) a else b)
+            val rhs1 = createRange(maybeMinLb.orNull, maybeMinUb.orNull).intersect(rhs0)
             (lhs1, rhs1)
         }
     }
@@ -73,11 +73,22 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
             (for (_ <- lhs0.iterator) yield EmptyIntegerRange, EmptyIntegerRange)
         } else {
             val lhs1 = lhs0.iterator.map(d => leRule(d, rhs0)._1)
-            val maxLb = lhs0.iterator.filter(_.hasLb).map(_.lb).reduceLeftOption((a, b) => if (a > b) a else b)
-            val maxUb = lhs0.iterator.filter(_.hasUb).map(_.ub).reduceLeftOption((a, b) => if (a > b) a else b)
-            val rhs1 = createRange(maxLb.orNull, maxUb.orNull).intersect(rhs0)
+            val maybeMaxLb = lhs0.iterator.filter(_.hasLb).map(_.lb).reduceLeftOption((a, b) => if (a > b) a else b)
+            val maybeMaxUb = lhs0.iterator.filter(_.hasUb).map(_.ub).reduceLeftOption((a, b) => if (a > b) a else b)
+            val rhs1 = createRange(maybeMaxLb.orNull, maybeMaxUb.orNull).intersect(rhs0)
             (lhs1, rhs1)
         }
+    }
+
+    override def absRule
+        (lhs0: NumericalDomain[IntegerValue], rhs0: NumericalDomain[IntegerValue]):
+        (IntegerDomain, IntegerDomain) =
+    {
+        val lhs1 = lhs0.asInstanceOf[IntegerDomain]
+        val rhs1 = NonNegativeIntegerRange.intersect(rhs0)
+        val lhs2 = lhs1.intersect(rhs1.union(rhs1.mirrored))
+        val rhs2 = rhs1.intersect(lhs1.union(lhs1.mirrored))
+        (lhs2, rhs2)
     }
 
     override def linEqRule
@@ -100,15 +111,10 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         //     sum a_i * x_i  = b
         // <-> sum a_i * x_i <= b & sum  a_i * x_i >=  b
         // <-> sum a_i * x_i <= b & sum -a_i * x_i <= -b
-        def negativeValue(a: IntegerValue): IntegerValue =
-            IntegerValue.get(safeNeg(a.value))
-        def mirrorRange(range: NumericalDomain[IntegerValue]): NumericalDomain[IntegerValue] =
-            if (range.isEmpty) range
-            else createRange(range.maybeUb.map(negativeValue).orNull, range.maybeLb.map(negativeValue).orNull)
         val (lhs1, rhs1) = linLeRule(lhs0, rhs0)
-        val (lhs2, rhs2) = linLeRule(lhs0.map{case (a, d) => (negativeValue(a), d)}, mirrorRange(rhs0.hull))
+        val (lhs2, rhs2) = linLeRule(lhs0.map{case (a, d) => (a.negate, d)}, rhs0.hull.mirrored)
         val lhs3 = for ((d, e) <- lhs1.iterator.zip(lhs2.iterator)) yield d.intersect(e)
-        val rhs3 = rhs1.intersect(mirrorRange(rhs2))
+        val rhs3 = rhs1.intersect(rhs2.mirrored)
         (lhs3, rhs3)
     }
 
@@ -145,7 +151,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
                             createRange(null, IntegerValue.get(floor(alpha).toInt)).intersect(d)
                         } else {
                             // In the book, a is positive, but here it is negative, so we have to use -a!
-                            val beta = safeSub(safeAdd(safeNeg(rhs0.ub.value), posTerm), safeSub(negTerm, -a.value * d.ub.value)).toDouble / -a.value
+                            val beta = safeSub(safeAdd(safeNeg(rhs0.ub.value), posTerm), safeSub(negTerm, safeNeg(a.value) * d.ub.value)).toDouble / safeNeg(a.value)
                             createRange(IntegerValue.get(ceil(beta).toInt), null).intersect(d)
                         }
                     }

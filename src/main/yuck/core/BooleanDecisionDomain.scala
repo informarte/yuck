@@ -57,6 +57,7 @@ final class BooleanDecisionDomain
     override def boundFromBelow(lb: BooleanValue) = ???
     override def boundFromAbove(ub: BooleanValue) = ???
     override def bisect = ???
+    override def mirrored = !!!
 }
 
 /**

@@ -27,8 +27,7 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     private val randomGenerator = new JavaRandomGenerator
-    private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
-    private val testData = helper.createTestData(baseRange = -5 to 5, sampleSize = 32)
+    private val testData = IntegerDomainTestHelper.createTestData(baseRange = -5 to 5, sampleSize = 32, randomGenerator)
 
     private def testEqRule(d: IntegerDomain, e: IntegerDomain): Unit = {
         assertEq(IntegerDomainPruner.eqRule(d, e), (d.intersect(e), d.intersect(e)))
@@ -220,6 +219,36 @@ class IntegerDomainPrunerTest extends UnitTest {
             (List(1 to 3, 2 to 5), EmptyIntegerRange),
             (List(EmptyIntegerRange, EmptyIntegerRange), EmptyIntegerRange))
 
+    }
+
+    private def testAbsRule(d: IntegerDomain, e0: IntegerDomain): Unit = {
+        val e = e0.intersect(NonNegativeIntegerRange)
+        val (f, g) = IntegerDomainPruner.absRule(d, e0)
+        assert(f.isSubsetOf(d))
+        assert(g.isSubsetOf(e))
+        assert(! (d.isEmpty || e.isEmpty) || (f.isEmpty && g.isEmpty))
+        assert(! (d.isFinite || e.isFinite) || (f.isFinite && g.isFinite))
+        assert(g.intersect(NegativeIntegerRange).isEmpty)
+        assertEq(g, f.intersect(NegativeIntegerRange).mirrored.union(f.intersect(NonNegativeIntegerRange)))
+        if (d.isFinite) {
+            assert(d.valuesIterator.forall(a => f.contains(a) == e.contains(a.abs)))
+        } else {
+            assertEq(f, d.intersect(e.union(e.mirrored)))
+        }
+        if (e.isFinite) {
+            assert(e.valuesIterator.forall(a => g.contains(a) == (d.contains(a) || d.contains(a.negate))))
+        } else {
+            assertEq(g, e.intersect(d.union(d.mirrored)))
+        }
+    }
+
+    @Test
+    def testAbsRule: Unit = {
+        for (d <- testData) {
+            for (e <- testData) {
+                testAbsRule(d, e)
+            }
+        }
     }
 
     @Test

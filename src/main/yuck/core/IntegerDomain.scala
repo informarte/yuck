@@ -39,6 +39,7 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
     }
 
     override def hull: IntegerRange
+    override def mirrored: IntegerDomain
 
     /** Return true iff the domain has at least one gap. */
     def hasGaps: Boolean
