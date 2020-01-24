@@ -64,7 +64,7 @@ object IntegerValue {
     implicit def domainOrdering = IntegerDomainOrdering
 
     private val valueRange = Range(-10000, 10000, 1)
-    private val valueCache = valueRange.map(new IntegerValue(_)).toArray
+    private val valueCache = valueRange.iterator.map(new IntegerValue(_)).toArray
 
     /**
      * Returns an IntegerValue instance for the given integer.

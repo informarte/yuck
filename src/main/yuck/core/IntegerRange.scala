@@ -48,7 +48,16 @@ final class IntegerRange
     }
     override def valuesIterator = {
         require(isFinite)
-        (lb.value to ub.value).iterator.map(a => IntegerValue.get(a))
+        // We don't use the Scala Range type to avoid integer boxing.
+        new Iterator[IntegerValue] {
+            private var i = lb.value
+            override def hasNext = i <= ub.value
+            override def next = {
+                val a = IntegerValue.get(i)
+                i += 1
+                a
+            }
+        }
     }
     override def singleValue = {
         require(isSingleton)

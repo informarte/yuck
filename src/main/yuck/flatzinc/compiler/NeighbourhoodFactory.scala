@@ -2,24 +2,36 @@ package yuck.flatzinc.compiler
 
 import scala.collection._
 
-import yuck.constraints.{Alldistinct, DistributionMaintainer, BinaryConstraint}
+import yuck.constraints.{Alldistinct, BinaryConstraint, OptimizationGoalTracker, SatisfactionGoalTracker}
 import yuck.core._
-import yuck.flatzinc.ast.{Minimize, Maximize}
+import yuck.flatzinc.ast.{Maximize, Minimize}
 
 /**
  * Customizable factory for creating a neighbourhood for the problem at hand.
  *
- * The default implementation creates a [[yuck.core.RandomReassignmentGenerator
- * RandomReassignmentGenerator]] instance on the involved search variables.
- * This behaviour can be customized via three hooks:
- * createNeighbourhoodFor{Satisfaction, Minimization, Maximization}Goal.
+ * Candidates for implicit solving are handled with priority to avoid that their variables
+ * get included into other neighbourhoods. (In case two candidates for implicit solving
+ * compete for a variable, this conflict is resolved by random choice.)
+ *
+ * The default implementation for satisfaction goals creates a
+ * [[yuck.core.RandomReassignmentGenerator RandomReassignmentGenerator]] instance
+ * with a focus on search variables that are involved in constraint violations.
+ * (The guidance is provided by an instance of [[yuck.constraints.SatisfactionGoalTracker
+ * SatisfactionGoalTracker]]).
+ * This behaviour can be customized by overloading createNeighbourhoodForSatisfactionGoal.
+ *
+ * The default implementation for optimization goals creates an unbiased
+ * [[yuck.core.RandomReassignmentGenerator RandomReassignmentGenerator]] instance
+ * on the involved search variables.
+ * This behaviour can be customized by overloading
+ * createNeighbourhoodFor{Minimization, Maximization}Goal.
  *
  * In case we end up with two neighbourhoods (one for the satisfaction goal and another
  * for the optimization goal), these neighbourhoods will be stacked by creating an instance
  * of [[yuck.core.NeighbourhoodCollection NeighbourhoodCollection]] instrumented to
  * focus on the satisfaction goal in case hard constraints are violated. To this end,
  * we keep track of goal satisfaction by means of a dynamic distribution (maintained by
- * an instance of [[yuck.constraints.DistributionMaintainer DistributionMaintainer]]).
+ * an instance of [[yuck.constraints.OptimizationGoalTracker OptimizationGoalTracker]]).
  *
  * In an attempt to decouple this factory from implementation details of data structures
  * (hash sets, in particular) and the earlier compiler stages, we sort constraints and
@@ -68,8 +80,62 @@ class NeighbourhoodFactory
         maybeNeighbourhood1
     }
 
-    protected def createNeighbourhoodForSatisfactionGoal(x: BooleanVariable): Option[Neighbourhood] =
-        createNeighbourhoodOnInvolvedSearchVariables(x)
+    protected def createNeighbourhoodForSatisfactionGoal(x: BooleanVariable): Option[Neighbourhood] = {
+        require(x == cc.costVar)
+        val levelCfg = cfg.level0Configuration
+        space.registerObjectiveVariable(x)
+        val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
+        val candidatesForImplicitSolving =
+            if (cfg.useImplicitSolving) {
+                space.involvedConstraints(x).iterator.filter(_.isCandidateForImplicitSolving(space)).toBuffer.sorted
+            } else {
+                Nil
+            }
+        for (constraint <- randomGenerator.shuffle(candidatesForImplicitSolving)) {
+            val xs = constraint.inVariables.toSet
+            if ((xs & implicitlyConstrainedVars).isEmpty) {
+                val maybeNeighbourhood =
+                    constraint.prepareForImplicitSolving(
+                        space, randomGenerator, cfg.moveSizeDistribution, _ => None, levelCfg.maybeFairVariableChoiceRate)
+                if (maybeNeighbourhood.isDefined) {
+                    implicitlyConstrainedVars ++= xs
+                    space.markAsImplicit(constraint)
+                    logger.logg("Adding a neighbourhood for implicit constraint %s".format(constraint))
+                    neighbourhoods += maybeNeighbourhood.get
+                }
+            }
+        }
+        val searchVars =
+            space.involvedSearchVariables(x).diff(implicitlyConstrainedVars).toBuffer.sorted.toIndexedSeq
+        if (! searchVars.isEmpty) {
+            for (x <- searchVars if ! x.domain.isFinite) {
+                throw new VariableWithInfiniteDomainException(x)
+            }
+            if (levelCfg.guideOptimization) {
+                val searchVarIndex = searchVars.iterator.zipWithIndex.toMap
+                val costVars = cc.costVars.toIndexedSeq
+                val hotSpotDistribution = DistributionFactory.createDistribution(searchVars.size)
+                def involvedSearchVars(x: AnyVariable) =
+                    space.involvedSearchVariables(x).diff(implicitlyConstrainedVars).iterator
+                        .map(searchVarIndex).toIndexedSeq
+                val involvementMatrix = costVars.iterator.map(x => (x, involvedSearchVars(x))).toMap
+                space.post(
+                    new SatisfactionGoalTracker(space.nextConstraintId, None, involvementMatrix, hotSpotDistribution))
+                logger.logg("Adding a neighbourhood over %s".format(searchVars))
+                neighbourhoods +=
+                    new RandomReassignmentGenerator(
+                        space, searchVars, randomGenerator,
+                        cfg.moveSizeDistribution, Some(hotSpotDistribution), levelCfg.maybeFairVariableChoiceRate)
+            } else {
+                createNeighbourhoodOnInvolvedSearchVariables(x)
+            }
+        }
+        if (neighbourhoods.size < 2) {
+            neighbourhoods.headOption
+        } else {
+            Some(new NeighbourhoodCollection(neighbourhoods.toIndexedSeq, randomGenerator, None, None))
+        }
+    }
 
     protected def createNeighbourhoodForMinimizationGoal
         [Value <: NumericalValue[Value]]
@@ -105,6 +171,19 @@ class NeighbourhoodFactory
         }
     }
 
+    protected final def createNeighbourhoodOnInvolvedSearchVariables(x: AnyVariable): Option[Neighbourhood] = {
+        space.registerObjectiveVariable(x)
+        val xs =
+            (if (space.isSearchVariable(x)) Set(x) else space.involvedSearchVariables(x)).diff(implicitlyConstrainedVars)
+        if (xs.isEmpty) {
+            None
+        } else {
+            logger.logg("Adding a neighbourhood over %s".format(xs))
+            Some(new RandomReassignmentGenerator(
+                space, xs.toBuffer.sorted.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, None, None))
+        }
+    }
+
     private final class Level
         [Value <: NumericalValue[Value]]
         (val costs: NumericalVariable[Value], val objective: AnyObjective)
@@ -134,7 +213,7 @@ class NeighbourhoodFactory
             effects
     }
 
-    private final def stackNeighbourhoods(
+    private def stackNeighbourhoods(
         costs0: BooleanVariable, maybeNeighbourhood0: Option[Neighbourhood],
         costs1: IntegerVariable, maybeNeighbourhood1: Option[Neighbourhood]):
         Option[Neighbourhood] =
@@ -150,24 +229,11 @@ class NeighbourhoodFactory
                 space.post(new LevelWeightMaintainer(nextConstraintId, level0, level1))
                 val hotSpotDistribution = new ArrayBackedDistribution(2)
                 space.post(
-                    new DistributionMaintainer(
+                    new OptimizationGoalTracker(
                         nextConstraintId, null,
                         OptimizationMode.Min, List(level0.weight, level1.weight).toIndexedSeq, hotSpotDistribution))
                 Some(new NeighbourhoodCollection(
                         Vector(neighbourhood0, neighbourhood1), randomGenerator, Some(hotSpotDistribution), None))
-        }
-    }
-
-    protected final def createNeighbourhoodOnInvolvedSearchVariables(x: AnyVariable): Option[Neighbourhood] = {
-        space.registerObjectiveVariable(x)
-        val xs =
-            (if (space.isSearchVariable(x)) Set(x) else space.involvedSearchVariables(x)).diff(implicitlyConstrainedVars)
-        if (xs.isEmpty) {
-            None
-        } else {
-            logger.logg("Adding a neighbourhood over %s".format(xs))
-            Some(new RandomReassignmentGenerator(
-                    space, xs.toBuffer.sorted.toIndexedSeq, randomGenerator, cfg.moveSizeDistribution, None, None))
         }
     }
 

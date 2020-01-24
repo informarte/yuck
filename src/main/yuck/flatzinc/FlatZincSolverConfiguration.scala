@@ -34,7 +34,7 @@ case class FlatZincSolverConfiguration(
     val checkIncrementalCostUpdate: Boolean = false,
     val checkAssignmentsToNonChannelVariables: Boolean = false,
     val moveSizeDistribution: Distribution = DistributionFactory.createDistribution(1, List(90, 10)),
-    val level0Configuration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, Some(Probability.from(3))),
+    val level0Configuration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, Some(Probability.from(9))),
     val level1Configuration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, Some(Probability.from(13))))
 {
     require(restartLimit >= 0)

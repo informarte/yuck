@@ -12,11 +12,11 @@ import yuck.core._
  *
  * @author Michael Marte
  */
-final class DistributionMaintainer
+final class OptimizationGoalTracker
     [Value <: NumericalValue[Value]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      mode: OptimizationMode.Value,
-     axs: immutable.Seq[AX[Value]], distribution: Distribution)
+     axs: immutable.IndexedSeq[AX[Value]], distribution: Distribution)
     (implicit valueTraits: NumericalValueTraits[Value])
     extends Constraint(id)
 {
@@ -24,12 +24,13 @@ final class DistributionMaintainer
     require(distribution.size == axs.size)
     require(axs.forall(_.a.toLong > Long.MinValue)) // see computeFrequency
 
-    override def toString = "distributionMaintainer([%s], %s)".format(axs.mkString(", "), distribution)
+    override def toString = "optimizationGoalTracker([%s], %s)".format(axs.mkString(", "), distribution)
+
     override def inVariables = axs.view.map(_.x)
     override def outVariables = Nil
 
     private val indexMap: immutable.Map[AnyVariable, (Int, AX[Value])] =
-        (0 until axs.size).map(i => (axs(i).x, (i, axs(i)))).toMap
+        (0 until axs.size).iterator.map(i => (axs(i).x, (i, axs(i)))).toMap
 
     override def initialize(now: SearchState) = {
         distribution.clear

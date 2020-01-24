@@ -18,7 +18,6 @@ import org.junit._
         classOf[CumulativeTest],
         classOf[Disjoint2Test],
         classOf[DisjunctionTest],
-        classOf[DistributionMaintainerTest],
         classOf[ElementTest],
         classOf[IntegerTableTest],
         classOf[InverseTest],
@@ -29,7 +28,9 @@ import org.junit._
         classOf[MaximumTest],
         classOf[MinimumTest],
         classOf[NumberOfDistinctValuesTest],
+        classOf[OptimizationGoalTrackerTest],
         classOf[RegularTest],
+        classOf[SatisfactionGoalTrackerTest],
         classOf[SumConstraintTest],
         classOf[SumTest]))
 @Test

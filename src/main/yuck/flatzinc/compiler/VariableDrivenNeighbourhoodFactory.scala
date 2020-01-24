@@ -2,7 +2,7 @@ package yuck.flatzinc.compiler
 
 import scala.collection._
 
-import yuck.constraints.{DistributionMaintainer, LinearCombination, Sum}
+import yuck.constraints.{OptimizationGoalTracker, LinearCombination, Sum}
 import yuck.core._
 import yuck.flatzinc.FlatZincLevelConfiguration
 import yuck.flatzinc.ast.IntConst
@@ -11,7 +11,10 @@ import yuck.util.arm.Sigint
 /**
  * Generates focused neighbourhoods for satisfaction and minimization goals.
  *
- * The generation of a focused neighbourhood departs from the variable x to minimize.
+ * Satisfaction goals are handled by the superclass.
+ *
+ * The generation of a focused neighbourhood for minimization departs from the
+ * variable x to minimize.
  * Say Y is the set of search variables involved in the minimization of x.
  * For each y in Y, a so-called hot-spot indicator variable h(y) is created that reflects
  * the influence of y on x, see createHotSpotIndicators.
@@ -25,14 +28,6 @@ final class VariableDrivenNeighbourhoodFactory
     (cc: CompilationContext, randomGenerator: RandomGenerator, sigint: Sigint)
     extends NeighbourhoodFactory(cc, randomGenerator)
 {
-
-    private lazy val searchVariables = space.searchVariables
-
-    protected override def createNeighbourhoodForSatisfactionGoal(x: BooleanVariable) = {
-        val levelCfg = cfg.level0Configuration
-        if (levelCfg.guideOptimization) createNeighbourhood(OptimizationMode.Min, levelCfg, x)
-        else super.createNeighbourhoodForSatisfactionGoal(x)
-    }
 
     protected override def createNeighbourhoodForMinimizationGoal
         [Value <: NumericalValue[Value]]
@@ -57,27 +52,6 @@ final class VariableDrivenNeighbourhoodFactory
                 createHotSpotIndicators(x)
             }
         val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
-        val candidatesForImplicitSolving =
-            if (cfg.useImplicitSolving) {
-                space.involvedConstraints(x).iterator.filter(_.isCandidateForImplicitSolving(space)).toBuffer.sorted
-            } else {
-                Nil
-            }
-        for (constraint <- randomGenerator.shuffle(candidatesForImplicitSolving)) {
-            val xs = constraint.inVariables.toSet
-            if ((xs & implicitlyConstrainedVars).isEmpty) {
-                val maybeNeighbourhood =
-                    constraint.prepareForImplicitSolving(
-                        space, randomGenerator, cfg.moveSizeDistribution,
-                        createHotSpotDistribution(hotSpotIndicators), levelCfg.maybeFairVariableChoiceRate)
-                if (maybeNeighbourhood.isDefined) {
-                    implicitlyConstrainedVars ++= xs
-                    space.markAsImplicit(constraint)
-                    logger.logg("Adding a neighbourhood for implicit constraint %s".format(constraint))
-                    neighbourhoods += maybeNeighbourhood.get
-                }
-            }
-        }
         val remainingVariables = hotSpotIndicators.keys.toSet -- implicitlyConstrainedVars
         if (! remainingVariables.isEmpty) {
             val xs = remainingVariables.toBuffer.sorted.toIndexedSeq
@@ -172,7 +146,7 @@ final class VariableDrivenNeighbourhoodFactory
     {
         val hotSpotDistribution = DistributionFactory.createDistribution(xs.size)
         val weightedIndicators = xs.iterator.map(x => new AX(valueTraits.one, hotSpotIndicators(x))).toIndexedSeq
-        space.post(new DistributionMaintainer(nextConstraintId, null, OptimizationMode.Min, weightedIndicators, hotSpotDistribution))
+        space.post(new OptimizationGoalTracker(nextConstraintId, null, OptimizationMode.Min, weightedIndicators, hotSpotDistribution))
         Some(hotSpotDistribution)
     }
 

@@ -5,7 +5,6 @@ import scala.jdk.CollectionConverters._
 
 import org.junit._
 
-import yuck.constraints.DistributionMaintainer
 import yuck.core._
 import yuck.util.testing.UnitTest
 

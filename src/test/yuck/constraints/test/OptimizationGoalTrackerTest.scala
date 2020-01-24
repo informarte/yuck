@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class DistributionMaintainerTest extends UnitTest {
+class OptimizationGoalTrackerTest extends UnitTest {
 
     @Test
     def testMinimizationMode: Unit = {
@@ -25,7 +25,7 @@ class DistributionMaintainerTest extends UnitTest {
         val x = new IntegerVariable(space.nextVariableId, "x", dx)
         val y = new IntegerVariable(space.nextVariableId, "y", dy)
         val axs = immutable.IndexedSeq(new AX(Three, x), new AX(IntegerValue.get(-2), y))
-        val c = new DistributionMaintainer(space.nextConstraintId, null, OptimizationMode.Min, axs, d)
+        val c = new OptimizationGoalTracker(space.nextConstraintId, null, OptimizationMode.Min, axs, d)
         space
             .post(c)
             .setValue(x, One)
@@ -77,7 +77,7 @@ class DistributionMaintainerTest extends UnitTest {
         val x = new IntegerVariable(space.nextVariableId, "x", dx)
         val y = new IntegerVariable(space.nextVariableId, "y", dy)
         val axs = immutable.IndexedSeq(new AX(Three, x), new AX(IntegerValue.get(-2), y))
-        val c = new DistributionMaintainer(space.nextConstraintId, null, OptimizationMode.Max, axs, d)
+        val c = new OptimizationGoalTracker(space.nextConstraintId, null, OptimizationMode.Max, axs, d)
         space
             .post(c)
             .setValue(x, One)
