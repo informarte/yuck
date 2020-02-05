@@ -10,19 +10,20 @@ import yuck.core._
  * and provides the minimum distance as measure of constraint violation.
  *
  * The distance of (a[1], ..., a[n]) to (b[1], ..., b[n]) is computed as
- *   |[a[1] - b[1]| + ... + |[a[n] - b[n]|.
+ *   bool2Int([a[1] == b[1]) + ... + bool2Int([a[n] - b[n]).
  *
  * @see [[yuck.Notation Notation]]
  *
  * @author Michael Marte
  */
-final class IntegerTable
+final class BooleanTable
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.IndexedSeq[IntegerVariable],
-     rows: immutable.IndexedSeq[immutable.IndexedSeq[IntegerValue]],
+     xs: immutable.IndexedSeq[BooleanVariable],
+     rows: immutable.IndexedSeq[immutable.IndexedSeq[BooleanValue]],
      costs: BooleanVariable)
     extends Table(id, xs, rows, costs)
 {
-    override def createDomain(values: Set[IntegerValue]) = IntegerDomain.createDomain(values)
-    override def computeDistance(a: IntegerValue, b: IntegerValue) = abs(safeSub(a.value, b.value))
+    override def createDomain(values: Set[BooleanValue]) =
+        BooleanDecisionDomain.createDomain(values.contains(False), values.contains(True))
+    override def computeDistance(a: BooleanValue, b: BooleanValue) = if (a.truthValue == b.truthValue) 0 else 1
 }

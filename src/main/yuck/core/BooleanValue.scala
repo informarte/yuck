@@ -69,15 +69,23 @@ object BooleanValue {
     private val valueCache = valueRange.map(new BooleanValue(_)).toArray
 
     /**
+     * Returns a BooleanValue instance for the given truth value.
+     *
+     * Tries to avoid memory allocation by re-using existing objects.
+     */
+    def get(a: Boolean): BooleanValue =
+        if (a) True else False
+
+    def get(a: Int): BooleanValue =
+        if (valueRange.contains(a)) valueCache.apply(a - valueRange.start) else new BooleanValue(a)
+
+    /**
      * Returns a BooleanValue instance for the given violation.
      *
      * Violations in valueRange are used as index into an array of prefabricated
      * BooleanValue instances, so the operation is cheap for them.
      * For other violations, a new BooleanValue instance is created.
      */
-    def get(a: Int): BooleanValue =
-        if (valueRange.contains(a)) valueCache.apply(a - valueRange.start) else new BooleanValue(a)
-
     def get(a: Long): BooleanValue =
         if (a >= Int.MinValue && a <= Int.MaxValue) get(a.toInt) else new BooleanValue(a)
 

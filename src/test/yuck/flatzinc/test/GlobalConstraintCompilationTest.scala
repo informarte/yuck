@@ -507,6 +507,22 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
+    def testTableBool: Unit = {
+        // Verification is impossible due to https://github.com/Gecode/gecode/issues/61
+        val result = solveWithResult(task.copy(problemName = "table_bool_test", verifySolution = false))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BooleanTable]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
+    def testTableBoolReif: Unit = {
+        // Verification is impossible due to https://github.com/Gecode/gecode/issues/61
+        val result = solveWithResult(task.copy(problemName = "table_bool_reif_test", verifySolution = false))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BooleanTable]), 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
     def testTableInt: Unit = {
         val result = solveWithResult(task.copy(problemName = "table_int_test"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[IntegerTable]), 1)

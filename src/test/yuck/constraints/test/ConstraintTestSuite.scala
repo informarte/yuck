@@ -12,6 +12,7 @@ import org.junit._
         classOf[BasicNumericalConstraintsTest],
         classOf[AlldistinctTest],
         classOf[BinPackingTest],
+        classOf[BooleanTableTest],
         classOf[CountConstTest],
         classOf[CountVarTest],
         classOf[CumulativeTest],
@@ -19,6 +20,7 @@ import org.junit._
         classOf[DisjunctionTest],
         classOf[DistributionMaintainerTest],
         classOf[ElementTest],
+        classOf[IntegerTableTest],
         classOf[InverseTest],
         classOf[LexLessEqTest],
         classOf[LexLessTest],
@@ -29,8 +31,7 @@ import org.junit._
         classOf[NumberOfDistinctValuesTest],
         classOf[RegularTest],
         classOf[SumConstraintTest],
-        classOf[SumTest],
-        classOf[IntegerTableTest]))
+        classOf[SumTest]))
 @Test
 final class ConstraintTestSuite {
 }

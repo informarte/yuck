@@ -31,7 +31,7 @@ final class BooleanDecisionDomain
         if (containsFalse) False else True
     }
     override def contains(a: BooleanValue) =
-        if (a.truthValue) containsTrue else containsFalse && a.violation == 1
+        if (a.truthValue) containsTrue else containsFalse
     override def randomValue(randomGenerator: RandomGenerator) = {
         require(! isEmpty)
         if (isSingleton) {

@@ -695,20 +695,16 @@ final class ConstraintFactory
             val costs = createBoolChannel
             space.post(new Disjoint2(nextConstraintId, maybeGoal, rects, strict, costs))
             List(costs)
-        case Constraint("fzn_table_int", List(as, flatT), _) =>
-            val xs = compileIntArray(as)
-            val t = compileIntArray(flatT)
-            val n = xs.size
-            require(t.size % n == 0)
+        case Constraint("fzn_table_bool", List(as, flatTable), _) =>
+            val xs = compileBoolArray(as)
+            val rows = compileBoolArray(flatTable).map(_.domain.singleValue).grouped(xs.size).toIndexedSeq
             val costs = createBoolChannel
-            val rows = t.map(_.domain.singleValue.value).grouped(n).toIndexedSeq
-            // IntegerTable is linear in the number of rows (m).
-            // In the case of performance issues, there are options:
-            // (1) Use the original FlatZinc decomposition (for big m only) which introduces
-            // a search variable to choose a row from the matrix.
-            // This approach could be implemented here or in table_int.mzn.
-            // (2) Provide an implementation on the basis of checking membership in the given row set.
-            // This approach is cheap and generic but comes at the price of a poor cost model.
+            space.post(new BooleanTable(nextConstraintId, maybeGoal, xs, rows, costs))
+            List(costs)
+        case Constraint("fzn_table_int", List(as, flatTable), _) =>
+            val xs = compileIntArray(as)
+            val rows = compileIntArray(flatTable).map(_.domain.singleValue).grouped(xs.size).toIndexedSeq
+            val costs = createBoolChannel
             space.post(new IntegerTable(nextConstraintId, maybeGoal, xs, rows, costs))
             List(costs)
         case Constraint("fzn_regular", List(xs, IntConst(q), IntConst(s), flatDelta, IntConst(q0), f), _) =>
