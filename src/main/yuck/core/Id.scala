@@ -3,12 +3,25 @@ package yuck.core
 /**
  * Represents an id for an object of the given type.
  *
+ * To prevent inadvertent boxing, Id[T] does not implement Ordered[Id[T]].
+ *
  * @author Michael Marte
  */
-final class Id[Type](val rawId: Int) extends Ordered[Id[Type]] {
-    @inline override def hashCode = rawId
+final class Id[T](val rawId: Int) extends AnyVal {
     override def toString = rawId.toString
-    override def compare(that: Id[Type]) = this.rawId - that.rawId
-    // equals cannot be implemented in a generic way due to type erasure but we
-    // do not need it anyway because id objects cannot not be cloned.
+    @inline def compare(that: Id[T]) = this.rawId - that.rawId
+}
+
+/**
+ * Companion object to Id[T].
+ *
+ * @author Michael Marte
+ */
+object Id {
+
+    implicit def idOrdering[T] = new Ordering[Id[T]] {
+        override def compare(lhs: Id[T], rhs: Id[T]) =
+            lhs.compare(rhs)
+    }
+
 }

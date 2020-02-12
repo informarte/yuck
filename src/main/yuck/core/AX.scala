@@ -25,7 +25,7 @@ object AX {
      * and transforms it into an equivalent linear combination of minimal size.
      */
     def compact[Value <: NumericalValue[Value]](axs: Iterable[AX[Value]]): List[AX[Value]] =
-        axs.toSeq.sortBy(_.x.id).foldLeft(Nil: List[AX[Value]]) {
+        axs.toSeq.sortBy(_.x).foldLeft(Nil: List[AX[Value]]) {
             case (Nil, ax) => ax :: Nil
             case (h :: t, ax) if h.x == ax.x => new AX[Value](h.a + ax.a, h.x) :: t
             case (h :: t, ax) => ax :: h :: t

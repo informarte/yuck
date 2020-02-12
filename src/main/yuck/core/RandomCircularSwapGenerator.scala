@@ -84,7 +84,7 @@ final class RandomCircularSwapGenerator
             (maybeFairVariableChoiceRate.isDefined && randomGenerator.nextDecision(maybeFairVariableChoiceRate.get))
         val priorityDistribution = if (useUniformDistribution) uniformDistribution else maybeHotSpotDistribution.get
         val m =
-            min(max(2, scala.math.min(moveSizeDistribution.nextIndex(randomGenerator), n)),
+            min(max(2, min(moveSizeDistribution.nextIndex(randomGenerator), n)),
                 priorityDistribution.numberOfAlternatives)
         assert(m > 1)
         val swap = swaps(m - 1)
