@@ -29,7 +29,7 @@ final class VariableDrivenNeighbourhoodFactory
     extends NeighbourhoodFactory(cc, randomGenerator)
 {
 
-    protected override def createNeighbourhoodForMinimizationGoal
+    protected override def createMinimizationNeighbourhood
         [Value <: NumericalValue[Value]]
         (x: NumericalVariable[Value])
         (implicit valueTraits: NumericalValueTraits[Value]):
@@ -37,7 +37,7 @@ final class VariableDrivenNeighbourhoodFactory
     {
         val levelCfg = cfg.level1Configuration
         if (levelCfg.guideOptimization) createNeighbourhood(OptimizationMode.Min, levelCfg, x)
-        else super.createNeighbourhoodForMinimizationGoal(x)
+        else super.createMinimizationNeighbourhood(x)
     }
 
     private def createNeighbourhood

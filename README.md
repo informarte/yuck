@@ -9,6 +9,7 @@
 * Yuck implements Boolean, integer, and integer set variables, see [FlatZinc support](#flatzinc-support).
 * Yuck implements many global constraints and their reified counterparts, see [Global constraints](#global-constraints).
 * Yuck features a mechanism to turn Boolean MiniZinc expressions (including applications of global constraints) into soft constraints, see [bool2costs](#bool2costs).
+* Yuck supports user-defined [goal hierarchies](#goal-hierarchies) where goals on higher levels are strictly more important than goals on lower levels.
 * Yuck is provided under the terms of the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0).
 * In the [2017 MiniZinc challenge](http://www.minizinc.org/challenge2017/challenge.html), Yuck ranked second among local-search solvers.
 * In the [2018 MiniZinc challenge](http://www.minizinc.org/challenge2018/challenge.html), Yuck defended its second place in the local-search category.
@@ -148,7 +149,9 @@ Yuck provides dedicated neighbourhoods for the following global MiniZinc constra
 * all_different
 * inverse
 
-## bool2costs
+## MiniZinc extensions
+
+### bool2costs
 
 bool2costs is a function which measures how much the current assignment of values to problem variables violates a given Boolean MiniZinc expression. The smaller the violation, the lower the result and 0 means that the expression is satisfied.
 
@@ -208,13 +211,47 @@ overlap = 0
 
 bool2costs is defined for every constraint implemented by Yuck, including all the global constraints listed above. The underlying cost models are not yet documented in detail but most of them are quite intuitive. For example:
 
-- bool2costs(*x* = *y*) = abs(value assigned to *x* - value assigned to *y*)
+- bool2costs(x = y) = abs(value assigned to x - value assigned to y)
 - bool2costs(e1 /\ e2) = bool2costs(e1) + bool2costs(e2)
 - bool2costs(disjunctive(s, d)) computes how much each pair of tasks overlaps and returns the sum of these overlaps.
 
 To use bool2costs, you have to include `yuck.mzn`.
 
 Keep in mind, though, that bool2costs is a non-standard MiniZinc extension which is not supported by other MiniZinc backends.
+
+### Goal hierarchies
+
+To define a goal hierarchy, annotate a solve statement as in the following example:
+
+```
+include "alldifferent.mzn";
+include "yuck.mzn";
+
+int: N = 10;
+
+array [1..N] of var 1..N: x;
+
+constraint x[1] = x[N];
+
+solve :: goal_hierarchy([sat_goal(alldifferent(x))]) satisfy;
+```
+
+This MiniZinc program states: Find a solution that satisfies x[1] = x[N] while minimizing the violation of the alldifferent constraint.
+
+Applying Yuck to this problem will result in:
+
+```
+x = [8, 10, 9, 5, 1, 3, 2, 6, 7, 8]
+----------
+```
+
+A goal_hierarchy annotation accepts an unlimited number of goals. Apart from sat_goal, you can use int_min_goal and int_max_goal.
+
+Notice that the goal to satisfy the hard constraints is implicit and that it is the first and most important goal. All other goals - the number is not limited - are additional optimization criteria where the goal on level *k* is strictly more important than the goal on level *k + 1*.
+
+To use goal hierarchies, you have to include `yuck.mzn`.
+
+Keep in mind, though, that goal hierarchies are a non-standard MiniZinc extension which are not supported by other MiniZinc backends.
 
 ## Future work
 

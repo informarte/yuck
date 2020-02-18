@@ -31,7 +31,7 @@ final class ConstraintDrivenNeighbourhoodFactory
     extends NeighbourhoodFactory(cc, randomGenerator)
 {
 
-    protected override def createNeighbourhoodForMinimizationGoal
+    protected override def createMinimizationNeighbourhood
         [Value <: NumericalValue[Value]]
         (x: NumericalVariable[Value])
         (implicit valueTraits: NumericalValueTraits[Value]):
@@ -39,10 +39,10 @@ final class ConstraintDrivenNeighbourhoodFactory
     {
         val levelCfg = cfg.level1Configuration
         if (levelCfg.guideOptimization) createNeighbourhood(OptimizationMode.Min, levelCfg, x)
-        else super.createNeighbourhoodForMinimizationGoal(x)
+        else super.createMinimizationNeighbourhood(x)
     }
 
-    protected override def createNeighbourhoodForMaximizationGoal
+    protected override def createMaximizationNeighbourhood
         [Value <: NumericalValue[Value]]
         (x: NumericalVariable[Value])
         (implicit valueTraits: NumericalValueTraits[Value]):
@@ -50,7 +50,7 @@ final class ConstraintDrivenNeighbourhoodFactory
     {
         val levelCfg = cfg.level1Configuration
         if (levelCfg.guideOptimization) createNeighbourhood(OptimizationMode.Max, levelCfg, x)
-        else super.createNeighbourhoodForMaximizationGoal(x)
+        else super.createMaximizationNeighbourhood(x)
     }
 
     private def createNeighbourhood
@@ -59,16 +59,15 @@ final class ConstraintDrivenNeighbourhoodFactory
         (implicit valueTraits: NumericalValueTraits[Value]):
         Option[Neighbourhood] =
     {
-        require(x != cc.costVar)
         space.registerObjectiveVariable(x)
         if (space.isDanglingVariable(x)) {
             mode match {
                 case OptimizationMode.Min =>
                     // assign minimum value
-                    super.createNeighbourhoodForMinimizationGoal(x)
+                    super.createMinimizationNeighbourhood(x)
                 case OptimizationMode.Max =>
                     // assign maximum value
-                    super.createNeighbourhoodForMaximizationGoal(x)
+                    super.createMaximizationNeighbourhood(x)
             }
         }
         else if (space.isSearchVariable(x)) {

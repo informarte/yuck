@@ -26,4 +26,35 @@ final class FlatZincExtensionTest extends FrontEndTest {
         assertEq(quality(result), Zero)
     }
 
+    @Test
+    @Category(Array(classOf[MaximizationProblem], classOf[HasBinPackingConstraint]))
+    def testIntMaxGoal: Unit = {
+        val result = solveWithResult(task.copy(problemName = "int_max_goal_test", verifySolution = false))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+        assertEq(quality(result, 0), True)
+        assertEq(quality(result, 1), Ten)
+        assertEq(quality(result, 2), Eight)
+        assertEq(quality(result, 3), Three)
+    }
+
+    @Test
+    @Category(Array(classOf[MinimizationProblem], classOf[HasBinPackingConstraint]))
+    def testIntMinGoal: Unit = {
+        val result = solveWithResult(task.copy(problemName = "int_min_goal_test", verifySolution = false))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
+        assertEq(quality(result, 0), True)
+        assertEq(quality(result, 1), Three)
+        assertEq(quality(result, 2), Eight)
+        assertEq(quality(result, 3), Ten)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    def testSatGoal: Unit = {
+        val result = solveWithResult(task.copy(problemName = "sat_goal_test", verifySolution = false))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Alldistinct[_]]), 1)
+        assertEq(quality(result, 0), True)
+        assertEq(quality(result, 1), False)
+    }
+
 }

@@ -2,9 +2,8 @@ package yuck.flatzinc.compiler
 
 import scala.collection._
 
-import yuck.constraints.{Alldistinct, BinaryConstraint, OptimizationGoalTracker, SatisfactionGoalTracker}
+import yuck.constraints.SatisfactionGoalTracker
 import yuck.core._
-import yuck.flatzinc.ast.{Maximize, Minimize}
 
 /**
  * Customizable factory for creating a neighbourhood for the problem at hand.
@@ -18,13 +17,13 @@ import yuck.flatzinc.ast.{Maximize, Minimize}
  * with a focus on search variables that are involved in constraint violations.
  * (The guidance is provided by an instance of [[yuck.constraints.SatisfactionGoalTracker
  * SatisfactionGoalTracker]]).
- * This behaviour can be customized by overloading createNeighbourhoodForSatisfactionGoal.
+ * This behaviour can be customized by overloading createSatisfactionNeighbourhood.
  *
  * The default implementation for optimization goals creates an unbiased
  * [[yuck.core.RandomReassignmentGenerator RandomReassignmentGenerator]] instance
  * on the involved search variables.
  * This behaviour can be customized by overloading
- * createNeighbourhoodFor{Minimization, Maximization}Goal.
+ * create{Minimization, Maximization}Neighbourhood.
  *
  * In case we end up with two neighbourhoods (one for the satisfaction goal and another
  * for the optimization goal), these neighbourhoods will be stacked by creating an instance
@@ -53,37 +52,38 @@ class NeighbourhoodFactory
         cc.maybeNeighbourhood = createNeighbourhood
     }
 
-    import HighPriorityImplicits._
-
     private final def createNeighbourhood: Option[Neighbourhood] = {
-        val maybeNeighbourhood0 =
-            logger.withTimedLogScope("Creating a neighbourhood for solving hard constraints") {
-                createNeighbourhoodForSatisfactionGoal(cc.costVar)
+        val buf = new mutable.ArrayBuffer[(PrimitiveObjective, Option[Neighbourhood])]
+        for (objective <- cc.objective.primitiveObjectives) {
+            cc.shadowedObjectiveVars.getOrElse(objective.x, objective.x) match {
+                case costVar: BooleanVariable =>
+                    logger.withTimedLogScope("Creating a neighbourhood for satisfaction") {
+                        buf.append((objective, createSatisfactionNeighbourhood(costVar)))
+                    }
+                case objectiveVar: IntegerVariable =>
+                    objective.optimizationMode match {
+                        case OptimizationMode.Min =>
+                            logger.withTimedLogScope("Creating a neighbourhood for minimizing %s".format(objectiveVar)) {
+                                buf.append((objective, createMinimizationNeighbourhood(objectiveVar)))
+                            }
+                        case OptimizationMode.Max =>
+                            logger.withTimedLogScope("Creating a neighbourhood for maximizing %s".format(objectiveVar)) {
+                                buf.append((objective, createMaximizationNeighbourhood(objectiveVar)))
+                            }
+                    }
             }
-        val maybeNeighbourhood1 =
-            cc.ast.solveGoal match {
-                case Minimize(a, _) =>
-                    val maybeNeighbourhood1 =
-                        logger.withTimedLogScope("Creating a neighbourhood for minimizing %s".format(a)) {
-                            createNeighbourhoodForMinimizationGoal[IntegerValue](a)
-                        }
-                    stackNeighbourhoods(cc.costVar, maybeNeighbourhood0, a, maybeNeighbourhood1)
-                case Maximize(a, _) =>
-                    val maybeNeighbourhood1 =
-                        logger.withTimedLogScope("Creating a neighbourhood for maximizing %s".format(a)) {
-                            createNeighbourhoodForMaximizationGoal[IntegerValue](a)
-                        }
-                    stackNeighbourhoods(cc.costVar, maybeNeighbourhood0, a, maybeNeighbourhood1)
-                case _ =>
-                    maybeNeighbourhood0
-            }
-        maybeNeighbourhood1
+        }
+        val (objectives, neighbourhoods) =
+            (for ((objective, Some(neighbourhood)) <- buf) yield (objective, neighbourhood)).unzip
+        if (neighbourhoods.size < 2) {
+            neighbourhoods.headOption
+        } else {
+            Some(stackNeighbourhoods(objectives.toIndexedSeq, neighbourhoods.toIndexedSeq))
+        }
     }
 
-    protected def createNeighbourhoodForSatisfactionGoal(x: BooleanVariable): Option[Neighbourhood] = {
-        require(x == cc.costVar)
+    protected def createSatisfactionNeighbourhood(x: BooleanVariable): Option[Neighbourhood] = {
         val levelCfg = cfg.level0Configuration
-        space.registerObjectiveVariable(x)
         val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
         val candidatesForImplicitSolving =
             if (cfg.useImplicitSolving) {
@@ -137,44 +137,28 @@ class NeighbourhoodFactory
         }
     }
 
-    protected def createNeighbourhoodForMinimizationGoal
+    protected def createMinimizationNeighbourhood
         [Value <: NumericalValue[Value]]
         (x: NumericalVariable[Value])
         (implicit valueTraits: NumericalValueTraits[Value]):
         Option[Neighbourhood] =
     {
-        val dx = x.domain
-        if (space.isDanglingVariable(x) && dx.hasLb) {
-            val a = dx.lb
-            logger.logg("Assigning %s to dangling objective variable %s".format(a, x))
-            space.setValue(x, a)
-            None
-        } else {
-            createNeighbourhoodOnInvolvedSearchVariables(x)
-        }
+        createNeighbourhoodOnInvolvedSearchVariables(x)
     }
 
-    protected def createNeighbourhoodForMaximizationGoal
+    protected def createMaximizationNeighbourhood
         [Value <: NumericalValue[Value]]
         (x: NumericalVariable[Value])
         (implicit valueTraits: NumericalValueTraits[Value]):
         Option[Neighbourhood] =
     {
-        val dx = x.domain
-        if (space.isDanglingVariable(x) && dx.hasUb) {
-            val a = dx.ub
-            logger.logg("Assigning %s to dangling objective variable %s".format(a, x))
-            space.setValue(x, a)
-            None
-        } else {
-            createNeighbourhoodOnInvolvedSearchVariables(x)
-        }
+        createNeighbourhoodOnInvolvedSearchVariables(x)
     }
 
     protected final def createNeighbourhoodOnInvolvedSearchVariables(x: AnyVariable): Option[Neighbourhood] = {
-        space.registerObjectiveVariable(x)
         val xs =
-            (if (space.isSearchVariable(x)) Set(x) else space.involvedSearchVariables(x)).diff(implicitlyConstrainedVars)
+            (if (space.isSearchVariable(x)) Set(x) else space.involvedSearchVariables(x))
+                .diff(implicitlyConstrainedVars)
         if (xs.isEmpty) {
             None
         } else {
@@ -184,57 +168,37 @@ class NeighbourhoodFactory
         }
     }
 
-    private final class Level
-        [Value <: NumericalValue[Value]]
-        (val costs: NumericalVariable[Value], val objective: AnyObjective)
-    {
-        val weight = createNonNegativeChannel[IntegerValue]
-        val effect = new ReusableMoveEffectWithFixedVariable(weight)
-        override def toString = (costs, weight).toString
-    }
-
     private final class LevelWeightMaintainer
-        (id: Id[yuck.core.Constraint], level0: Level[BooleanValue], level1: Level[IntegerValue])
+        (id: Id[yuck.core.Constraint],
+         objectives: immutable.IndexedSeq[PrimitiveObjective],
+         distribution: Distribution)
         extends Constraint(id)
     {
-        override def inVariables = List(level0.costs, level1.costs)
-        override def outVariables = List(level0.weight, level1.weight)
-        private val effects = List(level0.effect, level1.effect)
-        override def toString = "levelWeightMaintainer(%s, %s)".format(level0, level1)
+        require(objectives.size == distribution.size)
+        override def toString = "levelWeightMaintainer([%s])".format(objectives.mkString(", "))
+        override def inVariables = objectives.map(_.x)
+        override def outVariables = Nil
         override def initialize(now: SearchState) = {
-            val solved = level0.objective.isGoodEnough(now.value(level0.costs))
-            level0.effect.a = if (solved) Zero else One
-            level1.effect.a = if (! solved || level1.objective.isGoodEnough(now.value(level1.costs))) Zero else One
-            effects
+            val solved = objectives(0).isSolution(now)
+            for (i <- 0 until objectives.size) {
+                distribution.setFrequency(i, if (i == 0) (if (solved) 0 else 1) else (if (solved) 1 else 0))
+            }
+            Nil
         }
         override def consult(before: SearchState, after: SearchState, move: Move) =
             initialize(after)
-        override def commit(before: SearchState, after: SearchState, move: Move) =
-            effects
     }
 
-    private def stackNeighbourhoods(
-        costs0: BooleanVariable, maybeNeighbourhood0: Option[Neighbourhood],
-        costs1: IntegerVariable, maybeNeighbourhood1: Option[Neighbourhood]):
-        Option[Neighbourhood] =
+    private def stackNeighbourhoods
+        (objectives: immutable.IndexedSeq[PrimitiveObjective],
+         neighbourhoods: immutable.IndexedSeq[Neighbourhood]):
+        Neighbourhood =
     {
-        (maybeNeighbourhood0, maybeNeighbourhood1) match {
-            case (None, None) => None
-            case (Some(neighbourhood0), None) => Some(neighbourhood0)
-            case (None, Some(neighbourhood1)) => Some(neighbourhood1)
-            case (Some(neighbourhood0), Some(neighbourhood1)) =>
-                val List(objective0, objective1) = cc.objective.asInstanceOf[HierarchicalObjective].objectives
-                val level0 = new Level(costs0, objective0)
-                val level1 = new Level(costs1, objective1)
-                space.post(new LevelWeightMaintainer(nextConstraintId, level0, level1))
-                val hotSpotDistribution = new ArrayBackedDistribution(2)
-                space.post(
-                    new OptimizationGoalTracker(
-                        nextConstraintId, null,
-                        OptimizationMode.Min, List(level0.weight, level1.weight).toIndexedSeq, hotSpotDistribution))
-                Some(new NeighbourhoodCollection(
-                        Vector(neighbourhood0, neighbourhood1), randomGenerator, Some(hotSpotDistribution), None))
-        }
+        require(objectives.size > 1)
+        require(objectives.size == neighbourhoods.size)
+        val hotSpotDistribution = new ArrayBackedDistribution(objectives.size)
+        space.post(new LevelWeightMaintainer(nextConstraintId, objectives, hotSpotDistribution))
+        new NeighbourhoodCollection(neighbourhoods, randomGenerator, Some(hotSpotDistribution), None)
     }
 
 }

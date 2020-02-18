@@ -20,6 +20,28 @@ final class HierarchicalObjectiveTest extends UnitTest {
     private val y = new IntegerVariable(space.nextVariableId, "y", baseDomain)
 
     @Test
+    def testBasics: Unit = {
+        val mainObjective = new MinimizationObjective(x, Some(baseDomain.lb), None)
+        val subordinateObjective = new MaximizationObjective(y, Some(baseDomain.ub), Some(One))
+        val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false)
+        assertEq(objective.targetCosts, new PolymorphicListValue(List(baseDomain.lb, baseDomain.ub)))
+        assertEq(objective.primitiveObjectives, Seq(mainObjective, subordinateObjective))
+        assertEq(objective.objectiveVariables, Seq(x, y))
+        val now = space.searchState
+        for (a <- x.domain.values; b <- y.domain.values) {
+            space.setValue(x, a).setValue(y, b)
+            val ab = new PolymorphicListValue(List(a, b))
+            assertEq(objective.costs(now), ab)
+            val isSolution = a == baseDomain.lb
+            val isGoodEnough = isSolution && b == baseDomain.ub
+            assertEq(objective.isSolution(ab), isSolution)
+            assertEq(objective.isSolution(now), isSolution)
+            assertEq(objective.isGoodEnough(ab), isGoodEnough)
+            assertEq(objective.isGoodEnough(now), isGoodEnough)
+        }
+    }
+
+    @Test
     def testCostComparison: Unit = {
         val mainObjective = new MinimizationObjective(x, Some(Zero), None)
         val subordinateObjective = new MaximizationObjective(y, Some(Nine), Some(One))

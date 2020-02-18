@@ -39,8 +39,8 @@ final class IntegerRange
     override def isSingleton = isFinite && lb == ub
     override def hasGaps = false
     override def isBounded = lb != null || ub != null
-    override def maybeLb = if (lb == null) None else Some(lb)
-    override def maybeUb = if (ub == null) None else Some(ub)
+    override def maybeLb = Option(lb)
+    override def maybeUb = Option(ub)
     override def hull = this
     override def values = {
         require(isFinite)

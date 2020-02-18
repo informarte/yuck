@@ -16,7 +16,25 @@ final class MinimizationObjectiveTest extends UnitTest {
     private val space = new Space(logger, sigint)
     private val baseDomain = new IntegerRange(Zero, Nine)
     private val x = new IntegerVariable(space.nextVariableId, "x", baseDomain)
-    private val objective = new MinimizationObjective(x, Some(Zero), Some(MinusOne))
+    private val objective = new MinimizationObjective(x, Some(baseDomain.lb), Some(MinusOne))
+
+    @Test
+    def testBasics: Unit = {
+        assertEq(objective.optimizationMode, OptimizationMode.Min)
+        assertEq(objective.targetCosts, baseDomain.lb)
+        assertEq(objective.primitiveObjectives, Seq(objective))
+        assertEq(objective.objectiveVariables, Seq(x))
+        val now = space.searchState
+        for (a <- x.domain.values) {
+            space.setValue(x, a)
+            assertEq(objective.costs(now), a)
+            val isSolution = a == baseDomain.lb
+            assertEq(objective.isSolution(a), isSolution)
+            assertEq(objective.isSolution(now), isSolution)
+            assertEq(objective.isGoodEnough(a), isSolution)
+            assertEq(objective.isGoodEnough(now), isSolution)
+        }
+    }
 
     @Test
     def testCostComparison: Unit = {

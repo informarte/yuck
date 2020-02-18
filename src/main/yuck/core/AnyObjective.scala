@@ -14,6 +14,12 @@ case class TighteningResult(val searchState: SearchState, val maybeTightenedVari
  */
 abstract class AnyObjective {
 
+    /** Returns the primitive objectives this objective is composed of. */
+    def primitiveObjectives: Seq[PrimitiveObjective]
+
+    /** Returns the variables subject to optimization. */
+    def objectiveVariables: Seq[AnyVariable]
+
     /** Returns the quality to achieve. */
     def targetCosts: Costs
 
@@ -23,8 +29,14 @@ abstract class AnyObjective {
     /** Decides whether a search state (given in terms of its quality) is a solution. */
     def isSolution(costs: Costs): Boolean
 
+    /** Decides whether the given search state is a solution. */
+    def isSolution(searchState: SearchState): Boolean = isSolution(costs(searchState))
+
     /** Decides whether a search state (given in terms of its quality) satisfies the objective. */
     def isGoodEnough(costs: Costs): Boolean = ! isHigherThan(costs, targetCosts)
+
+    /** Decides whether the given search state satisfies the objective. */
+    def isGoodEnough(searchState: SearchState): Boolean = isGoodEnough(costs(searchState))
 
     /**
      * Given a move in terms of the search states that precede and succeed it,

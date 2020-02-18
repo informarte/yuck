@@ -47,9 +47,7 @@ final class FlatZincCompiler
 
         val vars = (for ((key, x) <- cc.vars) yield key.toString -> x).toMap
         val arrays = (for ((key, array) <- cc.arrays) yield key.toString -> array).toMap
-        new FlatZincCompilerResult(
-            cc.ast, cc.space, vars, arrays, cc.costVar, Option(cc.objectiveVar), cc.objective,
-            cc.maybeNeighbourhood)
+        new FlatZincCompilerResult(cc.ast, cc.space, vars, arrays, cc.objective, cc.maybeNeighbourhood)
 
     }
 

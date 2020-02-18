@@ -7,11 +7,11 @@ package yuck.core
  */
 final class MaximizationObjective
     [Value <: NumericalValue[Value]]
-    (x: NumericalVariable[Value],
+    (override val x: NumericalVariable[Value],
      maybeTargetCosts: Option[Value],
      maybeTighteningStep: Option[Value])
     (implicit valueTraits: NumericalValueTraits[Value])
-    extends NumericalObjective[Value](x)
+    extends NumericalObjective[Value]
 {
     require(maybeTighteningStep.isEmpty || maybeTighteningStep.get > valueTraits.zero)
     override def toString =
@@ -36,4 +36,5 @@ final class MaximizationObjective
             TighteningResult(space.searchState, None)
         }
     }
+    override def optimizationMode = OptimizationMode.Max
 }

@@ -286,13 +286,19 @@ class MiniZincBasedTest extends IntegrationTest {
 
     private def logResult(result: Result): Unit = {
         val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
+        val objectiveVariables = compilerResult.objective.objectiveVariables
         val resultNode = new JsSection
         resultNode += "solved" -> JsEntry(JsBoolean(result.isSolution))
         if (! result.isSolution) {
-            resultNode += "violation" -> JsEntry(JsNumber(result.bestProposal.value(compilerResult.costVar).violation))
+            val costVar = objectiveVariables(0).asInstanceOf[BooleanVariable]
+            resultNode += "violation" -> JsEntry(JsNumber(result.bestProposal.value(costVar).violation))
         }
-        if (compilerResult.maybeObjectiveVar.isDefined) {
-            resultNode += "quality" -> JsEntry(JsNumber(result.bestProposal.value(compilerResult.maybeObjectiveVar.get).value))
+        if (objectiveVariables.size > 1) {
+            objectiveVariables(1) match {
+                case objectiveVar: IntegerVariable =>
+                    resultNode += "quality" -> JsEntry(JsNumber(result.bestProposal.value(objectiveVar).value))
+                case _ =>
+            }
         }
         jsonRoot += "result" -> resultNode
     }
@@ -315,7 +321,8 @@ class MiniZincBasedTest extends IntegrationTest {
     private def logViolatedConstraints(result: Result): Unit = {
         val visited = new mutable.HashSet[AnyVariable]
         val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
-        result.space.definingConstraint(compilerResult.costVar).get match {
+        val costVar = compilerResult.objective.objectiveVariables(0).asInstanceOf[BooleanVariable]
+        result.space.definingConstraint(costVar).get match {
             case sum: yuck.constraints.Sum[BooleanValue @ unchecked] =>
                 for (x <- sum.xs if result.space.searchState.value(x) > True) {
                     logViolatedConstraints(result, x, visited)

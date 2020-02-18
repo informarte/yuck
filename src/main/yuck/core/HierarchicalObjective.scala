@@ -6,24 +6,30 @@ package yuck.core
  * @author Michael Marte
  */
 final class HierarchicalObjective(
-    val objectives: List[AnyObjective],
+    override val primitiveObjectives: List[PrimitiveObjective],
     firstSolutionIsGoodEnough: Boolean)
     extends AnyObjective
 {
-    require(! objectives.isEmpty)
-    override def targetCosts =
-        new PolymorphicListValue(objectives.map(_.targetCosts))
+    require(! primitiveObjectives.isEmpty)
     override def toString =
-        objectives.toString
+        primitiveObjectives.toString
+    override def objectiveVariables =
+        primitiveObjectives.iterator.flatMap(_.objectiveVariables).toSeq
+    override def targetCosts =
+        new PolymorphicListValue(primitiveObjectives.map(_.targetCosts))
     override def costs(searchState: SearchState) =
-        new PolymorphicListValue(objectives.map(_.costs(searchState)))
+        new PolymorphicListValue(primitiveObjectives.map(_.costs(searchState)))
     override def isSolution(costs: Costs) =
-        objectives.head.isSolution(costs.asInstanceOf[PolymorphicListValue].value.head)
+        primitiveObjectives.head.isSolution(costs.asInstanceOf[PolymorphicListValue].value.head)
+    override def isSolution(searchState: SearchState) =
+        primitiveObjectives.head.isSolution(searchState)
     override def isGoodEnough(costs: Costs) =
         isSolution(costs) && (firstSolutionIsGoodEnough || ! isHigherThan(costs, targetCosts))
+    override def isGoodEnough(searchState: SearchState) =
+        isSolution(searchState) && (firstSolutionIsGoodEnough || ! isHigherThan(costs(searchState), targetCosts))
     override def compareCosts(lhs: Costs, rhs: Costs) =
         compareCosts(
-            objectives,
+            primitiveObjectives,
             lhs.asInstanceOf[PolymorphicListValue].value,
             rhs.asInstanceOf[PolymorphicListValue].value)
     private def compareCosts(objectives: List[AnyObjective], lhs: List[Costs], rhs: List[Costs]): Int =
@@ -36,7 +42,7 @@ final class HierarchicalObjective(
             case _ => ???
         }
     override def assessMove(before: SearchState, after: SearchState) =
-        assessMove(objectives, before, after)
+        assessMove(primitiveObjectives, before, after)
     private def assessMove(objectives: List[AnyObjective], before: SearchState, after: SearchState): Double =
         objectives match {
             case Nil => 0
@@ -46,7 +52,7 @@ final class HierarchicalObjective(
             }
         }
     override def tighten(space: Space, rootObjective: AnyObjective) =
-        tighten(space, objectives, rootObjective)
+        tighten(space, primitiveObjectives, rootObjective)
     private def tighten
         (space: Space, objectives: List[AnyObjective], rootObjective: AnyObjective):
         TighteningResult =

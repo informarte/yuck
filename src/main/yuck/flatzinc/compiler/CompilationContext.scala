@@ -13,7 +13,7 @@ import yuck.util.logging.LazyLogger
  *
  */
 final class CompilationContext(
-    var ast: FlatZincAst, // allow for AST transformation
+    val ast: FlatZincAst,
     val cfg: FlatZincSolverConfiguration,
     val logger: LazyLogger,
     val sigint: Sigint)
@@ -29,10 +29,9 @@ final class CompilationContext(
     val domains = new mutable.AnyRefMap[Expr, AnyDomain]
     val searchVars = new mutable.HashSet[AnyVariable]
     val definedVars = new mutable.HashSet[AnyVariable] // variables that occur in a defined_var annotation
-    val costVars = new mutable.ArrayBuffer[BooleanVariable]
-    var costVar: BooleanVariable = null
-    var objectiveVar: IntegerVariable = null
-    var objective: AnyObjective = null
     val implicitlyConstrainedVars = new mutable.HashSet[AnyVariable]
+    val costVars = new mutable.ArrayBuffer[BooleanVariable]
+    val shadowedObjectiveVars = new mutable.HashMap[AnyVariable, AnyVariable]
+    var objective: AnyObjective = null
     var maybeNeighbourhood: Option[Neighbourhood] = null
 }

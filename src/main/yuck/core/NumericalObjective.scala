@@ -1,7 +1,5 @@
 package yuck.core
 
-import java.lang.Math.{abs, log, signum}
-
 /**
  * Objective for optimizing the value of a numerical variable.
  *
@@ -9,33 +7,14 @@ import java.lang.Math.{abs, log, signum}
  */
 abstract class NumericalObjective
     [Value <: NumericalValue[Value]]
-    (val x: NumericalVariable[Value])
     (implicit valueTraits: NumericalValueTraits[Value])
-    extends AnyObjective
+    extends PrimitiveObjective
 {
 
-    override final def costs(searchState: SearchState) = searchState.value(x)
-    override final def isGoodEnough(costs: Costs) = isSolution(costs)
+    override val x: NumericalVariable[Value]
 
-    private var deltaScale = 0.0
-    private var sampleSize = 0.0
-    protected def computeDelta(before: SearchState, after: SearchState): Double
-
-    override final def assessMove(before: SearchState, after: SearchState) = {
-        var delta = computeDelta(before, after)
-        if (delta != 0) {
-            val sign = signum(delta)
-            delta = abs(delta)
-            // scale compression (log(1) = 0, so shift curve to the left)
-            delta = log(0.1 + delta)
-            // scale normalization (see http://math.stackexchange.com/questions/106700/incremental-averageing)
-            sampleSize += 1
-            deltaScale += (delta - deltaScale) / sampleSize
-            delta /= deltaScale
-            delta *= sign
-        }
-        delta
-    }
+    final override def costs(searchState: SearchState) = searchState.value(x)
+    final override def isGoodEnough(costs: Costs) = isSolution(costs)
 
     protected final def tighten
         (space: Space, rootObjective: AnyObjective, tighteningStep: Value):
