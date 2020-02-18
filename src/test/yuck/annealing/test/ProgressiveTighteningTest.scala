@@ -17,13 +17,11 @@ import yuck.util.testing.IntegrationTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 final class ProgressiveTighteningTest
-    (mainObjectiveType: ProgressiveTighteningTest.ObjectiveType,
-     subordinateObjectiveType: ProgressiveTighteningTest.ObjectiveType,
-     propagateBound: Boolean)
+    (mainObjectiveType: OptimizationMode.Value,
+     subordinateObjectiveType: OptimizationMode.Value,
+     propagateBounds: Boolean)
     extends IntegrationTest
 {
-
-    import ProgressiveTighteningTest._
 
     private final class TighteningCounter(val y: AnyVariable) extends StandardAnnealingMonitor(logger) {
         var n = 0
@@ -45,26 +43,30 @@ final class ProgressiveTighteningTest
         val baseDomain = new IntegerRange(Zero, Nine)
         val x = new IntegerVariable(space.nextVariableId, "x", baseDomain)
         val y = new IntegerVariable(space.nextVariableId, "y", baseDomain)
-        val randomGenerator = new JavaRandomGenerator
-        val tighteningCounter = new TighteningCounter(y)
         space.post(new DummyConstraint(space.nextConstraintId, List(x, y), Nil))
         val mainObjective = mainObjectiveType match {
-            case Min =>
+            case OptimizationMode.Min =>
                 space.setValue(x, Nine)
                 new MinimizationObjective(x, Some(Zero), None)
-            case Max =>
+            case OptimizationMode.Max =>
                 space.setValue(x, Zero)
                 new MaximizationObjective(x, Some(Nine), None)
         }
+        val z = new IntegerVariable(space.nextVariableId, "z", baseDomain)
+        space.post(new DummyConstraint(space.nextConstraintId, List(y, z), Nil))
         val subordinateObjective = subordinateObjectiveType match {
-            case Min =>
+            case OptimizationMode.Min =>
                 space.setValue(y, Nine)
-                new MinimizationObjective(y, Some(Zero), Some(MinusOne))
-            case Max =>
+                space.setValue(z, Nine)
+                new MinimizationObjective(y, Some(Zero), Some(z))
+            case OptimizationMode.Max =>
                 space.setValue(y, Zero)
-                new MaximizationObjective(y, Some(Nine), Some(One))
+                space.setValue(z, Zero)
+                new MaximizationObjective(y, Some(Nine), Some(z))
         }
-        val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false)
+        val randomGenerator = new JavaRandomGenerator
+        val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
+        val tighteningCounter = new TighteningCounter(z)
         val solver =
             new SimulatedAnnealing(
                 "SA",
@@ -77,13 +79,13 @@ final class ProgressiveTighteningTest
                 Some(1),
                 Some(tighteningCounter),
                 None,
-                propagateBound,
+                propagateBounds,
                 sigint)
         val result = solver.call
         assert(result.isGoodEnough)
         assert(result.isOptimal)
         assertEq(tighteningCounter.n, 1)
-        assertEq(space.numberOfPropagations, if (propagateBound) 1 else 0)
+        assertEq(space.numberOfPropagations, if (propagateBounds) 1 else 0)
     }
 
 }
@@ -94,15 +96,11 @@ final class ProgressiveTighteningTest
   */
 object ProgressiveTighteningTest {
 
-    trait ObjectiveType
-    case object Min extends ObjectiveType
-    case object Max extends ObjectiveType
-
     private def configurations =
-        for (mainObjectiveType <- List(Min, Max);
-             subordinateObjectiveType <- List(Min, Max);
-             propagateBound <- List(true, false))
-            yield Vector(mainObjectiveType, subordinateObjectiveType, propagateBound)
+        for (mainObjectiveType <- List(OptimizationMode.Min, OptimizationMode.Max);
+             subordinateObjectiveType <- List(OptimizationMode.Min, OptimizationMode.Max);
+             propagateBounds <- List(true, false))
+            yield Vector(mainObjectiveType, subordinateObjectiveType, propagateBounds)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}, {2}")
     def parameters = configurations.map(_.toArray).asJava

@@ -26,6 +26,7 @@ case class FlatZincSolverConfiguration(
     val maybeRoundLimit: Option[Int] = None,
     val maybeRuntimeLimitInSeconds: Option[Int] = None,
     val maybeTargetObjectiveValue: Option[Int] = None,
+    val focusOnTopObjective: Boolean = true,
     val stopOnFirstSolution: Boolean = false,
     val runPresolver: Boolean = true,
     val useImplicitSolving: Boolean = true,

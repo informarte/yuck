@@ -213,41 +213,41 @@ final class SimulatedAnnealing(
     }
 
     private def postprocessMove(roundLog: RoundLog): Unit = {
-        val costsBeforeTightenining = objective.costs(currentProposal)
-        val TighteningResult(tightenedProposal, maybeTightenedVariable) = objective.tighten(space)
-        val costsAfterTightening = objective.costs(tightenedProposal)
-        assert(! objective.isHigherThan(costsAfterTightening, costsBeforeTightenining))
-        if (objective.isLowerThan(costsAfterTightening, roundLog.costsOfBestProposal)) {
-            roundLog.costsOfBestProposal = costsAfterTightening
+        objective.findActualObjectiveValue(space)
+        costsOfCurrentProposal = objective.costs(currentProposal)
+        if (objective.isLowerThan(costsOfCurrentProposal, roundLog.costsOfBestProposal)) {
+            roundLog.costsOfBestProposal = costsOfCurrentProposal
         }
-        if (objective.isLowerThan(costsAfterTightening, result.costsOfBestProposal)) {
+        if (objective.isLowerThan(costsOfCurrentProposal, result.costsOfBestProposal)) {
             roundLog.bestProposalWasImproved = true
-            result.costsOfBestProposal = costsAfterTightening
+            result.costsOfBestProposal = costsOfCurrentProposal
             result.indexOfRoundWithBestProposal = result.roundLogs.length - 1
-            result.bestProposal =
-                if (tightenedProposal.eq(space.searchState)) tightenedProposal.clone else tightenedProposal
+            result.bestProposal = currentProposal.clone
             if (maybeMonitor.isDefined) {
                 maybeMonitor.get.onBetterProposal(result)
             }
         }
-        if (maybeMonitor.isDefined && maybeTightenedVariable.isDefined) {
-            maybeMonitor.get.onObjectiveTightened(maybeTightenedVariable.get)
+        val tightenedVariables = objective.tighten(space)
+        if (maybeMonitor.isDefined) {
+            for (x <- tightenedVariables) {
+                maybeMonitor.get.onObjectiveTightened(x)
+            }
         }
         costsOfCurrentProposal = objective.costs(currentProposal)
-        if (maybeTightenedVariable.isDefined && propagateBounds) {
-            propagateBound(maybeTightenedVariable.get, roundLog)
+        if (! tightenedVariables.isEmpty && propagateBounds) {
+            propagateBounds(tightenedVariables, roundLog)
         }
     }
 
-    private def propagateBound(x: AnyVariable, roundLog: RoundLog): Unit = {
+    private def propagateBounds(xs: Set[AnyVariable], roundLog: RoundLog): Unit = {
         try {
-            // We propagate the new bound and, afterwards, fix assignments to search variables
+            // We propagate the new bounds and, afterwards, fix assignments to search variables
             // that were rendered invalid by domain reductions.
             val searchVariables = space.searchVariables
-            space.propagate(x)
+            space.propagate(xs)
             val effects = new mutable.ArrayBuffer[AnyMoveEffect]
-            for (y <- searchVariables) {
-                if (y != x && ! y.hasValidValue(space)) {
+            for (y <- searchVariables.diff(xs)) {
+                if (! y.hasValidValue(space)) {
                     effects += y.randomMoveEffect(randomGenerator)
                 }
             }

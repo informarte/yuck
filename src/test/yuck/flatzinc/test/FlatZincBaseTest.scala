@@ -4,8 +4,7 @@ import org.junit._
 import org.junit.experimental.categories._
 
 import scala.language.implicitConversions
-
-import yuck.annealing.AnnealingResult
+import yuck.constraints.Alldistinct
 import yuck.core._
 import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
 import yuck.flatzinc.test.util._
@@ -61,7 +60,9 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint]))
     def testMinimizationProblemWithImplicitlyConstrainedObjectiveVariable: Unit = {
         val result = solveWithResult(task.copy(problemName = "minimization_problem_with_implicitly_constrained_objective_variable"))
-        assertEq(result.asInstanceOf[AnnealingResult].consultationsPerMove, 0)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Alldistinct[_]]), 1)
+        assert(result.space.isImplicitlyConstrainedSearchVariable(result.objective.objectiveVariables(1)))
+        assertEq(quality(result), One)
     }
 
     @Test
@@ -80,7 +81,9 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Category(Array(classOf[MaximizationProblem], classOf[HasAlldifferentConstraint]))
     def testMaximizationProblemWithImplicitlyConstrainedObjectiveVariable: Unit = {
         val result = solveWithResult(task.copy(problemName = "maximization_problem_with_implicitly_constrained_objective_variable"))
-        assertEq(result.asInstanceOf[AnnealingResult].consultationsPerMove, 0)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Alldistinct[_]]), 1)
+        assert(result.space.isImplicitlyConstrainedSearchVariable(result.objective.objectiveVariables(1)))
+        assertEq(quality(result), IntegerValue.get(512))
     }
 
     @Test

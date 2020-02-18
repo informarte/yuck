@@ -5,9 +5,10 @@ package yuck.core
  *
  * @author Michael Marte
  */
-final class HierarchicalObjective(
-    override val primitiveObjectives: List[PrimitiveObjective],
-    firstSolutionIsGoodEnough: Boolean)
+final class HierarchicalObjective
+    (override val primitiveObjectives: List[PrimitiveObjective],
+     focusOnTopObjective: Boolean,
+     firstSolutionIsGoodEnough: Boolean)
     extends AnyObjective
 {
     require(! primitiveObjectives.isEmpty)
@@ -32,11 +33,20 @@ final class HierarchicalObjective(
             .forall{case (objective, costs) => objective.isOptimal(costs)}
     override def isOptimal(searchState: SearchState) =
         primitiveObjectives.forall(_.isOptimal(searchState))
-    override def compareCosts(lhs: Costs, rhs: Costs) =
-        compareCosts(
-            primitiveObjectives,
-            lhs.asInstanceOf[PolymorphicListValue].value,
-            rhs.asInstanceOf[PolymorphicListValue].value)
+    override def compareCosts(lhs0: Costs, rhs0: Costs) = {
+        val lhs = lhs0.asInstanceOf[PolymorphicListValue].value
+        val rhs = rhs0.asInstanceOf[PolymorphicListValue].value
+        if (focusOnTopObjective) {
+            val topObjective :: subordinateObjectives = primitiveObjectives
+            if (topObjective.isSolution(lhs.head) && topObjective.isSolution(rhs.head)) {
+                compareCosts(subordinateObjectives, lhs.tail, rhs.tail)
+            } else {
+                topObjective.compareCosts(lhs.head, rhs.head)
+            }
+        } else {
+            compareCosts(primitiveObjectives, lhs, rhs)
+        }
+    }
     private def compareCosts(objectives: List[AnyObjective], lhs: List[Costs], rhs: List[Costs]): Int =
         (objectives, lhs, rhs) match {
             case (Nil, Nil, Nil) => 0
@@ -46,8 +56,18 @@ final class HierarchicalObjective(
             }
             case _ => ???
         }
-    override def assessMove(before: SearchState, after: SearchState) =
-        assessMove(primitiveObjectives, before, after)
+    override def assessMove(before: SearchState, after: SearchState) = {
+        if (focusOnTopObjective) {
+            val topObjective :: subordinateObjectives = primitiveObjectives
+            if (topObjective.isSolution(before) && topObjective.isSolution(after)) {
+                assessMove(subordinateObjectives, before, after)
+            } else {
+                topObjective.assessMove(before, after)
+            }
+        } else {
+            assessMove(primitiveObjectives, before, after)
+        }
+    }
     private def assessMove(objectives: List[AnyObjective], before: SearchState, after: SearchState): Double =
         objectives match {
             case Nil => 0
@@ -56,17 +76,15 @@ final class HierarchicalObjective(
                 if (delta == 0) assessMove(t, before, after) else delta
             }
         }
-    override def tighten(space: Space, rootObjective: AnyObjective) =
-        tighten(space, primitiveObjectives, rootObjective)
-    private def tighten
-        (space: Space, objectives: List[AnyObjective], rootObjective: AnyObjective):
-        TighteningResult =
-    {
+    override private[core] def findActualObjectiveValue(space: Space, rootObjective: AnyObjective) =
+        primitiveObjectives.foreach(_.findActualObjectiveValue(space, rootObjective))
+    override def tighten(space: Space) =
+        tighten(space, primitiveObjectives)
+    private def tighten(space: Space, objectives: List[AnyObjective]): Set[AnyVariable] =
         objectives match {
-            case Nil => TighteningResult(space.searchState, None)
+            case Nil => Set.empty
             case (h :: t) =>
-                if (h.isGoodEnough(h.costs(space.searchState))) tighten(space, t, rootObjective)
-                else h.tighten(space, rootObjective)
+                if (h.isGoodEnough(space.searchState)) h.tighten(space).union(tighten(space, t))
+                else h.tighten(space)
         }
-    }
 }

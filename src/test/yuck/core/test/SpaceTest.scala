@@ -262,7 +262,7 @@ final class SpaceTest extends UnitTest {
                 while (true) {
                     val x = xs(randomGenerator.nextInt(xs.size))
                     x.pruneDomain(x.domain.randomSubrange(randomGenerator))
-                    space.propagate(x)
+                    space.propagate(List(x))
                     for (spy <- spies) {
                         assertEq(spy.propagate, NoPropagationOccurred)
                     }

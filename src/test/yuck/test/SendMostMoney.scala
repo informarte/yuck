@@ -112,7 +112,7 @@ final class SendMostMoney extends IntegrationTest {
                     new HierarchicalObjective(
                         List(new MinimizationObjective(costs, Some(True), None),
                              new MaximizationObjective(rhs, Some(IntegerValue.get(10876)), None)),
-                        false),
+                        false, false),
                     None,
                     Some(new StandardAnnealingMonitor(logger)),
                     Some(new ModelData(LHS, RHS)),

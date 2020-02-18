@@ -60,7 +60,9 @@ final class ConstraintDrivenNeighbourhoodFactory
         Option[Neighbourhood] =
     {
         space.registerObjectiveVariable(x)
-        if (space.isDanglingVariable(x)) {
+        if (space.isProblemParameter(x)) {
+            None
+        } else if (space.isDanglingVariable(x)) {
             mode match {
                 case OptimizationMode.Min =>
                     // assign minimum value

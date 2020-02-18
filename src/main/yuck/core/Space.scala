@@ -441,7 +441,7 @@ final class Space(
     }
 
     /**
-      * Departing from the given variable, prunes domains by propagating constraints.
+      * Departing from the given variables, prunes domains by propagating constraints.
       *
       * Terminates when interrupted or when a fixpoint is reached.
       *
@@ -451,11 +451,13 @@ final class Space(
       *
       * Notice that, after propagation, there may be search variables with values outside their domains.
       */
-    def propagate(x: AnyVariable): Space = {
+    def propagate(xs: Iterable[AnyVariable]): Space = {
         propagate {
             val tasks = new mutable.HashSet[Constraint]
-            tasks ++= directlyAffectedConstraints(x)
-            tasks ++= definingConstraint(x)
+            for (x <- xs) {
+                tasks ++= directlyAffectedConstraints(x)
+                tasks ++= definingConstraint(x)
+            }
             propagate(tasks)
         }
         this

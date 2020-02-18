@@ -9,11 +9,10 @@ final class MaximizationObjective
     [Value <: NumericalValue[Value]]
     (override val x: NumericalVariable[Value],
      maybeTargetCosts: Option[Value],
-     maybeTighteningStep: Option[Value])
+     override protected val maybeY: Option[NumericalVariable[Value]])
     (implicit valueTraits: NumericalValueTraits[Value])
     extends NumericalObjective[Value]
 {
-    require(maybeTighteningStep.isEmpty || maybeTighteningStep.get > valueTraits.zero)
     override def toString =
         "max %s".format(x)
     override def targetCosts: Value = {
@@ -31,12 +30,5 @@ final class MaximizationObjective
         rhs.asInstanceOf[Value].compare(lhs.asInstanceOf[Value])
     override protected def computeDelta(before: SearchState, after: SearchState) =
         costs(before).toDouble - costs(after).toDouble
-    override def tighten(space: Space, rootObjective: AnyObjective) = {
-        if (maybeTighteningStep.isDefined) {
-            tighten(space, rootObjective, maybeTighteningStep.get)
-        } else {
-            TighteningResult(space.searchState, None)
-        }
-    }
-    override def optimizationMode = OptimizationMode.Max
+    override val optimizationMode = OptimizationMode.Max
 }

@@ -14,9 +14,11 @@ import yuck.util.testing.UnitTest
 final class MaximizationObjectiveTest extends UnitTest {
 
     private val space = new Space(logger, sigint)
+    private val now = space.searchState
     private val baseDomain = new IntegerRange(Zero, Nine)
     private val x = new IntegerVariable(space.nextVariableId, "x", baseDomain)
-    private val objective = new MaximizationObjective(x, Some(baseDomain.ub - One), Some(One))
+    private val y = new IntegerVariable(space.nextVariableId, "y", baseDomain)
+    private val objective = new MaximizationObjective(x, Some(baseDomain.ub - One), Some(y))
 
     @Test
     def testBasics: Unit = {
@@ -24,7 +26,6 @@ final class MaximizationObjectiveTest extends UnitTest {
         assertEq(objective.targetCosts, baseDomain.ub - One)
         assertEq(objective.primitiveObjectives, Seq(objective))
         assertEq(objective.objectiveVariables, Seq(x))
-        val now = space.searchState
         for (a <- x.domain.values) {
             space.setValue(x, a)
             assertEq(objective.costs(now), a)
@@ -67,25 +68,34 @@ final class MaximizationObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testTightening: Unit = {
-        space
-            .post(new DummyConstraint(space.nextConstraintId, List(x), Nil))
-            .setValue(x, Eight)
-            .initialize
-        // check that tightening finds upper bound of x
-        if (true) {
-            val TighteningResult(tightenedState, maybeTightenedVariable) = objective.tighten(space)
-            assertEq(tightenedState.mappedVariables, Set(x))
-            assertEq(tightenedState.value(x), Nine)
-            assertEq(maybeTightenedVariable, Some(x))
-            assertEq(space.searchState.value(x), Nine)
-            assert(x.domain.isSingleton)
-            assertEq(x.domain.singleValue, Nine)
+    def testSearchForActualObjectiveValue: Unit = {
+        for (a <- x.domain.values) {
+            space
+                .post(new DummyConstraint(space.nextConstraintId, List(x), Nil))
+                .setValue(x, a)
+                .initialize
+            objective.findActualObjectiveValue(space)
+            assertEq(now.value(x), x.domain.ub)
+            assertEq(x.domain, baseDomain)
+            assertEq(y.domain, baseDomain)
         }
-        // check that further tightening is not possible
-        if (true) {
-            val TighteningResult(_, maybeTightenedObjective) = objective.tighten(space)
-            assertEq(maybeTightenedObjective, None)
+    }
+
+    @Test
+    def testTightening: Unit = {
+        for (a <- x.domain.values) {
+            space
+                .post(new DummyConstraint(space.nextConstraintId, List(x), Nil))
+                .setValue(x, a)
+                .setValue(y, y.domain.lb)
+                .initialize
+            val tightenedVariables = objective.tighten(space)
+            assertEq(now.value(x), a)
+            assertEq(now.value(y), a)
+            assertEq(x.domain, baseDomain)
+            assertEq(y.domain, new IntegerRange(a, baseDomain.ub))
+            assertEq(tightenedVariables.isEmpty, y.domain == baseDomain)
+            y.relaxDomain(baseDomain)
         }
     }
 

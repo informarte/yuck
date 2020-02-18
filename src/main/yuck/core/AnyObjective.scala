@@ -1,13 +1,6 @@
 package yuck.core
 
 /**
-  * Helper class for passing the result of tightening.
-  *
-  * @author Michael Marte
-  */
-case class TighteningResult(val searchState: SearchState, val maybeTightenedVariable: Option[AnyVariable])
-
-/**
  * Represents an optimization goal for use in local search.
  *
  * @author Michael Marte
@@ -77,27 +70,20 @@ abstract class AnyObjective {
     @inline final def isHigherThan(lhs: Costs, rhs: Costs): Boolean = compareCosts(lhs, rhs) > 0
 
     /**
-     * Tries to tighten this objective such that search states worse than or equivalent
-     * (in cost) to the current one become infeasible.
-     *
-     * Tightening only applies when the underlying objective variable x is a search
-     * variable not constrained implicitly.
-     *
-     * The first step of tightening is to find the best objective value a that is compatible
-     * with the current search state (in the sense that its assignment to x does not impair
-     * the solution quality), to assign a to x, and to prune all values worse than a from
-     * the domain of x.
-     *
-     * The second step of tightening is to reduce the domain of x in accordance with the
-     * purpose of this method (unless this step would wipe out the domain of x) and includes,
-     * as a prerequisite, assigning to x the worst value of the reduced domain.
-     *
-     * The result of this method is twofold:
-     * 1. The search state resulting from the first step.
-     *    (This may be the search state of the given space.)
-     * 2. Some(x) if the domain of x was reduced in the process, and None otherwise.
+     * Addresses a problem with objective variables that are search variables:
+     * Finds the best objective value a that is compatible with the current search state
+     * (in the sense that x = a does not violate more important objectives) and assigns a to x.
      */
-    final def tighten(space: Space): TighteningResult = tighten(space, this)
+    final def findActualObjectiveValue(space: Space): Unit = findActualObjectiveValue(space, this)
 
-    def tighten(space: Space, topLevelObjective: AnyObjective): TighteningResult
+    private[core] def findActualObjectiveValue(space: Space, rootObjective: AnyObjective): Unit
+
+    /**
+     * Tries to tighten this objective (by reducing variable domains) such that search states
+     * worse than or equivalent to the current one become infeasible.
+     *
+     * Returns the set of variables the domains of which were reduced in the process.
+     */
+    def tighten(space: Space): Set[AnyVariable]
+
 }

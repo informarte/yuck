@@ -55,7 +55,7 @@ class NeighbourhoodFactory
     private final def createNeighbourhood: Option[Neighbourhood] = {
         val buf = new mutable.ArrayBuffer[(PrimitiveObjective, Option[Neighbourhood])]
         for (objective <- cc.objective.primitiveObjectives) {
-            cc.shadowedObjectiveVars.getOrElse(objective.x, objective.x) match {
+            objective.x match {
                 case costVar: BooleanVariable =>
                     logger.withTimedLogScope("Creating a neighbourhood for satisfaction") {
                         buf.append((objective, createSatisfactionNeighbourhood(costVar)))
@@ -155,7 +155,7 @@ class NeighbourhoodFactory
         createNeighbourhoodOnInvolvedSearchVariables(x)
     }
 
-    protected final def createNeighbourhoodOnInvolvedSearchVariables(x: AnyVariable): Option[Neighbourhood] = {
+    private def createNeighbourhoodOnInvolvedSearchVariables(x: AnyVariable): Option[Neighbourhood] = {
         val xs =
             (if (space.isSearchVariable(x)) Set(x) else space.involvedSearchVariables(x))
                 .diff(implicitlyConstrainedVars)
