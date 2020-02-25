@@ -297,6 +297,9 @@ class MiniZincBasedTest extends IntegrationTest {
             objectiveVariables(1) match {
                 case objectiveVar: IntegerVariable =>
                     resultNode += "quality" -> JsEntry(JsNumber(result.bestProposal.value(objectiveVar).value))
+                    if (result.isOptimal) {
+                        resultNode += "optimal" -> JsEntry(JsBoolean(true))
+                    }
                 case _ =>
             }
         }

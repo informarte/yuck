@@ -129,9 +129,9 @@ class MiniZincSolutionVerifier(
         val separatorIndex = outputLines.indexOf(FlatZincSolutionSeparator)
         val bestSolutionFoundIndicatorIndex = outputLines.indexOf(FlatZincBestSolutionFoundIndicator)
         if (result.objective.isInstanceOf[HierarchicalObjective]) {
-            if (result.isGoodEnough) {
+            if (result.isOptimal) {
                 separatorIndex == outputLines.size - 2 &&
-                bestSolutionFoundIndicatorIndex == outputLines.size -1
+                bestSolutionFoundIndicatorIndex == outputLines.size - 1
             } else {
                 separatorIndex == outputLines.size - 1
             }

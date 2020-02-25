@@ -17,6 +17,8 @@ class Result(
         objective.isSolution(costsOfBestProposal)
     def isGoodEnough: Boolean =
         objective.isGoodEnough(costsOfBestProposal)
+    def isOptimal: Boolean =
+        objective.isOptimal(costsOfBestProposal)
     def isBetterThan(that: Result): Boolean =
         objective.isLowerThan(this.costsOfBestProposal, that.costsOfBestProposal)
 }

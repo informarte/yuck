@@ -22,9 +22,9 @@ final class HierarchicalObjectiveTest extends UnitTest {
     @Test
     def testBasics: Unit = {
         val mainObjective = new MinimizationObjective(x, Some(baseDomain.lb), None)
-        val subordinateObjective = new MaximizationObjective(y, Some(baseDomain.ub), Some(One))
+        val subordinateObjective = new MaximizationObjective(y, Some(baseDomain.ub - One), Some(One))
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false)
-        assertEq(objective.targetCosts, new PolymorphicListValue(List(baseDomain.lb, baseDomain.ub)))
+        assertEq(objective.targetCosts, new PolymorphicListValue(List(baseDomain.lb, baseDomain.ub - One)))
         assertEq(objective.primitiveObjectives, Seq(mainObjective, subordinateObjective))
         assertEq(objective.objectiveVariables, Seq(x, y))
         val now = space.searchState
@@ -33,11 +33,14 @@ final class HierarchicalObjectiveTest extends UnitTest {
             val ab = new PolymorphicListValue(List(a, b))
             assertEq(objective.costs(now), ab)
             val isSolution = a == baseDomain.lb
-            val isGoodEnough = isSolution && b == baseDomain.ub
+            val isGoodEnough = isSolution && b >= baseDomain.ub - One
+            val isOptimal = isSolution && b == baseDomain.ub
             assertEq(objective.isSolution(ab), isSolution)
             assertEq(objective.isSolution(now), isSolution)
             assertEq(objective.isGoodEnough(ab), isGoodEnough)
             assertEq(objective.isGoodEnough(now), isGoodEnough)
+            assertEq(objective.isOptimal(ab), isOptimal)
+            assertEq(objective.isOptimal(now), isOptimal)
         }
     }
 

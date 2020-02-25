@@ -14,7 +14,7 @@ abstract class NumericalObjective
     override val x: NumericalVariable[Value]
 
     final override def costs(searchState: SearchState) = searchState.value(x)
-    final override def isGoodEnough(costs: Costs) = isSolution(costs)
+    final override def isSolution(costs: Costs) = isGoodEnough(costs)
 
     protected final def tighten
         (space: Space, rootObjective: AnyObjective, tighteningStep: Value):

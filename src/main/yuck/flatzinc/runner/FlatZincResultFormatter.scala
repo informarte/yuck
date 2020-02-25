@@ -42,7 +42,7 @@ final class FlatZincResultFormatter(result: Result) extends Callable[Seq[String]
         for ((id, value) <- sortedMap) lines += "%s = %s;".format(id, value)
         if (result.isSolution) {
             lines += FlatZincSolutionSeparator
-            if (result.objective.isInstanceOf[HierarchicalObjective] && result.isGoodEnough) {
+            if (result.objective.isInstanceOf[HierarchicalObjective] && result.isOptimal) {
                 lines += FlatZincBestSolutionFoundIndicator
             }
         } else {

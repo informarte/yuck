@@ -16,23 +16,26 @@ final class MaximizationObjectiveTest extends UnitTest {
     private val space = new Space(logger, sigint)
     private val baseDomain = new IntegerRange(Zero, Nine)
     private val x = new IntegerVariable(space.nextVariableId, "x", baseDomain)
-    private val objective = new MaximizationObjective(x, Some(baseDomain.ub), Some(One))
+    private val objective = new MaximizationObjective(x, Some(baseDomain.ub - One), Some(One))
 
     @Test
     def testBasics: Unit = {
         assertEq(objective.optimizationMode, OptimizationMode.Max)
-        assertEq(objective.targetCosts, baseDomain.ub)
+        assertEq(objective.targetCosts, baseDomain.ub - One)
         assertEq(objective.primitiveObjectives, Seq(objective))
         assertEq(objective.objectiveVariables, Seq(x))
         val now = space.searchState
         for (a <- x.domain.values) {
             space.setValue(x, a)
             assertEq(objective.costs(now), a)
-            val isSolution = a == baseDomain.ub
+            val isSolution = a >= baseDomain.ub - One
+            val isOptimal = a == baseDomain.ub
             assertEq(objective.isSolution(a), isSolution)
             assertEq(objective.isSolution(now), isSolution)
             assertEq(objective.isGoodEnough(a), isSolution)
             assertEq(objective.isGoodEnough(now), isSolution)
+            assertEq(objective.isOptimal(a), isOptimal)
+            assertEq(objective.isOptimal(now), isOptimal)
         }
     }
 

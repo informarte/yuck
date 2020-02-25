@@ -23,8 +23,10 @@ final class MinimizationObjective
         else if (maybeTargetCosts.isDefined) maybeTargetCosts.get
         else valueTraits.minValue
     }
-    override def isSolution(costs: Costs) =
-        costs.asInstanceOf[Value] <= targetCosts
+    override def isOptimal(costs: Costs) = {
+        val dx = x.domain
+        dx.hasLb && costs.asInstanceOf[Value] <= dx.lb
+    }
     override def compareCosts(lhs: Costs, rhs: Costs) =
         lhs.asInstanceOf[Value].compare(rhs.asInstanceOf[Value])
     override protected def computeDelta(before: SearchState, after: SearchState) =

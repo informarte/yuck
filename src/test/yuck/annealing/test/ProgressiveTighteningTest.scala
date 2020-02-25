@@ -81,6 +81,7 @@ final class ProgressiveTighteningTest
                 sigint)
         val result = solver.call
         assert(result.isGoodEnough)
+        assert(result.isOptimal)
         assertEq(tighteningCounter.n, 1)
         assertEq(space.numberOfPropagations, if (propagateBound) 1 else 0)
     }

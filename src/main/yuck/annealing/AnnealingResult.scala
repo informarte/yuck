@@ -22,6 +22,7 @@ final class AnnealingResult(
     var indexOfRoundWithBestProposal: Int = 0
     var bestProposalIsOptimal: Boolean = false
     override def isGoodEnough = bestProposalIsOptimal || super.isGoodEnough
+    override def isOptimal = bestProposalIsOptimal || super.isOptimal
     def runtimeInSeconds: Double = roundLogs.iterator.map(_.runtimeInSeconds).sum
     def movesPerSecond: Double = roundLogs.iterator.map(_.movesPerSecond).sum / roundLogs.size
     def consultationsPerSecond: Double = roundLogs.iterator.map(_.consultationsPerSecond).sum / roundLogs.size

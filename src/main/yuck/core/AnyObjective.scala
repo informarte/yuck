@@ -38,6 +38,16 @@ abstract class AnyObjective {
     /** Decides whether the given search state satisfies the objective. */
     def isGoodEnough(searchState: SearchState): Boolean = isGoodEnough(costs(searchState))
 
+    /** Decides whether a search state (given in terms of its quality) is an optimal solution. */
+    def isOptimal(costs: Costs): Boolean
+
+    /**
+     * Returns true iff optimality has been proven.
+     *
+     * (A negative results hence means that the status is unknown.)
+     */
+    def isOptimal(searchState: SearchState): Boolean = isOptimal(costs(searchState))
+
     /**
      * Given a move in terms of the search states that precede and succeed it,
      * this method assesses the impact of the move by computing the delta in quality.

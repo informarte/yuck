@@ -23,8 +23,10 @@ final class MaximizationObjective
         else if (maybeTargetCosts.isDefined) maybeTargetCosts.get
         else valueTraits.maxValue
     }
-    override def isSolution(costs: Costs) =
-        costs.asInstanceOf[Value] >= targetCosts
+    override def isOptimal(costs: Costs) = {
+        val dx = x.domain
+        dx.hasUb && costs.asInstanceOf[Value] >= dx.ub
+    }
     override def compareCosts(lhs: Costs, rhs: Costs) =
         rhs.asInstanceOf[Value].compare(lhs.asInstanceOf[Value])
     override protected def computeDelta(before: SearchState, after: SearchState) =
