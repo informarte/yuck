@@ -1,0 +1,28 @@
+include Makefile.common
+include Makefile.common.test
+include Makefile.native.common
+
+NATIVE_IMAGE_DIR := out/yuck/test/native-image
+TEST_BINARY := $(NATIVE_IMAGE_DIR)/yuck-test
+
+.PHONY: native-test-image
+native-test-image: $(TEST_BINARY)
+
+TEST_CLASS_PATH := $(shell ./mill show yuck.test.fullClasspathAsString | sed -e 's/\"//g')
+TEST_JARS := $(foreach JAR, $(subst :, ,$(TEST_CLASS_PATH)), $(JAR))
+
+$(TEST_BINARY): $(TEST_JARS) src/graalvm/reflect-config.json src/graalvm/test-reflect-config.json
+	mkdir -p $(NATIVE_IMAGE_DIR)
+	native-image \
+	    $(COMMON_NATIVE_IMAGE_PARAMS) \
+	    --class-path $(TEST_CLASS_PATH) \
+	    -H:Name=$(TEST_BINARY) \
+	    -H:ReflectionConfigurationFiles=src/graalvm/reflect-config.json,src/graalvm/test-reflect-config.json \
+	    yuck.test.util.YuckTestRunner
+
+.PHONY: tested-native-test-image
+tested-native-test-image: yuck.flatzinc.test.TractableMiniZincExamples
+
+.PHONY: yuck.test.% yuck.flatzinc.test.%
+yuck.test.% yuck.flatzinc.test.%: native-test-image
+	$(TEST_BINARY) $@

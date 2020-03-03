@@ -1,0 +1,32 @@
+include Makefile.common
+include Makefile.native.common
+
+NATIVE_IMAGE_DIR := out/yuck/native-image
+BINARY := $(NATIVE_IMAGE_DIR)/yuck
+
+.PHONY: native-image
+native-image: $(BINARY)
+
+CLASS_PATH := $(shell ./mill show yuck.fullClasspathAsString | sed -e 's/\"//g')
+JARS := $(foreach JAR, $(subst :, ,$(CLASS_PATH)), $(JAR))
+
+$(BINARY): $(JARS) src/graalvm/reflect-config.json
+	mkdir -p $(NATIVE_IMAGE_DIR)
+	native-image \
+	    $(COMMON_NATIVE_IMAGE_PARAMS) \
+	    --class-path $(CLASS_PATH) \
+	    -H:Name=$(BINARY) \
+	    -H:ReflectionConfigurationFiles=src/graalvm/reflect-config.json \
+	    yuck.flatzinc.runner.FlatZincRunner
+
+.PHONY: tested-native-image
+tested-native-image: native-image $(NATIVE_IMAGE_DIR)/yuck.msc
+	minizinc -v --solver $(NATIVE_IMAGE_DIR)/yuck.msc $(MZN_RESOURCE_DIR)/tests/minizinc-examples/alpha.mzn
+
+$(NATIVE_IMAGE_DIR)/yuck.msc: $(MZN_RESOURCE_DIR)/yuck.msc.in
+	sed \
+	    -e 's|#VERSION#|test-native|' \
+	    -e 's|#EXE_PATH#|$(BINARY)|' \
+	    -e 's|#MZN_LIB_PATH#|$(MZN_RESOURCE_DIR)/lib/yuck|' \
+	    $(MZN_RESOURCE_DIR)/yuck.msc.in \
+	    >$(NATIVE_IMAGE_DIR)/yuck.msc

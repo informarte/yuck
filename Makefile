@@ -1,3 +1,6 @@
+include Makefile.common
+include Makefile.common.test
+
 .PHONY: ci-tests unit-tests minizinc-tests minizinc-examples minizinc-challenges
 
 ci-tests: yuck.test.ContinuousIntegrationTestSuite
@@ -14,45 +17,34 @@ minizinc-challenges: yuck.flatzinc.test.MiniZincChallenges archive.minizinc-chal
 
 minizinc-benchmarks: yuck.flatzinc.test.MiniZincBenchmarks archive.minizinc-benchmarks
 
+.PHONY: yuck.test.% yuck.flatzinc.test.%
 yuck.test.% yuck.flatzinc.test.%:
 	./mill yuck.test.run $@
 
-.PHONY: archive stage zip doc clean render-readme
-
-COMMIT_DATE := $(shell git log -1 --pretty=format:%cd --date=format:%Y-%m-%d)
-COMMIT_HASH := $(shell git rev-parse --short=8 HEAD)
-BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
-NOW := $(shell date +%Y-%m-%d_%H-%M-%S)
-
-archive.%: TAG = run-$(NOW)-$(subst /,-,$(BRANCH))-$(COMMIT_HASH)-$*
-archive.%:
-	cd logs && mkdir $(TAG) && mv ../tmp/* $(TAG) && tar cjf $(TAG).tar.bz2 $(TAG) && rm -fr $(TAG)
-	git tag -f -m $(TAG) $(TAG)
-	git push -f origin $(TAG)
-
+.PHONY: idea-project-files
 idea-project-files:
 	./mill mill.scalalib.GenIdea/idea
 
+.PHONY: compile
 compile:
 	./mill yuck.test.compile
 
+.PHONY: run
 run:
 	./mill yuck.run
 
+.PHONY: stage
 stage:
 	./mill yuck.launcher
 
+.PHONY: deb
 deb:
 	./mill yuck.debianPackage
 
+.PHONY: zip
 zip:
 	./mill yuck.universalPackage
 
+.PHONY: doc
 doc:
 	./mill yuck.docJar
-
-clean:
-	./mill clean
-
-render-readme:
-	python3 -m grip

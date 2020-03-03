@@ -1,0 +1,6 @@
+COMMON_NATIVE_IMAGE_PARAMS := \
+    --no-fallback \
+    -Djava.util.logging.manager=yuck.util.logging.ManagedLogManager \
+    --initialize-at-build-time=scala.runtime.Statics\$$VM \
+    --report-unsupported-elements-at-runtime \
+    --no-server
