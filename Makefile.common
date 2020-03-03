@@ -1,0 +1,14 @@
+MZN_RESOURCE_DIR := resources/mzn
+
+.PHONY: default
+default:
+	@echo "Please give a target!"
+
+.PHONY: clean
+clean:
+	rm -fr target
+
+# prints the given variable
+.PHONY: print.%
+print.%:
+	@echo $* = $($*)

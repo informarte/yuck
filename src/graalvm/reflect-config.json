@@ -1,0 +1,8 @@
+[
+    {
+        "name" : "org.jgrapht.graph.DefaultEdge",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : [] }
+        ]
+    }
+]
