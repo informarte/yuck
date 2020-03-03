@@ -1,0 +1,11 @@
+.PHONY: yuck.test.% yuck.flatzinc.test.%
+yuck.test.% yuck.flatzinc.test.%:
+	sbt "test:runMain yuck.util.testing.YuckTestRunner $@"
+
+.PHONY: deb
+deb:
+	sbt debian:lintian
+
+.PHONY: zip
+zip:
+	sbt universal:packageBin

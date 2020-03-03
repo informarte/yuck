@@ -1,0 +1,328 @@
+[
+    {
+        "name" : "org.junit.runners.Suite",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : ["java.lang.Class", "org.junit.runners.model.RunnerBuilder"] }
+        ]
+    },
+    {
+        "name" : "org.junit.experimental.categories.Categories",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : ["java.lang.Class", "org.junit.runners.model.RunnerBuilder"] }
+        ]
+    },
+    {
+        "name" : "org.junit.experimental.categories.CategoryValidator",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : [] }
+        ]
+    },
+    {
+        "name" : "org.junit.runners.Parameterized",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : ["java.lang.Class"] }
+        ]
+    },
+    {
+        "name" : "yuck.util.testing.YuckTest",
+        "methods" : [
+            { "name" : "environmentManagement", "parameterTypes" : [] }
+        ]
+    },
+    {
+        "name" : "yuck.flatzinc.test.EasyMiniZincExamples",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : [] }
+        ]
+    },
+    {
+        "name" : "yuck.flatzinc.test.MediumMiniZincExamples",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : [] }
+        ]
+    },
+    {
+        "name" : "yuck.flatzinc.test.HardMiniZincExamples",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : [] }
+        ]
+    },
+    {
+        "name" : "yuck.flatzinc.test.TractableMiniZincExamples",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : [] }
+        ]
+    },
+    {
+        "name" : "yuck.flatzinc.test.MiniZincExamples",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : [] },
+            { "name" : "test2DPacking", "parameterTypes" : [] },
+            { "name" : "testAlpha", "parameterTypes" : [] },
+            { "name" : "testBattleships", "parameterTypes" : [] },
+            { "name" : "testBlocksworld1", "parameterTypes" : [] },
+            { "name" : "testBlocksworld2", "parameterTypes" : [] },
+            { "name" : "testCutstock", "parameterTypes" : [] },
+            { "name" : "testEq20", "parameterTypes" : [] },
+            { "name" : "testFactoryPlanning", "parameterTypes" : [] },
+            { "name" : "testGolomb", "parameterTypes" : [] },
+            { "name" : "testJobshop", "parameterTypes" : [] },
+            { "name" : "testKnights", "parameterTypes" : [] },
+            { "name" : "testLangford", "parameterTypes" : [] },
+            { "name" : "testLangford2", "parameterTypes" : [] },
+            { "name" : "testLatinSquares", "parameterTypes" : [] },
+            { "name" : "testMagicSequence3", "parameterTypes" : [] },
+            { "name" : "testMagicSequence4", "parameterTypes" : [] },
+            { "name" : "testMagicSequence5", "parameterTypes" : [] },
+            { "name" : "testMultiDimKnapsack", "parameterTypes" : [] },
+            { "name" : "testOss", "parameterTypes" : [] },
+            { "name" : "testPacking", "parameterTypes" : [] },
+            { "name" : "testPartition", "parameterTypes" : [] },
+            { "name" : "testPerfectSquares", "parameterTypes" : [] },
+            { "name" : "testPerfectSquares2", "parameterTypes" : [] },
+            { "name" : "testPhoto", "parameterTypes" : [] },
+            { "name" : "testProductFd", "parameterTypes" : [] },
+            { "name" : "testProductLp", "parameterTypes" : [] },
+            { "name" : "testRadiation", "parameterTypes" : [] },
+            { "name" : "testQuasigroup", "parameterTypes" : [] },
+            { "name" : "testQueensCp", "parameterTypes" : [] },
+            { "name" : "testQueensIp", "parameterTypes" : [] },
+            { "name" : "testSimpleSat", "parameterTypes" : [] },
+            { "name" : "testSteinerTriples", "parameterTypes" : [] },
+            { "name" : "testSudoku", "parameterTypes" : [] },
+            { "name" : "testTemplateDesign", "parameterTypes" : [] },
+            { "name" : "testTenpenki1", "parameterTypes" : [] },
+            { "name" : "testTenpenki2", "parameterTypes" : [] },
+            { "name" : "testTenpenki3", "parameterTypes" : [] },
+            { "name" : "testTenpenki4", "parameterTypes" : [] },
+            { "name" : "testTenpenki5", "parameterTypes" : [] },
+            { "name" : "testTenpenki6", "parameterTypes" : [] },
+            { "name" : "testTimetabling", "parameterTypes" : [] },
+            { "name" : "testTrucking", "parameterTypes" : [] },
+            { "name" : "testWarehouses", "parameterTypes" : [] },
+            { "name" : "testWolfGoatCabbage", "parameterTypes" : [] },
+            { "name" : "testZebra", "parameterTypes" : [] }
+        ]
+    },
+    {
+        "name" : "yuck.flatzinc.test.MiniZincChallenge2012",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : [] },
+            { "name" : "amaze_2012_03_19", "parameterTypes" : [] },
+            { "name" : "amaze2_2012_06_28", "parameterTypes" : [] },
+            { "name" : "carpet_cutting_05", "parameterTypes" : [] },
+            { "name" : "fast_food_3", "parameterTypes" : [] },
+            { "name" : "filter_fir_1_1", "parameterTypes" : [] },
+            { "name" : "league_20_3_5", "parameterTypes" : [] },
+            { "name" : "mspsp_easy_1", "parameterTypes" : [] },
+            { "name" : "nonogram_fast_4", "parameterTypes" : [] },
+            { "name" : "parity_learning_44_22_5_3", "parameterTypes" : [] },
+            { "name" : "pattern_set_mining_k1_ionosphere", "parameterTypes" : [] },
+            { "name" : "pattern_set_mining_k2_audiology", "parameterTypes" : [] },
+            { "name" : "project_planning_12_8", "parameterTypes" : [] },
+            { "name" : "radiation_07_07_20", "parameterTypes" : [] },
+            { "name" : "ship_schedule_5", "parameterTypes" : [] },
+            { "name" : "solbat_12_12_5_1", "parameterTypes" : [] },
+            { "name" : "still_life_wastage_09", "parameterTypes" : [] },
+            { "name" : "tpp_3_3_30_1", "parameterTypes" : [] },
+            { "name" : "train_6", "parameterTypes" : [] },
+            { "name" : "vrp_A_n38_k5", "parameterTypes" : [] }
+        ]
+    },
+    {
+        "name" : "yuck.flatzinc.test.MiniZincChallenge2013",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : [] },
+            { "name" : "black_hole_4", "parameterTypes" : [] },
+            { "name" : "cargo_04_1s_626", "parameterTypes" : [] },
+            { "name" : "celar_6_sub2", "parameterTypes" : [] },
+            { "name" : "filters_dfq_1_1", "parameterTypes" : [] },
+            { "name" : "fjsp_easy01", "parameterTypes" : [] },
+            { "name" : "ghoulomb_4_9_10", "parameterTypes" : [] },
+            { "name" : "java_routing_trip_6_3", "parameterTypes" : [] },
+            { "name" : "linear_to_program_l2p1", "parameterTypes" : [] },
+            { "name" : "league_15_4_3", "parameterTypes" : [] },
+            { "name" : "mario_easy_2", "parameterTypes" : [] },
+            { "name" : "nmseq_99", "parameterTypes" : [] },
+            { "name" : "nonogram_dom_06", "parameterTypes" : [] },
+            { "name" : "on_call_rostering_10s_150d", "parameterTypes" : [] },
+            { "name" : "pattern_set_mining_anneal_k1", "parameterTypes" : [] },
+            { "name" : "pentominoes_int_02", "parameterTypes" : [] },
+            { "name" : "proteindesign12_2TRX_11p_8aa_usingEref_self", "parameterTypes" : [] },
+            { "name" : "radiation_i6_7", "parameterTypes" : [] },
+            { "name" : "rcpsp_12", "parameterTypes" : [] },
+            { "name" : "rubik_4_cube", "parameterTypes" : [] },
+            { "name" : "vrp_P_n16_k8", "parameterTypes" : [] }
+        ]
+    },
+    {
+        "name" : "yuck.flatzinc.test.MiniZincChallenge2014",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : [] },
+            { "name" : "amaze_2012_03_09", "parameterTypes" : [] },
+            { "name" : "cyclic_rcpsp_medium_2", "parameterTypes" : [] },
+            { "name" : "elitserien_handball11", "parameterTypes" : [] },
+            { "name" : "fillomino_5x5_1", "parameterTypes" : [] },
+            { "name" : "jp_encoding_data100", "parameterTypes" : [] },
+            { "name" : "liner_sf_repositioning_tp7_0", "parameterTypes" : [] },
+            { "name" : "mario_easy_5", "parameterTypes" : [] },
+            { "name" : "mqueens_n11", "parameterTypes" : [] },
+            { "name" : "multi_knapsack_1_6", "parameterTypes" : [] },
+            { "name" : "openshop_gp10_4", "parameterTypes" : [] },
+            { "name" : "rectangle_packing_18_true", "parameterTypes" : [] },
+            { "name" : "road_cons_11", "parameterTypes" : [] },
+            { "name" : "ship_schedule_3Ships", "parameterTypes" : [] },
+            { "name" : "smelt_2", "parameterTypes" : [] },
+            { "name" : "solbat_13_13_6_5", "parameterTypes" : [] },
+            { "name" : "spot5_29", "parameterTypes" : [] },
+            { "name" : "stochastic_fjsp_a1_s4_fjsp_t8_j2_m3_a1_det", "parameterTypes" : [] },
+            { "name" : "stochastic_vrp_s2_v2_c7_vrp_v2_c7_det", "parameterTypes" : [] },
+            { "name" : "train_1", "parameterTypes" : [] },
+            { "name" : "traveling_tppv_circ8bbal", "parameterTypes" : [] }
+        ]
+    },
+    {
+        "name" : "yuck.flatzinc.test.MiniZincChallenge2015",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : [] },
+            { "name" : "costas_array_16", "parameterTypes" : [] },
+            { "name" : "cvrp_simple2", "parameterTypes" : [] },
+            { "name" : "freepizza_6", "parameterTypes" : [] },
+            { "name" : "gfd_schedule_n30f3d30m7k4", "parameterTypes" : [] },
+            { "name" : "grid_colouring_4_8", "parameterTypes" : [] },
+            { "name" : "is_jZ9pQqRxJ2", "parameterTypes" : [] },
+            { "name" : "largescheduling_0100_1", "parameterTypes" : [] },
+            { "name" : "mapping_full2x2", "parameterTypes" : [] },
+            { "name" : "multi_knapsack_1_6", "parameterTypes" : [] },
+            { "name" : "nmseq_83", "parameterTypes" : [] },
+            { "name" : "opd_small_bibd_11_22_10", "parameterTypes" : [] },
+            { "name" : "open_stacks_wbo_10_20_1", "parameterTypes" : [] },
+            { "name" : "p1f_12", "parameterTypes" : [] },
+            { "name" : "project_planning_12_7", "parameterTypes" : [] },
+            { "name" : "radiation_i7_9", "parameterTypes" : [] },
+            { "name" : "roster_chicroster_dataset_2", "parameterTypes" : [] },
+            { "name" : "spot5_54", "parameterTypes" : [] },
+            { "name" : "tdtsp_10_34_00", "parameterTypes" : [] },
+            { "name" : "triangular_n10", "parameterTypes" : [] },
+            { "name" : "zephyrus_5_4", "parameterTypes" : [] }
+        ]
+    },
+    {
+        "name" : "yuck.flatzinc.test.MiniZincChallenge2016",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : [] },
+            { "name" : "carpet_cutting_02", "parameterTypes" : [] },
+            { "name" : "celar_6_sub0", "parameterTypes" : [] },
+            { "name" : "cryptanalysis_kb128_n5_obj16", "parameterTypes" : [] },
+            { "name" : "depot_placement_rat99_5", "parameterTypes" : [] },
+            { "name" : "diameterc_mst_s_v20_a50_d4", "parameterTypes" : [] },
+            { "name" : "elitserien_handball20", "parameterTypes" : [] },
+            { "name" : "filters_fir_1_3", "parameterTypes" : [] },
+            { "name" : "gbac_reduced_UD10", "parameterTypes" : [] },
+            { "name" : "gfd_schedule_n25f5d20m10k3", "parameterTypes" : [] },
+            { "name" : "java_auto_gen_plusexample_6", "parameterTypes" : [] },
+            { "name" : "mapping_mesh2x2_1", "parameterTypes" : [] },
+            { "name" : "maximum_dag_25_04", "parameterTypes" : [] },
+            { "name" : "mrcpsp_j30_15_5", "parameterTypes" : [] },
+            { "name" : "nfc_12_2_10", "parameterTypes" : [] },
+            { "name" : "oocsp_racks_030_e6_cc", "parameterTypes" : [] },
+            { "name" : "prize_collecting_28_4_7_1", "parameterTypes" : [] },
+            { "name" : "rcpsp_wet_j30_27_5", "parameterTypes" : [] },
+            { "name" : "solbat_13_13_5_1", "parameterTypes" : [] },
+            { "name" : "tpp_5_3_30_1", "parameterTypes" : [] },
+            { "name" : "zephyrus_12_6_8_3", "parameterTypes" : [] }
+        ]
+    },
+    {
+        "name" : "yuck.flatzinc.test.MiniZincChallenge2017",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : [] },
+            { "name" : "cargo_01_0s_1913", "parameterTypes" : [] },
+            { "name" : "city_position_5_06", "parameterTypes" : [] },
+            { "name" : "community_detection_Sampson_s10_k3", "parameterTypes" : [] },
+            { "name" : "crosswords_grid_05_02_dict_55", "parameterTypes" : [] },
+            { "name" : "gbac_UD2", "parameterTypes" : [] },
+            { "name" : "groupsplitter_u5g1pref0", "parameterTypes" : [] },
+            { "name" : "hrc_exp1_1_5670", "parameterTypes" : [] },
+            { "name" : "jp_encoding_data200", "parameterTypes" : [] },
+            { "name" : "ma_path_finding_ins_g16_p10_a10", "parameterTypes" : [] },
+            { "name" : "mario_medium_1", "parameterTypes" : [] },
+            { "name" : "opd_flener_et_al_15_350_100", "parameterTypes" : [] },
+            { "name" : "opt_cryptanalysis_r5", "parameterTypes" : [] },
+            { "name" : "rcpsp_wet_j30_1_3", "parameterTypes" : [] },
+            { "name" : "rel2onto_3_9", "parameterTypes" : [] },
+            { "name" : "road_cons_17", "parameterTypes" : [] },
+            { "name" : "routing_flexible_GCM_0001", "parameterTypes" : [] },
+            { "name" : "steelmillslab_bench_14_1", "parameterTypes" : [] },
+            { "name" : "tc_graph_color_k10_31", "parameterTypes" : [] },
+            { "name" : "tdtsp_10_42_00", "parameterTypes" : [] },
+            { "name" : "traveling_tppv_circ8dbal", "parameterTypes" : [] }
+        ]
+    },
+    {
+        "name" : "yuck.flatzinc.test.MiniZincChallenge2018",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : [] },
+            { "name" : "cargo_challenge_22", "parameterTypes" : [] },
+            { "name" : "concert_hall_cap_mznc2018_02", "parameterTypes" : [] },
+            { "name" : "elitserien_handball1", "parameterTypes" : [] },
+            { "name" : "gfd_schedule_n65f2d50m20k10", "parameterTypes" : [] },
+            { "name" : "largescheduling_instance_0100_4", "parameterTypes" : [] },
+            { "name" : "mapping_full2x2_mp3", "parameterTypes" : [] },
+            { "name" : "neighbours_1", "parameterTypes" : [] },
+            { "name" : "on_call_rostering_2s_200d", "parameterTypes" : [] },
+            { "name" : "oocsp_racks_050_r1", "parameterTypes" : [] },
+            { "name" : "opt_cryptanalysis_r10", "parameterTypes" : [] },
+            { "name" : "proteindesign12_1PGB_11p_9aa_usingEref_self_x", "parameterTypes" : [] },
+            { "name" : "racp_j30_13_6_1_25", "parameterTypes" : [] },
+            { "name" : "rotating_workforce_Example103", "parameterTypes" : [] },
+            { "name" : "seat_moving_10_20_05", "parameterTypes" : [] },
+            { "name" : "soccer_computational_xIGData_22_12_22_5", "parameterTypes" : [] },
+            { "name" : "steiner_tree_es10fst03_stp", "parameterTypes" : [] },
+            { "name" : "team_assignment_data2_5_6", "parameterTypes" : [] },
+            { "name" : "test_scheduling_t30m10r10_5", "parameterTypes" : [] },
+            { "name" : "train_16", "parameterTypes" : [] },
+            { "name" : "vrplc_9_5_10_s1", "parameterTypes" : [] }
+        ]
+    },
+    {
+        "name" : "yuck.flatzinc.test.MiniZincChallenge2019",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : [] },
+            { "name" : "accap_instance3", "parameterTypes" : [] },
+            { "name" : "amaze_2012_03_29", "parameterTypes" : [] },
+            { "name" : "code_generator_mips_gcc_cfgrtl_update_br_prob_note", "parameterTypes" : [] },
+            { "name" : "fox_geese_corn_06_07_08_00", "parameterTypes" : [] },
+            { "name" : "groupsplitter_u6g1pref1", "parameterTypes" : [] },
+            { "name" : "hrc_exp1_1_5110", "parameterTypes" : [] },
+            { "name" : "kidney_exchange_3_20_0_25_2", "parameterTypes" : [] },
+            { "name" : "liner_sf_repositioning_fm3_0", "parameterTypes" : [] },
+            { "name" : "lot_sizing_pigment15a_psp", "parameterTypes" : [] },
+            { "name" : "median_string_median_p2_10_8_3", "parameterTypes" : [] },
+            { "name" : "multi_knapsack_2_1", "parameterTypes" : [] },
+            { "name" : "nside_EASY_200_50", "parameterTypes" : [] },
+            { "name" : "ptv_pax_period_20_2b", "parameterTypes" : [] },
+            { "name" : "rcpsp_j30_27_5_wet_diverse_3", "parameterTypes" : [] },
+            { "name" : "rotating_workforce_Example1242", "parameterTypes" : [] },
+            { "name" : "stack_cuttingstock_d5", "parameterTypes" : [] },
+            { "name" : "steelmillslab_bench_17_7", "parameterTypes" : [] },
+            { "name" : "stochastic_vrp_s3_v2_c7_vrp_v2_c7_det", "parameterTypes" : [] },
+            { "name" : "triangular_n17", "parameterTypes" : [] },
+            { "name" : "zephyrus_12_6_6_3", "parameterTypes" : [] }
+        ]
+    },
+    {
+        "name" : "yuck.flatzinc.test.MiniZincChallenges",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : [] }
+        ]
+    },
+    {
+        "name" : "yuck.flatzinc.test.MiniZincBenchmarks",
+        "methods" : [
+            { "name" : "<init>", "parameterTypes" : ["yuck.flatzinc.test.util.MiniZincTestTask"] },
+            { "name" : "solve", "parameterTypes" : [] },
+            { "name" : "parameters", "parameterTypes" : [] }
+        ]
+    }
+]

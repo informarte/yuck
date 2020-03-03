@@ -1,0 +1,62 @@
+MZN_RESOURCE_DIR := resources/mzn
+
+NATIVE_IMAGE_DIR := target/native-image
+
+BINARY := $(NATIVE_IMAGE_DIR)/yuck
+
+COMMON_NATIVE_IMAGE_PARAMS := \
+    --no-fallback \
+    -H:+TraceClassInitialization \
+    -Djava.util.logging.manager=yuck.util.logging.ManagedLogManager \
+    --initialize-at-build-time=scala.runtime.Statics\$$VM \
+    --report-unsupported-elements-at-runtime
+
+.PHONY: native-image
+native-image: $(BINARY)
+
+CLASS_PATH := $(shell sbt 'export runtime:fullClasspathAsJars' | tee /dev/stderr | grep -v -E '\[warn\]|\[info\]')
+JARS := $(foreach JAR, $(subst :, ,$(CLASS_PATH)), $(JAR))
+
+$(BINARY): $(JARS) src/graalvm/reflect-config.json
+	mkdir -p $(NATIVE_IMAGE_DIR)
+	native-image \
+	    $(COMMON_NATIVE_IMAGE_PARAMS) \
+	    --class-path $(CLASS_PATH) \
+	    -H:Name=$(BINARY) \
+	    -H:ReflectionConfigurationFiles=src/graalvm/reflect-config.json \
+	    yuck.flatzinc.runner.FlatZincRunner
+
+.PHONY: tested-native-image
+tested-native-image: native-image
+	sed \
+	    -e 's#VERSION#stage-native#' \
+	    -e 's#EXE_PATH#$(BINARY)#' \
+	    -e 's#MZN_LIB_PATH#$(MZN_RESOURCE_DIR)/lib/yuck#' \
+	    -e 's#STD_FLAGS#["-p", "-r", "-v"]#' \
+	    $(MZN_RESOURCE_DIR)/yuck.msc.in \
+	    >$(NATIVE_IMAGE_DIR)/yuck.msc
+	minizinc --solver $(NATIVE_IMAGE_DIR)/yuck.msc $(MZN_RESOURCE_DIR)/tests/minizinc-examples/alpha.mzn
+
+TEST_BINARY := $(NATIVE_IMAGE_DIR)/yuck-test
+
+.PHONY: native-test-image
+native-test-image: $(TEST_BINARY)
+
+TEST_CLASS_PATH := $(shell sbt 'export test:fullClasspathAsJars' | tee /dev/stderr | grep -v -E '\[warn\]|\[info\]')
+TEST_JARS := $(foreach JAR, $(subst :, ,$(TEST_CLASS_PATH)), $(JAR))
+
+$(TEST_BINARY): $(TEST_JARS) src/graalvm/reflect-config.json src/graalvm/test-reflect-config.json
+	mkdir -p $(NATIVE_IMAGE_DIR)
+	native-image \
+	    $(COMMON_NATIVE_IMAGE_PARAMS) \
+	    --class-path $(TEST_CLASS_PATH) \
+	    -H:Name=$(TEST_BINARY) \
+	    -H:ReflectionConfigurationFiles=src/graalvm/reflect-config.json,src/graalvm/test-reflect-config.json \
+	    yuck.util.testing.YuckTestRunner
+
+.PHONY: tested-native-test-image
+tested-native-test-image: yuck.flatzinc.test.TractableMiniZincExamples
+
+.PHONY: yuck.test.% yuck.flatzinc.test.%
+yuck.test.% yuck.flatzinc.test.%: native-test-image
+	$(TEST_BINARY) $@

@@ -20,7 +20,8 @@ def createMscFile(baseDir: java.io.File, version: String, exePath: String, mznLi
             "%s\n".format(
                 line.replace("VERSION", version)
                     .replace("EXE_PATH", exePath)
-                    .replace("MZN_LIB_PATH", mznLibPath)))
+                    .replace("MZN_LIB_PATH", mznLibPath)
+                    .replace("STD_FLAGS", "[\"-p\", \"-r\"]")))
     }
     writer.close
     sink
