@@ -9,7 +9,7 @@
 * Yuck implements Boolean, integer, and integer set variables, see [FlatZinc support](#flatzinc-support).
 * Yuck implements many global constraints and their reified counterparts, see [Global constraints](#global-constraints).
 * Yuck features a mechanism to turn Boolean MiniZinc expressions (including applications of global constraints) into soft constraints, see [bool2costs](#bool2costs).
-* Yuck supports user-defined [goal hierarchies](#goal-hierarchies) where goals on higher levels are strictly more important than goals on lower levels.
+* Yuck supports lexicographic multi-objective optimization, see [goal hierarchies](#goal-hierarchies).
 * Yuck is provided under the terms of the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0).
 * In the [2017 MiniZinc challenge](http://www.minizinc.org/challenge2017/challenge.html), Yuck ranked second among local-search solvers.
 * In the [2018 MiniZinc challenge](http://www.minizinc.org/challenge2018/challenge.html), Yuck defended its second place in the local-search category.
@@ -173,13 +173,10 @@ var int: overlap = bool2costs(disjunctive(o, d));
 
 solve minimize(overlap);
 
-output [
-    "o = ", show(o), "\n",
-    "d = ", show(d), "\n",
-    "overlap = ", show(overlap)];
+output ["o = ", show(o), "\n", "d = ", show(d), "\n", "overlap = ", show(overlap)];
 ```
 
-Applying Yuck to this problem will result in:
+Applying Yuck to this problem results in:
 
 ```
 o = [2, 4, 5, 2]
@@ -221,7 +218,54 @@ Keep in mind, though, that bool2costs is a non-standard MiniZinc extension which
 
 ### Goal hierarchies
 
-To define a goal hierarchy, annotate a solve statement as in the following example:
+To state a lexicographic multi-objective optimization problem, define a goal hierarchy by annotating the solve statement as in the following example:
+
+```
+include "bin_packing_load_fn.mzn";
+include "yuck.mzn";
+
+array [1..6] of var 1..3: bin;
+array [1..6] of int: weight = [i | i in 1..6];
+
+constraint load = bin_packing_load(bin, weight);
+
+constraint load[1] >= 3 /\ load[3] <= 10;
+
+solve :: goal_hierarchy([int_min_goal(load[1]), int_min_goal(load[2]), int_min_goal(load[3])]) satisfy;
+
+output ["bin = ", show(bin), "\n", "load = ", show(load)];
+```
+
+This MiniZinc program states: Find a solution that satisfies load[1] >= 3 and load[3] <= 10 and minimizes the load vector.
+
+Applying Yuck to this problem yields:
+
+```
+bin = [2, 3, 2, 1, 2, 3]
+load = [4, 9, 8]
+----------
+bin = [3, 3, 2, 1, 2, 3]
+load = [4, 8, 9]
+----------
+bin = [3, 2, 3, 1, 2, 3]
+load = [4, 7, 10]
+----------
+bin = [2, 3, 1, 3, 2, 2]
+load = [3, 12, 6]
+----------
+bin = [3, 3, 1, 3, 2, 2]
+load = [3, 11, 7]
+----------
+bin = [3, 2, 1, 3, 3, 2]
+load = [3, 8, 10]
+----------
+```
+
+The goal_hierarchy annotation accepts an unlimited number of goals. Apart from int_min_goal, there are int_max_goal and sat_goal.
+
+Notice that the goal to satisfy the hard constraints is implicit and that it is the first and most important goal. All other goals g<sub>1</sub>, ..., g<sub>n</sub> are additional, lexicographically ordered optimization criteria: For 1 <= k < n, g<sub>k</sub> is strictly more important than g<sub>k + 1</sub>.
+
+sat_goal can be used to define soft constraints as in the following example:
 
 ```
 include "alldifferent.mzn";
@@ -234,20 +278,20 @@ array [1..N] of var 1..N: x;
 constraint x[1] = x[N];
 
 solve :: goal_hierarchy([sat_goal(alldifferent(x))]) satisfy;
+
+output ["x = ", show(x)];
 ```
 
-This MiniZinc program states: Find a solution that satisfies x[1] = x[N] while minimizing the violation of the alldifferent constraint.
+This MiniZinc program states: Find a solution that satisfies x[1] = x[N] and minimizes the violation of the alldifferent constraint.
 
-Applying Yuck to this problem will result in:
+(Violations are measured by the [bool2costs](#bool2costs) function.)
+
+Applying Yuck to this problem results in:
 
 ```
 x = [8, 10, 9, 5, 1, 3, 2, 6, 7, 8]
 ----------
 ```
-
-A goal_hierarchy annotation accepts an unlimited number of goals. Apart from sat_goal, you can use int_min_goal and int_max_goal.
-
-Notice that the goal to satisfy the hard constraints is implicit and that it is the first and most important goal. All other goals - the number is not limited - are additional optimization criteria where the goal on level *k* is strictly more important than the goal on level *k + 1*.
 
 To use goal hierarchies, you have to include `yuck.mzn`.
 
