@@ -18,12 +18,13 @@
 
 import argparse
 import json
-import matplotlib.pyplot as plt
 import numpy
 from urllib.request import pathname2url
 import sqlite3
 import statistics
 import sys
+
+import common
 
 def evalRuns(cursor, args):
     runsInScope = args.runs if args.ignoreOtherRuns else list(map(lambda result: result[0], cursor.execute('SELECT DISTINCT run from result')));
@@ -85,33 +86,26 @@ def postprocessResult(result):
     quartiles = numpy.percentile(penalties, [25, 50, 75])
     return {
         'failures': result['failures'],
-        'penalty-min': min(penalties),
-        'penalty-q1': quartiles[0],
-        'penalty-q2': quartiles[1],
-        'penalty-q3': quartiles[2],
-        'penalty-max': max(penalties),
-        'penalty-mean': statistics.mean(penalties),
-        'penalty-pstdev': statistics.pstdev(penalties),
-        'penalty-histogram': numpy.histogram(penalties, 10, (0, 1))[0].tolist()
+        'penalties': {
+            'min': min(penalties),
+            'q1': quartiles[0],
+            'q2': quartiles[1],
+            'q3': quartiles[2],
+            'max': max(penalties),
+            'mean': statistics.mean(penalties),
+            'pstdev': statistics.pstdev(penalties),
+            'histogram': numpy.histogram(penalties, 10, (0, 1))[0].tolist()
+        }
     }
 
 def plotDiagrams(results):
-    fig, (ax1, ax2, ax3) = plt.subplots(ncols = 1, nrows = 3, sharex = True, constrained_layout=True)
-    fig.suptitle('Run comparison', fontsize = 'x-large')
-    sortedRuns = sorted([run for run in results])
-    reverselySortedRuns = sorted(sortedRuns, reverse = True)
-    for run in sortedRuns:
-        ax1.hist(results[run]['penalties'], 25, histtype = 'step', cumulative = False, label = run)
-        ax2.hist(results[run]['penalties'], 100, histtype = 'step', cumulative = True, label = run)
-    ax3.boxplot([results[run]['penalties'] for run in reverselySortedRuns], vert = False, labels = reverselySortedRuns, showmeans = True)
-    ax1.grid(True)
-    ax1.legend(loc='upper center', fontsize = 'medium')
-    ax1.set_ylabel('Number of results')
-    ax2.grid(True)
-    ax2.set_ylabel('Cumulative number of results')
-    ax3.grid(True)
-    ax3.set_xlabel('Penalty')
-    plt.show()
+    common.plotDiagrams(
+        [run for run in results],
+        lambda run: results[run]['penalties'],
+        title = 'Run comparison',
+        xlabel = 'Penalty',
+        legendLocation = 'upper center')
+
 
 def main():
     parser = argparse.ArgumentParser(

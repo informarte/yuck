@@ -160,12 +160,12 @@ final class SimulatedAnnealing(
         val roundLog = result.roundLogs.last
 
         // Monte Carlo simulation
-        val startTime = System.currentTimeMillis
+        val startTimeInMillis = System.currentTimeMillis
         monteCarloSimulation
-        val endTime = System.currentTimeMillis
+        val endTimeInMillis = System.currentTimeMillis
 
         // book-keeping
-        roundLog.runtimeInMillis += (endTime - startTime)
+        roundLog.runtimeInMillis += (endTimeInMillis - startTimeInMillis)
         roundLog.numberOfMonteCarloAttempts = schedule.numberOfMonteCarloAttempts - numberOfRemainingMonteCarloAttempts
         roundLog.costsOfFinalProposal = costsOfCurrentProposal
         roundLog.updateAcceptanceRatio

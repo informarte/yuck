@@ -1,9 +1,10 @@
 package yuck.flatzinc.test.util
 
 import scala.collection._
+
 import spray.json._
+
 import yuck.BuildInfo
-import yuck.annealing._
 import yuck.core._
 import yuck.flatzinc.ast._
 import yuck.flatzinc.compiler.FlatZincCompilerResult
@@ -160,7 +161,7 @@ class MiniZincBasedTest extends IntegrationTest {
                 maybeTargetObjectiveValue =
                     if (task.maybeTargetObjectiveValue.isDefined) task.maybeTargetObjectiveValue
                     else task.maybeOptimum)
-        val monitor = new StandardAnnealingMonitor(logger)
+        val monitor = new OptimizationMonitor(logger)
         val result =
             scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set})) {
                 maybeTimeboxed(cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
@@ -170,8 +171,10 @@ class MiniZincBasedTest extends IntegrationTest {
                         }
                     logTask(task, ast)
                     logFlatZincModelStatistics(ast)
-                    scoped(monitor) {
-                        new FlatZincSolverGenerator(ast, cfg, sigint, logger, monitor).call.call
+                    logger.withTimedLogScope("Solving problem") {
+                        scoped(monitor) {
+                            new FlatZincSolverGenerator(ast, cfg, sigint, logger, monitor).call.call
+                        }
                     }
                 }
             }
@@ -313,19 +316,25 @@ class MiniZincBasedTest extends IntegrationTest {
         jsonRoot += "result" -> resultNode
     }
 
-    private def logSolverStatistics(monitor: StandardAnnealingMonitor): Unit = {
-        if (monitor.wasSearchRequired) {
-            jsonRoot +=
-                "solver-statistics" -> JsSection(
+    private def logSolverStatistics(monitor: OptimizationMonitor): Unit = {
+        val statsNode =
+            if (monitor.wasSearchRequired) {
+                JsSection(
                     "number-of-restarts" -> JsNumber(monitor.numberOfRestarts),
-                    "runtime-in-seconds" -> JsNumber(monitor.runtimeInSeconds),
                     "moves-per-second" -> JsNumber(monitor.movesPerSecond),
                     "consultations-per-second" -> JsNumber(monitor.consultationsPerSecond),
                     "consultations-per-move" -> JsNumber(monitor.consultationsPerMove),
                     "commitments-per-second" -> JsNumber(monitor.commitmentsPerSecond),
                     "commitments-per-move" -> JsNumber(monitor.commitmentsPerMove)
                 )
+            } else {
+                JsSection()
+            }
+        statsNode += "runtime-in-seconds" -> JsEntry(JsNumber(monitor.runtimeInSeconds))
+        if (monitor.maybeArea.isDefined) {
+            statsNode += "area" -> JsEntry(JsNumber(monitor.maybeArea.get))
         }
+        jsonRoot += "solver-statistics" -> statsNode
     }
 
     private def logViolatedConstraints(result: Result): Unit = {
