@@ -20,7 +20,8 @@ abstract class FrontEndTest extends MiniZincBasedTest {
             solverConfiguration = FlatZincSolverConfiguration(restartLimit = 0),
             maybeRuntimeLimitInSeconds = Some(10),
             assertWhenUnsolved = true,
-            reusePreviousTestResult = false)
+            reusePreviousTestResult = false,
+            exportDot = true)
 
     protected def neighbourhood(result: Result): Neighbourhood =
         result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult].maybeNeighbourhood.get

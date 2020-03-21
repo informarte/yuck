@@ -37,7 +37,8 @@ case class MiniZincTestTask(
     val logLevel: yuck.util.logging.LogLevel = yuck.util.logging.InfoLogLevel,
     val assertWhenUnsolved: Boolean = false,
     val reusePreviousTestResult: Boolean = true,
-    val verifySolution: Boolean = true)
+    val verifySolution: Boolean = true,
+    val exportDot: Boolean = false)
 {
     def effectiveInstanceName: String = if (instanceName.isEmpty) problemName else instanceName
     override def toString = "%s/%s/%s".format(problemName, modelName, instanceName)

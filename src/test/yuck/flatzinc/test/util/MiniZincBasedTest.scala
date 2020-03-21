@@ -82,6 +82,7 @@ class MiniZincBasedTest extends IntegrationTest {
         val fznFilePath = "%s/problem.fzn".format(outputDirectoryPath)
         val logFilePath = "%s/yuck.log".format(outputDirectoryPath)
         val jsonFilePath = "%s/yuck.json".format(outputDirectoryPath)
+        val dotFilePath = "%s/yuck.dot".format(outputDirectoryPath)
         if (task.reusePreviousTestResult && new java.io.File(jsonFilePath).exists() && ! task.assertWhenUnsolved) {
             None
         } else {
@@ -95,6 +96,12 @@ class MiniZincBasedTest extends IntegrationTest {
                     trySolve(
                         task.copy(suiteName = suiteName, modelName = modelName, instanceName = instanceName),
                         mznFilePath, dznFilePath, fznFilePath, jsonFilePath)
+                if (task.exportDot) {
+                    logger.withTimedLogScope("Exporting constraint network to a DOT file") {
+                        val dotWriter = new java.io.FileWriter(dotFilePath)
+                        new DotExporter(result.space, dotWriter).run
+                    }
+                }
                 Some(result)
             }
             catch {
