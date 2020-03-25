@@ -12,7 +12,7 @@ final class Bool2Costs1
      x: BooleanVariable, y: IntegerVariable)
     extends BinaryConstraint(id, x, y)
 {
-    override def toString = "bool2costs(%s, %s)".format(x, y)
+    override def toString = "%s = bool2costs(%s)".format(y, x)
     override def op(a: BooleanValue) = IntegerValue.get(safeToInt(a.violation))
     override def propagate = {
         val (dx, dy) = Bool2CostsPropagator.bool2Costs(x.domain, y.domain)

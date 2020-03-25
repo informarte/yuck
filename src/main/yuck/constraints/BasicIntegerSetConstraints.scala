@@ -8,10 +8,10 @@ import yuck.core._
  */
 final class SetCardinality
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     a: IntegerSetVariable, b: IntegerVariable)
-    extends BinaryConstraint(id, a, b)
+     x: IntegerSetVariable, y: IntegerVariable)
+    extends BinaryConstraint(id, x, y)
 {
-    override def toString = "set_cardinality(%s, %s)".format(a, b)
+    override def toString = "%s = set_cardinality(%s)".format(y, x)
     override def op(a: IntegerSetValue) = IntegerValue.get(a.set.size)
 }
 
@@ -59,7 +59,7 @@ final class SetIntersection
      x: IntegerSetVariable, y: IntegerSetVariable, z: IntegerSetVariable)
     extends TernaryConstraint(id, x, y, z)
 {
-    override def toString = "set_intersection(%s, %s, %s)".format(x, y, z)
+    override def toString = "%s = set_intersection(%s, %s)".format(z, x, y)
     override def op(a: IntegerSetValue, b: IntegerSetValue) = new IntegerSetValue(a.set.intersect(b.set))
 }
 
@@ -72,7 +72,7 @@ final class SetUnion
      x: IntegerSetVariable, y: IntegerSetVariable, z: IntegerSetVariable)
     extends TernaryConstraint(id, x, y, z)
 {
-    override def toString = "set_union(%s, %s, %s)".format(x, y, z)
+    override def toString = "%s = set_union(%s, %s)".format(z, x, y)
     override def op(a: IntegerSetValue, b: IntegerSetValue) = new IntegerSetValue(a.set.union(b.set))
 }
 
@@ -85,7 +85,7 @@ final class SetDifference
      x: IntegerSetVariable, y: IntegerSetVariable, z: IntegerSetVariable)
     extends TernaryConstraint(id, x, y, z)
 {
-    override def toString = "set_difference(%s, %s, %s)".format(x, y, z)
+    override def toString = "%s = set_difference(%s, %s)".format(z, x, y)
     override def op(a: IntegerSetValue, b: IntegerSetValue) = new IntegerSetValue(a.set.diff(b.set))
 }
 
@@ -98,7 +98,7 @@ final class SymmetricalSetDifference
      x: IntegerSetVariable, y: IntegerSetVariable, z: IntegerSetVariable)
     extends TernaryConstraint(id, x, y, z)
 {
-    override def toString = "symmetrical_set_difference(%s, %s, %s)".format(x, y, z)
+    override def toString = "%s = symmetrical_set_difference(%s, %s)".format(z, x, y)
     override def op(a: IntegerSetValue, b: IntegerSetValue) =
         new IntegerSetValue(a.set.union(b.set).diff(a.set.intersect(b.set)))
 }

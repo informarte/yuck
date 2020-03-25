@@ -12,7 +12,7 @@ final class Not
      x: BooleanVariable, y: BooleanVariable)
     extends BinaryConstraint(id, x, y)
 {
-    override def toString = "not(%s, %s)".format(x, y)
+    override def toString = "%s = not(%s)".format(y, x)
     override def op(a: BooleanValue) = if (a.truthValue) False else True
     override def propagate = {
         val dx0 = x.domain

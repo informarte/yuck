@@ -14,7 +14,7 @@ final class Eq
     extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[OrderedDomain[Value], OrderedDomain[Value]]
 {
-    override def toString = "%s = %s == %s".format(z, x, y)
+    override def toString = "eq(%s, %s, %s)".format(x, y, z)
     override def op(a: Value, b: Value) = valueTraits.orderingCostModel.eqViolation(a, b)
     override def propagate = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
@@ -38,7 +38,7 @@ final class Ne
     extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[OrderedDomain[Value], OrderedDomain[Value]]
 {
-    override def toString = "%s = %s != %s".format(z, x, y)
+    override def toString = "ne(%s, %s, %s)".format(x, y, z)
     override def op(a: Value, b: Value) = valueTraits.orderingCostModel.neViolation(a, b)
     override def propagate = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
@@ -62,7 +62,7 @@ final class Lt
     extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[OrderedDomain[Value], OrderedDomain[Value]]
 {
-    override def toString = "%s = %s < %s".format(z, x, y)
+    override def toString = "lt(%s, %s, %s)".format(x, y, z)
     override def op(a: Value, b: Value) = valueTraits.orderingCostModel.ltViolation(a, b)
     override def propagate = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
@@ -88,7 +88,7 @@ final class Le
     extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[OrderedDomain[Value], OrderedDomain[Value]]
 {
-    override def toString = "%s = %s <= %s".format(z, x, y)
+    override def toString = "le(%s, %s, %s)".format(x, y, z)
     override def op(a: Value, b: Value) = valueTraits.orderingCostModel.leViolation(a, b)
     override def propagate = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))

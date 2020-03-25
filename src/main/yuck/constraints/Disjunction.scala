@@ -41,7 +41,7 @@ final class Disjunction
     require(! xs.isEmpty)
     require(xs.size <= Int.MaxValue)
 
-    override def toString = "disjunction(%s, %s)".format(xs, y)
+    override def toString = "disjunction([%s], %s)".format(xs.mkString(", "), y)
     override def inVariables = xs
     override def outVariables = List(y)
 

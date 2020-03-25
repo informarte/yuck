@@ -19,7 +19,7 @@ final class LexLess
     extends Constraint(id)
 {
 
-    override def toString = "lex_less(%s, %s)".format(xs, ys)
+    override def toString = "lex_less([%s], [%s])".format(xs.mkString(", "), ys.mkString(", "))
     override def inVariables = xs.view ++ ys.view
     override def outVariables = List(costs)
 

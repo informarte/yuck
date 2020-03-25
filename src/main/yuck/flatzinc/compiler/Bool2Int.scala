@@ -12,7 +12,7 @@ final class Bool2Int1
      x: BooleanVariable, y: IntegerVariable)
     extends BinaryConstraint(id, x, y)
 {
-    override def toString = "bool2int(%s, %s)".format(x, y)
+    override def toString = "%s = bool2int(%s)".format(y, x)
     override def op(a: BooleanValue) = if (a.truthValue) One else Zero
     override def propagate = {
         val (dx, dy) = Bool2IntPropagator.bool2Int(x.domain, y.domain)

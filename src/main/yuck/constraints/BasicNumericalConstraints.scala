@@ -118,7 +118,7 @@ final class Abs
     (implicit valueTraits: NumericalValueTraits[Value])
     extends BinaryConstraint(id, x, y)
 {
-    override def toString = "%s = |%s|".format(y, x)
+    override def toString = "%s = abs(%s)".format(y, x)
     override def op(a: Value) = a.abs
     override def propagate = {
         val (dx1, dy1) = valueTraits.domainPruner.absRule(x.domain, y.domain)
@@ -136,7 +136,7 @@ final class Even
      x: NumericalVariable[Value], y: BooleanVariable)
     extends BinaryConstraint(id, x, y)
 {
-    override def toString = "%s = even(%s)".format(y, x)
+    override def toString = "even(%s, %s)".format(x, y)
     override def op(a: Value) = if (a.isEven) True else False
 }
 
@@ -150,6 +150,6 @@ final class Uneven
      x: NumericalVariable[Value], y: BooleanVariable)
     extends BinaryConstraint(id, x, y)
 {
-    override def toString = "%s = uneven(%s)".format(y, x)
+    override def toString = "uneven(%s, %s)".format(x, y)
     override def op(a: Value) = if (a.isEven) False else True
 }
