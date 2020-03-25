@@ -298,6 +298,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseWithUnrestrictedPairing: Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_test_with_unrestricted_pairing"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Inverse]), 1)
         assert(neighbourhood(result).isInstanceOf[SimpleInverseNeighbourhood])
     }
 
@@ -305,6 +306,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseWithRestrictedPairing: Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_test_with_restricted_pairing"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Inverse]), 1)
         assert(neighbourhood(result).isInstanceOf[GeneralInverseNeighbourhood])
     }
 
@@ -312,6 +314,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseWithOneFunction: Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_test_with_one_function"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Inverse]), 1)
         assert(neighbourhood(result).isInstanceOf[SelfInverseNeighbourhood])
     }
 
@@ -319,6 +322,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseDecomposition: Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_decomposition_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Inverse]), 2)
         assert(neighbourhood(result).isInstanceOf[NeighbourhoodCollection])
         assert(neighbourhood(result).asInstanceOf[NeighbourhoodCollection].children.forall(_.isInstanceOf[SimpleInverseNeighbourhood]))
     }
