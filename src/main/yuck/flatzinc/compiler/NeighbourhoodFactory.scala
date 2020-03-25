@@ -28,9 +28,7 @@ import yuck.core._
  * In case we end up with two neighbourhoods (one for the satisfaction goal and another
  * for the optimization goal), these neighbourhoods will be stacked by creating an instance
  * of [[yuck.core.NeighbourhoodCollection NeighbourhoodCollection]] instrumented to
- * focus on the satisfaction goal in case hard constraints are violated. To this end,
- * we keep track of goal satisfaction by means of a dynamic distribution (maintained by
- * an instance of [[yuck.constraints.OptimizationGoalTracker OptimizationGoalTracker]]).
+ * focus on the satisfaction goal in case hard constraints are violated.
  *
  * In an attempt to decouple this factory from implementation details of data structures
  * (hash sets, in particular) and the earlier compiler stages, we sort constraints and
