@@ -62,7 +62,7 @@ libraryDependencies ++= Seq(
     "com.novocode" % "junit-interface" % "0.11" % "test",
     "io.spray" %% "spray-json" % "1.3.5",
     "junit" % "junit" % "4.12" % "test",
-    "org.jgrapht" % "jgrapht-core" % "1.3.1",
+    "org.jgrapht" % "jgrapht-core" % "1.4.0",
     "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2",
     "org.scalamock" %% "scalamock" % "4.4.0" % "test",
 )
