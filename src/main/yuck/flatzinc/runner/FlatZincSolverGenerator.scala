@@ -1,17 +1,12 @@
 package yuck.flatzinc.runner
 
-import java.util.logging._
-
-import scala.math._
-
 import yuck.annealing._
 import yuck.core._
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.FlatZincAst
 import yuck.flatzinc.compiler.{FlatZincCompiler, FlatZincCompilerResult}
-import yuck.util.arm.{SettableSigint, Sigint}
+import yuck.util.arm.SettableSigint
 import yuck.util.logging.LazyLogger
-
 
 /**
  * @author Michael Marte
