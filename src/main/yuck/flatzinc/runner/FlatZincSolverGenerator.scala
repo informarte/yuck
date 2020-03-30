@@ -84,9 +84,6 @@ final class FlatZincSolverGenerator
     }
 
     override def call = {
-        logger.withLogScope("FlatZinc model statistics") {
-            logFlatZincModelStatistics
-        }
         val randomGenerator = new JavaRandomGenerator(cfg.seed)
         val solvers =
             for (i <- 1 to 1 + cfg.restartLimit) yield
@@ -98,13 +95,6 @@ final class FlatZincSolverGenerator
             if (solvers.size == 1) solvers.head
             else new ParallelSolver(solvers, cfg.numberOfThreads, solverName, logger, sigint)
         solver
-    }
-
-    private def logFlatZincModelStatistics = {
-        logger.log("%d predicate declarations".format(ast.predDecls.size))
-        logger.log("%d parameter declarations".format(ast.paramDecls.size))
-        logger.log("%d variable declarations".format(ast.varDecls.size))
-        logger.log("%d constraints".format(ast.constraints.size))
     }
 
 }

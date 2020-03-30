@@ -33,7 +33,17 @@ final class FlatZincFileParser(fznFilePath: String, logger: LazyLogger) extends 
                     futureAst.get
                 }
             }
+        logger.withLogScope("FlatZinc model statistics") {
+            logFlatZincModelStatistics(ast)
+        }
         ast
+    }
+
+    private def logFlatZincModelStatistics(ast: FlatZincAst) = {
+        logger.log("%d predicate declarations".format(ast.predDecls.size))
+        logger.log("%d parameter declarations".format(ast.paramDecls.size))
+        logger.log("%d variable declarations".format(ast.varDecls.size))
+        logger.log("%d constraints".format(ast.constraints.size))
     }
 
 }
