@@ -76,7 +76,7 @@ abstract class AnyObjective {
      */
     final def findActualObjectiveValue(space: Space): Unit = findActualObjectiveValue(space, this)
 
-    private[core] def findActualObjectiveValue(space: Space, rootObjective: AnyObjective): Unit
+    private[core] def findActualObjectiveValue(space: Space, rootObjective: AnyObjective): Unit = {}
 
     /**
      * Tries to tighten this objective (by reducing variable domains) such that search states
@@ -84,6 +84,6 @@ abstract class AnyObjective {
      *
      * Returns the set of variables the domains of which were reduced in the process.
      */
-    def tighten(space: Space): Set[AnyVariable]
+    def tighten(space: Space): Set[AnyVariable] = Set.empty
 
 }

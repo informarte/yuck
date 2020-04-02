@@ -48,9 +48,6 @@ final class BooleanChannelDomainTest extends UnitTest {
         assertEq(d.lb, True)
         assertEq(d.ub, null)
         assertEq(d.hull, d)
-        assertEx(d.boundFromBelow(False))
-        assertEx(d.boundFromAbove(False))
-        assertEx(d.bisect)
     }
 
 }

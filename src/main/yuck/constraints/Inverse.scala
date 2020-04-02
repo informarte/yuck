@@ -267,7 +267,7 @@ final class Inverse
                                     DefaultMoveSizeDistribution, maybeHotSpotDistribution = None,
                                     maybeFairVariableChoiceRate = None),
                                 randomGenerator.nextGen,
-                                new MinimizationObjective(subcosts, Some(True), None),
+                                new SatisfactionObjective(subcosts),
                                 maybeRoundLimit = Some(1000),
                                 Some(new StandardAnnealingMonitor(logger)),
                                 maybeUserData = None,

@@ -42,13 +42,9 @@ final class MinimizationObjectiveTest extends UnitTest {
 
     @Test
     def testCostComparison: Unit = {
-        val a = new Assignment
-        a.setValue(x, Zero)
-        assertEq(objective.costs(a), Zero)
         assertEq(objective.compareCosts(Zero, Zero), 0)
         assertLt(objective.compareCosts(Zero, One), 0)
         assertGt(objective.compareCosts(One, Zero), 0)
-        assertEq(objective.assessMove(a, a), 0)
     }
 
     @Test
@@ -58,14 +54,13 @@ final class MinimizationObjectiveTest extends UnitTest {
         a.setValue(x, Zero)
         val b = new Assignment
         b.setValue(x, One)
+        assertEq(objective.assessMove(a, a), 0)
         assertEq(objective.assessMove(b, b), 0)
-        assertEq(objective.assessMove(a, b), 1)
         assertEq(objective.assessMove(a, b), 1)
         b.setValue(x, Two)
         assertGt(objective.assessMove(a, b), 1)
         b.setValue(x, Three)
         assertGt(objective.assessMove(a, b), 1)
-        objective.assessMove(b, a)
         assertLt(objective.assessMove(b, a), -1)
     }
 

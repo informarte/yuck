@@ -5,7 +5,7 @@ import scala.collection._
 import yuck.core._
 
 /**
- * Implements disjunction on cost level (where 0 is true).
+ * Implements n-ary disjunction on cost level (where 0 is true).
  *
  * Roughly speaking, Disjunction(X, y) with X = (x[1], ..., x[n]) computes y
  * from X as follows:
@@ -54,24 +54,10 @@ final class Disjunction
     private val effect = effects.head
 
     override def propagate = {
-        import BooleanDomain.ensureDecisionDomain
-        val result = NoPropagationOccurred
-        val dy = ensureDecisionDomain(y.domain)
-        if (dy == TrueDomain) {
-            if (xs.forall(x => ensureDecisionDomain(x.domain) == FalseDomain)) {
-                result.pruneDomain(y, EmptyBooleanDomain)
-            } else {
-                result
-            }
-        } else if (dy == FalseDomain) {
-            result.pruneDomains(xs.iterator.map(x => (x, FalseDomain)))
-        } else if (xs.exists(x => ensureDecisionDomain(x.domain) == TrueDomain)) {
-            result.pruneDomain(y, TrueDomain)
-        } else if (xs.forall(x => ensureDecisionDomain(x.domain) == FalseDomain)) {
-            result.pruneDomain(y, FalseDomain)
-        } else {
-            result
-        }
+        val lhs0 = xs.view.map(_.domain)
+        val rhs0 = y.domain
+        val (lhs1, rhs1) = BooleanDomainPruner.disjunctionRule(lhs0, rhs0)
+        NoPropagationOccurred.pruneDomains(xs.iterator.zip(lhs1.iterator)).pruneDomain(y, rhs1)
     }
 
     override def initialize(now: SearchState) = {

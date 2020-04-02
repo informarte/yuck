@@ -250,22 +250,20 @@ final class ConstraintFactory
             val as2 = if (as1.value.isEmpty) ArrayConst(List(BoolConst(true))) else as1
             val xs = compileBoolArray(as2)
             val y = compileBoolExpr(b)
-            def withFunctionalDependency = {
-                val costs = y
+            def post(y: BooleanVariable): BooleanVariable = {
                 if (xs.size == 2) {
-                    space.post(new Plus[BooleanValue](nextConstraintId, maybeGoal, xs(0), xs(1), costs))
-                } else {
-                    space.post(new Sum[BooleanValue](nextConstraintId, maybeGoal, xs, costs))
+                    space.post(new And(nextConstraintId, maybeGoal, xs(0), xs(1), y))
+                } else if (xs.size > 2) {
+                    space.post(new Conjunction(nextConstraintId, maybeGoal, xs, y))
                 }
+                y
+            }
+            def withFunctionalDependency = {
+                post(y)
                 Nil
             }
             def withoutFunctionalDependency = {
-                val costs = if (xs.size == 1) xs(0) else createBoolChannel
-                if (xs.size == 2) {
-                    space.post(new Plus[BooleanValue](nextConstraintId, maybeGoal, xs(0), xs(1), costs))
-                } else if (xs.size > 2) {
-                    space.post(new Sum[BooleanValue](nextConstraintId, maybeGoal, xs, costs))
-                }
+                val costs = if (xs.size == 1) xs(0) else post(createBoolChannel)
                 if (compilesToConst(b, True)) {
                     // exists clause
                     List(costs)
@@ -281,15 +279,20 @@ final class ConstraintFactory
             val as2 = if (as1.value.isEmpty) ArrayConst(List(BoolConst(false))) else as1
             val xs = compileBoolArray(as2)
             val y = compileBoolExpr(b)
+            def post(y: BooleanVariable): BooleanVariable = {
+                if (xs.size == 2) {
+                    space.post(new Or(nextConstraintId, maybeGoal, xs(0), xs(1), y))
+                } else if (xs.size > 2) {
+                    space.post(new Disjunction(nextConstraintId, maybeGoal, xs, y))
+                }
+                y
+            }
             def withFunctionalDependency = {
-                space.post(new Disjunction(nextConstraintId, maybeGoal, xs, y))
+                post(y)
                 Nil
             }
             def withoutFunctionalDependency = {
-                val costs = if (xs.size == 1) xs(0) else createBoolChannel
-                if (xs.size > 1) {
-                    space.post(new Disjunction(nextConstraintId, maybeGoal, xs, costs))
-                }
+                val costs = if (xs.size == 1) xs(0) else post(createBoolChannel)
                 if (compilesToConst(b, True)) {
                     // exists clause
                     List(costs)
@@ -1080,7 +1083,7 @@ final class ConstraintFactory
             else compileConstraint(maybeGoal, constraint)
         } else if (impliedConstraints.contains(constraint)) {
             def withFunctionalDependency = {
-                space.post(new Sum[BooleanValue](nextConstraintId, maybeGoal, Nil, satisfied))
+                space.post(new Conjunction(nextConstraintId, maybeGoal, Nil, satisfied))
                 Nil
             }
             def withoutFunctionalDependency = {
@@ -1090,7 +1093,7 @@ final class ConstraintFactory
         } else {
             val costs0 = compileConstraint(maybeGoal, constraint).toIndexedSeq
             def withFunctionalDependency = {
-                space.post(new Sum(nextConstraintId, maybeGoal, costs0, satisfied))
+                space.post(new Conjunction(nextConstraintId, maybeGoal, costs0, satisfied))
                 Nil
             }
             def withoutFunctionalDependency = {
@@ -1098,7 +1101,9 @@ final class ConstraintFactory
                 if (costs0.size == 1) {
                     space.post(new Eq(nextConstraintId, maybeGoal, costs0.head, satisfied, costs))
                 } else {
-                    space.post(new SumConstraint(nextConstraintId, maybeGoal, costs0, createBoolChannel, EqRelation, satisfied, costs))
+                    val costs1 = createBoolChannel
+                    space.post(new Conjunction(nextConstraintId, maybeGoal, costs0, costs1))
+                    space.post(new Eq(nextConstraintId, maybeGoal, costs1, satisfied, costs))
                 }
                 List(costs)
             }

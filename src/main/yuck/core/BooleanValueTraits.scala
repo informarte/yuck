@@ -7,14 +7,9 @@ import scala.collection._
  *
  * @author Michael Marte
  */
-object BooleanValueTraits extends NumericalValueTraits[BooleanValue] {
+object BooleanValueTraits extends OrderedValueTraits[BooleanValue] {
     override val valueType = classOf[BooleanValue]
-    override val zero = True
-    override val one = False
-    override val minValue = True
-    override val maxValue = BooleanValue.get(Long.MaxValue)
-    override val valueOrdering = BooleanValueOperations
-    override val numericalOperations = BooleanValueOperations
+    override val valueOrdering = BooleanValueOrdering
     override val orderingCostModel = BooleanValueOrderingCostModel
     override def createDomain(values: Set[BooleanValue]) = {
         require(! values.exists(_.violation >= 2))
@@ -24,7 +19,6 @@ object BooleanValueTraits extends NumericalValueTraits[BooleanValue] {
         BooleanDecisionDomain.createDomain(lb, ub)
     override val emptyDomain = EmptyBooleanDomain
     override val completeDomain = CompleteBooleanDomain
-    override val nonNegativeDomain = completeDomain
     override val domainOrdering = BooleanDomainOrdering
     override val domainPruner = BooleanDomainPruner
     override def createVariable(space: Space, name: String, domain: Domain[BooleanValue]): BooleanVariable =

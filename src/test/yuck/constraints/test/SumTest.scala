@@ -31,7 +31,8 @@ final class SumTest extends UnitTest with StandardConstraintTestTooling[IntegerV
                 space,
                 y,
                 Initialize("setup", Six, (x1, One), (x2, Two), (x3, Three)),
-                ConsultAndCommit("1", Seven, (x2, Three))))
+                ConsultAndCommit("1", Seven, (x2, Three)),
+                ConsultAndCommit("2", Five, (x1, Zero), (x3, Two))))
     }
 
 }

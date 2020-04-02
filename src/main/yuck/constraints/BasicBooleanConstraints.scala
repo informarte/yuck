@@ -3,7 +3,52 @@ package yuck.constraints
 import yuck.core._
 
 /**
- * Negation on cost level (where 0 is true)
+ * Implements binary conjunction on cost level (where 0 is true).
+ *
+ * @author Michael Marte
+ */
+final class And
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
+     x: BooleanVariable, y: BooleanVariable, z: BooleanVariable)
+    extends TernaryConstraint(id, x, y, z)
+{
+    override def toString = "%s = %s /\\ %s".format(z, x, y)
+    override def op(a: BooleanValue, b: BooleanValue) = BooleanValue.get(safeAdd(a.violation, b.violation))
+    override def propagate = {
+        val lhs0 = Seq(x.domain, y.domain)
+        val (lhs1, dz1) = BooleanDomainPruner.conjunctionRule(lhs0, z.domain)
+        val Seq(dx1, dy1) = lhs1.toSeq
+        NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
+    }
+}
+
+/**
+ * Implements binary disjunction on cost level (where 0 is true).
+ *
+ * See [[yuck.constraints.Disjunction Disjunction]] for the cost model.
+ *
+ * @author Michael Marte
+ *
+ */
+final class Or
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
+     x: BooleanVariable, y: BooleanVariable, z: BooleanVariable)
+    extends TernaryConstraint(id, x, y, z)
+{
+    override def toString = "%s = %s \\/ %s".format(z, x, y)
+    override def op(a: BooleanValue, b: BooleanValue) =
+        if (a.truthValue || b.truthValue) True
+        else BooleanValue.get(safeAdd(a.violation, b.violation) / 2)
+    override def propagate = {
+        val lhs0 = Seq(x.domain, y.domain)
+        val (lhs1, dz1) = BooleanDomainPruner.disjunctionRule(lhs0, z.domain)
+        val Seq(dx1, dy1) = lhs1.toSeq
+        NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
+    }
+}
+
+/**
+ * Implements negation on cost level (where 0 is true).
  *
  * @author Michael Marte
  */

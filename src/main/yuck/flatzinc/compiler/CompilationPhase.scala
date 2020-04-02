@@ -306,7 +306,7 @@ abstract class CompilationPhase(
     protected abstract class NumericalCompilationHelper[Value <: NumericalValue[Value], Variable <: NumericalVariable[Value]]
     extends OrderedCompilationHelper[Value, Variable]
 
-    implicit protected object BooleanCompilationHelper extends NumericalCompilationHelper[BooleanValue, BooleanVariable] {
+    implicit protected object BooleanCompilationHelper extends OrderedCompilationHelper[BooleanValue, BooleanVariable] {
         import HighPriorityImplicits._
         override def compileExpr(expr: Expr) = compileBoolExpr(expr)
         override def compileArray(expr: Expr) = compileBoolArray(expr)

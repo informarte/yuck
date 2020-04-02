@@ -9,7 +9,7 @@ import org.junit._
 @runner.RunWith(classOf[runners.Suite])
 @runners.Suite.SuiteClasses(
     Array(
-        classOf[BooleanValueOperationsTest],
+        classOf[BooleanValueOrderingTest],
         classOf[BooleanValueOrderingCostModelTest],
         classOf[BooleanValueTest],
         classOf[BooleanValueTraitsTest],
@@ -17,6 +17,7 @@ import org.junit._
         classOf[IntegerValueOrderingCostModelTest],
         classOf[IntegerValueTest],
         classOf[IntegerValueTraitsTest],
+        classOf[IntegerSetValueOrderingTest],
         classOf[IntegerSetValueOrderingCostModelTest],
         classOf[IntegerSetValueTest],
         classOf[IntegerSetValueTraitsTest],

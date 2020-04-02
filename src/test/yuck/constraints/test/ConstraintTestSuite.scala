@@ -13,6 +13,7 @@ import org.junit._
         classOf[AlldistinctTest],
         classOf[BinPackingTest],
         classOf[BooleanTableTest],
+        classOf[ConjunctionTest],
         classOf[CountConstTest],
         classOf[CountVarTest],
         classOf[CumulativeTest],

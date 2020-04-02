@@ -100,9 +100,6 @@ final class BooleanDecisionDomainTest extends UnitTest {
                 assertEq(d1.diff(d2), new BooleanDecisionDomain(f1 && ! f2, t1 && ! t2))
                 assertEq(d1.symdiff(d2), d1.union(d2).diff(d1.intersect(d2)))
             }
-            assertEx(d1.boundFromBelow(False), classOf[NotImplementedError])
-            assertEx(d1.boundFromAbove(False), classOf[NotImplementedError])
-            assertEx(d1.bisect, classOf[NotImplementedError])
         }
     }
 

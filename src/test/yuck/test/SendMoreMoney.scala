@@ -15,6 +15,8 @@ import yuck.util.testing.IntegrationTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class SendMoreMoney extends IntegrationTest {
 
+    private val monitor = new StandardAnnealingMonitor(logger)
+
     private final class ModelData(
         val LHS: List[(Int, IntegerVariable)],
         val RHS: List[(Int, IntegerVariable)])
@@ -48,10 +50,10 @@ final class SendMoreMoney extends IntegrationTest {
             val R = new IntegerVariable(space.nextVariableId, "R", d)
             val Y = new IntegerVariable(space.nextVariableId, "Y", d)
             val vars = Set(S, E, N, D, M, O, R, E, M, O, N, E, Y)
-            val numberOfMissingValues = new BooleanVariable(space.nextVariableId, "numberOfMissingValues", CompleteBooleanDomain)
+            val numberOfMissingValues =
+                new BooleanVariable(space.nextVariableId, "numberOfMissingValues", CompleteBooleanDomain)
             space.post(
-                new Alldistinct(
-                    space.nextConstraintId, null, Vector(S, E, N, D, M, O, R, Y), numberOfMissingValues))
+                new Alldistinct(space.nextConstraintId, null, vars.toIndexedSeq, numberOfMissingValues))
             val LHS = List((1000, S), (100, E), (10, N), (1, D), (1000, M), (100, O), (10, R), (1, E))
             val RHS = List((10000, M), (1000, O), (100, N), (10, E), (1, Y))
             val lhs = new IntegerVariable(space.nextVariableId, "lhs", CompleteIntegerRange)
@@ -71,10 +73,7 @@ final class SendMoreMoney extends IntegrationTest {
             val delta = new BooleanVariable(space.nextVariableId, "delta", CompleteBooleanDomain)
             space.post(new Eq(space.nextConstraintId, null, lhs, rhs, delta))
             val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-            space.post(
-                new LinearCombination(
-                    space.nextConstraintId, null,
-                    new AX(new BooleanValue(100), numberOfMissingValues) :: new AX(False, delta) :: Nil, costs))
+            space.post(new Conjunction(space.nextConstraintId, null, List(numberOfMissingValues, delta), costs))
             assertEq(space.searchVariables, vars)
 
             // propagate constraints
@@ -107,9 +106,9 @@ final class SendMoreMoney extends IntegrationTest {
                     createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen),
                     new SimpleRandomReassignmentGenerator(space, space.searchVariables.toIndexedSeq, randomGenerator.nextGen),
                     randomGenerator.nextGen,
-                    new MinimizationObjective(costs, Some(True), None),
+                    new SatisfactionObjective(costs),
                     None,
-                    Some(new StandardAnnealingMonitor(logger)),
+                    Some(monitor),
                     Some(new ModelData(LHS, RHS)),
                     false,
                     sigint)

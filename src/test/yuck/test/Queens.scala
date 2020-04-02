@@ -43,10 +43,10 @@ final class Queens extends IntegrationTest {
             space.post(new Alldistinct(space.nextConstraintId, null, rowsPlusI.toIndexedSeq, diagonalConflicts2))
             val conflicts = new BooleanVariable(space.nextVariableId, "conflicts", CompleteBooleanDomain)
             space.post(
-                new LinearCombination(
+                new Conjunction(
                     space.nextConstraintId,
                     null,
-                    List(rowConflicts, diagonalConflicts1, diagonalConflicts2).map(new AX(False, _)),
+                    List(rowConflicts, diagonalConflicts1, diagonalConflicts2),
                     conflicts))
 
             // build local-search solver
@@ -62,7 +62,7 @@ final class Queens extends IntegrationTest {
                     new RandomCircularSwapGenerator(
                         space, rows.toIndexedSeq, randomGenerator.nextGen, DefaultMoveSizeDistribution, None, None),
                     randomGenerator.nextGen,
-                    new MinimizationObjective(conflicts, Some(True), None),
+                    new SatisfactionObjective(conflicts),
                     None,
                     Some(new StandardAnnealingMonitor(logger)),
                     None,

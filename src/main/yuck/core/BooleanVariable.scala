@@ -7,7 +7,7 @@ package yuck.core
  */
 final class BooleanVariable
     (id: Id[AnyVariable], name: String, override protected var currentDomain: BooleanDomain)
-    extends NumericalVariable[BooleanValue](id, name)
+    extends OrderedVariable[BooleanValue](id, name)
     with DomainHolder[BooleanValue, BooleanDomain]
 {
     override protected def thisVariable = this

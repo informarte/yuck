@@ -68,21 +68,20 @@ class BooleanDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testLinEqRule: Unit = {
+    def testConjunctionRule: Unit = {
 
-        type LinearCombination = Iterable[(BooleanValue, BooleanDomain)]
-        type State = (LinearCombination, BooleanDomain)
+        type State = (Iterable[BooleanDomain], BooleanDomain)
 
         def linEqRule(u: State): State = {
             val (lhs0, rhs0) = u
-            val (lhs1, rhs1) = BooleanDomainPruner.linEqRule(lhs0, rhs0)
-            (lhs0.view.map(_._1).zip(lhs1).toList, rhs1)
+            val (lhs1, rhs1) = BooleanDomainPruner.conjunctionRule(lhs0, rhs0)
+            (lhs1.toList, rhs1)
         }
 
         def checkPruning(u: State, v: State): Unit = {
             val (lhs0, rhs0) = fixedPoint[State](linEqRule, u)
             val (lhs1, rhs1) = v
-            for (((_, d0), (_, d1)) <- lhs0.view.zip(lhs1)) {
+            for ((d0, d1) <- lhs0.view.zip(lhs1)) {
                 assertEq(ensureDecisionDomain(d0), ensureDecisionDomain(d1))
             }
             assertEq(ensureDecisionDomain(rhs0), ensureDecisionDomain(rhs1))
@@ -90,38 +89,95 @@ class BooleanDomainPrunerTest extends UnitTest {
 
         // propagate from rhs to lhs: enforce conjunction
         checkPruning(
-            (List((True, FalseDomain), (False, CompleteBooleanDomain), (False, FalseDomain)), TrueDomain),
-            (List((True, EmptyBooleanDomain), (False, EmptyBooleanDomain), (False, EmptyBooleanDomain)), EmptyBooleanDomain))
+            (List(CompleteBooleanDomain), TrueDomain),
+            (List(TrueDomain), TrueDomain))
+        checkPruning(
+            (List(FalseDomain, CompleteBooleanDomain), TrueDomain),
+            (List(EmptyBooleanDomain, EmptyBooleanDomain), EmptyBooleanDomain))
 
         // propagate from rhs to lhs: enforce negation of conjunction
         checkPruning(
-            (List((True, FalseDomain), (False, TrueDomain)), FalseDomain),
-            (List((True, EmptyBooleanDomain), (False, EmptyBooleanDomain)), EmptyBooleanDomain))
+            (List(CompleteBooleanDomain), FalseDomain),
+            (List(FalseDomain), FalseDomain))
         checkPruning(
-            (List((True, FalseDomain), (False, CompleteBooleanDomain)), FalseDomain),
-            (List((True, FalseDomain), (False, FalseDomain)), FalseDomain))
+            (List(TrueDomain), FalseDomain),
+            (List(EmptyBooleanDomain), EmptyBooleanDomain))
         checkPruning(
-            (List((True, FalseDomain), (False, CompleteBooleanDomain), (False, CompleteBooleanDomain)), FalseDomain),
-            (List((True, FalseDomain), (False, CompleteBooleanDomain), (False, CompleteBooleanDomain)), FalseDomain))
+            (List(FalseDomain, TrueDomain), FalseDomain),
+            (List(FalseDomain, TrueDomain), FalseDomain))
 
         // propagate from lhs to rhs
         checkPruning(
-            (List((True, FalseDomain), (False, CompleteBooleanDomain)), CompleteBooleanDomain),
-            (List((True, FalseDomain), (False, CompleteBooleanDomain)), CompleteBooleanDomain))
+            (List(TrueDomain), CompleteBooleanDomain),
+            (List(TrueDomain), TrueDomain))
         checkPruning(
-            (List((True, FalseDomain), (False, TrueDomain)), CompleteBooleanDomain),
-            (List((True, FalseDomain), (False, TrueDomain)), TrueDomain))
-        checkPruning(
-            (List((False, FalseDomain), (False, TrueDomain)), CompleteBooleanDomain),
-            (List((False, FalseDomain), (False, TrueDomain)), FalseDomain))
+            (List(FalseDomain, TrueDomain), CompleteBooleanDomain),
+            (List(FalseDomain, TrueDomain), FalseDomain))
 
         // empty domains
         checkPruning(
-            (List((True, FalseDomain), (False, TrueDomain)), EmptyBooleanDomain),
-            (List((True, EmptyBooleanDomain), (False, EmptyBooleanDomain)), EmptyBooleanDomain))
+            (List(FalseDomain, TrueDomain, CompleteBooleanDomain), EmptyBooleanDomain),
+            (List(EmptyBooleanDomain, EmptyBooleanDomain, EmptyBooleanDomain), EmptyBooleanDomain))
         checkPruning(
-            (List((True, FalseDomain), (False, EmptyBooleanDomain)), FalseDomain),
-            (List((True, EmptyBooleanDomain), (False, EmptyBooleanDomain)), EmptyBooleanDomain))
+            (List(FalseDomain, TrueDomain, EmptyBooleanDomain), FalseDomain),
+            (List(EmptyBooleanDomain, EmptyBooleanDomain, EmptyBooleanDomain), EmptyBooleanDomain))
+
+    }
+
+    @Test
+    def testDisjunctionRule: Unit = {
+
+        type State = (Iterable[BooleanDomain], BooleanDomain)
+
+        def linEqRule(u: State): State = {
+            val (lhs0, rhs0) = u
+            val (lhs1, rhs1) = BooleanDomainPruner.disjunctionRule(lhs0, rhs0)
+            (lhs1.toList, rhs1)
+        }
+
+        def checkPruning(u: State, v: State): Unit = {
+            val (lhs0, rhs0) = fixedPoint[State](linEqRule, u)
+            val (lhs1, rhs1) = v
+            for ((d0, d1) <- lhs0.view.zip(lhs1)) {
+                assertEq(ensureDecisionDomain(d0), ensureDecisionDomain(d1))
+            }
+            assertEq(ensureDecisionDomain(rhs0), ensureDecisionDomain(rhs1))
+        }
+
+        // propagate from rhs to lhs: enforce disjunction
+        checkPruning(
+            (List(FalseDomain), TrueDomain),
+            (List(EmptyBooleanDomain), EmptyBooleanDomain))
+        checkPruning(
+            (List(FalseDomain, CompleteBooleanDomain), TrueDomain),
+            (List(FalseDomain, TrueDomain), TrueDomain))
+
+        // propagate from rhs to lhs: enforce negation of disjunction
+        checkPruning(
+            (List(CompleteBooleanDomain), FalseDomain),
+            (List(FalseDomain), FalseDomain))
+        checkPruning(
+            (List(TrueDomain), FalseDomain),
+            (List(EmptyBooleanDomain), EmptyBooleanDomain))
+        checkPruning(
+            (List(FalseDomain, TrueDomain), FalseDomain),
+            (List(EmptyBooleanDomain, EmptyBooleanDomain), EmptyBooleanDomain))
+
+        // propagate from lhs to rhs
+        checkPruning(
+            (List(TrueDomain), CompleteBooleanDomain),
+            (List(TrueDomain), TrueDomain))
+        checkPruning(
+            (List(FalseDomain, TrueDomain), CompleteBooleanDomain),
+            (List(FalseDomain, TrueDomain), TrueDomain))
+
+        // empty domains
+        checkPruning(
+            (List(FalseDomain, TrueDomain, CompleteBooleanDomain), EmptyBooleanDomain),
+            (List(EmptyBooleanDomain, EmptyBooleanDomain, EmptyBooleanDomain), EmptyBooleanDomain))
+        checkPruning(
+            (List(FalseDomain, TrueDomain, EmptyBooleanDomain), FalseDomain),
+            (List(EmptyBooleanDomain, EmptyBooleanDomain, EmptyBooleanDomain), EmptyBooleanDomain))
 
     }
 

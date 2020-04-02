@@ -54,10 +54,6 @@ final class BooleanDecisionDomain
         createDomain(this.containsFalse || that.containsFalse, this.containsTrue || that.containsTrue)
     def diff(that: BooleanDecisionDomain): BooleanDecisionDomain =
         createDomain(this.containsFalse && ! that.containsFalse, this.containsTrue && ! that.containsTrue)
-    override def boundFromBelow(lb: BooleanValue) = ???
-    override def boundFromAbove(ub: BooleanValue) = ???
-    override def bisect = ???
-    override def mirrored = !!!
 }
 
 /**

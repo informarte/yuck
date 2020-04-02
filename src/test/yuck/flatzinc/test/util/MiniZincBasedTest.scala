@@ -342,7 +342,7 @@ class MiniZincBasedTest extends IntegrationTest {
         val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
         val costVar = compilerResult.objective.objectiveVariables(0).asInstanceOf[BooleanVariable]
         result.space.definingConstraint(costVar).get match {
-            case sum: yuck.constraints.Sum[BooleanValue @ unchecked] =>
+            case sum: yuck.constraints.Conjunction =>
                 for (x <- sum.xs if result.space.searchState.value(x) > True) {
                     logViolatedConstraints(result, x, visited)
                 }

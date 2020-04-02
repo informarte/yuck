@@ -1,8 +1,7 @@
 package yuck.flatzinc.compiler
 
 import scala.collection._
-
-import yuck.constraints.{Lt, Sum}
+import yuck.constraints.{Conjunction, Lt}
 import yuck.core._
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast._
@@ -54,7 +53,7 @@ final class ObjectiveFactory
                 objectives.append(createMaximizationObjective(a, cfg))
         }
         val costVar = createBoolChannel
-        space.post(new Sum(nextConstraintId, null, costVars.toIndexedSeq, costVar))
+        space.post(new Conjunction(nextConstraintId, null, costVars.toIndexedSeq, costVar))
         objectives.prepend(createSatisfactionObjective(costVar, cfg))
         cc.objective =
             if (objectives.size == 1) objectives.head
@@ -63,10 +62,10 @@ final class ObjectiveFactory
 
     private def createSatisfactionObjective
         (costVar: BooleanVariable, cfg: FlatZincSolverConfiguration):
-        MinimizationObjective[BooleanValue] =
+        SatisfactionObjective =
     {
         space.registerObjectiveVariable(costVar)
-        new MinimizationObjective(costVar, Some(True), None)
+        new SatisfactionObjective(costVar)
     }
 
     private def createMinimizationObjective

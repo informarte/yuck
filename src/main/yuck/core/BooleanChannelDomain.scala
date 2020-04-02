@@ -22,8 +22,4 @@ object BooleanChannelDomain extends BooleanDomain {
     override def contains(a: BooleanValue) = true
     override def randomValue(randomGenerator: RandomGenerator) = !!!
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: BooleanValue) = !!!
-    override def boundFromBelow(lb: BooleanValue) = !!!
-    override def boundFromAbove(ub: BooleanValue) = !!!
-    override def bisect = !!!
-    override def mirrored = !!!
 }

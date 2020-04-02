@@ -62,7 +62,7 @@ abstract class NumericalObjective
         }
     }
 
-    final def tighten(space: Space) = {
+    final override def tighten(space: Space) = {
         if (maybeY.isDefined) {
             val a = space.searchState.value(x)
             val y = maybeY.get

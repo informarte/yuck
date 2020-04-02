@@ -5,7 +5,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-abstract class BooleanDomain extends NumericalDomain[BooleanValue] {
+abstract class BooleanDomain extends OrderedDomain[BooleanValue] {
 
     final override def valueType = classOf[BooleanValue]
 

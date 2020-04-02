@@ -15,6 +15,8 @@ import yuck.util.testing.IntegrationTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class SendMostMoney extends IntegrationTest {
 
+    private val monitor = new StandardAnnealingMonitor(logger)
+
     private final class ModelData(
         val LHS: List[(Int, IntegerVariable)],
         val RHS: List[(Int, IntegerVariable)])
@@ -72,10 +74,7 @@ final class SendMostMoney extends IntegrationTest {
             val delta = new BooleanVariable(space.nextVariableId, "delta", CompleteBooleanDomain)
             space.post(new Eq(space.nextConstraintId, null, lhs, rhs, delta))
             val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-            space.post(
-                new LinearCombination(
-                    space.nextConstraintId, null,
-                    new AX(new BooleanValue(100), numberOfMissingValues) :: new AX(False, delta) :: Nil, costs))
+            space.post(new Conjunction(space.nextConstraintId, null, List(numberOfMissingValues, delta), costs))
             assertEq(space.searchVariables, vars)
 
             // propagate constraints
@@ -108,13 +107,12 @@ final class SendMostMoney extends IntegrationTest {
                     createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen),
                     new SimpleRandomReassignmentGenerator(space, space.searchVariables.toIndexedSeq, randomGenerator.nextGen),
                     randomGenerator.nextGen,
-                    // cf. http://gecoder.rubyforge.org/examples/send-most-money.html
                     new HierarchicalObjective(
-                        List(new MinimizationObjective(costs, Some(True), None),
+                        List(new SatisfactionObjective(costs),
                              new MaximizationObjective(rhs, Some(IntegerValue.get(10876)), None)),
                         false, false),
                     None,
-                    Some(new StandardAnnealingMonitor(logger)),
+                    Some(monitor),
                     Some(new ModelData(LHS, RHS)),
                     false,
                     sigint)

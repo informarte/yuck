@@ -14,7 +14,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-final class BooleanValue(val violation: Long) extends NumericalValue[BooleanValue] {
+final class BooleanValue(val violation: Long) extends OrderedValue[BooleanValue] {
     require(violation >= 0)
     def this(value: Boolean) = this(if (value) 0 else 1)
     @inline override def hashCode = violation.hashCode
@@ -33,25 +33,6 @@ final class BooleanValue(val violation: Long) extends NumericalValue[BooleanValu
         if (violation == 0) "true" else if (violation == 1) "false" else "false(%d)".format(violation)
     /** Returns true iff the violation is zero. */
     @inline def truthValue: Boolean = violation == 0
-    /** Implements negation. */
-    def not: BooleanValue = if (truthValue) False else True
-    override def +(that: BooleanValue) = BooleanValue.get(safeAdd(this.violation, that.violation))
-    override def -(that: BooleanValue) = BooleanValue.get(safeSub(this.violation, that.violation))
-    override def *(that: BooleanValue) = BooleanValue.get(safeMul(this.violation, that.violation))
-    override def ^(that: BooleanValue) = ???
-    override def addAndSub(a: BooleanValue, b: BooleanValue) =
-        BooleanValue.get(safeSub(safeAdd(this.violation, a.violation), b.violation))
-    override def addAndSub(s: BooleanValue, a: BooleanValue, b: BooleanValue) =
-        BooleanValue.get(
-            safeSub(
-                safeAdd(this.violation, safeMul(s.violation, a.violation)),
-                safeMul(s.violation, b.violation)))
-    override def abs = this
-    override def negate = !!!
-    override def toInt = safeToInt(violation)
-    override def toLong = violation
-    override def toFloat = violation.toFloat
-    override def toDouble = violation.toDouble
 }
 
 /**
@@ -62,7 +43,7 @@ final class BooleanValue(val violation: Long) extends NumericalValue[BooleanValu
 object BooleanValue {
 
     implicit def valueTraits = BooleanValueTraits
-    implicit def numericalOperations = BooleanValueOperations
+    implicit def valueOrdering = BooleanValueOrdering
     implicit def domainOrdering = BooleanDomainOrdering
 
     private val valueRange = Range(0, 10000, 1)

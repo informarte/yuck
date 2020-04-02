@@ -81,7 +81,8 @@ class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(l
             if (result.isSolution) {
                 if (maybeTrackArea.isEmpty) {
                     maybeTrackArea = costsOfBestProposal match {
-                        case value: PolymorphicListValue => Some(value.value.size == 2)
+                        case value: PolymorphicListValue =>
+                            Some(value.value.size == 2 && value.value(1).isInstanceOf[NumericalValue[_]])
                         case _ => Some(false)
                     }
                 }
