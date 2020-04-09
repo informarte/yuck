@@ -218,14 +218,12 @@ final class SimulatedAnnealing(
         if (objective.isLowerThan(costsOfCurrentProposal, roundLog.costsOfBestProposal)) {
             roundLog.costsOfBestProposal = costsOfCurrentProposal
         }
-        if (objective.isLowerThan(costsOfCurrentProposal, result.costsOfBestProposal)) {
+        val bestProposalWasImproved = objective.isLowerThan(costsOfCurrentProposal, result.costsOfBestProposal)
+        if (bestProposalWasImproved) {
             roundLog.bestProposalWasImproved = true
             result.costsOfBestProposal = costsOfCurrentProposal
             result.indexOfRoundWithBestProposal = result.roundLogs.length - 1
             result.bestProposal = currentProposal.clone
-            if (maybeMonitor.isDefined) {
-                maybeMonitor.get.onBetterProposal(result)
-            }
         }
         val tightenedVariables = objective.tighten(space)
         if (maybeMonitor.isDefined) {
@@ -236,6 +234,10 @@ final class SimulatedAnnealing(
         costsOfCurrentProposal = objective.costs(currentProposal)
         if (! tightenedVariables.isEmpty && propagateBounds) {
             propagateBounds(tightenedVariables, roundLog)
+        }
+        // Bound propagation may prove optimality, so do not report progress before.
+        if (bestProposalWasImproved && maybeMonitor.isDefined) {
+            maybeMonitor.get.onBetterProposal(result)
         }
     }
 
