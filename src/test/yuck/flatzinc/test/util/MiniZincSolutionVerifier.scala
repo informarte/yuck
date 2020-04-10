@@ -169,7 +169,7 @@ class MiniZincSolutionVerifier(
         } else {
             val expectation1 = "_objective = "
             if (outputLines.exists(_.startsWith(expectation1))) {
-                val expectation2 = "_objective = %s;".format(result.bestProposal.anyValue(x))
+                val expectation2 = "_objective = %s;".format(result.bestProposal.value(x))
                 outputLines.contains(expectation2)
             } else {
                 logger.log("Could not verify objective value because minizinc did not print it")

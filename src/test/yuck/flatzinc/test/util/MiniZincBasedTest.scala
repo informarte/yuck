@@ -352,7 +352,7 @@ class MiniZincBasedTest extends IntegrationTest {
     private def logViolatedConstraints(
         result: Result, x: AnyVariable, visited: mutable.Set[AnyVariable]): Unit =
     {
-        val a = result.bestProposal.anyValue(x)
+        val a = result.bestProposal.value(x)
         if (! visited.contains(x)) {
             visited += x
             val maybeConstraint = result.space.definingConstraint(x)

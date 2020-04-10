@@ -83,7 +83,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
         objective.assessMove(b, a)
         assertLt(objective.assessMove(b, a), -1)
         // check move assessment wrt. subordinate (maximization) goal
-        b.setValue(x, a.value(x))
+        b.setValue(x, Zero)
         a.setValue(y, Zero)
         b.setValue(y, One)
         assertEq(objective.assessMove(b, b), 0)

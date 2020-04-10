@@ -8,7 +8,7 @@ package yuck.core
 abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVariable] {
 
     @inline final override def hashCode = id.hashCode
-    override def toString = effectsIterator.toList.sortBy(_.anyVariable).mkString(", ")
+    override def toString = effectsIterator.toList.sortBy(_.x).mkString(", ")
     @inline final override def compare(that: Move) = this.id.compare(that.id)
 
     /** Returns the effects of the move. */
@@ -30,10 +30,10 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVar
     override def iterator = involvedVariablesIterator
 
     /** Returns the variables involved in the move. */
-    def involvedVariables: Iterable[AnyVariable] = effects.view.map(_.anyVariable)
+    def involvedVariables: Iterable[AnyVariable] = effects.view.map(_.x)
 
     /** Returns the variables involved in the move. */
-    def involvedVariablesIterator: Iterator[AnyVariable] = effectsIterator.map(_.anyVariable)
+    def involvedVariablesIterator: Iterator[AnyVariable] = effectsIterator.map(_.x)
 
     /** Returns true iff the given variable is involved in the move. */
     def involves(x: AnyVariable): Boolean = involvedVariablesIterator.exists(_ == x)
@@ -43,23 +43,29 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVar
      *
      * Throws when the given variable is not involved in the move.
      */
-    def anyValue(x: AnyVariable): AnyValue =
-        effectsIterator.filter(_.anyVariable == x).next.anyValue
+    def value(x: AnyVariable): AnyValue = effectsIterator.filter(_.x == x).next.a
 
     /**
      * Returns None if the move does not involve the given variable x,
      * otherwise it returns Some(a) where a is the value assigned to x
      * by the move.
      */
-    def maybeAnyValue(x: AnyVariable): Option[AnyValue] =
-        effectsIterator.find(_.anyVariable == x).map(_.anyValue)
+    def maybeValue(x: AnyVariable): Option[AnyValue] = effectsIterator.find(_.x == x).map(_.a)
 
-    /** Typed version of anyValue. */
+    /**
+     * Returns the value the move would assign to the given variable.
+     *
+     * Throws when the given variable is not involved in the move.
+     */
     @inline final def value[Value <: AnyValue](x: Variable[Value]): Value =
-        anyValue(x).asInstanceOf[Value]
+        value(x.asInstanceOf[AnyVariable]).asInstanceOf[Value]
 
-    /** Typed version of maybeAnyValue. */
+    /**
+     * Returns None if the move does not involve the given variable x,
+     * otherwise it returns Some(a) where a is the value assigned to x
+     * by the move.
+     */
     @inline final def maybeValue[Value <: AnyValue](x: Variable[Value]): Option[Value] =
-        maybeAnyValue(x).map(_.asInstanceOf[Value])
+        maybeValue(x.asInstanceOf[AnyVariable]).map(_.asInstanceOf[Value])
 
 }

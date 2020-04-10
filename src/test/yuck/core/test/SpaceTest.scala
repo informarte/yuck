@@ -184,8 +184,8 @@ final class SpaceTest extends UnitTest {
         private def checkContract(before: SearchState, after: SearchState, move: Move): Unit = {
             for (x <- move.involvedVariables) {
                 assert(xs.contains(IntegerValueTraits.safeDowncast(x)))
-                assertNe(before.anyValue(x), after.anyValue(x))
-                assertEq(after.anyValue(x), move.anyValue(x))
+                assertNe(before.value(x), after.value(x))
+                assertEq(after.value(x), move.value(x))
             }
         }
 
@@ -313,7 +313,7 @@ final class SpaceTest extends UnitTest {
             def checkSearchStateEquivalence(lhs: SearchState, rhs: SearchState): Unit = {
                 assertEq(lhs.mappedVariables, rhs.mappedVariables)
                 for (x <- lhs.mappedVariables) {
-                    assertEq(lhs.anyValue(x), rhs.anyValue(x))
+                    assertEq(lhs.value(x), rhs.value(x))
                 }
             }
 
@@ -345,7 +345,7 @@ final class SpaceTest extends UnitTest {
                 assertEq(space.numberOfConsultations, spies.iterator.map(_.numberOfConsultations).sum)
                 // check that consult considered the move
                 for (x <- move.involvedVariables) {
-                    assertEq(afterConsult.anyValue(x), move.anyValue(x))
+                    assertEq(afterConsult.value(x), move.value(x))
                 }
                 // check that results are correct
                 checkResults(afterConsult)

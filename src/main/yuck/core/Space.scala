@@ -536,8 +536,8 @@ final class Space(
         protected val diff = new BulkMove(move.id)
         private val diffs = new java.util.TreeMap[Constraint, BulkMove](ConstraintOrdering)
         private def propagateEffect(effect: AnyMoveEffect): Unit = {
-            if (assignment.anyValue(effect.anyVariable) != effect.anyValue) {
-                val affectedConstraints = directlyAffectedConstraints(effect.anyVariable)
+            if (assignment.value(effect.x) != effect.a) {
+                val affectedConstraints = directlyAffectedConstraints(effect.x)
                 for (constraint <- affectedConstraints) {
                     if (! isImplicitConstraint(constraint)) {
                         var diff = diffs.get(constraint)
@@ -582,7 +582,7 @@ final class Space(
             }
         }
         override protected def recordEffect(effect: AnyMoveEffect): Unit = {
-            if (objectiveVariables.isEmpty || objectiveVariables.contains(effect.anyVariable)) {
+            if (objectiveVariables.isEmpty || objectiveVariables.contains(effect.x)) {
                 diff += effect
             }
         }
@@ -599,12 +599,12 @@ final class Space(
                 new MoveSimulator(after, new BulkMove(move.id) ++= constraint.initialize(after))
             var buggy = false
             for (x <- constraint.outVariables) {
-                if (stateAfterConsultation.anyValue(x) != stateAfterInitialization.anyValue(x)) {
+                if (stateAfterConsultation.value(x) != stateAfterInitialization.value(x)) {
                     println(
                         "%s: consultation computed %s, initialization computed %s".format(
                             x,
-                            stateAfterConsultation.anyValue(x),
-                            stateAfterInitialization.anyValue(x)))
+                            stateAfterConsultation.value(x),
+                            stateAfterInitialization.value(x)))
                     buggy = true
                 }
             }
@@ -622,7 +622,7 @@ final class Space(
             }
             for (x <- constraint.outVariables) {
                 assert(
-                    stateAfterConsultation.anyValue(x) == stateAfterInitialization.anyValue(x),
+                    stateAfterConsultation.value(x) == stateAfterInitialization.value(x),
                     "Consultation failed for output variable %s of %s".format(x, constraint))
             }
             constraint.initialize(before)
@@ -672,12 +672,12 @@ final class Space(
                 new MoveSimulator(after, new BulkMove(move.id) ++= constraint.initialize(after))
             var buggy = false
             for (x <- constraint.outVariables) {
-                if (stateAfterCommitting.anyValue(x) != stateAfterInitialization.anyValue(x)) {
+                if (stateAfterCommitting.value(x) != stateAfterInitialization.value(x)) {
                     println(
                         "%s: committing computed %s, initialization computed %s".format(
                             x,
-                            stateAfterCommitting.anyValue(x),
-                            stateAfterInitialization.anyValue(x)))
+                            stateAfterCommitting.value(x),
+                            stateAfterInitialization.value(x)))
                     buggy = true
                 }
             }
@@ -694,7 +694,7 @@ final class Space(
             }
             for (x <- constraint.outVariables) {
                 assert(
-                    stateAfterCommitting.anyValue(x) == stateAfterInitialization.anyValue(x),
+                    stateAfterCommitting.value(x) == stateAfterInitialization.value(x),
                     "Committing failed for output variable %s of %s".format(x, constraint))
             }
             constraint.initialize(before)

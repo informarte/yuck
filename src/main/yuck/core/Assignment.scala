@@ -18,8 +18,8 @@ final class Assignment(valDir: mutable.AnyRefMap[AnyVariable, AnyValue]) extends
     override def clone = new Assignment(valDir.clone)
     override def mappedVariables = valDir.keysIterator.toSet
     override def hasValue(x: AnyVariable) = valDir.contains(x)
-    override def anyValue(x: AnyVariable) = valDir(x)
-    override def maybeAnyValue(x: AnyVariable) = valDir.get(x)
+    override def value(x: AnyVariable) = valDir(x)
+    override def maybeValue(x: AnyVariable) = valDir.get(x)
 
     /** Assigns the given value to the given variable. */
     def setValue[Value <: AnyValue](x: Variable[Value], a: Value): Assignment = {
@@ -30,7 +30,7 @@ final class Assignment(valDir: mutable.AnyRefMap[AnyVariable, AnyValue]) extends
     /** Copies the value assignments from the given search state. */
     def setValues(searchState: SearchState): Assignment = {
         for (x <- searchState.mappedVariables) {
-            setValue(x, searchState.anyValue(x))
+            setValue(x, searchState.value(x))
         }
         this
     }

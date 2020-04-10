@@ -13,31 +13,37 @@ abstract class SearchState extends mutable.Cloneable[SearchState] {
     def mappedVariables: Set[AnyVariable]
 
     override def toString =
-        "{%s}".format(mappedVariables.toList.sortBy(_.name).iterator.map(x => (x -> anyValue(x)).toString).mkString(", "))
+        "{%s}".format(mappedVariables.toSeq.sortBy(_.name).iterator.map(x => x -> value(x)).mkString(", "))
 
     /** Returns true iff the given variable has a value assignment. */
-    def hasValue(x: AnyVariable): Boolean = maybeAnyValue(x).isDefined
+    def hasValue(x: AnyVariable): Boolean = maybeValue(x).isDefined
 
     /**
      * Returns the value assigned to the given variable.
      *
      * Throws when the variable has no value assignment.
      */
-    def anyValue(x: AnyVariable): AnyValue = maybeAnyValue(x).get
+    def value(x: AnyVariable): AnyValue = maybeValue(x).get
 
     /**
      * Returns None if the given variable x has no value assignment;
      * otherwise returns Some(a) where a is the value assigned to x.
      */
-    def maybeAnyValue(x: AnyVariable): Option[AnyValue] =
-        if (hasValue(x)) Some(anyValue(x)) else None
+    def maybeValue(x: AnyVariable): Option[AnyValue] = if (hasValue(x)) Some(value(x)) else None
 
-    /** Typed version of anyValue. */
+    /**
+     * Returns the value assigned to the given variable.
+     *
+     * Throws when the variable has no value assignment.
+     */
     @inline final def value[Value <: AnyValue](x: Variable[Value]): Value =
-        anyValue(x).asInstanceOf[Value]
+        value(x.asInstanceOf[AnyVariable]).asInstanceOf[Value]
 
-    /** Typed version of maybeAnyValue. */
+    /**
+     * Returns None if the given variable x has no value assignment;
+     * otherwise returns Some(a) where a is the value assigned to x.
+     */
     @inline final def maybeValue[Value <: AnyValue](x: Variable[Value]): Option[Value] =
-        maybeAnyValue(x).map(_.asInstanceOf[Value])
+        maybeValue(x.asInstanceOf[AnyVariable]).map(_.asInstanceOf[Value])
 
 }

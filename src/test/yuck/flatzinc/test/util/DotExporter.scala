@@ -34,7 +34,7 @@ final class DotExporter(space: Space, dotWriter: java.io.FileWriter) extends Run
                     case _: IntegerVariable => "int"
                     case _: IntegerSetVariable => "set of int"
                 }
-                val tooltip = "%s: %s = %s".format(x, typeInfo, space.searchState.anyValue(x))
+                val tooltip = "%s: %s = %s".format(x, typeInfo, space.searchState.value(x))
                 attrMap.put("tooltip", new DefaultAttribute(tooltip.take(MaxTooltipLength), AttributeType.STRING))
                 val maybeColor =
                     if (space.isSearchVariable(x)) Some(red)

@@ -52,7 +52,7 @@ final class FlatZincResultFormatter(result: Result) extends Callable[Seq[String]
     }
 
     private def value(x: AnyVariable): AnyValue = {
-        val a = result.bestProposal.anyValue(x)
+        val a = result.bestProposal.value(x)
         a match {
             case b: BooleanValue => if (b.truthValue) True else False
             case _ => a

@@ -13,7 +13,7 @@ final class BulkMove(id: Id[Move]) extends Move(id) {
 
     /** Adds the given effect. */
     def +=(effect: AnyMoveEffect): BulkMove = {
-        require(effectDir.put(effect.anyVariable, effect).isEmpty, "%s is re-assignment".format(effect))
+        require(effectDir.put(effect.x, effect).isEmpty, "%s is re-assignment".format(effect))
         this
     }
 
@@ -37,7 +37,7 @@ final class BulkMove(id: Id[Move]) extends Move(id) {
     override def involvedVariables = effectDir.view.keys
     override def involvedVariablesIterator = effectDir.keysIterator
     override def involves(x: AnyVariable) = effectDir.contains(x)
-    override def anyValue(x: AnyVariable) = effectDir(x).anyValue
-    override def maybeAnyValue(x: AnyVariable) = effectDir.get(x).map(_.anyValue)
+    override def value(x: AnyVariable) = effectDir(x).a
+    override def maybeValue(x: AnyVariable) = effectDir.get(x).map(_.a)
 
 }

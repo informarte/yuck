@@ -49,7 +49,7 @@ final class NeighbourhoodTestHelper
             assertEq(ys.size, ys.toSet.size)
             assert(ys.forall(xs.contains))
             for (y <- ys) {
-                assert(y.domain.contains(valueTraits.safeDowncast(move.anyValue(y))))
+                assert(y.domain.contains(move.value(y)))
                 result.variableFrequencies(y) += 1
             }
         }

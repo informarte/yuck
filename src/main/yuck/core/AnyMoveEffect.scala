@@ -10,12 +10,12 @@ import scala.collection.mutable.Cloneable
 abstract class AnyMoveEffect extends Cloneable[AnyMoveEffect] {
 
     /** Returns the affected variable. */
-    def anyVariable: AnyVariable
+    def x: AnyVariable
 
     /** Returns the value assigned to the variable by the move. */
-    def anyValue: AnyValue
+    def a: AnyValue
 
-    override def toString = (anyVariable -> anyValue).toString
+    override def toString = (x -> a).toString
 
     /** Changes the given space's assignment such that it maps the variable to the value. */
     def affect(space: Space): Unit
