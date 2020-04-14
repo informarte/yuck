@@ -11,6 +11,10 @@ abstract class Variable
     extends AnyVariable(id, name)
 {
 
+    override def domain: Domain[Value]
+
+    protected def setDomain(domain: Domain[Value]): Unit
+
     /**
      * Intersects the variable's domain with the given domain.
      *
@@ -19,7 +23,26 @@ abstract class Variable
      * Throws a [[yuck.core.DomainWipeOutException DomainWipeOutException]]
      * when the variable's domain became empty.
      */
-    def pruneDomain(restriction: Domain[Value]): Boolean
+    final def pruneDomain(restriction: Domain[Value]): Boolean = {
+        if (restriction != domain) {
+            // We try to avoid useless and expensive intersections.
+            if (domain.isSubsetOf(restriction)) {
+                false
+            } else {
+                if (restriction.isSubsetOf(domain)) {
+                    setDomain(restriction)
+                } else {
+                    setDomain(domain.intersect(restriction))
+                }
+                if (domain.isEmpty) {
+                    throw new DomainWipeOutException(this)
+                }
+                true
+            }
+        } else {
+            false
+        }
+    }
 
     /**
      * Replaces the variable's domain with the given domain.
@@ -28,9 +51,18 @@ abstract class Variable
      *
      * Throws when the new domain is not a superset of the current domain.
      */
-    def relaxDomain(relaxation: Domain[Value]): Boolean
-
-    override def domain: Domain[Value]
+    final def relaxDomain(relaxation: Domain[Value]): Boolean = {
+        if (relaxation != domain) {
+            require(
+                domain.isSubsetOf(relaxation),
+                "%s is not a superset of %s".format(relaxation, domain))
+            require(domain.isSubsetOf(relaxation))
+            setDomain(relaxation)
+            true
+        } else {
+            false
+        }
+    }
 
     final override def createDomainRestorer = new Function0[Unit] {
         private val backup = domain
