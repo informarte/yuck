@@ -151,8 +151,7 @@ final class Space(
         valueTraits.createVariable(this, name, domain)
     }
 
-    // Scala's ArrayBuffer.contains uses an iterator, so it's quite slow when used often on small buffers.
-    private val objectiveVariables = new java.util.ArrayList[AnyVariable]
+    private val objectiveVariables = new mutable.HashSet[AnyVariable]
 
     /**
      * Registers the given variable as objective variable.
@@ -165,10 +164,12 @@ final class Space(
      * effects on the variables that were not registered.
      */
     def registerObjectiveVariable(x: AnyVariable): Unit = {
-        if (! objectiveVariables.contains(x)) {
-            objectiveVariables.add(x)
-        }
+        objectiveVariables += x
     }
+
+    /** Returns true iff the given variable is to be considered as objective variable. */
+    @inline def isObjectiveVariable(x: AnyVariable): Boolean =
+        objectiveVariables.isEmpty || objectiveVariables.contains(x)
 
     /** Assigns the given value to the given variable. */
     def setValue[Value <: AnyValue](x: Variable[Value], a: Value): Space = {
@@ -402,7 +403,7 @@ final class Space(
 
     /** Returns true iff the given constraint was marked as implicit. */
     @inline def isImplicitConstraint(constraint: Constraint): Boolean =
-        ! implicitConstraints.isEmpty && implicitConstraints.contains(constraint)
+        implicitConstraints.contains(constraint)
 
     /** Returns the number of constraints that were posted and later marked as implicit. */
     def numberOfImplicitConstraints: Int = implicitConstraints.size
@@ -582,7 +583,7 @@ final class Space(
             }
         }
         override protected def recordEffect(effect: AnyMoveEffect): Unit = {
-            if (objectiveVariables.isEmpty || objectiveVariables.contains(effect.x)) {
+            if (isObjectiveVariable(effect.x)) {
                 diff += effect
             }
         }
@@ -655,7 +656,6 @@ final class Space(
                 constraint.commit(before, after, move)
             }
         }
-
         override protected def recordEffect(effect: AnyMoveEffect): Unit = {
             diff += effect
         }
