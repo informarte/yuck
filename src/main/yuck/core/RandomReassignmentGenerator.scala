@@ -47,10 +47,10 @@ final class RandomReassignmentGenerator
     (0 until n).foreach(i => uniformDistribution.setFrequency(i, 1))
     require(uniformDistribution.volume > 0)
     private val s = moveSizeDistribution.size
-    private val effectsByMoveSize = for (n <- 1 until s) yield new Array[AnyMoveEffect](n)
+    private val effects = new mutable.ArrayBuffer[AnyMoveEffect](n)
     private val frequencyRestorers = for (i <- 1 until s) yield new FrequencyRestorer
-    @inline private def fillEffect(effects: Array[AnyMoveEffect], i: Int, x: AnyVariable): Unit = {
-        effects.update(i, x.nextRandomMoveEffect(space, randomGenerator))
+    @inline private def addEffect(x: AnyVariable): Unit = {
+        effects += x.nextRandomMoveEffect(space, randomGenerator)
     }
 
     override def searchVariables = xs.toSet
@@ -65,29 +65,29 @@ final class RandomReassignmentGenerator
         val priorityDistribution = if (useUniformDistribution) uniformDistribution else maybeHotSpotDistribution.get
         val m = min(moveSizeDistribution.nextIndex(randomGenerator), priorityDistribution.numberOfAlternatives)
         assert(m > 0)
-        val effects = effectsByMoveSize(m - 1)
         var i = 0
+        effects.clear
         if (useUniformDistribution && m < 4) {
             val i = randomGenerator.nextInt(n)
-            fillEffect(effects, 0, xs(i))
+            addEffect(xs(i))
             if (m > 1) {
                 val j = {
                     val k = randomGenerator.nextInt(n - 1)
                     if (k < i) k else k + 1
                 }
-                fillEffect(effects, 1, xs(j))
+                addEffect(xs(j))
                 if (m > 2) {
                     val k = {
                         var l = randomGenerator.nextInt(n - 2)
                         if (l < min(i, j)) l else if (l > max(i, j) - 2) l + 2 else l + 1
                     }
-                    fillEffect(effects, 2, xs(k))
+                    addEffect(xs(k))
                 }
             }
         } else {
             while (i < m && priorityDistribution.volume > 0) {
                 val j = priorityDistribution.nextIndex(randomGenerator)
-                fillEffect(effects, i, xs(j))
+                addEffect(xs(j))
                 if (i < m - 1) {
                     frequencyRestorers(i).store(j, priorityDistribution.frequency(j))
                     priorityDistribution.setFrequency(j, 0)
