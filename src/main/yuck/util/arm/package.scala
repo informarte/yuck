@@ -1,5 +1,6 @@
 package yuck.util
 
+import java.time.Duration
 import java.util.concurrent.locks.Lock
 
 import yuck.util.logging.LazyLogger
@@ -73,6 +74,17 @@ package object arm {
         } else {
             operation
         }
+    }
+
+    /** Runs the given operation and returns its result and its runtime. */
+    def runtime
+        [Result]
+        (operation: => Result):
+        (Result, Duration) =
+    {
+        val stopWatch = new StopWatch
+        val result = scoped(stopWatch)(operation)
+        (result, stopWatch.duration)
     }
 
 }
