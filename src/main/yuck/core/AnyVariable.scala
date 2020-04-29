@@ -10,7 +10,7 @@ abstract class AnyVariable
     extends Ordered[AnyVariable]
 {
 
-    @inline final override def hashCode = id.hashCode
+    @inline final override def hashCode = id.rawId
     override def toString = if (name.isEmpty) "_YUCK_%d".format(id.rawId) else name
     @inline final override def compare(that: AnyVariable) = this.id.compare(that.id)
 

@@ -21,7 +21,7 @@ abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
     /** The optimization goal this constraint contributes to. */
     val maybeGoal: Option[Goal] = None
 
-    @inline final override def hashCode = id.hashCode
+    @inline final override def hashCode = id.rawId
     @inline final override def compare(that: Constraint) = this.id.compare(that.id)
 
     /** Returns the input variables. */
