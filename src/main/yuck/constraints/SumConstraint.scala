@@ -36,7 +36,7 @@ final class SumConstraint
             }
         }
         effect.a = computeCosts(futureSum, after.value(z))
-        effects
+        effect
     }
 
 }

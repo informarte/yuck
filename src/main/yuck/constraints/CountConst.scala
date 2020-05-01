@@ -17,12 +17,12 @@ final class CountConst
 {
 
     override def toString = "%s = count(%s, [%s])".format(n, a, xs.mkString(", "))
+
     override def inVariables = xs
     override def outVariables = List(n)
 
     private var count = 0
-    private val effects = List(new ReusableMoveEffectWithFixedVariable[IntegerValue](n))
-    private val effect = effects.head
+    private val effect = new ReusableMoveEffectWithFixedVariable(n)
 
     private def propagate1(effects: PropagationEffects): PropagationEffects = {
         var lb = 0
@@ -61,17 +61,17 @@ final class CountConst
     override def initialize(now: SearchState) = {
         count = xs.count(x => now.value(x) == a)
         effect.a = IntegerValue.get(count)
-        effects
+        effect
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         effect.a = IntegerValue.get(count + computeDelta(before, after, move))
-        effects
+        effect
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
         count = effect.a.value
-        effects
+        effect
     }
 
     private def computeDelta(before: SearchState, after: SearchState, move: Move): Int = {

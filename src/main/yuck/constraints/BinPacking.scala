@@ -39,6 +39,7 @@ final class BinPacking
 
     override def toString =
         "bin_packing([%s], [%s])".format(items.mkString(", "), loads.mkString(", "))
+
     override def inVariables = items.view.filter(_.weight > valueTraits.zero).map(_.bin)
     override def outVariables = loads.view.values
 

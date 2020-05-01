@@ -19,13 +19,13 @@ final class LinearCombination
     require(axs.iterator.map(_.x).toSet.size == axs.size)
 
     override def toString = "%s = sum([%s])".format(y, axs.mkString(", "))
+
     override def inVariables = axs.view.map(_.x)
     override def outVariables = List(y)
 
     private val x2ax = immutable.HashMap[AnyVariable, AX[Value]]() ++ (axs.iterator.map(_.x).zip(axs.iterator))
     private var sum = valueTraits.zero
-    private val effects = List(new ReusableMoveEffectWithFixedVariable[Value](y))
-    private val effect = effects.head
+    private val effect = new ReusableMoveEffectWithFixedVariable(y)
 
     override def propagate = {
         val lhs0 = new Iterable[(Value, NumericalDomain[Value])] {
@@ -42,7 +42,7 @@ final class LinearCombination
             sum += ax.a * now.value(ax.x)
         }
         effect.a = sum
-        effects
+        effect
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
@@ -51,12 +51,12 @@ final class LinearCombination
             val ax = x2ax(x0)
             effect.a = effect.a.addAndSub(ax.a, after.value(ax.x), before.value(ax.x))
         }
-        effects
+        effect
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
         sum = effect.a
-        effects
+        effect
     }
 
 }

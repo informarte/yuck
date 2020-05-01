@@ -113,8 +113,7 @@ final class Cumulative
         .map{case (x, buf) => (x, buf.toIndexedSeq)}
         .toMap
 
-    private val effects = List(new ReusableMoveEffectWithFixedVariable[BooleanValue](costs))
-    private val effect = effects.head
+    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
 
     private var currentCosts = 0L
     private var futureCosts = 0L
@@ -252,7 +251,7 @@ final class Cumulative
         currentCosts = computeCosts(rTree, now.value(capacity).value)
         assert(currentCosts >= 0)
         effect.a = BooleanValue.get(currentCosts)
-        effects
+        effect
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
@@ -281,14 +280,14 @@ final class Cumulative
         }
         assert(futureCosts >= 0)
         effect.a = BooleanValue.get(futureCosts)
-        effects
+        effect
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
         rTreeTransaction.commit
         assert(rTree.getEntryCount == n)
         currentCosts = futureCosts
-        effects
+        effect
     }
 
 }

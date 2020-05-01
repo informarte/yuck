@@ -15,16 +15,15 @@ abstract class TernaryConstraint
     final override def inVariables = List(x, y)
     final override def outVariables = List(z)
     protected def op(x: In1, y: In2): Out
-    private val effects = List(new ReusableMoveEffectWithFixedVariable[Out](z))
-    private val effect = effects.head
+    private val effect = new ReusableMoveEffectWithFixedVariable(z)
     final override def initialize(now: SearchState) = {
         effect.a = op(now.value(x), now.value(y))
-        effects
+        effect
     }
     final override def consult(before: SearchState, after: SearchState, move: Move) =
         initialize(after)
     final override def commit(before: SearchState, after: SearchState, move: Move) =
-        effects
+        effect
 }
 
 /**

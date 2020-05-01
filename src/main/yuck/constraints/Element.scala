@@ -23,11 +23,11 @@ final class Element
     require(indexBase >= 0)
 
     override def toString = "%s = element(%s, [%s])".format(y, i, xs.mkString(", "))
+
     override def inVariables = xs.view :+ i
     override def outVariables = List(y)
 
-    private val effects = List(new ReusableMoveEffectWithFixedVariable[Value](y))
-    private val effect = effects.head
+    private val effect = new ReusableMoveEffectWithFixedVariable(y)
 
     private def computeEffect(searchState: SearchState): Unit = {
         // When i is a channel variable, the value of i may be out-of-bounds!
@@ -56,15 +56,15 @@ final class Element
 
     override def initialize(now: SearchState) = {
         computeEffect(now)
-        effects
+        effect
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         computeEffect(after)
-        effects
+        effect
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) =
-        effects
+        effect
 
 }

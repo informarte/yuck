@@ -19,12 +19,12 @@ final class Sum
     require(xs.toSet.size == xs.size)
 
     override def toString = "%s = sum([%s])".format(y, xs.mkString(", "))
+
     override def inVariables = xs
     override def outVariables = List(y)
 
     private var sum = valueTraits.zero
-    private val effects = List(new ReusableMoveEffectWithFixedVariable[Value](y))
-    private val effect = effects.head
+    private val effect = new ReusableMoveEffectWithFixedVariable(y)
 
     override def propagate = {
         val lhs0 = new Iterable[(Value, NumericalDomain[Value])] {
@@ -41,7 +41,7 @@ final class Sum
             sum += now.value(x)
         }
         effect.a = sum
-        effects
+        effect
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
@@ -50,12 +50,12 @@ final class Sum
             val x = valueTraits.safeDowncast(x0)
             effect.a = effect.a.addAndSub(after.value(x), before.value(x))
         }
-        effects
+        effect
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
         sum = effect.a
-        effects
+        effect
     }
 
 }

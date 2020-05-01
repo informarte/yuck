@@ -18,12 +18,12 @@ final class Conjunction
     require(xs.toSet.size == xs.size)
 
     override def toString = "%s = and([%s])".format(y, xs.mkString(", "))
+
     override def inVariables = xs
     override def outVariables = List(y)
 
     private var sum = True
-    private val effects = List(new ReusableMoveEffectWithFixedVariable(y))
-    private val effect = effects.head
+    private val effect = new ReusableMoveEffectWithFixedVariable(y)
 
     override def propagate = {
         val lhs0 = xs.view.map(_.domain)
@@ -39,7 +39,7 @@ final class Conjunction
         }
         sum = BooleanValue.get(violation)
         effect.a = sum
-        effects
+        effect
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
@@ -50,12 +50,12 @@ final class Conjunction
             violation = safeSub(safeAdd(violation, after.value(x).violation), before.value(x).violation)
         }
         effect.a = BooleanValue.get(violation)
-        effects
+        effect
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
         sum = effect.a
-        effects
+        effect
     }
 
 }

@@ -42,6 +42,7 @@ final class Disjunction
     require(xs.size <= Int.MaxValue)
 
     override def toString = "disjunction([%s], %s)".format(xs.mkString(", "), y)
+
     override def inVariables = xs
     override def outVariables = List(y)
 
@@ -50,8 +51,7 @@ final class Disjunction
     private var trueCount = 0
     private var futureSum = 0L
     private var futureTrueCount = 0
-    private val effects = List(new ReusableMoveEffectWithFixedVariable(y))
-    private val effect = effects.head
+    private val effect = new ReusableMoveEffectWithFixedVariable(y)
 
     override def propagate = {
         val lhs0 = xs.view.map(_.domain)
@@ -69,7 +69,7 @@ final class Disjunction
             if (a == 0) trueCount += 1
         }
         effect.a = if (trueCount > 0) True else BooleanValue.get(sum / n)
-        effects
+        effect
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
@@ -84,13 +84,13 @@ final class Disjunction
             else if (a > 0 && b == 0) futureTrueCount += 1
         }
         effect.a = if (futureTrueCount > 0) True else BooleanValue.get(futureSum / n)
-        effects
+        effect
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
         sum = futureSum
         trueCount = futureTrueCount
-        effects
+        effect
     }
 
 }

@@ -20,11 +20,11 @@ final class LexLessEq
 {
 
     override def toString = "lex_lesseq([%s], [%s])".format(xs.mkString(", "), ys.mkString(", "))
+
     override def inVariables = xs.view ++ ys.view
     override def outVariables = List(costs)
 
-    private val effects = List(new ReusableMoveEffectWithFixedVariable[BooleanValue](costs))
-    private val effect = effects.head
+    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
 
     @tailrec
     private def findFailurePosition(searchState: SearchState, i: Int): Option[Int] =
@@ -44,7 +44,7 @@ final class LexLessEq
     override def initialize(now: SearchState) = {
         val maybeFailurePos = findFailurePosition(now, 0)
         effect.a = if (maybeFailurePos.isEmpty) True else BooleanValue.get(min(xs.size, ys.size) - maybeFailurePos.get)
-        effects
+        effect
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) =

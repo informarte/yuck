@@ -104,8 +104,6 @@ final class Regular
             null
         }
 
-    private val effects = List(new ReusableMoveEffectWithFixedVariable[BooleanValue](costs))
-    private val effect = effects.head
     private var currentCosts = 0
     private var currentStates: immutable.IndexedSeq[Int] = null
     // The position at which the current sequence is recognized as invalid.
@@ -115,6 +113,8 @@ final class Regular
     private var futureCosts = 0
     private var futureStates: immutable.IndexedSeq[Int] = null
     private var futureFailurePosition = 0
+
+    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
 
     override def initialize(now: SearchState) = {
         currentStates = immutable.IndexedSeq[Int]() ++ (0 until n).map(i => 0)
@@ -132,7 +132,7 @@ final class Regular
         currentFailurePosition = if (q == 0) i else n
         assert(currentCosts >= 0)
         effect.a = BooleanValue.get(currentCosts)
-        effects
+        effect
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
@@ -186,14 +186,14 @@ final class Regular
         }
         assert(futureCosts >= 0)
         effect.a = BooleanValue.get(futureCosts)
-        effects
+        effect
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
         currentStates = futureStates
         currentCosts = futureCosts
         currentFailurePosition = futureFailurePosition
-        effects
+        effect
     }
 
     // Cost model: see the class comment

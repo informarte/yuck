@@ -14,15 +14,14 @@ abstract class BinaryConstraint
 {
     override def inVariables = List(x)
     override def outVariables = List(y)
-    private val effects = List(new ReusableMoveEffectWithFixedVariable[Out](y))
-    private val effect = effects.head
+    private val effect = new ReusableMoveEffectWithFixedVariable(y)
     def op(x: In): Out
     override def initialize(now: SearchState) = {
         effect.a = op(now.value(x))
-        effects
+        effect
     }
     override def consult(before: SearchState, after: SearchState, move: Move) =
         initialize(after)
     override def commit(before: SearchState, after: SearchState, move: Move) =
-        effects
+        effect
 }

@@ -43,7 +43,7 @@ final class LinearConstraint
             }
         }
         effect.a = computeCosts(futureSum, after.value(z))
-        effects
+        effect
     }
 
 }

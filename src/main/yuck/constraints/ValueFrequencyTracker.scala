@@ -42,16 +42,16 @@ abstract class ValueFrequencyTracker
         val occurenceCount = valueRegistry(a) - n
         if (occurenceCount == 0) valueRegistry - a else valueRegistry + (a -> occurenceCount)
     }
-    private val effects = List(new ReusableMoveEffectWithFixedVariable[Result](y))
-    private val effect = effects.head
+
+    private val effect = new ReusableMoveEffectWithFixedVariable(y)
 
     override def initialize(now: SearchState) = {
-        valueRegistry = valueRegistryFactory.empty.asInstanceOf[ValueRegistry]
+        valueRegistry = valueRegistryFactory.empty
         for (x <- xs) {
             valueRegistry = registerValue(valueRegistry, now.value(x), 1)
         }
         effect.a = computeResult(now, valueRegistry)
-        effects
+        effect
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
@@ -65,12 +65,12 @@ abstract class ValueFrequencyTracker
                 registerValue(deregisterValue(futureValueRegistry, before.value(x), n), after.value(x), n)
         }
         effect.a = computeResult(after, futureValueRegistry)
-        effects
+        effect
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
         valueRegistry = futureValueRegistry
-        effects
+        effect
     }
 
     /**

@@ -56,8 +56,7 @@ abstract class Disjoint
         .map{case (x, buf) => (x, buf.toIndexedSeq)}
         .toMap
 
-    private val effects = List(new ReusableMoveEffectWithFixedVariable[BooleanValue](costs))
-    private val effect = effects.head
+    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
 
     final override def initialize(now: SearchState) = {
         rTree = SpatialSearches.rTree[RTreeEntry](rectBuilder)
@@ -78,7 +77,7 @@ abstract class Disjoint
         }
         assert(rTree.getEntryCount == n)
         effect.a = BooleanValue.get(currentCosts)
-        effects
+        effect
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
@@ -109,14 +108,14 @@ abstract class Disjoint
             rTreeTransaction.add(afterEntry)
         }
         effect.a = BooleanValue.get(futureCosts)
-        effects
+        effect
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
         rTreeTransaction.commit
         assert(rTree.getEntryCount == n)
         currentCosts = futureCosts
-        effects
+        effect
     }
 
 }

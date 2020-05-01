@@ -31,13 +31,13 @@ abstract class LinearConstraintLike
         "sum([%s], %s, %s, %s)".format(
             (for (i <- 0 until n) yield AX(a(i), x(i))).mkString(", "),
             relation, z, costs)
+
     override def inVariables = (0 until n).view.map(x) :+ z
     override def outVariables = List(costs)
 
     protected var currentSum = valueTraits.zero
     protected var futureSum = valueTraits.zero
-    protected val effects = List(new ReusableMoveEffectWithFixedVariable[BooleanValue](costs))
-    protected val effect = effects.head
+    protected val effect = new ReusableMoveEffectWithFixedVariable(costs)
 
     // Propagates sum a(i) * x(i) = y.
     private def propagate1(effects: PropagationEffects): PropagationEffects = {
@@ -97,12 +97,12 @@ abstract class LinearConstraintLike
             currentSum += a(i) * now.value(x(i))
         }
         effect.a = computeCosts(currentSum, now.value(z))
-        effects
+        effect
     }
 
     final override def commit(before: SearchState, after: SearchState, move: Move) = {
         currentSum = futureSum
-        effects
+        effect
     }
 
 }

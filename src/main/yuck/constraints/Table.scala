@@ -40,8 +40,6 @@ abstract class Table
 
     private var currentDistances: Array[Long] = null // for each row
     private var futureDistances: Array[Long] = null // for each row
-    private val effects = List(new ReusableMoveEffectWithFixedVariable[BooleanValue](costs))
-    private val effect = effects.head
 
     private val x2i: immutable.Map[AnyVariable, Int] =
         if (hasDuplicateVariables) null else xs.iterator.zipWithIndex.toMap
@@ -61,6 +59,8 @@ abstract class Table
         } else {
             null
         }
+
+    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
 
     protected def createDomain(values: Set[Value]): Domain[Value]
     protected def computeDistance(a: Value, b: Value): Long
@@ -98,7 +98,7 @@ abstract class Table
             }
         }
         effect.a = BooleanValue.get(computeMinDistance(currentDistances))
-        effects
+        effect
     }
 
     final override def consult(before: SearchState, after: SearchState, move: Move) = {
@@ -126,14 +126,14 @@ abstract class Table
             }
         }
         effect.a = BooleanValue.get(computeMinDistance(futureDistances))
-        effects
+        effect
     }
 
     final override def commit(before: SearchState, after: SearchState, move: Move) = {
         val tmp = currentDistances
         currentDistances = futureDistances
         futureDistances = tmp
-        effects
+        effect
     }
 
     private def computeMinDistance(distances: Array[Long]): Long = {

@@ -57,17 +57,18 @@ final class Inverse
     extends Constraint(id)
 {
 
+    private val debug = false
+
     override def toString =
         "inverse([%s], %d, [%s], %d, %s)".format(
             f.xs.mkString(", "), f.offset, g.xs.mkString(", "), g.offset, costs)
+
     override def inVariables = f.xs.view ++ g.xs.view
     override def outVariables = List(costs)
 
-    private val effects = List(new ReusableMoveEffectWithFixedVariable[BooleanValue](costs))
-    private val effect = effects.head
     private var currentCosts = 0
     private var futureCosts = 0
-    private val debug = false
+    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
 
     private def computeCosts(
         f: InverseFunction, g: InverseFunction, i: Int, searchState: SearchState): Int =
@@ -132,7 +133,7 @@ final class Inverse
         }
         assert(currentCosts >= 0)
         effect.a = BooleanValue.get(currentCosts)
-        effects
+        effect
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
@@ -178,7 +179,7 @@ final class Inverse
         }
         assert(futureCosts >= 0)
         effect.a = BooleanValue.get(futureCosts)
-        effects
+        effect
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
@@ -211,7 +212,7 @@ final class Inverse
             }
         }
         currentCosts = futureCosts
-        effects
+        effect
     }
 
     override def isCandidateForImplicitSolving(space: Space) =
