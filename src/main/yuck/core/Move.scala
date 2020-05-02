@@ -15,7 +15,7 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVar
     def effects: Iterable[AnyMoveEffect]
 
     /** Returns the effects of the move. */
-    def effectsIterator: Iterator[AnyMoveEffect]
+    def effectsIterator: Iterator[AnyMoveEffect] = effects.iterator
 
     /** Returns true iff the move does not involve any variable. */
     override def isEmpty: Boolean = effects.isEmpty
