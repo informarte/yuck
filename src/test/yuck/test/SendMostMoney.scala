@@ -80,18 +80,20 @@ final class SendMostMoney extends IntegrationTest {
             // propagate constraints
             costs.pruneDomain(TrueDomain)
             space.propagate
-            assertEq(space.searchVariables, vars -- Set(M, O, S))
-            assertEq(delta.domain, TrueDomain)
-            assertEq(numberOfMissingValues.domain, TrueDomain)
-            assertEq(S.domain.singleValue, Nine)
-            assertEq(E.domain, new IntegerRange(Two, Seven))
-            assertEq(N.domain, new IntegerRange(Three, Eight))
-            assertEq(D.domain, new IntegerRange(Two, Eight))
-            assertEq(M.domain.singleValue, One)
-            assertEq(O.domain.singleValue, Zero)
-            assertEq(T.domain, D.domain)
-            assertEq(Y.domain, D.domain)
-            assertEq(lhs.domain, new IntegerRange(IntegerValue.get(10324), IntegerValue.get(10878)))
+            if (! sigint.isSet) {
+                assertEq(space.searchVariables, vars -- Set(M, O, S))
+                assertEq(delta.domain, TrueDomain)
+                assertEq(numberOfMissingValues.domain, TrueDomain)
+                assertEq(S.domain.singleValue, Nine)
+                assertEq(E.domain, new IntegerRange(Two, Seven))
+                assertEq(N.domain, new IntegerRange(Three, Eight))
+                assertEq(D.domain, new IntegerRange(Two, Eight))
+                assertEq(M.domain.singleValue, One)
+                assertEq(O.domain.singleValue, Zero)
+                assertEq(T.domain, D.domain)
+                assertEq(Y.domain, D.domain)
+                assertEq(lhs.domain, new IntegerRange(IntegerValue.get(10324), IntegerValue.get(10878)))
+            }
 
             // build local-search solver
             for (x <- vars if x.domain.isSingleton) {
