@@ -79,18 +79,20 @@ final class SendMoreMoney extends IntegrationTest {
             // propagate constraints
             costs.pruneDomain(TrueDomain)
             space.propagate
-            assertEq(space.searchVariables, vars -- Set(M, O, S))
-            assertEq(delta.domain, TrueDomain)
-            assertEq(numberOfMissingValues.domain, TrueDomain)
-            assertEq(S.domain.singleValue, Nine)
-            assertEq(E.domain, new IntegerRange(Two, Eight))
-            assertEq(N.domain, E.domain)
-            assertEq(D.domain, E.domain)
-            assertEq(M.domain.singleValue, One)
-            assertEq(O.domain.singleValue, Zero)
-            assertEq(R.domain, E.domain)
-            assertEq(Y.domain, E.domain)
-            assertEq(lhs.domain, new IntegerRange(IntegerValue.get(10244), IntegerValue.get(10888)))
+            if (! sigint.isSet) {
+                assertEq(space.searchVariables, vars -- Set(M, O, S))
+                assertEq(delta.domain, TrueDomain)
+                assertEq(numberOfMissingValues.domain, TrueDomain)
+                assertEq(S.domain.singleValue, Nine)
+                assertEq(E.domain, new IntegerRange(Two, Eight))
+                assertEq(N.domain, E.domain)
+                assertEq(D.domain, E.domain)
+                assertEq(M.domain.singleValue, One)
+                assertEq(O.domain.singleValue, Zero)
+                assertEq(R.domain, E.domain)
+                assertEq(Y.domain, E.domain)
+                assertEq(lhs.domain, new IntegerRange(IntegerValue.get(10244), IntegerValue.get(10888)))
+            }
 
             // build local-search solver
             for (x <- vars if x.domain.isSingleton) {
