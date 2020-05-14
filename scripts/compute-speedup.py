@@ -39,11 +39,11 @@ def computeSpeedups(cursor, args):
         for run in args.runs
     }
 
-def plotDiagrams(results):
+def plotDiagrams(args, results):
     common.plotDiagrams(
         [run for run in results],
         lambda run: (lambda result: [result[task] for task in result])(results[run]),
-        title = 'Speedups',
+        title = 'Speedups (wrt. {})'.format(args.referenceRun),
         xlabel = 'Speedup',
         legendLocation = 'center right')
 
@@ -65,6 +65,6 @@ def main():
             postprocessedResults = {run: common.analyzeResult(results[run]) for run in results}
             print(json.dumps(postprocessedResults, sort_keys = True, indent = 4))
             if (args.plotDiagrams):
-                plotDiagrams(results)
+                plotDiagrams(args, results)
 
 main()
