@@ -1,11 +1,13 @@
 package yuck.flatzinc.test.util
 
 import scala.collection._
+import scala.language.implicitConversions
 
 import spray.json._
 
 import yuck.BuildInfo
 import yuck.core._
+import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast._
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.flatzinc.parser._
@@ -27,6 +29,7 @@ class MiniZincBasedTest extends IntegrationTest {
     private object JsEntry {
         def apply(value: JsValue): JsEntry = new JsEntry(value)
     }
+    private implicit def createJsNode(value: JsValue) = new JsEntry(value)
     private class JsSection extends JsNode {
         private val fields = new mutable.HashMap[String, JsNode]
         override def value =
@@ -41,8 +44,8 @@ class MiniZincBasedTest extends IntegrationTest {
         }
     }
     private object JsSection {
-        def apply(fields: (String, JsValue)*): JsSection =
-            new JsSection ++= fields.iterator.map{case (name, value) => (name, JsEntry(value))}
+        def apply(fields: (String, JsNode)*): JsSection =
+            new JsSection ++= fields
     }
 
     private val jsonRoot = new JsSection
@@ -57,8 +60,8 @@ class MiniZincBasedTest extends IntegrationTest {
     protected def solve(task: MiniZincTestTask): Option[Result] = {
         logger.setThresholdLogLevel(task.logLevel)
         jsonRoot += "env" -> envNode
-        logOsVersion
-        logJavaVersion
+        logOsEnv
+        logJavaEnv
         logYuckVersion
         val suitePath = task.suitePath
         val suiteName = if (task.suiteName.isEmpty) new java.io.File(suitePath).getName else task.suiteName
@@ -109,9 +112,9 @@ class MiniZincBasedTest extends IntegrationTest {
                 case error: Throwable =>
                     val cause = findUltimateCause(error)
                     val errorNode = new JsSection
-                    errorNode += "type" -> JsEntry(JsString(cause.getClass.getName))
+                    errorNode += "type" -> JsString(cause.getClass.getName)
                     if (cause.getMessage != null && ! cause.getMessage.isEmpty) {
-                        errorNode += "message" -> JsEntry(JsString(cause.getMessage))
+                        errorNode += "message" -> JsString(cause.getMessage)
                     }
                     jsonRoot += "error" -> errorNode
                     handleException(task, cause)
@@ -161,6 +164,7 @@ class MiniZincBasedTest extends IntegrationTest {
                 maybeTargetObjectiveValue =
                     if (task.maybeTargetObjectiveValue.isDefined) task.maybeTargetObjectiveValue
                     else task.maybeOptimum)
+        logSolverConfiguration(cfg)
         val monitor = new OptimizationMonitor(logger)
         val result =
             scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set})) {
@@ -223,15 +227,15 @@ class MiniZincBasedTest extends IntegrationTest {
             "problem-type" -> JsString(problemType)
         )
         if (task.maybeOptimum.isDefined) {
-            taskNode += "optimum" -> JsEntry(JsNumber(task.maybeOptimum.get))
+            taskNode += "optimum" -> JsNumber(task.maybeOptimum.get)
         }
         if (task.maybeHighScore.isDefined) {
-            taskNode += "high-score" -> JsEntry(JsNumber(task.maybeHighScore.get))
+            taskNode += "high-score" -> JsNumber(task.maybeHighScore.get)
         }
         jsonRoot += "task" -> taskNode
     }
 
-    private def logOsVersion: Unit = {
+    private def logOsEnv: Unit = {
         envNode +=
             "os" -> JsSection(
                 "arch" -> JsString(System.getProperty("os.arch", "")),
@@ -240,24 +244,31 @@ class MiniZincBasedTest extends IntegrationTest {
             )
     }
 
-    private def logJavaVersion: Unit = {
+    private def logJavaEnv: Unit = {
         val runtime = java.lang.Runtime.getRuntime
         envNode +=
             "java" -> JsSection(
-                "vm" -> JsString(System.getProperty("java.vm.name", "")),
-                "vendor" -> JsString(System.getProperty("java.vendor", "")),
-                "version" -> JsString(System.getProperty("java.version", "")),
-                "date" -> JsString(System.getProperty("java.version.date", "")),
-                "number-of-virtual-cores" -> JsNumber(runtime.availableProcessors),
-                "max-memory" -> JsNumber(runtime.maxMemory)
+                "runtime" -> JsSection(
+                    "number-of-virtual-cores" -> JsNumber(runtime.availableProcessors),
+                    "max-memory" -> JsNumber(runtime.maxMemory)
+                ),
+                "vm" -> JsSection(
+                    "name" -> JsString(System.getProperty("java.vm.name", "")),
+                    "version" -> JsString(System.getProperty("java.vm.version", ""))
+                ),
+                "vendor" -> JsSection(
+                    "name" -> JsString(System.getProperty("java.vendor", "")),
+                    "version" -> JsString(System.getProperty("java.vendor.version", ""))
+                ),
+                "version" -> JsString(System.getProperty("java.version", ""))
             )
     }
 
     private def logYuckVersion: Unit = {
         envNode +=
             "yuck" -> JsSection(
-                "gitBranch" -> JsString(BuildInfo.gitBranch),
-                "gitCommitHash" -> JsString(BuildInfo.gitCommitHash))
+                "branch" -> JsString(BuildInfo.gitBranch),
+                "commit-hash" -> JsString(BuildInfo.gitCommitHash))
     }
 
     private def logMiniZincVersion(versionInfo: String): Unit = {
@@ -271,6 +282,31 @@ class MiniZincBasedTest extends IntegrationTest {
                     "build" -> JsString(matcher.group(2))
                 )
         }
+    }
+
+    private def logSolverConfiguration(cfg: FlatZincSolverConfiguration): Unit = {
+        val cfgNode =
+            JsSection(
+                "seed" -> JsNumber(cfg.seed),
+                "restart-limit" -> JsNumber(cfg.restartLimit),
+                "number-of-threads" -> JsNumber(cfg.numberOfThreads),
+                "focus-on-top-objective" -> JsBoolean(cfg.focusOnTopObjective),
+                "stop-on-first-solution" -> JsBoolean(cfg.stopOnFirstSolution),
+                "run-presolver" -> JsBoolean(cfg.runPresolver),
+                "use-implicit-solving" -> JsBoolean(cfg.useImplicitSolving),
+                "use-progressive-tightening" -> JsBoolean(cfg.useProgressiveTightening),
+                "propagate-bounds" -> JsBoolean(cfg.propagateBounds)
+            )
+        if (cfg.maybeRoundLimit.isDefined) {
+            cfgNode += "round-limit" -> JsNumber(cfg.maybeRoundLimit.get)
+        }
+        if (cfg.maybeRuntimeLimitInSeconds.isDefined) {
+            cfgNode += "runtime-limit-in-seconds" -> JsNumber(cfg.maybeRuntimeLimitInSeconds.get)
+        }
+        if (cfg.maybeTargetObjectiveValue.isDefined) {
+            cfgNode += "target-objective-value" -> JsNumber(cfg.maybeTargetObjectiveValue.get)
+        }
+        jsonRoot +="solver-configuration" -> cfgNode
     }
 
     private def logFlatZincModelStatistics(ast: FlatZincAst): Unit = {
@@ -298,17 +334,17 @@ class MiniZincBasedTest extends IntegrationTest {
         val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
         val objectiveVariables = compilerResult.objective.objectiveVariables
         val resultNode = new JsSection
-        resultNode += "solved" -> JsEntry(JsBoolean(result.isSolution))
+        resultNode += "solved" -> JsBoolean(result.isSolution)
         if (! result.isSolution) {
             val costVar = objectiveVariables(0).asInstanceOf[BooleanVariable]
-            resultNode += "violation" -> JsEntry(JsNumber(result.bestProposal.value(costVar).violation))
+            resultNode += "violation" -> JsNumber(result.bestProposal.value(costVar).violation)
         }
         if (objectiveVariables.size > 1) {
             objectiveVariables(1) match {
                 case objectiveVar: IntegerVariable =>
-                    resultNode += "quality" -> JsEntry(JsNumber(result.bestProposal.value(objectiveVar).value))
+                    resultNode += "quality" -> JsNumber(result.bestProposal.value(objectiveVar).value)
                     if (result.isOptimal) {
-                        resultNode += "optimal" -> JsEntry(JsBoolean(true))
+                        resultNode += "optimal" -> JsBoolean(true)
                     }
                 case _ =>
             }
@@ -330,9 +366,9 @@ class MiniZincBasedTest extends IntegrationTest {
             } else {
                 JsSection()
             }
-        statsNode += "runtime-in-seconds" -> JsEntry(JsNumber(monitor.runtimeInSeconds))
+        statsNode += "runtime-in-seconds" -> JsNumber(monitor.runtimeInSeconds)
         if (monitor.maybeArea.isDefined) {
-            statsNode += "area" -> JsEntry(JsNumber(monitor.maybeArea.get))
+            statsNode += "area" -> JsNumber(monitor.maybeArea.get)
         }
         jsonRoot += "solver-statistics" -> statsNode
     }
