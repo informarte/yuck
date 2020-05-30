@@ -13,20 +13,15 @@ import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.{UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
 import yuck.flatzinc.parser._
 import yuck.util.arm._
-
+import yuck.util.logging.YuckLogging
 
 /**
  * @author Michael Marte
  *
  */
-object FlatZincRunner {
+object FlatZincRunner extends YuckLogging {
 
-    System.setProperty("java.util.logging.manager", classOf[yuck.util.logging.ManagedLogManager].getName)
-    val logManager = java.util.logging.LogManager.getLogManager.asInstanceOf[yuck.util.logging.ManagedLogManager]
-    val nativeLogger = java.util.logging.Logger.getLogger(this.getClass.getName)
-    val logger = new yuck.util.logging.LazyLogger(nativeLogger)
-
-    case class CommandLine(
+    private case class CommandLine(
         val logLevel: yuck.util.logging.LogLevel = yuck.util.logging.NoLogging,
         val logFilePath: String = "",
         val fznFilePath: String = "",
@@ -39,7 +34,7 @@ object FlatZincRunner {
                 maybeTargetObjectiveValue = None))
     {}
 
-    class CommandLineParser extends OptionParser[CommandLine]("yuck") {
+    private class CommandLineParser extends OptionParser[CommandLine]("yuck") {
         val defaultCl = CommandLine()
         val defaultCfg = defaultCl.cfg
         val logLevels = yuck.util.logging.logLevels

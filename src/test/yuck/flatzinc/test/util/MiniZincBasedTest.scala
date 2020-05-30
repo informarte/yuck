@@ -13,7 +13,7 @@ import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.flatzinc.parser._
 import yuck.flatzinc.runner._
 import yuck.util.arm._
-import yuck.util.logging.FineLogLevel
+import yuck.util.logging.{FineLogLevel, ManagedLogHandler}
 import yuck.util.testing.{IntegrationTest, ProcessRunner}
 
 /**
@@ -92,39 +92,40 @@ class MiniZincBasedTest extends IntegrationTest {
         } else {
             val logFileHandler = new java.util.logging.FileHandler(logFilePath)
             logFileHandler.setFormatter(formatter)
-            nativeLogger.addHandler(logFileHandler)
-            logger.log("Processing %s".format(mznFilePath))
-            logger.log("Logging into %s".format(logFilePath))
-            try {
-                val result =
-                    trySolve(
-                        task.copy(suiteName = suiteName, modelName = modelName, instanceName = instanceName),
-                        mznFilePath, dznFilePath, fznFilePath, jsonFilePath)
-                if (task.exportDot) {
-                    logger.withTimedLogScope("Exporting constraint network to a DOT file") {
-                        val dotWriter = new java.io.FileWriter(dotFilePath)
-                        new DotExporter(result.space, dotWriter).run
+            scoped(new ManagedLogHandler(nativeLogger, logFileHandler)) {
+                logger.log("Processing %s".format(mznFilePath))
+                logger.log("Logging into %s".format(logFilePath))
+                try {
+                    val result =
+                        trySolve(
+                            task.copy(suiteName = suiteName, modelName = modelName, instanceName = instanceName),
+                            mznFilePath, dznFilePath, fznFilePath, jsonFilePath)
+                    if (task.exportDot) {
+                        logger.withTimedLogScope("Exporting constraint network to a DOT file") {
+                            val dotWriter = new java.io.FileWriter(dotFilePath)
+                            new DotExporter(result.space, dotWriter).run
+                        }
                     }
+                    Some(result)
                 }
-                Some(result)
-            }
-            catch {
-                case error: Throwable =>
-                    val cause = findUltimateCause(error)
-                    val errorNode = new JsSection
-                    errorNode += "type" -> JsString(cause.getClass.getName)
-                    if (cause.getMessage != null && ! cause.getMessage.isEmpty) {
-                        errorNode += "message" -> JsString(cause.getMessage)
-                    }
-                    jsonRoot += "error" -> errorNode
-                    handleException(task, cause)
-                    None
-            }
-            finally {
-                val jsonDoc = jsonRoot.value
-                val jsonWriter = new java.io.FileWriter(jsonFilePath)
-                jsonWriter.write(jsonDoc.prettyPrint)
-                jsonWriter.close
+                catch {
+                    case error: Throwable =>
+                        val cause = findUltimateCause(error)
+                        val errorNode = new JsSection
+                        errorNode += "type" -> JsString(cause.getClass.getName)
+                        if (cause.getMessage != null && ! cause.getMessage.isEmpty) {
+                            errorNode += "message" -> JsString(cause.getMessage)
+                        }
+                        jsonRoot += "error" -> errorNode
+                        handleException(task, cause)
+                        None
+                }
+                finally {
+                    val jsonDoc = jsonRoot.value
+                    val jsonWriter = new java.io.FileWriter(jsonFilePath)
+                    jsonWriter.write(jsonDoc.prettyPrint)
+                    jsonWriter.close
+                }
             }
         }
     }
