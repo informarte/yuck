@@ -17,11 +17,15 @@ import yuck.util.arm.ManagedResource
  * @author Michael Marte
  */
 final class ManagedLogManager extends java.util.logging.LogManager with ManagedResource {
+
     override def open = {
     }
+
     override def close = {
         super.reset
     }
+
     override def reset = {
     }
+
 }

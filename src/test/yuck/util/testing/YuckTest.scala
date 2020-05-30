@@ -1,31 +1,30 @@
 package yuck.util.testing
 
 import scala.annotation.meta.getter
+
 import org.junit._
 import org.junit.rules.RuleChain
 import org.junit.rules.TestName
+
+import yuck.util.logging.YuckLogging
 
 /**
  * @author Michael Marte
  *
  */
-abstract class YuckTest extends YuckAssert {
+abstract class YuckTest extends YuckAssert with YuckLogging {
 
-    System.setProperty("java.util.logging.manager", classOf[yuck.util.logging.ManagedLogManager].getName)
-    private val logManager = java.util.logging.LogManager.getLogManager.asInstanceOf[yuck.util.logging.ManagedLogManager]
-    protected val nativeLogger = java.util.logging.Logger.getLogger(this.getClass.getName)
-    protected val logger = new yuck.util.logging.LazyLogger(nativeLogger)
     protected val formatter = new yuck.util.logging.Formatter
     nativeLogger.setUseParentHandlers(false); // otherwise our console handler would remain unused
     nativeLogger.setLevel(java.util.logging.Level.ALL)
     private val consoleHandler = new java.util.logging.ConsoleHandler
     consoleHandler.setFormatter(formatter)
-    nativeLogger.addHandler(consoleHandler)
     logger.setThresholdLogLevel(yuck.util.logging.InfoLogLevel)
 
     protected val testName = new TestName
 
     protected val sigint = new yuck.util.arm.SettableSigint
+
 
     @(Rule @getter)
     protected val environmentManagement =
@@ -38,9 +37,11 @@ abstract class YuckTest extends YuckAssert {
         // will ignore interrupts.
         .around(new ManagedResourceAsTestRule(new yuck.util.arm.ManagedShutdownHook({})))
         .around(new ManagedResourceAsTestRule(logManager))
+        .around(new ManagedResourceAsTestRule(new yuck.util.logging.ManagedLogHandler(nativeLogger, consoleHandler)))
         .around(
             new ManagedResourceAsTestRule(
-                new yuck.util.logging.DurationLogger(logger, "Running %s.%s".format(getClass.getSimpleName, testName.getMethodName))))
+                new yuck.util.logging.DurationLogger(
+                    logger, "Running %s.%s".format(getClass.getSimpleName, testName.getMethodName))))
         .around(new ManagedResourceAsTestRule(new yuck.util.logging.LogScope(logger)))
 
 }
