@@ -9,7 +9,7 @@ gitBranch := Process("git rev-parse --abbrev-ref HEAD").lineStream.head
 val shortVersion = settingKey[String]("The short version string")
 shortVersion := gitCommitDate.value
 val longVersion = settingKey[String]("The long version string")
-longVersion := "%s-%s-%s".format(gitCommitDate.value, gitBranch.value, gitCommitHash.value.take(8))
+longVersion := "%s-%s-%s".format(gitCommitDate.value, gitBranch.value.replaceAll("/", "-"), gitCommitHash.value.take(8))
 
 def createMscFile(baseDir: java.io.File, version: String, exePath: String, mznLibPath: String): java.io.File = {
     val source = new java.io.File(baseDir / "resources" / "mzn", "yuck.msc.in")
