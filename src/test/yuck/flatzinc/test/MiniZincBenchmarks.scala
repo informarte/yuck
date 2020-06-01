@@ -41,10 +41,10 @@ object MiniZincBenchmarks {
 
     private val tasks = {
         val randomGenerator = new JavaRandomGenerator
-        val suitePath = "resources/mzn/benchmarks"
-        val problemDir = new File(suitePath + "/problems")
-        assert(problemDir.exists)
-        val problems = problemDir.listFiles.filter(_.isDirectory).sorted
+        val suitePath = "resources/mzn/tests/minizinc-benchmarks"
+        val suiteDir = new File(suitePath)
+        assert(suiteDir.exists)
+        val problems = suiteDir.listFiles.filter(_.isDirectory).sorted
         var buf = new mutable.ArrayBuffer[MiniZincTestTask]
         for (problem <- problems) {
             val mznFiles = problem.listFiles(new SuffixFilter(".mzn")).toList.sorted
