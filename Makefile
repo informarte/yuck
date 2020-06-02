@@ -13,7 +13,7 @@ minizinc-challenges: yuck.flatzinc.test.MiniZincChallenges archive.minizinc-chal
 minizinc-benchmarks: yuck.flatzinc.test.MiniZincBenchmarks archive.minizinc-benchmarks
 
 yuck.test.% yuck.flatzinc.test.%:
-	sbt "test:runMain org.junit.runner.JUnitCore $@"
+	sbt "test:runMain yuck.util.testing.YuckTestRunner $@"
 
 .PHONY: archive stage zip doc clean render-readme
 
