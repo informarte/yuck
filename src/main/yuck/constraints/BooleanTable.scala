@@ -25,5 +25,19 @@ final class BooleanTable
 {
     override def createDomain(values: Set[BooleanValue]) =
         BooleanDecisionDomain.createDomain(values.contains(False), values.contains(True))
-    override def computeDistance(a: BooleanValue, b: BooleanValue) = if (a.truthValue == b.truthValue) 0 else 1
+    override def computeDistance(a: BooleanValue, b: BooleanValue) =
+        if (a.truthValue == b.truthValue) 0 else 1
+    override def computeFutureDistances(col: IndexedSeq[BooleanValue], a0: BooleanValue, b0: BooleanValue) = {
+        val a = a0.truthValue
+        val b = b0.truthValue
+        var j = 0
+        val m = col.size
+        while (j < m) {
+            val c = col(j).truthValue
+            val bcDelta = if (b == c) 0 else 1
+            val acDelta = if (a == c) 0 else 1
+            futureDistances(j) = safeAdd(futureDistances(j), safeSub(bcDelta, acDelta))
+            j += 1
+        }
+    }
 }

@@ -39,7 +39,7 @@ abstract class Table
     private var cols: immutable.IndexedSeq[immutable.IndexedSeq[Value]] = null // columns improve data locality
 
     private var currentDistances: Array[Long] = null // for each row
-    private var futureDistances: Array[Long] = null // for each row
+    protected var futureDistances: Array[Long] = null // for each row
 
     private val x2i: immutable.Map[AnyVariable, Int] =
         if (hasDuplicateVariables) null else xs.iterator.zipWithIndex.toMap
@@ -91,8 +91,6 @@ abstract class Table
         for (j <- 0 until m) {
             val row = rows(j)
             for (i <- 0 until n) {
-                val a = now.value(xs(i))
-                val b = row(i)
                 currentDistances(j) =
                     safeAdd(currentDistances(j), computeDistance(now.value(xs(i)), row(i)))
             }
@@ -101,12 +99,22 @@ abstract class Table
         effect
     }
 
+    protected def computeFutureDistances(col: IndexedSeq[Value], a: Value, b: Value): Unit = {
+        var j = 0
+        val m = col.size
+        while (j < m) {
+            val c = col(j)
+            futureDistances(j) =
+                safeAdd(futureDistances(j), safeSub(computeDistance(b, c), computeDistance(a, c)))
+            j += 1
+        }
+    }
+
     final override def consult(before: SearchState, after: SearchState, move: Move) = {
-        val m = rows.size
         if (cols == null) {
             initialize(before)
         }
-        Array.copy(currentDistances, 0, futureDistances, 0, m)
+        Array.copy(currentDistances, 0, futureDistances, 0, rows.size)
         val is = {
             val xs = move.involvedVariablesIterator
             if (hasDuplicateVariables) xs.flatMap(x2is) else xs.map(x2i)
@@ -116,14 +124,7 @@ abstract class Table
             val x = xs(i)
             val a = before.value(x)
             val b = after.value(x)
-            val col = cols(i)
-            var j = 0
-            while (j < m) {
-                val c = col(j)
-                futureDistances(j) =
-                    safeAdd(futureDistances(j), safeSub(computeDistance(b, c), computeDistance(a, c)))
-                j += 1
-            }
+            computeFutureDistances(cols(i), a, b)
         }
         effect.a = BooleanValue.get(computeMinDistance(futureDistances))
         effect

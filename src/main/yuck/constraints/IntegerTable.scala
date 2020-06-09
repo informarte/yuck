@@ -23,6 +23,24 @@ final class IntegerTable
      costs: BooleanVariable)
     extends Table(id, xs, rows, costs)
 {
-    override def createDomain(values: Set[IntegerValue]) = IntegerDomain.createDomain(values)
-    override def computeDistance(a: IntegerValue, b: IntegerValue) = abs(safeSub(a.value, b.value))
+    import java.lang.Math.{abs, addExact => safeAdd, subtractExact => safeSub}
+    override def createDomain(values: Set[IntegerValue]) =
+        IntegerDomain.createDomain(values)
+    override def computeDistance(a: IntegerValue, b: IntegerValue) =
+        abs(safeSub(a.value.toLong, b.value.toLong))
+    override def computeFutureDistances(col: IndexedSeq[IntegerValue], a0: IntegerValue, b0: IntegerValue) = {
+        val a = a0.value.toLong
+        val b = b0.value.toLong
+        var j = 0
+        val m = col.size
+        while (j < m) {
+            val c = col(j).value.toLong
+            val bcDistance = safeSub(b, c)
+            val acDistance = safeSub(a, c)
+            val absBcDistance = if (bcDistance < 0) -bcDistance else bcDistance
+            val absAcDistance = if (acDistance < 0) -acDistance else acDistance
+            futureDistances(j) = safeAdd(futureDistances(j), safeSub(absBcDistance, absAcDistance))
+            j += 1
+        }
+    }
 }
