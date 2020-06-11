@@ -135,7 +135,7 @@ abstract class CompilationPhase(
         case Term(id, Nil) =>
             cc.arrays.get(expr).get
         case ArrayConst(elems) =>
-            val array = elems.iterator.map(elem => compileAnyExpr(elem)).toIndexedSeq
+            val array = elems.iterator.map(elem => compileAnyExpr(elem)).to(immutable.ArraySeq)
             cc.arrayConsts += expr -> array
             array
     }

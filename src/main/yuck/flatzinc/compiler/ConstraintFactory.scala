@@ -684,7 +684,7 @@ final class ConstraintFactory
             val h = compileConstant(One)
             val rects = for (i <- 0 until xs.size) yield new Disjoint2Rect(xs(i), y, ws(i), h)
             val costs = createBoolChannel
-            space.post(new Disjoint2(nextConstraintId, maybeGoal, rects, strict, costs))
+            space.post(new Disjoint2(nextConstraintId, maybeGoal, rects.to(immutable.ArraySeq), strict, costs))
             List(costs)
         case Constraint("yuck_diffn", List(x, y, w, h, BoolConst(strict)), _) =>
             val xs = compileIntArray(x)
@@ -696,24 +696,24 @@ final class ConstraintFactory
             assert(xs.size == hs.size)
             val rects = for (i <- 0 until xs.size) yield new Disjoint2Rect(xs(i), ys(i), ws(i), hs(i))
             val costs = createBoolChannel
-            space.post(new Disjoint2(nextConstraintId, maybeGoal, rects, strict, costs))
+            space.post(new Disjoint2(nextConstraintId, maybeGoal, rects.to(immutable.ArraySeq), strict, costs))
             List(costs)
         case Constraint("fzn_table_bool", List(as, flatTable), _) =>
             val xs = compileBoolArray(as)
-            val rows = compileBoolArray(flatTable).map(_.domain.singleValue).grouped(xs.size).toIndexedSeq
+            val rows = compileBoolArray(flatTable).map(_.domain.singleValue).grouped(xs.size).to(immutable.ArraySeq)
             val costs = createBoolChannel
             space.post(new BooleanTable(nextConstraintId, maybeGoal, xs, rows, costs))
             List(costs)
         case Constraint("fzn_table_int", List(as, flatTable), _) =>
             val xs = compileIntArray(as)
-            val rows = compileIntArray(flatTable).map(_.domain.singleValue).grouped(xs.size).toIndexedSeq
+            val rows = compileIntArray(flatTable).map(_.domain.singleValue).grouped(xs.size).to(immutable.ArraySeq)
             val costs = createBoolChannel
             space.post(new IntegerTable(nextConstraintId, maybeGoal, xs, rows, costs))
             List(costs)
         case Constraint("fzn_regular", List(xs, IntConst(q), IntConst(s), flatDelta, IntConst(q0), f), _) =>
             val Q = q
             val S = s
-            val delta = compileIntArray(flatDelta).map(_.domain.singleValue.value).grouped(s).toIndexedSeq
+            val delta = compileIntArray(flatDelta).map(_.domain.singleValue.value).grouped(s).to(immutable.ArraySeq)
             val F = compileIntSetExpr(f).domain.singleValue.set
             val costs = createBoolChannel
             space.post(new Regular(nextConstraintId, maybeGoal, xs, Q, S, delta, q0, F, costs))
@@ -971,9 +971,9 @@ final class ConstraintFactory
         val z = compileNumExpr[Value](c)
         val costs = maybeCosts.getOrElse(createBoolChannel)
         if (axs.forall(_.a == valueTraits.one)) {
-            space.post(new SumConstraint(nextConstraintId, maybeGoal, axs.map(_.x).toIndexedSeq, y, relation, z, costs))
+            space.post(new SumConstraint(nextConstraintId, maybeGoal, axs.map(_.x).to(immutable.ArraySeq), y, relation, z, costs))
         } else {
-            space.post(new LinearConstraint(nextConstraintId, maybeGoal, axs.toIndexedSeq, y, relation, z, costs))
+            space.post(new LinearConstraint(nextConstraintId, maybeGoal, axs.to(immutable.ArraySeq), y, relation, z, costs))
         }
         costs
     }
