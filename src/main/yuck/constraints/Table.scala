@@ -115,10 +115,14 @@ abstract class Table
             initialize(before)
         }
         Array.copy(currentDistances, 0, futureDistances, 0, rows.size)
-        val is = {
-            val xs = move.involvedVariablesIterator
-            if (hasDuplicateVariables) xs.flatMap(x2is) else xs.map(x2i)
-        }
+        val is =
+            if (hasDuplicateVariables) {
+                if (move.size == 1) x2is(move.effects.head.x).iterator
+                else move.involvedVariablesIterator.flatMap(x2is)
+            } else {
+                if (move.size == 1) Iterator.single(x2i(move.effects.head.x))
+                else move.involvedVariablesIterator.map(x2i)
+            }
         while (is.hasNext) {
             val i = is.next
             val x = xs(i)

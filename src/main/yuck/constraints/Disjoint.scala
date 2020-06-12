@@ -83,7 +83,9 @@ abstract class Disjoint
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         rTreeTransaction.rollback
         futureCosts = currentCosts
-        val is = move.involvedVariablesIterator.flatMap(x2is).to(mutable.Set)
+        val is =
+            if (move.size == 1) x2is(move.effects.head.x)
+            else move.involvedVariablesIterator.flatMap(x2is).to(mutable.Set)
         for (i <- is) {
             val beforeEntry = createRTreeEntry(i, before)
             rTreeTransaction.remove(beforeEntry)
