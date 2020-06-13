@@ -42,7 +42,7 @@ EclipseKeys.eclipseOutput := Some("target/eclipse")
 
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
 
-scalaVersion := "2.13.1"
+scalaVersion := "2.13.2"
 
 scalacOptions ++= Seq(
     "-target:jvm-1.8",
