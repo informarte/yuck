@@ -13,7 +13,7 @@ minizinc-challenges: yuck.flatzinc.test.MiniZincChallenges archive.minizinc-chal
 minizinc-benchmarks: yuck.flatzinc.test.MiniZincBenchmarks archive.minizinc-benchmarks
 
 yuck.test.% yuck.flatzinc.test.%:
-	sbt "test:runMain yuck.util.testing.YuckTestRunner $@"
+	./mill yuck.test.run $@
 
 .PHONY: archive stage zip doc clean render-readme
 
@@ -38,10 +38,10 @@ zip:
 	sbt universal:packageBin
 
 doc:
-	sbt doc
+	./mill yuck.docJar
 
 clean:
-	sbt clean
+	./mill clean
 
 render-readme:
 	python3 -m grip
