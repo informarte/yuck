@@ -39,10 +39,20 @@ abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
     @inline final override def hashCode = id.rawId
     @inline final override def compare(that: Constraint) = this.id.compare(that.id)
 
-    /** Returns the input variables. */
+    /**
+     * Returns the input variables.
+     *
+     * When called at different time points t1 < t2, the result obtained at t2
+     * must be a subset of the result obtained at t1, roughly speaking.
+     * (Input variables may become irrelevant due to propagation.)
+     */
     def inVariables: Iterable[AnyVariable]
 
-    /** Returns the output variables. */
+    /**
+      * Returns the output variables.
+      *
+      * All calls to this method must return the same result.
+      */
     def outVariables: Iterable[AnyVariable]
 
     /**

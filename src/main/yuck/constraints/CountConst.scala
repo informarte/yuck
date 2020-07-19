@@ -18,7 +18,7 @@ final class CountConst
 
     override def toString = "%s = count(%s, [%s])".format(n, a, xs.mkString(", "))
 
-    override def inVariables = xs
+    override def inVariables = xs.view.filter(_.domain.contains(a))
     override def outVariables = List(n)
 
     private var count = 0
