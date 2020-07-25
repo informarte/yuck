@@ -4,7 +4,8 @@ import org.junit._
 import org.junit.experimental.categories._
 
 import scala.language.implicitConversions
-import yuck.constraints.Alldistinct
+
+import yuck.constraints.{Alldistinct, ElementConst, ElementVar}
 import yuck.core._
 import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
 import yuck.flatzinc.test.util._
@@ -17,6 +18,20 @@ import yuck.flatzinc.test.util._
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class FlatZincBaseTest extends FrontEndTest {
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testVarArrayAccess: Unit = {
+        val result = solveWithResult(task.copy(problemName = "var_array_access"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[ElementVar[_]]), 3)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testConstArrayAccess: Unit = {
+        val result = solveWithResult(task.copy(problemName = "const_array_access"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[ElementConst[_]]), 3)
+    }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))

@@ -1,5 +1,7 @@
 package yuck.constraints
 
+import scala.collection._
+
 import yuck.core._
 
 /**
@@ -12,19 +14,19 @@ import yuck.core._
  * @author Michael Marte
  *
  */
-final class Element
+final class ElementConst
     [Value <: AnyValue]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: IndexedSeq[Variable[Value]], i: IntegerVariable, y: Variable[Value], indexBase: Int)
+     as: immutable.IndexedSeq[Value], i: IntegerVariable, y: Variable[Value], offset: Int)
     (implicit valueTraits: ValueTraits[Value])
     extends Constraint(id)
 {
 
-    require(indexBase >= 0)
+    require(offset >= 0)
 
-    override def toString = "%s = element(%s, [%s])".format(y, i, xs.mkString(", "))
+    override def toString = "%s = element(%s, [%s])".format(y, i, as.mkString(", "))
 
-    override def inVariables = xs.view :+ i
+    override def inVariables = List(i)
     override def outVariables = List(y)
 
     private val effect = new ReusableMoveEffectWithFixedVariable(y)
@@ -32,8 +34,8 @@ final class Element
     private def computeEffect(searchState: SearchState): Unit = {
         // When i is a channel variable, the value of i may be out-of-bounds!
         // Nevertheless, we have to provide some value for y.
-        val j = min(max(0, searchState.value(i).value - indexBase), xs.size - 1)
-        effect.a = searchState.value(xs(j))
+        val j = min(max(0, searchState.value(i).value - offset), as.size - 1)
+        effect.a = as(j)
     }
 
     override def propagate = {
@@ -43,13 +45,13 @@ final class Element
         } else {
             val di1 =
                 i.domain.intersect(
-                    IntegerDomain.createRange(IntegerValue.get(indexBase), IntegerValue.get(safeAdd(xs.size, indexBase) - 1)))
+                    IntegerDomain.createRange(IntegerValue.get(offset), IntegerValue.get(safeAdd(as.size, offset) - 1)))
             val dy1 =
                 y.domain.intersect(
-                    di1.valuesIterator.foldLeft(valueTraits.emptyDomain){case (u, i) => u.union(xs(i.value - indexBase).domain)})
+                    di1.valuesIterator.foldLeft(valueTraits.emptyDomain){case (u, i) => u.union(valueTraits.createDomain(Set(as(i.value - offset))))})
             val di2 =
                 IntegerDomain.createDomain(
-                    di1.valuesIterator.filter(i => xs(i.value - indexBase).domain.intersects(dy1)).toSet)
+                    di1.valuesIterator.filter(i => dy1.contains(as(i.value - offset))).toSet)
             NoPropagationOccurred.pruneDomains(i, di2, y, dy1)
         }
     }

@@ -14,10 +14,10 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class ElementTest extends UnitTest with StandardConstraintTestTooling[IntegerValue] {
+final class ElementVarTest extends UnitTest with StandardConstraintTestTooling[IntegerValue] {
 
     @Test
-    def testElement: Unit = {
+    def testArrayAccess: Unit = {
         val space = new Space(logger, sigint)
         val d = new IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
@@ -26,15 +26,15 @@ final class ElementTest extends UnitTest with StandardConstraintTestTooling[Inte
         val xs = immutable.IndexedSeq(s, t, u)
         val i = new IntegerVariable(space.nextVariableId, "i", d)
         val y = space.createVariable("y", NonNegativeIntegerRange)
-        space.post(new Element(space.nextConstraintId, null, xs, i, y, 0))
+        space.post(new ElementVar(space.nextConstraintId, null, xs, i, y, 1))
         assertEq(space.searchVariables, Set(s, t, u, i))
         runScenario(
             TestScenario(
                 space,
                 y,
-                Initialize("setup", One, (s, One), (t, Two), (u, Three), (i, Zero)),
+                Initialize("setup", One, (s, One), (t, Two), (u, Three), (i, One)),
                 ConsultAndCommit("1", Zero, (s, Zero)),
-                ConsultAndCommit("2", Two, (i, One))))
+                ConsultAndCommit("2", Two, (i, Two))))
     }
 
 }

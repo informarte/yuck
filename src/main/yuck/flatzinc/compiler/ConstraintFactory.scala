@@ -532,18 +532,18 @@ final class ConstraintFactory
                 List(costs)
             }
             compileConstraint(constraint, xs, y, withFunctionalDependency, withoutFunctionalDependency)
-        case Constraint("array_var_bool_element", params, annotations) =>
-            compileElementConstraint[BooleanValue](maybeGoal, constraint)
-        case Constraint("array_bool_element", List(b, as, c), annotations) =>
-            compileElementConstraint[BooleanValue](maybeGoal, constraint)
-        case Constraint("array_var_int_element", params, annotations) =>
-            compileElementConstraint[IntegerValue](maybeGoal, constraint)
-        case Constraint("array_int_element", List(b, as, c), _) =>
-            compileElementConstraint[IntegerValue](maybeGoal, constraint)
-        case Constraint("array_var_set_element", params, annotations) =>
-            compileElementConstraint[IntegerSetValue](maybeGoal, constraint)
-        case Constraint("array_set_element", List(b, as, c), _) =>
-            compileElementConstraint[IntegerSetValue](maybeGoal, constraint)
+        case Constraint("array_var_bool_element", _, _) =>
+            compileElementConstraint[BooleanValue](maybeGoal, constraint, 1)
+        case Constraint("array_bool_element", _, _) =>
+            compileElementConstraint[BooleanValue](maybeGoal, constraint, 1)
+        case Constraint("array_var_int_element", _, _) =>
+            compileElementConstraint[IntegerValue](maybeGoal, constraint, 1)
+        case Constraint("array_int_element", _, _) =>
+            compileElementConstraint[IntegerValue](maybeGoal, constraint, 1)
+        case Constraint("array_var_set_element", _, _) =>
+            compileElementConstraint[IntegerSetValue](maybeGoal, constraint, 1)
+        case Constraint("array_set_element", _, _) =>
+            compileElementConstraint[IntegerSetValue](maybeGoal, constraint, 1)
         case Constraint("set_eq", List(a, b), _) =>
             val costs = createBoolChannel
             space.post(new Eq[IntegerSetValue](nextConstraintId, maybeGoal, a, b, costs))
@@ -1032,43 +1032,47 @@ final class ConstraintFactory
 
     private def compileElementConstraint
         [Value <: OrderedValue[Value]]
-        (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint)
+        (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint, offset: Int)
         (implicit valueTraits: OrderedValueTraits[Value]):
         Iterable[BooleanVariable] =
     {
-        val Constraint(_, List(b, as, c), annotations) = constraint
-        val y = compileIntExpr(b)
+        val Constraint(_, List(b, as, c), _) = constraint
+        val i = compileIntExpr(b)
         val xs = compileArray[Value](as)
-        val z = compileOrdExpr[Value](c)
-        val indexBase = annotations match {
-            case List(Annotation(Term("indexBase", List(IntConst(b))))) => b
-            case _ => 1
-        }
-        val indexRange = createIntDomain(indexBase, xs.size - indexBase + 1)
+        val y = compileOrdExpr[Value](c)
+        val indexRange = createIntDomain(offset, offset + xs.size - 1)
         val result = mutable.ArrayBuffer[BooleanVariable]()
         if (b.isConst) {
             if (! indexRange.contains(getConst[IntegerValue](b))) {
                 throw new InconsistentConstraintException(constraint)
             }
-        } else if (! y.domain.isSubsetOf(indexRange)) {
+        } else if (! i.domain.isSubsetOf(indexRange)) {
             // The index may be out of range, so we have to add a check, as required by the FlatZinc spec.
             val delta = createBoolChannel
-            space.post(new Contains(nextConstraintId, maybeGoal, y, indexRange, delta))
+            space.post(new Contains(nextConstraintId, maybeGoal, i, indexRange, delta))
             result += delta
         }
+        def post(y: OrderedVariable[Value]): OrderedVariable[Value] = {
+            if (xs.forall(_.domain.isSingleton)) {
+                val as = xs.map(_.domain.singleValue)
+                space.post(new ElementConst[Value](nextConstraintId, maybeGoal, as, i, y, offset))
+            } else {
+                space.post(new ElementVar[Value](nextConstraintId, maybeGoal, xs, i, y, offset))
+            }
+            y
+        }
         def withFunctionalDependency = {
-            space.post(new Element[Value](nextConstraintId, maybeGoal, xs, y, z, indexBase))
+            post(y)
             result
         }
         def withoutFunctionalDependency = {
-            val channel = createOrdChannel[Value]
-            space.post(new Element[Value](nextConstraintId, maybeGoal, xs, y, channel, indexBase))
+            val channel = post(createOrdChannel[Value])
             val costs = createBoolChannel
-            space.post(new Eq[Value](nextConstraintId, maybeGoal, channel, z, costs))
+            space.post(new Eq[Value](nextConstraintId, maybeGoal, channel, y, costs))
             result += costs
             result
         }
-        compileConstraint(constraint, xs :+ y, z, withFunctionalDependency, withoutFunctionalDependency)
+        compileConstraint(constraint, xs :+ i, y, withFunctionalDependency, withoutFunctionalDependency)
     }
 
     private def compileReifiedConstraint
