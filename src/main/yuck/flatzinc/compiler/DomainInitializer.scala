@@ -135,25 +135,47 @@ final class DomainInitializer
     private def propagateEqualityConstraints: Unit = {
         for (constraint <- cc.ast.constraints if ! impliedConstraints.contains(constraint)) {
             constraint match {
-                case Constraint("bool_eq", List(a, b), _) if ! a.isConst && ! b.isConst =>
-                    val da = boolDomain(a)
-                    val db = boolDomain(b)
-                    val d = da.intersect(db)
-                    propagateEquality(a, b, d)
-                    impliedConstraints += constraint
-                case Constraint("int_eq", List(a, b), _) if ! a.isConst && ! b.isConst =>
-                    val da = intDomain(a)
-                    val db = intDomain(b)
-                    val d = da.intersect(db)
-                    propagateEquality(a, b, d)
-                    impliedConstraints += constraint
-                case Constraint("set_eq", List(a, b), _) if ! a.isConst && ! b.isConst =>
-                    val da = intSetDomain(a)
-                    val db = intSetDomain(b)
-                    val d = da.intersect(db)
-                    propagateEquality(a, b, d)
-                    impliedConstraints += constraint
+                case Constraint("bool_eq", List(a, b), _) =>
+                    if (! a.isConst && ! b.isConst) {
+                        propagateEquality(a, b, boolDomain(a).intersect(boolDomain(b)))
+                        impliedConstraints += constraint
+                    }
+                case Constraint("int_eq", List(a, b), _) =>
+                    if (! a.isConst && ! b.isConst) {
+                        propagateEquality(a, b, intDomain(a).intersect(intDomain(b)))
+                        impliedConstraints += constraint
+                    }
+                case Constraint("set_eq", List(a, b), _) =>
+                    if (! a.isConst && ! b.isConst) {
+                        propagateEquality(a, b, intSetDomain(a).intersect(intSetDomain(b)))
+                        impliedConstraints += constraint
+                    }
+                case Constraint("array_var_bool_element" | "yuck_array_bool_element", _, _) =>
+                    propagateElementConstraint(constraint, boolDomain)
+                case Constraint("array_var_int_element" | "yuck_array_int_element", _, _) =>
+                    propagateElementConstraint(constraint, intDomain)
+                case Constraint("array_var_set_element" | "yuck_array_set_element", _, _) =>
+                    propagateElementConstraint(constraint, intSetDomain)
                 case _ =>
+            }
+        }
+    }
+
+    private def propagateElementConstraint
+        [Value <: AnyValue]
+        (constraint: yuck.flatzinc.ast.Constraint, domain: Expr => Domain[Value])
+        (implicit valueTraits: ValueTraits[Value]):
+        Unit =
+    {
+        val List(IntConst(offset), b, as, c) =
+            if (constraint.params.size == 4) constraint.params
+            else IntConst(1) :: constraint.params
+        if (b.isConst && ! c.isConst) {
+            val IntConst(i) = b
+            val a = getArrayElems(as).toIndexedSeq.apply(i - offset)
+            if (! a.isConst) {
+                propagateEquality(a, c, domain(a).intersect(domain(c)))
+                impliedConstraints += constraint
             }
         }
     }

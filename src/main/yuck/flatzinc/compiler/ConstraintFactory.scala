@@ -532,18 +532,12 @@ final class ConstraintFactory
                 List(costs)
             }
             compileConstraint(constraint, xs, y, withFunctionalDependency, withoutFunctionalDependency)
-        case Constraint("array_var_bool_element", _, _) =>
-            compileElementConstraint[BooleanValue](maybeGoal, constraint, 1)
-        case Constraint("array_bool_element", _, _) =>
-            compileElementConstraint[BooleanValue](maybeGoal, constraint, 1)
-        case Constraint("array_var_int_element", _, _) =>
-            compileElementConstraint[IntegerValue](maybeGoal, constraint, 1)
-        case Constraint("array_int_element", _, _) =>
-            compileElementConstraint[IntegerValue](maybeGoal, constraint, 1)
-        case Constraint("array_var_set_element", _, _) =>
-            compileElementConstraint[IntegerSetValue](maybeGoal, constraint, 1)
-        case Constraint("array_set_element", _, _) =>
-            compileElementConstraint[IntegerSetValue](maybeGoal, constraint, 1)
+        case Constraint("array_var_bool_element" | "array_bool_element" | "yuck_array_bool_element" , _, _) =>
+            compileElementConstraint[BooleanValue](maybeGoal, constraint)
+        case Constraint("array_var_int_element" | "array_int_element" | "yuck_array_int_element" , _, _) =>
+            compileElementConstraint[IntegerValue](maybeGoal, constraint)
+        case Constraint("array_var_set_element" | "array_set_element" | "yuck_array_set_element" , _, _) =>
+            compileElementConstraint[IntegerSetValue](maybeGoal, constraint)
         case Constraint("set_eq", List(a, b), _) =>
             val costs = createBoolChannel
             space.post(new Eq[IntegerSetValue](nextConstraintId, maybeGoal, a, b, costs))
@@ -1032,11 +1026,13 @@ final class ConstraintFactory
 
     private def compileElementConstraint
         [Value <: OrderedValue[Value]]
-        (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint, offset: Int)
+        (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint)
         (implicit valueTraits: OrderedValueTraits[Value]):
         Iterable[BooleanVariable] =
     {
-        val Constraint(_, List(b, as, c), _) = constraint
+        val List(IntConst(offset), b, as, c) =
+            if (constraint.params.size == 4) constraint.params
+            else IntConst(1) :: constraint.params
         val i = compileIntExpr(b)
         val xs = compileArray[Value](as)
         val y = compileOrdExpr[Value](c)

@@ -22,9 +22,7 @@ final class ElementConst
     extends Constraint(id)
 {
 
-    require(offset >= 0)
-
-    override def toString = "%s = element(%s, [%s])".format(y, i, as.mkString(", "))
+    override def toString = "%s = element(%s, [%s], %d)".format(y, i, as.mkString(", "), offset)
 
     override def inVariables = List(i)
     override def outVariables = List(y)
@@ -34,7 +32,7 @@ final class ElementConst
     private def computeEffect(searchState: SearchState): Unit = {
         // When i is a channel variable, the value of i may be out-of-bounds!
         // Nevertheless, we have to provide some value for y.
-        val j = min(max(0, searchState.value(i).value - offset), as.size - 1)
+        val j = min(max(0, safeSub(searchState.value(i).value, offset)), as.size - 1)
         effect.a = as(j)
     }
 
@@ -45,7 +43,7 @@ final class ElementConst
         } else {
             val di1 =
                 i.domain.intersect(
-                    IntegerDomain.createRange(IntegerValue.get(offset), IntegerValue.get(safeAdd(as.size, offset) - 1)))
+                    IntegerDomain.createRange(IntegerValue.get(offset), IntegerValue.get(safeDec(safeAdd(as.size, offset)))))
             val dy1 =
                 y.domain.intersect(
                     di1.valuesIterator.foldLeft(valueTraits.emptyDomain){case (u, i) => u.union(valueTraits.createDomain(Set(as(i.value - offset))))})
