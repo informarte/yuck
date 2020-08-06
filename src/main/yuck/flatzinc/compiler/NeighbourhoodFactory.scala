@@ -2,7 +2,7 @@ package yuck.flatzinc.compiler
 
 import scala.collection._
 
-import yuck.constraints.SatisfactionGoalTracker
+import yuck.constraints.{Conjunction, SatisfactionGoalTracker}
 import yuck.core._
 
 /**
@@ -84,8 +84,9 @@ class NeighbourhoodFactory
         val levelCfg = cfg.level0Configuration
         val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
         val candidatesForImplicitSolving =
-            if (cfg.useImplicitSolving) {
-                space.involvedConstraints(x).iterator.filter(_.isCandidateForImplicitSolving(space)).toBuffer.sorted
+            if (cfg.useImplicitSolving && space.maybeDefiningConstraint(x).exists(_.isInstanceOf[Conjunction])) {
+                space.definingConstraint(x).inVariables.iterator
+                    .map(space.definingConstraint).filter(_.isCandidateForImplicitSolving(space)).toBuffer.sorted
             } else {
                 Nil
             }

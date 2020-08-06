@@ -58,6 +58,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testAlldifferentReif: Unit = {
         val result = solveWithResult(task.copy(problemName = "alldifferent_int_reif_test"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[Alldistinct[_]]), 2)
+        assert(neighbourhood(result).isInstanceOf[RandomReassignmentGenerator])
     }
 
     @Test
@@ -332,6 +333,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testInverseReif: Unit = {
         val result = solveWithResult(task.copy(problemName = "inverse_reif_test"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[Inverse]), 2)
+        assert(neighbourhood(result).isInstanceOf[RandomReassignmentGenerator])
     }
 
     @Test
