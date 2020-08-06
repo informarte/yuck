@@ -25,7 +25,8 @@ final class SpaceTest extends UnitTest {
          * with variables s, ..., z and constraints c, d, and e.
          */
         val space = new Space(logger, sigint)
-        def domain(name: Char) = if (name == 'v') ZeroToZeroIntegerRange else CompleteIntegerRange
+        def domain(name: Char) =
+            if (List('u', 'v').contains(name)) ZeroToZeroIntegerRange else CompleteIntegerRange
         val vars @ IndexedSeq(s, t, u, v, w, x, y, z) =
             for (name <- 's' to 'z') yield space.createVariable(name.toString, domain(name))
         val c = new DummyConstraint(space.nextConstraintId, List(s, t), List(u))

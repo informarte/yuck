@@ -186,7 +186,7 @@ final class Space(
     def searchState: SearchState = assignment
 
     /** Computes the set of problem parameters. */
-    def problemParameters: Set[AnyVariable] = inVariables.filter(_.domain.isSingleton)
+    def problemParameters: Set[AnyVariable] = inVariables.diff(outVariables).filter(_.domain.isSingleton)
 
     /** Decides whether the given variable is a problem parameter. */
     def isProblemParameter(x: AnyVariable): Boolean =
