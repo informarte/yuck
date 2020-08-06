@@ -378,7 +378,7 @@ class MiniZincBasedTest extends IntegrationTest {
         val visited = new mutable.HashSet[AnyVariable]
         val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
         val costVar = compilerResult.objective.objectiveVariables(0).asInstanceOf[BooleanVariable]
-        result.space.definingConstraint(costVar).get match {
+        result.space.definingConstraint(costVar) match {
             case sum: yuck.constraints.Conjunction =>
                 for (x <- sum.xs if result.space.searchState.value(x) > True) {
                     logViolatedConstraints(result, x, visited)
@@ -392,7 +392,7 @@ class MiniZincBasedTest extends IntegrationTest {
         val a = result.bestProposal.value(x)
         if (! visited.contains(x)) {
             visited += x
-            val maybeConstraint = result.space.definingConstraint(x)
+            val maybeConstraint = result.space.maybeDefiningConstraint(x)
             if (maybeConstraint.isDefined) {
                 val constraint = maybeConstraint.get
                 logger.withLogScope("%s = %s computed by %s [%s]".format(x, a, constraint, constraint.maybeGoal)) {

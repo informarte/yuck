@@ -56,7 +56,7 @@ final class DomainFinalizer
     private def finalizeIntegerDomain(x: IntegerVariable, dx: IntegerDomain): Unit = {
         if (dx.isBounded) {
             if (cc.space.isChannelVariable(x)) {
-                if (! cc.space.definingConstraint(x).get.isInstanceOf[Bool2Int1] || dx.isSingleton) {
+                if (! cc.space.definingConstraint(x).isInstanceOf[Bool2Int1] || dx.isSingleton) {
                     val costs = createBoolChannel
                     cc.space.post(new Contains(nextConstraintId, null, x, dx, costs))
                     cc.costVars += costs

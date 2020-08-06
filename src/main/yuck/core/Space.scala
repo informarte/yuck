@@ -59,9 +59,13 @@ final class Space(
         outflowModel += x -> constraint
     }
 
-    /** Returns the constraint that computes the value of the given variable. */
-    @inline def definingConstraint(x: AnyVariable): Option[Constraint] =
+    /** Returns the constraint that computes the value of the given variable, if any. */
+    @inline def maybeDefiningConstraint(x: AnyVariable): Option[Constraint] =
         outflowModel.get(x)
+
+    /** Returns the constraint that computes the value of the given variable. */
+    @inline def definingConstraint(x: AnyVariable): Constraint =
+        outflowModel(x)
 
     // The flow model is a DAG which describes the flow of value changes through the
     // network of variables spanned by the constraints.
@@ -234,7 +238,7 @@ final class Space(
     {
         if (! visited.contains(x)) {
             visited += x
-            val maybeConstraint = definingConstraint(x)
+            val maybeConstraint = maybeDefiningConstraint(x)
             if (maybeConstraint.isDefined) {
                 addInvolvedSearchVariables(maybeConstraint.get, result, visited)
             }
@@ -280,7 +284,7 @@ final class Space(
     {
         if (! visited.contains(x)) {
             visited += x
-            val maybeConstraint = definingConstraint(x)
+            val maybeConstraint = maybeDefiningConstraint(x)
             if (maybeConstraint.isDefined) {
                 val constraint = maybeConstraint.get
                 result += constraint
@@ -430,7 +434,7 @@ final class Space(
                 numberOfPropagations += 1
                 for (x <- effects.affectedVariables) {
                     tasks ++= directlyAffectedConstraints(x)
-                    tasks ++= definingConstraint(x)
+                    tasks ++= maybeDefiningConstraint(x)
                 }
                 if (effects.rescheduleStep) {
                     tasks += constraint
@@ -457,7 +461,7 @@ final class Space(
             val tasks = new mutable.HashSet[Constraint]
             for (x <- xs) {
                 tasks ++= directlyAffectedConstraints(x)
-                tasks ++= definingConstraint(x)
+                tasks ++= maybeDefiningConstraint(x)
             }
             propagate(tasks)
         }
@@ -471,7 +475,7 @@ final class Space(
             numberOfPropagations += 1
             for (x <- effects.affectedVariables) {
                 tasks ++= directlyAffectedConstraints(x)
-                tasks ++= definingConstraint(x)
+                tasks ++= maybeDefiningConstraint(x)
             }
             if (! effects.rescheduleStep) {
                 tasks.remove(constraint)

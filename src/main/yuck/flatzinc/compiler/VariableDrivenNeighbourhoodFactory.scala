@@ -105,7 +105,7 @@ final class VariableDrivenNeighbourhoodFactory
             for (y <- space.involvedSearchVariables(x)) {
                 zs += y -> new mutable.ArrayBuffer[AX[Value]]
             }
-            val constraint: yuck.core.Constraint = space.definingConstraint(x).get
+            val constraint: yuck.core.Constraint = space.definingConstraint(x)
             constraint match {
                 case lc: LinearCombination[Value @ unchecked] =>
                     for (ax <- lc.axs

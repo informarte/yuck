@@ -78,17 +78,24 @@ final class SpaceTest extends UnitTest {
         assertEq(space.involvedSearchVariables(d), Set(s))
         assertEq(space.involvedSearchVariables(e), Set(s, t))
 
+        for (x <- vars) {
+            if (space.maybeDefiningConstraint(x).isEmpty) {
+                assertEx(space.definingConstraint(x), classOf[NoSuchElementException])
+            } else {
+                assertEq(space.definingConstraint(x), space.maybeDefiningConstraint(x).get)
+            }
+        }
         for (x <- problemParams) {
-            assert(space.definingConstraint(x).isEmpty)
+            assert(space.maybeDefiningConstraint(x).isEmpty)
         }
         for (x <- searchVars) {
-            assert(space.definingConstraint(x).isEmpty)
+            assert(space.maybeDefiningConstraint(x).isEmpty)
         }
-        assertEq(space.definingConstraint(u), Some(c))
-        assertEq(space.definingConstraint(w), Some(d))
-        assertEq(space.definingConstraint(x), Some(d))
-        assertEq(space.definingConstraint(y), Some(e))
-        assertEq(space.definingConstraint(z), None)
+        assertEq(space.definingConstraint(u), c)
+        assertEq(space.definingConstraint(w), d)
+        assertEq(space.definingConstraint(x), d)
+        assertEq(space.definingConstraint(y), e)
+        assertEq(space.maybeDefiningConstraint(z), None)
 
         for (x <- problemParams) {
             assert(space.involvedConstraints(x).isEmpty)

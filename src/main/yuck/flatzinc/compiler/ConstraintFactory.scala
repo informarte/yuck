@@ -65,7 +65,7 @@ final class ConstraintFactory
         ! out.domain.isSingleton &&
         ! cc.searchVars.contains(out) &&
         (definesVar(constraint, out) || ! cc.definedVars.contains(out)) &&
-        space.definingConstraint(out).isEmpty &&
+        space.maybeDefiningConstraint(out).isEmpty &&
         ! space.wouldIntroduceCycle(new DummyConstraint(fakeConstraintId, in, List(out)))
     }
 
@@ -92,7 +92,7 @@ final class ConstraintFactory
         if (! out.domain.isSingleton &&
             ! cc.searchVars.contains(out) &&
             (definesVar(constraint, out) || ! cc.definedVars.contains(out)) &&
-            space.definingConstraint(out).isEmpty)
+            space.maybeDefiningConstraint(out).isEmpty)
         {
             try {
                 withFunctionalDependency

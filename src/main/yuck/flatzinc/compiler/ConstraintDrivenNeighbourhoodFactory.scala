@@ -77,7 +77,7 @@ final class ConstraintDrivenNeighbourhoodFactory
             None
         }
         else if (space.isChannelVariable(x)) {
-            createNeighbourhood(mode, levelCfg, space.definingConstraint(x).get)
+            createNeighbourhood(mode, levelCfg, space.definingConstraint(x))
         }
         else {
             // The thing that should not be.
@@ -151,7 +151,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                 if (sigint.isSet) {
                     throw new FlatZincCompilerInterruptedException
                 }
-                val maybeConstraint = space.definingConstraint(ax.x)
+                val maybeConstraint = space.maybeDefiningConstraint(ax.x)
                 if (maybeConstraint.isDefined) {
                     val maybeNeighbourhood = createNeighbourhood(mode, levelCfg, maybeConstraint.get)
                     if (maybeNeighbourhood.isDefined) {
