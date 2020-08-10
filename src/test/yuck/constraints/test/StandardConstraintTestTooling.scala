@@ -3,6 +3,7 @@ package yuck.constraints.test
 import scala.language.implicitConversions
 
 import yuck.core._
+import yuck.util.logging.LazyLogger
 import yuck.util.testing.YuckAssert
 
 /**
@@ -10,6 +11,8 @@ import yuck.util.testing.YuckAssert
  *
  */
 trait StandardConstraintTestTooling[ResultValue <: AnyValue] extends YuckAssert {
+
+    protected val logger: LazyLogger
 
     protected abstract class TestStep
     protected case class Initialize(comment: String, expectedResult: ResultValue, effects: List[AnyMoveEffect]) extends TestStep
@@ -36,7 +39,6 @@ trait StandardConstraintTestTooling[ResultValue <: AnyValue] extends YuckAssert 
         val space = scenario.space
         val result = scenario.result
         val steps = scenario.steps
-        val logger = space.logger
         val now = space.searchState
         var maybeFinalResult: Option[ResultValue] = None
         for (step <- steps) step match {

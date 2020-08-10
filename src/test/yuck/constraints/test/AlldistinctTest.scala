@@ -60,9 +60,9 @@ final class AlldistinctTest extends UnitTest with StandardConstraintTestTooling[
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        val c = new Alldistinct(space.nextConstraintId, null, Vector(s, t, u), costs)
+        val constraint = new Alldistinct(space.nextConstraintId, null, Vector(s, t, u), costs)
         space
-            .post(c)
+            .post(constraint)
             .setValue(s, One)
             .setValue(t, One)
             .setValue(u, One)
@@ -70,8 +70,8 @@ final class AlldistinctTest extends UnitTest with StandardConstraintTestTooling[
         val now = space.searchState
         assertEq(now.value(costs), False2)
         val maybeNeighbourhood =
-            c.prepareForImplicitSolving(
-                space, new JavaRandomGenerator, DefaultMoveSizeDistribution, _ => None, None)
+            constraint.createNeighbourhood(
+                space, new JavaRandomGenerator, DefaultMoveSizeDistribution, logger, sigint)
         assert(maybeNeighbourhood.isDefined)
         val neighbourhood = maybeNeighbourhood.get
         assertNe(now.value(s), now.value(t))

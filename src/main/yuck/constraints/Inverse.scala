@@ -7,7 +7,6 @@ import yuck.core._
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 
-
 /**
  * Used in Inverse to represent a function that should be the inverse of another function.
  *
@@ -220,12 +219,13 @@ final class Inverse
         g.isSuitableForImplicitSolving(space) &&
         f.xs.size == g.xs.size
 
-    override def prepareForImplicitSolving(
+    override def createNeighbourhood(
         space: Space,
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
-        hotSpotDistributionFactory: Seq[AnyVariable] => Option[Distribution],
-        maybeFairVariableChoiceRate: Option[Probability]):
+        logger: LazyLogger,
+        sigint: Sigint,
+        extraCfg: ExtraNeighbourhoodFactoryConfiguration):
         Option[Neighbourhood] =
     {
         if (isCandidateForImplicitSolving(space)) {
@@ -244,9 +244,8 @@ final class Inverse
                     Some(new SimpleInverseNeighbourhood(space, f, g, randomGenerator))
                 } else {
                     // general case
-                    val logger = space.logger
-                    val sigint = space.sigint
-                    val subspace = new Space(logger, sigint, space.checkIncrementalCostUpdate)
+                    val subspace =
+                        new Space(logger, sigint, extraCfg.checkIncrementalCostUpdate, extraCfg.checkAssignmentsToNonChannelVariables)
                     val subf = new InverseFunction(f.xs.map(x => new IntegerVariable(subspace.nextVariableId, x.name, x.domain)), f.offset)
                     val subg = new InverseFunction(g.xs.map(y => new IntegerVariable(subspace.nextVariableId, y.name, y.domain)), g.offset)
                     val result = logger.withTimedLogScope("Solving %s".format(this)) {

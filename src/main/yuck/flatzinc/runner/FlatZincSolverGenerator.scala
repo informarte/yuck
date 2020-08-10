@@ -52,7 +52,7 @@ final class FlatZincSolverGenerator
     {
         override def solverName = "FZS-%d".format(solverIndex)
         override def call = {
-            val compiler = new FlatZincCompiler(ast, cfg, randomGenerator.nextGen, sigint, logger)
+            val compiler = new FlatZincCompiler(ast, cfg, randomGenerator.nextGen, logger, sigint)
             val compilerResult = compiler.call
             val space = compilerResult.space
             // The initializer will respect existing value assignments.

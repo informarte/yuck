@@ -56,12 +56,13 @@ final class Alldistinct
         ys.size == as.size
     }
 
-    override def prepareForImplicitSolving(
+    override def createNeighbourhood(
         space: Space,
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
-        hotSpotDistributionFactory: Seq[AnyVariable] => Option[Distribution],
-        maybeFairVariableChoiceRate: Option[Probability]):
+        logger: LazyLogger,
+        sigint: Sigint,
+        extraCfg: ExtraNeighbourhoodFactoryConfiguration):
         Option[Neighbourhood] =
     {
         if (isCandidateForImplicitSolving(space)) {
@@ -83,9 +84,8 @@ final class Alldistinct
                 }
             } else {
                 // general case
-                val logger = space.logger
-                val sigint = space.sigint
-                val subspace = new Space(logger, sigint, space.checkIncrementalCostUpdate)
+                val subspace =
+                    new Space(logger, sigint, extraCfg.checkIncrementalCostUpdate, extraCfg.checkAssignmentsToNonChannelVariables)
                 val subxs = xs.map(x => valueTraits.createVariable(subspace, x.name, x.domain))
                 val result = logger.withTimedLogScope("Solving %s".format(this)) {
                     val subcosts = new BooleanVariable(subspace.nextVariableId, "", CompleteBooleanDomain)

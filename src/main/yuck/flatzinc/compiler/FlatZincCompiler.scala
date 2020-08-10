@@ -16,8 +16,8 @@ final class FlatZincCompiler
     (ast: FlatZincAst,
      cfg: FlatZincSolverConfiguration,
      randomGenerator: RandomGenerator,
-     sigint: Sigint,
-     logger: LazyLogger)
+     logger: LazyLogger,
+     sigint: Sigint)
     extends Callable[FlatZincCompilerResult]
 {
 

@@ -27,10 +27,10 @@ import yuck.util.logging.LazyLogger
  * @author Michael Marte
  */
 final class Space(
-    val logger: LazyLogger,
-    val sigint: Sigint,
-    val checkIncrementalCostUpdate: Boolean = false,
-    val checkAssignmentsToNonChannelVariables: Boolean = false)
+    logger: LazyLogger,
+    sigint: Sigint,
+    checkIncrementalCostUpdate: Boolean = false,
+    checkAssignmentsToNonChannelVariables: Boolean = false)
 {
 
     private val constraints = new mutable.ArrayBuffer[Constraint] // maintained by post

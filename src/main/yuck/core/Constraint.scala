@@ -2,6 +2,20 @@ package yuck.core
 
 import scala.collection._
 
+import yuck.util.arm.Sigint
+import yuck.util.logging.LazyLogger
+
+/**
+ * Provides additional configuration to Constraint#createNeighbourhood.
+ *
+ * @author Michael Marte
+ */
+final case class ExtraNeighbourhoodFactoryConfiguration(
+    createHotSpotDistribution: Seq[AnyVariable] => Option[Distribution] = _ => None,
+    maybeFairVariableChoiceRate: Option[Probability] = None,
+    checkIncrementalCostUpdate: Boolean = false,
+    checkAssignmentsToNonChannelVariables: Boolean = false)
+
 /**
  * Provides the constraint interface for local search.
  *
@@ -83,16 +97,18 @@ abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
      *  - Assigns zero to the constraint's cost variable.
      *  - Creates and returns a neighbourhood that maintains feasibility.
      *
-     * The implementation should not assume that this constraint has been posted.
+     * The implementation can assume that this constraint has been posted
+     * and that it is a candidate for implicit solving.
      *
      * The default implementation does nothing and returns None.
      */
-    def prepareForImplicitSolving(
+    def createNeighbourhood(
         space: Space,
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
-        hotSpotDistributionFactory: Seq[AnyVariable] => Option[Distribution],
-        maybeFairVariableChoiceRate: Option[Probability]):
+        logger: LazyLogger,
+        sigint: Sigint,
+        extraCfg: ExtraNeighbourhoodFactoryConfiguration = ExtraNeighbourhoodFactoryConfiguration()):
         Option[Neighbourhood] =
         None
 

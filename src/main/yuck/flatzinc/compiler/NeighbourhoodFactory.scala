@@ -94,8 +94,13 @@ class NeighbourhoodFactory
             val xs = constraint.inVariables.toSet
             if ((xs & implicitlyConstrainedVars).isEmpty) {
                 val maybeNeighbourhood =
-                    constraint.prepareForImplicitSolving(
-                        space, randomGenerator, cfg.moveSizeDistribution, _ => None, levelCfg.maybeFairVariableChoiceRate)
+                    constraint.createNeighbourhood(
+                        space, randomGenerator, cfg.moveSizeDistribution, logger, cc.sigint,
+                        ExtraNeighbourhoodFactoryConfiguration(
+                            createHotSpotDistribution = xs => Some(createHotSpotDistribution(xs)),
+                            maybeFairVariableChoiceRate = levelCfg.maybeFairVariableChoiceRate,
+                            checkIncrementalCostUpdate = cfg.checkIncrementalCostUpdate,
+                            checkAssignmentsToNonChannelVariables = cfg.checkAssignmentsToNonChannelVariables))
                 if (maybeNeighbourhood.isDefined) {
                     implicitlyConstrainedVars ++= xs
                     space.markAsImplicit(constraint)
@@ -111,20 +116,11 @@ class NeighbourhoodFactory
                 throw new VariableWithInfiniteDomainException(x)
             }
             if (levelCfg.guideOptimization) {
-                val searchVarIndex = searchVars.iterator.zipWithIndex.toMap
-                val costVars = cc.costVars.toIndexedSeq
-                val hotSpotDistribution = DistributionFactory.createDistribution(searchVars.size)
-                def involvedSearchVars(x: AnyVariable) =
-                    space.involvedSearchVariables(x).diff(implicitlyConstrainedVars).iterator
-                        .map(searchVarIndex).toIndexedSeq
-                val involvementMatrix = costVars.iterator.map(x => (x, involvedSearchVars(x))).toMap
-                space.post(
-                    new SatisfactionGoalTracker(space.nextConstraintId, None, involvementMatrix, hotSpotDistribution))
                 logger.logg("Adding a neighbourhood over %s".format(searchVars))
                 neighbourhoods +=
                     new RandomReassignmentGenerator(
-                        space, searchVars, randomGenerator,
-                        cfg.moveSizeDistribution, Some(hotSpotDistribution), levelCfg.maybeFairVariableChoiceRate)
+                        space, searchVars, randomGenerator, cfg.moveSizeDistribution,
+                        Some(createHotSpotDistribution(searchVars)), levelCfg.maybeFairVariableChoiceRate)
             } else {
                 createNeighbourhoodOnInvolvedSearchVariables(x)
             }
@@ -134,6 +130,17 @@ class NeighbourhoodFactory
         } else {
             Some(new NeighbourhoodCollection(neighbourhoods.toIndexedSeq, randomGenerator, None, None))
         }
+    }
+
+    private def createHotSpotDistribution(searchVarSeq: Seq[AnyVariable]): Distribution = {
+        val searchVarIndex = searchVarSeq.iterator.zipWithIndex.toMap
+        val searchVarSet = searchVarSeq.toSet
+        val hotSpotDistribution = DistributionFactory.createDistribution(searchVarSeq.size)
+        def involvedSearchVars(x: AnyVariable) =
+            searchVarSet.intersect(space.involvedSearchVariables(x)).iterator.map(searchVarIndex).toIndexedSeq
+        val involvementMatrix = cc.costVars.iterator.map(x => (x, involvedSearchVars(x))).filter(_._2.nonEmpty).toMap
+        space.post(new SatisfactionGoalTracker(space.nextConstraintId, None, involvementMatrix, hotSpotDistribution))
+        hotSpotDistribution
     }
 
     protected def createMinimizationNeighbourhood
