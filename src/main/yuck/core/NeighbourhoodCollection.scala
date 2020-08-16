@@ -30,6 +30,7 @@ final class NeighbourhoodCollection(
     maybeFairChoiceRate: Option[Probability])
     extends Neighbourhood
 {
+    private var lastNeighbourhood: Neighbourhood = null
     override def searchVariables = neighbourhoods.iterator.flatMap(_.searchVariables).toSet
     override def children = neighbourhoods
     private val sizeDistribution = DistributionFactory.createDistribution(neighbourhoods.size)
@@ -41,6 +42,11 @@ final class NeighbourhoodCollection(
             (maybeFairChoiceRate.isDefined && randomGenerator.nextDecision(maybeFairChoiceRate.get))
         val priorityDistribution = if (useSizeDistribution) sizeDistribution else maybeHotSpotDistribution.get
         val i = priorityDistribution.nextIndex(randomGenerator)
-        neighbourhoods(i).nextMove
+        lastNeighbourhood = neighbourhoods(i)
+        lastNeighbourhood.nextMove
+    }
+    override def commit(move: Move) = {
+        lastNeighbourhood.commit(move)
+        lastNeighbourhood = null
     }
 }

@@ -203,6 +203,7 @@ final class SimulatedAnnealing(
             val delta = objective.assessMove(before, after)
             if (delta <= 0 || randomGenerator.nextProbability <= scala.math.exp(-delta / temperature)) {
                 space.commit(move)
+                neighbourhood.commit(move)
                 postprocessMove(roundLog)
                 if (delta > 0) {
                     roundLog.numberOfAcceptedUphillMoves += 1

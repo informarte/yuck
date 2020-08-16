@@ -1,7 +1,6 @@
 package yuck.core.test
 
 import org.junit._
-
 import yuck.core._
 import yuck.util.testing.UnitTest
 
@@ -29,7 +28,7 @@ class NeighbourhoodCollectionTest
         new NeighbourhoodTestHelper(logger, xs, moveSizeDistribution, maybeHotSpotDistribution, maybeFairChoiceRate)
 
     @Test
-    def testNeighbourhood: Unit = {
+    def testMoveGeneration: Unit = {
         val neighbourhoods =
             for (i <- 0 until numberOfVariables) yield
                 new SimpleRandomReassignmentGenerator(space, Vector(xs(i)), randomGenerator)
@@ -38,6 +37,40 @@ class NeighbourhoodCollectionTest
                 neighbourhoods, randomGenerator, maybeHotSpotDistribution, maybeFairChoiceRate)
         val result = helper.measure(neighbourhood)
         helper.checkVariableFrequencies(result, 0.1, 0.1)
+    }
+
+    @Test
+    def testCommitForwarding: Unit = {
+        final class CommitChecker(neighbourhood: Neighbourhood) extends Neighbourhood {
+            var lastMove: Move = null
+            override def searchVariables = neighbourhood.searchVariables
+            override def children = neighbourhood.children
+            override def nextMove = {
+                assert(lastMove == null)
+                lastMove = neighbourhood.nextMove
+                lastMove
+            }
+            override def commit(move: Move) = {
+                assert(lastMove != null)
+                assertEq(lastMove, move)
+                neighbourhood.commit(move)
+                lastMove = null
+            }
+        }
+        val neighbourhoods =
+            for (i <- 0 until numberOfVariables) yield
+                new CommitChecker(new SimpleRandomReassignmentGenerator(space, Vector(xs(i)), randomGenerator))
+        val neighbourhood =
+            new NeighbourhoodCollection(
+                neighbourhoods, randomGenerator, maybeHotSpotDistribution, maybeFairChoiceRate)
+        val numberOfTrials = 1000
+        for (i <- 0 until numberOfTrials) {
+            val move = neighbourhood.nextMove
+            neighbourhood.commit(move)
+        }
+        for (neighbourhood <- neighbourhoods) {
+            assert(neighbourhood.lastMove == null)
+        }
     }
 
 }
