@@ -42,7 +42,8 @@ object FlatZincRunner extends YuckLogging {
         head("Yuck FlatZinc front end", BuildInfo.version)
         help("help").abbr("h").text("Show this help message")
         version("version")
-        // -f is used by MiniZinc challenge scripts!
+        // -a and -f are used by MiniZinc challenge scripts!
+        opt[Unit]('a', "print-all-solutions").text("Ignored")
         opt[Unit]('f', "free-search").text("Ignored")
         opt[Int]('p', "number-of-threads")
             .text("Default value is %s".format(defaultCfg.numberOfThreads))
