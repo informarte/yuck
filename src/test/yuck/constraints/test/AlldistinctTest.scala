@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class AlldistinctTest extends UnitTest with StandardConstraintTestTooling[BooleanValue] {
+final class AlldistinctTest extends UnitTest with CostComputationTestTooling[BooleanValue] {
 
     @Test
     def testAlldistinct: Unit = {
@@ -27,7 +27,7 @@ final class AlldistinctTest extends UnitTest with StandardConstraintTestTooling[
         space.post(new Alldistinct(space.nextConstraintId, null, Vector(s, t, u), costs))
         assertEq(space.searchVariables, Set(s, t, u))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize("init", False2, (s, One), (t, One), (u, One)),
@@ -44,7 +44,7 @@ final class AlldistinctTest extends UnitTest with StandardConstraintTestTooling[
         space.post(new Alldistinct(space.nextConstraintId, null, Vector(s, t, t), costs))
         assertEq(space.searchVariables, Set(s, t))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize("init", False2, (s, One), (t, One)),
@@ -100,7 +100,7 @@ final class AlldistinctTest extends UnitTest with StandardConstraintTestTooling[
         space.post(new AlldistinctExceptZero(space.nextConstraintId, null, List(s, t, u), costs))
         assertEq(space.searchVariables, Set(s, t, u))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize("init", False2, (s, One), (t, One), (u, One)),
@@ -119,7 +119,7 @@ final class AlldistinctTest extends UnitTest with StandardConstraintTestTooling[
         space.post(new AlldistinctExceptZero(space.nextConstraintId, null, List(s, t, t), costs))
         assertEq(space.searchVariables, Set(s, t))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize("init", False2, (s, One), (t, One)),

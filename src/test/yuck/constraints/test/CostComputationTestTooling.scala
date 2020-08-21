@@ -10,32 +10,32 @@ import yuck.util.testing.YuckAssert
  * @author Michael Marte
  *
  */
-trait StandardConstraintTestTooling[ResultValue <: AnyValue] extends YuckAssert {
+trait CostComputationTestTooling[ResultValue <: AnyValue] extends YuckAssert {
 
     protected val logger: LazyLogger
 
-    protected abstract class TestStep
-    protected case class Initialize(comment: String, expectedResult: ResultValue, effects: List[AnyMoveEffect]) extends TestStep
+    protected abstract class CostComputationTestStep
+    protected case class Initialize(comment: String, expectedResult: ResultValue, effects: List[AnyMoveEffect]) extends CostComputationTestStep
     protected object Initialize {
         def apply(comment: String, expectedResult: ResultValue, effects: AnyMoveEffect*): Initialize =
             Initialize(comment, expectedResult, effects.toList)
     }
-    protected case class Consult(comment: String, expectedResult: ResultValue, effects: List[AnyMoveEffect]) extends TestStep
+    protected case class Consult(comment: String, expectedResult: ResultValue, effects: List[AnyMoveEffect]) extends CostComputationTestStep
     protected object Consult {
         def apply(comment: String, expectedResult: ResultValue, effects: AnyMoveEffect*): Consult =
             Consult(comment, expectedResult, effects.toList)
     }
-    protected case class ConsultAndCommit(comment: String, expectedResult: ResultValue, effects: List[AnyMoveEffect]) extends TestStep
+    protected case class ConsultAndCommit(comment: String, expectedResult: ResultValue, effects: List[AnyMoveEffect]) extends CostComputationTestStep
     protected object ConsultAndCommit {
         def apply(comment: String, expectedResult: ResultValue, effects: AnyMoveEffect*): ConsultAndCommit =
             ConsultAndCommit(comment, expectedResult, effects.toList)
     }
-    protected case class TestScenario(space: Space, result: Variable[ResultValue], steps: TestStep*)
+    protected case class CostComputationTestScenario(space: Space, result: Variable[ResultValue], steps: CostComputationTestStep*)
 
     protected implicit def createMoveEffect[Value <: AnyValue](assignment: (Variable[Value], Value)) =
         new ImmutableMoveEffect[Value](assignment._1, assignment._2)
 
-    protected def runScenario(scenario: TestScenario): Unit = {
+    protected def runScenario(scenario: CostComputationTestScenario): Unit = {
         val space = scenario.space
         val result = scenario.result
         val steps = scenario.steps

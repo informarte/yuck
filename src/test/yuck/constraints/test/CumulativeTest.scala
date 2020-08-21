@@ -15,7 +15,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class CumulativeTest extends UnitTest with StandardConstraintTestTooling[BooleanValue] {
+final class CumulativeTest extends UnitTest with CostComputationTestTooling[BooleanValue] {
 
     private def createTask(space: Space, i: Int, d: IntegerDomain): CumulativeTask =
         new CumulativeTask(
@@ -45,7 +45,7 @@ final class CumulativeTest extends UnitTest with StandardConstraintTestTooling[B
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize(
@@ -67,7 +67,7 @@ final class CumulativeTest extends UnitTest with StandardConstraintTestTooling[B
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize(
@@ -97,7 +97,7 @@ final class CumulativeTest extends UnitTest with StandardConstraintTestTooling[B
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize(
@@ -122,7 +122,7 @@ final class CumulativeTest extends UnitTest with StandardConstraintTestTooling[B
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, Vector(t1, t2, t3), ub, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize(
@@ -143,7 +143,7 @@ final class CumulativeTest extends UnitTest with StandardConstraintTestTooling[B
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize(
@@ -164,7 +164,7 @@ final class CumulativeTest extends UnitTest with StandardConstraintTestTooling[B
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize(
@@ -188,7 +188,7 @@ final class CumulativeTest extends UnitTest with StandardConstraintTestTooling[B
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize(

@@ -15,7 +15,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class Disjoint2Test extends UnitTest with StandardConstraintTestTooling[BooleanValue] {
+final class Disjoint2Test extends UnitTest with CostComputationTestTooling[BooleanValue] {
 
     private def createRect(space: Space, i: Int, d: IntegerDomain): Disjoint2Rect =
         new Disjoint2Rect(
@@ -42,7 +42,7 @@ final class Disjoint2Test extends UnitTest with StandardConstraintTestTooling[Bo
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize(
@@ -65,7 +65,7 @@ final class Disjoint2Test extends UnitTest with StandardConstraintTestTooling[Bo
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize(
@@ -86,7 +86,7 @@ final class Disjoint2Test extends UnitTest with StandardConstraintTestTooling[Bo
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize(
@@ -108,7 +108,7 @@ final class Disjoint2Test extends UnitTest with StandardConstraintTestTooling[Bo
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize(
@@ -134,7 +134,7 @@ final class Disjoint2Test extends UnitTest with StandardConstraintTestTooling[Bo
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, Vector(r1, r2, r3, r1), false, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize(
@@ -155,7 +155,7 @@ final class Disjoint2Test extends UnitTest with StandardConstraintTestTooling[Bo
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize(
@@ -175,7 +175,7 @@ final class Disjoint2Test extends UnitTest with StandardConstraintTestTooling[Bo
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize(
@@ -195,7 +195,7 @@ final class Disjoint2Test extends UnitTest with StandardConstraintTestTooling[Bo
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, true, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 // setup:
@@ -248,7 +248,7 @@ final class Disjoint2Test extends UnitTest with StandardConstraintTestTooling[Bo
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, true, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize(
@@ -274,7 +274,7 @@ final class Disjoint2Test extends UnitTest with StandardConstraintTestTooling[Bo
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, true, costs))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize(

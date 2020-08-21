@@ -13,7 +13,11 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class IntegerTableTest extends UnitTest with StandardConstraintTestTooling[BooleanValue] {
+final class IntegerTableTest
+    extends UnitTest
+    with CostComputationTestTooling[BooleanValue]
+    with PropagationTestTooling
+{
 
     private def createTable(m: Int)(elems: Int*) =
         elems.toIndexedSeq.map(IntegerValue.get).grouped(m).toIndexedSeq
@@ -28,7 +32,7 @@ final class IntegerTableTest extends UnitTest with StandardConstraintTestTooling
         space.post(new IntegerTable(space.nextConstraintId, null, xs, rows, costs))
         assertEq(space.searchVariables, xs.toSet)
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize("initial conflict", False3, (s, One), (t, One), (u, One)),
@@ -45,7 +49,7 @@ final class IntegerTableTest extends UnitTest with StandardConstraintTestTooling
         space.post(new IntegerTable(space.nextConstraintId, null, Vector(s, s, t), rows, costs))
         assertEq(space.searchVariables, Set(s, t))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize("initial conflict", False3, (s, One), (t, One)),
@@ -69,16 +73,19 @@ final class IntegerTableTest extends UnitTest with StandardConstraintTestTooling
                 4, 0, 4, 4,
                 5, 0, 5, 1, 5, 2, 5, 3, 5, 4)
         space.post(new IntegerTable(space.nextConstraintId, null, Vector(s, t), rows, costs))
-        if (true) {
-            space.propagate
-            assertEq(s.domain, IntegerDomain.createDomain(List(Two, Three, Five)))
-            assertEq(t.domain, IntegerDomain.createDomain(List(Two, Three)))
-        }
-        if (true) {
-            t.pruneDomain(new IntegerRange(Two, Two))
-            space.propagate
-            assertEq(s.domain, IntegerDomain.createDomain(List(Two, Five)))
-        }
+        runScenario(
+            PropagationTestScenario(
+                space,
+                Propagate(
+                    "1",
+                    Nil,
+                    List[AnyDomainReduction](
+                        (s, IntegerDomain.createDomain(List(Two, Three, Five))),
+                        (t, IntegerDomain.createDomain(List(Two, Three))))),
+                Propagate(
+                    "2",
+                    (t, new IntegerRange(Two, Two)),
+                    (s, IntegerDomain.createDomain(List(Two, Five))))))
     }
 
     @Test
@@ -95,10 +102,13 @@ final class IntegerTableTest extends UnitTest with StandardConstraintTestTooling
                 4, 0, 4, 4,
                 5, 0, 5, 1, 5, 2, 5, 3, 5, 4)
         space.post(new IntegerTable(space.nextConstraintId, null, Vector(s, s), rows, costs))
-        if (true) {
-            space.propagate
-            assertEq(s.domain, IntegerDomain.createDomain(List(Two, Four)))
-        }
+        runScenario(
+            PropagationTestScenario(
+                space,
+                Propagate(
+                    "1",
+                    Nil,
+                    (s, IntegerDomain.createDomain(List(Two, Four))))))
     }
 
 }

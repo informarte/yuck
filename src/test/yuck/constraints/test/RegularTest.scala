@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class RegularTest extends UnitTest with StandardConstraintTestTooling[BooleanValue] {
+final class RegularTest extends UnitTest with CostComputationTestTooling[BooleanValue] {
 
     @Test
     def testRegular: Unit = {
@@ -30,7 +30,7 @@ final class RegularTest extends UnitTest with StandardConstraintTestTooling[Bool
         space.post(new Regular(space.nextConstraintId, null, xs, Q, S, delta, q0, F, costs))
         assertEq(space.searchVariables, xs.toSet)
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 // input:  1, 1, 1, 2, 1, 2, 2, 2, 1, 1

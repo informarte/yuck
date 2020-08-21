@@ -12,7 +12,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class NumberOfDistinctValuesTest extends UnitTest with StandardConstraintTestTooling[IntegerValue] {
+final class NumberOfDistinctValuesTest extends UnitTest with CostComputationTestTooling[IntegerValue] {
 
     @Test
     def testNumberOfDistinctValues: Unit = {
@@ -23,7 +23,7 @@ final class NumberOfDistinctValuesTest extends UnitTest with StandardConstraintT
         space.post(new NumberOfDistinctValues(space.nextConstraintId, null, xs, m))
         assertEq(space.searchVariables, xs.toSet)
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 m,
                 Initialize("setup", One,(xs(0), One), (xs(1), One),  (xs(2), One)),

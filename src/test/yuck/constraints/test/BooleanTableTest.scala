@@ -13,7 +13,11 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class BooleanTableTest extends UnitTest with StandardConstraintTestTooling[BooleanValue] {
+final class BooleanTableTest
+    extends UnitTest
+    with CostComputationTestTooling[BooleanValue]
+    with PropagationTestTooling
+{
 
     private def createTable(m: Int)(elems: BooleanValue*): immutable.IndexedSeq[immutable.IndexedSeq[BooleanValue]] =
         elems.toIndexedSeq.grouped(m).toIndexedSeq
@@ -31,7 +35,7 @@ final class BooleanTableTest extends UnitTest with StandardConstraintTestTooling
         space.post(new BooleanTable(space.nextConstraintId, null, xs, rows, costs))
         assertEq(space.searchVariables, xs.toSet)
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize("initial conflict", False, (s, True), (t, False), (u, False), (v, False)),
@@ -52,7 +56,7 @@ final class BooleanTableTest extends UnitTest with StandardConstraintTestTooling
         space.post(new BooleanTable(space.nextConstraintId, null, Vector(s, s, t, u), rows, costs))
         assertEq(space.searchVariables, Set(s, t, u))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize("initial conflict", False3, (s, True), (t, True), (u, False)),
@@ -74,21 +78,27 @@ final class BooleanTableTest extends UnitTest with StandardConstraintTestTooling
                 False, False, True,  True,
                 False, True,  True,  True)
         space.post(new BooleanTable(space.nextConstraintId, null, xs, rows, costs))
-        if (true) {
-            space.propagate
-            assertEq(s.domain, CompleteBooleanDecisionDomain)
-            assertEq(t.domain, CompleteBooleanDecisionDomain)
-            assertEq(u.domain, CompleteBooleanDecisionDomain)
-            assertEq(v.domain, CompleteBooleanDecisionDomain)
-        }
-        if (true) {
-            v.pruneDomain(TrueDomain)
-            space.propagate
-            assertEq(s.domain, FalseDomain)
-            assertEq(t.domain, CompleteBooleanDecisionDomain)
-            assertEq(u.domain, TrueDomain)
-            assertEq(v.domain, TrueDomain)
-        }
+        runScenario(
+            PropagationTestScenario(
+                space,
+                Propagate(
+                    "1",
+                    Nil,
+                    () => {
+                        assertEq(s.domain, CompleteBooleanDecisionDomain)
+                        assertEq(t.domain, CompleteBooleanDecisionDomain)
+                        assertEq(u.domain, CompleteBooleanDecisionDomain)
+                        assertEq(v.domain, CompleteBooleanDecisionDomain)
+                    }),
+                Propagate(
+                    "2",
+                    (v, TrueDomain),
+                    () => {
+                        assertEq(s.domain, FalseDomain)
+                        assertEq(t.domain, CompleteBooleanDecisionDomain)
+                        assertEq(u.domain, TrueDomain)
+                        assertEq(v.domain, TrueDomain)
+                    })))
     }
 
     @Test
@@ -104,18 +114,24 @@ final class BooleanTableTest extends UnitTest with StandardConstraintTestTooling
                 False, False, True,  False,
                 True,  True,  False, True)
         space.post(new BooleanTable(space.nextConstraintId, null, Vector(s, s, t, u), rows, costs))
-        if (true) {
-            space.propagate
-            assertEq(s.domain, CompleteBooleanDecisionDomain)
-            assertEq(t.domain, CompleteBooleanDecisionDomain)
-            assertEq(u.domain, CompleteBooleanDecisionDomain)
-        }
-        if (true) {
-            s.pruneDomain(TrueDomain)
-            space.propagate
-            assertEq(t.domain, FalseDomain)
-            assertEq(u.domain, TrueDomain)
-        }
+        runScenario(
+            PropagationTestScenario(
+                space,
+                Propagate(
+                    "1",
+                    Nil,
+                    () => {
+                        assertEq(s.domain, CompleteBooleanDecisionDomain)
+                        assertEq(t.domain, CompleteBooleanDecisionDomain)
+                        assertEq(u.domain, CompleteBooleanDecisionDomain)
+                    }),
+                Propagate(
+                    "2",
+                    (s, TrueDomain),
+                    () => {
+                        assertEq(t.domain, FalseDomain)
+                        assertEq(u.domain, TrueDomain)
+                    })))
     }
 
 }

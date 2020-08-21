@@ -9,6 +9,7 @@ import org.junit._
 @runner.RunWith(classOf[runners.Suite])
 @runners.Suite.SuiteClasses(
     Array(
+        classOf[PropagationTestToolingTest],
         classOf[BasicNumericalConstraintsTest],
         classOf[AlldistinctTest],
         classOf[BinPackingTest],

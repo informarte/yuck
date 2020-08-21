@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class CountVarTest extends UnitTest with StandardConstraintTestTooling[IntegerValue] {
+final class CountVarTest extends UnitTest with CostComputationTestTooling[IntegerValue] {
 
     @Test
     def testCountVar: Unit = {
@@ -28,7 +28,7 @@ final class CountVarTest extends UnitTest with StandardConstraintTestTooling[Int
         space.post(new CountVar(space.nextConstraintId, null, List(s, t, u), what, n))
         assertEq(space.searchVariables, Set(s, t, u, what))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 n,
                 Initialize("setup", Three, (s, One), (t, One), (u, One), (what, One)),

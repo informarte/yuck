@@ -16,7 +16,7 @@ import yuck.util.testing.UnitTest
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
-final class ElementConstTest(offset: Int) extends UnitTest with StandardConstraintTestTooling[IntegerValue] {
+final class ElementConstTest(offset: Int) extends UnitTest with CostComputationTestTooling[IntegerValue] {
 
     @Test
     def testArrayAccess: Unit = {
@@ -31,7 +31,7 @@ final class ElementConstTest(offset: Int) extends UnitTest with StandardConstrai
         space.post(new ElementConst(space.nextConstraintId, null, as, i, y, offset))
         assertEq(space.searchVariables, Set(i))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 y,
                 Initialize("setup", Zero, (i, IntegerValue.get(offset))),

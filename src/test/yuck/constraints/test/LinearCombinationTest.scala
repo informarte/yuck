@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class LinearCombinationTest extends UnitTest with StandardConstraintTestTooling[IntegerValue] {
+final class LinearCombinationTest extends UnitTest with CostComputationTestTooling[IntegerValue] {
 
     @Test
     def testLinearCombination: Unit = {
@@ -30,7 +30,7 @@ final class LinearCombinationTest extends UnitTest with StandardConstraintTestTo
                 List(new AX(Zero, x1), new AX(One, x2), new AX(One, x3)), y))
         assertEq(space.searchVariables, Set(x1, x2, x3))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 y,
                 Initialize("setup", Five, (x1, One), (x2, Two), (x3, Three)),

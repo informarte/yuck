@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class InverseTest extends UnitTest with StandardConstraintTestTooling[BooleanValue] {
+final class InverseTest extends UnitTest with CostComputationTestTooling[BooleanValue] {
 
     @Test
     def testInverseWithIdenticalOffsets: Unit = {
@@ -32,7 +32,7 @@ final class InverseTest extends UnitTest with StandardConstraintTestTooling[Bool
         space.post(new Inverse(space.nextConstraintId, null, new InverseFunction(f, 1), new InverseFunction(g, 1), costs))
         assertEq(space.searchVariables, Set(f1, f2, f3, g1, g2, g3))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 // 3 1 2
@@ -80,7 +80,7 @@ final class InverseTest extends UnitTest with StandardConstraintTestTooling[Bool
         space.post(new Inverse(space.nextConstraintId, null, new InverseFunction(f, 1), new InverseFunction(g, 0), costs))
         assertEq(space.searchVariables, Set(f1, f2, f3, g1, g2, g3))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 // 2 0 1

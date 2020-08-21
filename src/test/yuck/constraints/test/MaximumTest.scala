@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class MaximumTest extends UnitTest with StandardConstraintTestTooling[IntegerValue] {
+final class MaximumTest extends UnitTest with CostComputationTestTooling[IntegerValue] {
 
     @Test
     def testMaximum: Unit = {
@@ -27,7 +27,7 @@ final class MaximumTest extends UnitTest with StandardConstraintTestTooling[Inte
         space.post(new Maximum(space.nextConstraintId, null, List(s, t, u), max))
         assertEq(space.searchVariables, Set(s, t, u))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 max,
                 Initialize("setup", Three, (s, One), (t, Two), (u, Three)),

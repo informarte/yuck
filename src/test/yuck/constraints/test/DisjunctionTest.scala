@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class DisjunctionTest extends UnitTest with StandardConstraintTestTooling[BooleanValue] {
+final class DisjunctionTest extends UnitTest with CostComputationTestTooling[BooleanValue] {
 
     @Test
     def testDisjunction: Unit = {
@@ -27,7 +27,7 @@ final class DisjunctionTest extends UnitTest with StandardConstraintTestTooling[
         space.post(new Disjunction(space.nextConstraintId, null, List(s, t, u), costs))
         assertEq(space.searchVariables, Set(s, t, u))
         runScenario(
-            TestScenario(
+            CostComputationTestScenario(
                 space,
                 costs,
                 Initialize("init", False2, (s, False), (t, False2), (u, False3)),
