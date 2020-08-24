@@ -14,6 +14,8 @@ import org.junit._
         classOf[AlldistinctTest],
         classOf[BinPackingTest],
         classOf[BooleanTableTest],
+        classOf[CircuitTest],
+        classOf[CircuitNeighbourhoodTest],
         classOf[ConjunctionTest],
         classOf[CountConstTest],
         classOf[CountVarTest],

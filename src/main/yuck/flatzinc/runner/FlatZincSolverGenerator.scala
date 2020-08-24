@@ -57,7 +57,9 @@ final class FlatZincSolverGenerator
             val space = compilerResult.space
             // The initializer will respect existing value assignments.
             val initializer = new RandomInitializer(space, randomGenerator.nextGen)
-            initializer.run
+            logger.withTimedLogScope("Running initializer") {
+                initializer.run
+            }
             if (compilerResult.maybeNeighbourhood.isEmpty) {
                 new SolverForProblemWithoutNeighbourhood(solverName, compilerResult)
             } else {

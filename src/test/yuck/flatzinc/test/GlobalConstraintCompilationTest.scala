@@ -149,6 +149,23 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint]))
+    def testCircuit: Unit = {
+        val result = solveWithResult(task.copy(problemName = "circuit_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Circuit]), 1)
+        assert(neighbourhood(result).isInstanceOf[CircuitNeighbourhood])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint]))
+    def testCircuitReif: Unit = {
+        // Gecode does not provide a decomposition for circuit_reif, so we cannot verify the solution.
+        val result = solveWithResult(task.copy(problemName = "circuit_reif_test", verifySolution = false))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Circuit]), 2)
+        assert(neighbourhood(result).isInstanceOf[RandomReassignmentGenerator])
+    }
+
+    @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
     def testCountEq: Unit = {
         val result = solveWithResult(task.copy(problemName = "count_eq_test"))
@@ -498,8 +515,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasRegularConstraint]))
     def testRegularReif: Unit = {
-        // The std library does not provide a decomposition for regular_reif,
-        // so we cannot verify the solution.
+        // Gecode does not provide a decomposition for regular_reif, so we cannot verify the solution.
         val result = solveWithResult(task.copy(problemName = "regular_reif_test", verifySolution = false))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[Regular]), 1)
     }

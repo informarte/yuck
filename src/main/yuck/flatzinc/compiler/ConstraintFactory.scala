@@ -712,6 +712,10 @@ final class ConstraintFactory
             val costs = createBoolChannel
             space.post(new Regular(nextConstraintId, maybeGoal, xs, Q, S, delta, q0, F, costs))
             List(costs)
+        case Constraint("yuck_circuit", List(succ, IntConst(offset)), _) =>
+            val costs = createBoolChannel
+            space.post(new Circuit(nextConstraintId, maybeGoal, succ, offset, costs))
+            List(costs)
         case Constraint("yuck_inverse", List(f, IntConst(fOffset), g, IntConst(gOffset)), _) =>
             val costs = createBoolChannel
             val constraint = new Inverse(nextConstraintId, maybeGoal, new InverseFunction(f, fOffset), new InverseFunction(g, gOffset), costs)

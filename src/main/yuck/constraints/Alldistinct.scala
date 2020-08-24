@@ -48,9 +48,9 @@ final class Alldistinct
     override def isCandidateForImplicitSolving(space: Space) = {
         val (xs, ys) = this.xs.partition(! _.domain.isSingleton)
         val as = ys.iterator.map(_.domain.singleValue).toSet
-        this.xs.forall(! space.isChannelVariable(_)) &&
         xs.size > 1 &&
         xs.toSet.size == xs.size &&
+        xs.forall(! space.isChannelVariable(_)) &&
         xs.forall(_.domain.isFinite) &&
         xs.forall(x => ! as.exists(a => x.domain.contains(a))) &&
         ys.size == as.size
@@ -151,7 +151,12 @@ final class AlldistinctNeighbourhood
 
     require(n > 1)
     require(xs.toSet.size == n)
+    require(xs.forall(! space.isChannelVariable(_)))
+    require(xs.forall(_.domain.isFinite))
+    require(xs.forall(! _.domain.isSingleton))
+    require(xs.forall(x => x.domain.contains(value(x))))
     require(xs.map(value).toSet.size == n)
+
     require(moveSizeDistribution.frequency(0) == 0)
     require(moveSizeDistribution.volume > 0)
 

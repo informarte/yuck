@@ -130,6 +130,7 @@ Yuck provides dedicated solvers for the following global MiniZinc constraints an
 
 * all_different, all_different_except_0
 * bin_packing, bin_packing_capa, bin_packing_load
+* circuit
 * count_eq, count_geq, count_gt, count_leq, count_lt, count_neq
 * cumulative
 * diffn, diffn_nonstrict
@@ -147,6 +148,7 @@ Yuck provides dedicated solvers for the following global MiniZinc constraints an
 Yuck provides dedicated neighbourhoods for the following global MiniZinc constraints:
 
 * all_different
+* circuit
 * inverse
 
 ## MiniZinc extensions
@@ -210,6 +212,7 @@ bool2costs is defined for every constraint implemented by Yuck, including all th
 
 - bool2costs(x = y) = abs(value assigned to x - value assigned to y)
 - bool2costs(e1 /\ e2) = bool2costs(e1) + bool2costs(e2)
+- bool2costs(circuit(succ)) = number of nodes - length of the longest cycle in the graph spanned by succ
 - bool2costs(disjunctive(s, d)) computes how much each pair of tasks overlaps and returns the sum of these overlaps.
 
 To use bool2costs, you have to include `yuck.mzn`.
@@ -299,7 +302,7 @@ Keep in mind, though, that goal hierarchies are a non-standard MiniZinc extensio
 
 ## Future work
 
-* Implement among, circuit, subcircuit, ...
+* Implement among, subcircuit, ...
 * Reduce dependence on integration testing by adding more unit tests
 * Provide libraries with Yuck core functionality
 

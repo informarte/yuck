@@ -1,6 +1,7 @@
 package yuck.constraints.test
 
 import org.junit._
+
 import scala.collection._
 
 import yuck.annealing._
@@ -61,14 +62,8 @@ final class AlldistinctTest extends UnitTest with CostComputationTestTooling[Boo
         val u = space.createVariable("u", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         val constraint = new Alldistinct(space.nextConstraintId, null, Vector(s, t, u), costs)
-        space
-            .post(constraint)
-            .setValue(s, One)
-            .setValue(t, One)
-            .setValue(u, One)
-            .initialize
+        space.post(constraint)
         val now = space.searchState
-        assertEq(now.value(costs), False2)
         val maybeNeighbourhood =
             constraint.createNeighbourhood(
                 space, new JavaRandomGenerator, DefaultMoveSizeDistribution, logger, sigint)
@@ -79,13 +74,15 @@ final class AlldistinctTest extends UnitTest with CostComputationTestTooling[Boo
         assertNe(now.value(t), now.value(u))
         assertEq(now.value(costs), True)
         space.initialize
-        for (i <- 1 to 10000) {
+        val sampleSize = 1000
+        for (i <- 1 to sampleSize) {
             val move = neighbourhood.nextMove
             val after = space.consult(move)
             assert(List(s, t, u).exists(x => now.value(x) != after.value(x)))
             assertNe(after.value(s), after.value(t))
             assertNe(after.value(s), after.value(u))
             assertNe(after.value(t), after.value(u))
+            space.commit(move)
         }
     }
 

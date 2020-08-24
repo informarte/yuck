@@ -26,6 +26,12 @@ abstract class FrontEndTest extends MiniZincBasedTest {
     protected def neighbourhood(result: Result): Neighbourhood =
         result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult].maybeNeighbourhood.get
 
+    protected def violation(result: Result): BooleanValue =
+        result.costsOfBestProposal match {
+            case violation: BooleanValue => violation
+            case costs: PolymorphicListValue => costs.value(0).asInstanceOf[BooleanValue]
+        }
+
     protected def quality(result: Result, i: Int): AnyValue =
         result.costsOfBestProposal.asInstanceOf[PolymorphicListValue].value(i)
 

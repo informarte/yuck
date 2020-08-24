@@ -104,7 +104,7 @@ class NeighbourhoodFactory
                 if (maybeNeighbourhood.isDefined) {
                     implicitlyConstrainedVars ++= xs
                     space.markAsImplicit(constraint)
-                    logger.logg("Adding a neighbourhood for implicit constraint %s".format(constraint))
+                    logger.log("Adding a neighbourhood for implicit constraint %s".format(constraint))
                     neighbourhoods += maybeNeighbourhood.get
                 }
             }

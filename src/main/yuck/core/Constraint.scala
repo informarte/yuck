@@ -14,7 +14,8 @@ final case class ExtraNeighbourhoodFactoryConfiguration(
     createHotSpotDistribution: Seq[AnyVariable] => Option[Distribution] = _ => None,
     maybeFairVariableChoiceRate: Option[Probability] = None,
     checkIncrementalCostUpdate: Boolean = false,
-    checkAssignmentsToNonChannelVariables: Boolean = false)
+    checkAssignmentsToNonChannelVariables: Boolean = false,
+    maxNumberOfGreedyHeuristicRuns: Int = 100)
 
 /**
  * Provides the constraint interface for local search.

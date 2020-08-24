@@ -80,7 +80,7 @@ abstract class Disjoint
         effect
     }
 
-    override def consult(before: SearchState, after: SearchState, move: Move) = {
+    final override def consult(before: SearchState, after: SearchState, move: Move) = {
         rTreeTransaction.rollback
         futureCosts = currentCosts
         val is =
@@ -113,7 +113,7 @@ abstract class Disjoint
         effect
     }
 
-    override def commit(before: SearchState, after: SearchState, move: Move) = {
+    final override def commit(before: SearchState, after: SearchState, move: Move) = {
         rTreeTransaction.commit
         assert(rTree.getEntryCount == n)
         currentCosts = futureCosts
