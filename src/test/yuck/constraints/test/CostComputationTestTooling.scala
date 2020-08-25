@@ -40,7 +40,6 @@ trait CostComputationTestTooling[ResultValue <: AnyValue] extends YuckAssert {
         val result = scenario.result
         val steps = scenario.steps
         val now = space.searchState
-        var maybeFinalResult: Option[ResultValue] = None
         for (step <- steps) step match {
             case Initialize(comment, expectedResult, effects) =>
                 logger.log(comment)
@@ -49,7 +48,6 @@ trait CostComputationTestTooling[ResultValue <: AnyValue] extends YuckAssert {
                 }
                 space.initialize
                 assertEq(now.value(result), expectedResult)
-                maybeFinalResult = Some(expectedResult)
             case Consult(comment, expectedResult, effects) =>
                 logger.log(comment)
                 val move = new ChangeAnyValues(space.nextMoveId, effects)
@@ -62,11 +60,6 @@ trait CostComputationTestTooling[ResultValue <: AnyValue] extends YuckAssert {
                 assertEq(after.value(result), expectedResult)
                 space.commit(move)
                 assertEq(now.value(result), expectedResult)
-                maybeFinalResult = Some(expectedResult)
-        }
-        if (maybeFinalResult.isDefined) {
-            space.initialize
-            assertEq(now.value(result), maybeFinalResult.get)
         }
     }
 
