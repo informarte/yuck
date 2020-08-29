@@ -510,7 +510,7 @@ final class Space(
      * The caller has to assign values to all search variables before initializing!
      */
     def initialize: Space = {
-        flowModel == null // free memory
+        flowModel = null // free memory
         if (constraintOrder == null) {
             sortConstraintsTopologically
         }
