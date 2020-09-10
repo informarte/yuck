@@ -71,8 +71,7 @@ final class IntegerDomainTest extends UnitTest {
             IntegerRangeList(Vector(NegativeIntegerRange, PositiveIntegerRange)))
     }
 
-    @Test
-    def testDomainCreationFromValues: Unit = {
+    def testDomainCreationFromValueSets: Unit = {
         val testData = List(
             List(List()) -> EmptyIntegerRange,
             List(List(Zero), List(Zero, Zero)) -> ZeroToZeroIntegerRange,

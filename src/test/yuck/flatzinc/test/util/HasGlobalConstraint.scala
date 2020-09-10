@@ -15,6 +15,7 @@ trait HasCircuitConstraint extends HasGlobalConstraint
 trait HasCountConstraint extends HasGlobalConstraint
 trait HasCumulativeConstraint extends HasGlobalConstraint
 trait HasDecreasingConstraint extends HasGlobalConstraint
+trait HasDeliveryConstraint extends HasGlobalConstraint
 trait HasDiffnConstraint extends HasGlobalConstraint
 trait HasDisjunctiveConstraint extends HasGlobalConstraint
 trait HasElementConstraint extends HasGlobalConstraint

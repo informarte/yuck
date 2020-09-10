@@ -63,6 +63,7 @@ final class ConstraintFactory
     // Checks whether a constraint from in to out could be posted.
     // Notice that this method may be quite expensive!
     private def isViableConstraint(in: Iterable[AnyVariable], out: AnyVariable): Boolean =
+        (! out.domain.isSingleton) &&
         (! cc.searchVars.contains(out)) &&
         space.maybeDefiningConstraint(out).isEmpty &&
         (! space.wouldIntroduceCycle(new DummyConstraint(fakeConstraintId, in, List(out))))
@@ -713,6 +714,8 @@ final class ConstraintFactory
             val costs = createBoolChannel
             space.post(new Circuit(nextConstraintId, maybeGoal, succ, offset, costs))
             List(costs)
+        case Constraint("yuck_delivery", _, _) =>
+            compileDeliveryConstraint[IntegerValue](maybeGoal, constraint)
         case Constraint("yuck_inverse", List(f, IntConst(fOffset), g, IntConst(gOffset)), _) =>
             val costs = createBoolChannel
             val constraint = new Inverse(nextConstraintId, maybeGoal, new InverseFunction(f, fOffset), new InverseFunction(g, gOffset), costs)
@@ -903,6 +906,104 @@ final class ConstraintFactory
             deltas
         }
         compileConstraint(constraint, bins, loads.values, functionalCase, generalCase)
+    }
+
+    private def compileDeliveryConstraint
+        [Time <: NumericalValue[Time]]
+        (maybeGoal: Option[Goal],
+         constraint: yuck.flatzinc.ast.Constraint)
+        (implicit timeTraits: NumericalValueTraits[Time]):
+        Iterable[BooleanVariable] =
+    {
+        val List(startNodes0, endNodes0, succ0, IntConst(offset), arrivalTimes0, serviceTimes0, travelTimes0,
+                    BoolConst(withWaiting), totalTravelTime0) =
+            constraint.params
+        val startNodes = compileIntSetExpr(startNodes0).domain.singleValue.set
+        val endNodes = compileIntSetExpr(endNodes0).domain.singleValue.set
+        val succ = compileIntArray(succ0)
+        val nodes = IntegerRange(offset, offset + succ.size - 1)
+        val arrivalTimes = compileNumArray[Time](arrivalTimes0)
+        val serviceTimes1 = compileNumArray[Time](serviceTimes0).map(_.domain.singleValue)
+        require(serviceTimes1.isEmpty || serviceTimes1.size == nodes.size)
+        val serviceTimes: Function1[Int, Time] =
+            if (serviceTimes1.isEmpty) _ => timeTraits.zero else i => serviceTimes1(i)
+        val travelTimes1 =
+            compileNumArray[Time](travelTimes0).map(_.domain.singleValue).grouped(arrivalTimes.size)
+                 .to(immutable.ArraySeq)
+        require(travelTimes1.isEmpty || (travelTimes1.size == nodes.size && travelTimes1.forall(_.size == nodes.size)))
+        val travelTimesAreSymmetric =
+            travelTimes1.isEmpty ||
+            Range(0, nodes.size).forall(
+                i => Range(i + 1, nodes.size).forall(j => travelTimes1(i)(j) == travelTimes1(j)(i)))
+        val travelTimes2 =
+            if (! travelTimes1.isEmpty && travelTimesAreSymmetric)
+                (for (i <- 0 until nodes.size) yield travelTimes1(i).drop(i)).to(immutable.ArraySeq)
+            else travelTimes1
+        val travelTimes: Function2[Int, Int, Time] =
+            if (travelTimes2.isEmpty) (_, _) => timeTraits.zero
+            else if (travelTimesAreSymmetric) (i, j) => if (i <= j) travelTimes2(i)(j - i) else travelTimes2(j)(i - j)
+            else (i, j) => travelTimes2(i)(j)
+        val totalTravelTime1 = compileNumExpr[Time](totalTravelTime0)
+        val totalTravelTime = {
+            if (travelTimes2.isEmpty) {
+                // avoid an Eq constraint
+                totalTravelTime1.pruneDomain(timeTraits.createDomain(Set(timeTraits.zero)))
+                createNumChannel[Time]
+            } else {
+                totalTravelTime1
+            }
+        }
+        val costs = createBoolChannel
+        def functionalCase = {
+            val delivery =
+                new Delivery[Time](
+                    WeakReference(space), nextConstraintId, maybeGoal,
+                    startNodes, endNodes, succ, offset, arrivalTimes, serviceTimes, travelTimes,
+                    withWaiting, totalTravelTime, costs)
+            space.post(delivery)
+            List(costs)
+        }
+        def generalCase = {
+            val nodes = IntegerRange(offset, offset + succ.size - 1)
+            val arrivalTimes1: immutable.IndexedSeq[NumericalVariable[Time]] = {
+                val definableVars = this.definedVars(constraint)
+                val definedVars = new mutable.HashSet[NumericalVariable[Time]]
+                for (i <- nodes.values.toIndexedSeq) yield {
+                    val arrivalTime = arrivalTimes(i.value - offset)
+                    if (startNodes.contains(i)) {
+                        arrivalTime
+                    }
+                    else if (definableVars.contains(arrivalTime) && ! definedVars.contains(arrivalTime) &&
+                             isViableConstraint(succ, arrivalTime))
+                    {
+                        definedVars += arrivalTime
+                        arrivalTime
+                    }
+                    else timeTraits.createVariable(space, "", arrivalTime.domain)
+                }
+            }
+            val totalTravelTime1: NumericalVariable[Time] =
+                if (isViableConstraint(succ, totalTravelTime)) totalTravelTime
+                else timeTraits.createVariable(space, "", totalTravelTime.domain)
+            space.post(
+                new Delivery[Time](
+                    WeakReference(space), nextConstraintId, maybeGoal,
+                    startNodes, endNodes, succ, offset, arrivalTimes1, serviceTimes, travelTimes,
+                    withWaiting, totalTravelTime1, costs))
+            val pairs = (arrivalTimes :+ totalTravelTime).zip(arrivalTimes1 :+ totalTravelTime1)
+            val deltas =
+                for ((x, x1) <- pairs if x != x1) yield {
+                    val delta = createBoolChannel
+                    space.post(new Eq[Time](nextConstraintId, maybeGoal, x, x1, delta))
+                    delta
+                }
+            deltas.view :+ costs
+        }
+        compileConstraint(
+            constraint,
+            startNodes.values.view.map(i => arrivalTimes(i.value - offset)) ++ succ,
+            nodes.diff(startNodes).values.view.map(i => arrivalTimes(i.value - offset)) ++ Seq(totalTravelTime),
+            functionalCase, generalCase)
     }
 
     private def compileLinearCombination

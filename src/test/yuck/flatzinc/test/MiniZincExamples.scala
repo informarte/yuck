@@ -29,7 +29,7 @@ final class MiniZincExamples extends MiniZincBasedTest {
             maybeRuntimeLimitInSeconds = Some(10),
             assertWhenUnsolved = true,
             reusePreviousTestResult = false,
-            exportDot = true)
+            createDotFile = true)
 
     private implicit def createTask(problemName: String): MiniZincTestTask = task.copy(problemName = problemName)
 

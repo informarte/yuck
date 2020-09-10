@@ -8,8 +8,9 @@
 * Yuck's approach to problem solving is based in local search.
 * Yuck implements Boolean, integer, and integer set variables, see [FlatZinc support](#flatzinc-support).
 * Yuck implements many global constraints and their reified counterparts, see [Global constraints](#global-constraints).
+* Yuck comes with support for vehicle routing, see [Extending Yuck for Vehicle Routing](https://github.com/informarte/yuck/releases/download/20210501/Extending_Yuck_for_Vehicle_Routing.pdf).
 * Yuck features a mechanism to turn Boolean MiniZinc expressions (including applications of global constraints) into soft constraints, see [bool2costs](#bool2costs).
-* Yuck supports lexicographic multi-objective optimization, see [goal hierarchies](#goal-hierarchies).
+* Yuck supports lexicographic multi-objective optimization, see [Goal hierarchies](#goal-hierarchies).
 * Yuck is provided under the terms of the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0).
 * Yuck ranked second among local-search solvers at the [MiniZinc Challenge 2017](http://www.minizinc.org/challenge2017/results2017.html), the [MiniZinc Challenge 2018](http://www.minizinc.org/challenge2018/results2018.html), and the [MiniZinc Challenge 2019](http://www.minizinc.org/challenge2019/results2019.html), and it won a gold medal at the [MiniZinc Challenge 2020](https://www.minizinc.org/challenge2020/results2020.html).
 

@@ -129,11 +129,10 @@ final class MiniZincChallenge2012 extends MiniZincBasedTest {
         solve(task.copy(problemName = "train", instanceName = "instance.6", maybeOptimum = Some(28290)))
     }
 
-    // Has some simple linear combinations (e.g. 100 * x <= 87 with x <=1) that are propagated up-front.
     @Test
     @Category(Array(classOf[MinimizationProblem]))
-    def vrp_A_n38_k5: Unit = {
-        solve(task.copy(problemName = "vrp", instanceName = "A-n38-k5.vrp", maybeHighScore = Some(737)))
+    def cvrp_A_n38_k5: Unit = {
+        solve(task.copy(problemName = "cvrp", modelName = "cvrp_yuck", instanceName = "Augerat/A/A-n38-k5", maybeHighScore = Some(737)))
     }
 
 }

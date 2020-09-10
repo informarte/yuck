@@ -8,6 +8,7 @@
 import argparse
 import json
 from urllib.request import pathname2url
+import re
 import sqlite3
 import sys
 
@@ -15,13 +16,20 @@ import common
 
 def computeSpeedups(cursor, args):
     runs = [args.referenceRun] + args.runs
-    query = 'SELECT run, problem, model, instance, moves_per_second, runtime_in_seconds FROM result WHERE run IN (%s)' % ','.join('?' for run in runs)
+    query = 'SELECT run, problem, instance, moves_per_second, runtime_in_seconds FROM result WHERE run IN (%s)' % ','.join('?' for run in runs)
     tasks = set()
     data = {}
-    for (run, problem, model, instance, movesPerSecond, runtimeInSeconds) in cursor.execute(query, runs):
-        task = (problem, model, instance)
-        tasks.add(task)
-        data[(run, task)] = {'mps': movesPerSecond, 'rts': runtimeInSeconds}
+    problemPattern = re.compile(args.problemFilter)
+    instancePattern = re.compile(args.instanceFilter)
+    for (run, problem, instance, movesPerSecond, runtimeInSeconds) in cursor.execute(query, runs):
+        if problemPattern.match(problem) and instancePattern.match(instance):
+            task = (problem, instance)
+            tasks.add(task)
+            data[(run, task)] = {'mps': movesPerSecond, 'rts': runtimeInSeconds}
+    for task in tasks:
+        if not (args.referenceRun, task) in data:
+            (problem, instance) = task
+            print('Warning: No reference result found for instance {}/{}'.format(problem, instance, file = sys.stderr))
     return {
         run: {
             task:
@@ -40,10 +48,14 @@ def computeSpeedups(cursor, args):
     }
 
 def plotDiagrams(args, results):
+    title = 'Speedups (wrt. {})'.format(args.referenceRun)
+    filters = ([args.problemFilter] if args.problemFilter else []) + ([args.instanceFilter] if args.instanceFilter else [])
+    if filters:
+        title += ' ({})'.format(', '.join(filters))
     common.plotDiagrams(
         [run for run in results],
         lambda run: (lambda result: [result[task] for task in result])(results[run]),
-        title = 'Speedups (wrt. {})'.format(args.referenceRun),
+        title = title,
         xlabel = 'Speedup',
         legendLocation = 'center right')
 
@@ -53,6 +65,8 @@ def main():
         formatter_class = argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--db', '--database', dest = 'database', default = 'results.db', help = 'Define results database')
     parser.add_argument('-p', '--plot', dest = 'plotDiagrams', action = 'store_true', help = 'Plot diagrams')
+    parser.add_argument('--problem-filter', dest = 'problemFilter', default = '', help = 'Consider only problems that match the given regexp')
+    parser.add_argument('--instance-filter', dest = 'instanceFilter', default = '', help = 'Consider only instances that match the given regexp')
     parser.add_argument('--min-runtime', dest = 'minRuntime', type = int, default = 1, help = 'Ignore quicker runs')
     parser.add_argument('referenceRun', metavar = 'reference-run')
     parser.add_argument('runs', metavar = 'run', nargs = '+')
@@ -62,6 +76,9 @@ def main():
         cursor = conn.cursor()
         results = computeSpeedups(cursor, args)
         if results:
+            for run in results:
+                if not results[run]:
+                    print('Warning: No data for run {}'.format(run, file = sys.stderr))
             postprocessedResults = {run: common.analyzeResult(results[run]) for run in results}
             print(json.dumps(postprocessedResults, sort_keys = True, indent = 4))
             if (args.plotDiagrams):

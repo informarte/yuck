@@ -18,6 +18,7 @@
 import argparse
 import json
 from urllib.request import pathname2url
+import re
 import sqlite3
 import sys
 
@@ -25,13 +26,20 @@ import common
 
 def computeAreaRatios(cursor, args):
     runs = [args.referenceRun] + args.runs
-    query = 'SELECT run, problem, model, instance, problem_type, quality, area, runtime_in_seconds FROM result WHERE run IN (%s)' % ','.join('?' for run in runs)
+    query = 'SELECT run, problem, instance, problem_type, area, runtime_in_seconds FROM result WHERE run IN (%s) AND solved = 1' % ','.join('?' for run in runs)
     tasks = set()
     data = {}
-    for (run, problem, model, instance, problemType, quality, area, runtimeInSeconds) in cursor.execute(query, runs):
-        task = (problem, model, instance)
-        tasks.add(task)
-        data[(run, task)] = {'problemType': problemType, 'quality': quality, 'area': area, 'rts': runtimeInSeconds}
+    problemPattern = re.compile(args.problemFilter)
+    instancePattern = re.compile(args.instanceFilter)
+    for (run, problem, instance, problemType, area, runtimeInSeconds) in cursor.execute(query, runs):
+        if problemPattern.match(problem) and instancePattern.match(instance):
+            task = (problem, instance)
+            tasks.add(task)
+            data[(run, task)] = {'problemType': problemType, 'area': area, 'rts': runtimeInSeconds}
+    for task in tasks:
+        if not (args.referenceRun, task) in data:
+            (problem, instance) = task
+            print('Warning: No reference result found for instance {}/{}'.format(problem, instance, file = sys.stderr))
     return {
         run: {
             task:
@@ -58,11 +66,15 @@ def computeAreaRatios(cursor, args):
         for run in args.runs
     }
 
-def plotDiagrams(results):
+def plotDiagrams(args, results):
+    title = 'Area ratios'
+    filters = ([args.problemFilter] if args.problemFilter else []) + ([args.instanceFilter] if args.instanceFilter else [])
+    if filters:
+        title += ' ({})'.format(', '.join(filters))
     common.plotDiagrams(
         [run for run in results],
         lambda run: (lambda result: [result[task] for task in result])(results[run]),
-        title = 'Area ratios',
+        title = title,
         xlabel = 'Area ratio (lower is better)',
         legendLocation = 'center right')
 
@@ -72,6 +84,8 @@ def main():
         formatter_class = argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--db', '--database', dest = 'database', default = 'results.db', help = 'Define results database')
     parser.add_argument('-p', '--plot', dest = 'plotDiagrams', action = 'store_true', help = 'Plot diagrams')
+    parser.add_argument('--problem-filter', dest = 'problemFilter', default = '', help = 'Consider only problems that match the given regexp')
+    parser.add_argument('--instance-filter', dest = 'instanceFilter', default = '', help = 'Consider only instances that match the given regexp')
     parser.add_argument('--min-runtime', dest = 'minRuntime', type = int, default = 1, help = 'Ignore quicker runs')
     parser.add_argument('--runtime-tolerance', dest = 'runtimeTolerance', type = float, default = 0.05, help = 'Ignore result of run when it was considerably quicker or slower than the reference run (applies to maximization only)')
     parser.add_argument('referenceRun', metavar = 'reference-run')
@@ -82,9 +96,12 @@ def main():
         cursor = conn.cursor()
         results = computeAreaRatios(cursor, args)
         if results:
+            for run in results:
+                if not results[run]:
+                    print('Warning: No data for run {}'.format(run, file = sys.stderr))
             postprocessedResults = {run: common.analyzeResult(results[run]) for run in results}
             print(json.dumps(postprocessedResults, sort_keys = True, indent = 4))
             if (args.plotDiagrams):
-                plotDiagrams(results)
+                plotDiagrams(args, results)
 
 main()

@@ -4,9 +4,9 @@ import org.junit._
 import org.junit.experimental.categories._
 
 import scala.language.implicitConversions
-
 import yuck.core._
 import yuck.constraints._
+import yuck.flatzinc.compiler.Bool2Costs2
 import yuck.flatzinc.test.util._
 import yuck.test.util.ParallelTestRunner
 
@@ -193,6 +193,58 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testCumulativeReif: Unit = {
         val result = solveWithResult(task.copy(problemName = "cumulative_reif_test"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[Cumulative]), 2)
+    }
+
+    @Test
+    @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
+    def testDeliveryWithWaiting: Unit = {
+        val result = solveWithResult(task.copy(problemName = "delivery_test_with_waiting", maybeOptimum = Some(378)))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Circuit]), 1)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Delivery[_]]), 1)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Eq[_]]), 0)
+        assert(neighbourhood(result).isInstanceOf[CircuitNeighbourhood])
+        assertEq(quality(result).asInstanceOf[IntegerValue].value, 378)
+    }
+
+    @Test
+    @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
+    def testDeliveryWithoutWaiting: Unit = {
+        val result = solveWithResult(task.copy(problemName = "delivery_test_without_waiting", dataAssignments = Map(("MaxKToMinKRatio", "1")), maybeOptimum = Some(669), maybeTargetObjectiveValue = Some(700)))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Circuit]), 1)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Delivery[_]]), 2)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Eq[_]]), 0)
+        assert(neighbourhood(result).isInstanceOf[CircuitNeighbourhood])
+        assertLe(quality(result).asInstanceOf[IntegerValue].value, 700)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
+    def testDeliveryReif: Unit = {
+        val result = solveWithResult(task.copy(problemName = "delivery_reif_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Circuit]), 1)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Delivery[_]]), 1)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Eq[_]]), 0)
+        assert(neighbourhood(result).isInstanceOf[CircuitNeighbourhood])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
+    def testDeliveriesWithEqualArrivalTimes: Unit = {
+        val result = solveWithResult(task.copy(problemName = "delivery_test_with_equal_arrival_times", dataAssignments = Map(("MaxKToMinKRatio", "1"))))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Circuit]), 1)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Delivery[_]]), 2)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Eq[_]]), 1)
+        assert(neighbourhood(result).isInstanceOf[CircuitNeighbourhood])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
+    def testDeliveriesWithSharedArrivalTimes: Unit = {
+        val result = solveWithResult(task.copy(problemName = "delivery_test_with_shared_arrival_times"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Circuit]), 1)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Delivery[_]]), 2)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Eq[_]]), 23)
+        assert(neighbourhood(result).isInstanceOf[CircuitNeighbourhood])
     }
 
     @Test

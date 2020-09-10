@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-# This script creates a database of Yuck integration test results.
+# This script puts integration test results into a database.
 #
 # To import results, call the script with a list of JSON result files on the command line.
 # When the database already exists, the given results will be added unless they are
@@ -48,7 +48,7 @@ def importResults(run, file, cursor):
     solverStatistics = data.get('solver-statistics')
     if not task:
          print("No task (MiniZinc compiler error?)")
-    elif not modelStatistics:
+    elif data['env'].get('yuck') and not modelStatistics:
         print("No model statistics (FlatZinc compiler error?)")
     else:
         cursor.execute(
@@ -64,8 +64,8 @@ def importResults(run, file, cursor):
              result['solved'] if result else False,
              result.get('violation') if result else None,
              result.get('quality') if result else None,
-             modelStatistics['number-of-search-variables'] + modelStatistics['number-of-channel-variables'],
-             modelStatistics['number-of-constraints'],
+             modelStatistics['number-of-search-variables'] + modelStatistics['number-of-channel-variables'] if modelStatistics else None,
+             modelStatistics['number-of-constraints'] if modelStatistics else None,
              solverStatistics.get('area') if solverStatistics else None,
              solverStatistics.get('runtime-in-seconds') if solverStatistics else None,
              solverStatistics.get('moves-per-second') if solverStatistics else None,
@@ -74,7 +74,7 @@ def importResults(run, file, cursor):
 
 def main():
     parser = argparse.ArgumentParser(
-        description = 'Puts Yuck integration test results into a database',
+        description = 'Puts integration test results into a database',
         formatter_class = argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--db', '--database', dest = 'database', default = 'results.db', help = 'Define results database')
     parser.add_argument('run', metavar = 'run')

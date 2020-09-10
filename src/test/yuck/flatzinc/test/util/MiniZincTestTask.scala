@@ -10,7 +10,7 @@ import yuck.test.util.{DefaultNumberOfThreads, DefaultRuntimeLimitInSeconds}
 sealed abstract class MiniZincDirectoryLayout
 // all model (mzn) files in one folder, models contain data
 case object MiniZincExamplesLayout extends MiniZincDirectoryLayout {}
-// several model (mzn) and data (dzn) file in one folder, data files may be organized into sub folders
+// several model (mzn) and data (dzn) files in one folder, data files may be organized into sub folders
 case object StandardMiniZincBenchmarksLayout extends MiniZincDirectoryLayout {}
 // several model (mzn) files in one folder, models contain data
 case object NonStandardMiniZincBenchmarksLayout extends MiniZincDirectoryLayout {}
@@ -26,6 +26,7 @@ case class MiniZincTestTask(
     val problemName: String = "",
     val modelName: String = "",
     val instanceName: String = "",
+    val dataAssignments: Map[String, String] = Map[String, String](),
     val solverConfiguration: FlatZincSolverConfiguration =
         FlatZincSolverConfiguration(checkAssignmentsToNonChannelVariables = true),
     val maybeRestartLimit: Option[Int] = None, // limits solverConfiguration.restartLimit
@@ -40,7 +41,8 @@ case class MiniZincTestTask(
     val reusePreviousTestResult: Boolean = true,
     val verifySolution: Boolean = true,
     val verificationModelName: String = "",
-    val exportDot: Boolean = false)
+    val keepFlatZincFile: Boolean = true,
+    val createDotFile: Boolean = false)
 {
     def effectiveInstanceName: String = if (instanceName.isEmpty) problemName else instanceName
     override def toString = "%s/%s/%s".format(problemName, modelName, instanceName)

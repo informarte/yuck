@@ -119,6 +119,9 @@ class MiniZincSolutionVerifier(
             "--output-mode", "dzn",
             "--output-objective",
             "--statistics")
+        for ((key, value) <- task.dataAssignments) {
+            minizincCommand ++= List("-D", "%s=%s".format(key, value))
+        }
         minizincCommand += solutionFilePath
         if (! dznFileName.isEmpty) minizincCommand += "%s/%s".format(includePath, dznFileName)
         val outputLines = new ProcessRunner(logger, minizincCommand).call()

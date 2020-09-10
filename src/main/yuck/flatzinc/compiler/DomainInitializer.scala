@@ -38,7 +38,7 @@ final class DomainInitializer
     override def run() = {
         initializeDomains()
         propagateAssignments()
-        propagateEqualityConstraints()
+        propagateConstraints()
     }
 
     private def initializeDomains(): Unit = {
@@ -132,8 +132,8 @@ final class DomainInitializer
         }
     }
 
-    private def propagateEqualityConstraints(): Unit = {
-        for (constraint <- cc.ast.constraints if ! impliedConstraints.contains(constraint)) {
+    private def propagateConstraints(): Unit = {
+        for (constraint <- cc.ast.constraints) {
             constraint match {
                 case Constraint("bool_eq", List(a, b), _) =>
                     if (! a.isConst && ! b.isConst) {
@@ -156,6 +156,12 @@ final class DomainInitializer
                     propagateElementConstraint(constraint, intDomain)
                 case Constraint("array_var_set_element" | "yuck_array_set_element", _, _) =>
                     propagateElementConstraint(constraint, intSetDomain)
+                case Constraint("yuck_int_domain", List(as, b), _) =>
+                    val d = intDomain(b)
+                    for (a <- getArrayElems(as)) {
+                        reduceDomain(a, intDomain(a).intersect(d))
+                    }
+                    impliedConstraints += constraint
                 case _ =>
             }
         }

@@ -27,6 +27,15 @@ final class FlatZincExtensionTest extends FrontEndTest {
     }
 
     @Test
+    @Category(Array(classOf[MinimizationProblem]))
+    def testIntDomain: Unit = {
+        val result1 = solveWithResult(task.copy(problemName = "int_domain_min_test"))
+        assertEq(quality(result1), One)
+        val result2 = solveWithResult(task.copy(problemName = "int_domain_max_test"))
+        assertEq(quality(result2), Two)
+    }
+
+    @Test
     @Category(Array(classOf[MaximizationProblem], classOf[HasBinPackingConstraint]))
     def testIntMaxGoal: Unit = {
         val result = solveWithResult(task.copy(problemName = "int_max_goal_test", verifySolution = false))

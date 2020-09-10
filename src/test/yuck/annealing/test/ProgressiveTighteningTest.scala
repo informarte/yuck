@@ -98,7 +98,7 @@ object ProgressiveTighteningTest {
              subordinateObjectiveType <- List(OptimizationMode.Min, OptimizationMode.Max))
             yield Vector(mainObjectiveType, subordinateObjectiveType)
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}, {1}, {2}")
+    @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
     def parameters = configurations.map(_.toArray).asJava
 
 }

@@ -135,6 +135,9 @@ class MiniZincBasedTest extends IntegrationTest {
             "--solver", "org.minizinc.mzn-fzn",
             "-I", "resources/mzn/lib/yuck",
             "--no-output-ozn", "--output-fzn-to-file", fznFilePath)
+        for ((key, value) <- task.dataAssignments) {
+            mzn2fznCommand ++= List("-D", "%s=%s".format(key, value))
+        }
         mzn2fznCommand += mznFilePath
         if (! dznFilePath.isEmpty) mzn2fznCommand += dznFilePath
         val outputLines =
@@ -193,7 +196,7 @@ class MiniZincBasedTest extends IntegrationTest {
         logResult(result)
         logQualityStepFunction(monitor)
         logSolverStatistics(monitor)
-        if (task.exportDot) {
+        if (task.createDotFile) {
             logger.withTimedLogScope("Exporting constraint network to a DOT file") {
                 val dotWriter = new java.io.FileWriter(dotFilePath)
                 new DotExporter(result.space, dotWriter).run()
@@ -210,6 +213,9 @@ class MiniZincBasedTest extends IntegrationTest {
                         new MiniZincSolutionVerifier(task, result, logger).call())
                 }
             }
+        }
+        if (! task.keepFlatZincFile) {
+            new java.io.File(fznFilePath).delete()
         }
         result
     }

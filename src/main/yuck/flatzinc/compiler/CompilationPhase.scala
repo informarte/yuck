@@ -80,6 +80,8 @@ abstract class CompilationPhase(
 
     protected final def intDomain(a: Expr): IntegerDomain = a match {
         case IntConst(a) => createIntDomain(a, a)
+        case IntSetConst(IntRange(lb, ub)) => createIntDomain(lb, ub)
+        case IntSetConst(IntSet(set)) => createIntDomain(set)
         case _ => cc.domains(a).asInstanceOf[IntegerDomain]
     }
 

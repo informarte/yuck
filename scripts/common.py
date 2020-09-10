@@ -3,29 +3,33 @@ import numpy
 import statistics
 
 # result: task -> value
-def analyzeResult(result):
+def analyzeResult(result, bins = 10, range = None):
     values = [result[task] for task in result]
-    quartiles = numpy.percentile(values, [25, 50, 75])
-    q1 = quartiles[0]
-    q2 = quartiles[1]
-    q3 = quartiles[2]
-    iqr = q3 - q1
-    return {
-        'count': len(values),
-        'min': min(values),
-        'q1': q1,
-        'q2': q2,
-        'q3': q3,
-        'max': max(values),
-        'mean': statistics.mean(values),
-        'pstdev': statistics.pstdev(values),
-        'histogram': numpy.histogram(values, 'auto')[0].tolist(),
-        'extreme-values': {
-            task[0] + "/" + task[1] + "/" + task[2]: result[task]
-            for task in result
-            if result[task] < q1 - 1.5 * iqr or result[task] > q3 + 1.5 * iqr
+    if values:
+        quartiles = numpy.percentile(values, [25, 50, 75])
+        q1 = quartiles[0]
+        q2 = quartiles[1]
+        q3 = quartiles[2]
+        iqr = q3 - q1
+        return {
+            'min': min(values),
+            'q1': q1,
+            'q2': q2,
+            'q3': q3,
+            'max': max(values),
+            'mean': statistics.mean(values),
+            'pstdev': statistics.pstdev(values),
+            'histogram': numpy.histogram(values, 'auto')[0].tolist(),
+            'extreme-values': {
+                task[0] + "/" + task[1]: result[task]
+                for task in result
+                if result[task] < q1 - 1.5 * iqr or result[task] > q3 + 1.5 * iqr
+            }
         }
-    }
+    else:
+        return {
+            'count': 0
+        }
 
 # getValues: run -> [value]
 def plotDiagrams(runs, getValues, title, xlabel, legendLocation):

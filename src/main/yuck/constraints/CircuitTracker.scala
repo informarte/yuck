@@ -29,7 +29,7 @@ abstract class CircuitTracker
         val cycleLengths = new mutable.ArrayBuffer[Int]
 
         val pending = new mutable.HashSet[IntegerVariable]
-        val path = new mutable.HashMap[IntegerVariable, Int /* 0-based position on path */]
+        val path = new mutable.AnyRefMap[IntegerVariable, Int /* 0-based position on path */]
 
         pending ++= succ
         var x: IntegerVariable = null

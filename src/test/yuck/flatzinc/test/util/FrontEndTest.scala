@@ -20,7 +20,7 @@ abstract class FrontEndTest extends MiniZincBasedTest {
             maybeRuntimeLimitInSeconds = Some(10),
             assertWhenUnsolved = true,
             reusePreviousTestResult = false,
-            exportDot = true)
+            createDotFile = true)
 
     protected def neighbourhood(result: Result): Neighbourhood =
         result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult].maybeNeighbourhood.get

@@ -1,0 +1,1 @@
+../../yuck/giant_tour.mzn
