@@ -125,8 +125,8 @@ final class MiniZincChallenge2014 extends MiniZincBasedTest {
 
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint]))
-    def stochastic_vrp_s2_v2_c7_vrp_v2_c7_det: Unit = {
-        solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "stochastic-vrp", instanceName = "vrp-s2-v2-c7_vrp-v2-c7_det", maybeOptimum = Some(160)))
+    def stochastic_vrp_s2_v2_c7: Unit = {
+        solve(task.copy(problemName = "stochastic-vrp", instanceName = "s2-v2-c7", maybeOptimum = Some(160)))
     }
 
     @Test
