@@ -300,6 +300,11 @@ class IntegerDomainPrunerTest extends UnitTest {
         // empty lhs
         checkPruning((Nil, CompleteIntegerRange), (Nil, 0 to 0))
 
+        // scalar 0
+        checkPruning(
+             (List((Zero, OneToOneIntegerRange)), ZeroToZeroIntegerRange),
+             (List((Zero, OneToOneIntegerRange)), ZeroToZeroIntegerRange))
+
         // empty domains
         checkPruning((lhs2, EmptyIntegerRange), (lhs2.map{case (a, _) => (a, EmptyIntegerRange)}, EmptyIntegerRange))
         checkPruning(

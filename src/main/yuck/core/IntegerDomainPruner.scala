@@ -146,13 +146,15 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
                     lazy val posTerm = lhs0.foldLeft(0){case (sum, (a, d)) => safeAdd(sum, if (a.value >= 0) safeMul(a.value, d.lb.value) else 0)}
                     lazy val negTerm = lhs0.foldLeft(0){case (sum, (a, d)) => safeAdd(sum, if (a.value < 0) safeMul(safeNeg(a.value), d.ub.value) else 0)}
                     for ((a, d) <- lhs0.iterator) yield {
-                        if (a.value >= 0) {
+                        if (a.value > 0) {
                             val alpha = safeAdd(safeSub(rhs0.ub.value, safeSub(posTerm, a.value * d.lb.value)), negTerm).toDouble / a.value
                             createRange(null, IntegerValue.get(floor(alpha).toInt)).intersect(d)
-                        } else {
+                        } else if (a.value < 0) {
                             // In the book, a is positive, but here it is negative, so we have to use -a!
                             val beta = safeSub(safeAdd(safeNeg(rhs0.ub.value), posTerm), safeSub(negTerm, safeNeg(a.value) * d.ub.value)).toDouble / safeNeg(a.value)
                             createRange(IntegerValue.get(ceil(beta).toInt), null).intersect(d)
+                        } else {
+                            d.asInstanceOf[IntegerDomain]
                         }
                     }
                 } else {
