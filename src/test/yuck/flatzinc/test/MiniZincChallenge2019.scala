@@ -36,7 +36,7 @@ final class MiniZincChallenge2019 extends MiniZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint], classOf[HasCumulativeConstraint], classOf[HasDecreasingConstraint], classOf[HasDiffnConstraint], classOf[HasMaximumConstraint], classOf[HasMinimumConstraint], classOf[HasTableConstraint]))
     def code_generator_mips_gcc_cfgrtl_update_br_prob_note: Unit = {
-        solve(task.copy(problemName = "code-generator", modelName = "unison", instanceName = "gcc.cfgrtl.update_br_prob_note", maybeOptimum = Some(3565)))
+        solve(task.copy(problemName = "code-generator", modelName = "unison", instanceName = "gcc.cfgrtl.update_br_prob_note", maybeMaximumNumberOfThreads = Some(1), maybeOptimum = Some(3565)))
     }
 
     @Test

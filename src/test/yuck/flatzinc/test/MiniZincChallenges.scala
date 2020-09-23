@@ -24,7 +24,8 @@ import yuck.flatzinc.test.util._
         classOf[MiniZincChallenge2016],
         classOf[MiniZincChallenge2017],
         classOf[MiniZincChallenge2018],
-        classOf[MiniZincChallenge2019]))
+        classOf[MiniZincChallenge2019],
+        classOf[MiniZincChallenge2020]))
 class MiniZincChallenges
 
 /**
