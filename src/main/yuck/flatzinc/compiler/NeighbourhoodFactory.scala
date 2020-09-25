@@ -2,7 +2,7 @@ package yuck.flatzinc.compiler
 
 import scala.collection._
 
-import yuck.constraints.{Conjunction, SatisfactionGoalTracker}
+import yuck.constraints._
 import yuck.core._
 
 /**
@@ -90,7 +90,13 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
             } else {
                 Nil
             }
-        for (constraint <- randomGenerator.shuffle(candidatesForImplicitSolving)) {
+        val constraintHardness: Map[Class[_ <: Constraint], Int] = Map(
+            (classOf[Circuit], 3), (classOf[Inverse], 3),
+            (classOf[Alldistinct[_]], 2),
+            (classOf[Table[_]], 1))
+        def constraintRanking(constraint: Constraint): Int =
+            -(constraintHardness(constraint.getClass) * constraint.inVariables.size)
+        for (constraint <- randomGenerator.shuffle(candidatesForImplicitSolving).sortBy(constraintRanking)) {
             val xs = constraint.inVariables.toSet
             if ((xs & implicitlyConstrainedVars).isEmpty) {
                 val maybeNeighbourhood =
