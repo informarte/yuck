@@ -3,6 +3,8 @@ package yuck.constraints
 import scala.collection._
 
 import yuck.core._
+import yuck.util.arm.Sigint
+import yuck.util.logging.LazyLogger
 
 /**
  * Given variables x[1], ..., x[n] and an m-by-n value matrix, the constraint
@@ -18,7 +20,8 @@ final class Table
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.IndexedSeq[Variable[Value]],
      private var rows: immutable.IndexedSeq[immutable.IndexedSeq[Value]],
-     costs: BooleanVariable)
+     costs: BooleanVariable,
+     forceImplicitSolving: Boolean = false)
     (implicit valueTraits: OrderedValueTraits[Value])
     extends Constraint(id)
 {
@@ -153,6 +156,39 @@ final class Table
             j += 1
         }
         result
+    }
+
+    final override def isCandidateForImplicitSolving(space: Space) =
+        rows.size > 1 &&
+        xs.toSet.size == xs.size &&
+        xs.forall(! space.isChannelVariable(_)) &&
+        xs.forall(_.domain.isFinite) &&
+        (forceImplicitSolving || xs.size <= 3)
+
+    final override def createNeighbourhood(
+        space: Space,
+        randomGenerator: RandomGenerator,
+        moveSizeDistribution: Distribution,
+        logger: LazyLogger,
+        sigint: Sigint,
+        extraCfg: ExtraNeighbourhoodFactoryConfiguration):
+        Option[Neighbourhood] =
+    {
+        if (isCandidateForImplicitSolving(space)) {
+            val rows = this.rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(row(i))))
+            if (rows.size > 1) {
+                val row = rows(randomGenerator.nextInt(rows.size))
+                for ((x, a) <- xs.iterator.zip(row.iterator)) {
+                    space.setValue(x, a)
+                }
+                space.setValue(costs, True)
+                Some(new TableNeighbourhood(space, xs, rows, randomGenerator))
+            } else {
+                None
+            }
+        } else {
+            None
+        }
     }
 
 }

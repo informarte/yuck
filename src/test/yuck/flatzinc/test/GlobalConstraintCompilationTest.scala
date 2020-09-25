@@ -592,6 +592,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testTableBool: Unit = {
         val result = solveWithResult(task.copy(problemName = "table_bool_test"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[Table[_]]), 1)
+        assert(neighbourhood(result).isInstanceOf[TableNeighbourhood[_]])
     }
 
     @Test
@@ -599,6 +600,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testTableBoolReif: Unit = {
         val result = solveWithResult(task.copy(problemName = "table_bool_reif_test"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[Table[_]]), 1)
+        assert(neighbourhood(result).isInstanceOf[RandomReassignmentGenerator])
     }
 
     @Test
@@ -606,6 +608,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testTableInt: Unit = {
         val result = solveWithResult(task.copy(problemName = "table_int_test"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[Table[_]]), 1)
+        assert(neighbourhood(result).isInstanceOf[TableNeighbourhood[_]])
     }
 
     @Test
@@ -613,6 +616,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testTableIntReif: Unit = {
         val result = solveWithResult(task.copy(problemName = "table_int_reif_test"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[Table[_]]), 1)
+        assert(neighbourhood(result).isInstanceOf[RandomReassignmentGenerator])
     }
 
 }

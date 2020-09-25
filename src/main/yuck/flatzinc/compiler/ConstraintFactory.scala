@@ -78,6 +78,12 @@ final class ConstraintFactory
         isViableConstraint(in, out)
     }
 
+    private def forcesImplicitSolving(annotation: Annotation): Boolean =
+        annotation.term match {
+            case Term("implicit", Nil) => true
+            case _=> false
+        }
+
     private def compileConstraint
         (constraint: yuck.flatzinc.ast.Constraint,
          in: Iterable[AnyVariable],
@@ -700,13 +706,15 @@ final class ConstraintFactory
             val xs = compileBoolArray(as)
             val rows = compileBoolArray(flatTable).map(_.domain.singleValue).grouped(xs.size).to(immutable.ArraySeq)
             val costs = createBoolChannel
-            space.post(new Table(nextConstraintId, maybeGoal, xs, rows, costs))
+            val forceImplicitSolving = constraint.annotations.exists(forcesImplicitSolving)
+            space.post(new Table(nextConstraintId, maybeGoal, xs, rows, costs, forceImplicitSolving))
             List(costs)
         case Constraint("fzn_table_int", List(as, flatTable), _) =>
             val xs = compileIntArray(as)
             val rows = compileIntArray(flatTable).map(_.domain.singleValue).grouped(xs.size).to(immutable.ArraySeq)
             val costs = createBoolChannel
-            space.post(new Table(nextConstraintId, maybeGoal, xs, rows, costs))
+            val forceImplicitSolving = constraint.annotations.exists(forcesImplicitSolving)
+            space.post(new Table(nextConstraintId, maybeGoal, xs, rows, costs, forceImplicitSolving))
             List(costs)
         case Constraint("fzn_regular", List(xs, IntConst(q), IntConst(s), flatDelta, IntConst(q0), f), _) =>
             val Q = q

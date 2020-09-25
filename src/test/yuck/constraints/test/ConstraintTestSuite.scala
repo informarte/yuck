@@ -39,5 +39,6 @@ import org.junit._
         classOf[RegularTest],
         classOf[SatisfactionGoalTrackerTest],
         classOf[SumConstraintTest],
-        classOf[SumTest]))
+        classOf[SumTest],
+        classOf[TableNeighbourhoodTest]))
 final class ConstraintTestSuite

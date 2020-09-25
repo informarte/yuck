@@ -4,6 +4,7 @@ import org.junit._
 
 import scala.collection._
 
+import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints._
 import yuck.core._
 import yuck.test.util.UnitTest
@@ -19,15 +20,19 @@ final class TableTest
     with DomainPropagationTestTooling
 {
 
+    private val randomGenerator = new JavaRandomGenerator
+    private val space = new Space(logger, sigint)
+    private val now = space.searchState
+
+    private val xs = Vector("s", "t", "u").map(new IntegerVariable(space.nextVariableId, _, IntegerRange(Zero, Nine)))
+    private val Vector(s, t, u) = xs
+    private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+
     private def createTable(m: Int)(elems: Int*): immutable.IndexedSeq[immutable.IndexedSeq[IntegerValue]] =
         elems.toIndexedSeq.map(IntegerValue.apply).grouped(m).toIndexedSeq
 
     @Test
     def testConsultAndCommit: Unit = {
-        val space = new Space(logger, sigint)
-        val xs = Vector("s", "t", "u").map(new IntegerVariable(space.nextVariableId, _, IntegerRange(Zero, Nine)))
-        val Vector(s, t, u) = xs
-        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         val rows = createTable(3)(0, 0, 0, 1, 2, 3)
         space.post(new Table(space.nextConstraintId, null, xs, rows, costs))
         assertEq(space.searchVariables, xs.toSet)
@@ -41,9 +46,6 @@ final class TableTest
 
     @Test
     def testConsultAndCommitWithDuplicateVariables: Unit = {
-        val space = new Space(logger, sigint)
-        val Vector(s, t) = Vector("s", "t").map(new IntegerVariable(space.nextVariableId, _, IntegerRange(Zero, Nine)))
-        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         val rows = createTable(3)(0, 0, 0, 1, 2, 3, 2, 2, 3)
         space.post(new Table(space.nextConstraintId, null, Vector(s, s, t), rows, costs))
         assertEq(space.searchVariables, Set(s, t))
@@ -58,10 +60,9 @@ final class TableTest
 
     @Test
     def testPropagation: Unit = {
-        val space = new Space(logger, sigint)
-        val s = new IntegerVariable(space.nextVariableId, "s", IntegerRange(Two, Five))
-        val t = new IntegerVariable(space.nextVariableId, "t", IntegerRange(Two, Three))
-        val costs = new BooleanVariable(space.nextVariableId, "costs", TrueDomain)
+        s.pruneDomain(IntegerRange(Two, Five))
+        t.pruneDomain(IntegerRange(Two, Three))
+        costs.pruneDomain(TrueDomain)
         val rows =
             createTable(2)(
                 0, 0,
@@ -87,9 +88,8 @@ final class TableTest
 
     @Test
     def testPropagationWithDuplicateVariables: Unit = {
-        val space = new Space(logger, sigint)
-        val s = new IntegerVariable(space.nextVariableId, "s", IntegerRange(Two, Five))
-        val costs = new BooleanVariable(space.nextVariableId, "costs", TrueDomain)
+        s.pruneDomain(IntegerRange(Two, Five))
+        costs.pruneDomain(TrueDomain)
         val rows =
             createTable(2)(
                 0, 0,
@@ -106,6 +106,57 @@ final class TableTest
                     "1",
                     Nil,
                     (s, IntegerDomain(List(Two, Four))))))
+    }
+
+    @Test
+    def testNeighbourhoodGeneration: Unit = {
+        val rows = createTable(3)(0, 0, 0, 1, 2, 3)
+        val constraint = new Table(space.nextConstraintId, null, xs, rows, costs)
+        space.post(constraint)
+        assert(constraint.isCandidateForImplicitSolving(space))
+        val neighbourhood =
+            constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
+        assertEq(neighbourhood.getClass, classOf[TableNeighbourhood[_]])
+        assert(xs.forall(x => x.domain.contains(now.value(x))))
+        assert(rows.contains(xs.map(now.value)))
+        assertEq(now.value(costs), True)
+        assertEq(neighbourhood.searchVariables, xs.toSet)
+    }
+
+    @Test
+    def testHandlingOfDuplicateVariablesInNeighbourhoodGeneration: Unit = {
+        val rows = createTable(3)(0, 0, 0, 1, 2, 3)
+        val constraint = new Table(space.nextConstraintId, null, Vector(s, t, s), rows, costs)
+        space.post(constraint)
+        assert(! constraint.isCandidateForImplicitSolving(space))
+        assert(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).isEmpty)
+    }
+
+    @Test
+    def testHandlingOfChannelVariablesInNeighbourhoodGeneration: Unit = {
+        import yuck.constraints.Plus
+        val rows = createTable(3)(0, 0, 0, 1, 2, 3)
+        val constraint = new Table(space.nextConstraintId, null, xs, rows, costs)
+        space.post(constraint)
+        space.post(new Plus(space.nextConstraintId, null, s, t, u))
+        assert(! constraint.isCandidateForImplicitSolving(space))
+        assert(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).isEmpty)
+    }
+
+    @Test
+    def testHandlingOfFixedColumnsInNeighbourhoodGeneration: Unit = {
+        val rows = createTable(3)(0, 0, 0, 1, 2, 3, 1, 3, 4)
+        val constraint = new Table(space.nextConstraintId, null, xs, rows, costs)
+        space.post(constraint)
+        s.pruneDomain(IntegerRange(One, One))
+        assert(constraint.isCandidateForImplicitSolving(space))
+        val neighbourhood =
+            constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
+        assertEq(neighbourhood.getClass, classOf[TableNeighbourhood[_]])
+        assert(xs.forall(x => x.domain.contains(now.value(x))))
+        assert(rows.contains(xs.map(now.value)))
+        assertEq(now.value(costs), True)
+        assertEq(neighbourhood.searchVariables, Set(t, u))
     }
 
 }

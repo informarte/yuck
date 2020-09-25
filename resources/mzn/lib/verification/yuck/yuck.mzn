@@ -8,3 +8,5 @@ function var int: bool2costs(var bool: a) :: promise_total =
         var int: b;
         constraint bool2costs(a, b);
     } in b;
+
+annotation implicit;

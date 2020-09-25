@@ -145,6 +145,7 @@ final class CircuitTest(offset: Int)
         val neighbourhood =
             constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
         assertEq(neighbourhood.getClass, classOf[CircuitNeighbourhood])
+        assert(succ.forall(x => x.domain.contains(now.value(x))))
         assert(CircuitTracker.isHamiltonianCircuit(succ, offset, now))
         assertEq(now.value(costs), True)
         assertEq(neighbourhood.searchVariables, succ.toSet)
@@ -177,6 +178,7 @@ final class CircuitTest(offset: Int)
         val neighbourhood =
             constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
         assertEq(neighbourhood.getClass, classOf[CircuitNeighbourhood])
+        assert(succ.forall(x => x.domain.contains(now.value(x))))
         assert(CircuitTracker.isHamiltonianCircuit(succ, offset, now))
         assertEq(now.value(costs), True)
         assertEq(neighbourhood.searchVariables, Set(x2, x3, x4, x5))

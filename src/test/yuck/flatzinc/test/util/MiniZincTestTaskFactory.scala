@@ -29,6 +29,8 @@ abstract class MiniZincTestTaskFactory {
             .concat(files.filter(_ => recursive).filter(_.isDirectory).flatMap(listFiles(_, fileFilter)))
     }
 
+    protected def problemFilter(file: File): Boolean = true
+
     protected def modelFilter(file: File): Boolean = file.getName.endsWith(".mzn")
 
     protected def instanceFilter(file: File): Boolean = file.getName.endsWith(".dzn")
@@ -37,8 +39,8 @@ abstract class MiniZincTestTaskFactory {
         val randomGenerator = new JavaRandomGenerator
         val suiteDir = new File(SuitePath)
         assert(suiteDir.exists)
-        val problems = suiteDir.listFiles.filter(_.isDirectory).sorted
-        var buf = new mutable.ArrayBuffer[MiniZincTestTask]
+        val problems = suiteDir.listFiles.filter(_.isDirectory).filter(problemFilter).sorted
+        val buf = new mutable.ArrayBuffer[MiniZincTestTask]
         for (problem <- problems) {
             val mznFiles = listFiles(problem, modelFilter).sorted
             val dznFiles = listFiles(problem, instanceFilter).sorted
