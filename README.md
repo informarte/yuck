@@ -11,8 +11,7 @@
 * Yuck features a mechanism to turn Boolean MiniZinc expressions (including applications of global constraints) into soft constraints, see [bool2costs](#bool2costs).
 * Yuck supports lexicographic multi-objective optimization, see [goal hierarchies](#goal-hierarchies).
 * Yuck is provided under the terms of the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0).
-* In the [2017 MiniZinc challenge](http://www.minizinc.org/challenge2017/challenge.html), Yuck ranked second among local-search solvers.
-* In the [2018 MiniZinc challenge](http://www.minizinc.org/challenge2018/challenge.html), Yuck defended its second place in the local-search category.
+* Yuck ranked second among local-search solvers at the [MiniZinc Challenge 2017](http://www.minizinc.org/challenge2017/results2017.html), the [MiniZinc Challenge 2018](http://www.minizinc.org/challenge2018/results2018.html), and the [MiniZinc Challenge 2019](http://www.minizinc.org/challenge2019/results2019.html), and it won a gold medal at the [MiniZinc Challenge 2020](https://www.minizinc.org/challenge2020/results2020.html).
 
 ## Contact
 
