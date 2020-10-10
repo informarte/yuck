@@ -253,7 +253,7 @@ final class ConstraintFactory
             def post(y: BooleanVariable): BooleanVariable = {
                 if (xs.size == 2) {
                     space.post(new And(nextConstraintId, maybeGoal, xs(0), xs(1), y))
-                } else if (xs.size > 2) {
+                } else {
                     space.post(new Conjunction(nextConstraintId, maybeGoal, xs, y))
                 }
                 y
@@ -265,7 +265,6 @@ final class ConstraintFactory
             def withoutFunctionalDependency = {
                 val costs = if (xs.size == 1) xs(0) else post(createBoolChannel)
                 if (compilesToConst(b, True)) {
-                    // exists clause
                     List(costs)
                 } else {
                     val result = createBoolChannel
@@ -282,7 +281,7 @@ final class ConstraintFactory
             def post(y: BooleanVariable): BooleanVariable = {
                 if (xs.size == 2) {
                     space.post(new Or(nextConstraintId, maybeGoal, xs(0), xs(1), y))
-                } else if (xs.size > 2) {
+                } else {
                     space.post(new Disjunction(nextConstraintId, maybeGoal, xs, y))
                 }
                 y
@@ -294,7 +293,6 @@ final class ConstraintFactory
             def withoutFunctionalDependency = {
                 val costs = if (xs.size == 1) xs(0) else post(createBoolChannel)
                 if (compilesToConst(b, True)) {
-                    // exists clause
                     List(costs)
                 } else {
                     val result = createBoolChannel
