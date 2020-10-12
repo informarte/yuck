@@ -29,7 +29,7 @@ archive.%:
 	git push -f origin $(TAG)
 
 stage:
-	sbt stage
+	./mill yuck.launcher
 
 deb:
 	sbt debian:lintian
