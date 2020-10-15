@@ -1,4 +1,5 @@
 // build.sc
+
 import mill._
 import mill.define.Sources
 import scalalib._
@@ -70,6 +71,86 @@ object yuck extends ScalaModule with BuildInfo {
 
         def fullClasspath = T {(localClasspath() ++ upstreamAssemblyClasspath()).map(_.path)}
         def fullClasspathAsString = T {fullClasspath().mkString(":")}
+    }
+
+    def documentation = T.source {millSourcePath / "doc"}
+    def miniZincBindings = T.source {millSourcePath / "resources" / "mzn" / "lib" / "yuck"}
+    def miniZincSolverConfigurationTemplate = T.source {millSourcePath / "resources" / "mzn" / "yuck.msc.in"}
+    def unixStartScriptTemplate = T.source {millSourcePath / "resources" / "bin" / "yuck.in"}
+    def winStartScriptTemplate = T.source {millSourcePath / "resources" / "bin" / "yuck.bat.in"}
+    def debianControlFileTemplate = T.source {millSourcePath / "resources" / "debian" / "control.in"}
+
+    def corePackage = T {
+        val packageName = "yuck-".concat(version())
+        val packageDir = T.dest / packageName
+        for (dependency <- upstreamAssemblyClasspath().map(_.path)) {
+            os.copy.into(dependency, packageDir / "lib", createFolders = true)
+        }
+        val yuckJarName = packageName.concat(".jar")
+        os.copy(jar().path, packageDir / "lib" / yuckJarName, createFolders = true)
+        os.copy(documentation().path, packageDir / "doc", createFolders = true)
+        os.copy(miniZincBindings().path, packageDir / "mzn" / "lib", createFolders = true)
+        val classPathComponents = (upstreamAssemblyClasspath().iterator.map(_.path.last).toSeq :+ yuckJarName)
+        val unixClassPath = classPathComponents.map(jarName => "$LIB_DIR/".concat(jarName)).mkString(":")
+        fillTemplateIn(
+            unixStartScriptTemplate().path,
+            packageDir / "bin" / "yuck",
+            Map("#CLASS_PATH#" -> unixClassPath, "#MAIN_CLASS#" -> mainClass().get))
+        makeExecutable(packageDir / "bin" / "yuck")
+        val winClassPath = classPathComponents.map(jarName => "%LIB_DIR%\\".concat(jarName)).mkString(";")
+        fillTemplateIn(
+            winStartScriptTemplate().path,
+            packageDir / "bin" / "yuck.bat",
+            Map("#CLASS_PATH#" -> winClassPath, "#MAIN_CLASS#" -> mainClass().get))
+        packageDir
+    }
+
+    def universalPackage = T {
+        val packageName = "yuck-".concat(version())
+        val packageDir = T.dest / packageName
+        os.copy(corePackage(), packageDir, createFolders = true)
+        fillTemplateIn(
+            miniZincSolverConfigurationTemplate().path,
+            packageDir / "mzn" / "yuck.msc",
+            Map("#VERSION#" -> version(), "#EXE_PATH#" -> "../bin/yuck", "#MZN_LIB_PATH#" -> "lib"))
+        val archiveName = packageName.concat(".zip")
+        os.proc("zip", "-r", archiveName, packageName).call(cwd = T.dest)
+        T.dest / archiveName
+    }
+
+    def debianPackage = T {
+        val packageName = "yuck-".concat(version())
+        val packageDir = T.dest / packageName
+        os.copy(corePackage(), packageDir / "usr" / "share" / "yuck", createFolders = true)
+        fillTemplateIn(
+            miniZincSolverConfigurationTemplate().path,
+            packageDir / "usr" / "share" / "minizinc" / "solvers" / "yuck.msc",
+            Map("#VERSION#" -> version(), "#EXE_PATH#" -> "/usr/bin/yuck", "#MZN_LIB_PATH#" -> "/usr/share/yuck/mzn/lib"))
+        fillTemplateIn(
+            debianControlFileTemplate().path,
+            packageDir / "DEBIAN" / "control",
+            Map("#VERSION#" -> version()))
+        os.makeDir.all(packageDir / "usr" / "bin")
+        os.symlink(packageDir / "usr" / "bin" / "yuck", os.Path("/usr/share/yuck/bin/yuck"))
+        os.proc("dpkg-deb", "--build", packageName).call(cwd = T.dest)
+        T.dest / (packageName.concat(".deb"))
+    }
+
+    private def fillTemplateIn(template: os.Path, target: os.Path, mapping: Map[String, String]): Unit = {
+        os.write.append(
+            target,
+            mapping.foldLeft(os.read(template))({case (s, (k, v)) => s.replace(k, v)}),
+            createFolders = true)
+    }
+
+    private def makeExecutable(path: os.Path): Unit = {
+        import java.nio.file.Files
+        import java.nio.file.attribute.PosixFilePermission
+        val perms = Files.getPosixFilePermissions(path.toNIO)
+        perms.add(PosixFilePermission.GROUP_EXECUTE)
+        perms.add(PosixFilePermission.OWNER_EXECUTE)
+        perms.add(PosixFilePermission.OTHERS_EXECUTE)
+        Files.setPosixFilePermissions(path.toNIO, perms)
     }
 
 }

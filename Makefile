@@ -32,10 +32,10 @@ stage:
 	./mill yuck.launcher
 
 deb:
-	sbt debian:lintian
+	./mill yuck.debianPackage
 
 zip:
-	sbt universal:packageBin
+	./mill yuck.universalPackage
 
 doc:
 	./mill yuck.docJar

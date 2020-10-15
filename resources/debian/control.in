@@ -1,0 +1,10 @@
+Source: yuck
+Package: yuck
+Version: #VERSION#
+Section: universe/interpreters
+Priority: optional
+Architecture: all
+Depends: default-jre-headless (>= 1.8)
+Maintainer: Michael Marte <informarte@freenet.de>
+Description: FlatZinc interpreter
+ Yuck is a local-search constraint solver with FlatZinc interface
