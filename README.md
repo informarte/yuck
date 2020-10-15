@@ -90,13 +90,13 @@ By default, the Docker image limits the maximum heap size to 2 GB.
 To set the maximum heap size to, say, 4GB, use the Java command line option `-Xmx` as follows:
 
 ```
-minizinc --solver yuck --fzn-flags -J-Xmx4g zebra.mzn
+env JAVA_OPTS=-Xmx4g minizinc --solver yuck zebra.mzn
 ```
 
 or
 
 ```
-yuck -J-Xmx4g zebra.fzn
+env JAVA_OPTS=-Xmx4g yuck zebra.fzn
 ```
 
 ## Under the hood
@@ -307,17 +307,17 @@ Keep in mind, though, that goal hierarchies are a non-standard MiniZinc extensio
 
 ## Contributing
 
-To build and run Yuck, you need [sbt](http://www.scala-sbt.org).
+The Yuck build is based on [mill](http://www.lihaoyi.com/mill/). (There is no need to download mill when you run it with `./mill` from inside the Yuck root directory.) Morever, there is a Makefile with convenience targets most of which map to mill targets.
 
-Run `sbt eclipse` to create an Eclipse project.
+Run `make idea-project-files` to create project files for IntelliJ IDEA. Then, in IntelliJ IDEA, just import the Yuck root directory.
 
 ### Building
 
-To build and rebuild Yuck and its documentation, use the sbt standard targets:
+To build and rebuild Yuck and its documentation, use the following targets:
 
-* `sbt compile` compiles all sources that need compilation.
-* `sbt doc` creates the ScalaDoc documentation from the sources.
-* `sbt clean` removes all artifacts of compiling and building.
+* `make compile` compiles all sources (including tests) that need compilation.
+* `make doc` creates the ScalaDoc documentation from the sources.
+* `make clean` removes all artifacts of compiling and building.
 
 ### Testing
 
@@ -332,27 +332,20 @@ Yuck tests are based on [JUnit 4](http://junit.org/junit4/),
 
 FlatZinc generation is fully automated and happens on the fly.
 
-All test cases other than unit tests leave a log in the local ```tmp```
+All test cases other than unit tests leave a log in the local `tmp`
 folder.
 
 Optimization results undergo automated verification using Gecode (part of the MiniZinc distribution).
 
 ### Running
 
-There are two ways to run Yuck:
+There are various ways to run a development version of Yuck:
 
-* Stage and run it:
+* Use `make run` to run Yuck from `mill` without integration with the MiniZinc toolchain.
 
-  ```
-   sbt stage
-   ./bin/yuck --help
-   ```
+* Build a package using `make deb` or `make zip` and use it as described in [Download and installation](#download-and-installation).
 
-* Run it through sbt:
-
-  ```
-  sbt run --help
-  ```
+* Use `make stage` to create the script `out/yuck/launcher/dest/run`. To use this script with the MiniZinc toolchain, create a solver configuration file from the template `resources/mzn/yuck.msc.in` and move it a to a place where the MiniZinc toolchain can find it.
 
 ### Coding style
 

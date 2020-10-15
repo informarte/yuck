@@ -28,6 +28,15 @@ archive.%:
 	git tag -f -m $(TAG) $(TAG)
 	git push -f origin $(TAG)
 
+idea-project-files:
+	./mill mill.scalalib.GenIdea/idea
+
+compile:
+	./mill yuck.test.compile
+
+run:
+	./mill yuck.run
+
 stage:
 	./mill yuck.launcher
 
