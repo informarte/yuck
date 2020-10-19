@@ -7,7 +7,7 @@ BINARY := $(NATIVE_IMAGE_DIR)/yuck
 .PHONY: native-image
 native-image: $(BINARY)
 
-CLASS_PATH := $(shell mill show yuck.fullClasspathAsString | sed -e 's/\"//g')
+CLASS_PATH := $(shell ./mill show yuck.fullClasspathAsString | sed -e 's/\"//g')
 JARS := $(foreach JAR, $(subst :, ,$(CLASS_PATH)), $(JAR))
 
 $(BINARY): $(JARS) src/graalvm/reflect-config.json
