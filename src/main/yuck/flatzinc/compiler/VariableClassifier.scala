@@ -47,13 +47,28 @@ class VariableClassifier
         }
         if (searchVars.isEmpty) {
             // In case there is no search annotation, we initially consider all variables with
-            // finite domain as subject to search except for variables that occur in a defines_var
+            // finite domain as subject to search except for variables that occur in a "defines_var"
             // annotation.
             searchVars ++= declaredVars.iterator.filter(domains(_).isFinite).map(compileAnyExpr)
             searchVars --= definedVars
         } else {
-          // Sometimes variables with a defines_var annotation are also marked as search variables.
+          // Sometimes variables, which occur in a "defines_var" annotation, are also marked as search variables.
           searchVars --= definedVars
+        }
+        // Sometimes a variable is tagged with "is_defined_var" but there is no corresponding "defines_var"
+        // annotation.
+        for (varDecl <- cc.ast.varDecls) {
+            for (annotation <- varDecl.annotations) {
+                annotation match {
+                    case Annotation(Term("is_defined_var", Nil)) =>
+                        if (varDecl.varType.isArrayType) {
+                            searchVars --= compileAnyArray(Term(varDecl.id, Nil))
+                        } else {
+                            searchVars -= compileAnyExpr(Term(varDecl.id, Nil))
+                        }
+                    case _ =>
+                }
+            }
         }
     }
 
