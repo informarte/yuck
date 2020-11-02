@@ -38,6 +38,7 @@ case class MiniZincTestTask(
     val assertWhenUnsolved: Boolean = false,
     val reusePreviousTestResult: Boolean = true,
     val verifySolution: Boolean = true,
+    val verificationModelName: String = "",
     val exportDot: Boolean = false)
 {
     def effectiveInstanceName: String = if (instanceName.isEmpty) problemName else instanceName

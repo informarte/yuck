@@ -99,7 +99,11 @@ class MiniZincSolutionVerifier(
         }
         // We include the MiniZinc model in the end because a few of them don't have a semicolon
         // after the last line.
-        solutionWriter.write("include \"%s\";".format(mznFileName));
+        if (task.verificationModelName.isEmpty) {
+            solutionWriter.write("include \"%s\";".format(mznFileName));
+        } else {
+            solutionWriter.write("include \"%s.mzn\";".format(task.verificationModelName));
+        }
         solutionWriter.close
         val minizincCommand = mutable.ArrayBuffer(
             "minizinc",
