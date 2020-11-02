@@ -1,6 +1,6 @@
 package yuck.flatzinc.test
 
-import java.io.{File, FileFilter}
+import java.io.File
 
 import scala.collection._
 import scala.jdk.CollectionConverters._
@@ -35,9 +35,17 @@ object MiniZincBenchmarks {
 
     private val InstancesPerProblem = 5
 
-    private final class SuffixFilter(suffix: String) extends FileFilter {
-        override def accept(file: File) = file.getName.endsWith(suffix)
+    private def listFiles(base: File, fileFilter: File => Boolean, recursive: Boolean = true): Seq[File] = {
+        val files = base.listFiles.toSeq
+        files
+            .filter(_.isFile)
+            .filter(fileFilter)
+            .concat(files.filter(_ => recursive).filter(_.isDirectory).flatMap(listFiles(_, fileFilter)))
     }
+
+    private def mznFilter(file: File) = file.getName.endsWith(".mzn")
+
+    private def dznFilter(file: File) = file.getName.endsWith(".dzn")
 
     private val tasks = {
         val randomGenerator = new JavaRandomGenerator
@@ -47,8 +55,8 @@ object MiniZincBenchmarks {
         val problems = suiteDir.listFiles.filter(_.isDirectory).sorted
         var buf = new mutable.ArrayBuffer[MiniZincTestTask]
         for (problem <- problems) {
-            val mznFiles = problem.listFiles(new SuffixFilter(".mzn")).toList.sorted
-            val dznFiles = problem.listFiles(new SuffixFilter(".dzn")).toList.sorted
+            val mznFiles = listFiles(problem, mznFilter).sorted
+            val dznFiles = listFiles(problem, dznFilter).sorted
             if (dznFiles.isEmpty) {
                 val mznFileSelection = randomGenerator.shuffle(mznFiles).take(InstancesPerProblem).sorted
                 for (mznFile <- mznFileSelection) {
@@ -57,7 +65,7 @@ object MiniZincBenchmarks {
                             directoryLayout = NonStandardMiniZincBenchmarksLayout,
                             suitePath = suitePath,
                             problemName = problem.getName,
-                            instanceName = mznFile.getName.replace(".mzn", ""))
+                            instanceName = mznFile.getPath.replace(problem.getPath + "/", "").replace(".mzn", ""))
                 }
             } else {
                 val dznFileSelection = randomGenerator.shuffle(dznFiles).take(InstancesPerProblem).sorted
@@ -68,8 +76,8 @@ object MiniZincBenchmarks {
                                 directoryLayout = StandardMiniZincBenchmarksLayout,
                                 suitePath = suitePath,
                                 problemName = problem.getName,
-                                modelName = mznFile.getName.replace(".mzn", ""),
-                                instanceName = dznFile.getName.replace(".dzn", ""))
+                                modelName = mznFile.getPath.replace(problem.getPath + "/", "").replace(".mzn", ""),
+                                instanceName = dznFile.getPath.replace(problem.getPath + "/", "").replace(".dzn", ""))
                     }
                 }
             }
