@@ -197,6 +197,7 @@ class MiniZincBasedTest extends IntegrationTest {
         }
         logYuckModelStatistics(result.space)
         logResult(result)
+        logQualityStepFunction(monitor)
         logSolverStatistics(monitor)
         assert(
             "No solution found, quality of best proposal was %s".format(result.costsOfBestProposal),
@@ -351,6 +352,16 @@ class MiniZincBasedTest extends IntegrationTest {
             }
         }
         jsonRoot += "result" -> resultNode
+    }
+
+    private def logQualityStepFunction(monitor: OptimizationMonitor): Unit = {
+        if (monitor.maybeQualityStepFunction.isDefined) {
+            val array =
+                monitor.maybeQualityStepFunction.get.flatMap(
+                    step => Vector(JsNumber(step.runtimeInMillis),
+                                   JsNumber(step.quality.asInstanceOf[IntegerValue].value)))
+            jsonRoot += "quality-step-function" -> JsArray(array.toVector)
+        }
     }
 
     private def logSolverStatistics(monitor: OptimizationMonitor): Unit = {

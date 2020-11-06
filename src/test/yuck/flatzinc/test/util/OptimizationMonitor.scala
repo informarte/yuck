@@ -1,7 +1,6 @@
 package yuck.flatzinc.test.util
 
 import scala.collection.mutable
-
 import yuck.annealing.{AnnealingResult, StandardAnnealingMonitor}
 import yuck.core.{NumericalValue, PolymorphicListValue}
 import yuck.util.logging.LazyLogger
@@ -18,14 +17,17 @@ import yuck.util.logging.LazyLogger
  */
 class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(logger) {
 
+    case class QualityImprovement(runtimeInMillis: Long, quality: NumericalValue[_])
+
     private var timeStampInMillis: Long = 0
     private var runtimeInMillis: Long = 0
     private var maybeTrackArea: Option[Boolean] = None
-    private var maybePreviousQuality: Option[Double] = None
+    private var maybePreviousQuality: Option[NumericalValue[_]] = None
     private var area: Double = 0.0
+    private var qualityStepFunction = new mutable.ArrayBuffer[QualityImprovement]
 
-    private def quality: Double =
-        costsOfBestProposal.asInstanceOf[PolymorphicListValue].value(1).asInstanceOf[NumericalValue[_]].toDouble
+    private def quality: NumericalValue[_] =
+        costsOfBestProposal.asInstanceOf[PolymorphicListValue].value(1).asInstanceOf[NumericalValue[_]]
 
     private class SolverStatistics(
         val runtimeInSeconds: Double, val movesPerSecond: Double,
@@ -55,7 +57,7 @@ class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(l
         super.close
         val now = System.currentTimeMillis
         if (maybeTrackArea.getOrElse(false)) {
-            area += maybePreviousQuality.getOrElse(quality) * ((now - timeStampInMillis) / 1000.0)
+            area += maybePreviousQuality.getOrElse(quality).toDouble * ((now - timeStampInMillis) / 1000.0)
         }
         runtimeInMillis += now - timeStampInMillis
     }
@@ -79,23 +81,31 @@ class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(l
         synchronized {
             super.onBetterProposal(result)
             if (result.isSolution) {
-                if (maybeTrackArea.isEmpty) {
-                    maybeTrackArea = costsOfBestProposal match {
+                val problemHasNumericalObjective =
+                    costsOfBestProposal match {
                         case value: PolymorphicListValue =>
-                            Some(value.value.size == 2 && value.value(1).isInstanceOf[NumericalValue[_]])
-                        case _ => Some(false)
+                            value.value.size == 2 && value.value(1).isInstanceOf[NumericalValue[_]]
+                        case _ => false
                     }
-                }
-                if (maybeTrackArea.get) {
-                    val now = System.currentTimeMillis
-                    runtimeInMillis += now - timeStampInMillis
-                    if (quality < 0) {
-                        maybeTrackArea = Some(false)
-                    } else {
-                        area += maybePreviousQuality.getOrElse(quality) * ((now - timeStampInMillis) / 1000.0)
-                        maybePreviousQuality = Some(quality)
+                if (problemHasNumericalObjective) {
+                    val quality = this.quality
+                    if (qualityStepFunction.isEmpty || qualityStepFunction.last.quality != quality) {
+                        val now = System.currentTimeMillis
+                        runtimeInMillis += now - timeStampInMillis
+                        if (maybeTrackArea.isEmpty) {
+                            maybeTrackArea = Some(true)
+                        }
+                        if (maybeTrackArea.get) {
+                            if (quality.toDouble < 0) {
+                                maybeTrackArea = Some(false)
+                            } else {
+                                area += maybePreviousQuality.getOrElse(quality).toDouble * ((now - timeStampInMillis) / 1000.0)
+                                maybePreviousQuality = Some(quality)
+                            }
+                        }
+                        qualityStepFunction += QualityImprovement(runtimeInMillis, quality)
+                        timeStampInMillis = now
                     }
-                    timeStampInMillis = now
                 }
             }
         }
@@ -107,6 +117,9 @@ class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(l
     // Integral of the quality step function over the runtime horizon.
     // Only available when no negative objective values were encountered during optimization.
     def maybeArea: Option[Double] = if (maybeTrackArea.getOrElse(false)) Some(area) else None
+
+    def maybeQualityStepFunction: Option[Seq[QualityImprovement]] =
+        if (qualityStepFunction.isEmpty) None else Some(qualityStepFunction.toSeq)
 
     // Returns true iff search was required to achieve the objective.
     def wasSearchRequired: Boolean = ! solverStatistics.isEmpty

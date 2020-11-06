@@ -74,7 +74,9 @@ final class SimulatedAnnealing(
 
     private def start: AnnealingResult = {
         if (maybeMonitor.isDefined) {
-            maybeMonitor.get.onSolverLaunched(result)
+            val monitor = maybeMonitor.get
+            monitor.onSolverLaunched(result)
+            monitor.onBetterProposal(result)
         }
         try {
             anneal
