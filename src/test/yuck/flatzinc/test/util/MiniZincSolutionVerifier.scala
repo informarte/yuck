@@ -113,10 +113,9 @@ class MiniZincSolutionVerifier(
             // The following directory contains definitions of predicates and functions supported
             // by Yuck but not defined by the standard library.
             "-I", "resources/mzn/lib/verification/yuck",
-            // The following directory contains a redefinitions file that causes minizinc to ignore
-            // redundant constraints.
-            "-I", "resources/mzn/lib/verification/std",
-            "--solver", "Gecode",
+            "-D", "mzn_ignore_symmetry_breaking_constraints=true",
+            "-D", "mzn_ignore_redundant_constraints=true",
+            "--solver", "gecode",
             "--output-mode", "dzn",
             "--output-objective",
             "--statistics")
