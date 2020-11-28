@@ -96,16 +96,9 @@ class MiniZincBasedTest extends IntegrationTest {
                 logger.log("Processing %s".format(mznFilePath))
                 logger.log("Logging into %s".format(logFilePath))
                 try {
-                    val result =
-                        trySolve(
-                            task.copy(suiteName = suiteName, modelName = modelName, instanceName = instanceName),
-                            mznFilePath, dznFilePath, fznFilePath, jsonFilePath)
-                    if (task.exportDot) {
-                        logger.withTimedLogScope("Exporting constraint network to a DOT file") {
-                            val dotWriter = new java.io.FileWriter(dotFilePath)
-                            new DotExporter(result.space, dotWriter).run
-                        }
-                    }
+                    val result = solve(
+                        task.copy(suiteName = suiteName, modelName = modelName, instanceName = instanceName),
+                        mznFilePath, dznFilePath, fznFilePath, jsonFilePath, dotFilePath)
                     Some(result)
                 }
                 catch {
@@ -130,9 +123,10 @@ class MiniZincBasedTest extends IntegrationTest {
         }
     }
 
-    private def trySolve(
-        task: MiniZincTestTask,
-        mznFilePath: String, dznFilePath: String, fznFilePath: String, jsonFilePath: String): Result =
+    private def solve
+        (task: MiniZincTestTask,
+         mznFilePath: String, dznFilePath: String, fznFilePath: String, jsonFilePath: String, dotFilePath: String):
+        Result =
     {
         val mzn2fznCommand = mutable.ArrayBuffer(
             "minizinc",
@@ -199,6 +193,12 @@ class MiniZincBasedTest extends IntegrationTest {
         logResult(result)
         logQualityStepFunction(monitor)
         logSolverStatistics(monitor)
+        if (task.exportDot) {
+            logger.withTimedLogScope("Exporting constraint network to a DOT file") {
+                val dotWriter = new java.io.FileWriter(dotFilePath)
+                new DotExporter(result.space, dotWriter).run
+            }
+        }
         assert(
             "No solution found, quality of best proposal was %s".format(result.costsOfBestProposal),
             result.isSolution || ! task.assertWhenUnsolved)
