@@ -69,36 +69,35 @@ final class Space(
 
     // The flow model is a DAG which describes the flow of value changes through the
     // network of variables spanned by the constraints.
-    private case class ConstraintEdge(val from: AnyVariable, val to: AnyVariable, val constraint: Constraint)
-    private type FlowModel = DirectedAcyclicGraph[AnyVariable, ConstraintEdge]
+    private type FlowModel = DirectedAcyclicGraph[Object, DefaultEdge]
     private var flowModel: FlowModel = null // maintained by post and discarded by initialize
     private def addToFlowModel(constraint: Constraint): Unit = {
         if (isCyclic(constraint)) {
             throw new CyclicConstraintNetworkException(constraint)
         }
-        for (x <- constraint.inVariables) {
-            flowModel.addVertex(x)
+        flowModel.addVertex(constraint)
+        try {
+            for (x <- constraint.inVariables) {
+                flowModel.addVertex(x)
+                flowModel.addEdge(x, constraint)
+            }
             for (y <- constraint.outVariables) {
                 flowModel.addVertex(y)
-                try {
-                    flowModel.addEdge(x, y, ConstraintEdge(x, y, constraint))
-                }
-                catch {
-                    case _: IllegalArgumentException => throw new CyclicConstraintNetworkException(constraint)
-                }
-            }
+                flowModel.addEdge(constraint, y)
+             }
+        }
+        catch {
+            case _: IllegalArgumentException =>
+                flowModel.removeVertex(constraint)
+                throw new CyclicConstraintNetworkException(constraint)
         }
     }
     private def removeFromFlowModel(constraint: Constraint): Unit = {
-        for (x <- constraint.inVariables) {
-            for (y <- constraint.outVariables) {
-                flowModel.removeEdge(ConstraintEdge(x, y, constraint))
-            }
-        }
+        flowModel.removeVertex(constraint)
     }
     private def rebuildFlowModel: Unit = {
         require(flowModel == null)
-        flowModel = new FlowModel(classOf[ConstraintEdge])
+        flowModel = new FlowModel(classOf[DefaultEdge])
         constraints.foreach(addToFlowModel)
     }
 
@@ -317,21 +316,24 @@ final class Space(
         if (isCyclic(constraint)) Some(List(constraint))
         else if (constraints.isEmpty) None
         else {
-            val spalg = new DijkstraShortestPath[AnyVariable, ConstraintEdge](flowModel)
+            val spalg = new DijkstraShortestPath[Object, DefaultEdge](flowModel)
             constraint.outVariables.iterator.map(x => findPath(spalg, x, constraint))
-                .collectFirst{case Some(path) => path.getEdgeList.asScala.map(_.constraint).+=:(constraint)}
+                .collectFirst{
+                    case Some(path) =>
+                        path.getVertexList.asScala.filter(_.isInstanceOf[Constraint])
+                            .map(_.asInstanceOf[Constraint]).+=:(constraint)}
         }
 
     private def isCyclic(constraint: Constraint): Boolean =
         constraint.outVariables.exists(constraint.inVariables.iterator.contains)
 
     private def findPath
-        (spalg: ShortestPathAlgorithm[AnyVariable, ConstraintEdge], from: AnyVariable, to: Constraint):
-        Option[GraphPath[AnyVariable, ConstraintEdge]] =
+        (spalg: ShortestPathAlgorithm[Object, DefaultEdge], from: AnyVariable, to: Constraint):
+        Option[GraphPath[Object, DefaultEdge]] =
         to.inVariables.iterator.map(x => findPath(spalg, from, x)).collectFirst{case Some(path) => path}
     private def findPath
-        (spalg: ShortestPathAlgorithm[AnyVariable, ConstraintEdge], from: AnyVariable, to: AnyVariable):
-        Option[GraphPath[AnyVariable, ConstraintEdge]] =
+        (spalg: ShortestPathAlgorithm[Object, DefaultEdge], from: AnyVariable, to: AnyVariable):
+        Option[GraphPath[Object, DefaultEdge]] =
         Option(spalg.getPath(from, to))
 
     /**
