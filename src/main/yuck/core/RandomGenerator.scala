@@ -57,8 +57,19 @@ abstract class RandomGenerator {
     }
 
     private final class LazyShuffleIterator[T](source: IndexedSeq[T]) extends Iterator[T] {
+
         private var n = source.size
-        private val buf = Array.tabulate(n)(identity)
+        private val buf = Array.ofDim[Int](n)
+
+        // Array.tabulate together with identity is slow due to boxing
+        {
+            var i = 0
+            while (i < n) {
+                buf.update(i, i)
+                i += 1
+            }
+        }
+
         @inline override def hasNext = n > 0
         override def next = {
             require(hasNext)
@@ -68,6 +79,7 @@ abstract class RandomGenerator {
             if (i < n) buf.update(i, buf(n))
             a
         }
+
     }
 
 
