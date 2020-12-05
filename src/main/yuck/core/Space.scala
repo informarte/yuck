@@ -127,7 +127,7 @@ final class Space(
             constraintOrder(lhs.id.rawId) - constraintOrder(rhs.id.rawId)
     }
 
-    private val assignment = new Assignment
+    private val assignment = new ArrayBackedAssignment
 
     private val variableIdFactory = new IdFactory[AnyVariable]
 

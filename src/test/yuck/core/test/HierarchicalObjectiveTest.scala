@@ -49,7 +49,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
         val mainObjective = new MinimizationObjective(x, Some(Zero), None)
         val subordinateObjective = new MaximizationObjective(y, Some(Nine), None)
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
-        val a = new Assignment
+        val a = new HashMapBackedAssignment
         a.setValue(x, Zero)
         a.setValue(y, One)
         type PLV = PolymorphicListValue
@@ -68,10 +68,10 @@ final class HierarchicalObjectiveTest extends UnitTest {
         val mainObjective = new MinimizationObjective(x, Some(Zero), None)
         val subordinateObjective = new MaximizationObjective(y, Some(Nine), None)
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
-        val a = new Assignment
+        val a = new HashMapBackedAssignment
         a.setValue(x, Zero)
         a.setValue(y, One)
-        val b = new Assignment
+        val b = new HashMapBackedAssignment
         b.setValue(x, One)
         b.setValue(y, One)
         // check move assessment wrt. main (minimization) goal

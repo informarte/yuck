@@ -48,9 +48,9 @@ final class SatisfactionObjectiveTest extends UnitTest {
     @Test
     def testMoveAssessment: Unit = {
         import scala.math.Ordering.Double.TotalOrdering
-        val a = new Assignment
+        val a = new HashMapBackedAssignment
         a.setValue(x, True)
-        val b = new Assignment
+        val b = new HashMapBackedAssignment
         b.setValue(x, False)
         assertEq(objective.assessMove(a, a), 0)
         assertEq(objective.assessMove(b, b), 0)
