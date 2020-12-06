@@ -40,6 +40,7 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
 
     override def hull: IntegerRange
     override def mirrored: IntegerDomain
+    override def distanceTo(a: NumericalValue[IntegerValue]): IntegerValue
 
     /** Return true iff the domain has at least one gap. */
     def hasGaps: Boolean
@@ -87,14 +88,6 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
             else None
         }
     }
-
-    /**
-     * Returns 0 if the domain contains the given value;
-     * otherwise returns the distance of the given value to the nearest range.
-     *
-     * Throws when the domain is empty.
-     */
-    def distanceTo(a: IntegerValue): Int
 
     final override def randomSubdomain(randomGenerator: RandomGenerator): IntegerDomain = {
         val choice = new mutable.HashSet[IntegerValue]

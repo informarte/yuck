@@ -252,16 +252,16 @@ final class IntegerDomainTestHelper
         } else {
             val result = d.distanceTo(a)
             if (d.contains(a)) {
-                assertEq(result, 0)
+                assertEq(result, Zero)
             } else if (d.isFinite) {
-                assertEq(result, (d.valuesIterator.map(b => (a - b).abs).min).value)
+                assertEq(result, d.valuesIterator.map(b => (a - b).abs).min)
             } else if (d.hasLb && a < d.lb) {
-                assertEq(result, (d.lb - a).value)
+                assertEq(result, d.lb - a)
             } else if (d.hasUb && a > d.ub) {
-                assertEq(result, (a - d.ub).value)
+                assertEq(result, a - d.ub)
             } else {
-                assert(d.contains(a + IntegerValue.get(result)) || d.contains(a - IntegerValue.get(result)))
-                assert(! d.intersects(new IntegerRange(a - IntegerValue.get(result) + One, a + IntegerValue.get(result) - One)))
+                assert(d.contains(a + result) || d.contains(a - result))
+                assert(! d.intersects(new IntegerRange(a - result + One, a + result - One)))
             }
         }
     }

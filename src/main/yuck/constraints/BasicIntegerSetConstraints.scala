@@ -26,7 +26,7 @@ final class Contains
 {
     override def toString = "contains(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerValue, b: IntegerSetValue) =
-        if (b.set.isEmpty) False else BooleanValue.get(b.set.distanceTo(a))
+        if (b.set.isEmpty) False else BooleanValue.get(b.set.distanceTo(a).toLong)
     override def propagate = {
         if (BooleanDomain.ensureDecisionDomain(z.domain) == TrueDomain && y.domain.isSingleton) {
             NoPropagationOccurred.pruneDomain(x, x.domain.intersect(y.domain.singleValue.set))

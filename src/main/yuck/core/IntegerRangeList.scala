@@ -150,15 +150,16 @@ final class IntegerRangeList
         }
     }
 
-    override def distanceTo(a: IntegerValue) = {
+    override def distanceTo(a0: NumericalValue[IntegerValue]): IntegerValue = {
         require(! isEmpty)
-        if (lb != null && a < lb) safeSub(lb.value, a.value)
-        else if (ub != null && a > ub) safeSub(a.value, ub.value)
-        else if (ranges.size == 1) 0
+        val a = a0.asInstanceOf[IntegerValue]
+        if (lb != null && a < lb) lb - a
+        else if (ub != null && a > ub) a - ub
+        else if (ranges.size == 1) Zero
         else {
             val i = findIndexOfContainingHole(a, 0, ranges.size - 2)
-            if (i < 0) 0
-            else min(safeSub(a.value, ranges(i).ub.value), safeSub(ranges(i + 1).lb.value, a.value))
+            if (i < 0) Zero
+            else IntegerValue.get(min(safeSub(a.value, ranges(i).ub.value), safeSub(ranges(i + 1).lb.value, a.value)))
         }
     }
 

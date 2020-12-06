@@ -95,11 +95,12 @@ final class IntegerRange
          this.intersect(createRange(IntegerValue.get(mid), ub)))
     }
 
-    override def distanceTo(a: IntegerValue) = {
+    override def distanceTo(a0: NumericalValue[IntegerValue]): IntegerValue = {
         require(! isEmpty)
-        if (lb != null && a < lb) safeSub(lb.value, a.value)
-        else if (ub != null && a > ub) safeSub(a.value, ub.value)
-        else 0
+        val a = a0.asInstanceOf[IntegerValue]
+        if (lb != null && a < lb) lb - a
+        else if (ub != null && a > ub) a - ub
+        else Zero
     }
 
     def isSubsetOf(that: IntegerRange): Boolean =

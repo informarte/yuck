@@ -33,6 +33,14 @@ abstract class NumericalDomain[Value <: NumericalValue[Value]] extends OrderedDo
      */
     def mirrored: NumericalDomain[Value]
 
+    /**
+     * Returns 0 if the domain contains the given value;
+     * otherwise returns the distance of the given value to the nearest range.
+     *
+     * Throws when the domain is empty.
+     */
+    def distanceTo(a: NumericalValue[Value]): NumericalValue[Value]
+
     override def randomSubdomain(randomGenerator: RandomGenerator): NumericalDomain[Value]
     override def intersect(that: Domain[Value]): NumericalDomain[Value]
     override def union(that: Domain[Value]): NumericalDomain[Value]
