@@ -74,7 +74,7 @@ abstract class Variable
     final override def hasValidValue(space: Space) =
         domain.contains(space.searchState.value(this))
 
-    private val reuseableEffect = new ReusableMoveEffectWithFixedVariable[Value](this)
+    val reuseableEffect = new ReusableMoveEffectWithFixedVariable[Value](this)
 
     final override def randomMoveEffect(randomGenerator: RandomGenerator) = {
         reuseableEffect.setValue(if (domain.isSingleton) domain.singleValue else domain.randomValue(randomGenerator))
