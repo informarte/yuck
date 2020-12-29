@@ -43,7 +43,10 @@ object yuck extends ScalaModule with BuildInfo {
         ivy"org.scala-lang.modules::scala-parser-combinators:1.1.2"
     )
 
-    override def forkArgs = Seq("-server", "-Xmx2G", "-XX:+UseParallelGC", "-XX:+AggressiveHeap")
+    val basicJvmConfiguration = Seq("-Xmx2G", "-Djava.lang.Integer.IntegerCache.high=10000")
+    val jvmConfiguration = basicJvmConfiguration ++ Seq("-XX:+UseParallelGC", "-XX:+AggressiveHeap")
+
+    override def forkArgs = jvmConfiguration
     override def mainClass = Some("yuck.flatzinc.runner.FlatZincRunner")
 
     def fullClasspath = T {(localClasspath() ++ upstreamAssemblyClasspath()).map(_.path)}
@@ -66,7 +69,7 @@ object yuck extends ScalaModule with BuildInfo {
             ivy"com.novocode:junit-interface:0.11"
         )
 
-        override def forkArgs = Seq("-server", "-Xmx2G", "-XX:+UseParallelGC", "-XX:+AggressiveHeap")
+        override def forkArgs = jvmConfiguration
         override def mainClass = Some("yuck.util.testing.YuckTestRunner")
 
         def fullClasspath = T {(localClasspath() ++ upstreamAssemblyClasspath()).map(_.path)}
@@ -92,16 +95,17 @@ object yuck extends ScalaModule with BuildInfo {
         os.copy(miniZincBindings().path, packageDir / "mzn" / "lib", createFolders = true)
         val classPathComponents = (upstreamAssemblyClasspath().iterator.map(_.path.last).toSeq :+ yuckJarName)
         val unixClassPath = classPathComponents.map(jarName => "$LIB_DIR/".concat(jarName)).mkString(":")
+        val basicMapping = Map("#YUCK_JAVA_OPTS#" -> basicJvmConfiguration.mkString(" "), "#MAIN_CLASS#" -> mainClass().get)
         fillTemplateIn(
             unixStartScriptTemplate().path,
             packageDir / "bin" / "yuck",
-            Map("#CLASS_PATH#" -> unixClassPath, "#MAIN_CLASS#" -> mainClass().get))
+            basicMapping + ("#CLASS_PATH#" -> unixClassPath))
         makeExecutable(packageDir / "bin" / "yuck")
         val winClassPath = classPathComponents.map(jarName => "%LIB_DIR%\\".concat(jarName)).mkString(";")
         fillTemplateIn(
             winStartScriptTemplate().path,
             packageDir / "bin" / "yuck.bat",
-            Map("#CLASS_PATH#" -> winClassPath, "#MAIN_CLASS#" -> mainClass().get))
+            basicMapping + ("#CLASS_PATH#" -> winClassPath))
         packageDir
     }
 

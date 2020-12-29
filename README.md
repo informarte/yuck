@@ -83,11 +83,11 @@ Say your home folder contains the directory `workspace` with the file `zebra.mzn
 docker run -ti -v ~/workspace:/problems informarte/yuck:latest minizinc --solver yuck /problems/zebra.mzn
 ```
 
-By default, the Docker image limits the maximum heap size to 2 GB.
-
 ## Setting the maximum heap size
 
-To set the maximum heap size to, say, 4GB, use the Java command line option `-Xmx` as follows:
+The maximum heap size defaults to 2 GB.
+
+To increase the maximum heap size to, say, 4GB, use the Java command line option `-Xmx` as follows:
 
 ```
 env JAVA_OPTS=-Xmx4g minizinc --solver yuck zebra.mzn

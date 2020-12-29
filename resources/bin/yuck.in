@@ -5,7 +5,8 @@
 declare -r SCRIPT_PATH="$(realpath "$0")"
 declare -r APP_HOME="$(realpath "$(dirname "$SCRIPT_PATH")"/..)"
 declare -r LIB_DIR="$(realpath "$APP_HOME/lib")"
+declare -r YUCK_JAVA_OPTS="#YUCK_JAVA_OPTS#"
 declare -r CLASS_PATH="#CLASS_PATH#"
 declare -r MAIN_CLASS="#MAIN_CLASS#"
 
-java -server "$JAVA_OPTS" -cp "$CLASS_PATH" "$MAIN_CLASS" "$@"
+java $YUCK_JAVA_OPTS $JAVA_OPTS -cp "$CLASS_PATH" $MAIN_CLASS "$@"

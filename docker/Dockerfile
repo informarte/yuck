@@ -10,7 +10,6 @@ RUN apt-get update
 RUN apt-get install -y default-jre-headless && \
     apt-get clean && \
     java -version
-ENV JAVA_OPTS -server -Xmx2G -XX:+UseParallelGC -XX:+AggressiveHeap
 
 # Install MiniZinc compiler
 ARG minizinc_version=2.2.3
