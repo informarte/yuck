@@ -29,7 +29,6 @@ final class SimulatedAnnealing(
     maybeRoundLimit: Option[Int],
     maybeMonitor: Option[AnnealingMonitor],
     maybeUserData: Option[Object],
-    propagateBounds: Boolean,
     sigint: Sigint)
     extends Solver
 {
@@ -235,37 +234,8 @@ final class SimulatedAnnealing(
             }
         }
         costsOfCurrentProposal = objective.costs(currentProposal)
-        if (! tightenedVariables.isEmpty && propagateBounds) {
-            propagateBounds(tightenedVariables, roundLog)
-        }
-        // Bound propagation may prove optimality, so do not report progress before.
         if (bestProposalWasImproved && maybeMonitor.isDefined) {
             maybeMonitor.get.onBetterProposal(result)
-        }
-    }
-
-    private def propagateBounds(xs: Set[AnyVariable], roundLog: RoundLog): Unit = {
-        try {
-            // We propagate the new bounds and, afterwards, fix assignments to search variables
-            // that were rendered invalid by domain reductions.
-            val searchVariables = space.searchVariables
-            space.propagate(xs)
-            val effects = new mutable.ArrayBuffer[AnyMoveEffect]
-            for (y <- searchVariables.diff(xs)) {
-                if (! y.hasValidValue(space)) {
-                    effects += y.randomMoveEffect(randomGenerator)
-                }
-            }
-            if (! effects.isEmpty) {
-                val move = new ChangeAnyValues(space.nextMoveId, effects)
-                space.consult(move)
-                space.commit(move)
-                postprocessMove(roundLog)
-            }
-        } catch {
-            case _: DomainWipeOutException =>
-                // Propagation proved that the best proposal is optimal.
-                result.bestProposalIsOptimal = true
         }
     }
 

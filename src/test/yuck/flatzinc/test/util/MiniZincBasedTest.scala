@@ -296,8 +296,7 @@ class MiniZincBasedTest extends IntegrationTest {
                 "stop-on-first-solution" -> JsBoolean(cfg.stopOnFirstSolution),
                 "run-presolver" -> JsBoolean(cfg.runPresolver),
                 "use-implicit-solving" -> JsBoolean(cfg.useImplicitSolving),
-                "use-progressive-tightening" -> JsBoolean(cfg.useProgressiveTightening),
-                "propagate-bounds" -> JsBoolean(cfg.propagateBounds)
+                "use-progressive-tightening" -> JsBoolean(cfg.useProgressiveTightening)
             )
         if (cfg.maybeRoundLimit.isDefined) {
             cfgNode += "round-limit" -> JsNumber(cfg.maybeRoundLimit.get)

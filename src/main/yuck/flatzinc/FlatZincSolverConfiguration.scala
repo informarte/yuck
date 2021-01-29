@@ -31,7 +31,6 @@ case class FlatZincSolverConfiguration(
     val runPresolver: Boolean = true,
     val useImplicitSolving: Boolean = true,
     val useProgressiveTightening: Boolean = true,
-    val propagateBounds: Boolean = true,
     val checkIncrementalCostUpdate: Boolean = false,
     val checkAssignmentsToNonChannelVariables: Boolean = false,
     val moveSizeDistribution: Distribution = DistributionFactory.createDistribution(1, List(90, 10)),

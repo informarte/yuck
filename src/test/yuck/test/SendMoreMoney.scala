@@ -112,7 +112,6 @@ final class SendMoreMoney extends IntegrationTest {
                     None,
                     Some(monitor),
                     Some(new ModelData(LHS, RHS)),
-                    false,
                     sigint)
 
             solver

@@ -20,9 +20,8 @@ final class AnnealingResult(
     var costsOfFinalProposal: Costs = null
     val roundLogs = new mutable.ArrayBuffer[RoundLog]
     var indexOfRoundWithBestProposal: Int = 0
-    var bestProposalIsOptimal: Boolean = false
-    override def isGoodEnough = bestProposalIsOptimal || super.isGoodEnough
-    override def isOptimal = bestProposalIsOptimal || super.isOptimal
+    override def isGoodEnough = super.isGoodEnough
+    override def isOptimal = super.isOptimal
     def runtimeInSeconds: Double = roundLogs.iterator.map(_.runtimeInSeconds).sum
     def movesPerSecond: Double = roundLogs.iterator.map(_.movesPerSecond).sum / roundLogs.size
     def consultationsPerSecond: Double = roundLogs.iterator.map(_.consultationsPerSecond).sum / roundLogs.size

@@ -79,7 +79,6 @@ final class FlatZincSolverGenerator
                     cfg.maybeRoundLimit,
                     Some(monitor),
                     Some(compilerResult),
-                    cfg.propagateBounds,
                     sigint)
             }
         }

@@ -18,8 +18,7 @@ import yuck.util.testing.IntegrationTest
 @runner.RunWith(classOf[runners.Parameterized])
 final class ProgressiveTighteningTest
     (mainObjectiveType: OptimizationMode.Value,
-     subordinateObjectiveType: OptimizationMode.Value,
-     propagateBounds: Boolean)
+     subordinateObjectiveType: OptimizationMode.Value)
     extends IntegrationTest
 {
 
@@ -79,13 +78,12 @@ final class ProgressiveTighteningTest
                 Some(1),
                 Some(tighteningCounter),
                 None,
-                propagateBounds,
                 sigint)
         val result = solver.call
         assert(result.isGoodEnough)
         assert(result.isOptimal)
         assertEq(tighteningCounter.n, 1)
-        assertEq(space.numberOfPropagations, if (propagateBounds) 1 else 0)
+        assertEq(space.numberOfPropagations, 0)
     }
 
 }
@@ -98,9 +96,8 @@ object ProgressiveTighteningTest {
 
     private def configurations =
         for (mainObjectiveType <- List(OptimizationMode.Min, OptimizationMode.Max);
-             subordinateObjectiveType <- List(OptimizationMode.Min, OptimizationMode.Max);
-             propagateBounds <- List(true, false))
-            yield Vector(mainObjectiveType, subordinateObjectiveType, propagateBounds)
+             subordinateObjectiveType <- List(OptimizationMode.Min, OptimizationMode.Max))
+            yield Vector(mainObjectiveType, subordinateObjectiveType)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}, {2}")
     def parameters = configurations.map(_.toArray).asJava

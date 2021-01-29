@@ -110,7 +110,6 @@ final class Alldistinct
                             maybeRoundLimit = Some(1000),
                             Some(new StandardAnnealingMonitor(logger)),
                             maybeUserData = None,
-                            propagateBounds = false,
                             sigint)
                     solver.call
                 }
