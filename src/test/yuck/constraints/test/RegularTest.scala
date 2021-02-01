@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class RegularTest extends UnitTest with CostComputationTestTooling[BooleanValue] {
+final class RegularTest extends UnitTest with AssignmentPropagationTestTooling {
 
     @Test
     def testRegular: Unit = {
@@ -30,25 +30,24 @@ final class RegularTest extends UnitTest with CostComputationTestTooling[Boolean
         space.post(new Regular(space.nextConstraintId, null, xs, Q, S, delta, q0, F, costs))
         assertEq(space.searchVariables, xs.toSet)
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
                 // input:  1, 1, 1, 2, 1, 2, 2, 2, 1, 1
                 // states: 1, 1, 1, 2, 3, 4, 5, 6, 6, 6
                 Initialize(
                     "setup",
-                    True,
                     (xs(0), One), (xs(1), One), (xs(2), One), (xs(3), Two), (xs(4), One),
-                    (xs(5), Two), (xs(6), Two), (xs(7), Two), (xs(8), One), (xs(9), One)),
+                    (xs(5), Two), (xs(6), Two), (xs(7), Two), (xs(8), One), (xs(9), One),
+                    (costs, True)),
                 // input:  1, 1, 1, 2, 2, 2, 2, 2, 1, 1
                 // states: 1, 1, 1, 2, 0, 0, 0, 0, 0, 0
-                ConsultAndCommit("1", False6, (xs(4), Two)),
+                ConsultAndCommit("1", (xs(4), Two), (costs, False6)),
                 // input:  1, 1, 1, 2, 1, 2, 2, 2, 1, 2
                 // states: 1, 1, 1, 2, 3, 4, 5, 6, 6, 0
-                ConsultAndCommit("2", False, (xs(4), One), (xs(9), Two)),
+                ConsultAndCommit("2", (xs(4), One), (xs(9), Two), (costs, False)),
                 // input:  1, 1, 1, 2, 1, 2, 2, 2, 1, 1
                 // states: 1, 1, 1, 2, 3, 4, 5, 6, 6, 6
-                ConsultAndCommit("3", True, (xs(9), One))))
+                ConsultAndCommit("3", (xs(9), One), (costs, True))))
     }
 
 }

@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class CountVarTest extends UnitTest with CostComputationTestTooling[IntegerValue] {
+final class CountVarTest extends UnitTest with AssignmentPropagationTestTooling {
 
     @Test
     def testCountVar: Unit = {
@@ -28,12 +28,11 @@ final class CountVarTest extends UnitTest with CostComputationTestTooling[Intege
         space.post(new CountVar(space.nextConstraintId, null, List(s, t, u), what, n))
         assertEq(space.searchVariables, Set(s, t, u, what))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                n,
-                Initialize("setup", Three, (s, One), (t, One), (u, One), (what, One)),
-                ConsultAndCommit("1", Two, (s, Two)),
-                ConsultAndCommit("2", One, (what, Two))))
+                Initialize("setup", (s, One), (t, One), (u, One), (what, One), (n, Three)),
+                ConsultAndCommit("1", (s, Two), (n, Two)),
+                ConsultAndCommit("2", (what, Two), (n, One))))
     }
 
 }

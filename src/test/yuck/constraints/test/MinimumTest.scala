@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class MinimumTest extends UnitTest with CostComputationTestTooling[IntegerValue] {
+final class MinimumTest extends UnitTest with AssignmentPropagationTestTooling {
 
     @Test
     def testMinimum: Unit = {
@@ -27,12 +27,11 @@ final class MinimumTest extends UnitTest with CostComputationTestTooling[Integer
         space.post(new Minimum(space.nextConstraintId, null, List(s, t, u), min))
         assertEq(space.searchVariables, Set(s, t, u))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                min,
-                Initialize("setup", One, (s, One), (t, Two), (u, Three)),
-                ConsultAndCommit("1", Two, (s, Two)),
-                ConsultAndCommit("2", One, (u, One))))
+                Initialize("setup", (s, One), (t, Two), (u, Three), (min, One)),
+                ConsultAndCommit("1", (s, Two), (min, Two)),
+                ConsultAndCommit("2", (u, One), (min, One))))
     }
 
 }

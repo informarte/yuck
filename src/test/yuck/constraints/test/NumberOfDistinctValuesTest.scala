@@ -12,7 +12,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class NumberOfDistinctValuesTest extends UnitTest with CostComputationTestTooling[IntegerValue] {
+final class NumberOfDistinctValuesTest extends UnitTest with AssignmentPropagationTestTooling {
 
     @Test
     def testNumberOfDistinctValues: Unit = {
@@ -23,13 +23,12 @@ final class NumberOfDistinctValuesTest extends UnitTest with CostComputationTest
         space.post(new NumberOfDistinctValues(space.nextConstraintId, null, xs, m))
         assertEq(space.searchVariables, xs.toSet)
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                m,
-                Initialize("setup", One,(xs(0), One), (xs(1), One),  (xs(2), One)),
-                ConsultAndCommit("1", Two, (xs(0), Two)),
-                ConsultAndCommit("2", Two, (xs(1), Two)),
-                ConsultAndCommit("3", One, (xs(2), Two))))
+                Initialize("setup", (xs(0), One), (xs(1), One),  (xs(2), One), (m, One)),
+                ConsultAndCommit("1", (xs(0), Two), (m, Two)),
+                ConsultAndCommit("2", (xs(1), Two), (m, Two)),
+                ConsultAndCommit("3", (xs(2), Two), (m, One))))
     }
 
 }

@@ -15,8 +15,8 @@ import yuck.util.testing.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class BooleanTableTest
     extends UnitTest
-    with CostComputationTestTooling[BooleanValue]
-    with PropagationTestTooling
+    with AssignmentPropagationTestTooling
+    with DomainPropagationTestTooling
 {
 
     private def createTable(m: Int)(elems: BooleanValue*): immutable.IndexedSeq[immutable.IndexedSeq[BooleanValue]] =
@@ -35,12 +35,11 @@ final class BooleanTableTest
         space.post(new BooleanTable(space.nextConstraintId, null, xs, rows, costs))
         assertEq(space.searchVariables, xs.toSet)
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
-                Initialize("initial conflict", False, (s, True), (t, False), (u, False), (v, False)),
-                ConsultAndCommit("move away from the first row and approach the second row", False2, (t, True)),
-                ConsultAndCommit("resolve conflict by changing two values at once", True, (u, True), (v, True))))
+                Initialize("initial conflict", (s, True), (t, False), (u, False), (v, False), (costs, False)),
+                ConsultAndCommit("move away from the first row and approach the second row", (t, True), (costs, False2)),
+                ConsultAndCommit("resolve conflict by changing two values at once", (u, True), (v, True), (costs, True))))
     }
 
     @Test
@@ -56,13 +55,12 @@ final class BooleanTableTest
         space.post(new BooleanTable(space.nextConstraintId, null, Vector(s, s, t, u), rows, costs))
         assertEq(space.searchVariables, Set(s, t, u))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
-                Initialize("initial conflict", False3, (s, True), (t, True), (u, False)),
-                ConsultAndCommit("fix first two columns", False, (s, False)),
-                ConsultAndCommit("fix third column", True, (t, False)),
-                ConsultAndCommit("change two values at once", False3, (s, True), (t, True))))
+                Initialize("initial conflict", (s, True), (t, True), (u, False), (costs, False3)),
+                ConsultAndCommit("fix first two columns", (s, False), (costs, False)),
+                ConsultAndCommit("fix third column", (t, False), (costs, True)),
+                ConsultAndCommit("change two values at once", (s, True), (t, True), (costs, False3))))
     }
 
     @Test
@@ -79,26 +77,17 @@ final class BooleanTableTest
                 False, True,  True,  True)
         space.post(new BooleanTable(space.nextConstraintId, null, xs, rows, costs))
         runScenario(
-            PropagationTestScenario(
+            TestScenario(
                 space,
                 Propagate(
                     "1",
                     Nil,
-                    () => {
-                        assertEq(s.domain, CompleteBooleanDecisionDomain)
-                        assertEq(t.domain, CompleteBooleanDecisionDomain)
-                        assertEq(u.domain, CompleteBooleanDecisionDomain)
-                        assertEq(v.domain, CompleteBooleanDecisionDomain)
-                    }),
+                    List((s, CompleteBooleanDecisionDomain), (t, CompleteBooleanDecisionDomain),
+                         (u, CompleteBooleanDecisionDomain), (v, CompleteBooleanDecisionDomain))),
                 Propagate(
                     "2",
                     (v, TrueDomain),
-                    () => {
-                        assertEq(s.domain, FalseDomain)
-                        assertEq(t.domain, CompleteBooleanDecisionDomain)
-                        assertEq(u.domain, TrueDomain)
-                        assertEq(v.domain, TrueDomain)
-                    })))
+                    List((s, FalseDomain), (t, CompleteBooleanDecisionDomain), (u, TrueDomain), (v, TrueDomain)))))
     }
 
     @Test
@@ -115,23 +104,17 @@ final class BooleanTableTest
                 True,  True,  False, True)
         space.post(new BooleanTable(space.nextConstraintId, null, Vector(s, s, t, u), rows, costs))
         runScenario(
-            PropagationTestScenario(
+            TestScenario(
                 space,
                 Propagate(
                     "1",
                     Nil,
-                    () => {
-                        assertEq(s.domain, CompleteBooleanDecisionDomain)
-                        assertEq(t.domain, CompleteBooleanDecisionDomain)
-                        assertEq(u.domain, CompleteBooleanDecisionDomain)
-                    }),
+                    List((s, CompleteBooleanDecisionDomain), (t, CompleteBooleanDecisionDomain),
+                         (u, CompleteBooleanDecisionDomain))),
                 Propagate(
                     "2",
                     (s, TrueDomain),
-                    () => {
-                        assertEq(t.domain, FalseDomain)
-                        assertEq(u.domain, TrueDomain)
-                    })))
+                    List((t, FalseDomain), (u, TrueDomain)))))
     }
 
 }

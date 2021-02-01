@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class DisjunctionTest extends UnitTest with CostComputationTestTooling[BooleanValue] {
+final class DisjunctionTest extends UnitTest with AssignmentPropagationTestTooling {
 
     @Test
     def testDisjunction: Unit = {
@@ -27,13 +27,12 @@ final class DisjunctionTest extends UnitTest with CostComputationTestTooling[Boo
         space.post(new Disjunction(space.nextConstraintId, null, List(s, t, u), costs))
         assertEq(space.searchVariables, Set(s, t, u))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
-                Initialize("init", False2, (s, False), (t, False2), (u, False3)),
-                ConsultAndCommit("1", False, (u, False2)),
-                ConsultAndCommit("2", True, (s, True)),
-                ConsultAndCommit("2", False2, (s, False3))))
+                Initialize("init", (s, False), (t, False2), (u, False3), (costs, False2)),
+                ConsultAndCommit("1", (u, False2), (costs, False)),
+                ConsultAndCommit("2", (s, True), (costs, True)),
+                ConsultAndCommit("2", (s, False3), (costs, False2))))
     }
 
 }

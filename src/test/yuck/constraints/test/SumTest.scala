@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class SumTest extends UnitTest with CostComputationTestTooling[IntegerValue] {
+final class SumTest extends UnitTest with AssignmentPropagationTestTooling {
 
     @Test
     def testSum: Unit = {
@@ -27,12 +27,11 @@ final class SumTest extends UnitTest with CostComputationTestTooling[IntegerValu
         space.post(new Sum(space.nextConstraintId, null, List(x1, x2, x3), y))
         assertEq(space.searchVariables, Set(x1, x2, x3))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                y,
-                Initialize("setup", Six, (x1, One), (x2, Two), (x3, Three)),
-                ConsultAndCommit("1", Seven, (x2, Three)),
-                ConsultAndCommit("2", Five, (x1, Zero), (x3, Two))))
+                Initialize("setup", (x1, One), (x2, Two), (x3, Three), (y, Six)),
+                ConsultAndCommit("1", (x2, Three), (y, Seven)),
+                ConsultAndCommit("2", (x1, Zero), (x3, Two), (y, Five))))
     }
 
 }

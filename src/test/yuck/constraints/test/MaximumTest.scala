@@ -14,7 +14,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class MaximumTest extends UnitTest with CostComputationTestTooling[IntegerValue] {
+final class MaximumTest extends UnitTest with AssignmentPropagationTestTooling {
 
     @Test
     def testMaximum: Unit = {
@@ -27,12 +27,11 @@ final class MaximumTest extends UnitTest with CostComputationTestTooling[Integer
         space.post(new Maximum(space.nextConstraintId, null, List(s, t, u), max))
         assertEq(space.searchVariables, Set(s, t, u))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                max,
-                Initialize("setup", Three, (s, One), (t, Two), (u, Three)),
-                ConsultAndCommit("1", Two, (u, Two)),
-                ConsultAndCommit("2", Three, (s, Three))))
+                Initialize("setup", (s, One), (t, Two), (u, Three), (max, Three)),
+                ConsultAndCommit("1", (u, Two), (max, Two)),
+                ConsultAndCommit("2", (s, Three), (max, Three))))
     }
 
 }

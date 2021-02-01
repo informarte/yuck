@@ -15,7 +15,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class AlldistinctTest extends UnitTest with CostComputationTestTooling[BooleanValue] {
+final class AlldistinctTest extends UnitTest with AssignmentPropagationTestTooling {
 
     @Test
     def testAlldistinct: Unit = {
@@ -28,11 +28,10 @@ final class AlldistinctTest extends UnitTest with CostComputationTestTooling[Boo
         space.post(new Alldistinct(space.nextConstraintId, null, Vector(s, t, u), costs))
         assertEq(space.searchVariables, Set(s, t, u))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
-                Initialize("init", False2, (s, One), (t, One), (u, One)),
-                ConsultAndCommit("1", False, (s, Two))))
+                Initialize("init", (s, One), (t, One), (u, One), (costs, False2)),
+                ConsultAndCommit("1", (s, Two), (costs, False))))
     }
 
     @Test
@@ -45,12 +44,11 @@ final class AlldistinctTest extends UnitTest with CostComputationTestTooling[Boo
         space.post(new Alldistinct(space.nextConstraintId, null, Vector(s, t, t), costs))
         assertEq(space.searchVariables, Set(s, t))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
-                Initialize("init", False2, (s, One), (t, One)),
-                ConsultAndCommit("1", False, (s, Two)),
-                ConsultAndCommit("2", False2, (t, Two))))
+                Initialize("init", (s, One), (t, One), (costs, False2)),
+                ConsultAndCommit("1", (s, Two), (costs, False)),
+                ConsultAndCommit("2", (t, Two), (costs, False2))))
     }
 
     @Test
@@ -97,13 +95,12 @@ final class AlldistinctTest extends UnitTest with CostComputationTestTooling[Boo
         space.post(new AlldistinctExceptZero(space.nextConstraintId, null, List(s, t, u), costs))
         assertEq(space.searchVariables, Set(s, t, u))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
-                Initialize("init", False2, (s, One), (t, One), (u, One)),
-                ConsultAndCommit("1", False, (s, Zero)),
-                ConsultAndCommit("2", True, (t, Zero)),
-                ConsultAndCommit("3", True, (u, Zero))))
+                Initialize("init", (s, One), (t, One), (u, One), (costs, False2)),
+                ConsultAndCommit("1", (s, Zero), (costs, False)),
+                ConsultAndCommit("2", (t, Zero), (costs, True)),
+                ConsultAndCommit("3", (u, Zero), (costs, True))))
     }
 
     @Test
@@ -116,14 +113,13 @@ final class AlldistinctTest extends UnitTest with CostComputationTestTooling[Boo
         space.post(new AlldistinctExceptZero(space.nextConstraintId, null, List(s, t, t), costs))
         assertEq(space.searchVariables, Set(s, t))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
-                Initialize("init", False2, (s, One), (t, One)),
-                ConsultAndCommit("1", False, (s, Zero)),
-                ConsultAndCommit("2", True, (t, Zero)),
-                ConsultAndCommit("3", True, (s, One)),
-                ConsultAndCommit("4", False, (t, Two))))
+                Initialize("init", (s, One), (t, One), (costs, False2)),
+                ConsultAndCommit("1", (s, Zero), (costs, False)),
+                ConsultAndCommit("2", (t, Zero), (costs, True)),
+                ConsultAndCommit("3", (s, One), (costs, True)),
+                ConsultAndCommit("4", (t, Two), (costs, False))))
     }
 
 }

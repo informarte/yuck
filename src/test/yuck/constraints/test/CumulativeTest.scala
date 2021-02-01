@@ -15,7 +15,7 @@ import yuck.util.testing.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class CumulativeTest extends UnitTest with CostComputationTestTooling[BooleanValue] {
+final class CumulativeTest extends UnitTest with AssignmentPropagationTestTooling {
 
     private def createTask(space: Space, i: Int, d: IntegerDomain): CumulativeTask =
         new CumulativeTask(
@@ -45,16 +45,15 @@ final class CumulativeTest extends UnitTest with CostComputationTestTooling[Bool
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
                 Initialize(
                     "initial conflict: two tasks with same start time exceed capacity",
-                    False6,
-                    (t1.s, Zero), (t1.d, Three), (t1.c, Two), (t2.s, Zero), (t2.d, Four), (t2.c, Three), (ub, Three)),
-                ConsultAndCommit("move t2 to reduce conflict", False4, (t2.s, One)),
-                ConsultAndCommit("move t2 to resolve conflict", True, (t2.s, Three)),
-                ConsultAndCommit("move both tasks in one move", False4, (t1.s, One), (t2.s, Two))))
+                    (t1.s, Zero), (t1.d, Three), (t1.c, Two), (t2.s, Zero), (t2.d, Four), (t2.c, Three), (ub, Three),
+                    (costs, False6)),
+                ConsultAndCommit("move t2 to reduce conflict", (t2.s, One), (costs, False4)),
+                ConsultAndCommit("move t2 to resolve conflict", (t2.s, Three), (costs, True)),
+                ConsultAndCommit("move both tasks in one move", (t1.s, One), (t2.s, Two), (costs, False4))))
     }
 
     @Test
@@ -67,24 +66,23 @@ final class CumulativeTest extends UnitTest with CostComputationTestTooling[Bool
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
                 Initialize(
                     "initial conflict: two tasks with same start time exceed capacity",
-                    False6,
-                    (t1.s, Zero), (t1.d, Three), (t1.c, Two), (t2.s, Zero), (t2.d, Four), (t2.c, Three), (ub, Three)),
-                ConsultAndCommit("reduce conflict by reducing the the duration of t1", False2, (t1.d, One)),
-                ConsultAndCommit("resolve conflict by setting the duration of t1 to zero", True, (t1.d, Zero)),
+                    (t1.s, Zero), (t1.d, Three), (t1.c, Two), (t2.s, Zero), (t2.d, Four), (t2.c, Three), (ub, Three),
+                    (costs, False6)),
+                ConsultAndCommit("reduce conflict by reducing the the duration of t1", (t1.d, One), (costs, False2)),
+                ConsultAndCommit("resolve conflict by setting the duration of t1 to zero", (t1.d, Zero), (costs, True)),
                 ConsultAndCommit(
                     "restore duration of t1 and, instead, set its consumption to zero",
-                    True,
-                    (t1.d, Three), (t1.c, Zero)),
-                ConsultAndCommit("increase consumption of t2 beyond capacity", False4, (t2.c, Four)),
+                    (t1.d, Three), (t1.c, Zero),
+                    (costs, True)),
+                ConsultAndCommit("increase consumption of t2 beyond capacity", (t2.c, Four), (costs, False4)),
                 ConsultAndCommit(
                     "change duration and resource consumption of both tasks in one move",
-                    False8,
-                    (t1.d, Four), (t1.c, Two), (t2.d, Five), (t2.c, Three))))
+                    (t1.d, Four), (t1.c, Two), (t2.d, Five), (t2.c, Three),
+                    (costs, False8))))
     }
 
     @Test
@@ -97,15 +95,14 @@ final class CumulativeTest extends UnitTest with CostComputationTestTooling[Bool
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
                 Initialize(
                     "initial conflict: consumption exceeds capacity",
-                    False3,
-                    (t1.s, Zero), (t1.d, Three), (t1.c, Four), (ub, Three)),
-                ConsultAndCommit("resolve conflict by increasing capacity", True, (ub, Four)),
-                ConsultAndCommit("increase consumption to cause conflict", False3, (t1.c, Five))))
+                    (t1.s, Zero), (t1.d, Three), (t1.c, Four), (ub, Three),
+                    (costs, False3)),
+                ConsultAndCommit("resolve conflict by increasing capacity", (ub, Four), (costs, True)),
+                ConsultAndCommit("increase consumption to cause conflict", (t1.c, Five), (costs, False3))))
     }
 
     @Test
@@ -122,15 +119,14 @@ final class CumulativeTest extends UnitTest with CostComputationTestTooling[Bool
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, Vector(t1, t2, t3), ub, costs))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
                 Initialize(
                     "baseline: capacity is zero, so t1 and t2 are empty and t3 exceeds capacity",
-                    False,
-                    (ub, Zero), (s2, Three), (d2, One), (c2, One)),
-                ConsultAndCommit("increase capacity and hence duration and consumption of t1 and t2", False, (ub, One)),
-                ConsultAndCommit("increasing capacity once more makes t1 and t2 overlap t3", False5, (ub, Two))))
+                    (ub, Zero), (s2, Three), (d2, One), (c2, One),
+                    (costs, False)),
+                ConsultAndCommit("increase capacity and hence duration and consumption of t1 and t2", (ub, One), (costs, False)),
+                ConsultAndCommit("increasing capacity once more makes t1 and t2 overlap t3", (ub, Two), (costs, False5))))
     }
 
     @Test
@@ -143,15 +139,14 @@ final class CumulativeTest extends UnitTest with CostComputationTestTooling[Bool
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
                 Initialize(
                     "initial conflict: consumption is too high",
-                    False3,
-                    (t1.s, Zero), (t1.d, Three), (t1.c, Two),  (ub, One)),
-                Consult("resolve conflict by reducing consumption", True, (t1.c, One)),
-                Consult("resolve conflict by increasing capacity", True, (ub, Two))))
+                    (t1.s, Zero), (t1.d, Three), (t1.c, Two),  (ub, One),
+                    (costs, False3)),
+                Consult("resolve conflict by reducing consumption", (t1.c, One), (costs, True)),
+                Consult("resolve conflict by increasing capacity", (ub, Two), (costs, True))))
     }
 
     @Test
@@ -164,18 +159,17 @@ final class CumulativeTest extends UnitTest with CostComputationTestTooling[Bool
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
                 Initialize(
                     "no initial conflict",
-                    True,
-                    (t1.s, Zero), (t1.d, Three), (t1.c, One), (t2.s, Three), (t2.d, Four), (t2.c, Three), (ub, Three)),
-                ConsultAndCommit("move and resize t1 in one move", False8, (t1.s, Two), (t1.d, Seven), (t1.c, Two)),
+                    (t1.s, Zero), (t1.d, Three), (t1.c, One), (t2.s, Three), (t2.d, Four), (t2.c, Three), (ub, Three),
+                    (costs, True)),
+                ConsultAndCommit("move and resize t1 in one move", (t1.s, Two), (t1.d, Seven), (t1.c, Two), (costs, False8)),
                 ConsultAndCommit(
                     "change consumption of both tasks and capacity in one move",
-                    False2,
-                    (t1.d, Six), (t1.c, Four), (t2.s, Seven), (t2.c, Two), (ub, Four))))
+                    (t1.d, Six), (t1.c, Four), (t2.s, Seven), (t2.c, Two), (ub, Four),
+                    (costs, False2))))
     }
 
     @Test
@@ -188,15 +182,14 @@ final class CumulativeTest extends UnitTest with CostComputationTestTooling[Bool
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
                 Initialize(
                     "initial conflict",
-                    False2,
-                    (t1.s, Zero), (t1.d, One), (t1.c, One), (t2.s, Zero), (t2.d, One), (t2.c, One), (ub, Zero)),
-                ConsultAndCommit("reduce conflict by setting duration of t1 to -1", False, (t1.d, MinusOne)),
-                ConsultAndCommit("resolve conflict by setting consumption of t2 to -1", True, (t2.c, MinusOne))))
+                    (t1.s, Zero), (t1.d, One), (t1.c, One), (t2.s, Zero), (t2.d, One), (t2.c, One), (ub, Zero),
+                    (costs, False2)),
+                ConsultAndCommit("reduce conflict by setting duration of t1 to -1", (t1.d, MinusOne), (costs, False)),
+                ConsultAndCommit("resolve conflict by setting consumption of t2 to -1", (t2.c, MinusOne), (costs, True))))
     }
 
 }

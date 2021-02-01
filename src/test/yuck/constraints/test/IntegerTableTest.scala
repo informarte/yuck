@@ -15,8 +15,8 @@ import yuck.util.testing.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerTableTest
     extends UnitTest
-    with CostComputationTestTooling[BooleanValue]
-    with PropagationTestTooling
+    with AssignmentPropagationTestTooling
+    with DomainPropagationTestTooling
 {
 
     private def createTable(m: Int)(elems: Int*) =
@@ -32,12 +32,11 @@ final class IntegerTableTest
         space.post(new IntegerTable(space.nextConstraintId, null, xs, rows, costs))
         assertEq(space.searchVariables, xs.toSet)
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
-                Initialize("initial conflict", False3, (s, One), (t, One), (u, One)),
-                ConsultAndCommit("move away from the first row and approach the second row", False2, (t, Two)),
-                ConsultAndCommit("change two values at once", False, (s, Zero), (u, Three))))
+                Initialize("initial conflict", (s, One), (t, One), (u, One), (costs, False3)),
+                ConsultAndCommit("move away from the first row and approach the second row", (t, Two), (costs, False2)),
+                ConsultAndCommit("change two values at once", (s, Zero), (u, Three), (costs, False))))
     }
 
     @Test
@@ -49,13 +48,12 @@ final class IntegerTableTest
         space.post(new IntegerTable(space.nextConstraintId, null, Vector(s, s, t), rows, costs))
         assertEq(space.searchVariables, Set(s, t))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
-                Initialize("initial conflict", False3, (s, One), (t, One)),
-                ConsultAndCommit("fix first two columns", False2, (s, Two)),
-                ConsultAndCommit("fix last column", True, (t, Three)),
-                ConsultAndCommit("change two values at once", False2, (s, Zero), (t, Two))))
+                Initialize("initial conflict", (s, One), (t, One), (costs, False3)),
+                ConsultAndCommit("fix first two columns", (s, Two), (costs, False2)),
+                ConsultAndCommit("fix last column", (t, Three), (costs, True)),
+                ConsultAndCommit("change two values at once", (s, Zero), (t, Two), (costs, False2))))
     }
 
     @Test
@@ -74,14 +72,13 @@ final class IntegerTableTest
                 5, 0, 5, 1, 5, 2, 5, 3, 5, 4)
         space.post(new IntegerTable(space.nextConstraintId, null, Vector(s, t), rows, costs))
         runScenario(
-            PropagationTestScenario(
+            TestScenario(
                 space,
                 Propagate(
                     "1",
                     Nil,
-                    List[AnyDomainReduction](
-                        (s, IntegerDomain.createDomain(List(Two, Three, Five))),
-                        (t, IntegerDomain.createDomain(List(Two, Three))))),
+                    List((s, IntegerDomain.createDomain(List(Two, Three, Five))),
+                         (t, IntegerDomain.createDomain(List(Two, Three))))),
                 Propagate(
                     "2",
                     (t, new IntegerRange(Two, Two)),
@@ -103,7 +100,7 @@ final class IntegerTableTest
                 5, 0, 5, 1, 5, 2, 5, 3, 5, 4)
         space.post(new IntegerTable(space.nextConstraintId, null, Vector(s, s), rows, costs))
         runScenario(
-            PropagationTestScenario(
+            TestScenario(
                 space,
                 Propagate(
                     "1",

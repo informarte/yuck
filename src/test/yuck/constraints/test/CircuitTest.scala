@@ -19,8 +19,8 @@ import yuck.util.testing.UnitTest
 @runner.RunWith(classOf[runners.Parameterized])
 final class CircuitTest(offset: Int)
     extends UnitTest
-    with CostComputationTestTooling[BooleanValue]
-    with PropagationTestTooling
+    with AssignmentPropagationTestTooling
+    with DomainPropagationTestTooling
 {
 
     private val InvalidIndex1 = IntegerValue.get(offset - 1)
@@ -54,7 +54,7 @@ final class CircuitTest(offset: Int)
     def testPropagation: Unit = {
         space.post(new Circuit(space.nextConstraintId, null, succ, offset, costs))
         runScenario(
-            PropagationTestScenario(
+            TestScenario(
                 space,
                 Propagate(
                     "Do not propagate 1", Nil, () => assert(succ.forall(_.domain == baseDomain))),
@@ -86,43 +86,41 @@ final class CircuitTest(offset: Int)
     def testCostComputation: Unit = {
         space.post(new Circuit(space.nextConstraintId, null, succ, offset, costs))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
-                Initialize("1 -> 2 -> 3 -> 4 -> 5 -> 1 (circuit)", True, (x1, Two), (x2, Three), (x3, Four), (x4, Five), (x5, One)),
-                Initialize("1 -> 3 -> 5 -> 2 -> 4 -> 1 (circuit)", True, (x1, Three), (x2, Four), (x3, Five), (x4, One), (x5, Two)),
-                Initialize("1 -> 2 -> 3 -> 4 -> 3, 5 -> 4 (1 subcircuit, 2 converging arcs)", False3, (x1, Two), (x2, Three), (x3, Four), (x4, Three), (x5, Four)),
-                Initialize("1 -> 2 -> 1, 3 -> 4 -> 5 -> 3 (2 subcircuits)", False2, (x1, Two), (x2, One), (x3, Four), (x4, Five), (x5, Three)),
-                Initialize("1 -> 1, 2 -> 1, 3 -> 1, 4 -> 1, 5 -> 1 (1 subcircuit, 5 converging arcs)", False4, (x1, One), (x2, One), (x3, One), (x4, One), (x5, One)),
-                Initialize("1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4, 5 -> 5 (5 subcircuits)", False4, (x1, One), (x2, Two), (x3, Three), (x4, Four), (x5, Five)),
-                Consult("1 -> 2 -> 2, 3 -> 3, 4 -> 4, 5 -> 5 (4 subcircuits, 2 converging arcs)", False4, (x1, Two)),
-                Consult("1 -> 1, 2 -> 2, 3 -> 4 -> 3, 5 -> 5 (4 subcircuits)", False3, (x3, Four), (x4, Three)),
-                Consult("1 -> 3 -> 5 -> 2 -> 4 -> 1 (circuit)", True, (x1, Three), (x2, Four), (x3, Five), (x4, One), (x5, Two)),
-                ConsultAndCommit("1 -> 1, 2 -> 3 -> 3, 4 -> 4, 5 -> 5 (3 subcircuits, 2 converging arcs)", False4, (x2, Three)),
-                ConsultAndCommit("1 -> 1, 2 -> 3 -> 2, 4 -> 4, 5 -> 5 (3 subcircuits)", False3, (x3, Two)),
-                ConsultAndCommit("1 -> 2 -> 3 -> 2, 4 -> 4, 5 -> 5 (3 subcircuits, 2 converging arcs)", False3, (x1, Two)),
-                ConsultAndCommit("1 -> 2 -> 3 -> 2, 4 -> 5 -> 5 (2 subcircuits, 2 + 2 converging arcs)", False3, (x4, Five)),
-                ConsultAndCommit("1 -> 2 -> 3 -> 2, 4 -> 5 -> 1 (1 subcircuit, 2 converging arcs)", False3, (x5, One)),
-                ConsultAndCommit("1 -> 2 -> 3 -> 4 -> 5 -> 1 (circuit)", True, (x3, Four)),
-                ConsultAndCommit("1 -> 2 -> 3 -> 4 -> 5 -> 2 (1 subcircuit, 2 converging arcs)", False, (x5, Two)),
-                ConsultAndCommit("1 -> 2 -> 4 -> 5 -> 2, 3 -> 4 (1 subcircuit, 2 converging arcs)", False2, (x2, Four)),
-                ConsultAndCommit("1 -> 2 -> 3 -> 4 -> 5 -> 1 (circuit)", True, (x2, Three), (x5, One)),
-                ConsultAndCommit("1 -> 3 -> 5 -> 2 -> 4 -> 1 (circuit)", True, (x1, Three), (x2, Four), (x3, Five), (x4, One), (x5, Two))))
+                Initialize("1 -> 2 -> 3 -> 4 -> 5 -> 1 (circuit)", (x1, Two), (x2, Three), (x3, Four), (x4, Five), (x5, One), (costs, True)),
+                Initialize("1 -> 3 -> 5 -> 2 -> 4 -> 1 (circuit)", (x1, Three), (x2, Four), (x3, Five), (x4, One), (x5, Two), (costs, True)),
+                Initialize("1 -> 2 -> 3 -> 4 -> 3, 5 -> 4 (1 subcircuit, 2 converging arcs)", (x1, Two), (x2, Three), (x3, Four), (x4, Three), (x5, Four), (costs, False3)),
+                Initialize("1 -> 2 -> 1, 3 -> 4 -> 5 -> 3 (2 subcircuits)", (x1, Two), (x2, One), (x3, Four), (x4, Five), (x5, Three), (costs, False2)),
+                Initialize("1 -> 1, 2 -> 1, 3 -> 1, 4 -> 1, 5 -> 1 (1 subcircuit, 5 converging arcs)", (x1, One), (x2, One), (x3, One), (x4, One), (x5, One), (costs, False4)),
+                Initialize("1 -> 1, 2 -> 2, 3 -> 3, 4 -> 4, 5 -> 5 (5 subcircuits)", (x1, One), (x2, Two), (x3, Three), (x4, Four), (x5, Five), (costs, False4)),
+                Consult("1 -> 2 -> 2, 3 -> 3, 4 -> 4, 5 -> 5 (4 subcircuits, 2 converging arcs)", (x1, Two), (costs, False4)),
+                Consult("1 -> 1, 2 -> 2, 3 -> 4 -> 3, 5 -> 5 (4 subcircuits)", (x3, Four), (x4, Three), (costs, False3)),
+                Consult("1 -> 3 -> 5 -> 2 -> 4 -> 1 (circuit)", (x1, Three), (x2, Four), (x3, Five), (x4, One), (x5, Two), (costs, True)),
+                ConsultAndCommit("1 -> 1, 2 -> 3 -> 3, 4 -> 4, 5 -> 5 (3 subcircuits, 2 converging arcs)", (x2, Three), (costs, False4)),
+                ConsultAndCommit("1 -> 1, 2 -> 3 -> 2, 4 -> 4, 5 -> 5 (3 subcircuits)", (x3, Two), (costs, False3)),
+                ConsultAndCommit("1 -> 2 -> 3 -> 2, 4 -> 4, 5 -> 5 (3 subcircuits, 2 converging arcs)", (x1, Two), (costs, False3)),
+                ConsultAndCommit("1 -> 2 -> 3 -> 2, 4 -> 5 -> 5 (2 subcircuits, 2 + 2 converging arcs)", (x4, Five), (costs, False3)),
+                ConsultAndCommit("1 -> 2 -> 3 -> 2, 4 -> 5 -> 1 (1 subcircuit, 2 converging arcs)", (x5, One), (costs, False3)),
+                ConsultAndCommit("1 -> 2 -> 3 -> 4 -> 5 -> 1 (circuit)", (x3, Four), (costs, True)),
+                ConsultAndCommit("1 -> 2 -> 3 -> 4 -> 5 -> 2 (1 subcircuit, 2 converging arcs)", (x5, Two), (costs, False)),
+                ConsultAndCommit("1 -> 2 -> 4 -> 5 -> 2, 3 -> 4 (1 subcircuit, 2 converging arcs)", (x2, Four), (costs, False2)),
+                ConsultAndCommit("1 -> 2 -> 3 -> 4 -> 5 -> 1 (circuit)", (x2, Three), (x5, One), (costs, True)),
+                ConsultAndCommit("1 -> 3 -> 5 -> 2 -> 4 -> 1 (circuit)", (x1, Three), (x2, Four), (x3, Five), (x4, One), (x5, Two), (costs, True))))
     }
 
     @Test
     def testHandlingOfDuplicateVariablesInCostComputation: Unit = {
         space.post(new Circuit(space.nextConstraintId, null, Vector(x1, x2, x3, x4, x1), offset, costs))
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
-                Initialize("1 -> 2 -> 3 -> 4 -> 5 -> 2", False, (x1, Two), (x2, Three), (x3, Four), (x4, Five)),
-                Initialize("5 -> 1 -> 1, 2 -> 3 -> 4 -> 4", False4, (x1, One), (x2, Three), (x3, Four), (x4, Four)),
-                Consult("1 -> 3, 2 -> 3 -> 4 -> 4, 5 -> 3", False4, (x1, Three)),
-                Consult("5 -> 1 -> 1, 2 -> 3 -> 4 -> 2", False2, (x4, Two)),
-                ConsultAndCommit("1 -> 3 -> 4 -> 4, 2 -> 3, 5 -> 2", False4, (x1, Three)),
-                ConsultAndCommit("1 -> 3 -> 4 -> 2 -> 3, 5 -> 2", False2, (x4, Two))))
+                Initialize("1 -> 2 -> 3 -> 4 -> 5 -> 2", (x1, Two), (x2, Three), (x3, Four), (x4, Five), (costs, False)),
+                Initialize("5 -> 1 -> 1, 2 -> 3 -> 4 -> 4", (x1, One), (x2, Three), (x3, Four), (x4, Four), (costs, False4)),
+                Consult("1 -> 3, 2 -> 3 -> 4 -> 4, 5 -> 3", (x1, Three), (costs, False4)),
+                Consult("5 -> 1 -> 1, 2 -> 3 -> 4 -> 2", (x4, Two), (costs, False2)),
+                ConsultAndCommit("1 -> 3 -> 4 -> 4, 2 -> 3, 5 -> 2", (x1, Three), (costs, False4)),
+                ConsultAndCommit("1 -> 3 -> 4 -> 2 -> 3, 5 -> 2", (x4, Two), (costs, False2))))
     }
 
     @Test
@@ -130,15 +128,14 @@ final class CircuitTest(offset: Int)
         val constraint = new Circuit(space.nextConstraintId, null, succ, offset, costs)
         space.post(constraint)
         runScenario(
-            CostComputationTestScenario(
+            TestScenario(
                 space,
-                costs,
-                Initialize("1 -> ?, 2 -> ?, 3 -> 4 -> 5 -> 1", False2, (x1, InvalidIndex1), (x2, InvalidIndex2), (x3, Four), (x4, Five), (x5, Three)),
-                Initialize("1 -> 2 -> 1, 3 -> 4 -> 5 -> 3", False2, (x1, Two), (x2, One), (x3, Four), (x4, Five), (x5, Three)),
-                Consult("1 -> 2 -> ?, 3 -> 4 -> 5 -> 3", False2, (x2, InvalidIndex1)),
-                Consult("1 -> 2 -> 1, 3 -> 4 -> 5 -> ?", False3, (x5, InvalidIndex2)),
-                ConsultAndCommit("1 -> 2 -> ?, 3 -> 4 -> 5 -> 3", False2, (x2, InvalidIndex1)),
-                ConsultAndCommit("1 -> 2 -> ?, 3 -> 4 -> 5 -> ?", False5, (x5, InvalidIndex2))))
+                Initialize("1 -> ?, 2 -> ?, 3 -> 4 -> 5 -> 1", (x1, InvalidIndex1), (x2, InvalidIndex2), (x3, Four), (x4, Five), (x5, Three), (costs, False2)),
+                Initialize("1 -> 2 -> 1, 3 -> 4 -> 5 -> 3", (x1, Two), (x2, One), (x3, Four), (x4, Five), (x5, Three), (costs, False2)),
+                Consult("1 -> 2 -> ?, 3 -> 4 -> 5 -> 3", (x2, InvalidIndex1), (costs, False2)),
+                Consult("1 -> 2 -> 1, 3 -> 4 -> 5 -> ?", (x5, InvalidIndex2), (costs, False3)),
+                ConsultAndCommit("1 -> 2 -> ?, 3 -> 4 -> 5 -> 3", (x2, InvalidIndex1), (costs, False2)),
+                ConsultAndCommit("1 -> 2 -> ?, 3 -> 4 -> 5 -> ?", (x5, InvalidIndex2), (costs, False5))))
     }
 
     @Test
