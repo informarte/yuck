@@ -1,6 +1,6 @@
 package yuck
 
-import yuck.core.DistributionFactory
+import yuck.core.Distribution
 
 /**
  * @author Michael Marte
@@ -8,7 +8,7 @@ import yuck.core.DistributionFactory
  */
 package object annealing {
 
-    val DefaultMoveSizeDistribution = DistributionFactory.createDistribution(1, List(90, 10))
+    val DefaultMoveSizeDistribution = Distribution(1, List(90, 10))
 
     val DefaultStartTemperature = 0.05
     val DefaultFinalTemperature = 0.0001

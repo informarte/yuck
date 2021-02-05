@@ -2,8 +2,6 @@ package yuck.core
 
 import java.lang.Math.{ceil, floor}
 
-import yuck.core.IntegerDomain.createRange
-
 /**
  * Provides methods for pruning integer domains.
  *
@@ -36,8 +34,8 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         (IntegerDomain, IntegerDomain) =
     {
         if (lhs.isEmpty || rhs.isEmpty) (EmptyIntegerRange, EmptyIntegerRange)
-        else (createRange(null, if (! rhs.hasUb) null else rhs.ub - One).intersect(lhs),
-              createRange(if (! lhs.hasLb) null else lhs.lb + One, null).intersect(rhs))
+        else (IntegerRange(null, if (! rhs.hasUb) null else rhs.ub - One).intersect(lhs),
+              IntegerRange(if (! lhs.hasLb) null else lhs.lb + One, null).intersect(rhs))
     }
 
     override def leRule
@@ -45,7 +43,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         (IntegerDomain, IntegerDomain) =
     {
         if (lhs.isEmpty || rhs.isEmpty) (EmptyIntegerRange, EmptyIntegerRange)
-        else (createRange(null, rhs.ub).intersect(lhs), createRange(lhs.lb, null).intersect(rhs))
+        else (IntegerRange(null, rhs.ub).intersect(lhs), IntegerRange(lhs.lb, null).intersect(rhs))
     }
 
     override def minRule
@@ -59,7 +57,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
             val lhs1 = lhs0.iterator.map(d => leRule(rhs0, d)._2)
             val maybeMinLb = lhs0.iterator.filter(_.hasLb).map(_.lb).reduceLeftOption((a, b) => if (a < b) a else b)
             val maybeMinUb = lhs0.iterator.filter(_.hasUb).map(_.ub).reduceLeftOption((a, b) => if (a < b) a else b)
-            val rhs1 = createRange(maybeMinLb.orNull, maybeMinUb.orNull).intersect(rhs0)
+            val rhs1 = IntegerRange(maybeMinLb.orNull, maybeMinUb.orNull).intersect(rhs0)
             (lhs1, rhs1)
         }
     }
@@ -75,7 +73,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
             val lhs1 = lhs0.iterator.map(d => leRule(d, rhs0)._1)
             val maybeMaxLb = lhs0.iterator.filter(_.hasLb).map(_.lb).reduceLeftOption((a, b) => if (a > b) a else b)
             val maybeMaxUb = lhs0.iterator.filter(_.hasUb).map(_.ub).reduceLeftOption((a, b) => if (a > b) a else b)
-            val rhs1 = createRange(maybeMaxLb.orNull, maybeMaxUb.orNull).intersect(rhs0)
+            val rhs1 = IntegerRange(maybeMaxLb.orNull, maybeMaxUb.orNull).intersect(rhs0)
             (lhs1, rhs1)
         }
     }
@@ -148,11 +146,11 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
                     for ((a, d) <- lhs0.iterator) yield {
                         if (a.value > 0) {
                             val alpha = safeAdd(safeSub(rhs0.ub.value, safeSub(posTerm, a.value * d.lb.value)), negTerm).toDouble / a.value
-                            createRange(null, IntegerValue.get(floor(alpha).toInt)).intersect(d)
+                            IntegerRange(null, IntegerValue(floor(alpha).toInt)).intersect(d)
                         } else if (a.value < 0) {
                             // In the book, a is positive, but here it is negative, so we have to use -a!
                             val beta = safeSub(safeAdd(safeNeg(rhs0.ub.value), posTerm), safeSub(negTerm, safeNeg(a.value) * d.ub.value)).toDouble / safeNeg(a.value)
-                            createRange(IntegerValue.get(ceil(beta).toInt), null).intersect(d)
+                            IntegerRange(IntegerValue(ceil(beta).toInt), null).intersect(d)
                         } else {
                             d.asInstanceOf[IntegerDomain]
                         }
@@ -161,7 +159,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
                     lhs0.iterator.map(_._2.asInstanceOf[IntegerDomain])
                 }
             val lhs0Lb = lhs0.foldLeft(0){case (sum, (a, d)) => safeAdd(sum, safeMul(a.value, if (a.value >= 0) d.lb.value else d.ub.value))}
-            val rhs1 = createRange(IntegerValue.get(lhs0Lb), null).intersect(rhs0)
+            val rhs1 = IntegerRange(IntegerValue(lhs0Lb), null).intersect(rhs0)
             (lhs1, rhs1)
         } else {
             (lhs0.iterator.map(_._2.asInstanceOf[IntegerDomain]), rhs0.asInstanceOf[IntegerDomain])

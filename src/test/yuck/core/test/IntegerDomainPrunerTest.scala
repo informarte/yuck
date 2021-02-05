@@ -18,12 +18,11 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     import scala.language.implicitConversions
-    import IntegerDomain.createRange
-    implicit def toIntegerValue(i: Int): IntegerValue = IntegerValue.get(i)
+    implicit def toIntegerValue(i: Int): IntegerValue = IntegerValue(i)
     implicit def toIntegerRange(r: Range): IntegerRange = {
         require(r.step == 1)
         require(r.isInclusive)
-        createRange(r.start, r.end)
+        IntegerRange(r.start, r.end)
     }
 
     private val randomGenerator = new JavaRandomGenerator
@@ -78,7 +77,7 @@ class IntegerDomainPrunerTest extends UnitTest {
                 // d.endsAfter(e) => e.ub is finite
                 // e.ub is finite && g.ub == e.ub => g.ub is finite
                 // ! f.endsAfter(g) && g.ub is finite => f.ub is finite
-                assert(new IntegerRange(f.ub + One, e.ub).intersect(d).isEmpty)
+                assert(IntegerRange(f.ub + One, e.ub).intersect(d).isEmpty)
             } else {
                 assertEq(f.ub, d.ub)
             }
@@ -88,7 +87,7 @@ class IntegerDomainPrunerTest extends UnitTest {
                 // e.startsBefore(d) => d.lb.isFinite
                 // d.lb is finite && f.lb == d.lb => f.lb is finite
                 // ! g.startsBefore(f) && f.lb is finite => g.lb is finite
-                assert(new IntegerRange(d.lb, g.lb - One).intersect(e).isEmpty)
+                assert(IntegerRange(d.lb, g.lb - One).intersect(e).isEmpty)
             } else {
                 assertEq(g.lb, e.lb)
             }
@@ -127,7 +126,7 @@ class IntegerDomainPrunerTest extends UnitTest {
                 // f.endsBefore(e) => f.ub is finite
                 if (f.ub < e.ub - One) {
                     // Check that not too many values were pruned from d.
-                    assert(new IntegerRange(f.ub + One, e.ub - One).intersect(d).isEmpty)
+                    assert(IntegerRange(f.ub + One, e.ub - One).intersect(d).isEmpty)
                 }
             }
             if (e.startsAfter(d) || ! d.hasLb) {
@@ -138,7 +137,7 @@ class IntegerDomainPrunerTest extends UnitTest {
                 // g.startsAfter(d) => g.lb is finite
                 if (g.lb > d.lb + One) {
                     // Check that not too many values were pruned from e.
-                    assert(new IntegerRange(d.lb + One, g.lb - One).intersect(e).isEmpty)
+                    assert(IntegerRange(d.lb + One, g.lb - One).intersect(e).isEmpty)
                 }
             }
         }
@@ -172,14 +171,14 @@ class IntegerDomainPrunerTest extends UnitTest {
         checkPruning((List(1 to 3, 2 to 5), CompleteIntegerRange), (List(1 to 3, 2 to 5), 1 to 3))
 
         // ?- X in 1..3, Y in 2..5, Z #> 2, Z #= min(X, Y).
-        checkPruning((List(1 to 3, 2 to 5), createRange(3, null)), (List(3 to 3, 3 to 5), 3 to 3))
+        checkPruning((List(1 to 3, 2 to 5), IntegerRange(3, null)), (List(3 to 3, 3 to 5), 3 to 3))
 
         // empty domains
         checkPruning(
-            (List(EmptyIntegerRange, 2 to 5), createRange(3, null)),
+            (List(EmptyIntegerRange, 2 to 5), IntegerRange(3, null)),
             (List(EmptyIntegerRange, EmptyIntegerRange), EmptyIntegerRange))
         checkPruning(
-            (List(1 to 3, EmptyIntegerRange), createRange(3, null)),
+            (List(1 to 3, EmptyIntegerRange), IntegerRange(3, null)),
             (List(EmptyIntegerRange, EmptyIntegerRange), EmptyIntegerRange))
         checkPruning(
             (List(1 to 3, 2 to 5), EmptyIntegerRange),
@@ -206,14 +205,14 @@ class IntegerDomainPrunerTest extends UnitTest {
         checkPruning((List(1 to 3, 2 to 5), CompleteIntegerRange), (List(1 to 3, 2 to 5), 2 to 5))
 
         // ?- X in 1..3, Y in 2..5, Z #< 3, Z #= max(X, Y).
-        checkPruning((List(1 to 3, 2 to 5), createRange(null, 2)), (List(1 to 2, 2 to 2), 2 to 2))
+        checkPruning((List(1 to 3, 2 to 5), IntegerRange(null, 2)), (List(1 to 2, 2 to 2), 2 to 2))
 
         // empty domains
         checkPruning(
-            (List(EmptyIntegerRange, 2 to 5), createRange(3, null)),
+            (List(EmptyIntegerRange, 2 to 5), IntegerRange(3, null)),
             (List(EmptyIntegerRange, EmptyIntegerRange), EmptyIntegerRange))
         checkPruning(
-            (List(1 to 3, EmptyIntegerRange), createRange(3, null)),
+            (List(1 to 3, EmptyIntegerRange), IntegerRange(3, null)),
             (List(EmptyIntegerRange, EmptyIntegerRange), EmptyIntegerRange))
         checkPruning(
             (List(1 to 3, 2 to 5), EmptyIntegerRange),
@@ -274,10 +273,10 @@ class IntegerDomainPrunerTest extends UnitTest {
         checkPruning((lhs1, CompleteIntegerRange), (lhs1, 3 to 30))
 
         // ?- X in 1..10, 3 * X #= Y, Y #>= 4.
-        checkPruning((lhs1, createRange(4, null)), (List((3, 2 to 10)), 6 to 30))
+        checkPruning((lhs1, IntegerRange(4, null)), (List((3, 2 to 10)), 6 to 30))
 
         // ?- X in 1..10, 3 * X #= Y, Y #=< 10.
-        checkPruning((lhs1, createRange(null, 10)), (List((3, 1 to 3)), 3 to 9))
+        checkPruning((lhs1, IntegerRange(null, 10)), (List((3, 1 to 3)), 3 to 9))
 
         // ?- X in 1..10, 3 * X #= Y, Y #>= 4, Y #=< 10.
         checkPruning((lhs1, 4 to 10), (List((3, 2 to 3)), 6 to 9))
@@ -286,10 +285,10 @@ class IntegerDomainPrunerTest extends UnitTest {
         checkPruning((lhs2, CompleteIntegerRange), (lhs2, 5 to 50))
 
         // ?- X in 1..10, Y in (-10)..(-1), 2 * X - 3 * Y #= Z, Z #>= 50.
-        checkPruning((lhs2, createRange(50, null)), (List((2, 10 to 10), (-3, -10 to -10)), 50 to 50))
+        checkPruning((lhs2, IntegerRange(50, null)), (List((2, 10 to 10), (-3, -10 to -10)), 50 to 50))
 
         // ?- X in 1..10, Y in (-10)..(-1), 2 * X - 3 * Y #= Z, Z #=< 5.
-        checkPruning((lhs2, createRange(null, 5)), (List((2, 1 to 1), (-3, -1 to -1)), 5 to 5))
+        checkPruning((lhs2, IntegerRange(null, 5)), (List((2, 1 to 1), (-3, -1 to -1)), 5 to 5))
 
         // ?- X in 1..10, Y in (-10)..(-1), 2 * X - 3 * Y #= Z, Z #= 6.
         checkPruning((lhs2, 6 to 6), (List((2, EmptyIntegerRange), (-3, EmptyIntegerRange)), EmptyIntegerRange))
@@ -313,8 +312,8 @@ class IntegerDomainPrunerTest extends UnitTest {
 
         // integer overflow handling
         checkPruning(
-            (List((2, new IntegerRange(Int.MaxValue, Int.MaxValue))), ZeroToOneIntegerRange),
-            (List((2, new IntegerRange(Int.MaxValue, Int.MaxValue))), ZeroToOneIntegerRange))
+            (List((2, IntegerRange(Int.MaxValue, Int.MaxValue))), ZeroToOneIntegerRange),
+            (List((2, IntegerRange(Int.MaxValue, Int.MaxValue))), ZeroToOneIntegerRange))
 
     }
 

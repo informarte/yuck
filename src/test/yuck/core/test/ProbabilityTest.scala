@@ -15,20 +15,20 @@ class ProbabilityTest extends UnitTest {
 
     @Test
     def testCreationFromFloatValue: Unit = {
-        assertEq(Probability.from(0.0).value, 0.0)
-        assertEq(Probability.from(0.5).value, 0.5)
-        assertEq(Probability.from(1.0).value, 1.0)
-        assertEx(Probability.from(-0.1))
-        assertEx(Probability.from(1.1))
+        assertEq(Probability(0.0).value, 0.0)
+        assertEq(Probability(0.5).value, 0.5)
+        assertEq(Probability(1.0).value, 1.0)
+        assertEx(Probability(-0.1))
+        assertEx(Probability(1.1))
     }
 
     @Test
     def testCreationFromPercentage: Unit = {
-        assertEq(Probability.from(0).value, 0.0)
-        assertEq(Probability.from(50).value, 0.5)
-        assertEq(Probability.from(100).value, 1.0)
-        assertEx(Probability.from(-1))
-        assertEx(Probability.from(101))
+        assertEq(Probability(0).value, 0.0)
+        assertEq(Probability(50).value, 0.5)
+        assertEq(Probability(100).value, 1.0)
+        assertEx(Probability(-1))
+        assertEx(Probability(101))
     }
 
 }

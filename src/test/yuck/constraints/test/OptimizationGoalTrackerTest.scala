@@ -20,11 +20,11 @@ class OptimizationGoalTrackerTest extends UnitTest {
     def testMinimizationMode: Unit = {
         val d = new ArrayBackedDistribution(2)
         val space = new Space(logger, sigint)
-        val dx = new IntegerRange(IntegerValue.get(-10), IntegerValue.get(50))
-        val dy = new IntegerRange(IntegerValue.get(0), IntegerValue.get(100))
+        val dx = IntegerRange(IntegerValue(-10), IntegerValue(50))
+        val dy = IntegerRange(IntegerValue(0), IntegerValue(100))
         val x = new IntegerVariable(space.nextVariableId, "x", dx)
         val y = new IntegerVariable(space.nextVariableId, "y", dy)
-        val axs = immutable.IndexedSeq(new AX(Three, x), new AX(IntegerValue.get(-2), y))
+        val axs = immutable.IndexedSeq(new AX(Three, x), new AX(IntegerValue(-2), y))
         val c = new OptimizationGoalTracker(space.nextConstraintId, null, OptimizationMode.Min, axs, d)
         space
             .post(c)
@@ -72,11 +72,11 @@ class OptimizationGoalTrackerTest extends UnitTest {
     def testMaximizationMode: Unit = {
         val d = new ArrayBackedDistribution(2)
         val space = new Space(logger, sigint)
-        val dx = new IntegerRange(IntegerValue.get(0), IntegerValue.get(100))
-        val dy = new IntegerRange(IntegerValue.get(-10), IntegerValue.get(50))
+        val dx = IntegerRange(IntegerValue(0), IntegerValue(100))
+        val dy = IntegerRange(IntegerValue(-10), IntegerValue(50))
         val x = new IntegerVariable(space.nextVariableId, "x", dx)
         val y = new IntegerVariable(space.nextVariableId, "y", dy)
-        val axs = immutable.IndexedSeq(new AX(Three, x), new AX(IntegerValue.get(-2), y))
+        val axs = immutable.IndexedSeq(new AX(Three, x), new AX(IntegerValue(-2), y))
         val c = new OptimizationGoalTracker(space.nextConstraintId, null, OptimizationMode.Max, axs, d)
         space
             .post(c)

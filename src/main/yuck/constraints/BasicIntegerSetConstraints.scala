@@ -12,7 +12,7 @@ final class SetCardinality
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "%s = set_cardinality(%s)".format(y, x)
-    override def op(a: IntegerSetValue) = IntegerValue.get(a.set.size)
+    override def op(a: IntegerSetValue) = IntegerValue(a.set.size)
 }
 
 /**
@@ -26,7 +26,7 @@ final class Contains
 {
     override def toString = "contains(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerValue, b: IntegerSetValue) =
-        if (b.set.isEmpty) False else BooleanValue.get(b.set.distanceTo(a).toLong)
+        if (b.set.isEmpty) False else BooleanValue(b.set.distanceTo(a).toLong)
     override def propagate = {
         if (BooleanDomain.ensureDecisionDomain(z.domain) == TrueDomain && y.domain.isSingleton) {
             NoPropagationOccurred.pruneDomain(x, x.domain.intersect(y.domain.singleValue.set))
@@ -47,7 +47,7 @@ final class Subset
 {
     override def toString = "subset(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerSetValue, b: IntegerSetValue) =
-        BooleanValue.get(a.set.maybeResidueSize(b.set).getOrElse(1))
+        BooleanValue(a.set.maybeResidueSize(b.set).getOrElse(1))
 }
 
 /**

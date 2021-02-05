@@ -26,7 +26,7 @@ final class CumulativeTest extends UnitTest with AssignmentPropagationTestToolin
     @Test
     def testSearchVariables: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
         val Vector(t1, t2) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
@@ -38,7 +38,7 @@ final class CumulativeTest extends UnitTest with AssignmentPropagationTestToolin
     @Test
     def testTaskMovement: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
         val Vector(t1, t2) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
@@ -59,7 +59,7 @@ final class CumulativeTest extends UnitTest with AssignmentPropagationTestToolin
     @Test
     def testTaskResizing: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
         val Vector(t1, t2) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
@@ -88,7 +88,7 @@ final class CumulativeTest extends UnitTest with AssignmentPropagationTestToolin
     @Test
     def testCapacityChanges: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val tasks = (1 to 1).map(createTask(space, _, d))
         val Vector(t1) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
@@ -108,7 +108,7 @@ final class CumulativeTest extends UnitTest with AssignmentPropagationTestToolin
     @Test
     def testHandlingOfDuplicateVariables: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val s2 = new IntegerVariable(space.nextVariableId, "s2", d)
         val d2 = new IntegerVariable(space.nextVariableId, "d2", d)
@@ -132,7 +132,7 @@ final class CumulativeTest extends UnitTest with AssignmentPropagationTestToolin
     @Test
     def testConsultWithoutCommit: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val tasks = (1 to 1).map(createTask(space, _, d))
         val Vector(t1) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
@@ -152,7 +152,7 @@ final class CumulativeTest extends UnitTest with AssignmentPropagationTestToolin
     @Test
     def testComplexMoves: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
         val Vector(t1, t2) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
@@ -175,7 +175,7 @@ final class CumulativeTest extends UnitTest with AssignmentPropagationTestToolin
     @Test
     def testHandlingOfNegativeDurationAndConsumption: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
         val Vector(t1, t2) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)

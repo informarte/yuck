@@ -68,12 +68,12 @@ abstract class CircuitTracker
 
     override def propagate = {
         if (costs.domain == TrueDomain) {
-            val indexRange = new IntegerRange(IntegerValue.get(offset), IntegerValue.get(offset + succ.size - 1))
+            val indexRange = IntegerRange(offset, offset + succ.size - 1)
             NoPropagationOccurred
                 .pruneDomains(
                     for (i <- 0 until succ.size) yield {
-                        val a = IntegerValue.get(offset + i)
-                        (succ(i), succ(i).domain.intersect(indexRange).diff(new IntegerRange(a, a)))
+                        val a = IntegerValue(offset + i)
+                        (succ(i), succ(i).domain.intersect(indexRange).diff(IntegerRange(a, a)))
                     }
                 )
                 .pruneDomains(

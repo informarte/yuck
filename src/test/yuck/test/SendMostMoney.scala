@@ -39,8 +39,8 @@ final class SendMostMoney extends IntegrationTest {
 
             // define problem
             val space = new Space(logger, sigint)
-            val d = new IntegerRange(Zero, Nine)
-            val d1 = new IntegerRange(One, Nine)
+            val d = IntegerRange(Zero, Nine)
+            val d1 = IntegerRange(One, Nine)
             val S = new IntegerVariable(space.nextVariableId, "S", d1)
             val E = new IntegerVariable(space.nextVariableId, "E", d)
             val N = new IntegerVariable(space.nextVariableId, "N", d)
@@ -85,14 +85,14 @@ final class SendMostMoney extends IntegrationTest {
                 assertEq(delta.domain, TrueDomain)
                 assertEq(numberOfMissingValues.domain, TrueDomain)
                 assertEq(S.domain.singleValue, Nine)
-                assertEq(E.domain, new IntegerRange(Two, Seven))
-                assertEq(N.domain, new IntegerRange(Three, Eight))
-                assertEq(D.domain, new IntegerRange(Two, Eight))
+                assertEq(E.domain, IntegerRange(Two, Seven))
+                assertEq(N.domain, IntegerRange(Three, Eight))
+                assertEq(D.domain, IntegerRange(Two, Eight))
                 assertEq(M.domain.singleValue, One)
                 assertEq(O.domain.singleValue, Zero)
                 assertEq(T.domain, D.domain)
                 assertEq(Y.domain, D.domain)
-                assertEq(lhs.domain, new IntegerRange(IntegerValue.get(10324), IntegerValue.get(10878)))
+                assertEq(lhs.domain, IntegerRange(IntegerValue(10324), IntegerValue(10878)))
             }
 
             // build local-search solver
@@ -111,7 +111,7 @@ final class SendMostMoney extends IntegrationTest {
                     randomGenerator.nextGen,
                     new HierarchicalObjective(
                         List(new SatisfactionObjective(costs),
-                             new MaximizationObjective(rhs, Some(IntegerValue.get(10876)), None)),
+                             new MaximizationObjective(rhs, Some(IntegerValue(10876)), None)),
                         false, false),
                     None,
                     Some(monitor),

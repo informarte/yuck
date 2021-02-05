@@ -17,19 +17,19 @@ final class IntegerRangeListTest extends UnitTest {
 
     private val randomGenerator = new JavaRandomGenerator
     private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
-    private val baseRange = new IntegerRange(IntegerValue.get(-5), Five)
+    private val baseRange = IntegerRange(IntegerValue(-5), Five)
     private val testData = {
-        val (a, _) = IntegerDomainPruner.neRule(new IntegerRange(Zero, Nine), new IntegerRange(Five, Five))
-        val (b, _) = IntegerDomainPruner.neRule(a, new IntegerRange(Seven, Seven))
-        val (c, _) = IntegerDomainPruner.neRule(b, new IntegerRange(Six, Six))
-        val d = new IntegerRangeList(CompleteIntegerRange).diff(b)
+        val (a, _) = IntegerDomainPruner.neRule(IntegerRange(Zero, Nine), IntegerRange(Five, Five))
+        val (b, _) = IntegerDomainPruner.neRule(a, IntegerRange(Seven, Seven))
+        val (c, _) = IntegerDomainPruner.neRule(b, IntegerRange(Six, Six))
+        val d = IntegerRangeList(CompleteIntegerRange).diff(b)
         List(a, b, c, d)
     }
 
     @Test
     def testRepresentation: Unit = {
 
-        helper.testRepresentation((a, b) => new IntegerRangeList(a, b))
+        helper.testRepresentation((a, b) => IntegerRangeList(a, b))
         val List(a, b, c, d) = testData
 
         // [0, 9] \ {5}
@@ -119,11 +119,11 @@ final class IntegerRangeListTest extends UnitTest {
     @Test
     def testEquality: Unit = {
         val testData =
-            (List(EmptyIntegerRange, new IntegerRange(Zero, Nine)) ++ helper.specialInfiniteRanges ++ this.testData)
+            (List(EmptyIntegerRange, IntegerRange(Zero, Nine)) ++ helper.specialInfiniteRanges ++ this.testData)
                 .map(IntegerDomain.ensureRangeList)
         helper.testEquality(testData)
         for (a <- testData) {
-            val b = new IntegerRangeList(a.ranges)
+            val b = IntegerRangeList(a.ranges)
             assertEq(a, b)
             assertEq(b, a)
             assertNe(a, False)
@@ -142,15 +142,15 @@ final class IntegerRangeListTest extends UnitTest {
     def testOperations: Unit = {
         val sampleSize = 8
         val testData = helper.createTestData(baseRange, sampleSize).map(IntegerDomain.ensureRangeList)
-        val extendedBaseRange = new IntegerRange(baseRange.lb - One, baseRange.ub + One)
+        val extendedBaseRange = IntegerRange(baseRange.lb - One, baseRange.ub + One)
         helper.testOperations(testData, extendedBaseRange.values.toSeq)
     }
 
     @Test
     def testRandomSubrangeCreation: Unit = {
         val sampleSize = 1000
-        val baseDomain = new IntegerRangeList(Vector(new IntegerRange(Zero, Four), new IntegerRange(Six, Nine)))
-        val sample = new mutable.HashSet[IntegerRange]
+        val baseDomain = IntegerRangeList(Vector(IntegerRange(Zero, Four), IntegerRange(Six, Nine)))
+        val sample = mutable.HashSet[IntegerRange]()
         for (i <- 1 to sampleSize) {
             val e = baseDomain.randomSubrange(randomGenerator)
             assert(e.isSubsetOf(baseDomain))

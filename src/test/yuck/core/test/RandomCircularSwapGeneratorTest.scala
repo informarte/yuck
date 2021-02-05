@@ -22,7 +22,7 @@ final class RandomCircularSwapGeneratorTest
 {
 
     private val domains =
-        for (i <- 0 until numberOfVariables) yield new IntegerRange(Zero, IntegerValue.get(numberOfVariables - 1))
+        for (i <- 0 until numberOfVariables) yield IntegerRange(Zero, IntegerValue(numberOfVariables - 1))
     private val (space, xs) =
         NeighbourhoodTestHelper.createSpace(logger, sigint, randomGenerator, domains)
     private val helper =
@@ -46,9 +46,7 @@ final class RandomCircularSwapGeneratorTest
  */
 object RandomCircularSwapGeneratorTest extends NeighbourhoodTestGenerator {
 
-    import DistributionFactory.createDistribution
-
     override protected val moveSizeDistributions =
-        List(List(0, 90, 10), List(0, 50, 35, 10)).map(createDistribution(1, _))
+        List(List(0, 90, 10), List(0, 50, 35, 10)).map(Distribution(1, _))
 
 }

@@ -98,7 +98,7 @@ final class FlatZincBaseTest extends FrontEndTest {
         val result = solveWithResult(task.copy(problemName = "maximization_problem_with_implicitly_constrained_objective_variable"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[Alldistinct[_]]), 1)
         assert(result.space.isImplicitlyConstrainedSearchVariable(result.objective.objectiveVariables(1)))
-        assertEq(quality(result), IntegerValue.get(512))
+        assertEq(quality(result), IntegerValue(512))
     }
 
     @Test

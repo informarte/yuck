@@ -54,11 +54,11 @@ object BooleanValue {
      *
      * Tries to avoid memory allocation by re-using existing objects.
      */
-    def get(a: Boolean): BooleanValue =
+    def apply(a: Boolean): BooleanValue =
         if (a) True else False
 
-    def get(a: Int): BooleanValue =
-        if (valueRange.contains(a)) valueCache.apply(a - valueRange.start) else new BooleanValue(a)
+    def apply(a: Int): BooleanValue =
+        if (valueRange.contains(a)) valueCache(a - valueRange.start) else new BooleanValue(a)
 
     /**
      * Returns a BooleanValue instance for the given violation.
@@ -67,7 +67,7 @@ object BooleanValue {
      * BooleanValue instances, so the operation is cheap for them.
      * For other violations, a new BooleanValue instance is created.
      */
-    def get(a: Long): BooleanValue =
-        if (a >= Int.MinValue && a <= Int.MaxValue) get(a.toInt) else new BooleanValue(a)
+    def apply(a: Long): BooleanValue =
+        if (a >= Int.MinValue && a <= Int.MaxValue) BooleanValue(a.toInt) else new BooleanValue(a)
 
 }

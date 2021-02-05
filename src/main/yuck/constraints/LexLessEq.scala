@@ -43,7 +43,7 @@ final class LexLessEq
 
     override def initialize(now: SearchState) = {
         val maybeFailurePos = findFailurePosition(now, 0)
-        effect.a = if (maybeFailurePos.isEmpty) True else BooleanValue.get(min(xs.size, ys.size) - maybeFailurePos.get)
+        effect.a = if (maybeFailurePos.isEmpty) True else BooleanValue(min(xs.size, ys.size) - maybeFailurePos.get)
         effect
     }
 

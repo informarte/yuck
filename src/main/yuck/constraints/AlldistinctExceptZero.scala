@@ -28,6 +28,6 @@ final class AlldistinctExceptZero
     override def toString = "alldistinctExceptZero([%s], %s)".format(xs.mkString(", "), costs)
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) = {
         val maybeZeroCount = valueRegistry.get(valueTraits.zero)
-        BooleanValue.get((xs.size - maybeZeroCount.getOrElse(0)) - (valueRegistry.size - (if (maybeZeroCount.isEmpty) 0 else 1)))
+        BooleanValue((xs.size - maybeZeroCount.getOrElse(0)) - (valueRegistry.size - (if (maybeZeroCount.isEmpty) 0 else 1)))
     }
 }

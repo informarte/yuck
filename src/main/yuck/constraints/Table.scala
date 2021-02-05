@@ -95,7 +95,7 @@ abstract class Table
                     safeAdd(currentDistances(j), computeDistance(now.value(xs(i)), row(i)))
             }
         }
-        effect.a = BooleanValue.get(computeMinDistance(currentDistances))
+        effect.a = BooleanValue(computeMinDistance(currentDistances))
         effect
     }
 
@@ -130,7 +130,7 @@ abstract class Table
             val b = after.value(x)
             computeFutureDistances(cols(i), a, b)
         }
-        effect.a = BooleanValue.get(computeMinDistance(futureDistances))
+        effect.a = BooleanValue(computeMinDistance(futureDistances))
         effect
     }
 

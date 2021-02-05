@@ -25,7 +25,7 @@ abstract class Distribution {
     def frequency(i: Int): Long
 
     /** Computes the probability associated with the given index. */
-    final def probability(i: Int): Probability = Probability.from(frequency(i).toDouble / volume.toDouble)
+    final def probability(i: Int): Probability = Probability(frequency(i).toDouble / volume.toDouble)
 
     /** Returns the number of currently available alternatives. */
     def numberOfAlternatives: Int
@@ -63,5 +63,39 @@ abstract class Distribution {
 
     override def toString =
         "[%s]".format((0 until size).iterator.map(i => frequency(i)).mkString(", "))
+
+}
+
+/**
+ * Provides methods for creating distributions.
+ *
+ * @author Michael Marte
+ */
+object Distribution {
+
+    /**
+     * Creates a distribution of the given size.
+     *
+     * For large distributions an implementation based on Fenwick trees will be provided,
+     * for small distributions an array-based implementation will be used.
+     */
+    def apply(n: Int): Distribution = {
+        if (n > 32) new FenwickTreeBackedDistribution(n)
+        else new ArrayBackedDistribution(n)
+    }
+
+    /**
+     * Creates a distribution from the given frequencies such that the first
+     * frequency can be addressed with the given base index.
+     */
+    def apply(indexBase: Int, frequencies: Seq[Int]): Distribution = {
+        val d = apply(indexBase + frequencies.size)
+        var i = indexBase
+        for (f <- frequencies) {
+            d.setFrequency(i, f)
+            i += 1
+        }
+        d
+    }
 
 }

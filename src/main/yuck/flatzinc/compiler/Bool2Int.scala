@@ -51,15 +51,15 @@ object Bool2IntPropagator {
 
     def bool2Int(lhs0: BooleanDomain, rhs0: IntegerDomain) = {
         val lhs1 = BooleanDomain.ensureDecisionDomain(lhs0)
-        val lhs2 = BooleanDecisionDomain.createDomain(rhs0.contains(Zero) && lhs1.contains(False), rhs0.contains(One) && lhs1.contains(True))
-        val rhs2 = rhs0.intersect(IntegerDomain.createRange(if (lhs1.contains(False)) Zero else One, if (lhs1.contains(True)) One else Zero))
+        val lhs2 = BooleanDecisionDomain(rhs0.contains(Zero) && lhs1.contains(False), rhs0.contains(One) && lhs1.contains(True))
+        val rhs2 = rhs0.intersect(IntegerRange(if (lhs1.contains(False)) Zero else One, if (lhs1.contains(True)) One else Zero))
         (lhs2, rhs2)
     }
 
     def notBool2Int(lhs0: BooleanDomain, rhs0: IntegerDomain) = {
         val lhs1 = BooleanDomain.ensureDecisionDomain(lhs0)
-        val lhs2 = BooleanDecisionDomain.createDomain(rhs0.contains(One) && lhs1.contains(False), rhs0.contains(Zero) && lhs1.contains(True))
-        val rhs2 = rhs0.intersect(IntegerDomain.createRange(if (lhs1.contains(True)) Zero else One, if (lhs1.contains(False)) One else Zero))
+        val lhs2 = BooleanDecisionDomain(rhs0.contains(One) && lhs1.contains(False), rhs0.contains(Zero) && lhs1.contains(True))
+        val rhs2 = rhs0.intersect(IntegerRange(if (lhs1.contains(True)) Zero else One, if (lhs1.contains(False)) One else Zero))
         (lhs2, rhs2)
     }
 

@@ -1,5 +1,6 @@
 package yuck
 
+import scala.collection.immutable
 import scala.language.implicitConversions
 
 /**
@@ -38,17 +39,17 @@ package object core {
 
     type Costs = AnyValue
 
-    val True = BooleanValue.get(0)
-    val False = BooleanValue.get(1)
-    val False2 = BooleanValue.get(2)
-    val False3 = BooleanValue.get(3)
-    val False4 = BooleanValue.get(4)
-    val False5 = BooleanValue.get(5)
-    val False6 = BooleanValue.get(6)
-    val False7 = BooleanValue.get(7)
-    val False8 = BooleanValue.get(8)
-    val False9 = BooleanValue.get(9)
-    val False10 = BooleanValue.get(10)
+    val True = BooleanValue(0)
+    val False = BooleanValue(1)
+    val False2 = BooleanValue(2)
+    val False3 = BooleanValue(3)
+    val False4 = BooleanValue(4)
+    val False5 = BooleanValue(5)
+    val False6 = BooleanValue(6)
+    val False7 = BooleanValue(7)
+    val False8 = BooleanValue(8)
+    val False9 = BooleanValue(9)
+    val False10 = BooleanValue(10)
 
     val EmptyBooleanDomain = new BooleanDecisionDomain(false, false)
     val CompleteBooleanDecisionDomain = new BooleanDecisionDomain(true, true)
@@ -56,18 +57,18 @@ package object core {
     val TrueDomain = new BooleanDecisionDomain(false, true)
     val CompleteBooleanDomain = BooleanChannelDomain
 
-    val MinusOne = IntegerValue.get(-1)
-    val Zero = IntegerValue.get(0)
-    val One = IntegerValue.get(1)
-    val Two = IntegerValue.get(2)
-    val Three = IntegerValue.get(3)
-    val Four = IntegerValue.get(4)
-    val Five = IntegerValue.get(5)
-    val Six = IntegerValue.get(6)
-    val Seven = IntegerValue.get(7)
-    val Eight = IntegerValue.get(8)
-    val Nine = IntegerValue.get(9)
-    val Ten = IntegerValue.get(10)
+    val MinusOne = IntegerValue(-1)
+    val Zero = IntegerValue(0)
+    val One = IntegerValue(1)
+    val Two = IntegerValue(2)
+    val Three = IntegerValue(3)
+    val Four = IntegerValue(4)
+    val Five = IntegerValue(5)
+    val Six = IntegerValue(6)
+    val Seven = IntegerValue(7)
+    val Eight = IntegerValue(8)
+    val Nine = IntegerValue(9)
+    val Ten = IntegerValue(10)
 
     val EmptyIntegerRange = new IntegerRange(One, Zero)
     val CompleteIntegerRange = new IntegerRange(null, null)
@@ -79,7 +80,7 @@ package object core {
     val OneToOneIntegerRange = new IntegerRange(One, One)
     val ZeroToOneIntegerRange = new IntegerRange(Zero, One)
 
-    val EmptyIntegerRangeList = new IntegerRangeList()
+    val EmptyIntegerRangeList = new IntegerRangeList(immutable.IndexedSeq[IntegerRange]())
 
     val EmptyIntegerSetValue = new IntegerSetValue(EmptyIntegerRange)
     val CompleteIntegerSetValue = new IntegerSetValue(CompleteIntegerRange)

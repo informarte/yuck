@@ -27,7 +27,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     @Test
     def testSearchVariables: Unit = {
         val space = new Space(logger, sigint)
-        val rects = (1 to 2).map(createRect(space, _, new IntegerRange(Zero, Nine)))
+        val rects = (1 to 2).map(createRect(space, _, IntegerRange(Zero, Nine)))
         val Vector(r1, r2) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
@@ -37,7 +37,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     @Test
     def testRectangleMovement: Unit = {
         val space = new Space(logger, sigint)
-        val rects = (1 to 4).map(createRect(space, _, new IntegerRange(Zero, Nine)))
+        val rects = (1 to 4).map(createRect(space, _, IntegerRange(Zero, Nine)))
         val Vector(r1, r2, r3, r4) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
@@ -50,16 +50,16 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
                     (r2.x, Five), (r2.y, Four), (r2.w, Three), (r2.h, Two), // disjoint from r1
                     (r3.x, Zero), (r3.y, One), (r3.w, Three), (r3.h, Four), // identical to r1
                     (r4.x, Two), (r4.y, Three), (r4.w, Five), (r4.h, Four), // overlaps r1, r2, and r3
-                    (costs, BooleanValue.get(20))),
-                ConsultAndCommit("move r1 from (0, 1) to (3, 1)", (r1.x, Three), (costs, BooleanValue.get(13))),
-                ConsultAndCommit("move r3 from (0, 1) to (0, 3)", (r3.y, Three), (costs, BooleanValue.get(15))),
-                ConsultAndCommit("move r1 and r3 back", (r1.x, Zero), (r3.y, One), (costs, BooleanValue.get(20)))))
+                    (costs, BooleanValue(20))),
+                ConsultAndCommit("move r1 from (0, 1) to (3, 1)", (r1.x, Three), (costs, BooleanValue(13))),
+                ConsultAndCommit("move r3 from (0, 1) to (0, 3)", (r3.y, Three), (costs, BooleanValue(15))),
+                ConsultAndCommit("move r1 and r3 back", (r1.x, Zero), (r3.y, One), (costs, BooleanValue(20)))))
     }
 
     @Test
     def testRectangleResizing: Unit = {
         val space = new Space(logger, sigint)
-        val rects = (1 to 2).map(createRect(space, _, new IntegerRange(Zero, Nine)))
+        val rects = (1 to 2).map(createRect(space, _, IntegerRange(Zero, Nine)))
         val Vector(r1, r2) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
@@ -79,7 +79,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     @Test
     def testSimultaneousRectangleMovementAndResizing: Unit = {
         val space = new Space(logger, sigint)
-        val rects = (1 to 2).map(createRect(space, _, new IntegerRange(Zero, Nine)))
+        val rects = (1 to 2).map(createRect(space, _, IntegerRange(Zero, Nine)))
         val Vector(r1, r2) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
@@ -101,7 +101,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     @Test
     def testHandlingOfAdjacentRectangles: Unit = {
         val space = new Space(logger, sigint)
-        val rects = (1 to 3).map(createRect(space, _, new IntegerRange(Zero, Nine)))
+        val rects = (1 to 3).map(createRect(space, _, IntegerRange(Zero, Nine)))
         val Vector(r1, r2, r3) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
@@ -119,7 +119,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     @Test
     def testHandlingOfSharedVariables: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val r1 = createRect(space, 1, d)
         val r2 =
             new Disjoint2Rect(
@@ -140,13 +140,13 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
                     (r3.x, Two), (r3.y, Zero), (r3.w, Two), (r3.h, Four), // adjacent to r1 and r2
                     (costs, False4)),
                 ConsultAndCommit("move r1 and r2 to partially overlap r3", (r1.x, One), (costs, False10)),
-                ConsultAndCommit("make r1 and r2 wider to fully overlap r3", (r1.w, Four), (costs, BooleanValue.get(20)))))
+                ConsultAndCommit("make r1 and r2 wider to fully overlap r3", (r1.w, Four), (costs, BooleanValue(20)))))
     }
 
     @Test
     def testConsultWithoutCommit: Unit = {
         val space = new Space(logger, sigint)
-        val rects = (1 to 2).map(createRect(space, _, new IntegerRange(Zero, Nine)))
+        val rects = (1 to 2).map(createRect(space, _, IntegerRange(Zero, Nine)))
         val Vector(r1, r2) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
@@ -159,13 +159,13 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
                     (r2.x, Two), (r2.y, Three), (r2.w, Four), (r2.h, Four),
                     (costs, False4)),
                 Consult("reduce height and width of r2 to 1", (r2.w, One), (r2.h, One), (costs, False)),
-                Consult("move r1 to fully overlap r2", (r1.x, Two), (r1.y, Three), (costs, BooleanValue.get(16)))))
+                Consult("move r1 to fully overlap r2", (r1.x, Two), (r1.y, Three), (costs, BooleanValue(16)))))
     }
 
     @Test
     def testNonStrictSemantics: Unit = {
         val space = new Space(logger, sigint)
-        val rects = (1 to 2).map(createRect(space, _, new IntegerRange(Zero, Nine)))
+        val rects = (1 to 2).map(createRect(space, _, IntegerRange(Zero, Nine)))
         val Vector(r1, r2) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
@@ -184,7 +184,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     @Test
     def testRectangleMovementWithStrictSemantics: Unit = {
         val space = new Space(logger, sigint)
-        val rects = (1 to 9).map(createRect(space, _, new IntegerRange(Zero, Nine)))
+        val rects = (1 to 9).map(createRect(space, _, IntegerRange(Zero, Nine)))
         val Vector(r1, r2, r3, r4, vl1, vl2, hl1, hl2, p1) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, true, costs))
@@ -236,7 +236,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     @Test
     def testRectangleResizingWithStrictSemantics: Unit = {
         val space = new Space(logger, sigint)
-        val rects = (1 to 3).map(createRect(space, _, new IntegerRange(Zero, Nine)))
+        val rects = (1 to 3).map(createRect(space, _, IntegerRange(Zero, Nine)))
         val Vector(r1, r2, r3) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, true, costs))
@@ -261,7 +261,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     @Test
     def testHandlingOfNegativeWidthAndHeight: Unit = {
         val space = new Space(logger, sigint)
-        val rects = (1 to 3).map(createRect(space, _, new IntegerRange(Zero, Nine)))
+        val rects = (1 to 3).map(createRect(space, _, IntegerRange(Zero, Nine)))
         val Vector(r1, r2, r3) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, true, costs))

@@ -21,11 +21,11 @@ final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
         else if (this.value > that.value) 1
         else 0
     override def toString = value.toString
-    override def +(that: IntegerValue) = IntegerValue.get(safeAdd(this.value, that.value))
-    override def -(that: IntegerValue) = IntegerValue.get(safeSub(this.value, that.value))
-    override def *(that: IntegerValue) = IntegerValue.get(safeMul(this.value, that.value))
-    override def /(that: IntegerValue) = IntegerValue.get(this.value / that.value)
-    override def %(that: IntegerValue) = IntegerValue.get(this.value % that.value)
+    override def +(that: IntegerValue) = IntegerValue(safeAdd(this.value, that.value))
+    override def -(that: IntegerValue) = IntegerValue(safeSub(this.value, that.value))
+    override def *(that: IntegerValue) = IntegerValue(safeMul(this.value, that.value))
+    override def /(that: IntegerValue) = IntegerValue(this.value / that.value)
+    override def %(that: IntegerValue) = IntegerValue(this.value % that.value)
     override def ^(that: IntegerValue) = {
         val result: Double = pow(this.value, that.value)
         if (result == java.lang.Double.NEGATIVE_INFINITY || result == java.lang.Double.POSITIVE_INFINITY ||
@@ -33,14 +33,14 @@ final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
         {
             throw new java.lang.ArithmeticException("integer overflow")
         }
-        IntegerValue.get(result.toInt)
+        IntegerValue(result.toInt)
     }
     override def addAndSub(a: IntegerValue, b: IntegerValue) =
-        IntegerValue.get(safeAdd(this.value, safeSub(a.value, b.value)))
+        IntegerValue(safeAdd(this.value, safeSub(a.value, b.value)))
     override def addAndSub(s: IntegerValue, a: IntegerValue, b: IntegerValue) =
-        IntegerValue.get(safeAdd(this.value, safeMul(s.value, safeSub(a.value, b.value))))
-    override def abs = if (value < 0) IntegerValue.get(safeNeg(value)) else this
-    override def negate = IntegerValue.get(safeNeg(value))
+        IntegerValue(safeAdd(this.value, safeMul(s.value, safeSub(a.value, b.value))))
+    override def abs = if (value < 0) IntegerValue(safeNeg(value)) else this
+    override def negate = IntegerValue(safeNeg(value))
     override def toInt = value
     override def toLong = value.toLong
     override def toFloat = value.toFloat
@@ -73,7 +73,7 @@ object IntegerValue {
      * IntegerValue instances, so the operation is cheap for them.
      * For other values, a new IntegerValue instance is created.
      */
-    def get(a: Int): IntegerValue =
-       if (valueRange.contains(a)) valueCache.apply(a - valueRange.start) else new IntegerValue(a)
+    def apply(a: Int): IntegerValue =
+       if (valueRange.contains(a)) valueCache(a - valueRange.start) else new IntegerValue(a)
 
 }

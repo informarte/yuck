@@ -23,19 +23,19 @@ final class CircuitTest(offset: Int)
     with DomainPropagationTestTooling
 {
 
-    private val InvalidIndex1 = IntegerValue.get(offset - 1)
-    private val One = IntegerValue.get(offset)
-    private val Two = IntegerValue.get(offset + 1)
-    private val Three = IntegerValue.get(offset + 2)
-    private val Four = IntegerValue.get(offset + 3)
-    private val Five = IntegerValue.get(offset + 4)
-    private val InvalidIndex2 = IntegerValue.get(offset + 5)
+    private val InvalidIndex1 = IntegerValue(offset - 1)
+    private val One = IntegerValue(offset)
+    private val Two = IntegerValue(offset + 1)
+    private val Three = IntegerValue(offset + 2)
+    private val Four = IntegerValue(offset + 3)
+    private val Five = IntegerValue(offset + 4)
+    private val InvalidIndex2 = IntegerValue(offset + 5)
 
     private val randomGenerator = new JavaRandomGenerator
     private val space = new Space(logger, sigint)
     private val now = space.searchState
 
-    private val baseDomain = new IntegerRange(InvalidIndex1, InvalidIndex2)
+    private val baseDomain = IntegerRange(InvalidIndex1, InvalidIndex2)
     private val succ @ IndexedSeq(x1, x2, x3, x4, x5) =
         for (i <- 1 to 5) yield new IntegerVariable(space.nextVariableId, "x%d".format(i), baseDomain)
     private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
@@ -64,16 +64,16 @@ final class CircuitTest(offset: Int)
                     "Root-node propagation",
                     (costs, TrueDomain),
                     () => {
-                        val validIndexRange = new IntegerRange(One, Five)
+                        val validIndexRange = IntegerRange(One, Five)
                         for (i <- 0 to 4) {
                             assert(succ(i).domain.isSubsetOf(validIndexRange))
-                            assert(! succ(i).domain.contains(IntegerValue.get(offset + i)))
+                            assert(! succ(i).domain.contains(IntegerValue(offset + i)))
                         }
                     }
                 ),
                 Propagate(
                     "Propagate fixed node reference",
-                    (x1, new IntegerRange(Three, Three)),
+                    (x1, IntegerRange(Three, Three)),
                     () => {
                         for (i <- 1 to 4) {
                             assert(! succ(i).domain.contains(Three))
@@ -173,7 +173,7 @@ final class CircuitTest(offset: Int)
     def testHandlingOfFixedArcsInNeighbourhoodGeneration: Unit = {
         val constraint = new Circuit(space.nextConstraintId, null, succ, offset, costs)
         space.post(constraint)
-        x1.pruneDomain(new IntegerRange(Three, Three))
+        x1.pruneDomain(IntegerRange(Three, Three))
         assert(constraint.isCandidateForImplicitSolving(space))
         val neighbourhood =
             constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
@@ -187,8 +187,8 @@ final class CircuitTest(offset: Int)
     def testHandlingOfConvergingArcsInNeighbourhoodGeneration: Unit = {
         val constraint = new Circuit(space.nextConstraintId, null, succ, offset, costs)
         space.post(constraint)
-        x1.pruneDomain(new IntegerRange(Three, Three))
-        x2.pruneDomain(new IntegerRange(Three, Three))
+        x1.pruneDomain(IntegerRange(Three, Three))
+        x2.pruneDomain(IntegerRange(Three, Three))
         assert(constraint.isCandidateForImplicitSolving(space))
         assert(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).isEmpty)
     }
@@ -197,9 +197,9 @@ final class CircuitTest(offset: Int)
     def testHandlingOfSubcircuitsInNeighbourhoodGeneration: Unit = {
         val constraint = new Circuit(space.nextConstraintId, null, succ, offset, costs)
         space.post(constraint)
-        x1.pruneDomain(new IntegerRange(Two, Two))
-        x2.pruneDomain(new IntegerRange(Three, Three))
-        x3.pruneDomain(new IntegerRange(One, One))
+        x1.pruneDomain(IntegerRange(Two, Two))
+        x2.pruneDomain(IntegerRange(Three, Three))
+        x3.pruneDomain(IntegerRange(One, One))
         assert(constraint.isCandidateForImplicitSolving(space))
         assert(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).isEmpty)
     }

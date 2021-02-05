@@ -13,7 +13,7 @@ final class And
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s /\\ %s".format(z, x, y)
-    override def op(a: BooleanValue, b: BooleanValue) = BooleanValue.get(safeAdd(a.violation, b.violation))
+    override def op(a: BooleanValue, b: BooleanValue) = BooleanValue(safeAdd(a.violation, b.violation))
     override def propagate = {
         val lhs0 = Seq(x.domain, y.domain)
         val (lhs1, dz1) = BooleanDomainPruner.conjunctionRule(lhs0, z.domain)
@@ -38,7 +38,7 @@ final class Or
     override def toString = "%s = %s \\/ %s".format(z, x, y)
     override def op(a: BooleanValue, b: BooleanValue) =
         if (a.truthValue || b.truthValue) True
-        else BooleanValue.get(safeAdd(a.violation, b.violation) / 2)
+        else BooleanValue(safeAdd(a.violation, b.violation) / 2)
     override def propagate = {
         val lhs0 = Seq(x.domain, y.domain)
         val (lhs1, dz1) = BooleanDomainPruner.disjunctionRule(lhs0, z.domain)

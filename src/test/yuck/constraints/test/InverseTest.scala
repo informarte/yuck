@@ -19,7 +19,7 @@ final class InverseTest extends UnitTest with AssignmentPropagationTestTooling {
     @Test
     def testInverseWithIdenticalOffsets: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(One, Three)
+        val d = IntegerRange(One, Three)
         val f1 = new IntegerVariable(space.nextVariableId, "f1", d)
         val f2 = new IntegerVariable(space.nextVariableId, "f2", d)
         val f3 = new IntegerVariable(space.nextVariableId, "f3", d)
@@ -65,8 +65,8 @@ final class InverseTest extends UnitTest with AssignmentPropagationTestTooling {
     @Test
     def testInverseWithDifferentOffsets: Unit = {
         val space = new Space(logger, sigint)
-        val fd = new IntegerRange(Zero, Two)
-        val gd = new IntegerRange(One, Three)
+        val fd = IntegerRange(Zero, Two)
+        val gd = IntegerRange(One, Three)
         val f1 = new IntegerVariable(space.nextVariableId, "f1", fd)
         val f2 = new IntegerVariable(space.nextVariableId, "f2", fd)
         val f3 = new IntegerVariable(space.nextVariableId, "f3", fd)

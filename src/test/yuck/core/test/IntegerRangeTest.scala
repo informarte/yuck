@@ -16,13 +16,22 @@ final class IntegerRangeTest extends UnitTest {
 
     private val randomGenerator = new JavaRandomGenerator
     private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
-    private val baseRange = new IntegerRange(IntegerValue.get(-5), Five)
+    private val baseRange = IntegerRange(IntegerValue(-5), Five)
 
-    private def createRange(a: Int, b: Int) = new IntegerRange(IntegerValue.get(a), IntegerValue.get(b))
+    private def createRange(a: Int, b: Int) = IntegerRange(IntegerValue(a), IntegerValue(b))
 
     @Test
     def testRepresentation: Unit = {
-        helper.testRepresentation((a, b) => new IntegerRange(a, b))
+        helper.testRepresentation((a, b) => IntegerRange(a, b))
+    }
+
+    @Test
+    def testConstructionFromBoundaries: Unit = {
+        assert(IntegerRange(null, null).eq(CompleteIntegerRange))
+        assert(IntegerRange(One, Zero).eq(EmptyIntegerRange))
+        assertEq(IntegerRange(Zero, One), ZeroToOneIntegerRange)
+        assert(IntegerRange(1, 0).eq(EmptyIntegerRange))
+        assertEq(IntegerRange(0, 1), ZeroToOneIntegerRange)
     }
 
     @Test
@@ -31,7 +40,7 @@ final class IntegerRangeTest extends UnitTest {
             List(EmptyIntegerRange) ++ helper.specialInfiniteRanges ++ List(baseRange, createRange(0, 0), createRange(0, 9))
         helper.testEquality(testData)
         for (a <- testData) {
-            val b = new IntegerRange(a.lb, a.ub)
+            val b = IntegerRange(a.lb, a.ub)
             assertEq(a, b)
             assertEq(b, a)
             assertNe(a, False)
@@ -54,7 +63,7 @@ final class IntegerRangeTest extends UnitTest {
         val testData =
             helper.createTestData(baseRange, sampleSize)
                 .filter(_.isInstanceOf[IntegerRange]).map(_.asInstanceOf[IntegerRange])
-        val extendedBaseRange = new IntegerRange(baseRange.lb - One, baseRange.ub + One)
+        val extendedBaseRange = IntegerRange(baseRange.lb - One, baseRange.ub + One)
         helper.testOperations(testData, extendedBaseRange.values.toSeq)
     }
 

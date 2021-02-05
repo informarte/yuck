@@ -40,7 +40,7 @@ final class CountConst
                 }
             }
         }
-        effects.pruneDomain(n, IntegerDomain.createRange(IntegerValue.get(lb), IntegerValue.get(ub)))
+        effects.pruneDomain(n, IntegerRange(lb, ub))
     }
 
     private def propagate2(effects: PropagationEffects): PropagationEffects = {
@@ -60,12 +60,12 @@ final class CountConst
 
     override def initialize(now: SearchState) = {
         count = xs.count(x => now.value(x) == a)
-        effect.a = IntegerValue.get(count)
+        effect.a = IntegerValue(count)
         effect
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
-        effect.a = IntegerValue.get(count + computeDelta(before, after, move))
+        effect.a = IntegerValue(count + computeDelta(before, after, move))
         effect
     }
 

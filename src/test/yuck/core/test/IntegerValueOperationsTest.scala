@@ -69,16 +69,16 @@ final class IntegerValueOperationsTest extends UnitTest with IntegerValueTestDat
 
     @Test
     def testOverflowCheckingInNumericalOperations: Unit = {
-        num.plus(IntegerValue.get(Int.MaxValue), Zero)
-        assertEx(num.plus(IntegerValue.get(Int.MaxValue), One), classOf[ArithmeticException])
-        num.minus(IntegerValue.get(Int.MinValue), Zero)
-        assertEx(num.minus(IntegerValue.get(Int.MinValue), One), classOf[ArithmeticException])
-        num.times(IntegerValue.get(Int.MaxValue / 2), Two)
-        assertEx(num.times(IntegerValue.get(Int.MaxValue), Two), classOf[ArithmeticException])
-        num.abs(IntegerValue.get(Int.MinValue + 1))
-        assertEx(num.abs(IntegerValue.get(Int.MinValue)), classOf[ArithmeticException])
-        num.negate(IntegerValue.get(Int.MaxValue))
-        assertEx(num.negate(IntegerValue.get(Int.MinValue)), classOf[ArithmeticException])
+        num.plus(IntegerValue(Int.MaxValue), Zero)
+        assertEx(num.plus(IntegerValue(Int.MaxValue), One), classOf[ArithmeticException])
+        num.minus(IntegerValue(Int.MinValue), Zero)
+        assertEx(num.minus(IntegerValue(Int.MinValue), One), classOf[ArithmeticException])
+        num.times(IntegerValue(Int.MaxValue / 2), Two)
+        assertEx(num.times(IntegerValue(Int.MaxValue), Two), classOf[ArithmeticException])
+        num.abs(IntegerValue(Int.MinValue + 1))
+        assertEx(num.abs(IntegerValue(Int.MinValue)), classOf[ArithmeticException])
+        num.negate(IntegerValue(Int.MaxValue))
+        assertEx(num.negate(IntegerValue(Int.MinValue)), classOf[ArithmeticException])
     }
 
 }

@@ -20,5 +20,5 @@ class NumberOfDistinctValues
 {
     override def toString = "%s = numberOfDistinctValues([%s])".format(n, xs.mkString(", "))
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
-        IntegerValue.get(valueRegistry.size)
+        IntegerValue(valueRegistry.size)
 }

@@ -21,7 +21,7 @@ final class Queens extends IntegrationTest {
 
             // define problem
             val space = new Space(logger, sigint)
-            val d = new IntegerRange(Zero, new IntegerValue(n - 1))
+            val d = IntegerRange(Zero, new IntegerValue(n - 1))
             var rows = new Array[IntegerVariable](n)
             var rowsMinusI = new Array[IntegerVariable](n)
             var rowsPlusI = new Array[IntegerVariable](n)
@@ -30,7 +30,7 @@ final class Queens extends IntegrationTest {
                 rowsMinusI.update(col, new IntegerVariable(space.nextVariableId, "row[%s] - %s".format(col, col), CompleteIntegerRange))
                 rowsPlusI.update(col, new IntegerVariable(space.nextVariableId, "row[%s] + %s".format(col, col), CompleteIntegerRange))
                 val iVal = new IntegerValue(col)
-                val iVar = new IntegerVariable(space.nextVariableId, col.toString, new IntegerRange(iVal, iVal))
+                val iVar = new IntegerVariable(space.nextVariableId, col.toString, IntegerRange(iVal, iVal))
                 space.setValue(iVar, new IntegerValue(col))
                 space.post(new Minus(space.nextConstraintId, null, rows.apply(col), iVar, rowsMinusI.apply(col)))
                 space.post(new Plus(space.nextConstraintId, null, rows.apply(col), iVar, rowsPlusI.apply(col)))
@@ -52,7 +52,7 @@ final class Queens extends IntegrationTest {
             // build local-search solver
             val randomGenerator = new JavaRandomGenerator(seed)
             for ((x, a) <- rows.zip(0 to n - 1)) {
-                space.setValue(x, IntegerValue.get(a))
+                space.setValue(x, IntegerValue(a))
             }
             val solver =
                 new SimulatedAnnealing(

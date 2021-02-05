@@ -28,7 +28,7 @@ final class NeighbourhoodTestHelper
     require(moveSizeDistribution.volume > 0)
     require(maybeHotSpotDistribution.isEmpty || maybeHotSpotDistribution.get.size == xs.size)
     private val fairVariableChoiceRate =
-        maybeFairVariableChoiceRate.getOrElse(Probability.from(1.0)).value
+        maybeFairVariableChoiceRate.getOrElse(Probability(1.0)).value
     require(fairVariableChoiceRate >= 0 && fairVariableChoiceRate <= 1)
     require(maybeHotSpotDistribution.isDefined || fairVariableChoiceRate == 1)
 

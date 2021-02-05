@@ -15,7 +15,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
 
     private val space = new Space(logger, sigint)
     private val now = space.searchState
-    private val baseDomain = new IntegerRange(Zero, Nine)
+    private val baseDomain = IntegerRange(Zero, Nine)
     private val x = new IntegerVariable(space.nextVariableId, "x", baseDomain)
     private val y = new IntegerVariable(space.nextVariableId, "y", baseDomain)
     private val z = new IntegerVariable(space.nextVariableId, "z", baseDomain)
@@ -131,7 +131,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
             if (objective.isSolution(now) && b < y.domain.ub) {
                 assertEq(tightenedVariables, Set(z))
                 assertEq(now.value(z), b)
-                assertEq(z.domain, new IntegerRange(baseDomain.lb, b))
+                assertEq(z.domain, IntegerRange(baseDomain.lb, b))
                 z.relaxDomain(baseDomain)
                 space.setValue(z, z.domain.ub)
             } else {
@@ -178,7 +178,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
             if (objective.isSolution(now) && b > y.domain.lb) {
                 assertEq(tightenedVariables, Set(z))
                 assertEq(now.value(z), b)
-                assertEq(z.domain, new IntegerRange(b, baseDomain.ub))
+                assertEq(z.domain, IntegerRange(b, baseDomain.ub))
                 z.relaxDomain(baseDomain)
                 space.setValue(z, z.domain.lb)
             } else {

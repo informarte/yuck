@@ -39,8 +39,8 @@ final class SendMoreMoney extends IntegrationTest {
 
             // define problem
             val space = new Space(logger, sigint)
-            val d = new IntegerRange(Zero, Nine)
-            val d1 = new IntegerRange(One, Nine)
+            val d = IntegerRange(Zero, Nine)
+            val d1 = IntegerRange(One, Nine)
             val S = new IntegerVariable(space.nextVariableId, "S", d1)
             val E = new IntegerVariable(space.nextVariableId, "E", d)
             val N = new IntegerVariable(space.nextVariableId, "N", d)
@@ -84,14 +84,14 @@ final class SendMoreMoney extends IntegrationTest {
                 assertEq(delta.domain, TrueDomain)
                 assertEq(numberOfMissingValues.domain, TrueDomain)
                 assertEq(S.domain.singleValue, Nine)
-                assertEq(E.domain, new IntegerRange(Two, Eight))
+                assertEq(E.domain, IntegerRange(Two, Eight))
                 assertEq(N.domain, E.domain)
                 assertEq(D.domain, E.domain)
                 assertEq(M.domain.singleValue, One)
                 assertEq(O.domain.singleValue, Zero)
                 assertEq(R.domain, E.domain)
                 assertEq(Y.domain, E.domain)
-                assertEq(lhs.domain, new IntegerRange(IntegerValue.get(10244), IntegerValue.get(10888)))
+                assertEq(lhs.domain, IntegerRange(IntegerValue(10244), IntegerValue(10888)))
             }
 
             // build local-search solver

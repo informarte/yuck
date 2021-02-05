@@ -77,7 +77,7 @@ final class ObjectiveFactory
             if (space.isDanglingVariable(x)) {
                 val lb =
                     dx.maybeLb.getOrElse(
-                        cfg.maybeTargetObjectiveValue.map(IntegerValue.get).getOrElse(
+                        cfg.maybeTargetObjectiveValue.map(IntegerValue.apply).getOrElse(
                             IntegerValueTraits.minValue))
                 logger.log("Objective variable %s is dangling, assigning %s to it".format(x, lb))
                 space.setValue(x, lb)
@@ -85,7 +85,7 @@ final class ObjectiveFactory
             }
             else if (cfg.useProgressiveTightening && dx.maybeUb.isDefined) {
                 logger.log("Objective variable %s has upper bound, setting up for progressive tightening".format(x))
-                val y = new IntegerVariable(space.nextVariableId, "_YUCK_UB", new IntegerRange(dx.lb + One, dx.ub + One))
+                val y = new IntegerVariable(space.nextVariableId, "_YUCK_UB", IntegerRange(dx.lb + One, dx.ub + One))
                 space.setValue(y, dx.ub + One)
                 implicitlyConstrainedVars += y
                 val costs = createBoolChannel
@@ -96,7 +96,7 @@ final class ObjectiveFactory
                 None
             }
         space.registerObjectiveVariable(x)
-        new MinimizationObjective[IntegerValue](x, cfg.maybeTargetObjectiveValue.map(IntegerValue.get), maybeY)
+        new MinimizationObjective[IntegerValue](x, cfg.maybeTargetObjectiveValue.map(IntegerValue.apply), maybeY)
     }
 
     private def createMaximizationObjective
@@ -108,7 +108,7 @@ final class ObjectiveFactory
             if (space.isDanglingVariable(x)) {
                 val ub =
                     dx.maybeUb.getOrElse(
-                        cfg.maybeTargetObjectiveValue.map(IntegerValue.get).getOrElse(
+                        cfg.maybeTargetObjectiveValue.map(IntegerValue.apply).getOrElse(
                             IntegerValueTraits.maxValue))
                 logger.log("Objective variable %s is dangling, assigning %s to it".format(x, ub))
                 space.setValue(x, ub)
@@ -116,7 +116,7 @@ final class ObjectiveFactory
             }
             else if (cfg.useProgressiveTightening && dx.maybeLb.isDefined) {
                 logger.log("Objective variable %s has lower bound, setting up for progressive tightening".format(x))
-                val y = new IntegerVariable(space.nextVariableId, "_YUCK_LB", new IntegerRange(dx.lb - One, dx.ub - One))
+                val y = new IntegerVariable(space.nextVariableId, "_YUCK_LB", IntegerRange(dx.lb - One, dx.ub - One))
                 space.setValue(y, dx.lb - One)
                 implicitlyConstrainedVars += y
                 val costs = createBoolChannel
@@ -127,7 +127,7 @@ final class ObjectiveFactory
                 None
             }
         space.registerObjectiveVariable(x)
-        new MaximizationObjective[IntegerValue](x, cfg.maybeTargetObjectiveValue.map(IntegerValue.get), maybeY)
+        new MaximizationObjective[IntegerValue](x, cfg.maybeTargetObjectiveValue.map(IntegerValue.apply), maybeY)
     }
 
 }

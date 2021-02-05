@@ -170,13 +170,13 @@ final class IntegerDomainTestHelper
                 assertEq(result.lb, d.lb)
                 assertEq(result.ub, e.ub)
             } else if (d.precedes(e)) {
-                assert(result.intersect(new IntegerRange(d.ub + One, e.lb - One)).isEmpty)
+                assert(result.intersect(IntegerRange(d.ub + One, e.lb - One)).isEmpty)
             } else if (e.precedesImmediately(d)) {
                 assert(! result.hasGaps)
                 assertEq(result.lb, e.lb)
                 assertEq(result.ub, d.ub)
             } else if (e.precedes(d)) {
-                assert(result.intersect(new IntegerRange(e.ub + One, d.lb - One)).isEmpty)
+                assert(result.intersect(IntegerRange(e.ub + One, d.lb - One)).isEmpty)
             } else {
                 assert(false)
             }
@@ -193,8 +193,8 @@ final class IntegerDomainTestHelper
              (CompleteIntegerRange, NonNegativeIntegerRange) -> NegativeIntegerRange,
              (CompleteIntegerRange, PositiveIntegerRange) -> NonPositiveIntegerRange,
              (CompleteIntegerRange, NonPositiveIntegerRange) -> PositiveIntegerRange,
-             (NonNegativeIntegerRange, PositiveIntegerRange) -> new IntegerRange(Zero, Zero),
-             (NonPositiveIntegerRange, NegativeIntegerRange) -> new IntegerRange(Zero, Zero),
+             (NonNegativeIntegerRange, PositiveIntegerRange) -> IntegerRange(Zero, Zero),
+             (NonPositiveIntegerRange, NegativeIntegerRange) -> IntegerRange(Zero, Zero),
              (NonNegativeIntegerRange, NonPositiveIntegerRange) -> PositiveIntegerRange,
              (NonPositiveIntegerRange, NonNegativeIntegerRange) -> NegativeIntegerRange)
 
@@ -224,7 +224,7 @@ final class IntegerDomainTestHelper
                 assertEq(result.lb, d.lb)
                 assertEq(result.ub, e.lb - One)
             } else {
-                assertEq(result, new IntegerRangeList(Vector(new IntegerRange(d.lb, e.lb - One), new IntegerRange(e.ub + One, d.ub))))
+                assertEq(result, IntegerRangeList(Vector(IntegerRange(d.lb, e.lb - One), IntegerRange(e.ub + One, d.ub))))
             }
         } else {
             assertEq(result.union(d.intersect(e)), d)
@@ -242,7 +242,7 @@ final class IntegerDomainTestHelper
             assertEq(result, d.values.exists(_ == a))
             assertEq(result, d.valuesIterator.contains(a))
         } else {
-            assertEq(result, d.intersects(new IntegerRange(a, a)))
+            assertEq(result, d.intersects(IntegerRange(a, a)))
         }
     }
 
@@ -261,7 +261,7 @@ final class IntegerDomainTestHelper
                 assertEq(result, a - d.ub)
             } else {
                 assert(d.contains(a + result) || d.contains(a - result))
-                assert(! d.intersects(new IntegerRange(a - result + One, a + result - One)))
+                assert(! d.intersects(IntegerRange(a - result + One, a + result - One)))
             }
         }
     }
@@ -276,7 +276,7 @@ final class IntegerDomainTestHelper
             assertLe(d2.ub, a)
         }
         if (d.contains(a)) {
-            assertEq(d1.union(new IntegerRange(a, a)).union(d2), d)
+            assertEq(d1.union(IntegerRange(a, a)).union(d2), d)
         } else if (d.maybeLb.isDefined && a < d.lb) {
             assertEq(d1, d)
             assert(d2.isEmpty)
@@ -318,7 +318,7 @@ final class IntegerDomainTestHelper
                     assertEq(e.lb, if (d.hasUb) d.ub.negate else null)
                     assertEq(e.ub, if (d.hasLb) d.lb.negate else null)
                 case d: IntegerRangeList =>
-                    assertEq(e, new IntegerRangeList(d.ranges.reverseIterator.map(_.mirrored).toIndexedSeq))
+                    assertEq(e, IntegerRangeList(d.ranges.reverseIterator.map(_.mirrored).toIndexedSeq))
             }
         }
     }
@@ -383,7 +383,7 @@ final class IntegerDomainTestHelper
         assert(c.isFinite)
         assert(! c.isSingleton)
         assert(! c.contains(MinusOne))
-        (0 to 9).foreach(i => assert(c.contains(IntegerValue.get(i))))
+        (0 to 9).foreach(i => assert(c.contains(IntegerValue(i))))
         assert(! c.contains(Ten))
         assertEx(c.singleValue)
         assertEq(c.values.size, 10)
@@ -540,7 +540,7 @@ object IntegerDomainTestHelper {
             PositiveIntegerRange, NonPositiveIntegerRange)
 
     def createTestData(baseRange: IntegerRange, sampleSize: Int, randomGenerator: RandomGenerator): Seq[IntegerDomain] = {
-        val singletonRanges = baseRange.values.map(a => new IntegerRange(a, a)).toVector
+        val singletonRanges = baseRange.values.map(a => IntegerRange(a, a)).toVector
         val randomFiniteRanges = for (i <- 1 to sampleSize) yield baseRange.randomSubrange(randomGenerator)
         val randomFiniteRangeLists = for (i <- 1 to sampleSize) yield baseRange.randomSubdomain(randomGenerator)
         val randomFiniteIntegerDomains = randomFiniteRanges ++ randomFiniteRangeLists

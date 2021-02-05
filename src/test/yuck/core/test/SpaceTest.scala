@@ -173,7 +173,7 @@ final class SpaceTest extends UnitTest {
 
         override def initialize(now: SearchState) = {
             numberOfInitializations += 1
-            effects(0).a = IntegerValue.get(xs.iterator.map(now.value(_).value).sum)
+            effects(0).a = IntegerValue(xs.iterator.map(now.value(_).value).sum)
             effects
         }
 
@@ -212,7 +212,7 @@ final class SpaceTest extends UnitTest {
 
         val k = 4 // number of variables per layer
         val l = 8 // number of layers
-        val dx = new IntegerRange(One, IntegerValue.get(k * l))
+        val dx = IntegerRange(One, IntegerValue(k * l))
 
         val space = new Space(logger, sigint)
         val spies = new mutable.ArrayBuffer[Spy]
@@ -303,7 +303,7 @@ final class SpaceTest extends UnitTest {
 
         val n = 8 // number of networks
         val m = 64 // number of moves per network
-        val moveSizeDistribution = DistributionFactory.createDistribution(1, List(60, 30, 10))
+        val moveSizeDistribution = Distribution(1, List(60, 30, 10))
         val randomGenerator = new JavaRandomGenerator
 
         // generate and test n networks
@@ -433,7 +433,7 @@ final class SpaceTest extends UnitTest {
         assertEq(u.domain, NonNegativeIntegerRange) // domain of u was restored
         assertEq(v.domain, NonNegativeIntegerRange) // domain of v was restored
         assertEq(w.domain, NonNegativeIntegerRange) // domain of w was restored
-        assertEq(y.domain, new IntegerRange(Zero, Two)) // domain of y was pruned via domains of u and v
+        assertEq(y.domain, IntegerRange(Zero, Two)) // domain of y was pruned via domains of u and v
 
         // check that implicit constraints are never initialized and consulted
         space.setValue(u, Zero).setValue(v, Zero).setValue(w, Zero).setValue(x, Zero).initialize

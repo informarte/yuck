@@ -43,7 +43,7 @@ final class RandomReassignmentGenerator
     require(moveSizeDistribution.frequency(0) == 0)
     require(moveSizeDistribution.volume > 0)
 
-    private val uniformDistribution = DistributionFactory.createDistribution(n)
+    private val uniformDistribution = Distribution(n)
     (0 until n).foreach(i => uniformDistribution.setFrequency(i, 1))
     require(uniformDistribution.volume > 0)
     private val s = moveSizeDistribution.size

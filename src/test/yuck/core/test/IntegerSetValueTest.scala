@@ -43,7 +43,7 @@ final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
 
     private def valuesIterator(range: IntegerRange): Iterator[IntegerValue] =
         if (range.isFinite) range.valuesIterator
-        else Iterator.from(range.lb.value).map(IntegerValue.get)
+        else Iterator.from(range.lb.value).map(IntegerValue.apply)
 
     private def valuesIterator(ranges: Iterable[IntegerRange]): Iterator[IntegerValue] =
         ranges.iterator.flatMap(valuesIterator)
@@ -57,8 +57,8 @@ final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
         val c = IntegerDomain.ensureRangeList(a).ranges
         val d = IntegerDomain.ensureRangeList(b).ranges
         val lb = IntegerValue.min(c.head.ub, d.head.ub)
-        val e = c.tail.prepended(new IntegerRange(lb, c.head.ub))
-        val f = d.tail.prepended(new IntegerRange(lb, d.head.ub))
+        val e = c.tail.prepended(IntegerRange(lb, c.head.ub))
+        val f = d.tail.prepended(IntegerRange(lb, d.head.ub))
         valuesIterator(e).compare(valuesIterator(f))
     }
 

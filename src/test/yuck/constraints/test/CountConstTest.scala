@@ -19,7 +19,7 @@ final class CountConstTest extends UnitTest with AssignmentPropagationTestToolin
     @Test
     def testCountConst: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)

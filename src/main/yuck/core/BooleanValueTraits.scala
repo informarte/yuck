@@ -13,10 +13,10 @@ object BooleanValueTraits extends OrderedValueTraits[BooleanValue] {
     override val orderingCostModel = BooleanValueOrderingCostModel
     override def createDomain(values: Set[BooleanValue]) = {
         require(! values.exists(_.violation >= 2))
-        BooleanDecisionDomain.createDomain(values.contains(False), values.contains(True))
+        BooleanDecisionDomain(values.contains(False), values.contains(True))
     }
     override def createDomain(lb: BooleanValue, ub: BooleanValue) =
-        BooleanDecisionDomain.createDomain(lb, ub)
+        BooleanDecisionDomain(lb, ub)
     override val emptyDomain = EmptyBooleanDomain
     override val completeDomain = CompleteBooleanDomain
     override val domainOrdering = BooleanDomainOrdering

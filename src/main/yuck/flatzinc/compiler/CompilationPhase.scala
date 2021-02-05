@@ -52,7 +52,7 @@ abstract class CompilationPhase(
     private final def tryGetAnyConst(a: Expr): Option[AnyValue] = {
         a match {
             case BoolConst(a) => Some(if (a) True else False)
-            case IntConst(a) => Some(IntegerValue.get(a))
+            case IntConst(a) => Some(IntegerValue(a))
             case IntSetConst(IntRange(lb, ub)) => Some(new IntegerSetValue(createIntDomain(lb, ub)))
             case IntSetConst(IntSet(set)) => Some(new IntegerSetValue(createIntDomain(set)))
             case FloatConst(_) => throw new UnsupportedFlatZincTypeException(FloatType(None))
@@ -93,10 +93,10 @@ abstract class CompilationPhase(
         cc.ast.getArrayElems(expr)
 
     protected final def createIntDomain(lb: Int, ub: Int): IntegerDomain =
-        IntegerDomain.createRange(IntegerValue.get(lb), IntegerValue.get(ub))
+        IntegerRange(lb, ub)
 
     protected final def createIntDomain(set: Set[Int]): IntegerDomain =
-        IntegerDomain.createDomain(set.map(IntegerValue.get))
+        IntegerDomain(set.map(IntegerValue.apply))
 
     protected final def compileAnyExpr(expr: Expr): AnyVariable = expr match {
         case _ if cc.consts.contains(expr) =>

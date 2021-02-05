@@ -1,6 +1,6 @@
 package yuck.flatzinc
 
-import yuck.core.{DefaultRestartLimit, DefaultSeed, Distribution, DistributionFactory, Probability}
+import yuck.core.{DefaultRestartLimit, DefaultSeed, Distribution, Probability}
 
 /**
  * @author Michael Marte
@@ -10,7 +10,7 @@ case class FlatZincLevelConfiguration(
     val guideOptimization: Boolean,
     val maybeFairVariableChoiceRate: Option[Probability])
 {
-    require(! guideOptimization || maybeFairVariableChoiceRate.getOrElse(Probability.from(0)).value < 1)
+    require(! guideOptimization || maybeFairVariableChoiceRate.getOrElse(Probability(0)).value < 1)
     require(maybeFairVariableChoiceRate.isEmpty || guideOptimization)
 }
 
@@ -33,9 +33,9 @@ case class FlatZincSolverConfiguration(
     val useProgressiveTightening: Boolean = true,
     val checkIncrementalCostUpdate: Boolean = false,
     val checkAssignmentsToNonChannelVariables: Boolean = false,
-    val moveSizeDistribution: Distribution = DistributionFactory.createDistribution(1, List(90, 10)),
-    val level0Configuration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, Some(Probability.from(9))),
-    val level1Configuration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, Some(Probability.from(13))))
+    val moveSizeDistribution: Distribution = Distribution(1, List(90, 10)),
+    val level0Configuration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, Some(Probability(9))),
+    val level1Configuration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, Some(Probability(13))))
 {
     require(restartLimit >= 0)
     require(numberOfThreads > 0)

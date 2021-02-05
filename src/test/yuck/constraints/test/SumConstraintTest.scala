@@ -21,7 +21,7 @@ final class SumConstraintTest
     extends LinearConstraintLikeTest[IntegerValue]
 {
     override protected val baseValueTraits = IntegerValueTraits
-    override protected val baseDomain = new IntegerRange(Zero, Nine)
+    override protected val baseDomain = IntegerRange(Zero, Nine)
     private val numberOfTerms = 3
     override protected val axs =
         for (i <- 0 until numberOfTerms) yield AX(

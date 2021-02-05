@@ -11,13 +11,13 @@ object IntegerValueTraits extends IntegralValueTraits[IntegerValue] {
     override val valueType = classOf[IntegerValue]
     override val zero = Zero
     override val one = One
-    override val minValue = IntegerValue.get(Int.MinValue)
-    override val maxValue = IntegerValue.get(Int.MaxValue)
+    override val minValue = IntegerValue(Int.MinValue)
+    override val maxValue = IntegerValue(Int.MaxValue)
     override val valueOrdering = IntegerValueOperations
     override val numericalOperations = IntegerValueOperations
     override val orderingCostModel = IntegerValueOrderingCostModel
-    override def createDomain(values: Set[IntegerValue]): IntegerDomain = IntegerDomain.createDomain(values)
-    override def createDomain(lb: IntegerValue, ub: IntegerValue) = IntegerDomain.createRange(lb, ub)
+    override def createDomain(values: Set[IntegerValue]): IntegerDomain = IntegerDomain(values)
+    override def createDomain(lb: IntegerValue, ub: IntegerValue) = IntegerRange(lb, ub)
     override val emptyDomain: IntegerDomain = EmptyIntegerRange
     override val completeDomain: IntegerDomain = CompleteIntegerRange
     override val nonNegativeDomain: IntegerDomain = NonNegativeIntegerRange

@@ -19,7 +19,7 @@ final class BasicNumericalConstraintsTest extends UnitTest {
     @Test
     def testPlus: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val s = new IntegerVariable(space.nextVariableId, "s", d)
         val t = new IntegerVariable(space.nextVariableId, "t", d)
         val u = new IntegerVariable(space.nextVariableId, "u", d)

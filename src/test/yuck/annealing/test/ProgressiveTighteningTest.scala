@@ -39,7 +39,7 @@ final class ProgressiveTighteningTest
     @Test
     def testProgressiveTightening: Unit = {
         val space = new Space(logger, sigint)
-        val baseDomain = new IntegerRange(Zero, Nine)
+        val baseDomain = IntegerRange(Zero, Nine)
         val x = new IntegerVariable(space.nextVariableId, "x", baseDomain)
         val y = new IntegerVariable(space.nextVariableId, "y", baseDomain)
         space.post(new DummyConstraint(space.nextConstraintId, List(x, y), Nil))

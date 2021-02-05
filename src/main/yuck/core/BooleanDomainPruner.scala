@@ -11,7 +11,6 @@ package yuck.core
  */
 object BooleanDomainPruner extends OrderedDomainPruner[BooleanValue] {
 
-    import BooleanDecisionDomain.createDomain
     import BooleanDomain.ensureDecisionDomain
 
     override protected val valueTraits = BooleanValueTraits
@@ -52,8 +51,8 @@ object BooleanDomainPruner extends OrderedDomainPruner[BooleanValue] {
     {
         val lhs1 = ensureDecisionDomain(lhs0)
         val rhs1 = ensureDecisionDomain(rhs0)
-        (if (rhs1.isSingleton && rhs1.singleValue == False) createDomain(lhs1.contains(False), false) else lhs1,
-         if (lhs1.isSingleton && lhs1.singleValue == True) createDomain(false, rhs1.contains(True)) else rhs1)
+        (if (rhs1.isSingleton && rhs1.singleValue == False) BooleanDecisionDomain(lhs1.contains(False), false) else lhs1,
+         if (lhs1.isSingleton && lhs1.singleValue == True) BooleanDecisionDomain(false, rhs1.contains(True)) else rhs1)
     }
 
     def conjunctionRule

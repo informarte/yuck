@@ -16,7 +16,7 @@ final class VariableTest extends UnitTest {
     @Test
     def testEquality: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         assertEq(s, s)

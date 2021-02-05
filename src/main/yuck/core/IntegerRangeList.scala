@@ -3,8 +3,6 @@ package yuck.core
 import scala.collection._
 import scala.annotation.tailrec
 
-import IntegerDomain.{createRange, createDomain}
-
 /**
  * Implements immutable integer domains with holes as lists of non-empty, disjoint,
  * and non-adjacent integer ranges.
@@ -27,14 +25,6 @@ final class IntegerRangeList
         require(ranges(i - 1).ub + One < ranges(i).lb)
     }
 
-    def this() = this(immutable.IndexedSeq[IntegerRange]())
-    def this(range: IntegerRange) = this(
-        if (range.isEmpty) immutable.IndexedSeq()
-        else immutable.IndexedSeq(range))
-    def this(a: IntegerValue, b: IntegerValue) = this(
-        if (a != null && b != null && b < a) immutable.IndexedSeq()
-        else immutable.IndexedSeq(createRange(a, b)))
-
     def equals(that: IntegerRangeList): Boolean = this.eq(that) || this.ranges == that.ranges
 
     override def toString = if (isEmpty) "{}" else ranges.iterator.map(_.toString).mkString(" union ")
@@ -47,7 +37,7 @@ final class IntegerRangeList
     override def isBounded = isEmpty || (lb != null || ub != null)
     @inline override def lb = if (isEmpty) One else ranges.head.lb
     @inline override def ub = if (isEmpty) Zero else ranges.last.ub
-    override def hull: IntegerRange = if (ranges.size == 1) ranges.head else createRange(lb, ub)
+    override def hull: IntegerRange = if (ranges.size == 1) ranges.head else IntegerRange(lb, ub)
     override def values = {
         require(isFinite)
         ranges.view.flatMap(_.values)
@@ -62,7 +52,13 @@ final class IntegerRangeList
     }
     override def contains(a: IntegerValue) = findIndexOfContainingRange(a, 0, ranges.size - 1) >= 0
 
-    private lazy val rangeDistribution = IntegerRangeList.createRangeDistribution(ranges)
+    private lazy val rangeDistribution: Distribution = {
+        val result = Distribution(ranges.size)
+        for (i <- ranges.indices) {
+            result.setFrequency(i, ranges(i).size)
+        }
+        result
+    }
 
     override def randomValue(randomGenerator: RandomGenerator) = {
         require(! isEmpty)
@@ -96,16 +92,16 @@ final class IntegerRangeList
         }
     }
 
-    override def boundFromBelow(lb: IntegerValue) = this.intersect(createRange(lb, null))
+    override def boundFromBelow(lb: IntegerValue) = this.intersect(IntegerRange(lb, null))
 
-    override def boundFromAbove(ub: IntegerValue) = this.intersect(createRange(null, ub))
+    override def boundFromAbove(ub: IntegerValue) = this.intersect(IntegerRange(null, ub))
 
     override def bisect = {
         require(! isEmpty)
         require(isFinite)
         val mid = lb.value + (safeInc(ub.value - lb.value) / 2)
-        (this.intersect(createRange(lb, IntegerValue.get(safeDec(mid)))),
-         this.intersect(createRange(IntegerValue.get(mid), ub)))
+        (this.intersect(IntegerRange(lb, IntegerValue(safeDec(mid)))),
+         this.intersect(IntegerRange(IntegerValue(mid), ub)))
     }
 
     def isSubsetOf(that: IntegerRangeList): Boolean = {
@@ -127,7 +123,7 @@ final class IntegerRangeList
             else {
                 val buf = new mutable.ArrayBuffer[IntegerRange](max(this.ranges.size, that.ranges.size))
                 IntegerRangeList.intersect(this, i, that, 0, buf)
-                createDomain(buf)
+                IntegerDomain(buf)
             }
         }
     }
@@ -159,7 +155,7 @@ final class IntegerRangeList
         else {
             val i = findIndexOfContainingHole(a, 0, ranges.size - 2)
             if (i < 0) Zero
-            else IntegerValue.get(min(safeSub(a.value, ranges(i).ub.value), safeSub(ranges(i + 1).lb.value, a.value)))
+            else IntegerValue(min(safeSub(a.value, ranges(i).ub.value), safeSub(ranges(i + 1).lb.value, a.value)))
         }
     }
 
@@ -170,14 +166,14 @@ final class IntegerRangeList
         else {
             val buf = new mutable.ArrayBuffer[IntegerRange](lhs.ranges.size * 2)
             IntegerRangeList.diff(lhs, 0, rhs, 0, buf)
-            createDomain(buf)
+            IntegerDomain(buf)
         }
     }
 
     def union(that: IntegerRangeList): IntegerDomain = {
         val buf = new mutable.ArrayBuffer[IntegerRange](this.ranges.size + that.ranges.size)
         IntegerRangeList.union(this, 0, that, 0, buf)
-        createDomain(buf)
+        IntegerDomain(buf)
     }
 
     override def randomSubrange(randomGenerator: RandomGenerator) =
@@ -239,13 +235,39 @@ final class IntegerRangeList
  */
 object IntegerRangeList {
 
-    private def createRangeDistribution(ranges: immutable.IndexedSeq[IntegerRange]): Distribution = {
-        val result = DistributionFactory.createDistribution(ranges.size)
-        for (i <- ranges.indices) {
-            result.setFrequency(i, ranges(i).size)
-        }
-        result
-    }
+    /**
+     * Returns an empty IntegerRangeList instance.
+     *
+     * Avoids memory allocation by re-using an existing object.
+     */
+    def apply() = EmptyIntegerRangeList
+
+    /**
+     * Creates an IntegerRangeList instance from the given ranges.
+     *
+     * Tries to avoid memory allocation by re-using existing objects.
+     */
+    def apply(ranges: immutable.IndexedSeq[IntegerRange]) =
+        if (ranges.isEmpty) EmptyIntegerRangeList
+        else new IntegerRangeList(ranges)
+
+    /**
+     * Creates an IntegerRangeList instance from the given range.
+     *
+     * Tries to avoid memory allocation by re-using existing objects.
+     */
+    def apply(range: IntegerRange) =
+        if (range.isEmpty) EmptyIntegerRangeList
+        else new IntegerRangeList(immutable.IndexedSeq(range))
+
+    /**
+     * Creates an IntegerRangeList instance from the given boundaries.
+     *
+     * Tries to avoid memory allocation by re-using existing objects.
+     */
+    def apply(a: IntegerValue, b: IntegerValue) =
+        if (a != null && b != null && b < a) EmptyIntegerRangeList
+        else new IntegerRangeList(immutable.IndexedSeq(IntegerRange(a, b)))
 
     // In the following methods we prefer indices and tail recursion over iterators and loops
     // to avoid the overhead of creating ranges and iterators.
@@ -350,12 +372,12 @@ object IntegerRangeList {
             }
             else if (u.endsBefore(r)) {
                 if (u.startsAfter(r)) {
-                    buf += createRange(r.lb, u.lb - One)
+                    buf += IntegerRange(r.lb, u.lb - One)
                 }
-                diff(createRange(u.ub + One, r.ub), rhs, j + 1, buf)
+                diff(IntegerRange(u.ub + One, r.ub), rhs, j + 1, buf)
             }
             else if (u.startsAfter(r)) {
-                buf += createRange(r.lb, u.lb - One)
+                buf += IntegerRange(r.lb, u.lb - One)
                 j
             }
             else {
@@ -374,7 +396,7 @@ object IntegerRangeList {
                 val r = buf.last
                 assert(! r.startsAfter(u))
                 if (r.precedesImmediately(u) || r.intersects(u)) {
-                    buf.update(buf.size - 1, createRange(r.lb, if (r.endsAfter(u)) r.ub else u.ub))
+                    buf.update(buf.size - 1, IntegerRange(r.lb, if (r.endsAfter(u)) r.ub else u.ub))
                 } else {
                     buf += u
                 }

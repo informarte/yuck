@@ -37,7 +37,7 @@ final class Conjunction
         for (x <- xs) {
             violation = safeAdd(violation, now.value(x).violation)
         }
-        sum = BooleanValue.get(violation)
+        sum = BooleanValue(violation)
         effect.a = sum
         effect
     }
@@ -49,7 +49,7 @@ final class Conjunction
             val x = x0.asInstanceOf[BooleanVariable]
             violation = safeSub(safeAdd(violation, after.value(x).violation), before.value(x).violation)
         }
-        effect.a = BooleanValue.get(violation)
+        effect.a = BooleanValue(violation)
         effect
     }
 

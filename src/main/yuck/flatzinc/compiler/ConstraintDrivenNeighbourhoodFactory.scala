@@ -188,7 +188,7 @@ final class ConstraintDrivenNeighbourhoodFactory
         (implicit valueTraits: NumericalValueTraits[Value]):
         Distribution =
     {
-        val hotSpotDistribution = DistributionFactory.createDistribution(weights.size)
+        val hotSpotDistribution = Distribution(weights.size)
         space.post(new OptimizationGoalTracker(nextConstraintId, null, mode, weights.toIndexedSeq, hotSpotDistribution))
         hotSpotDistribution
     }
@@ -196,7 +196,7 @@ final class ConstraintDrivenNeighbourhoodFactory
     private def considerVariableChoiceRate
         (neighbourhood0: Neighbourhood, levelCfg: FlatZincLevelConfiguration): Neighbourhood =
     {
-        val rate = (levelCfg.maybeFairVariableChoiceRate.getOrElse(Probability.from(0)).value * 100).toInt
+        val rate = (levelCfg.maybeFairVariableChoiceRate.getOrElse(Probability(0)).value * 100).toInt
         if (rate == 0) neighbourhood0
         else {
             val xs = (neighbourhood0.searchVariables.diff(implicitlyConstrainedVars)).toBuffer.sorted.toIndexedSeq
@@ -204,7 +204,7 @@ final class ConstraintDrivenNeighbourhoodFactory
             else {
                 val neighbourhood1 =
                     new RandomReassignmentGenerator(space, xs, randomGenerator, cfg.moveSizeDistribution, None, None)
-                val distribution = DistributionFactory.createDistribution(0, List(100 - rate, rate))
+                val distribution = Distribution(0, List(100 - rate, rate))
                 new NeighbourhoodCollection(Vector(neighbourhood0, neighbourhood1), randomGenerator, Some(distribution), None)
             }
         }

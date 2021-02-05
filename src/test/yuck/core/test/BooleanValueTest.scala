@@ -41,11 +41,11 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
 
     @Test
     def testValueFactory: Unit = {
-        assertEq(BooleanValue.get(false), False)
-        assertEq(BooleanValue.get(true), True)
+        assertEq(BooleanValue(false), False)
+        assertEq(BooleanValue(true), True)
         for (a <- testRange) {
-            assertEq(BooleanValue.get(a).violation, a)
-            assert(BooleanValue.get(a).eq(BooleanValue.get(a)))
+            assertEq(BooleanValue(a).violation, a)
+            assert(BooleanValue(a).eq(BooleanValue(a)))
         }
         assertEx(new BooleanValue(-1))
     }

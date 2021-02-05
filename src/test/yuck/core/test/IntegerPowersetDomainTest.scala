@@ -24,11 +24,11 @@ final class IntegerPowersetDomainTest extends UnitTest {
         // base domains
         val ebd  = EmptyIntegerRange
         val ubd  = CompleteIntegerRange
-        val bd0  = new IntegerRange(Zero, Zero)
-        val bd1  = new IntegerRange(One, One)
-        val bd2  = new IntegerRange(Two, Two)
-        val bd01 = new IntegerRange(Zero, One)
-        val bd02 = IntegerDomain.createDomain(Set(Zero, Two))
+        val bd0  = IntegerRange(Zero, Zero)
+        val bd1  = IntegerRange(One, One)
+        val bd2  = IntegerRange(Two, Two)
+        val bd01 = IntegerRange(Zero, One)
+        val bd02 = IntegerDomain(Set(Zero, Two))
 
         // set domains
         val esd = new IntegerPowersetDomain(ebd)

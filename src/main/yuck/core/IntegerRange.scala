@@ -1,7 +1,5 @@
 package yuck.core
 
-import IntegerDomain.createRange
-
 /**
  * Represents immutable integer ranges in terms of lower and upper bounds.
  *
@@ -44,7 +42,7 @@ final class IntegerRange
     override def hull = this
     override def values = {
         require(isFinite)
-        (lb.value to ub.value).view.map(a => IntegerValue.get(a))
+        (lb.value to ub.value).view.map(a => IntegerValue(a))
     }
     override def valuesIterator = {
         require(isFinite)
@@ -53,7 +51,7 @@ final class IntegerRange
             private var i = lb.value
             override def hasNext = i <= ub.value
             override def next = {
-                val a = IntegerValue.get(i)
+                val a = IntegerValue(i)
                 i += 1
                 a
             }
@@ -68,7 +66,7 @@ final class IntegerRange
 
     override def randomValue(randomGenerator: RandomGenerator) = {
         require(! isEmpty && isFinite)
-        IntegerValue.get(lb.value + randomGenerator.nextInt(size))
+        IntegerValue(lb.value + randomGenerator.nextInt(size))
     }
 
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: IntegerValue) = {
@@ -79,20 +77,20 @@ final class IntegerRange
             if (currentValue == lb) ub else lb
         } else {
             val a = lb.value + randomGenerator.nextInt(size - 1)
-            IntegerValue.get(if (a < currentValue.value) a else a + 1)
+            IntegerValue(if (a < currentValue.value) a else a + 1)
         }
     }
 
-    override def boundFromBelow(lb: IntegerValue) = this.intersect(createRange(lb, null))
+    override def boundFromBelow(lb: IntegerValue) = this.intersect(IntegerRange(lb, null))
 
-    override def boundFromAbove(ub: IntegerValue) = this.intersect(createRange(null, ub))
+    override def boundFromAbove(ub: IntegerValue) = this.intersect(IntegerRange(null, ub))
 
     override def bisect = {
         require(! isEmpty)
         require(isFinite)
         val mid = lb.value + (safeInc(ub.value - lb.value) / 2)
-        (this.intersect(createRange(lb, IntegerValue.get(safeDec(mid)))),
-         this.intersect(createRange(IntegerValue.get(mid), ub)))
+        (this.intersect(IntegerRange(lb, IntegerValue(safeDec(mid)))),
+         this.intersect(IntegerRange(IntegerValue(mid), ub)))
     }
 
     override def distanceTo(a0: NumericalValue[IntegerValue]): IntegerValue = {
@@ -120,7 +118,7 @@ final class IntegerRange
             else if (! that.hasUb) this.ub
             else if (this.ub < that.ub) this.ub
             else that.ub
-        IntegerDomain.createRange(lb, ub)
+        IntegerRange(lb, ub)
     }
 
     def maybeIntersectionSize(that: IntegerRange): Option[Int] = {
@@ -133,12 +131,12 @@ final class IntegerRange
         else {
             val a = randomValue(randomGenerator)
             val b = randomValue(randomGenerator)
-            if (a < b) createRange(a, b) else createRange(b, a)
+            if (a < b) IntegerRange(a, b) else IntegerRange(b, a)
         }
 
     override def mirrored: IntegerRange =
         if (isEmpty) this
-        else createRange(maybeUb.map(_.negate).orNull, maybeLb.map(_.negate).orNull)
+        else IntegerRange(maybeUb.map(_.negate).orNull, maybeLb.map(_.negate).orNull)
 
     /**
      * Implements range multiplication as described in:
@@ -155,7 +153,7 @@ final class IntegerRange
             val c = that.lb.value
             val d = that.ub.value
             val A = List(safeMul(a, c), safeMul(a, d), safeMul(b, c), safeMul(b, d))
-            createRange(IntegerValue.get(A.min), IntegerValue.get(A.max))
+            IntegerRange(A.min, A.max)
         }
     }
 
@@ -182,19 +180,19 @@ final class IntegerRange
             } else if (! this.contains(Zero) && c < Zero && Zero < d) {
                 // case 3
                 val e = IntegerValueTraits.valueOrdering.max(a.abs, b.abs)
-                createRange(MinusOne * e, e)
+                IntegerRange(MinusOne * e, e)
             } else if (! this.contains(Zero) && c < Zero && d == Zero) {
                 // case 4a
-                this.div(createRange(c, MinusOne))
+                this.div(IntegerRange(c, MinusOne))
             } else if (! this.contains(Zero) && c == Zero && Zero < d) {
                 // case 4b
-                this.div(createRange(One, d))
+                this.div(IntegerRange(One, d))
             } else if (! that.contains(Zero)) {
                 // case 5
                 // approximation (6.14)
                 val A = List(a.toDouble / c.toDouble, a.toDouble / d.toDouble, b.toDouble / c.toDouble, b.toDouble / d.toDouble)
                 import scala.math.Ordering.Double.TotalOrdering
-                createRange(IntegerValue.get(A.min.ceil.toInt), IntegerValue.get(A.max.floor.toInt))
+                IntegerRange(A.min.ceil.toInt, A.max.floor.toInt)
             } else {
                 // Must not occur since the preceding case distinction covers all cases.
                 ???
@@ -210,4 +208,25 @@ final class IntegerRange
  * @author Michael Marte
  */
 object IntegerRange {
+
+    /**
+     * Creates an IntegerRange instance from the given boundaries.
+     *
+     * Tries to avoid memory allocation by re-using existing objects.
+     */
+    def apply(lb: IntegerValue, ub: IntegerValue): IntegerRange =
+        if (lb == null && ub == null) CompleteIntegerRange
+        else if (lb != null && ub != null && ub < lb) EmptyIntegerRange
+        else new IntegerRange(lb, ub)
+
+
+    /**
+     * Creates an integer range from the given boundaries.
+     *
+     * Tries to avoid memory allocation by re-using existing objects.
+     */
+    def apply(lb: Int, ub: Int): IntegerRange =
+        if (ub < lb) EmptyIntegerRange
+        else new IntegerRange(IntegerValue(lb), IntegerValue(ub))
+
 }

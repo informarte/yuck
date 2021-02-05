@@ -26,7 +26,7 @@ final class Circuit
     override def toString = "circuit([%s], %d, %s)".format(succ.mkString(", "), offset, costs)
 
     override protected def computeCosts(cycleLengths: Iterable[Int]) =
-        BooleanValue.get(succ.size - (if (cycleLengths.isEmpty) 0 else cycleLengths.max))
+        BooleanValue(succ.size - (if (cycleLengths.isEmpty) 0 else cycleLengths.max))
 
     override def isCandidateForImplicitSolving(space: Space) =
         succ.size > 2 &&
@@ -138,7 +138,7 @@ final class Circuit
                     openNodes(randomGenerator.nextInt(openNodes.size))
             }
             def isCandidate(j: Int) =
-                j != i && ! nodeIsInUse(j) && succ(i).domain.contains(IntegerValue.get(j + offset)) &&
+                j != i && ! nodeIsInUse(j) && succ(i).domain.contains(IntegerValue(j + offset)) &&
                     (numSettledNodes == n - 1 || end(j) != i)
             val maybeJ = strategy match {
                 case FirstFailStrategy =>
@@ -171,7 +171,7 @@ final class Circuit
             logger.log("Success")
             for (i <- nodeRange) {
                 val x = succ(i)
-                val a = IntegerValue.get(maybeSuccessor(i).get + offset)
+                val a = IntegerValue(maybeSuccessor(i).get + offset)
                 assert(x.domain.contains(a))
                 space.setValue(x, a)
             }

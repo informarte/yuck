@@ -50,7 +50,7 @@ final class Regular
     require(delta.forall(_.size == S))
     require(delta.forall(_.forall(q => q >= 0 && q <= Q)))
     require(q0 >= 1 && q0 <= Q)
-    require(F.isSubsetOf(IntegerDomain.createRange(One, IntegerValue.get(Q))))
+    require(F.isSubsetOf(IntegerRange(1, Q)))
 
     private val n = xs.size
     private val hasDuplicateVariables = xs.toSet.size < n
@@ -131,7 +131,7 @@ final class Regular
         currentCosts = computeCosts(currentStates, i, q)
         currentFailurePosition = if (q == 0) i else n
         assert(currentCosts >= 0)
-        effect.a = BooleanValue.get(currentCosts)
+        effect.a = BooleanValue(currentCosts)
         effect
     }
 
@@ -185,7 +185,7 @@ final class Regular
             }
         }
         assert(futureCosts >= 0)
-        effect.a = BooleanValue.get(futureCosts)
+        effect.a = BooleanValue(futureCosts)
         effect
     }
 

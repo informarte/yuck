@@ -18,7 +18,7 @@ final class InverseFunction
 {
     require(! xs.isEmpty)
     val indexRange = offset until safeAdd(offset, xs.size)
-    val indexDomain = IntegerDomain.createRange(IntegerValue.get(offset), IntegerValue.get(offset + xs.size - 1))
+    val indexDomain = IntegerRange(offset, offset + xs.size - 1)
     val x2i = new immutable.HashMap[AnyVariable, Int] ++ xs.zip(indexRange)
     val refs = new Array[mutable.HashSet[Int]](xs.size)
     val visited = new Array[Int](xs.size)
@@ -78,13 +78,12 @@ final class Inverse
     }
 
     private def propagate(effects: PropagationEffects, f: InverseFunction, g: InverseFunction): PropagationEffects = {
-        import IntegerDomain.createRange
         effects
             .pruneDomains(
                 for (i <- f.indexRange.iterator;
                      x = f.xs(i - f.offset);
                      dx = x.domain;
-                     di = createRange(IntegerValue.get(i), IntegerValue.get(i));
+                     di = IntegerRange(i, i);
                      j <- g.indexDomain.diff(dx).valuesIterator.map(_.value);
                      y = g.xs(j - g.offset))
                 yield
@@ -96,7 +95,7 @@ final class Inverse
                      if dx.isSingleton;
                      y = g.xs(dx.singleValue.value - g.offset))
                 yield
-                    (y, y.domain.intersect(createRange(IntegerValue.get(i), IntegerValue.get(i)))))
+                    (y, y.domain.intersect(IntegerRange(i, i))))
     }
 
     override def propagate =
@@ -131,7 +130,7 @@ final class Inverse
             }
         }
         assert(currentCosts >= 0)
-        effect.a = BooleanValue.get(currentCosts)
+        effect.a = BooleanValue(currentCosts)
         effect
     }
 
@@ -177,7 +176,7 @@ final class Inverse
             }
         }
         assert(futureCosts >= 0)
-        effect.a = BooleanValue.get(futureCosts)
+        effect.a = BooleanValue(futureCosts)
         effect
     }
 
@@ -235,10 +234,10 @@ final class Inverse
                 {
                     // simplest case
                     for ((x, j) <- f.xs.iterator.zip(g.indexRange.iterator)) {
-                        space.setValue(x, IntegerValue.get(j))
+                        space.setValue(x, IntegerValue(j))
                     }
                     for ((y, i) <- g.xs.iterator.zip(f.indexRange.iterator)) {
-                        space.setValue(y, IntegerValue.get(i))
+                        space.setValue(y, IntegerValue(i))
                     }
                     space.setValue(costs, True)
                     Some(new SimpleInverseNeighbourhood(space, f, g, randomGenerator))
@@ -292,8 +291,8 @@ final class Inverse
             {
                 // self-inverse case, occurs in elitserien (look for RRT 5)
                 for (IndexedSeq(i1, i2) <- f.indexRange.grouped(2)) {
-                    space.setValue(f.xs(i1 - f.offset), IntegerValue.get(i2))
-                    space.setValue(f.xs(i2 - f.offset), IntegerValue.get(i1))
+                    space.setValue(f.xs(i1 - f.offset), IntegerValue(i2))
+                    space.setValue(f.xs(i2 - f.offset), IntegerValue(i1))
                 }
                 space.setValue(costs, True)
                 Some(new SelfInverseNeighbourhood(space, f, randomGenerator))

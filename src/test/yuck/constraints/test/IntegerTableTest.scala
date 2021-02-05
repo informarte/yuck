@@ -20,12 +20,12 @@ final class IntegerTableTest
 {
 
     private def createTable(m: Int)(elems: Int*) =
-        elems.toIndexedSeq.map(IntegerValue.get).grouped(m).toIndexedSeq
+        elems.toIndexedSeq.map(IntegerValue.apply).grouped(m).toIndexedSeq
 
     @Test
     def testConsultAndCommit: Unit = {
         val space = new Space(logger, sigint)
-        val xs = Vector("s", "t", "u").map(new IntegerVariable(space.nextVariableId, _, new IntegerRange(Zero, Nine)))
+        val xs = Vector("s", "t", "u").map(new IntegerVariable(space.nextVariableId, _, IntegerRange(Zero, Nine)))
         val Vector(s, t, u) = xs
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         val rows = createTable(3)(0, 0, 0, 1, 2, 3)
@@ -42,7 +42,7 @@ final class IntegerTableTest
     @Test
     def testConsultAndCommitWithDuplicateVariables: Unit = {
         val space = new Space(logger, sigint)
-        val Vector(s, t) = Vector("s", "t").map(new IntegerVariable(space.nextVariableId, _, new IntegerRange(Zero, Nine)))
+        val Vector(s, t) = Vector("s", "t").map(new IntegerVariable(space.nextVariableId, _, IntegerRange(Zero, Nine)))
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         val rows = createTable(3)(0, 0, 0, 1, 2, 3, 2, 2, 3)
         space.post(new IntegerTable(space.nextConstraintId, null, Vector(s, s, t), rows, costs))
@@ -59,8 +59,8 @@ final class IntegerTableTest
     @Test
     def testPropagation: Unit = {
         val space = new Space(logger, sigint)
-        val s = new IntegerVariable(space.nextVariableId, "s", new IntegerRange(Two, Five))
-        val t = new IntegerVariable(space.nextVariableId, "t", new IntegerRange(Two, Three))
+        val s = new IntegerVariable(space.nextVariableId, "s", IntegerRange(Two, Five))
+        val t = new IntegerVariable(space.nextVariableId, "t", IntegerRange(Two, Three))
         val costs = new BooleanVariable(space.nextVariableId, "costs", TrueDomain)
         val rows =
             createTable(2)(
@@ -77,18 +77,18 @@ final class IntegerTableTest
                 Propagate(
                     "1",
                     Nil,
-                    List((s, IntegerDomain.createDomain(List(Two, Three, Five))),
-                         (t, IntegerDomain.createDomain(List(Two, Three))))),
+                    List((s, IntegerDomain(List(Two, Three, Five))),
+                         (t, IntegerDomain(List(Two, Three))))),
                 Propagate(
                     "2",
-                    (t, new IntegerRange(Two, Two)),
-                    (s, IntegerDomain.createDomain(List(Two, Five))))))
+                    (t, IntegerRange(Two, Two)),
+                    (s, IntegerDomain(List(Two, Five))))))
     }
 
     @Test
     def testPropagationWithDuplicateVariables: Unit = {
         val space = new Space(logger, sigint)
-        val s = new IntegerVariable(space.nextVariableId, "s", new IntegerRange(Two, Five))
+        val s = new IntegerVariable(space.nextVariableId, "s", IntegerRange(Two, Five))
         val costs = new BooleanVariable(space.nextVariableId, "costs", TrueDomain)
         val rows =
             createTable(2)(
@@ -105,7 +105,7 @@ final class IntegerTableTest
                 Propagate(
                     "1",
                     Nil,
-                    (s, IntegerDomain.createDomain(List(Two, Four))))))
+                    (s, IntegerDomain(List(Two, Four))))))
     }
 
 }

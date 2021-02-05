@@ -25,7 +25,7 @@ final class IntegerTable
 {
     import java.lang.Math.{abs, addExact => safeAdd, subtractExact => safeSub}
     override def createDomain(values: Set[IntegerValue]) =
-        IntegerDomain.createDomain(values)
+        IntegerDomain(values)
     override def computeDistance(a: IntegerValue, b: IntegerValue) =
         abs(safeSub(a.value.toLong, b.value.toLong))
     override def computeFutureDistances(col: IndexedSeq[IntegerValue], a0: IntegerValue, b0: IntegerValue) = {

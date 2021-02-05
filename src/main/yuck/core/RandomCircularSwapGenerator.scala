@@ -51,7 +51,7 @@ final class RandomCircularSwapGenerator
     require(moveSizeDistribution.frequency(0) == 0)
     require(moveSizeDistribution.volume > 0)
 
-    private val uniformDistribution = DistributionFactory.createDistribution(n)
+    private val uniformDistribution = Distribution(n)
     (0 until n).foreach(i => uniformDistribution.setFrequency(i, 1))
     private val s = moveSizeDistribution.size
     private val effects = for (i <- 1 until s) yield new ReusableMoveEffect[Value]

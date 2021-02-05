@@ -15,7 +15,7 @@ final class MaximizationObjectiveTest extends UnitTest {
 
     private val space = new Space(logger, sigint)
     private val now = space.searchState
-    private val baseDomain = new IntegerRange(Zero, Nine)
+    private val baseDomain = IntegerRange(Zero, Nine)
     private val x = new IntegerVariable(space.nextVariableId, "x", baseDomain)
     private val y = new IntegerVariable(space.nextVariableId, "y", baseDomain)
     private val objective = new MaximizationObjective(x, Some(baseDomain.ub - One), Some(y))
@@ -88,7 +88,7 @@ final class MaximizationObjectiveTest extends UnitTest {
             assertEq(now.value(x), a)
             assertEq(now.value(y), a)
             assertEq(x.domain, baseDomain)
-            assertEq(y.domain, new IntegerRange(a, baseDomain.ub))
+            assertEq(y.domain, IntegerRange(a, baseDomain.ub))
             assertEq(tightenedVariables.isEmpty, y.domain == baseDomain)
             y.relaxDomain(baseDomain)
         }

@@ -76,7 +76,7 @@ abstract class Disjoint
             rTree.add(newEntry)
         }
         assert(rTree.getEntryCount == n)
-        effect.a = BooleanValue.get(currentCosts)
+        effect.a = BooleanValue(currentCosts)
         effect
     }
 
@@ -109,7 +109,7 @@ abstract class Disjoint
             )
             rTreeTransaction.add(afterEntry)
         }
-        effect.a = BooleanValue.get(futureCosts)
+        effect.a = BooleanValue(futureCosts)
         effect
     }
 

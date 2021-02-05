@@ -35,10 +35,10 @@ final class IntegerValueOrderingCostModelTest extends UnitTest with IntegerValue
 
     @Test
     def testOverflowCheckingInCostComputation: Unit = {
-        costModel.ltViolation(IntegerValue.get(Int.MaxValue - 1), Zero)
-        assertEx(costModel.ltViolation(IntegerValue.get(Int.MaxValue), Zero), classOf[ArithmeticException])
-        costModel.leViolation(IntegerValue.get(Int.MaxValue), Zero)
-        assertEx(costModel.leViolation(IntegerValue.get(Int.MaxValue), MinusOne), classOf[ArithmeticException])
+        costModel.ltViolation(IntegerValue(Int.MaxValue - 1), Zero)
+        assertEx(costModel.ltViolation(IntegerValue(Int.MaxValue), Zero), classOf[ArithmeticException])
+        costModel.leViolation(IntegerValue(Int.MaxValue), Zero)
+        assertEx(costModel.leViolation(IntegerValue(Int.MaxValue), MinusOne), classOf[ArithmeticException])
     }
 
 }

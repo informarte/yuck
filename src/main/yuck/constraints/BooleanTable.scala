@@ -24,7 +24,7 @@ final class BooleanTable
     extends Table(id, xs, rows, costs)
 {
     override def createDomain(values: Set[BooleanValue]) =
-        BooleanDecisionDomain.createDomain(values.contains(False), values.contains(True))
+        BooleanDecisionDomain(values.contains(False), values.contains(True))
     override def computeDistance(a: BooleanValue, b: BooleanValue) =
         if (a.truthValue == b.truthValue) 0 else 1
     override def computeFutureDistances(col: IndexedSeq[BooleanValue], a0: BooleanValue, b0: BooleanValue) = {

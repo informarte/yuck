@@ -19,13 +19,13 @@ final class RegularTest extends UnitTest with AssignmentPropagationTestTooling {
     @Test
     def testRegular: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(One, Two)
+        val d = IntegerRange(One, Two)
         val xs = for (i <- 1 to 10) yield new IntegerVariable(space.nextVariableId, "x[%d]".format(i), d)
         val Q = 6
         val S = 2
         val delta = immutable.IndexedSeq(1, 2, 3, 0, 3, 4, 0, 5, 0, 6, 6, 0).grouped(2).toIndexedSeq
         val q0 = 1
-        val F = new IntegerRange(Six, Six)
+        val F = IntegerRange(Six, Six)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Regular(space.nextConstraintId, null, xs, Q, S, delta, q0, F, costs))
         assertEq(space.searchVariables, xs.toSet)

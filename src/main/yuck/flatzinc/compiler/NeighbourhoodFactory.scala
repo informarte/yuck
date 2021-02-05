@@ -135,7 +135,7 @@ class NeighbourhoodFactory
     private def createHotSpotDistribution(searchVarSeq: Seq[AnyVariable]): Distribution = {
         val searchVarIndex = searchVarSeq.iterator.zipWithIndex.toMap
         val searchVarSet = searchVarSeq.toSet
-        val hotSpotDistribution = DistributionFactory.createDistribution(searchVarSeq.size)
+        val hotSpotDistribution = Distribution(searchVarSeq.size)
         def involvedSearchVars(x: AnyVariable) =
             searchVarSet.intersect(space.involvedSearchVariables(x)).iterator.map(searchVarIndex).toIndexedSeq
         val involvementMatrix = cc.costVars.iterator.map(x => (x, involvedSearchVars(x))).filter(_._2.nonEmpty).toMap

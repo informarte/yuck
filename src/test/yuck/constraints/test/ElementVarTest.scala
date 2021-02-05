@@ -21,12 +21,12 @@ final class ElementVarTest(offset: Int) extends UnitTest with AssignmentPropagat
     @Test
     def testArrayAccess: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
         val xs = immutable.IndexedSeq(s, t, u)
-        val indexRange = IntegerDomain.createRange(IntegerValue.get(offset), IntegerValue.get(offset + 2))
+        val indexRange = IntegerRange(IntegerValue(offset), IntegerValue(offset + 2))
         val i = new IntegerVariable(space.nextVariableId, "i", indexRange)
         val y = space.createVariable("y", NonNegativeIntegerRange)
         space.post(new ElementVar(space.nextConstraintId, null, xs, i, y, offset))
@@ -34,9 +34,9 @@ final class ElementVarTest(offset: Int) extends UnitTest with AssignmentPropagat
         runScenario(
             TestScenario(
                 space,
-                Initialize("setup", (s, One), (t, Two), (u, Three), (i, IntegerValue.get(offset)), (y, One)),
+                Initialize("setup", (s, One), (t, Two), (u, Three), (i, IntegerValue(offset)), (y, One)),
                 ConsultAndCommit("1", (s, Zero), (y, Zero)),
-                ConsultAndCommit("2", (i, IntegerValue.get(offset + 1)), (y, Two))))
+                ConsultAndCommit("2", (i, IntegerValue(offset + 1)), (y, Two))))
     }
 
 }

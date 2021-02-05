@@ -23,7 +23,7 @@ object Probability {
      *
      * Throws when the given percentage is lower than 0 or greater than 100.
      */
-    def from(percentage: Int): Probability = {
+    def apply(percentage: Int): Probability = {
         require(percentage >= 0 && percentage <= 100)
         new Probability(percentage / 100.0)
     }
@@ -33,7 +33,7 @@ object Probability {
      *
      * Throws when the given double value is lower than 0 or greater than 1.
      */
-    def from(p: Double): Probability = {
+    def apply(p: Double): Probability = {
         require(p >= 0 && p <= 1)
         new Probability(p)
     }

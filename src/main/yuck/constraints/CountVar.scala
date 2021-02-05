@@ -24,6 +24,6 @@ final class CountVar
     override def inVariables = xs.iterator.filter(_.domain.intersects(y.domain)).toBuffer[AnyVariable].addOne(y)
     override def todo(move: Move) = super.todo(move).filter(x => x != y)
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
-        IntegerValue.get(valueRegistry.getOrElse(searchState.value(y), 0))
+        IntegerValue(valueRegistry.getOrElse(searchState.value(y), 0))
 
 }

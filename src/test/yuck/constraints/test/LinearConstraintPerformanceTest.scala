@@ -20,7 +20,7 @@ class LinearConstraintPerformanceTest(relation: OrderingRelation, withUnitCoeffi
 
     private val randomGenerator = new JavaRandomGenerator
     private val space = new Space(logger, sigint)
-    private val baseDomain = new IntegerRange(Zero, Nine)
+    private val baseDomain = IntegerRange(Zero, Nine)
     private val numberOfTerms = 10
     private val initialDomains =
       for (i <- 0 until numberOfTerms) yield baseDomain.randomSubdomain(randomGenerator)
@@ -32,7 +32,7 @@ class LinearConstraintPerformanceTest(relation: OrderingRelation, withUnitCoeffi
     private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
     private val axs = xs.map(AX(if (withUnitCoefficients) One else baseDomain.randomValue(randomGenerator), _))
     private val constraint = new LinearConstraint(space.nextConstraintId, null, axs, y, relation, z, costs)
-    private val moveSizeDistribution = DistributionFactory.createDistribution(1, for (n <- 10 to 1 by -1) yield n)
+    private val moveSizeDistribution = Distribution(1, for (n <- 10 to 1 by -1) yield n)
     private val neighbourhood = new RandomReassignmentGenerator(space, xs, randomGenerator, moveSizeDistribution, None, None)
     private val numberOfMoves = 1000
     private val numberOfIterations = numberOfMoves * 10000

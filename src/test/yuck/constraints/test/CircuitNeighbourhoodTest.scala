@@ -22,7 +22,7 @@ class CircuitNeighbourhoodTest(offset: Int) extends UnitTest {
     private val space = new Space(logger, sigint)
     private val now = space.searchState
 
-    private val baseDomain = new IntegerRange(IntegerValue.get(offset), IntegerValue.get(offset + 4))
+    private val baseDomain = IntegerRange(IntegerValue(offset), IntegerValue(offset + 4))
     private val xs = for (i <- 1 to 5) yield new IntegerVariable(space.nextVariableId, "x%d".format(i), baseDomain)
     private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
 

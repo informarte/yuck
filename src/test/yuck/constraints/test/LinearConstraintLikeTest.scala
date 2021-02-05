@@ -129,7 +129,7 @@ abstract class LinearConstraintLikeTest[Value <: NumericalValue[Value]] extends 
         if (true) {
             val a = axs.map{case AX(a, x) => a * now.value(x)}.sum(baseValueTraits.numericalOperations)
             val b = now.value(z)
-            val c = BooleanValue.get(randomGenerator.nextInt(maxViolation))
+            val c = BooleanValue(randomGenerator.nextInt(maxViolation))
             relation match {
                 case EqRelation => (costModel.eqViolation _).expects(a, b).returns(c)
                 case NeRelation => (costModel.neViolation _).expects(a, b).returns(c)
@@ -146,7 +146,7 @@ abstract class LinearConstraintLikeTest[Value <: NumericalValue[Value]] extends 
                     (axs.map(_.x) :+ z).map(_.nextRandomMoveEffect(space, randomGenerator)))
             val a = axs.map{case AX(a, x) => a * move.value(x)}.sum(baseValueTraits.numericalOperations)
             val b = move.value(z)
-            val c = BooleanValue.get(randomGenerator.nextInt(maxViolation))
+            val c = BooleanValue(randomGenerator.nextInt(maxViolation))
             relation match {
                 case EqRelation => (costModel.eqViolation _).expects(a, b).returns(c).twice()
                 case NeRelation => (costModel.neViolation _).expects(a, b).returns(c).twice()

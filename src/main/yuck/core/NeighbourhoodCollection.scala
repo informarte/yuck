@@ -33,7 +33,7 @@ final class NeighbourhoodCollection(
     private var lastNeighbourhood: Neighbourhood = null
     override def searchVariables = neighbourhoods.iterator.flatMap(_.searchVariables).toSet
     override def children = neighbourhoods
-    private val sizeDistribution = DistributionFactory.createDistribution(neighbourhoods.size)
+    private val sizeDistribution = Distribution(neighbourhoods.size)
     (0 until neighbourhoods.size).foreach(i => sizeDistribution.setFrequency(i, neighbourhoods(i).searchVariables.size))
     override def nextMove = {
         val useSizeDistribution =

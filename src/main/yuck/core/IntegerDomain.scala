@@ -92,7 +92,7 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
     final override def randomSubdomain(randomGenerator: RandomGenerator): IntegerDomain = {
         val choice = new mutable.HashSet[IntegerValue]
         valuesIterator.foreach(a => if (randomGenerator.nextDecision) choice += a)
-        createDomain(choice)
+        apply(choice)
     }
 
     /**
@@ -198,7 +198,7 @@ object IntegerDomain {
 
     /** Turns the given integer domain into a range list, if necessary. */
     def ensureRangeList(domain: Domain[IntegerValue]): IntegerRangeList = domain match {
-        case range: IntegerRange => if (range.isEmpty) EmptyIntegerRangeList else new IntegerRangeList(range)
+        case range: IntegerRange => if (range.isEmpty) EmptyIntegerRangeList else IntegerRangeList(range)
         case rangeList: IntegerRangeList => rangeList
         case _ => ???
     }
@@ -209,13 +209,13 @@ object IntegerDomain {
      *
      * Tries to avoid memory allocation by re-using existing objects.
      */
-    def createDomain(ranges: Seq[IntegerRange]): IntegerDomain =
+    def apply(ranges: Seq[IntegerRange]): IntegerDomain =
         if (ranges.isEmpty) EmptyIntegerRange
         else if (ranges.size == 1) ranges.head
         else new IntegerRangeList(ranges.toIndexedSeq)
 
     /** Creates an integer domain from a given value set. */
-    def createDomain(values: Iterable[IntegerValue]): IntegerDomain =
+    def apply(values: Iterable[IntegerValue]): IntegerDomain =
         if (values.isEmpty) {
             EmptyIntegerRange
         } else {
@@ -230,23 +230,13 @@ object IntegerDomain {
                 if (a.value <= safeInc(ub.value)) {
                     ub = a
                 } else {
-                    outBuf += new IntegerRange(lb, ub)
+                    outBuf += IntegerRange(lb, ub)
                     lb = a
                     ub = lb
                 }
             }
-            outBuf += new IntegerRange(lb, ub)
-            createDomain(outBuf)
+            outBuf += IntegerRange(lb, ub)
+            IntegerDomain(outBuf)
         }
-
-    /**
-     * Creates an integer range from the given boundaries.
-     *
-     * Tries to avoid memory allocation by re-using existing objects.
-     */
-    def createRange(lb: IntegerValue, ub: IntegerValue): IntegerRange =
-        if (lb == null && ub == null) CompleteIntegerRange
-        else if (lb != null && ub != null && ub < lb) EmptyIntegerRange
-        else new IntegerRange(lb, ub)
 
 }

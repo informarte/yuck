@@ -22,8 +22,7 @@ final class ElementConst
     extends Constraint(id)
 {
 
-    private def indexRange =
-        IntegerDomain.createRange(IntegerValue.get(offset), IntegerValue.get(safeDec(safeAdd(as.size, offset))))
+    private def indexRange = IntegerRange(offset, safeDec(safeAdd(as.size, offset)))
 
     override def toString = "%s = element(%s, [%s], %d)".format(y, i, as.mkString(", "), offset)
 
@@ -50,7 +49,7 @@ final class ElementConst
                 y.domain.intersect(
                     di1.valuesIterator.foldLeft(valueTraits.emptyDomain){case (u, i) => u.union(valueTraits.createDomain(Set(as(i.value - offset))))})
             val di2 =
-                IntegerDomain.createDomain(
+                IntegerDomain(
                     di1.valuesIterator.filter(i => dy1.contains(as(i.value - offset))).toSet)
             NoPropagationOccurred.pruneDomains(i, di2, y, dy1)
         }

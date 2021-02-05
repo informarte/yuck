@@ -22,7 +22,7 @@ final class IntegerSetDomainTest extends UnitTest {
 
     private val randomGenerator = new JavaRandomGenerator
     private val helper1 = new IntegerDomainTestHelper(randomGenerator, logger)
-    private val baseRange = new IntegerRange(IntegerValue.get(-5), Five)
+    private val baseRange = IntegerRange(IntegerValue(-5), Five)
     private def createTestData(sampleSize: Int) =
         helper1
             .createTestData(baseRange, sampleSize)

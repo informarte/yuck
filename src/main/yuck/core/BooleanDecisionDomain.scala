@@ -9,7 +9,6 @@ final class BooleanDecisionDomain
     (val containsFalse: Boolean, val containsTrue: Boolean)
     extends BooleanDomain
 {
-    import BooleanDecisionDomain.createDomain
     override def hashCode = 3 * (3 + containsFalse.hashCode) + containsTrue.hashCode
     def equals(that: BooleanDecisionDomain): Boolean =
         this.eq(that) || (this.containsFalse == that.containsFalse && this.containsTrue == that.containsTrue)
@@ -49,11 +48,11 @@ final class BooleanDecisionDomain
     def intersects(that: BooleanDecisionDomain): Boolean =
         (this.containsFalse && that.containsFalse) || (this.containsTrue && that.containsTrue)
     def intersect(that: BooleanDecisionDomain): BooleanDecisionDomain =
-        createDomain(this.containsFalse && that.containsFalse, this.containsTrue && that.containsTrue)
+        BooleanDecisionDomain(this.containsFalse && that.containsFalse, this.containsTrue && that.containsTrue)
     def union(that: BooleanDecisionDomain): BooleanDecisionDomain =
-        createDomain(this.containsFalse || that.containsFalse, this.containsTrue || that.containsTrue)
+        BooleanDecisionDomain(this.containsFalse || that.containsFalse, this.containsTrue || that.containsTrue)
     def diff(that: BooleanDecisionDomain): BooleanDecisionDomain =
-        createDomain(this.containsFalse && ! that.containsFalse, this.containsTrue && ! that.containsTrue)
+        BooleanDecisionDomain(this.containsFalse && ! that.containsFalse, this.containsTrue && ! that.containsTrue)
 }
 
 /**
@@ -82,7 +81,7 @@ object BooleanDecisionDomain {
      *
      * Tries to avoid memory allocation by re-using existing objects
      */
-    def createDomain(containsFalse: Boolean, containsTrue: Boolean): BooleanDecisionDomain = {
+    def apply(containsFalse: Boolean, containsTrue: Boolean): BooleanDecisionDomain = {
         (containsFalse, containsTrue) match {
             case (false, false) => EmptyBooleanDomain
             case (false, true) => TrueDomain
@@ -96,7 +95,7 @@ object BooleanDecisionDomain {
      *
      * Tries to avoid memory allocation by re-using existing objects
      */
-    def createDomain(lb: BooleanValue, ub: BooleanValue): BooleanDecisionDomain = {
+    def apply(lb: BooleanValue, ub: BooleanValue): BooleanDecisionDomain = {
         (lb, ub) match {
             case (False, False) => FalseDomain
             case (False, True) => EmptyBooleanDomain

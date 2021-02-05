@@ -250,7 +250,7 @@ final class Cumulative
         }
         currentCosts = computeCosts(rTree, now.value(capacity).value)
         assert(currentCosts >= 0)
-        effect.a = BooleanValue.get(currentCosts)
+        effect.a = BooleanValue(currentCosts)
         effect
     }
 
@@ -281,7 +281,7 @@ final class Cumulative
             futureCosts = computeCosts(rTreeTransaction, afterCapacity)
         }
         assert(futureCosts >= 0)
-        effect.a = BooleanValue.get(futureCosts)
+        effect.a = BooleanValue(futureCosts)
         effect
     }
 

@@ -20,7 +20,7 @@ final class AlldistinctTest extends UnitTest with AssignmentPropagationTestTooli
     @Test
     def testAlldistinct: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
@@ -37,7 +37,7 @@ final class AlldistinctTest extends UnitTest with AssignmentPropagationTestTooli
     @Test
     def testAlldistinctWithAVariableOccuringTwice: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
@@ -54,7 +54,7 @@ final class AlldistinctTest extends UnitTest with AssignmentPropagationTestTooli
     @Test
     def testAlldistinctWithImplicitSolving: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Two)
+        val d = IntegerRange(Zero, Two)
         val s = space.createVariable("s", d)
         val t = space.createVariable("t", d)
         val u = space.createVariable("u", d)
@@ -87,7 +87,7 @@ final class AlldistinctTest extends UnitTest with AssignmentPropagationTestTooli
     @Test
     def testAlldistinctExceptZero: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val s = new IntegerVariable(space.nextVariableId, "s", d)
         val t = new IntegerVariable(space.nextVariableId, "t", d)
         val u = new IntegerVariable(space.nextVariableId, "u", d)
@@ -106,7 +106,7 @@ final class AlldistinctTest extends UnitTest with AssignmentPropagationTestTooli
     @Test
     def testAlldistinctExceptZeroWithAVariableOccuringTwice: Unit = {
         val space = new Space(logger, sigint)
-        val d = new IntegerRange(Zero, Nine)
+        val d = IntegerRange(Zero, Nine)
         val s = new IntegerVariable(space.nextVariableId, "s", d)
         val t = new IntegerVariable(space.nextVariableId, "t", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)

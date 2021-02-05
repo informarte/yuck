@@ -16,19 +16,19 @@ final class IntegerDomainTest extends UnitTest {
 
     private val randomGenerator = new JavaRandomGenerator
     private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
-    private val baseRange = new IntegerRange(IntegerValue.get(-5), Five)
+    private val baseRange = IntegerRange(IntegerValue(-5), Five)
 
     @Test
     def testEquality: Unit = {
-        val CompleteIntegerRangeList = new IntegerRangeList(CompleteIntegerRange)
+        val CompleteIntegerRangeList = IntegerRangeList(CompleteIntegerRange)
         assertEq(EmptyIntegerRange.asInstanceOf[IntegerDomain], EmptyIntegerRange)
         assertNe(EmptyIntegerRange.asInstanceOf[IntegerDomain], CompleteIntegerRange)
         assertEq(EmptyIntegerRange, EmptyIntegerRangeList)
         assertNe(EmptyIntegerRange, CompleteIntegerRangeList)
         assertEq(CompleteIntegerRange, CompleteIntegerRangeList)
         assertNe(CompleteIntegerRange, EmptyIntegerRangeList)
-        assertEq(new IntegerRange(Zero, Two), new IntegerRangeList(Zero, Two))
-        assertNe(new IntegerRange(Zero, Two), new IntegerRangeList(Vector(new IntegerRange(Zero, Zero), new IntegerRange(Two, Two))))
+        assertEq(IntegerRange(Zero, Two), IntegerRangeList(Zero, Two))
+        assertNe(IntegerRange(Zero, Two), IntegerRangeList(Vector(IntegerRange(Zero, Zero), IntegerRange(Two, Two))))
         assertEq(EmptyIntegerRangeList.asInstanceOf[IntegerDomain], EmptyIntegerRange)
         assertNe(EmptyIntegerRangeList.asInstanceOf[IntegerDomain], CompleteIntegerRange)
     }
@@ -44,7 +44,7 @@ final class IntegerDomainTest extends UnitTest {
     def testOperations: Unit = {
         val sampleSize = 8
         val testData = helper.createTestData(baseRange, sampleSize)
-        val extendedBaseRange = new IntegerRange(baseRange.lb - One, baseRange.ub + One)
+        val extendedBaseRange = IntegerRange(baseRange.lb - One, baseRange.ub + One)
         helper.testOperations(testData, extendedBaseRange.values.toSeq)
     }
 
@@ -62,29 +62,27 @@ final class IntegerDomainTest extends UnitTest {
 
     @Test
     def testDomainCreationFromRanges: Unit = {
-        import IntegerDomain.createDomain
-        assert(createDomain(List[IntegerRange]()).isInstanceOf[IntegerRange])
-        assert(createDomain(List[IntegerRange]()).isEmpty)
-        assert(createDomain(List(CompleteIntegerRange)).isInstanceOf[IntegerRange])
-        assert(createDomain(List(CompleteIntegerRange)).isComplete)
+        assert(IntegerDomain(List[IntegerRange]()).isInstanceOf[IntegerRange])
+        assert(IntegerDomain(List[IntegerRange]()).isEmpty)
+        assert(IntegerDomain(List(CompleteIntegerRange)).isInstanceOf[IntegerRange])
+        assert(IntegerDomain(List(CompleteIntegerRange)).isComplete)
         assertEq(
-            createDomain(List(NegativeIntegerRange, PositiveIntegerRange)),
-            new IntegerRangeList(Vector(NegativeIntegerRange, PositiveIntegerRange)))
+            IntegerDomain(List(NegativeIntegerRange, PositiveIntegerRange)),
+            IntegerRangeList(Vector(NegativeIntegerRange, PositiveIntegerRange)))
     }
 
     @Test
     def testDomainCreationFromValues: Unit = {
-        import IntegerDomain.createDomain
         val testData = List(
             List(List()) -> EmptyIntegerRange,
             List(List(Zero), List(Zero, Zero)) -> ZeroToZeroIntegerRange,
             List(List(Zero, One), List(One, Zero)) -> ZeroToOneIntegerRange,
             List(List(Zero, One, Three, Four), List(Three, Zero, Four, One, One)) ->
-                new IntegerRangeList(Vector(ZeroToOneIntegerRange, new IntegerRange(Three, Four))))
+                IntegerRangeList(Vector(ZeroToOneIntegerRange, IntegerRange(Three, Four))))
         for ((inputs, expectation) <- testData) {
             for (input <- inputs) {
                 def check(values: Iterable[IntegerValue]) = {
-                    val result = createDomain(values)
+                    val result = IntegerDomain(values)
                     assertEq(result, expectation)
                     assertEq(result.getClass, expectation.getClass)
                 }

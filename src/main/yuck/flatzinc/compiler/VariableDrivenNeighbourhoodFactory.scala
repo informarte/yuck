@@ -144,7 +144,7 @@ final class VariableDrivenNeighbourhoodFactory
         (implicit valueTraits: NumericalValueTraits[Value]):
         Option[Distribution] =
     {
-        val hotSpotDistribution = DistributionFactory.createDistribution(xs.size)
+        val hotSpotDistribution = Distribution(xs.size)
         val weightedIndicators = xs.iterator.map(x => new AX(valueTraits.one, hotSpotIndicators(x))).toIndexedSeq
         space.post(new OptimizationGoalTracker(nextConstraintId, null, OptimizationMode.Min, weightedIndicators, hotSpotDistribution))
         Some(hotSpotDistribution)

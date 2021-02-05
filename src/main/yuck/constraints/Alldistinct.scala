@@ -43,7 +43,7 @@ final class Alldistinct
     }
 
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
-        BooleanValue.get(xs.size - valueRegistry.size)
+        BooleanValue(xs.size - valueRegistry.size)
 
     override def isCandidateForImplicitSolving(space: Space) = {
         val (xs, ys) = this.xs.partition(! _.domain.isSingleton)

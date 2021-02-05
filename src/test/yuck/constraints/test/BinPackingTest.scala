@@ -20,11 +20,11 @@ final class BinPackingTest extends UnitTest {
     def testBinPacking: Unit = {
         val space = new Space(logger, sigint)
         // We start with 1 because we want to test the handling of a bin range that does not start at 0.
-        val binDomain = new IntegerRange(One, Three)
+        val binDomain = IntegerRange(One, Three)
         val items =
             (for (i <- 1 to 5) yield {
                 val bin = new IntegerVariable(space.nextVariableId, "bin%d".format(i), binDomain)
-                i -> new BinPackingItem(bin, IntegerValue.get(i))
+                i -> new BinPackingItem(bin, IntegerValue(i))
             }).toMap
         val loads =
             (for (i <- binDomain.values) yield
