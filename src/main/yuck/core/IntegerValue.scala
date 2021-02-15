@@ -21,8 +21,11 @@ final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
         else if (this.value > that.value) 1
         else 0
     override def toString = value.toString
-    override def +(that: IntegerValue) = IntegerValue(safeAdd(this.value, that.value))
-    override def -(that: IntegerValue) = IntegerValue(safeSub(this.value, that.value))
+    override def +(that: IntegerValue) =
+        if (this.value == 0) that
+        else if (that.value == 0) this
+        else IntegerValue(safeAdd(this.value, that.value))
+    override def -(that: IntegerValue) = if (that.value == 0) this else IntegerValue(safeSub(this.value, that.value))
     override def *(that: IntegerValue) = IntegerValue(safeMul(this.value, that.value))
     override def /(that: IntegerValue) = IntegerValue(this.value / that.value)
     override def %(that: IntegerValue) = IntegerValue(this.value % that.value)
@@ -35,10 +38,14 @@ final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
         }
         IntegerValue(result.toInt)
     }
-    override def addAndSub(a: IntegerValue, b: IntegerValue) =
-        IntegerValue(safeAdd(this.value, safeSub(a.value, b.value)))
-    override def addAndSub(s: IntegerValue, a: IntegerValue, b: IntegerValue) =
-        IntegerValue(safeAdd(this.value, safeMul(s.value, safeSub(a.value, b.value))))
+    override def addAndSub(a: IntegerValue, b: IntegerValue) = {
+        val delta = safeSub(a.value, b.value)
+        if (delta == 0) this else IntegerValue(safeAdd(this.value, delta))
+    }
+    override def addAndSub(s: IntegerValue, a: IntegerValue, b: IntegerValue) = {
+        val delta = safeSub(a.value, b.value)
+        if (delta == 0) this else IntegerValue(safeAdd(this.value, safeMul(s.value, delta)))
+    }
     override def abs = if (value < 0) IntegerValue(safeNeg(value)) else this
     override def negate = IntegerValue(safeNeg(value))
     override def toInt = value
