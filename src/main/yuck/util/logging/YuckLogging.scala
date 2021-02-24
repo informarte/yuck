@@ -10,7 +10,7 @@ trait YuckLogging {
     // (See ManagedLogManager for the technical background.)
     System.setProperty("java.util.logging.manager", classOf[ManagedLogManager].getName)
     protected val logManager = java.util.logging.LogManager.getLogManager.asInstanceOf[ManagedLogManager]
-    protected val nativeLogger = java.util.logging.Logger.getLogger(this.getClass.getName)
+    protected val nativeLogger = java.util.logging.Logger.getLogger("%s-%d".format(this.getClass.getName, Thread.currentThread.getId))
     protected val logger = new LazyLogger(nativeLogger)
 
 }

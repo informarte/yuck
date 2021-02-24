@@ -6,6 +6,7 @@ import org.junit._
 import org.junit.rules.RuleChain
 import org.junit.rules.TestName
 
+import yuck.util.arm.DummyResource
 import yuck.util.logging.YuckLogging
 
 /**
@@ -21,10 +22,12 @@ abstract class YuckTest extends YuckAssert with YuckLogging {
     consoleHandler.setFormatter(formatter)
     logger.setThresholdLogLevel(yuck.util.logging.InfoLogLevel)
 
+    // By default, don't log to console when the test is run in parallel to other tests.
+    protected val logToConsole = Thread.currentThread.getName == "main"
+
     protected val testName = new TestName
 
     protected val sigint = new yuck.util.arm.SettableSigint
-
 
     @(Rule @getter)
     protected val environmentManagement =
@@ -37,7 +40,10 @@ abstract class YuckTest extends YuckAssert with YuckLogging {
         // will ignore interrupts.
         .around(new ManagedResourceAsTestRule(new yuck.util.arm.ManagedShutdownHook({})))
         .around(new ManagedResourceAsTestRule(logManager))
-        .around(new ManagedResourceAsTestRule(new yuck.util.logging.ManagedLogHandler(nativeLogger, consoleHandler)))
+        .around(
+            new ManagedResourceAsTestRule(
+                if (logToConsole) new yuck.util.logging.ManagedLogHandler(nativeLogger, consoleHandler)
+                else DummyResource))
         .around(
             new ManagedResourceAsTestRule(
                 new yuck.util.logging.DurationLogger(

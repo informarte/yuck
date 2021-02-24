@@ -9,8 +9,7 @@ import yuck.util.arm.ManagedResource
  * It installs a JVM shutdown hook which will disable logging before or during a shutdown (caused by SIGINT)
  * by calling the log manager's reset method, see
  * [[https://stackoverflow.com/questions/13825403/java-how-to-get-logger-to-work-in-shutdown-hook]].
- * To disable the shutdown hook, the replacement ignores calls to reset and instead will disable logging
- * only upon closing.
+ * To disable the shutdown hook, the replacement ignores calls to reset.
  *
  * Use only the instance returned by java.util.logging.getLogManager!
  *
@@ -22,7 +21,6 @@ final class ManagedLogManager extends java.util.logging.LogManager with ManagedR
     }
 
     override def close() = {
-        super.reset
     }
 
     override def reset() = {
