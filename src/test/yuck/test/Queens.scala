@@ -5,7 +5,7 @@ import org.junit._
 import yuck.annealing._
 import yuck.constraints._
 import yuck.core._
-import yuck.util.testing.IntegrationTest
+import yuck.util.testing.{DefaultNumberOfThreads, IntegrationTest}
 
 /**
  * @author Michael Marte
@@ -77,7 +77,7 @@ final class Queens extends IntegrationTest {
         val solvers =
             (1 to DefaultRestartLimit).map(
                 i => new OnDemandGeneratedSolver(new QueensGenerator(n, i, randomGenerator.nextInt()), logger, sigint))
-        val solver = new ParallelSolver(solvers, Runtime.getRuntime.availableProcessors, "Queens", logger, sigint)
+        val solver = new ParallelSolver(solvers, DefaultNumberOfThreads, "Queens", logger, sigint)
         val result = solver.call()
         assert(result.isSolution)
     }

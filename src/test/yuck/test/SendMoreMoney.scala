@@ -5,7 +5,7 @@ import org.junit._
 import yuck.annealing._
 import yuck.constraints._
 import yuck.core._
-import yuck.util.testing.IntegrationTest
+import yuck.util.testing.{DefaultNumberOfThreads, IntegrationTest}
 
 /**
  * @author Michael Marte
@@ -125,7 +125,7 @@ final class SendMoreMoney extends IntegrationTest {
         val solvers =
             (1 to DefaultRestartLimit).toList.map(
                 i => new OnDemandGeneratedSolver(new SendMoreMoneyGenerator(i, randomGenerator.nextInt()), logger, sigint))
-        val solver = new ParallelSolver(solvers, Runtime.getRuntime.availableProcessors, "SendMoreMoney", logger, sigint)
+        val solver = new ParallelSolver(solvers, DefaultNumberOfThreads, "SendMoreMoney", logger, sigint)
         val result = solver.call()
         if (result.isSolution) {
             val modelData = result.maybeUserData.get.asInstanceOf[ModelData]

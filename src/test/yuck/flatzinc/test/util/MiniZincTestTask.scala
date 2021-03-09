@@ -1,6 +1,7 @@
 package yuck.flatzinc.test.util
 
 import yuck.flatzinc.FlatZincSolverConfiguration
+import yuck.util.testing.{DefaultNumberOfThreads, DefaultRuntimeLimitInSeconds}
 
 /**
  * @author Michael Marte
@@ -28,9 +29,9 @@ case class MiniZincTestTask(
     val solverConfiguration: FlatZincSolverConfiguration =
         FlatZincSolverConfiguration(checkAssignmentsToNonChannelVariables = true),
     val maybeRestartLimit: Option[Int] = None, // limits solverConfiguration.restartLimit
-    val maybeMaximumNumberOfThreads: Option[Int] = Some(4), // limits solverConfiguration.numberOfThreads
+    val maybeMaximumNumberOfThreads: Option[Int] = Some(DefaultNumberOfThreads), // limits solverConfiguration.numberOfThreads
     val maybeRoundLimit: Option[Int] = None, // overrules solverConfiguration.maybeRoundLimitInSeconds
-    val maybeRuntimeLimitInSeconds: Option[Int] = Some(300), // overrules solverConfiguration.maybeRuntimeLimitInSeconds
+    val maybeRuntimeLimitInSeconds: Option[Int] = Some(DefaultRuntimeLimitInSeconds), // overrules solverConfiguration.maybeRuntimeLimitInSeconds
     val maybeOptimum: Option[Int] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
     val maybeHighScore: Option[Int] = None, // best ever recorded objective value
     val maybeTargetObjectiveValue: Option[Int] = None, // overrules solverConfiguration.maybeTargetObjectiveValue

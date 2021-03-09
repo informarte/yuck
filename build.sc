@@ -43,10 +43,11 @@ object yuck extends ScalaModule with BuildInfo {
         ivy"org.scala-lang.modules::scala-parser-combinators:1.1.2"
     )
 
-    val basicJvmConfiguration = Seq("-Xmx2G", "-Djava.lang.Integer.IntegerCache.high=10000")
-    val jvmConfiguration = basicJvmConfiguration ++ Seq("-XX:+UseParallelGC", "-XX:+AggressiveHeap")
-
+    val basicJvmConfiguration = Seq("-Djava.lang.Integer.IntegerCache.high=10000", "-XX:+UseParallelGC")
+    val jvmHeapSize = Option(System.getenv("YUCK_HEAP_SIZE")).getOrElse("2G")
+    val jvmConfiguration = Seq("-Xmx%s".format(jvmHeapSize)) ++ basicJvmConfiguration
     override def forkArgs = jvmConfiguration
+
     override def mainClass = Some("yuck.flatzinc.runner.FlatZincRunner")
 
     def fullClasspath = T {(localClasspath() ++ upstreamAssemblyClasspath()).map(_.path)}
@@ -69,7 +70,10 @@ object yuck extends ScalaModule with BuildInfo {
             ivy"com.novocode:junit-interface:0.11"
         )
 
+        val jvmHeapSize = Option(System.getenv("YUCK_TEST_HEAP_SIZE")).getOrElse("2G")
+        val jvmConfiguration = Seq("-Xmx%s".format(jvmHeapSize), "-XX:+AggressiveHeap") ++ basicJvmConfiguration
         override def forkArgs = jvmConfiguration
+
         override def mainClass = Some("yuck.util.testing.YuckTestRunner")
 
         def fullClasspath = T {(localClasspath() ++ upstreamAssemblyClasspath()).map(_.path)}
