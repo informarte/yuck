@@ -110,26 +110,34 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
-    def testBinPackingLoadWithUnboundedLoadVariables: Unit = {
-        val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_unbounded_load_variables"))
+    def testBinPackingLoadWithUnboundedLoads: Unit = {
+        val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_unbounded_loads"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
         assertEq(result.space.searchVariables.size, 6)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
-    def testBinPackingLoadWithEqualLoadVariables: Unit = {
-        val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_equal_load_variables"))
+    def testBinPackingLoadWithEqualLoads: Unit = {
+        val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_equal_loads"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
-        assertEq(result.space.searchVariables.size, 7)
+        assertEq(result.space.searchVariables.size, 6)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
-    def testBinPackingLoadWithDuplicateBinVariables: Unit = {
-        val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_duplicate_bin_variables"))
+    def testBinPackingLoadWithSharedLoads: Unit = {
+        val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_shared_loads"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 2)
+        assertEq(result.space.searchVariables.size, 6)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    def testBinPackingLoadWithEqualBins: Unit = {
+        val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_equal_bins"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[BinPacking[_]]), 1)
-        assertEq(result.space.searchVariables.size, 8)
+        assertEq(result.space.searchVariables.size, 5)
     }
 
     @Test

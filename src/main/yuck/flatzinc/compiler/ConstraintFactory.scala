@@ -1,6 +1,7 @@
 package yuck.flatzinc.compiler
 
 import scala.collection._
+import scala.ref.WeakReference
 
 import yuck.constraints._
 import yuck.core._
@@ -38,70 +39,68 @@ final class ConstraintFactory
     private val impliedConstraints = cc.impliedConstraints
     private val logger = cc.logger
 
-    // Checks whether the given constraint is annotated with defined_var(a)
-    // where a compiles to out.
-    private def definesVar(
-        constraint: yuck.flatzinc.ast.Constraint, out: AnyVariable): Boolean =
-    {
-        constraint
-        .annotations
-        .iterator
-        .flatMap(_.term match {
+    private def definedVars(annotation: Annotation): Seq[AnyVariable] =
+        annotation.term match {
             case Term("defines_var", List(a)) => List(compileAnyExpr(a))
             case Term("defines_vars", List(a)) => compileAnyArray(a)
             case _ => Nil
-        })
-        .contains(out)
-    }
+        }
+
+    // Checks whether the given constraint is annotated with defines_var(a) where a compiles to out.
+    private def definesVar(constraint: yuck.flatzinc.ast.Constraint, out: AnyVariable): Boolean =
+        constraint.annotations.iterator.flatMap(definedVars).contains(out)
+
+    // Checks whether the given constraint is annotated with defines_var(out).
+    private def definesVar(constraint: yuck.flatzinc.ast.Constraint, out: Expr): Boolean =
+        definesVar(constraint, compileAnyExpr(out))
+
+    // Computes the set of variables defined by the given constraint according to its annotations.
+    private def definedVars(constraint: yuck.flatzinc.ast.Constraint): Set[AnyVariable] =
+        constraint.annotations.iterator.flatMap(definedVars).toSet
 
     private val fakeConstraintId = new Id[yuck.core.Constraint](-1)
 
-    // Checks whether there is a functional dependency that could be exploited without
-    // introducing a cycle.
+    // Checks whether a constraint from in to out could be posted.
     // Notice that this method may be quite expensive!
-    private def definesVar(
-        constraint: yuck.flatzinc.ast.Constraint, in: Iterable[AnyVariable], out: AnyVariable): Boolean =
-    {
-        ! out.domain.isSingleton &&
+    private def isViableConstraint(in: Iterable[AnyVariable], out: AnyVariable): Boolean =
         ! cc.searchVars.contains(out) &&
-        (definesVar(constraint, out) || ! cc.definedVars.contains(out)) &&
         space.maybeDefiningConstraint(out).isEmpty &&
         ! space.wouldIntroduceCycle(new DummyConstraint(fakeConstraintId, in, List(out)))
+
+    // Checks whether there is a functional dependency that could be exploited without introducing a cycle.
+    // Notice that this method may be quite expensive!
+    private def definesVar
+        (constraint: yuck.flatzinc.ast.Constraint, in: Iterable[AnyVariable], out: AnyVariable): Boolean =
+    {
+        ! out.domain.isSingleton &&
+        (definesVar(constraint, out) || ! cc.definedVars.contains(out)) &&
+        isViableConstraint(in, out)
     }
-
-    private def definesVar(
-        constraint: yuck.flatzinc.ast.Constraint, out: Expr): Boolean =
-        definesVar(constraint, compileAnyExpr(out))
-
-    private def definesVar(
-        constraint: yuck.flatzinc.ast.Constraint, in: Seq[Expr], out: Expr): Boolean =
-        definesVar(constraint, in.map(compileAnyExpr), compileAnyExpr(out))
-
-    private def definesVar(
-        constraint: yuck.flatzinc.ast.Constraint, in: Expr, out: Expr): Boolean =
-        definesVar(constraint, compileAnyArray(in), compileAnyExpr(out))
 
     private def compileConstraint
         (constraint: yuck.flatzinc.ast.Constraint,
-         in: Seq[AnyVariable],
-         out: AnyVariable,
-         withFunctionalDependency: => Iterable[BooleanVariable],
-         withoutFunctionalDependency: => Iterable[BooleanVariable]):
+         in: Iterable[AnyVariable],
+         out: Iterable[AnyVariable],
+         functionalCase: => Iterable[BooleanVariable],
+         generalCase: => Iterable[BooleanVariable]):
         Iterable[BooleanVariable] =
     {
-        if (! out.domain.isSingleton &&
-            ! cc.searchVars.contains(out) &&
-            (definesVar(constraint, out) || ! cc.definedVars.contains(out)) &&
-            space.maybeDefiningConstraint(out).isEmpty)
+        val definableVars = definedVars(constraint)
+        if (out.forall(x =>
+                ! x.domain.isSingleton &&
+                ! cc.searchVars.contains(x) &&
+                space.maybeDefiningConstraint(x).isEmpty &&
+                (definableVars.contains(x) || ! cc.definedVars.contains(x))))
         {
             try {
-                withFunctionalDependency
+                functionalCase
             }
             catch {
-                case _: CyclicConstraintNetworkException => withoutFunctionalDependency
+                case _: CyclicConstraintNetworkException => generalCase
+                case _: IllegalArgumentException => generalCase
             }
         } else {
-            withoutFunctionalDependency
+            generalCase
         }
     }
 
@@ -109,19 +108,19 @@ final class ConstraintFactory
         (constraint: yuck.flatzinc.ast.Constraint,
          in: Seq[Expr],
          out: Expr,
-         withFunctionalDependency: => Iterable[BooleanVariable],
-         withoutFunctionalDependency: => Iterable[BooleanVariable]):
+         functionalCase: => Iterable[BooleanVariable],
+         generalCase: => Iterable[BooleanVariable]):
         Iterable[BooleanVariable] =
-        compileConstraint(constraint, in.map(compileAnyExpr), compileAnyExpr(out), withFunctionalDependency, withoutFunctionalDependency)
+        compileConstraint(constraint, in.map(compileAnyExpr), List(compileAnyExpr(out)), functionalCase, generalCase)
 
     private def compileConstraint
         (constraint: yuck.flatzinc.ast.Constraint,
          in: Expr,
          out: Expr,
-         withFunctionalDependency: => Iterable[BooleanVariable],
-         withoutFunctionalDependency: => Iterable[BooleanVariable]):
+         functionalCase: => Iterable[BooleanVariable],
+         generalCase: => Iterable[BooleanVariable]):
         Iterable[BooleanVariable] =
-        compileConstraint(constraint, compileAnyArray(in), compileAnyExpr(out), withFunctionalDependency, withoutFunctionalDependency)
+        compileConstraint(constraint, compileAnyArray(in), List(compileAnyExpr(out)), functionalCase, generalCase)
 
     override def run = {
         cc.costVars ++=
@@ -168,81 +167,81 @@ final class ConstraintFactory
         case Constraint("bool2int", List(a, b), _) => {
             val x = compileBoolExpr(a)
             val y = compileIntExpr(b)
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Bool2Int1(nextConstraintId, maybeGoal, x, y))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 val costs = createBoolChannel
                 space.post(new Bool2Int2(nextConstraintId, maybeGoal, x, y, costs))
                 List(costs)
             }
-            compileConstraint(constraint, List(a), b, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, List(a), b, functionalCase, generalCase)
         }
         case Constraint("bool2costs", List(a, b), _) => {
             val x = compileBoolExpr(a)
             val y = compileIntExpr(b)
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Bool2Costs1(nextConstraintId, maybeGoal, x, y))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 val costs = createBoolChannel
                 space.post(new Bool2Costs2(nextConstraintId, maybeGoal, x, y, costs))
                 List(costs)
             }
-            compileConstraint(constraint, List(a), b, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, List(a), b, functionalCase, generalCase)
         }
         case Constraint("bool_not", List(a, b), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Not(nextConstraintId, maybeGoal, a, b))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 val costs = createBoolChannel
                 space.post(new Ne[BooleanValue](nextConstraintId, maybeGoal, a, b, costs))
                 List(costs)
             }
-            compileConstraint(constraint, List(a), b, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, List(a), b, functionalCase, generalCase)
         case Constraint("bool_eq", List(a, b), _) =>
             val costs = createBoolChannel
             space.post(new Eq[BooleanValue](nextConstraintId, maybeGoal, a, b, costs))
             List(costs)
         case Constraint("bool_eq_reif", List(a, b, r), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Eq[BooleanValue](nextConstraintId, maybeGoal, a, b, r))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
             }
-            compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, List(a, b), r, functionalCase, generalCase)
         case Constraint("bool_lt", List(a, b), _) =>
             val costs = createBoolChannel
             space.post(new Lt[BooleanValue](nextConstraintId, maybeGoal, a, b, costs))
             List(costs)
         case Constraint("bool_lt_reif", List(a, b, r), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Lt[BooleanValue](nextConstraintId, maybeGoal, a, b, r))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
             }
-            compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, List(a, b), r, functionalCase, generalCase)
         case Constraint("bool_le", List(a, b), _) =>
             val costs = createBoolChannel
             space.post(new Le[BooleanValue](nextConstraintId, maybeGoal, a, b, costs))
             List(costs)
         case Constraint("bool_le_reif", List(a, b, r), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Le[BooleanValue](nextConstraintId, maybeGoal, a, b, r))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
             }
-            compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, List(a, b), r, functionalCase, generalCase)
         case Constraint("bool_xor", _, _) =>
             compileTernaryBoolConstraint(new Ne[BooleanValue](_, _, _, _, _), maybeGoal, constraint)
         case Constraint("array_bool_and", List(as, b), _) =>
@@ -258,11 +257,11 @@ final class ConstraintFactory
                 }
                 y
             }
-            def withFunctionalDependency = {
+            def functionalCase = {
                 post(y)
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 val costs = if (xs.size == 1) xs(0) else post(createBoolChannel)
                 if (compilesToConst(b, True)) {
                     List(costs)
@@ -272,7 +271,7 @@ final class ConstraintFactory
                     List(result)
                 }
             }
-            compileConstraint(constraint, xs, y, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, xs, List(y), functionalCase, generalCase)
         case Constraint("array_bool_or", List(as, b), _) =>
             val as1 = ArrayConst(getArrayElems(as).iterator.filter(a => ! compilesToConst(a, False)).toList)
             val as2 = if (as1.value.isEmpty) ArrayConst(List(BoolConst(false))) else as1
@@ -286,11 +285,11 @@ final class ConstraintFactory
                 }
                 y
             }
-            def withFunctionalDependency = {
+            def functionalCase = {
                 post(y)
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 val costs = if (xs.size == 1) xs(0) else post(createBoolChannel)
                 if (compilesToConst(b, True)) {
                     List(costs)
@@ -300,7 +299,7 @@ final class ConstraintFactory
                     List(result)
                 }
             }
-            compileConstraint(constraint, xs, y, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, xs, List(y), functionalCase, generalCase)
         case Constraint("array_bool_xor", List(as), _) =>
             val xs = compileBoolArray(as)
             val maybeY =
@@ -342,53 +341,53 @@ final class ConstraintFactory
             space.post(new Eq[IntegerValue](nextConstraintId, maybeGoal, a, b, costs))
             List(costs)
         case Constraint("int_eq_reif", List(a, b, r), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Eq[IntegerValue](nextConstraintId, maybeGoal, a, b, r))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
             }
-            compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, List(a, b), r, functionalCase, generalCase)
         case Constraint("int_ne", List(a, b), _) =>
             val costs = createBoolChannel
             space.post(new Ne[IntegerValue](nextConstraintId, maybeGoal, a, b, costs))
             List(costs)
         case Constraint("int_ne_reif", List(a, b, r), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Ne[IntegerValue](nextConstraintId, maybeGoal, a, b, r))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
             }
-            compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, List(a, b), r, functionalCase, generalCase)
         case Constraint("int_lt", List(a, b), _) =>
             val costs = createBoolChannel
             space.post(new Lt[IntegerValue](nextConstraintId, maybeGoal, a, b, costs))
             List(costs)
         case Constraint("int_lt_reif", List(a, b, r), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Lt[IntegerValue](nextConstraintId, maybeGoal, a, b, r))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
             }
-            compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, List(a, b), r, functionalCase, generalCase)
         case Constraint("int_le", List(a, b), _) =>
             val costs = createBoolChannel
             space.post(new Le[IntegerValue](nextConstraintId, maybeGoal, a, b, costs))
             List(costs)
         case Constraint("int_le_reif", List(a, b, r), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Le[IntegerValue](nextConstraintId, maybeGoal, a, b, r))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
             }
-            compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, List(a, b), r, functionalCase, generalCase)
         case Constraint("int_min", _, _) =>
             compileTernaryIntConstraint(new Min(_, _, _, _, _), maybeGoal, constraint)
         case Constraint("int_max", _, _) =>
@@ -461,75 +460,75 @@ final class ConstraintFactory
                     compileConstraint(maybeGoal, Constraint("int_lin_eq", List(ArrayConst(as), ArrayConst(bs1), b), annotations))
             }
         case Constraint("int_lin_eq", List(as, bs, c), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 compileLinearCombination[IntegerValue](maybeGoal, as, bs, Some(c))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 List(compileLinearConstraint[IntegerValue](maybeGoal, as, bs, EqRelation, c))
             }
-            compileConstraint(constraint, bs, c, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, bs, c, functionalCase, generalCase)
         case Constraint("int_lin_eq_reif", List(as, bs, c, r), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 compileLinearConstraint[IntegerValue](maybeGoal, as, bs, EqRelation, c, Some(r))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
             }
-            compileConstraint(constraint, bs, r, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, bs, r, functionalCase, generalCase)
         case Constraint("int_lin_ne", List(as, bs, c), _) =>
             List(compileLinearConstraint[IntegerValue](maybeGoal, as, bs, NeRelation, c))
         case Constraint("int_lin_ne_reif", List(as, bs, c, r), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 compileLinearConstraint[IntegerValue](maybeGoal, as, bs, NeRelation, c, Some(r))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
             }
-            compileConstraint(constraint, bs, r, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, bs, r, functionalCase, generalCase)
         case Constraint("int_lin_le", List(as, bs, c), _) =>
             List(compileLinearConstraint[IntegerValue](maybeGoal, as, bs, LeRelation, c))
         case Constraint("int_lin_le_reif", List(as, bs, c, r), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 compileLinearConstraint[IntegerValue](maybeGoal, as, bs, LeRelation, c, Some(r))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
             }
-            compileConstraint(constraint, bs, r, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, bs, r, functionalCase, generalCase)
         case Constraint("array_int_maximum", List(b, as), _) =>
             val xs = compileIntArray(as)
             val y = compileIntExpr(b)
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Maximum[IntegerValue](nextConstraintId, maybeGoal, xs, y))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 val max = createIntChannel
                 space.post(new Maximum[IntegerValue](nextConstraintId, maybeGoal, xs, max))
                 val costs = createBoolChannel
                 space.post(new Eq[IntegerValue](nextConstraintId, maybeGoal, max, y, costs))
                 List(costs)
             }
-            compileConstraint(constraint, xs, y, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, xs, List(y), functionalCase, generalCase)
         case Constraint("array_int_minimum", List(b, as), _) =>
             val xs = compileIntArray(as)
             val y = compileIntExpr(b)
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Minimum[IntegerValue](nextConstraintId, maybeGoal, xs, y))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 val max = createIntChannel
                 space.post(new Minimum[IntegerValue](nextConstraintId, maybeGoal, xs, max))
                 val costs = createBoolChannel
                 space.post(new Eq[IntegerValue](nextConstraintId, maybeGoal, max, y, costs))
                 List(costs)
             }
-            compileConstraint(constraint, xs, y, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, xs, List(y), functionalCase, generalCase)
         case Constraint("array_var_bool_element" | "array_bool_element" | "yuck_array_bool_element" , _, _) =>
             compileElementConstraint[BooleanValue](maybeGoal, constraint)
         case Constraint("array_var_int_element" | "array_int_element" | "yuck_array_int_element" , _, _) =>
@@ -541,53 +540,53 @@ final class ConstraintFactory
             space.post(new Eq[IntegerSetValue](nextConstraintId, maybeGoal, a, b, costs))
             List(costs)
         case Constraint("set_eq_reif", List(a, b, r), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Eq[IntegerSetValue](nextConstraintId, maybeGoal, a, b, r))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
             }
-            compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, List(a, b), r, functionalCase, generalCase)
         case Constraint("set_ne", List(a, b), _) =>
             val costs = createBoolChannel
             space.post(new Ne[IntegerSetValue](nextConstraintId, maybeGoal, a, b, costs))
             List(costs)
         case Constraint("set_ne_reif", List(a, b, r), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Ne[IntegerSetValue](nextConstraintId, maybeGoal, a, b, r))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
             }
-            compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, List(a, b), r, functionalCase, generalCase)
         case Constraint("set_lt", List(a, b), _) =>
             val costs = createBoolChannel
             space.post(new Lt[IntegerSetValue](nextConstraintId, maybeGoal, a, b, costs))
             List(costs)
         case Constraint("set_lt_reif", List(a, b, r), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Lt[IntegerSetValue](nextConstraintId, maybeGoal, a, b, r))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
             }
-            compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, List(a, b), r, functionalCase, generalCase)
         case Constraint("set_le", List(a, b), _) =>
             val costs = createBoolChannel
             space.post(new Le[IntegerSetValue](nextConstraintId, maybeGoal, a, b, costs))
             List(costs)
         case Constraint("set_le_reif", List(a, b, r), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Le[IntegerSetValue](nextConstraintId, maybeGoal, a, b, r))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
             }
-            compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, List(a, b), r, functionalCase, generalCase)
         case Constraint("set_card", List(a, b), _) =>
             compileBinaryConstraint[IntegerSetValue, IntegerSetVariable, IntegerValue, IntegerVariable](new SetCardinality(_, _, _, _), maybeGoal, constraint)
         case Constraint("set_in", List(a, b), _) =>
@@ -595,27 +594,27 @@ final class ConstraintFactory
             space.post(new Contains(nextConstraintId, maybeGoal, a, b, costs))
             List(costs)
         case Constraint("set_in_reif", List(a, b, r), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Contains(nextConstraintId, maybeGoal, a, b, r))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
             }
-            compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, List(a, b), r, functionalCase, generalCase)
         case Constraint("set_subset", List(a, b), _) =>
             val costs = createBoolChannel
             space.post(new Subset(nextConstraintId, maybeGoal, a, b, costs))
             List(costs)
         case Constraint("set_subset_reif", List(a, b, r), _) =>
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Subset(nextConstraintId, maybeGoal, a, b, r))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
             }
-            compileConstraint(constraint, List(a, b), r, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, List(a, b), r, functionalCase, generalCase)
         case Constraint("set_intersect", List(a, b, c), _) =>
             compileTernaryIntSetConstraint(new SetIntersection(_, _, _, _, _), maybeGoal, constraint)
         case Constraint("set_union", List(a, b, c), _) =>
@@ -638,18 +637,18 @@ final class ConstraintFactory
         case Constraint("fzn_nvalue", List(n0, as), _) =>
             val xs = compileIntArray(as)
             val n = compileIntExpr(n0)
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new NumberOfDistinctValues[IntegerValue](nextConstraintId, maybeGoal, xs, n))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 val m = createNonNegativeIntChannel
                 space.post(new NumberOfDistinctValues[IntegerValue](nextConstraintId, maybeGoal, xs, m))
                 val costs = createBoolChannel
                 space.post(new Eq[IntegerValue](nextConstraintId, maybeGoal, m, n, costs))
                 List(costs)
             }
-            compileConstraint(constraint, xs, n, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, xs, List(n), functionalCase, generalCase)
         case Constraint("fzn_count_eq", _, _) =>
             compileCountConstraint[IntegerValue](maybeGoal, constraint, new Eq[IntegerValue](_, _, _, _, _))
         case Constraint("fzn_member_bool", _, _) =>
@@ -798,18 +797,18 @@ final class ConstraintFactory
         val List(a, b) = constraint.params
         val x = inHelper.compileExpr(a)
         val y = outHelper.compileExpr(b)
-        def withFunctionalDependency = {
+        def functionalCase = {
             space.post(constraintFactory(nextConstraintId, maybeGoal, x, y))
             Nil
         }
-        def withoutFunctionalDependency = {
+        def generalCase = {
             val channel = outHelper.createChannel
             space.post(constraintFactory(nextConstraintId, maybeGoal, x, channel))
             val costs = createBoolChannel
             space.post(new Eq[OutValue](nextConstraintId, maybeGoal, channel, y, costs))
             List(costs)
         }
-        compileConstraint(constraint, List(a), b, withFunctionalDependency, withoutFunctionalDependency)
+        compileConstraint(constraint, List(a), b, functionalCase, generalCase)
     }
 
     private val compileBinaryIntConstraint =
@@ -837,18 +836,18 @@ final class ConstraintFactory
         val x = in1Helper.compileExpr(a)
         val y = in2Helper.compileExpr(b)
         val z = outHelper.compileExpr(c)
-        def withFunctionalDependency = {
+        def functionalCase = {
             space.post(constraintFactory(nextConstraintId, maybeGoal, x, y, z))
             Nil
         }
-        def withoutFunctionalDependency = {
+        def generalCase = {
             val channel = outHelper.createChannel
             space.post(constraintFactory(nextConstraintId, maybeGoal, x, y, channel))
             val costs = createBoolChannel
             space.post(new Eq[OutValue](nextConstraintId, maybeGoal, channel, z, costs))
             List(costs)
         }
-        compileConstraint(constraint, List(a, b), c, withFunctionalDependency, withoutFunctionalDependency)
+        compileConstraint(constraint, List(a, b), c, functionalCase, generalCase)
     }
 
     private val compileTernaryBoolConstraint =
@@ -866,37 +865,44 @@ final class ConstraintFactory
          constraint: yuck.flatzinc.ast.Constraint,
          items: immutable.Seq[BinPackingItem[Load]],
          loads: immutable.Map[Int, NumericalVariable[Load]]) // bin -> load
-        (implicit valueTraits: NumericalValueTraits[Load]):
+        (implicit loadTraits: NumericalValueTraits[Load]):
         Iterable[BooleanVariable] =
     {
-        require(items.forall(_.weight >= valueTraits.zero))
+        require(items.forall(_.weight >= loadTraits.zero))
         val items1: immutable.IndexedSeq[BinPackingItem[Load]] =
             items
             .foldLeft(immutable.Map.empty[IntegerVariable, Load]){
-                case (map, item) => map.updated(item.bin, map.getOrElse(item.bin, valueTraits.zero) + item.weight)
+                case (map, item) => map.updated(item.bin, map.getOrElse(item.bin, loadTraits.zero) + item.weight)
             }
             .iterator
-            .filter{case (_, weight) => weight > valueTraits.zero}
+            .filter{case (_, weight) => weight > loadTraits.zero}
             .map{case (bin, weight) => new BinPackingItem(bin, weight)}
             .toIndexedSeq
-        val loads1: immutable.Map[Int, NumericalVariable[Load]] = {
-            val bins = items1.map(_.bin)
-            val definedVars = new mutable.HashSet[NumericalVariable[Load]]
-            for ((bin, load) <- loads) yield
-                if (! definedVars.contains(load) && definesVar(constraint, bins, loads(bin))) {
-                    definedVars += load
-                    bin -> load
-                }
-                else bin -> createNonNegativeChannel[Load]
+        val bins = items1.map(_.bin)
+        def functionalCase = {
+            space.post(new BinPacking[Load](nextConstraintId, maybeGoal, items1, loads))
+            Nil
         }
-        space.post(new BinPacking[Load](nextConstraintId, maybeGoal, items1, loads1))
-        val deltas: immutable.Iterable[BooleanVariable] =
-            for ((bin, load) <- loads if load != loads1(bin)) yield {
-                val delta = createBoolChannel
-                space.post(new Eq[Load](nextConstraintId, maybeGoal, load, loads1(bin), delta))
-                delta
+        def generalCase = {
+            val loads1: immutable.Map[Int, NumericalVariable[Load]] = {
+                val definedVars = new mutable.HashSet[NumericalVariable[Load]]
+                for ((bin, load) <- loads) yield
+                    if (! definedVars.contains(load) && definesVar(constraint, bins, loads(bin))) {
+                        definedVars += load
+                        bin -> load
+                    }
+                    else bin -> createNonNegativeChannel[Load]
             }
-        deltas
+            space.post(new BinPacking[Load](nextConstraintId, maybeGoal, items1, loads1))
+            val deltas: immutable.Iterable[BooleanVariable] =
+                for ((bin, load) <- loads if load != loads1(bin)) yield {
+                    val delta = createBoolChannel
+                    space.post(new Eq[Load](nextConstraintId, maybeGoal, load, loads1(bin), delta))
+                    delta
+                }
+            deltas
+        }
+        compileConstraint(constraint, bins, loads.values, functionalCase, generalCase)
     }
 
     private def compileLinearCombination
@@ -987,32 +993,32 @@ final class ConstraintFactory
         val m = compileIntExpr(b)
         if (compilesToConst(a)) {
             val y = compileExpr[Value](a).domain.singleValue
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new CountConst[Value](nextConstraintId, maybeGoal, xs, y, m))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 val n = createNonNegativeIntChannel
                 space.post(new CountConst[Value](nextConstraintId, maybeGoal, xs, y, n))
                 val costs = createBoolChannel
                 space.post(comparatorFactory(nextConstraintId, maybeGoal, n, m, costs))
                 List(costs)
             }
-            compileConstraint(constraint, xs, m, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, xs, List(m), functionalCase, generalCase)
         } else {
             val y = compileExpr[Value](a)
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new CountVar[Value](nextConstraintId, maybeGoal, xs, y, m))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 val n = createNonNegativeIntChannel
                 space.post(new CountVar[Value](nextConstraintId, maybeGoal, xs, y, n))
                 val costs = createBoolChannel
                 space.post(comparatorFactory(nextConstraintId, maybeGoal, n, m, costs))
                 List(costs)
             }
-            compileConstraint(constraint, xs :+ y, m, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(constraint, xs :+ y, List(m), functionalCase, generalCase)
         }
     }
 
@@ -1059,18 +1065,18 @@ final class ConstraintFactory
             }
             y
         }
-        def withFunctionalDependency = {
+        def functionalCase = {
             post(y)
             result
         }
-        def withoutFunctionalDependency = {
+        def generalCase = {
             val channel = post(createOrdChannel[Value])
             val costs = createBoolChannel
             space.post(new Eq[Value](nextConstraintId, maybeGoal, channel, y, costs))
             result += costs
             result
         }
-        compileConstraint(constraint, xs :+ i, y, withFunctionalDependency, withoutFunctionalDependency)
+        compileConstraint(constraint, xs :+ i, List(y), functionalCase, generalCase)
     }
 
     private def compileReifiedConstraint
@@ -1084,21 +1090,21 @@ final class ConstraintFactory
             if (impliedConstraints.contains(constraint)) Nil
             else compileConstraint(maybeGoal, constraint)
         } else if (impliedConstraints.contains(constraint)) {
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Conjunction(nextConstraintId, maybeGoal, Nil, satisfied))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 List(satisfied)
             }
-            compileConstraint(reifiedConstraint, Nil, satisfied, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(reifiedConstraint, Nil, List(satisfied), functionalCase, generalCase)
         } else {
             val costs0 = compileConstraint(maybeGoal, constraint).toIndexedSeq
-            def withFunctionalDependency = {
+            def functionalCase = {
                 space.post(new Conjunction(nextConstraintId, maybeGoal, costs0, satisfied))
                 Nil
             }
-            def withoutFunctionalDependency = {
+            def generalCase = {
                 val costs = createBoolChannel
                 if (costs0.size == 1) {
                     space.post(new Eq(nextConstraintId, maybeGoal, costs0.head, satisfied, costs))
@@ -1109,7 +1115,7 @@ final class ConstraintFactory
                 }
                 List(costs)
             }
-            compileConstraint(reifiedConstraint, costs0, satisfied, withFunctionalDependency, withoutFunctionalDependency)
+            compileConstraint(reifiedConstraint, costs0, List(satisfied), functionalCase, generalCase)
         }
     }
 
