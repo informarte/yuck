@@ -10,29 +10,29 @@ import scala.collection._
 abstract class RandomGenerator {
 
     /** Generates a random integer. */
-    def nextInt: Int
+    def nextInt(): Int
 
     /** Generates a random integer in the interval [0, limit). */
     def nextInt(limit: Int): Int
 
     /** Generates a random long integer. */
-    def nextLong: Long
+    def nextLong(): Long
 
     /** Generates a random long integer in the interval [0, limit). */
     def nextLong(limit: Long): Long
 
     /** Generates a random double in the interval [0, 1). */
-    def nextProbability: Double
+    def nextProbability(): Double
 
     /** Generates a random decision. */
-    final def nextDecision: Boolean = nextInt(2) != 0
+    final def nextDecision(): Boolean = nextInt(2) != 0
 
     /** Generates a random decision under consideration of the given probability for "yes". */
     final def nextDecision(p: Probability): Boolean =
          p.value == 1 || (p.value > 0 && nextInt(100) < p.value * 100)
 
     /** Creates a random generator of the same type seeded with nextInt. */
-    def nextGen: RandomGenerator
+    def nextGen(): RandomGenerator
 
     /**
      * Retrieves all elements from the given collection, shuffles them,
@@ -53,7 +53,7 @@ abstract class RandomGenerator {
             buf(i) = buf(j)
             buf(j) = tmp
         }
-        bf.newBuilder(source).addAll(buf).result
+        bf.newBuilder(source).addAll(buf).result()
     }
 
     private final class LazyShuffleIterator[T](source: IndexedSeq[T]) extends Iterator[T] {
@@ -71,7 +71,7 @@ abstract class RandomGenerator {
         }
 
         @inline override def hasNext = n > 0
-        override def next = {
+        override def next() = {
             require(hasNext)
             val i = nextInt(n)
             n -= 1

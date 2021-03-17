@@ -32,7 +32,7 @@ final class BasicNumericalConstraintsTest extends UnitTest {
             .setValue(t, Two)
             .post(new Plus(space.nextConstraintId, null, u, v, w))
             .setValue(v, One)
-            .initialize
+            .initialize()
         assertEq(Set(s, t, v), space.searchVariables)
         val now = space.searchState
         assertEq(now.value(u), Three)
@@ -44,7 +44,7 @@ final class BasicNumericalConstraintsTest extends UnitTest {
         space.commit(move)
         assertEq(now.value(u), Four)
         assertEq(now.value(w), Five)
-        space.initialize
+        space.initialize()
         assertEq(now.value(w), Five)
     }
 

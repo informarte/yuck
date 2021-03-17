@@ -21,7 +21,7 @@ final class FlatZincSolverMonitor(logger: LazyLogger) extends StandardAnnealingM
                  result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestSolution)))
             {
                 costsOfBestSolution = result.costsOfBestProposal
-                new FlatZincResultFormatter(result).call.foreach(println)
+                new FlatZincResultFormatter(result).call().foreach(println)
             }
         }
     }

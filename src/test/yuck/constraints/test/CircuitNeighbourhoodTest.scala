@@ -35,7 +35,7 @@ class CircuitNeighbourhoodTest(offset: Int) extends UnitTest {
         assertEq(neighbourhood.getClass, classOf[CircuitNeighbourhood])
         assert(CircuitTracker.isHamiltonianCircuit(xs, offset, now))
         assertEq(now.value(costs), True)
-        space.initialize
+        space.initialize()
         val sampleSize = 1000
         for (i <- 1 to sampleSize) {
             val move = neighbourhood.nextMove

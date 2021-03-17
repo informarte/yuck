@@ -35,7 +35,7 @@ final class AssignmentPropagationTestToolingTest extends UnitTest with Assignmen
     @Test
     def testConsult: Unit = {
         space.setValue(x, Zero).setValue(y, Zero)
-        space.initialize
+        space.initialize()
         runScenario(TestScenario(space, Consult("consult", (x, One), (y, Two), (costs, False))))
         assertEq(space.numberOfInitializations, 1)
         assertEq(space.numberOfConsultations, 1)
@@ -48,7 +48,7 @@ final class AssignmentPropagationTestToolingTest extends UnitTest with Assignmen
     @Test
     def testConsultAndCommit: Unit = {
         space.setValue(x, Zero).setValue(y, Zero)
-        space.initialize
+        space.initialize()
         runScenario(TestScenario(space, ConsultAndCommit("consult & commit", (x, One), (y, Two), (costs, False))))
         assertEq(space.numberOfInitializations, 1)
         assertEq(space.numberOfConsultations, 1)

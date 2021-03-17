@@ -106,7 +106,7 @@ abstract class LinearConstraintLikeTest[Value <: NumericalValue[Value]] extends 
                 (domainPruner.ltRule _).expects(dz0, dy1).returns((dz1, dy1)).twice()
         }
         space.post(createConstraint)
-        space.propagate
+        space.propagate()
         if (costsDomain.isSingleton) {
             for (i <- 0 until axs.size) {
                 assertEq(axs(i).x.domain, lhs1(i)._2)
@@ -136,7 +136,7 @@ abstract class LinearConstraintLikeTest[Value <: NumericalValue[Value]] extends 
                 case LtRelation => (costModel.ltViolation _).expects(a, b).returns(c)
                 case LeRelation => (costModel.leViolation _).expects(a, b).returns(c)
             }
-            space.initialize
+            space.initialize()
             assertEq(now.value(costs), c)
         }
         if (true) {
@@ -157,7 +157,7 @@ abstract class LinearConstraintLikeTest[Value <: NumericalValue[Value]] extends 
             assertEq(after.value(costs), c)
             space.commit(move)
             assertEq(now.value(costs), c)
-            space.initialize
+            space.initialize()
             assertEq(now.value(costs), c)
         }
     }

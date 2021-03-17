@@ -25,7 +25,7 @@ class VariableFactory
     private val arrays = cc.arrays
     private val space = cc.space
 
-    override def run = {
+    override def run() = {
         cc.ast.paramDecls.foreach(createParameter)
         cc.ast.varDecls.foreach(createVariable)
     }

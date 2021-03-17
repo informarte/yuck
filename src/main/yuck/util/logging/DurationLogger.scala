@@ -12,13 +12,13 @@ final class DurationLogger(logger: LazyLogger, operationName: String) extends Ma
 
     private val stopWatch = new StopWatch
 
-    override def open = {
+    override def open() = {
         logger.log("%s".format(operationName))
-        stopWatch.open
+        stopWatch.open()
     }
 
-    override def close = {
-        stopWatch.close
+    override def close() = {
+        stopWatch.close()
         logger.log("%s took %s".format(operationName, DurationFormatter.format(stopWatch.duration)))
     }
 

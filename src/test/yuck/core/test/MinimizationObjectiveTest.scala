@@ -70,7 +70,7 @@ final class MinimizationObjectiveTest extends UnitTest {
             space
                 .post(new DummyConstraint(space.nextConstraintId, List(x), Nil))
                 .setValue(x, a)
-                .initialize
+                .initialize()
             objective.findActualObjectiveValue(space)
             assertEq(now.value(x), x.domain.lb)
             assertEq(x.domain, baseDomain)
@@ -85,7 +85,7 @@ final class MinimizationObjectiveTest extends UnitTest {
                 .post(new DummyConstraint(space.nextConstraintId, List(x), Nil))
                 .setValue(x, a)
                 .setValue(y, y.domain.ub)
-                .initialize
+                .initialize()
             val tightenedVariables = objective.tighten(space)
             assertEq(now.value(x), a)
             assertEq(now.value(y), a)

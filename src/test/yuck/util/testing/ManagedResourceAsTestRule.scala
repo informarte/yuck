@@ -16,7 +16,7 @@ class ManagedResourceAsTestRule(resourceFactory: => ManagedResource) extends Tes
         new Statement {
             override def evaluate =
                 scoped(resourceFactory) {
-                    base.evaluate
+                    base.evaluate()
                 }
     }
 

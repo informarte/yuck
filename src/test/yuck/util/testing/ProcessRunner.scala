@@ -13,16 +13,16 @@ import yuck.util.logging.LazyLogger
  */
 class ProcessRunner(logger: LazyLogger, commandLine: Seq[String]) extends Callable[Seq[String]] {
 
-    override def call = {
+    override def call() = {
         val processBuilder = new java.lang.ProcessBuilder(commandLine.asJava)
         processBuilder.redirectErrorStream(true) // merge stderr into stdout
         val command = processBuilder.command.asScala
         logger.withLogScope(command.iterator.mkString(" ")) {
-            val process = processBuilder.start
+            val process = processBuilder.start()
             val stdout = scala.io.Source.fromInputStream(process.getInputStream)
-            val outputLines = stdout.getLines.toSeq
+            val outputLines = stdout.getLines().toSeq
             outputLines.foreach(logger.log(_))
-            val exitCode = process.waitFor
+            val exitCode = process.waitFor()
             assert(exitCode == 0, "Process failed with exit code %d".format(exitCode))
             outputLines
         }

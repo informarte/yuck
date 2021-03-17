@@ -22,11 +22,11 @@ package object arm {
         (operation: Resource => Result):
         Result =
     {
-        resource.open
+        resource.open()
         try {
            operation(resource)
         } finally {
-           resource.close
+           resource.close()
         }
     }
 
@@ -70,7 +70,7 @@ package object arm {
         Result =
     {
         if (maybeRuntimeLimitInSeconds.isDefined) {
-            new TimeboxedOperation(operation, maybeRuntimeLimitInSeconds.get, sigint, operationName, logger).call
+            new TimeboxedOperation(operation, maybeRuntimeLimitInSeconds.get, sigint, operationName, logger).call()
         } else {
             operation
         }

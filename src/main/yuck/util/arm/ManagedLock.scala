@@ -8,6 +8,6 @@ import java.util.concurrent.locks.Lock
  * @author Michael Marte
  */
 final class ManagedLock(val lock: Lock) extends ManagedResource {
-    override def open = lock.lock
-    override def close = lock.unlock
+    override def open() = lock.lock()
+    override def close() = lock.unlock()
 }

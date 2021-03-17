@@ -40,7 +40,7 @@ class LinearConstraintPerformanceTest(relation: OrderingRelation, withUnitCoeffi
         space.setValue(x, x.domain.randomValue(randomGenerator))
     }
     space.setValue(z, z.domain.randomValue(randomGenerator))
-    space.initialize
+    space.initialize()
     private val moves = for (i <- 0 until numberOfMoves) yield {
         val move = neighbourhood.nextMove
         val bulkMove = new BulkMove(space.nextMoveId)

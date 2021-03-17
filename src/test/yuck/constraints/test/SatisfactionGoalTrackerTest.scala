@@ -28,7 +28,7 @@ class SatisfactionGoalTrackerTest extends UnitTest {
             .setValue(c1, True)
             .setValue(c2, True)
             .setValue(c3, True)
-            .initialize
+            .initialize()
         assertEq(d.frequency(0), 0)
         assertEq(d.frequency(1), 0)
         assertEq(d.frequency(2), 0)

@@ -250,10 +250,10 @@ final class Inverse
                     val result = logger.withTimedLogScope("Solving %s".format(this)) {
                         val subcosts = new BooleanVariable(subspace.nextVariableId, "", CompleteBooleanDomain)
                         subspace.post(new Inverse(subspace.nextConstraintId, maybeGoal, subf, subg, subcosts))
-                        val initializer = new RandomInitializer(subspace, randomGenerator.nextGen)
-                        initializer.run
+                        val initializer = new RandomInitializer(subspace, randomGenerator.nextGen())
+                        initializer.run()
                         val n = subspace.searchVariables.size * 4
-                        val scheduleFactory = new StandardAnnealingScheduleFactory(n, randomGenerator.nextGen)
+                        val scheduleFactory = new StandardAnnealingScheduleFactory(n, randomGenerator.nextGen())
                         val schedule = scheduleFactory.createSlowSchedule
                         schedule.start(DefaultStartTemperature, 0)
                         val solver =
@@ -262,16 +262,16 @@ final class Inverse
                                 subspace,
                                 schedule,
                                 new RandomReassignmentGenerator(
-                                    subspace, subspace.searchVariables.toIndexedSeq, randomGenerator.nextGen,
+                                    subspace, subspace.searchVariables.toIndexedSeq, randomGenerator.nextGen(),
                                     DefaultMoveSizeDistribution, maybeHotSpotDistribution = None,
                                     maybeFairVariableChoiceRate = None),
-                                randomGenerator.nextGen,
+                                randomGenerator.nextGen(),
                                 new SatisfactionObjective(subcosts),
                                 maybeRoundLimit = Some(1000),
                                 Some(new StandardAnnealingMonitor(logger)),
                                 maybeUserData = None,
                                 sigint)
-                        solver.call
+                        solver.call()
                     }
                     if (result.isSolution) {
                         for ((x, subx) <- f.xs.iterator.zip(subf.xs.iterator)) {

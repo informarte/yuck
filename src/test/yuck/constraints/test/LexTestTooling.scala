@@ -37,7 +37,7 @@ trait LexTestTooling [Value <: OrderedValue[Value]] extends YuckAssert {
             space.setValue(fromTestVar(x), a)
         }
         val now = space.searchState
-        space.initialize
+        space.initialize()
         assertEq(now.value(costs), scenario.steps.head.expectedResult)
         for (step <- scenario.steps.tail) {
             val effects = for ((x, a) <- step.assignments) yield new ImmutableMoveEffect(fromTestVar(x), a)
@@ -47,7 +47,7 @@ trait LexTestTooling [Value <: OrderedValue[Value]] extends YuckAssert {
             space.commit(move)
             assertEq(now.value(costs), step.expectedResult)
         }
-        space.initialize
+        space.initialize()
         assertEq(now.value(costs), scenario.steps.last.expectedResult)
     }
 

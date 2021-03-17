@@ -27,7 +27,7 @@ trait DomainPropagationTestTooling extends ConstraintTestTooling {
             logger.log(comment)
             setup()
             try {
-                space.propagate
+                space.propagate()
             } catch {
                 case _: DomainWipeOutException =>
             }
@@ -47,7 +47,7 @@ trait DomainPropagationTestTooling extends ConstraintTestTooling {
             }
             setup()
             try {
-                space.propagate
+                space.propagate()
             } catch {
                 case _: DomainWipeOutException =>
             }

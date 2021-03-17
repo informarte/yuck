@@ -103,7 +103,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
         space.post(new Le(space.nextConstraintId, null, x, y, costs))
         for (a <- x.domain.values) {
-            space.setValue(x, a).setValue(y, y.domain.ub).initialize
+            space.setValue(x, a).setValue(y, y.domain.ub).initialize()
             objective.findActualObjectiveValue(space)
             assertEq(now.value(y), a)
             assert(now.value(costs).truthValue)
@@ -122,7 +122,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
             .post(new Le(space.nextConstraintId, null, x, y, costs))
             .setValue(z, z.domain.ub)
         for (a <- x.domain.values; b <- y.domain.values) {
-            space.setValue(x, a).setValue(y, b).initialize
+            space.setValue(x, a).setValue(y, b).initialize()
             val tightenedVariables = objective.tighten(space)
             assertEq(now.value(x), a)
             assertEq(x.domain, baseDomain)
@@ -150,7 +150,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
         space.post(new Le(space.nextConstraintId, null, y, x, costs))
         for (a <- x.domain.values) {
-            space.setValue(x, a).setValue(y, y.domain.lb).initialize
+            space.setValue(x, a).setValue(y, y.domain.lb).initialize()
             objective.findActualObjectiveValue(space)
             assertEq(now.value(y), a)
             assert(now.value(costs).truthValue)
@@ -169,7 +169,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
             .post(new Le(space.nextConstraintId, null, y, x, costs))
             .setValue(z, z.domain.lb)
         for (a <- x.domain.values; b <- y.domain.values) {
-            space.setValue(x, a).setValue(y, b).initialize
+            space.setValue(x, a).setValue(y, b).initialize()
             val tightenedVariables = objective.tighten(space)
             assertEq(now.value(x), a)
             assertEq(x.domain, baseDomain)

@@ -58,7 +58,7 @@ abstract class ValueFrequencyTracker
         futureValueRegistry = valueRegistry
         val it = todo(move).iterator
         while (it.hasNext) {
-            val x0 = it.next
+            val x0 = it.next()
             val x = valueTraits.safeDowncast(x0)
             val n = variableRegistry(x0)
             futureValueRegistry =

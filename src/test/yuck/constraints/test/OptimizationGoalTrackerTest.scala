@@ -30,7 +30,7 @@ class OptimizationGoalTrackerTest extends UnitTest {
             .post(c)
             .setValue(x, One)
             .setValue(y, Two)
-            .initialize
+            .initialize()
         assertEq(d.frequency(0), 33)
         assertEq(d.frequency(1), 196)
         if (true) {
@@ -82,7 +82,7 @@ class OptimizationGoalTrackerTest extends UnitTest {
             .post(c)
             .setValue(x, One)
             .setValue(y, Two)
-            .initialize
+            .initialize()
         assertEq(d.frequency(0), 297)
         assertEq(d.frequency(1), 24)
         if (true) {

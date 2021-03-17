@@ -16,7 +16,7 @@ final class FlatZincResultFormatter(result: Result) extends Callable[Seq[String]
 
     private val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
 
-    override def call = {
+    override def call() = {
         var sortedMap = new immutable.TreeMap[String, String]() // id -> value
         for (decl <- compilerResult.ast.varDecls) {
             for (annotation <- decl.annotations) {

@@ -71,7 +71,7 @@ final class AlldistinctTest extends UnitTest with AssignmentPropagationTestTooli
         assertNe(now.value(s), now.value(u))
         assertNe(now.value(t), now.value(u))
         assertEq(now.value(costs), True)
-        space.initialize
+        space.initialize()
         val sampleSize = 1000
         for (i <- 1 to sampleSize) {
             val move = neighbourhood.nextMove

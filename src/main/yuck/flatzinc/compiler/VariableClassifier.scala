@@ -20,11 +20,11 @@ class VariableClassifier
     private val definedVars = cc.definedVars
     private val domains = cc.domains
 
-    override def run = {
-        classifyVars
+    override def run() = {
+        classifyVars()
     }
 
-    private def classifyVars: Unit = {
+    private def classifyVars(): Unit = {
         for (constraint <- cc.ast.constraints) {
             for (annotation <- constraint.annotations) {
                 annotation match {

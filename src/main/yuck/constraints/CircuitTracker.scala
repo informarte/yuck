@@ -42,13 +42,13 @@ abstract class CircuitTracker
             val j = searchState.value(x).value - offset
             if (j < 0 || j >= succ.size) {
                 // handle invalid node reference
-                path.clear
+                path.clear()
             } else {
                 val y = succ(j)
                 if (path.contains(y)) {
                     // we found a cycle
                     cycleLengths += path.size - path(y)
-                    path.clear
+                    path.clear()
                     pending -= y
                 } else if (pending.contains(y)) {
                     // y has not yet been visited, so extend path with y
@@ -58,7 +58,7 @@ abstract class CircuitTracker
                 } else {
                     // abandon path because y is part of an already known cycle or on an
                     // already walked path leading to such a cycle
-                    path.clear
+                    path.clear()
                 }
             }
         }

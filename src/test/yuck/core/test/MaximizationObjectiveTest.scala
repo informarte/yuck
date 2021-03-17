@@ -68,7 +68,7 @@ final class MaximizationObjectiveTest extends UnitTest {
             space
                 .post(new DummyConstraint(space.nextConstraintId, List(x), Nil))
                 .setValue(x, a)
-                .initialize
+                .initialize()
             objective.findActualObjectiveValue(space)
             assertEq(now.value(x), x.domain.ub)
             assertEq(x.domain, baseDomain)
@@ -83,7 +83,7 @@ final class MaximizationObjectiveTest extends UnitTest {
                 .post(new DummyConstraint(space.nextConstraintId, List(x), Nil))
                 .setValue(x, a)
                 .setValue(y, y.domain.lb)
-                .initialize
+                .initialize()
             val tightenedVariables = objective.tighten(space)
             assertEq(now.value(x), a)
             assertEq(now.value(y), a)

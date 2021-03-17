@@ -29,7 +29,7 @@ class FenwickTree(val size: Int) {
     }
 
     /** Clears the Fenwick tree. */
-    def clear: Unit = {
+    def clear(): Unit = {
         for (i <- 1 to size)
             tree(i) = 0
     }

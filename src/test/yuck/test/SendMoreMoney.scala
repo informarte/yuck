@@ -23,7 +23,7 @@ final class SendMoreMoney extends IntegrationTest {
 
     private final class SendMoreMoneyGenerator(i: Int, seed: Int) extends SolverGenerator {
         override def solverName = "SA-%d".format(i)
-        override def call = {
+        override def call() = {
 
             /*
             send_more_money(Vars) :-
@@ -78,7 +78,7 @@ final class SendMoreMoney extends IntegrationTest {
 
             // propagate constraints
             costs.pruneDomain(TrueDomain)
-            space.propagate
+            space.propagate()
             if (! sigint.isSet) {
                 assertEq(space.searchVariables, vars -- Set(M, O, S))
                 assertEq(delta.domain, TrueDomain)
@@ -99,15 +99,15 @@ final class SendMoreMoney extends IntegrationTest {
                 space.setValue(x, x.domain.singleValue)
             }
             val randomGenerator = new JavaRandomGenerator(seed)
-            val initializer = new RandomInitializer(space, randomGenerator.nextGen)
-            initializer.run
+            val initializer = new RandomInitializer(space, randomGenerator.nextGen())
+            initializer.run()
             val solver =
                 new SimulatedAnnealing(
                     "SA",
                     space,
-                    createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen),
-                    new SimpleRandomReassignmentGenerator(space, space.searchVariables.toIndexedSeq, randomGenerator.nextGen),
-                    randomGenerator.nextGen,
+                    createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen()),
+                    new SimpleRandomReassignmentGenerator(space, space.searchVariables.toIndexedSeq, randomGenerator.nextGen()),
+                    randomGenerator.nextGen(),
                     new SatisfactionObjective(costs),
                     None,
                     Some(monitor),
@@ -124,9 +124,9 @@ final class SendMoreMoney extends IntegrationTest {
         val randomGenerator = new JavaRandomGenerator(29071972)
         val solvers =
             (1 to DefaultRestartLimit).toList.map(
-                i => new OnDemandGeneratedSolver(new SendMoreMoneyGenerator(i, randomGenerator.nextInt), logger, sigint))
+                i => new OnDemandGeneratedSolver(new SendMoreMoneyGenerator(i, randomGenerator.nextInt()), logger, sigint))
         val solver = new ParallelSolver(solvers, Runtime.getRuntime.availableProcessors, "SendMoreMoney", logger, sigint)
-        val result = solver.call
+        val result = solver.call()
         if (result.isSolution) {
             val modelData = result.maybeUserData.get.asInstanceOf[ModelData]
             assertEq(

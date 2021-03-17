@@ -31,7 +31,7 @@ abstract class NeighbourhoodTestGenerator {
              numberOfVariables <-
                  if (maybeHotSpotDistribution.isDefined) List(maybeHotSpotDistribution.get.size) else numbersOfVariables)
             yield Vector(
-                    randomGenerator.nextGen, moveSizeDistribution, maybeHotSpotDistribution, Some(fairVariableChoiceRate),
+                    randomGenerator.nextGen(), moveSizeDistribution, maybeHotSpotDistribution, Some(fairVariableChoiceRate),
                     numberOfVariables)
 
     @runners.Parameterized.Parameters(name = "{index}: {1}, {2}, {3}, {4}")

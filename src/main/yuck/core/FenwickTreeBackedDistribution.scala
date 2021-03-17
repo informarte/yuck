@@ -12,8 +12,8 @@ final class FenwickTreeBackedDistribution(override val size: Int) extends Distri
     private val ft = new FenwickTree(size)
     private var frequencySum = 0L
     private var numberOfNonZeroFrequencies = 0
-    override def clear = {
-        ft.clear
+    override def clear() = {
+        ft.clear()
         frequencySum = 0
         numberOfNonZeroFrequencies = 0
     }

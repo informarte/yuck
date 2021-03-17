@@ -140,7 +140,7 @@ class MiniZincBasedTest extends IntegrationTest {
         val outputLines =
             logger.withTimedLogScope("Flattening MiniZinc model") {
                 logger.withRootLogLevel(FineLogLevel) {
-                    new ProcessRunner(logger, mzn2fznCommand).call
+                    new ProcessRunner(logger, mzn2fznCommand).call()
                 }
             }
         logMiniZincVersion(outputLines.head)
@@ -162,17 +162,17 @@ class MiniZincBasedTest extends IntegrationTest {
         logSolverConfiguration(cfg)
         val monitor = new OptimizationMonitor(logger)
         val result =
-            scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set})) {
+            scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set()})) {
                 maybeTimeboxed(cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
                     val ast =
                         logger.withTimedLogScope("Parsing FlatZinc file") {
-                            new FlatZincFileParser(fznFilePath, logger).call
+                            new FlatZincFileParser(fznFilePath, logger).call()
                         }
                     logTask(task, ast)
                     logFlatZincModelStatistics(ast)
                     logger.withTimedLogScope("Solving problem") {
                         scoped(monitor) {
-                            new FlatZincSolverGenerator(ast, cfg, sigint, logger, monitor).call.call
+                            new FlatZincSolverGenerator(ast, cfg, sigint, logger, monitor).call().call()
                         }
                     }
                 }
@@ -187,7 +187,7 @@ class MiniZincBasedTest extends IntegrationTest {
             }
         }
         logger.withLogScope("Best proposal") {
-            new FlatZincResultFormatter(result).call.foreach(logger.log(_))
+            new FlatZincResultFormatter(result).call().foreach(logger.log(_))
         }
         logYuckModelStatistics(result.space)
         logResult(result)
@@ -196,7 +196,7 @@ class MiniZincBasedTest extends IntegrationTest {
         if (task.exportDot) {
             logger.withTimedLogScope("Exporting constraint network to a DOT file") {
                 val dotWriter = new java.io.FileWriter(dotFilePath)
-                new DotExporter(result.space, dotWriter).run
+                new DotExporter(result.space, dotWriter).run()
             }
         }
         assert(
@@ -207,7 +207,7 @@ class MiniZincBasedTest extends IntegrationTest {
                 logger.withRootLogLevel(FineLogLevel) {
                     assert(
                         "Solution not verified",
-                        new MiniZincSolutionVerifier(task, result, logger).call)
+                        new MiniZincSolutionVerifier(task, result, logger).call())
                 }
             }
         }

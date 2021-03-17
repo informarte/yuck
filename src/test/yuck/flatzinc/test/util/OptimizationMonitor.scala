@@ -48,13 +48,13 @@ class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(l
         }
     }
 
-    override def open = {
-        super.open
+    override def open() = {
+        super.open()
         timeStampInMillis = System.currentTimeMillis
     }
 
-    override def close = {
-        super.close
+    override def close() = {
+        super.close()
         val now = System.currentTimeMillis
         if (maybeTrackArea.getOrElse(false)) {
             area += maybePreviousQuality.getOrElse(quality).toDouble * ((now - timeStampInMillis) / 1000.0)

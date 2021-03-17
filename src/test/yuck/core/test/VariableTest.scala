@@ -44,9 +44,9 @@ final class VariableTest extends UnitTest {
         val backup2 = x.createDomainRestorer
         x.pruneDomain(PositiveIntegerRange)
         assertEq(x.domain, PositiveIntegerRange)
-        backup2.apply
+        backup2.apply()
         assertEq(x.domain, NonNegativeIntegerRange)
-        backup1.apply
+        backup1.apply()
         assertEq(x.domain, CompleteIntegerRange)
     }
 

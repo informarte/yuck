@@ -42,7 +42,7 @@ final class SimulatedAnnealing(
     private val result = new AnnealingResult(name, space, objective, maybeUserData)
 
     {
-        space.initialize
+        space.initialize()
         costsOfCurrentProposal = objective.costs(currentProposal)
         result.bestProposal = currentProposal.clone
         result.costsOfInitialProposal = costsOfCurrentProposal
@@ -56,7 +56,7 @@ final class SimulatedAnnealing(
         schedule.isFrozen ||
         result.isGoodEnough
 
-    override def call  =
+    override def call()  =
         if (hasFinished) {
             if (roundCount == 0 && maybeMonitor.isDefined) {
                 // The given, initial assignment is good enough and hence no search is necessary.
@@ -68,17 +68,17 @@ final class SimulatedAnnealing(
             }
             result
         }
-        else if (proposalBeforeSuspension != null) resume
-        else start
+        else if (proposalBeforeSuspension != null) resume()
+        else start()
 
-    private def start: AnnealingResult = {
+    private def start(): AnnealingResult = {
         if (maybeMonitor.isDefined) {
             val monitor = maybeMonitor.get
             monitor.onSolverLaunched(result)
             monitor.onBetterProposal(result)
         }
         try {
-            anneal
+            anneal()
         }
         catch {
             case error: Throwable =>
@@ -90,21 +90,21 @@ final class SimulatedAnnealing(
         result
     }
 
-    private def resume: AnnealingResult = {
+    private def resume(): AnnealingResult = {
         space.initialize(proposalBeforeSuspension)
         costsOfCurrentProposal = objective.costs(currentProposal)
         if (maybeMonitor.isDefined) {
             maybeMonitor.get.onSolverResumed(result)
         }
-        anneal
+        anneal()
         result
     }
 
-    private def anneal: Unit = {
+    private def anneal(): Unit = {
 
         // main annealing loop
         while (! wasInterrupted && ! hasFinished) {
-            nextRound
+            nextRound()
         }
 
         // book-keeping
@@ -130,7 +130,7 @@ final class SimulatedAnnealing(
 
     }
 
-    private def nextRound: Unit = {
+    private def nextRound(): Unit = {
 
         // prepare for new round
         if (numberOfRemainingMonteCarloAttempts == 0) {
@@ -162,7 +162,7 @@ final class SimulatedAnnealing(
 
         // Monte Carlo simulation
         val startTimeInMillis = System.currentTimeMillis
-        monteCarloSimulation
+        monteCarloSimulation()
         val endTimeInMillis = System.currentTimeMillis
 
         // book-keeping
@@ -193,14 +193,14 @@ final class SimulatedAnnealing(
 
     }
 
-    private def monteCarloSimulation: Unit = {
+    private def monteCarloSimulation(): Unit = {
         val roundLog = result.roundLogs.last
         while (numberOfRemainingMonteCarloAttempts > 0 && ! wasInterrupted && ! result.isGoodEnough) {
             val move = neighbourhood.nextMove
             val before = space.searchState
             val after = space.consult(move)
             val delta = objective.assessMove(before, after)
-            if (delta <= 0 || randomGenerator.nextProbability <= scala.math.exp(-delta / temperature)) {
+            if (delta <= 0 || randomGenerator.nextProbability() <= scala.math.exp(-delta / temperature)) {
                 space.commit(move)
                 neighbourhood.commit(move)
                 postprocessMove(roundLog)

@@ -50,7 +50,7 @@ final class IntegerRange
         new Iterator[IntegerValue] {
             private var i = lb.value
             override def hasNext = i <= ub.value
-            override def next = {
+            override def next() = {
                 val a = IntegerValue(i)
                 i += 1
                 a

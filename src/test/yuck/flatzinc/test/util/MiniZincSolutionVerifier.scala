@@ -22,7 +22,7 @@ class MiniZincSolutionVerifier(
 
     private val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
 
-    override def call =
+    override def call() =
         logger.withTimedLogScope("Checking expectations")(checkExpectations) ||
         logger.withTimedLogScope("Consulting MiniZinc")(consultMiniZinc)
 
@@ -43,7 +43,7 @@ class MiniZincSolutionVerifier(
             .toList
             .filter(_.getName.matches("%s\\.exp.*".format(instanceName)))
         logger.log("Found %d expectation files in %s".format(expectationFiles.size, searchPath))
-        val actualLines = new FlatZincResultFormatter(result).call
+        val actualLines = new FlatZincResultFormatter(result).call()
         val witnessFile = expectationFiles.find(expectationFile => {
             val expectedLines = scala.io.Source.fromFile(expectationFile).mkString.linesIterator.toList
             actualLines.zip(expectedLines).forall {case (a, b) => a == b}
@@ -92,7 +92,7 @@ class MiniZincSolutionVerifier(
         val solutionFilePath = "%s/solution.mzn".format(outputDirectoryPath)
         val solutionWriter = new java.io.FileWriter(solutionFilePath, false /* do not append */)
         val solutionFormatter = new FlatZincResultFormatter(result)
-        val solution = solutionFormatter.call
+        val solution = solutionFormatter.call()
         assert(checkIndicators(solution))
         for (assignment <- solution.iterator.takeWhile(_ != FlatZincSolutionSeparator)) {
             solutionWriter.write("constraint %s\n".format(assignment))
@@ -121,7 +121,7 @@ class MiniZincSolutionVerifier(
             "--statistics")
         minizincCommand += solutionFilePath
         if (! dznFileName.isEmpty) minizincCommand += "%s/%s".format(includePath, dznFileName)
-        val outputLines = new ProcessRunner(logger, minizincCommand).call
+        val outputLines = new ProcessRunner(logger, minizincCommand).call()
         val verified =
             ! outputLines.contains(FlatZincInconsistentProblemIndicator) &&
             checkObjective(outputLines)

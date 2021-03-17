@@ -36,7 +36,7 @@ final class BooleanDecisionDomain
         if (isSingleton) {
             if (containsFalse) False else True
         } else {
-            if (randomGenerator.nextDecision) True else False
+            if (randomGenerator.nextDecision()) True else False
         }
     }
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: BooleanValue) = {

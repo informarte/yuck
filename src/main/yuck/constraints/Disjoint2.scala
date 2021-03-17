@@ -44,7 +44,7 @@ final class Disjoint2
             private val r = rects(i)
             private var j = 0
             override def hasNext = j < 4
-            override def next = {
+            override def next() = {
                 j += 1
                 j match {
                     case 1 => r.x

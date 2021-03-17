@@ -46,7 +46,7 @@ class NeighbourhoodFactory
     protected val space = cc.space
     protected val implicitlyConstrainedVars = cc.implicitlyConstrainedVars
 
-    override def run = {
+    override def run() = {
         cc.maybeNeighbourhood = createNeighbourhood
     }
 

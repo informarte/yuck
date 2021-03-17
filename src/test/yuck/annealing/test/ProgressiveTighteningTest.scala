@@ -70,16 +70,16 @@ final class ProgressiveTighteningTest
             new SimulatedAnnealing(
                 "SA",
                 space,
-                createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen),
+                createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen()),
                 new RandomReassignmentGenerator(
-                    space, Vector(x), randomGenerator.nextGen, DefaultMoveSizeDistribution, None, None),
-                randomGenerator.nextGen,
+                    space, Vector(x), randomGenerator.nextGen(), DefaultMoveSizeDistribution, None, None),
+                randomGenerator.nextGen(),
                 objective,
                 Some(1),
                 Some(tighteningCounter),
                 None,
                 sigint)
-        val result = solver.call
+        val result = solver.call()
         assert(result.isGoodEnough)
         assert(result.isOptimal)
         assertEq(tighteningCounter.n, 1)

@@ -25,9 +25,9 @@ final class TimeboxedOperation
 
     def isOutOfTime: Boolean = remainingRuntimeInMillis <= 0
 
-    override def call = {
+    override def call() = {
         val watchdog = new Thread {
-            override def run = {
+            override def run() = {
                 val t0 = System.currentTimeMillis
                 try {
                     if (remainingRuntimeInMillis > 0) {
@@ -44,7 +44,7 @@ final class TimeboxedOperation
                 }
                 if (remainingRuntimeInMillis <= 0) {
                     logger.log("Out of time, asking %s to stop".format(operationName))
-                    sigint.set
+                    sigint.set()
                 }
             }
         }

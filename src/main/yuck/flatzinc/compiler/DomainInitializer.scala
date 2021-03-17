@@ -35,13 +35,13 @@ final class DomainInitializer
         }
     }
 
-    override def run = {
-        initializeDomains
-        propagateAssignments
-        propagateEqualityConstraints
+    override def run() = {
+        initializeDomains()
+        propagateAssignments()
+        propagateEqualityConstraints()
     }
 
-    private def initializeDomains: Unit = {
+    private def initializeDomains(): Unit = {
         for (decl <- cc.ast.varDecls) {
             decl.varType match {
                 case ArrayType(Some(IntRange(1, n)), baseType) =>
@@ -67,7 +67,7 @@ final class DomainInitializer
         }
     }
 
-    private def propagateAssignments: Unit = {
+    private def propagateAssignments(): Unit = {
         for (decl <- cc.ast.varDecls) {
             decl.varType match {
                 case ArrayType(Some(IntRange(1, n)), _) =>
@@ -132,7 +132,7 @@ final class DomainInitializer
         }
     }
 
-    private def propagateEqualityConstraints: Unit = {
+    private def propagateEqualityConstraints(): Unit = {
         for (constraint <- cc.ast.constraints if ! impliedConstraints.contains(constraint)) {
             constraint match {
                 case Constraint("bool_eq", List(a, b), _) =>

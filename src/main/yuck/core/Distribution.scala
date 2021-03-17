@@ -13,7 +13,7 @@ abstract class Distribution {
     val size: Int
 
     /** Sets all frequencies to 0. */
-    def clear: Unit
+    def clear(): Unit
 
     /** Sets the frequency of the given index to the given value. */
     def setFrequency(i: Int, f: Long): Unit

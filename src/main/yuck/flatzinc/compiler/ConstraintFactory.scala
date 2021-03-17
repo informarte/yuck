@@ -122,7 +122,7 @@ final class ConstraintFactory
         Iterable[BooleanVariable] =
         compileConstraint(constraint, compileAnyArray(in), List(compileAnyExpr(out)), functionalCase, generalCase)
 
-    override def run = {
+    override def run() = {
         cc.costVars ++=
             cc.ast.constraints
             .iterator

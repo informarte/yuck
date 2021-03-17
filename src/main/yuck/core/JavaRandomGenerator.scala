@@ -9,11 +9,11 @@ package yuck.core
 final class JavaRandomGenerator(seed: Long = DefaultSeed) extends RandomGenerator {
     private val wrappee = new java.util.SplittableRandom(seed)
     // warm-up
-    for (i <- 1 until 8192) nextInt
-    override def nextInt = wrappee.nextInt
+    for (i <- 1 until 8192) nextInt()
+    override def nextInt() = wrappee.nextInt()
     override def nextInt(limit: Int) = wrappee.nextInt(limit)
-    override def nextLong = wrappee.nextLong
+    override def nextLong() = wrappee.nextLong()
     override def nextLong(limit: Long) = wrappee.nextLong(limit)
-    override def nextProbability = wrappee.nextDouble
-    override def nextGen = new JavaRandomGenerator(nextLong)
+    override def nextProbability() = wrappee.nextDouble()
+    override def nextGen() = new JavaRandomGenerator(nextLong())
 }

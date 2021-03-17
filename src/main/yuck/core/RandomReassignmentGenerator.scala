@@ -66,7 +66,7 @@ final class RandomReassignmentGenerator
         val m = min(moveSizeDistribution.nextIndex(randomGenerator), priorityDistribution.numberOfAlternatives)
         assert(m > 0)
         var i = 0
-        effects.clear
+        effects.clear()
         if (useUniformDistribution && m < 4) {
             val i = randomGenerator.nextInt(n)
             addEffect(xs(i))

@@ -228,7 +228,7 @@ final class SpaceTest extends UnitTest {
                 ps += xs(randomGenerator.nextInt(xs.size))
             }
             var j = 1
-            for (qs <- ps.subsets if ! qs.isEmpty) {
+            for (qs <- ps.subsets() if ! qs.isEmpty) {
                 val sum = new IntegerVariable(space.nextVariableId, "sum(%d, %d)".format(i, j), NonNegativeIntegerRange)
                 xs += sum
                 val spy = new Spy(space.nextConstraintId, qs, sum)
@@ -253,7 +253,7 @@ final class SpaceTest extends UnitTest {
             val (space, xs, spies) = createRandomSpyNetwork(randomGenerator)
 
             // check forward propagation
-            space.propagate
+            space.propagate()
             for (spy <- spies) {
                 assertGe(spy.numberOfPropagations, 2)
                 assertEq(spy.propagate, NoPropagationOccurred)
@@ -326,9 +326,9 @@ final class SpaceTest extends UnitTest {
             }
 
             // initialize variables
-            new RandomInitializer(space, randomGenerator).run
+            new RandomInitializer(space, randomGenerator).run()
             // initialize spies
-            space.initialize
+            space.initialize()
             // check that each spy was initialized exactly once
             for (spy <- spies) {
                 assertEq(spy.numberOfInitializations, 1)
@@ -428,7 +428,7 @@ final class SpaceTest extends UnitTest {
         v.pruneDomain(NonNegativeIntegerRange)
         w.pruneDomain(NonNegativeIntegerRange)
         x.pruneDomain(ZeroToOneIntegerRange)
-        space.propagate
+        space.propagate()
         assertGt(d.numberOfPropagations, 0)
         assertEq(u.domain, NonNegativeIntegerRange) // domain of u was restored
         assertEq(v.domain, NonNegativeIntegerRange) // domain of v was restored
@@ -436,7 +436,7 @@ final class SpaceTest extends UnitTest {
         assertEq(y.domain, IntegerRange(Zero, Two)) // domain of y was pruned via domains of u and v
 
         // check that implicit constraints are never initialized and consulted
-        space.setValue(u, Zero).setValue(v, Zero).setValue(w, Zero).setValue(x, Zero).initialize
+        space.setValue(u, Zero).setValue(v, Zero).setValue(w, Zero).setValue(x, Zero).initialize()
         assertEq(c.numberOfInitializations, 0)
         assertEq(d.numberOfInitializations, 0)
         val move = new ChangeValue(space.nextMoveId, u, One)

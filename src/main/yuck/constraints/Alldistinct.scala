@@ -90,10 +90,10 @@ final class Alldistinct
                 val result = logger.withTimedLogScope("Solving %s".format(this)) {
                     val subcosts = new BooleanVariable(subspace.nextVariableId, "", CompleteBooleanDomain)
                     subspace.post(new Alldistinct(subspace.nextConstraintId, maybeGoal, subxs, subcosts))
-                    val initializer = new RandomInitializer(subspace, randomGenerator.nextGen)
-                    initializer.run
+                    val initializer = new RandomInitializer(subspace, randomGenerator.nextGen())
+                    initializer.run()
                     val n = subspace.searchVariables.size * 4
-                    val scheduleFactory = new StandardAnnealingScheduleFactory(n, randomGenerator.nextGen)
+                    val scheduleFactory = new StandardAnnealingScheduleFactory(n, randomGenerator.nextGen())
                     val schedule = scheduleFactory.createSlowSchedule
                     schedule.start(DefaultStartTemperature, 0)
                     val solver =
@@ -102,16 +102,16 @@ final class Alldistinct
                             subspace,
                             schedule,
                             new RandomReassignmentGenerator(
-                                subspace, subspace.searchVariables.toIndexedSeq, randomGenerator.nextGen,
+                                subspace, subspace.searchVariables.toIndexedSeq, randomGenerator.nextGen(),
                                 DefaultMoveSizeDistribution, maybeHotSpotDistribution = None,
                                 maybeFairVariableChoiceRate = None),
-                            randomGenerator.nextGen,
+                            randomGenerator.nextGen(),
                             new SatisfactionObjective(subcosts),
                             maybeRoundLimit = Some(1000),
                             Some(new StandardAnnealingMonitor(logger)),
                             maybeUserData = None,
                             sigint)
-                    solver.call
+                    solver.call()
                 }
                 if (result.isSolution) {
                     for ((x, subx) <- xs.iterator.zip(subxs.iterator)) {
@@ -180,7 +180,7 @@ final class AlldistinctNeighbourhood
                     .lazyShuffle(xs)
                     .map(x => (x, (x.domain.diff(usedValues))))
                     .filter(! _._2.isEmpty)
-                val (x, unusedValues) = candidates.next
+                val (x, unusedValues) = candidates.next()
                 val u = unusedValues.randomValue(randomGenerator)
                 // {(x, a)} -> {(x, u)}
                 effects(0).set(x, u)
@@ -191,7 +191,7 @@ final class AlldistinctNeighbourhood
                     .lazyShuffle(xs.indices)
                     .map(i => (i, (xs(i).domain.diff(usedValues))))
                     .filter(! _._2.isEmpty)
-                val (i, unusedValues) = candidates.next
+                val (i, unusedValues) = candidates.next()
                 val x = xs(i)
                 val a = value(x)
                 val u = unusedValues.randomValue(randomGenerator)
@@ -231,7 +231,7 @@ final class AlldistinctNeighbourhood
                         (x, unusedValues, y)
                     }
                 if (candidates.hasNext){
-                    val (x, unusedValues, y) = candidates.next
+                    val (x, unusedValues, y) = candidates.next()
                     val a = value(x)
                     val u = unusedValues.randomValue(randomGenerator)
                     // {(x, a), (y, b)} -> {(x, u), (y, a)}
@@ -257,7 +257,7 @@ final class AlldistinctNeighbourhood
                         (x, unusedValues, y, z)
                     }
                 if (candidates.hasNext) {
-                    val (x, unusedValues, y, z) = candidates.next
+                    val (x, unusedValues, y, z) = candidates.next()
                     val (a, b) = (value(x), value(y))
                     val u = unusedValues.randomValue(randomGenerator)
                     // {(x, a), (y, b), (z, c)} -> {(x, u), (y, a), (z, b)}
@@ -308,7 +308,7 @@ final class AlldistinctNeighbourhood
                     (x, y)
                 }
             if (candidates.hasNext) {
-                val (x, y) = candidates.next
+                val (x, y) = candidates.next()
                 val (a, b) = (value(x), value(y))
                 // {(x, a), (y, b)} -> {(x, b), (y, a)}
                 effects(0).set(x, b)
@@ -333,7 +333,7 @@ final class AlldistinctNeighbourhood
                     (x, y, z)
                 }
             if (candidates.hasNext) {
-                val (x, y, z) = candidates.next
+                val (x, y, z) = candidates.next()
                 val (a, b, c) = (value(x), value(y), value(z))
                 // {(x, a), (y, b), (z, c)} -> {(x, c), (y, a), (z, b)}
                 effects(0).set(x, c)

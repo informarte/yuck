@@ -12,11 +12,11 @@ final class StopWatch extends ManagedResource {
     private var startTimeInNanos = 0L
     private var endTimeInNanos = 0L
 
-    override def open = {
+    override def open() = {
         startTimeInNanos = System.nanoTime
     }
 
-    override def close = {
+    override def close() = {
         endTimeInNanos = System.nanoTime
     }
 

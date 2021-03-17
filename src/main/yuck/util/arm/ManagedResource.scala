@@ -6,5 +6,6 @@ package yuck.util.arm
  * @author Michael Marte
  */
 trait ManagedResource extends AutoCloseable {
-    def open: Unit
+    def open(): Unit
+    override def close(): Unit
 }

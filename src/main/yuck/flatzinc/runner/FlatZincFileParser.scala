@@ -18,12 +18,12 @@ final class FlatZincFileParser(fznFilePath: String, logger: LazyLogger) extends 
     // (see https://github.com/scala/scala-parser-combinators/issues/64),
     // so we read the whole file into memory and parse from there via a CharSequence.
     // (FlatZinc uses ASCII, so converting bytes to characters is not an issue.)
-    override def call = {
+    override def call() = {
         val file = new java.io.File(fznFilePath)
         val bytes = java.nio.file.Files.readAllBytes(file.toPath)
         val sequence = new ByteArrayAsCharSequence(bytes, 0, bytes.length)
         class FlatZincParserRunner extends Callable[FlatZincAst] {
-            override def call = FlatZincParser.parse(sequence)
+            override def call() = FlatZincParser.parse(sequence)
         }
         val threadPool = Executors.newFixedThreadPool(1)
         val futureAst = threadPool.submit(new FlatZincParserRunner)

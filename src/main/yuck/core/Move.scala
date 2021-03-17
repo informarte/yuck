@@ -43,7 +43,7 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVar
      *
      * Throws when the given variable is not involved in the move.
      */
-    def value(x: AnyVariable): AnyValue = effectsIterator.filter(_.x == x).next.a
+    def value(x: AnyVariable): AnyValue = effectsIterator.filter(_.x == x).next().a
 
     /**
      * Returns None if the move does not involve the given variable x,

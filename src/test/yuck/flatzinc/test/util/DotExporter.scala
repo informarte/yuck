@@ -56,7 +56,7 @@ final class DotExporter(space: Space, dotWriter: java.io.FileWriter) extends Run
         attrMap
     }
 
-    override def run = {
+    override def run() = {
         val network = new DefaultDirectedGraph[Vertex, DefaultEdge](classOf[DefaultEdge])
         val variableVertices = new mutable.HashMap[AnyVariable, VariableVertex]
         val constraints = new mutable.HashSet[Constraint]

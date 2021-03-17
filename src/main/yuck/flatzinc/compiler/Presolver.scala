@@ -23,11 +23,11 @@ final class Presolver
     private val costVars = cc.costVars
     private val logger = cc.logger
 
-    override def run = {
-        reduceDomains
+    override def run() = {
+        reduceDomains()
     }
 
-    private def reduceDomains: Unit ={
+    private def reduceDomains(): Unit ={
 
         // require that all constraints hold
         for (x <- costVars) {
@@ -35,7 +35,7 @@ final class Presolver
         }
 
         // propagate constraints
-        space.propagate
+        space.propagate()
 
     }
 

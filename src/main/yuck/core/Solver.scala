@@ -36,7 +36,7 @@ abstract class Solver extends Callable[Result] {
      *
      * call might not work on a finished solver.
      */
-    override def call: Result
+    override def call(): Result
 
     /** Do not call on a running solver! */
     def hasFinished: Boolean
@@ -74,7 +74,7 @@ class SolverMonitor[ResultImpl <: Result] {
  */
 object FinishedSolver extends Solver {
     override def hasFinished = true
-    override def call = {
+    override def call() = {
         require(! hasFinished, "Use a new solver")
         null
     }
@@ -94,11 +94,11 @@ final class TimeboxedSolver(
     sigint: SettableSigint)
     extends Solver
 {
-    private def solve = solver.call
-    private val timebox = new TimeboxedOperation(solve, runtimeLimitInSeconds, sigint, solver.name, logger)
+    private def solve() = solver.call()
+    private val timebox = new TimeboxedOperation(solve(), runtimeLimitInSeconds, sigint, solver.name, logger)
     override def name = solver.name
     override def hasFinished = solver.hasFinished || timebox.isOutOfTime
-    override def call = timebox.call
+    override def call() = timebox.call()
 }
 
 /**
@@ -123,7 +123,7 @@ final class OnDemandGeneratedSolver(
 
     override def hasFinished = solver != null && solver.hasFinished
 
-    override def call = {
+    override def call() = {
         require(! hasFinished)
         if (solver == null) {
             if (sigint.isSet) {
@@ -131,7 +131,7 @@ final class OnDemandGeneratedSolver(
             } else {
                 logger.withTimedLogScope("Generating solver") {
                     try {
-                        solver = solverGenerator.call
+                        solver = solverGenerator.call()
                     }
                     catch {
                         case error: InterruptedException =>
@@ -145,7 +145,7 @@ final class OnDemandGeneratedSolver(
         } else {
             val result =
                 logger.withTimedLogScope("Running solver") {
-                    solver.call
+                    solver.call()
                 }
             if (solver.hasFinished) {
                 // replace solver by mock to free memory
@@ -190,18 +190,18 @@ final class ParallelSolver(
         (maybeBestResult.isDefined && maybeBestResult.get.isGoodEnough) || solvers.forall(_.hasFinished)
 
     private class SolverRunner(child: Solver) extends Runnable {
-        override def run = {
+        override def run() = {
             if (! sigint.isSet) {
                 scoped(new TransientThreadRenaming(Thread.currentThread, child.name)) {
                     scoped(new LogScope(logger, indentation)) {
                         logger.withTimedLogScope("Running child") {
                             try {
-                                val result = child.call
+                                val result = child.call()
                                 criticalSection(lock) {
                                     if (maybeBestResult.isEmpty || result.isBetterThan(maybeBestResult.get)) {
                                         maybeBestResult = Some(result)
                                         if (maybeBestResult.get.isGoodEnough) {
-                                            sigint.set
+                                            sigint.set()
                                         }
                                     }
                                 }
@@ -218,7 +218,7 @@ final class ParallelSolver(
                                             error.getStackTrace.foreach(frame => logger.log(frame.toString))
                                         }
                                     }
-                                    sigint.set
+                                    sigint.set()
                                     throw error
                             }
                         }
@@ -228,7 +228,7 @@ final class ParallelSolver(
         }
     }
 
-    override def call = {
+    override def call() = {
         require(! hasFinished)
         if (! sigint.isSet) {
             val threadPool = Executors.newFixedThreadPool(threadPoolSize)
@@ -240,7 +240,7 @@ final class ParallelSolver(
                     val results = futureResults.map(_.get)
                 }
                 finally {
-                    sigint.set
+                    sigint.set()
                 }
             }
         }

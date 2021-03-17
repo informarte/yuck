@@ -57,7 +57,7 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
             }
         }
         assertGt(d.volume, 0)
-        d.clear
+        d.clear()
         assertEq(d.volume, 0)
         assertEq(d.numberOfAlternatives, 0)
     }

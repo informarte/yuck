@@ -1,8 +1,5 @@
 package yuck.annealing
 
-import java.util.concurrent.Callable
-
-import scala.collection._
 import scala.math._
 
 import yuck.core._

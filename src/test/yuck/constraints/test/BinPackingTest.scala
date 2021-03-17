@@ -36,7 +36,7 @@ final class BinPackingTest extends UnitTest {
             .setValue(items(3).bin, Three)
             .setValue(items(4).bin, One)
             .setValue(items(5).bin, Two)
-            .initialize
+            .initialize()
         assertEq(space.searchVariables, items.valuesIterator.map(_.bin).toSet)
         val now = space.searchState
         assertEq(now.value(loads(1)), Five)
@@ -70,7 +70,7 @@ final class BinPackingTest extends UnitTest {
             assertEq(now.value(loads(2)), Zero)
             assertEq(now.value(loads(3)), Nine)
         }
-        space.initialize
+        space.initialize()
         assertEq(now.value(loads(1)), Six)
         assertEq(now.value(loads(2)), Zero)
         assertEq(now.value(loads(3)), Nine)

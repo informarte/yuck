@@ -21,7 +21,7 @@ final class SolverTest extends UnitTest {
         private var finished = false
         private def wasInterrupted = sigint.isSet
         override def hasFinished = finished
-        override def call = {
+        override def call() = {
             require(! hasFinished)
             if (wasInterrupted) {
                 throw new SolverInterruptedException
@@ -40,7 +40,7 @@ final class SolverTest extends UnitTest {
     private class BadSolverException extends RuntimeException
 
     private class BadSolver extends Solver {
-        override def call = {
+        override def call() = {
             throw new BadSolverException
         }
         override def hasFinished = false
@@ -52,12 +52,12 @@ final class SolverTest extends UnitTest {
         val result = new Result("0", null, null, null)
         val solver = new GoodSolver(result, 1, sigint)
         val timebox = new TimeboxedSolver(solver, 0, logger, sigint)
-        assertEx(timebox.call, classOf[SolverInterruptedException])
+        assertEx(timebox.call(), classOf[SolverInterruptedException])
         assert(! solver.hasFinished)
         assert(timebox.hasFinished)
         assert(sigint.isSet)
-        sigint.revoke
-        assertEx(timebox.call, classOf[SolverInterruptedException])
+        sigint.revoke()
+        assertEx(timebox.call(), classOf[SolverInterruptedException])
         assert(! solver.hasFinished)
         assert(timebox.hasFinished)
         assert(sigint.isSet)
@@ -67,10 +67,10 @@ final class SolverTest extends UnitTest {
     def testTimeboxingWithoutTimeout: Unit = {
         val result = new Result("0", null, null, null)
         val solver = new TimeboxedSolver(new GoodSolver(result, 0, sigint), 1, logger, sigint)
-        solver.call
+        solver.call()
         assert(solver.hasFinished)
         assert(! sigint.isSet)
-        assertEx(solver.call)
+        assertEx(solver.call())
         assert(solver.hasFinished)
         assert(! sigint.isSet)
     }
@@ -78,10 +78,10 @@ final class SolverTest extends UnitTest {
     @Test
     def testTimeboxingWithException: Unit = {
         val solver = new TimeboxedSolver(new BadSolver, 1, logger, sigint)
-        assertEx(solver.call, classOf[BadSolverException])
+        assertEx(solver.call(), classOf[BadSolverException])
         assert(! solver.hasFinished)
         assert(! sigint.isSet)
-        assertEx(solver.call, classOf[BadSolverException])
+        assertEx(solver.call(), classOf[BadSolverException])
         assert(! solver.hasFinished)
         assert(! sigint.isSet)
     }
@@ -96,10 +96,10 @@ final class SolverTest extends UnitTest {
         val solver = new OnDemandGeneratedSolver(solverGenerator, logger, sigint)
         assert(! solver.hasFinished)
         assert(! sigint.isSet)
-        assertEq(solver.call.solverName, result.solverName)
+        assertEq(solver.call().solverName, result.solverName)
         assert(solver.hasFinished)
         assert(! sigint.isSet)
-        assertEx(solver.call)
+        assertEx(solver.call())
         assert(solver.hasFinished)
         assert(! sigint.isSet)
     }
@@ -111,10 +111,10 @@ final class SolverTest extends UnitTest {
             override def call = new BadSolver
         }
         val solver = new OnDemandGeneratedSolver(solverGenerator, logger, sigint)
-        assertEx(solver.call, classOf[BadSolverException])
+        assertEx(solver.call(), classOf[BadSolverException])
         assert(! solver.hasFinished)
         assert(! sigint.isSet)
-        assertEx(solver.call, classOf[BadSolverException])
+        assertEx(solver.call(), classOf[BadSolverException])
         assert(! solver.hasFinished)
         assert(! sigint.isSet)
     }
@@ -129,7 +129,7 @@ final class SolverTest extends UnitTest {
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = if (i == 8) Zero else One)
         val solvers = results.map(result => new GoodSolver(result, 1, sigint))
         val solver = new ParallelSolver(solvers, 4, "Test", logger, sigint)
-        val result = solver.call
+        val result = solver.call()
         assertEq(result.solverName, "8")
         assertEq(result.costsOfBestProposal, Zero)
         assert(result.isSolution)
@@ -140,8 +140,8 @@ final class SolverTest extends UnitTest {
         }
         assert(solver.hasFinished)
         assert(sigint.isSet)
-        sigint.revoke
-        assertEx(solver.call)
+        sigint.revoke()
+        assertEx(solver.call())
         assert(solver.hasFinished)
         assert(! sigint.isSet)
     }
@@ -156,7 +156,7 @@ final class SolverTest extends UnitTest {
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = One)
         val solvers = results.map(result => new GoodSolver(result, 0, sigint))
         val solver = new ParallelSolver(solvers, 4, "Test", logger, sigint)
-        val result = solver.call
+        val result = solver.call()
         assertEq(result.costsOfBestProposal, One)
         assert(! result.isSolution)
         for (solver <- solvers) {
@@ -164,8 +164,8 @@ final class SolverTest extends UnitTest {
         }
         assert(solver.hasFinished)
         assert(sigint.isSet)
-        sigint.revoke
-        assertEx(solver.call)
+        sigint.revoke()
+        assertEx(solver.call())
         assert(solver.hasFinished)
         assert(! sigint.isSet)
     }
@@ -180,15 +180,15 @@ final class SolverTest extends UnitTest {
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = One)
         val solvers = (0 until results.size).map(i => if (i == 8) new BadSolver else new GoodSolver(results(i), 1, sigint))
         val solver = new ParallelSolver(solvers, 4, "Test", logger, sigint)
-        assertEx(solver.call, classOf[BadSolverException])
+        assertEx(solver.call(), classOf[BadSolverException])
         for (i <- 16 until solvers.size) {
             val solver = solvers(i)
             assert(! solver.hasFinished)
         }
         assert(! solver.hasFinished)
         assert(sigint.isSet)
-        sigint.revoke
-        assertEx(solver.call, classOf[BadSolverException])
+        sigint.revoke()
+        assertEx(solver.call(), classOf[BadSolverException])
         assert(! solver.hasFinished)
         assert(sigint.isSet)
     }
@@ -209,11 +209,11 @@ final class SolverTest extends UnitTest {
         val solvers =
             results.map(result => new OnDemandGeneratedSolver(new GoodSolverGenerator(result), logger, sigint))
         val solver = new ParallelSolver(solvers, 4, "Test", logger, sigint)
-        assertEx(new TimeboxedSolver(solver, 0, logger, sigint).call, classOf[SolverInterruptedException])
+        assertEx(new TimeboxedSolver(solver, 0, logger, sigint).call(), classOf[SolverInterruptedException])
         assert(! solver.hasFinished)
         assert(sigint.isSet)
-        sigint.revoke
-        val result = new TimeboxedSolver(solver, 8, logger, sigint).call
+        sigint.revoke()
+        val result = new TimeboxedSolver(solver, 8, logger, sigint).call()
         assertEq(result.solverName, "8")
         assertEq(result.costsOfBestProposal, Zero)
         assert(result.isSolution)
@@ -224,7 +224,7 @@ final class SolverTest extends UnitTest {
         }
         assert(solver.hasFinished)
         assert(sigint.isSet)
-        assertEx(solver.call)
+        assertEx(solver.call())
         assert(solver.hasFinished)
         assert(sigint.isSet)
     }

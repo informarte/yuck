@@ -124,7 +124,7 @@ abstract class Table
                 else move.involvedVariablesIterator.map(x2i)
             }
         while (is.hasNext) {
-            val i = is.next
+            val i = is.next()
             val x = xs(i)
             val a = before.value(x)
             val b = after.value(x)

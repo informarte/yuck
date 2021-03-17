@@ -54,7 +54,7 @@ final class Cumulative
             private val t = tasks(i)
             private var j = 0
             override def hasNext = j < 3
-            override def next = {
+            override def next() = {
                 j += 1
                 j match {
                     case 1 => t.s

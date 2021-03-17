@@ -17,11 +17,11 @@ final class DomainFinalizer
     extends CompilationPhase(cc, randomGenerator)
 {
 
-    override def run = {
-        finalizeDomains
+    override def run() = {
+        finalizeDomains()
     }
 
-    private def finalizeDomains: Unit = {
+    private def finalizeDomains(): Unit = {
         val done = new mutable.HashSet[AnyVariable]
         for ((key, x) <- cc.vars if ! done.contains(x)) {
             x.domain match {

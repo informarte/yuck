@@ -21,10 +21,10 @@ class StandardAnnealingMonitor(logger: LazyLogger) extends AnnealingMonitor with
     }
     protected var costsOfBestProposal: Costs = null
 
-    override def open = {
+    override def open() = {
     }
 
-    override def close = {
+    override def close() = {
     }
 
     override def onSolverLaunched(result: AnnealingResult) = {

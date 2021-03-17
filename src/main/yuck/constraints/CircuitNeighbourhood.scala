@@ -63,7 +63,7 @@ final class CircuitNeighbourhood
                 (x, y, z)
             }
         if (candidates.hasNext) {
-            val (x, y, z) = candidates.next
+            val (x, y, z) = candidates.next()
             val (a, b, c) = (value(x), value(y), value(z))
             if (debug) {
                 assert(x.domain.contains(b))

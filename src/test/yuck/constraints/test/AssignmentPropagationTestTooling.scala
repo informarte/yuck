@@ -31,7 +31,7 @@ trait AssignmentPropagationTestTooling extends ConstraintTestTooling {
             for (effect <- assignment) {
                 effect.affect(space)
             }
-            space.initialize
+            space.initialize()
             checkAssignments(space.searchState, effects)
         }
     }

@@ -21,7 +21,7 @@ abstract class Sigint {
  * @author Michael Marte
  */
 class SettableSigint extends Sigint {
-    final def set: Unit = {
+    final def set(): Unit = {
         interrupted = true
     }
 }
@@ -33,7 +33,7 @@ class SettableSigint extends Sigint {
  * @author Michael Marte
  */
 final class RevocableSigint extends SettableSigint {
-    def revoke: Unit = {
+    def revoke(): Unit = {
         interrupted = false
     }
 }

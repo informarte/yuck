@@ -428,7 +428,7 @@ final class Space(
       *
       * Notice that, after propagation, there may be search variables with values outside their domains.
       */
-    def propagate: Space = {
+    def propagate(): Space = {
         propagate {
             val tasks = new mutable.HashSet[Constraint]
             for (constraint <- constraints) {
@@ -498,7 +498,7 @@ final class Space(
 
         // restore domains of implicitly constrained search variables
         for ((x, domainRestorer) <- backup) {
-            domainRestorer.apply
+            domainRestorer.apply()
         }
 
     }
@@ -511,7 +511,7 @@ final class Space(
      *
      * The caller has to assign values to all search variables before initializing!
      */
-    def initialize: Space = {
+    def initialize(): Space = {
         flowModel = null // free memory
         if (constraintOrder == null) {
             sortConstraintsTopologically
@@ -530,7 +530,7 @@ final class Space(
      */
     def initialize(searchState: SearchState): Space = {
         assignment.setValues(searchState)
-        initialize
+        initialize()
     }
 
     abstract private class MoveProcessor(val move: Move) {
@@ -561,7 +561,7 @@ final class Space(
         protected def processConstraint(
             constraint: Constraint, before: SearchState, after: SearchState, move: Move): Iterable[AnyMoveEffect]
         protected def recordEffect(effect: AnyMoveEffect): Unit
-        def run: Move = {
+        def run(): Move = {
             move.effectsIterator.foreach(propagateEffect)
             while (! diffs.isEmpty) {
                 val entry = diffs.pollFirstEntry
@@ -648,7 +648,7 @@ final class Space(
      */
     def consult(move: Move): SearchState = {
         idOfMostRecentlyAssessedMove = move.id
-        new MoveSimulator(assignment, new EffectComputer(move).run)
+        new MoveSimulator(assignment, new EffectComputer(move).run())
     }
 
     private final class EffectPropagator(move: Move) extends MoveProcessor(move) {
@@ -719,7 +719,7 @@ final class Space(
      */
     def commit(move: Move): Space = {
         require(move.id == idOfMostRecentlyAssessedMove)
-        new EffectPropagator(move).run.effectsIterator.foreach(_.affect(this))
+        new EffectPropagator(move).run().effectsIterator.foreach(_.affect(this))
         this
     }
 

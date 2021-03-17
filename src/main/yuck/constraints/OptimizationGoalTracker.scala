@@ -33,7 +33,7 @@ final class OptimizationGoalTracker
         (0 until axs.size).iterator.map(i => (axs(i).x, (i, axs(i)))).toMap
 
     override def initialize(now: SearchState) = {
-        distribution.clear
+        distribution.clear()
         for (i <- 0 until axs.size) {
             distribution.setFrequency(i, computeFrequency(axs(i), now))
         }

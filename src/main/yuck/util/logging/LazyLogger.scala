@@ -58,12 +58,12 @@ final class LazyLogger(logger: Logger) {
     }
 
     /** Increases the indentation by one level. */
-    def increaseIndentation: Unit = {
+    def increaseIndentation(): Unit = {
         indentLevel.set(indentLevel.get + 1)
     }
 
     /** Decreases the indentation by one level. */
-    def decreaseIndentation: Unit = {
+    def decreaseIndentation(): Unit = {
         require(indentLevel.get > 0)
         indentLevel.set(indentLevel.get - 1)
     }
@@ -90,7 +90,7 @@ final class LazyLogger(logger: Logger) {
     }
 
     /** Undoes the previous change to dynamic log-level reduction. */
-    def restoreLogLevelReduction: Unit = {
+    def restoreLogLevelReduction(): Unit = {
         val stack = logLevelReductions.get
         stack.pop
         assert(! stack.isEmpty)

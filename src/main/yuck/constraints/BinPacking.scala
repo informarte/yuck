@@ -51,7 +51,7 @@ final class BinPacking
         (for ((i, load) <- loads) yield i -> new ReusableMoveEffectWithFixedVariable[Load](load)).toMap
 
     override def initialize(now: SearchState) = {
-        currentLoads.clear
+        currentLoads.clear()
         for (i <- loads.keysIterator) {
             currentLoads(i) = valueTraits.zero
         }
@@ -69,7 +69,7 @@ final class BinPacking
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
-       loadDeltas.clear
+       loadDeltas.clear()
        for (x <- move) {
            val item = x2Item(x)
            val j = before.value(item.bin).value

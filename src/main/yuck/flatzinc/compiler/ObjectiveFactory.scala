@@ -24,7 +24,7 @@ final class ObjectiveFactory
 
     import HighPriorityImplicits._
 
-    override def run = {
+    override def run() = {
         val objectives = new mutable.ArrayBuffer[PrimitiveObjective]
         cc.ast.solveGoal match {
             case Satisfy(_) =>

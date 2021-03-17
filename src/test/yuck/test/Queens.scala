@@ -17,7 +17,7 @@ final class Queens extends IntegrationTest {
 
     private final class QueensGenerator(n: Int, i: Int, seed: Int) extends SolverGenerator {
         override def solverName = "SA-%d".format(i)
-        override def call = {
+        override def call() = {
 
             // define problem
             val space = new Space(logger, sigint)
@@ -58,10 +58,10 @@ final class Queens extends IntegrationTest {
                 new SimulatedAnnealing(
                     solverName,
                     space,
-                    createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen),
+                    createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen()),
                     new RandomCircularSwapGenerator(
-                        space, rows.toIndexedSeq, randomGenerator.nextGen, DefaultMoveSizeDistribution, None, None),
-                    randomGenerator.nextGen,
+                        space, rows.toIndexedSeq, randomGenerator.nextGen(), DefaultMoveSizeDistribution, None, None),
+                    randomGenerator.nextGen(),
                     new SatisfactionObjective(conflicts),
                     None,
                     Some(new StandardAnnealingMonitor(logger)),
@@ -76,9 +76,9 @@ final class Queens extends IntegrationTest {
         val randomGenerator = new JavaRandomGenerator(29071972)
         val solvers =
             (1 to DefaultRestartLimit).map(
-                i => new OnDemandGeneratedSolver(new QueensGenerator(n, i, randomGenerator.nextInt), logger, sigint))
+                i => new OnDemandGeneratedSolver(new QueensGenerator(n, i, randomGenerator.nextInt()), logger, sigint))
         val solver = new ParallelSolver(solvers, Runtime.getRuntime.availableProcessors, "Queens", logger, sigint)
-        val result = solver.call
+        val result = solver.call()
         assert(result.isSolution)
     }
 

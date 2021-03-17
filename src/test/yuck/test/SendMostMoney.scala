@@ -23,7 +23,7 @@ final class SendMostMoney extends IntegrationTest {
 
     private final class SendMostMoneyGenerator(i: Int, seed: Int) extends SolverGenerator {
         override def solverName = "SA-%d".format(i)
-        override def call = {
+        override def call() = {
 
             /*
             send_most_money(Vars) :-
@@ -79,7 +79,7 @@ final class SendMostMoney extends IntegrationTest {
 
             // propagate constraints
             costs.pruneDomain(TrueDomain)
-            space.propagate
+            space.propagate()
             if (! sigint.isSet) {
                 assertEq(space.searchVariables, vars -- Set(M, O, S))
                 assertEq(delta.domain, TrueDomain)
@@ -100,15 +100,15 @@ final class SendMostMoney extends IntegrationTest {
                 space.setValue(x, x.domain.singleValue)
             }
             val randomGenerator = new JavaRandomGenerator(seed)
-            val initializer = new RandomInitializer(space, randomGenerator.nextGen)
-            initializer.run
+            val initializer = new RandomInitializer(space, randomGenerator.nextGen())
+            initializer.run()
             val solver =
                 new SimulatedAnnealing(
                     solverName,
                     space,
-                    createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen),
-                    new SimpleRandomReassignmentGenerator(space, space.searchVariables.toIndexedSeq, randomGenerator.nextGen),
-                    randomGenerator.nextGen,
+                    createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen()),
+                    new SimpleRandomReassignmentGenerator(space, space.searchVariables.toIndexedSeq, randomGenerator.nextGen()),
+                    randomGenerator.nextGen(),
                     new HierarchicalObjective(
                         List(new SatisfactionObjective(costs),
                              new MaximizationObjective(rhs, Some(IntegerValue(10876)), None)),
@@ -127,9 +127,9 @@ final class SendMostMoney extends IntegrationTest {
         val randomGenerator = new JavaRandomGenerator(29071972)
         val solvers =
             (1 to DefaultRestartLimit).toList.map(
-                i => new OnDemandGeneratedSolver(new SendMostMoneyGenerator(i, randomGenerator.nextInt), logger, sigint))
+                i => new OnDemandGeneratedSolver(new SendMostMoneyGenerator(i, randomGenerator.nextInt()), logger, sigint))
         val solver = new ParallelSolver(solvers, Runtime.getRuntime.availableProcessors, "SendMostMoney", logger, sigint)
-        val result = solver.call
+        val result = solver.call()
         if (result.isSolution) {
             val modelData = result.maybeUserData.get.asInstanceOf[ModelData]
             assertEq(

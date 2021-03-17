@@ -91,7 +91,7 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
 
     final override def randomSubdomain(randomGenerator: RandomGenerator): IntegerDomain = {
         val choice = new mutable.HashSet[IntegerValue]
-        valuesIterator.foreach(a => if (randomGenerator.nextDecision) choice += a)
+        valuesIterator.foreach(a => if (randomGenerator.nextDecision()) choice += a)
         apply(choice)
     }
 
@@ -223,10 +223,10 @@ object IntegerDomain {
                 if (values.isInstanceOf[SortedSet[IntegerValue]]) values.iterator
                 else values.toBuffer.sorted.iterator
             val outBuf = new mutable.ArrayBuffer[IntegerRange]
-            var lb = inIt.next
+            var lb = inIt.next()
             var ub = lb
             while (inIt.hasNext) {
-                val a = inIt.next
+                val a = inIt.next()
                 if (a.value <= safeInc(ub.value)) {
                     ub = a
                 } else {

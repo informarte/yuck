@@ -12,12 +12,12 @@ import yuck.util.arm.ManagedResource
  */
 final class ManagedLogHandler(logger: Logger, handler: Handler) extends ManagedResource {
 
-    override def open = {
+    override def open() = {
         logger.addHandler(handler)
     }
 
-    override def close = {
-        handler.close
+    override def close() = {
+        handler.close()
         logger.removeHandler(handler)
     }
 

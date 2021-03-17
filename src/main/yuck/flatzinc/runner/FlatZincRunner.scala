@@ -107,7 +107,7 @@ object FlatZincRunner extends YuckLogging {
                     setupLogging(cl)
                     logVersion
                     val sigint = new SettableSigint
-                    scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set})) {
+                    scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set()})) {
                         maybeTimeboxed(cl.cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
                             solve(cl, sigint)
                         }
@@ -186,18 +186,18 @@ object FlatZincRunner extends YuckLogging {
         logger.log("Processing %s".format(cl.fznFilePath))
         val ast =
             logger.withTimedLogScope("Parsing FlatZinc file") {
-                new FlatZincFileParser(cl.fznFilePath, logger).call
+                new FlatZincFileParser(cl.fznFilePath, logger).call()
             }
         val monitor = new FlatZincSolverMonitor(logger)
         val solverGenerator = new FlatZincSolverGenerator(ast, cl.cfg, sigint, logger, monitor)
-        val solver = solverGenerator.call
-        val result = solver.call
+        val solver = solverGenerator.call()
+        val result = solver.call()
         if (! result.isSolution) {
             println(FlatZincNoSolutionFoundIndicator)
         } else {
             logger.criticalSection {
                 logger.withLogScope("Solution") {
-                    new FlatZincResultFormatter(result).call.foreach(logger.log(_))
+                    new FlatZincResultFormatter(result).call().foreach(logger.log(_))
                 }
             }
         }
