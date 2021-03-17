@@ -161,7 +161,7 @@ final class ConstraintFactory
     private def compileNonImplicitConstraint
         (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint):
         Iterable[BooleanVariable] =
-        constraint match
+        (constraint: @unchecked) match
     {
         // TODO Implement other direction!?
         case Constraint("bool2int", List(a, b), _) => {
