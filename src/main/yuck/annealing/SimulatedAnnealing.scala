@@ -181,9 +181,9 @@ final class SimulatedAnnealing(
         if (numberOfRemainingMonteCarloAttempts == 0) {
             roundLog.roundWasFutile =
                 roundCount > 0 &&
-                ! objective.isLowerThan(
+                (! objective.isLowerThan(
                     roundLog.costsOfBestProposal,
-                    result.roundLogs.apply(roundCount - 1).costsOfBestProposal)
+                    result.roundLogs.apply(roundCount - 1).costsOfBestProposal))
             if (maybeMonitor.isDefined) {
                 maybeMonitor.get.onNextRound(result)
             }

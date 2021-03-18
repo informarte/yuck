@@ -160,7 +160,7 @@ object FlatZincParser extends RegexParsers {
     def parse(reader: java.io.InputStreamReader): FlatZincAst =
         processParsingResult(FlatZincParser.parseAll(FlatZincParser.flatzinc_model, reader))
 
-    private def processParsingResult(result: ParseResult[FlatZincAst]): FlatZincAst = result match {
+    private def processParsingResult(result: ParseResult[FlatZincAst]): FlatZincAst = (result: @unchecked) match {
         case FlatZincParser.Success(ast, _) => ast
         case FlatZincParser.NoSuccess(msg, rest) =>
             throw new FlatZincParserException(rest.pos.line, rest.pos.column, msg)

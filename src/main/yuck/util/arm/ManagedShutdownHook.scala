@@ -1,5 +1,7 @@
 package yuck.util.arm
 
+import java.util.concurrent.LinkedBlockingQueue
+
 import scala.concurrent.SyncVar
 
 /**
@@ -25,7 +27,7 @@ final class ShutdownInProgressException(error: IllegalStateException) extends Ru
  */
 final class ManagedShutdownHook(shutdownAction: => Unit) extends ManagedResource {
 
-    private val stop = new SyncVar[Boolean]
+    private val stop = new LinkedBlockingQueue[Boolean]
 
     private val shutdownHook =
         new Thread(

@@ -27,7 +27,7 @@ abstract class CompilationPhase(
         (implicit valueTraits: ValueTraits[Value]): Boolean =
     {
         val maybeC = tryGetAnyConst(a)
-        ! maybeC.isEmpty && valueTraits.safeDowncast(maybeC.get) == b
+        (! maybeC.isEmpty && valueTraits.safeDowncast(maybeC.get) == b)
     }
 
     protected final def getConst

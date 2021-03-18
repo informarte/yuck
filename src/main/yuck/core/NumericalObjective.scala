@@ -24,7 +24,7 @@ abstract class NumericalObjective
             val move = new ChangeValue(space.nextMoveId, x, a)
             val after = space.consult(move)
             val costsAfterMove = rootObjective.costs(after)
-            ! rootObjective.isHigherThan(costsAfterMove, costsOnEntry)
+            (! rootObjective.isHigherThan(costsAfterMove, costsOnEntry))
         }
         def search(dx: NumericalDomain[Value]): Option[Value] =
             if (dx.isEmpty) None

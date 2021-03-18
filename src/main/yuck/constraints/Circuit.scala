@@ -68,7 +68,7 @@ final class Circuit
     private trait HeuristicResult
     private case object UnsatisfiableInstance extends HeuristicResult
     private case object HeuristicFailed extends HeuristicResult
-    private final case class HeuristicSucceeded(neighbourhood: Neighbourhood) extends HeuristicResult
+    private case class HeuristicSucceeded(neighbourhood: Neighbourhood) extends HeuristicResult
 
     private def solve
         (n: Int, result: HeuristicResult, heuristic: () => HeuristicResult, sigint: Sigint):

@@ -17,10 +17,10 @@ object YuckTestRunner {
     def main(args: Array[String]): Unit = {
         require(args.length == 1, help)
         val components = args(0).split("#").toList
-        require(Range.inclusive(1, 2).contains(components.size), help)
         val request = components match {
             case List(className) => Request.aClass(Class.forName(className))
             case List(className, method) => Request.method(Class.forName(className), method)
+            case _ => throw new IllegalArgumentException(help)
         }
         val core = new JUnitCore
         val system = new RealSystem

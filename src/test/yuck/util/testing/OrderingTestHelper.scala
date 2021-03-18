@@ -27,7 +27,7 @@ class OrderingTestHelper[T](randomGenerator: RandomGenerator) extends EqualityTe
                 // symmetry of =
                 assertEq(ord.compare(a, b) == 0, ord.compare(b, a) == 0)
                 // consistency of = with equals
-                assertEq(ord.compare(a, b) == 0, a.equals(b))
+                assertEq(ord.compare(a, b) == 0, a == b)
                 // antisymmetry of <=
                 if (ord.compare(a, b) <= 0 && ord.compare(b, a) <= 0) {
                     assertEq(ord.compare(a, b), 0)

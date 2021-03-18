@@ -63,16 +63,16 @@ final class ConstraintFactory
     // Checks whether a constraint from in to out could be posted.
     // Notice that this method may be quite expensive!
     private def isViableConstraint(in: Iterable[AnyVariable], out: AnyVariable): Boolean =
-        ! cc.searchVars.contains(out) &&
+        (! cc.searchVars.contains(out)) &&
         space.maybeDefiningConstraint(out).isEmpty &&
-        ! space.wouldIntroduceCycle(new DummyConstraint(fakeConstraintId, in, List(out)))
+        (! space.wouldIntroduceCycle(new DummyConstraint(fakeConstraintId, in, List(out))))
 
     // Checks whether there is a functional dependency that could be exploited without introducing a cycle.
     // Notice that this method may be quite expensive!
     private def definesVar
         (constraint: yuck.flatzinc.ast.Constraint, in: Iterable[AnyVariable], out: AnyVariable): Boolean =
     {
-        ! out.domain.isSingleton &&
+        (! out.domain.isSingleton) &&
         (definesVar(constraint, out) || ! cc.definedVars.contains(out)) &&
         isViableConstraint(in, out)
     }
