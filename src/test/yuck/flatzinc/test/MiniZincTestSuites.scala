@@ -12,6 +12,4 @@ import org.junit._
     Array(
         classOf[MiniZincExamples],
         classOf[MiniZincChallenges]))
-@Test
-class MiniZincTestSuites {
-}
+class MiniZincTestSuites

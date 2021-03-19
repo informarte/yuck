@@ -14,7 +14,6 @@ import yuck.util.testing.UnitTest
  * @author Michael Marte
  *
  */
-@Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 final class CircuitTest(offset: Int)

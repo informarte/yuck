@@ -13,7 +13,6 @@ import yuck.util.testing.UnitTest
  * @author Michael Marte
  *
  */
-@Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling {
 

@@ -20,6 +20,4 @@ import org.junit._
         classOf[IntegerSetDomainTest],
         classOf[IntegerPowersetDomainTest],
         classOf[SingletonIntegerSetDomainTest]))
-@Test
-final class DomainTestSuite {
-}
+final class DomainTestSuite

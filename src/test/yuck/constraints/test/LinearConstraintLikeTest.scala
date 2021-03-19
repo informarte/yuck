@@ -10,7 +10,6 @@ import yuck.util.testing.{UnitTest, Mocking}
  * @author Michael Marte
  *
  */
-@Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 abstract class LinearConstraintLikeTest[Value <: NumericalValue[Value]] extends UnitTest with Mocking {

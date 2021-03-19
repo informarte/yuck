@@ -13,7 +13,6 @@ import yuck.util.testing.IntegrationTest
  * @author Michael Marte
  *
  */
-@Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 final class ProgressiveTighteningTest

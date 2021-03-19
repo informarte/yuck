@@ -13,6 +13,4 @@ import org.junit._
         classOf[FlatZincBaseTest],
         classOf[FlatZincExtensionTest],
         classOf[GlobalConstraintCompilationTest]))
-@Test
-class FrontEndTestSuite {
-}
+class FrontEndTestSuite

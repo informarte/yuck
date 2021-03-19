@@ -22,6 +22,4 @@ import org.junit._
         classOf[IntegerSetValueTest],
         classOf[IntegerSetValueTraitsTest],
         classOf[PolymorphicListValueTest]))
-@Test
-final class ValueTestSuite {
-}
+final class ValueTestSuite

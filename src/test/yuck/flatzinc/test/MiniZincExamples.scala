@@ -17,7 +17,6 @@ import yuck.flatzinc.test.util._
  *
  * @author Michael Marte
  */
-@Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class MiniZincExamples extends MiniZincBasedTest {
 
@@ -345,7 +344,6 @@ final class MiniZincExamples extends MiniZincBasedTest {
  *
  * @author Michael Marte
  */
-@Test
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[EasyInstance]))
 @SuiteClasses(Array(classOf[MiniZincExamples]))
@@ -356,7 +354,6 @@ class EasyMiniZincExamples
  *
  * @author Michael Marte
  */
-@Test
 @Ignore("Avoid pointless NoTestsRemainException")
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[MediumInstance]))
@@ -368,7 +365,6 @@ final class MediumMiniZincExamples
  *
  * @author Michael Marte
  */
-@Test
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[HardInstance]))
 @SuiteClasses(Array(classOf[MiniZincExamples]))
@@ -384,7 +380,6 @@ final class HardMiniZincExamples
     Array(
         classOf[EasyMiniZincExamples],
         classOf[MediumMiniZincExamples]))
-@Test
 class TractableMiniZincExamples
 
 /**
@@ -392,7 +387,6 @@ class TractableMiniZincExamples
  *
  * Tractable satisfiability examples
  */
-@Test
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[SatisfiabilityProblem]))
 @SuiteClasses(Array(classOf[TractableMiniZincExamples]))
@@ -403,7 +397,6 @@ class TractableSatisfiabilityExamples
  *
  * @author Michael Marte
  */
-@Test
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[MinimizationProblem]))
 @SuiteClasses(Array(classOf[TractableMiniZincExamples]))
@@ -414,7 +407,6 @@ class TractableMinimizationExamples
  *
  * @author Michael Marte
  */
-@Test
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[MaximizationProblem]))
 @SuiteClasses(Array(classOf[TractableMiniZincExamples]))
@@ -425,7 +417,6 @@ class TractableMaximizationExamples
  *
  * @author Michael Marte
  */
-@Test
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[HasAlldifferentConstraint]))
 @SuiteClasses(Array(classOf[TractableMiniZincExamples]))

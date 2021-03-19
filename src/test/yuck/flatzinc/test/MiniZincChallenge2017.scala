@@ -11,7 +11,6 @@ import yuck.flatzinc.test.util._
  *
  * @author Michael Marte
  */
-@Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class MiniZincChallenge2017 extends MiniZincBasedTest {
 

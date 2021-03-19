@@ -12,7 +12,6 @@ import yuck.util.testing.UnitTest
  * @author Michael Marte
  *
  */
-@Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class ConjunctionTest extends UnitTest with AssignmentPropagationTestTooling {
 

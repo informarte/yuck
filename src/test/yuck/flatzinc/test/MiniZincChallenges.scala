@@ -13,7 +13,6 @@ import yuck.flatzinc.test.util._
  *
  * @author Michael Marte
  */
-@Test
 @RunWith(classOf[runners.Suite])
 @SuiteClasses(
     Array(
@@ -33,7 +32,6 @@ class MiniZincChallenges
  *
  * @author Michael Marte
  */
-@Test
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[SatisfiabilityProblem]))
 @SuiteClasses(Array(classOf[MiniZincChallenges]))
@@ -44,7 +42,6 @@ class SatisfiabilityChallenges
  *
  * @author Michael Marte
  */
-@Test
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[MinimizationProblem]))
 @SuiteClasses(Array(classOf[MiniZincChallenges]))
@@ -55,7 +52,6 @@ class MinimizationChallenges
  *
  * @author Michael Marte
  */
-@Test
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[MaximizationProblem]))
 @SuiteClasses(Array(classOf[MiniZincChallenges]))

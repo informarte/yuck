@@ -12,8 +12,6 @@ import yuck.util.testing.{DefaultNumberOfThreads, IntegrationTest}
  *
  * @author Michael Marte
  */
-@Test
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class SendMoreMoney extends IntegrationTest {
 
     override protected val logToConsole = false

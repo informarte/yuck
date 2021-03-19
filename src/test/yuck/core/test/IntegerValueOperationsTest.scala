@@ -9,7 +9,6 @@ import yuck.util.testing.{OrderingTestHelper, UnitTest}
  * @author Michael Marte
  *
  */
-@Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerValueOperationsTest extends UnitTest with IntegerValueTestData {
 

@@ -15,7 +15,6 @@ import yuck.util.testing.ParallelTestRunner
  *
  * @author Michael Marte
  */
-@Test
 @runner.RunWith(classOf[ParallelTestRunner])
 final class FlatZincExtensionTest extends FrontEndTest {
 

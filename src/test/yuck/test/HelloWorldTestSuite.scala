@@ -7,7 +7,6 @@ import org.junit._
  *
  * @author Michael Marte
  */
-@Test
 @runner.RunWith(classOf[runners.Suite])
 @runners.Suite.SuiteClasses(
     Array(

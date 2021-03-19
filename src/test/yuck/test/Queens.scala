@@ -14,7 +14,6 @@ import yuck.util.testing.{DefaultNumberOfThreads, IntegrationTest}
  *
  * @author Michael Marte
  */
-@Test
 @runner.RunWith(classOf[runners.Parameterized])
 final class Queens(val n: Int) extends IntegrationTest {
 

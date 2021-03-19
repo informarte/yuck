@@ -31,6 +31,4 @@ import yuck.util.testing.ParallelTestSuiteRunner
         classOf[RTreeTransactionTest],
         classOf[FlatZincAstTest],
         classOf[FlatZincParserTest]))
-@Test
-final class UnitTestSuite {
-}
+final class UnitTestSuite

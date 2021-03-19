@@ -13,5 +13,4 @@ import org.junit._
         classOf[RandomReassignmentGeneratorTest],
         classOf[RandomCircularSwapGeneratorTest],
         classOf[NeighbourhoodCollectionTest]))
-final class NeighbourhoodTestSuite {
-}
+final class NeighbourhoodTestSuite

@@ -13,5 +13,4 @@ import org.junit._
         classOf[MinimizationObjectiveTest],
         classOf[MaximizationObjectiveTest],
         classOf[HierarchicalObjectiveTest]))
-final class ObjectiveTestSuite {
-}
+final class ObjectiveTestSuite
