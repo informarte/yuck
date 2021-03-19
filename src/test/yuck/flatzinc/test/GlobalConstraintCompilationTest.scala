@@ -8,6 +8,7 @@ import scala.language.implicitConversions
 import yuck.core._
 import yuck.constraints._
 import yuck.flatzinc.test.util._
+import yuck.util.testing.ParallelTestRunner
 
 /**
  * Tests to make sure that the global constraints provided by Yuck's library get
@@ -16,7 +17,7 @@ import yuck.flatzinc.test.util._
  * @author Michael Marte
  */
 @Test
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
+@runner.RunWith(classOf[ParallelTestRunner])
 final class GlobalConstraintCompilationTest extends FrontEndTest {
 
     private val taskWithImplicitSolving =

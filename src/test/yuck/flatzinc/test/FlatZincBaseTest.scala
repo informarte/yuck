@@ -9,6 +9,7 @@ import yuck.constraints.{Alldistinct, ElementConst, ElementVar}
 import yuck.core._
 import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
 import yuck.flatzinc.test.util._
+import yuck.util.testing.ParallelTestRunner
 
 /**
  * Tests that cover edge cases and rarely used features of the FlatZinc language
@@ -16,7 +17,7 @@ import yuck.flatzinc.test.util._
  * @author Michael Marte
  */
 @Test
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
+@runner.RunWith(classOf[ParallelTestRunner])
 final class FlatZincBaseTest extends FrontEndTest {
 
     @Test

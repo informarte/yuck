@@ -21,6 +21,8 @@ import yuck.flatzinc.test.util._
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class MiniZincExamples extends MiniZincBasedTest {
 
+    override protected val logToConsole = false
+
     private val task =
         MiniZincTestTask(
             directoryLayout = MiniZincExamplesLayout,

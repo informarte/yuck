@@ -8,6 +8,7 @@ import scala.language.implicitConversions
 import yuck.constraints._
 import yuck.core._
 import yuck.flatzinc.test.util._
+import yuck.util.testing.ParallelTestRunner
 
 /**
  * Tests that cover Yuck's extensions of FlatZinc
@@ -15,7 +16,7 @@ import yuck.flatzinc.test.util._
  * @author Michael Marte
  */
 @Test
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
+@runner.RunWith(classOf[ParallelTestRunner])
 final class FlatZincExtensionTest extends FrontEndTest {
 
     @Test

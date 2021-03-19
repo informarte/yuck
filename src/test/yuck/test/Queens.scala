@@ -8,12 +8,15 @@ import yuck.core._
 import yuck.util.testing.{DefaultNumberOfThreads, IntegrationTest}
 
 /**
- * @author Michael Marte
+ * The classic n-queens problem
  *
+ * @author Michael Marte
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class Queens extends IntegrationTest {
+
+    override protected val logToConsole = false
 
     private final class QueensGenerator(n: Int, i: Int, seed: Int) extends SolverGenerator {
         override def solverName = "SA-%d".format(i)

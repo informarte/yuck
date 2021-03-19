@@ -14,6 +14,7 @@ import yuck.flatzinc.test._
     Array(
         classOf[UnitTestSuite],
         classOf[FrontEndTestSuite],
+        classOf[HelloWorldTestSuite],
         classOf[TractableMiniZincExamples]))
 @Test
 final class ContinuousIntegrationTestSuite {

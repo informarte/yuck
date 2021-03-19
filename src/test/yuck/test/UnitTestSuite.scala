@@ -8,8 +8,9 @@ import yuck.core.test._
 import yuck.flatzinc.ast.test._
 import yuck.flatzinc.parser.test._
 import yuck.util.alg.rtree.test._
+import yuck.util.testing.ParallelTestSuiteRunner
 
-@runner.RunWith(classOf[runners.Suite])
+@runner.RunWith(classOf[ParallelTestSuiteRunner])
 @runners.Suite.SuiteClasses(
     Array(
         classOf[ProbabilityTest],
@@ -28,9 +29,6 @@ import yuck.util.alg.rtree.test._
         classOf[ProgressiveTighteningTest],
         classOf[RTreeIntakeTest],
         classOf[RTreeTransactionTest],
-        classOf[Queens],
-        classOf[SendMoreMoney],
-        classOf[SendMostMoney],
         classOf[FlatZincAstTest],
         classOf[FlatZincParserTest]))
 @Test

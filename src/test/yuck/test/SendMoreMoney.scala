@@ -8,12 +8,15 @@ import yuck.core._
 import yuck.util.testing.{DefaultNumberOfThreads, IntegrationTest}
 
 /**
- * @author Michael Marte
+ * The classic send-more-money problem
  *
+ * @author Michael Marte
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class SendMoreMoney extends IntegrationTest {
+
+    override protected val logToConsole = false
 
     private val monitor = new StandardAnnealingMonitor(logger)
 
