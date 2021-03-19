@@ -15,8 +15,7 @@ import yuck.util.testing.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class SolverTest extends UnitTest {
 
-    private class GoodSolver(result: Result, sleepTimeInSeconds: Int, sigint: Sigint) extends Solver
-    {
+    private class GoodSolver(result: Result, sleepTimeInMillis: Int, sigint: Sigint) extends Solver {
         override def name = result.solverName
         private var finished = false
         private def wasInterrupted = sigint.isSet
@@ -26,7 +25,7 @@ final class SolverTest extends UnitTest {
             if (wasInterrupted) {
                 throw new SolverInterruptedException
             } else {
-                Thread.sleep(sleepTimeInSeconds * 1000)
+                Thread.sleep(sleepTimeInMillis)
                 if (wasInterrupted) {
                     throw new SolverInterruptedException
                 } else {
@@ -50,7 +49,7 @@ final class SolverTest extends UnitTest {
     def testTimeboxingWithTimeout: Unit = {
         val sigint = new RevocableSigint
         val result = new Result("0", null, null, null)
-        val solver = new GoodSolver(result, 1, sigint)
+        val solver = new GoodSolver(result, 100, sigint)
         val timebox = new TimeboxedSolver(solver, 0, logger, sigint)
         assertEx(timebox.call(), classOf[SolverInterruptedException])
         assert(! solver.hasFinished)
@@ -127,7 +126,7 @@ final class SolverTest extends UnitTest {
         val objective = new MinimizationObjective(x, Some(Zero), None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = if (i == 8) Zero else One)
-        val solvers = results.map(result => new GoodSolver(result, 1, sigint))
+        val solvers = results.map(result => new GoodSolver(result, 100, sigint))
         val solver = new ParallelSolver(solvers, 4, "Test", logger, sigint)
         val result = solver.call()
         assertEq(result.solverName, "8")
@@ -178,7 +177,7 @@ final class SolverTest extends UnitTest {
         val objective = new MinimizationObjective(x, Some(Zero), None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = One)
-        val solvers = (0 until results.size).map(i => if (i == 8) new BadSolver else new GoodSolver(results(i), 1, sigint))
+        val solvers = (0 until results.size).map(i => if (i == 8) new BadSolver else new GoodSolver(results(i), 100, sigint))
         val solver = new ParallelSolver(solvers, 4, "Test", logger, sigint)
         assertEx(solver.call(), classOf[BadSolverException])
         for (i <- 16 until solvers.size) {
@@ -204,7 +203,7 @@ final class SolverTest extends UnitTest {
         (0 until results.size).foreach(i => results(i).costsOfBestProposal = if (i == 8) Zero else One)
         class GoodSolverGenerator(result: Result) extends SolverGenerator {
             override def solverName = result.solverName
-            override def call = new GoodSolver(result, 1, sigint)
+            override def call = new GoodSolver(result, 100, sigint)
         }
         val solvers =
             results.map(result => new OnDemandGeneratedSolver(new GoodSolverGenerator(result), logger, sigint))

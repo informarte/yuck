@@ -2,6 +2,8 @@ package yuck.test
 
 import org.junit._
 
+import scala.jdk.CollectionConverters._
+
 import yuck.annealing._
 import yuck.constraints._
 import yuck.core._
@@ -13,8 +15,8 @@ import yuck.util.testing.{DefaultNumberOfThreads, IntegrationTest}
  * @author Michael Marte
  */
 @Test
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class Queens extends IntegrationTest {
+@runner.RunWith(classOf[runners.Parameterized])
+final class Queens(val n: Int) extends IntegrationTest {
 
     override protected val logToConsole = false
 
@@ -35,11 +37,12 @@ final class Queens extends IntegrationTest {
                 val iVal = new IntegerValue(col)
                 val iVar = new IntegerVariable(space.nextVariableId, col.toString, IntegerRange(iVal, iVal))
                 space.setValue(iVar, new IntegerValue(col))
-                space.post(new Minus(space.nextConstraintId, null, rows.apply(col), iVar, rowsMinusI.apply(col)))
-                space.post(new Plus(space.nextConstraintId, null, rows.apply(col), iVar, rowsPlusI.apply(col)))
+                space.post(new Minus(space.nextConstraintId, null, rows(col), iVar, rowsMinusI(col)))
+                space.post(new Plus(space.nextConstraintId, null, rows(col), iVar, rowsPlusI(col)))
             }
             val rowConflicts = new BooleanVariable(space.nextVariableId, "rowConflicts", CompleteBooleanDomain)
-            space.post(new Alldistinct(space.nextConstraintId, null, rows.toIndexedSeq, rowConflicts))
+            val rowConstraint = new Alldistinct(space.nextConstraintId, null, rows.toIndexedSeq, rowConflicts)
+            space.post(rowConstraint)
             val diagonalConflicts1 = new BooleanVariable(space.nextVariableId, "diagonalConflicts1", CompleteBooleanDomain)
             space.post(new Alldistinct(space.nextConstraintId, null, rowsMinusI.toIndexedSeq, diagonalConflicts1))
             val diagonalConflicts2 = new BooleanVariable(space.nextVariableId, "diagonalConflicts2", CompleteBooleanDomain)
@@ -54,16 +57,15 @@ final class Queens extends IntegrationTest {
 
             // build local-search solver
             val randomGenerator = new JavaRandomGenerator(seed)
-            for ((x, a) <- rows.zip(0 to n - 1)) {
-                space.setValue(x, IntegerValue(a))
-            }
+            val Some(neighbourhood) =
+                rowConstraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint)
+            space.markAsImplicit(rowConstraint)
             val solver =
                 new SimulatedAnnealing(
                     solverName,
                     space,
                     createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen()),
-                    new RandomCircularSwapGenerator(
-                        space, rows.toIndexedSeq, randomGenerator.nextGen(), DefaultMoveSizeDistribution, None, None),
+                    neighbourhood,
                     randomGenerator.nextGen(),
                     new SatisfactionObjective(conflicts),
                     None,
@@ -75,7 +77,8 @@ final class Queens extends IntegrationTest {
         }
     }
 
-    private def queens(n: Int): Unit = {
+    @Test
+    def queens: Unit = {
         val randomGenerator = new JavaRandomGenerator(29071972)
         val solvers =
             (1 to DefaultRestartLimit).map(
@@ -85,76 +88,15 @@ final class Queens extends IntegrationTest {
         assert(result.isSolution)
     }
 
-    @Test
-    def queens00008: Unit = {
-        queens(8)
-    }
+}
 
-    @Test
-    def queens00016: Unit = {
-        queens(16)
-    }
+/**
+ * @author Michael Marte
+ *
+ */
+object Queens {
 
-    @Test
-    def queens00032: Unit = {
-        queens(32)
-    }
-
-    @Test
-    def queens00064: Unit = {
-        queens(64)
-    }
-
-    @Test
-    def queens00128: Unit = {
-        queens(128)
-    }
-
-    @Test
-    def queens00256: Unit = {
-        queens(256)
-    }
-
-    @Test
-    @Ignore
-    def queens00512: Unit = {
-        queens(512)
-    }
-
-    @Test
-    @Ignore
-    def queens01024: Unit = {
-        queens(1024)
-    }
-
-    @Test
-    @Ignore
-    def queens02048: Unit = {
-        queens(2048)
-    }
-
-    @Test
-    @Ignore
-    def queens04096: Unit = {
-        queens(4096)
-    }
-
-    @Test
-    @Ignore
-    def queens08192: Unit = {
-        queens(8192)
-    }
-
-    @Test
-    @Ignore
-    def queens16384: Unit = {
-        queens(16384)
-    }
-
-    @Test
-    @Ignore
-    def queens32768: Unit = {
-        queens(32768)
-    }
+    @runners.Parameterized.Parameters(name = "{index}: {0}")
+    def parameters = List(8, 16, 32, 64, 128).asJava
 
 }

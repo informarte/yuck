@@ -173,7 +173,6 @@ final class IntegerPowersetDomainTest extends UnitTest {
     }
 
     @Test
-    @Ignore
     def testSetOperations: Unit = {
         // All operations forward to their counterparts in IntegerDomain.
         // Hence we skip the testing.
