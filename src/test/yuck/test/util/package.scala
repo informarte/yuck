@@ -1,6 +1,6 @@
-package yuck.util
+package yuck.test
 
-package object testing {
+package object util {
 
     val DefaultNumberOfThreads: Int =
         Option(System.getenv("YUCK_TEST_NUMBER_OF_THREADS")).map(_.toInt)

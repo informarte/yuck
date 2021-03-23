@@ -6,9 +6,9 @@ import scala.collection._
 import scala.jdk.CollectionConverters._
 
 import yuck.annealing.DefaultMoveSizeDistribution
-import yuck.constraints.{Circuit, CircuitTracker, CircuitNeighbourhood}
+import yuck.constraints.{Circuit, CircuitNeighbourhood, CircuitTracker}
 import yuck.core._
-import yuck.util.testing.UnitTest
+import yuck.test.util.UnitTest
 
 /**
  * @author Michael Marte

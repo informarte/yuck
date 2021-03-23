@@ -1,9 +1,10 @@
 package yuck.core.test
 
 import scala.collection._
+
 import yuck.core._
+import yuck.test.util.{EqualityTestHelper, YuckAssert}
 import yuck.util.logging.{FineLogLevel, LazyLogger}
-import yuck.util.testing.{EqualityTestHelper, YuckAssert}
 
 /**
  * @author Michael Marte

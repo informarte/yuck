@@ -2,11 +2,10 @@ package yuck.core.test
 
 import scala.collection._
 import scala.jdk.CollectionConverters._
-
 import org.junit._
 
 import yuck.core._
-import yuck.util.testing.UnitTest
+import yuck.test.util.UnitTest
 
 /**
  * @author Michael Marte

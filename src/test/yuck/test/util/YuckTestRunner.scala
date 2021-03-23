@@ -1,9 +1,7 @@
-package yuck.util.testing
+package yuck.test.util
 
 import org.junit.internal.{RealSystem, TextListener}
-import org.junit.runner.JUnitCore
-import org.junit.runner.Request
-import org.junit.runner.notification.RunListener
+import org.junit.runner.{JUnitCore, Request}
 
 /**
  * Runs an entire test class or a single test method.

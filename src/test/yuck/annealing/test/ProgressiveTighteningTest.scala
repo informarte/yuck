@@ -6,7 +6,7 @@ import scala.jdk.CollectionConverters._
 
 import yuck.annealing._
 import yuck.core._
-import yuck.util.testing.IntegrationTest
+import yuck.test.util.IntegrationTest
 
 
 /**

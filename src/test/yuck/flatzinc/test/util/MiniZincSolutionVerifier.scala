@@ -8,8 +8,8 @@ import yuck.core._
 import yuck.flatzinc.ast._
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.flatzinc.runner._
+import yuck.test.util.ProcessRunner
 import yuck.util.logging.LazyLogger
-import yuck.util.testing.ProcessRunner
 
 /**
  * @author Michael Marte

@@ -1,11 +1,10 @@
-package yuck.flatzinc.test
+package yuck.flatzinc.test.util
 
 import scala.language.implicitConversions
 
 import yuck.core._
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.FlatZincCompilerResult
-import yuck.flatzinc.test.util._
 
 /**
  * @author Michael Marte

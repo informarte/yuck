@@ -74,7 +74,7 @@ object yuck extends ScalaModule with BuildInfo {
         val jvmConfiguration = Seq("-Xmx%s".format(jvmHeapSize), "-XX:+AggressiveHeap") ++ basicJvmConfiguration
         override def forkArgs = jvmConfiguration
 
-        override def mainClass = Some("yuck.util.testing.YuckTestRunner")
+        override def mainClass = Some("yuck.test.util.YuckTestRunner")
 
         def fullClasspath = T {(localClasspath() ++ upstreamAssemblyClasspath()).map(_.path)}
         def fullClasspathAsString = T {fullClasspath().mkString(":")}

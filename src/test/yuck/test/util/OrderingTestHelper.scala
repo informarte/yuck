@@ -1,8 +1,8 @@
-package yuck.util.testing
-
-import yuck.core.RandomGenerator
+package yuck.test.util
 
 import scala.collection._
+
+import yuck.core.RandomGenerator
 
 /**
  * @author Michael Marte

@@ -1,8 +1,8 @@
 package yuck.constraints.test
 
 import yuck.core.Space
+import yuck.test.util.YuckAssert
 import yuck.util.logging.LazyLogger
-import yuck.util.testing.YuckAssert
 
 /**
  * @author Michael Marte

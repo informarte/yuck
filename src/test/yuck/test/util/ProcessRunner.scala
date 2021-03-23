@@ -1,4 +1,4 @@
-package yuck.util.testing
+package yuck.test.util
 
 import java.util.concurrent.Callable
 

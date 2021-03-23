@@ -5,7 +5,7 @@ import org.junit._
 import scala.collection._
 
 import yuck.core._
-import yuck.util.testing.UnitTest
+import yuck.test.util.UnitTest
 
 /**
  * @author Michael Marte

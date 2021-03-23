@@ -3,7 +3,7 @@ package yuck.core.test
 import scala.collection.Seq
 
 import yuck.core.AnyValue
-import yuck.util.testing.{EqualityTestHelper, YuckAssert}
+import yuck.test.util.{EqualityTestHelper, YuckAssert}
 
 /**
  * @author Michael Marte

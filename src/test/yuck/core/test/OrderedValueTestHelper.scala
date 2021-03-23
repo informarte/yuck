@@ -3,8 +3,8 @@ package yuck.core.test
 import scala.collection.Seq
 
 import yuck.core.{OrderedValue, RandomGenerator}
+import yuck.test.util.OrderingTestHelper
 import yuck.util.OrderingFromOrdered
-import yuck.util.testing.OrderingTestHelper
 
 /**
  * @author Michael Marte

@@ -1,7 +1,7 @@
 package yuck.flatzinc.test.util
 
 import yuck.flatzinc.FlatZincSolverConfiguration
-import yuck.util.testing.{DefaultNumberOfThreads, DefaultRuntimeLimitInSeconds}
+import yuck.test.util.{DefaultNumberOfThreads, DefaultRuntimeLimitInSeconds}
 
 /**
  * @author Michael Marte

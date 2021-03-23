@@ -8,7 +8,7 @@ import scala.language.implicitConversions
 import yuck.core._
 import yuck.constraints._
 import yuck.flatzinc.test.util._
-import yuck.util.testing.ParallelTestRunner
+import yuck.test.util.ParallelTestRunner
 
 /**
  * Tests to make sure that the global constraints provided by Yuck's library get

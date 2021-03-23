@@ -12,9 +12,9 @@ import yuck.flatzinc.ast._
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.flatzinc.parser._
 import yuck.flatzinc.runner._
+import yuck.test.util.{IntegrationTest, ProcessRunner}
 import yuck.util.arm._
 import yuck.util.logging.{FineLogLevel, ManagedLogHandler}
-import yuck.util.testing.{IntegrationTest, ProcessRunner}
 
 /**
  * @author Michael Marte

@@ -9,7 +9,7 @@ import yuck.constraints.{Alldistinct, ElementConst, ElementVar}
 import yuck.core._
 import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
 import yuck.flatzinc.test.util._
-import yuck.util.testing.ParallelTestRunner
+import yuck.test.util.ParallelTestRunner
 
 /**
  * Tests that cover edge cases and rarely used features of the FlatZinc language

@@ -2,7 +2,7 @@ package yuck.constraints.test
 
 import yuck.constraints.{LeRelation, LexLess, LexLessEq, LtRelation, OrderingRelation}
 import yuck.core._
-import yuck.util.testing.YuckAssert
+import yuck.test.util.YuckAssert
 
 /**
  * @author Michael Marte

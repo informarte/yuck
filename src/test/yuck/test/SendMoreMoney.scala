@@ -5,7 +5,7 @@ import org.junit._
 import yuck.annealing._
 import yuck.constraints._
 import yuck.core._
-import yuck.util.testing.{DefaultNumberOfThreads, IntegrationTest}
+import yuck.test.util.{DefaultNumberOfThreads, IntegrationTest}
 
 /**
  * The classic send-more-money problem

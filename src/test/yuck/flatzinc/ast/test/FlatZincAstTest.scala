@@ -4,7 +4,7 @@ import org.junit.Assert
 import org.junit.Test
 
 import yuck.flatzinc.ast._
-import yuck.util.testing.UnitTest
+import yuck.test.util.UnitTest
 
 final class FlatZincAstTest extends UnitTest {
 

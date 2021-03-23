@@ -4,7 +4,7 @@ import org.junit._
 
 import yuck.constraints._
 import yuck.core._
-import yuck.util.testing.{UnitTest, Mocking}
+import yuck.test.util.{Mocking, UnitTest}
 
 /**
  * @author Michael Marte

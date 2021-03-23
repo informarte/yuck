@@ -1,4 +1,4 @@
-package yuck.util.testing
+package yuck.test.util
 
 import yuck.annealing._
 import yuck.core._

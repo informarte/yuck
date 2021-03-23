@@ -4,7 +4,7 @@ import org.junit.FixMethodOrder
 import org.junit.Test
 
 import yuck.core.FenwickTree
-import yuck.util.testing.UnitTest
+import yuck.test.util.UnitTest
 
 /**
  * @author Michael Marte

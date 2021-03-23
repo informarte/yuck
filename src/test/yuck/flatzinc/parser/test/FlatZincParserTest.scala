@@ -9,7 +9,7 @@ import org.junit.Test
 
 import yuck.flatzinc.ast._
 import yuck.flatzinc.parser._
-import yuck.util.testing.UnitTest
+import yuck.test.util.UnitTest
 
 final class FlatZincParserTest extends UnitTest {
 

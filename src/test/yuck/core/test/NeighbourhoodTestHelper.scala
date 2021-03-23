@@ -3,9 +3,9 @@ package yuck.core.test
 import scala.collection._
 
 import yuck.core._
+import yuck.test.util.YuckAssert
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
-import yuck.util.testing.YuckAssert
 
 /**
  * @author Michael Marte

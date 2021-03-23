@@ -3,7 +3,7 @@ package yuck.core.test
 import org.junit._
 
 import yuck.core._
-import yuck.util.testing.{OrderingTestHelper, UnitTest}
+import yuck.test.util.{OrderingTestHelper, UnitTest}
 
 /**
  * @author Michael Marte

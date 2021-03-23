@@ -1,10 +1,10 @@
-package yuck.util.testing
+package yuck.test.util
 
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import yuck.util.arm.ManagedResource
-import yuck.util.arm.scoped
+
+import yuck.util.arm.{ManagedResource, scoped}
 
 /**
  * @author Michael Marte

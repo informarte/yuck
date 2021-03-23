@@ -1,10 +1,9 @@
-package yuck.util.testing
-
-import scala.annotation.meta.getter
+package yuck.test.util
 
 import org.junit._
-import org.junit.rules.RuleChain
-import org.junit.rules.TestName
+import org.junit.rules.{RuleChain, TestName}
+
+import scala.annotation.meta.getter
 
 import yuck.util.arm.DummyResource
 import yuck.util.logging.YuckLogging
