@@ -28,6 +28,7 @@ When you decided for the ZIP package, proceed as follows:
 1. Make sure that a [Java runtime environment](https://openjdk.java.net/install) is available on your system; Yuck requires at least version 8.
 2. Unzip the package in a suitable location.
 3. To register Yuck as a backend for the MiniZinc toolchain, define the ```MZN_SOLVER_PATH``` environment variable to point to the ```mzn``` subfolder of the Yuck distribution. (For other ways of providing a solver configuration file to the MiniZinc toolchain, see the section on [Solver Configuration Files](http://www.minizinc.org/doc-2.5.5/en/fzn-spec.html#solver-configuration-files) of *The MiniZinc Handbook*.)
+4. If you want to use Yuck on Windows, then you need to take another step to work around a bug in recent MiniZinc versions: go to the ```mzn``` subfolder of the Yuck distribution, open the file ```yuck.msc```, find the line ```"executable": "../bin/yuck"``` and replace it with ```"executable": "../bin/yuck.bat"```.
 
 The Docker image contains an OpenJDK Java runtime, the MiniZinc compiler and Yuck itself; it neither contains the MiniZinc IDE nor other solvers.
 
