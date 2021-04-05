@@ -118,6 +118,7 @@ object FlatZincRunner extends YuckLogging {
         }
         catch {
             case error: ShutdownInProgressException =>
+            case error: Throwable => handleError(error)
         }
     }
 
@@ -126,9 +127,7 @@ object FlatZincRunner extends YuckLogging {
             trySetupLogging(cl)
         }
         catch {
-            case error: Throwable =>
-                reportLoggingProblem(error)
-                System.exit(1)
+            case error: Throwable => throw findUltimateCause(error)
         }
     }
 
@@ -147,22 +146,6 @@ object FlatZincRunner extends YuckLogging {
         logger.setThresholdLogLevel(cl.logLevel)
     }
 
-    private def reportLoggingProblem(error: Throwable) = error match {
-        case error: java.nio.file.NoSuchFileException =>
-            Console.err.println("%s: Directory or file not found".format(error.getFile))
-        case error: java.nio.file.AccessDeniedException =>
-            Console.err.println("%s: Access denied".format(error.getFile))
-        case error: java.nio.file.FileSystemException if error.getReason != null =>
-            Console.err.println("%s: %s".format(error.getFile, error.getReason))
-        case error: java.nio.file.FileSystemException =>
-            Console.err.println("%s: I/O error".format(error.getFile))
-        case error: IOException =>
-            Console.err.println("I/O error: %s".format(error.getMessage))
-        case error: Throwable =>
-            // JVM will print error
-            throw error
-    }
-
     private def logVersion: Unit = {
         logger.withLogScope("Yuck version") {
             logger.log("Git branch: %s".format(BuildInfo.gitBranch))
@@ -178,7 +161,7 @@ object FlatZincRunner extends YuckLogging {
             case error: CancellationException =>
             case error: InterruptedException =>
             case error: ShutdownInProgressException =>
-            case error: Throwable => reportSolverError(findUltimateCause(error))
+            case error: Throwable => throw findUltimateCause(error)
         }
     }
 
@@ -203,15 +186,31 @@ object FlatZincRunner extends YuckLogging {
         }
     }
 
-    private def reportSolverError(error: Throwable) = error match {
+    private def handleError(error: Throwable) = error match {
+        case error: java.nio.file.NoSuchFileException =>
+            Console.err.println("%s: Directory or file not found".format(error.getFile))
+            System.exit(1)
+        case error: java.nio.file.AccessDeniedException =>
+            Console.err.println("%s: Access denied".format(error.getFile))
+            System.exit(1)
+        case error: java.nio.file.FileSystemException if error.getReason != null =>
+            Console.err.println("%s: %s".format(error.getFile, error.getReason))
+            System.exit(1)
+        case error: java.nio.file.FileSystemException =>
+            Console.err.println("%s: I/O error".format(error.getFile))
+            System.exit(1)
         case error: IOException =>
-            System.err.println(error.getMessage)
+            Console.err.println("I/O error: %s".format(error.getMessage))
+            System.exit(1)
         case error: FlatZincParserException =>
             System.err.println(error.getMessage)
+            System.exit(1)
         case error: UnsupportedFlatZincTypeException =>
             System.err.println(error.getMessage)
+            System.exit(1)
         case error: VariableWithInfiniteDomainException =>
             System.err.println(error.getMessage)
+            System.exit(1)
         case error: InconsistentProblemException =>
             System.err.println(error.getMessage)
             println(FlatZincInconsistentProblemIndicator)
