@@ -2,12 +2,8 @@ package yuck.core
 
 import scala.collection._
 import scala.jdk.CollectionConverters._
-
-import org.jgrapht.GraphPath
-import org.jgrapht.alg.interfaces.ShortestPathAlgorithm
-import org.jgrapht.alg.shortestpath.DijkstraShortestPath
-import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge, DirectedAcyclicGraph}
-import org.jgrapht.traverse.TopologicalOrderIterator
+import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge}
+import org.jgrapht.traverse.{BreadthFirstIterator, TopologicalOrderIterator}
 
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
@@ -69,27 +65,37 @@ final class Space(
 
     // The flow model is a DAG which describes the flow of value changes through the
     // network of variables spanned by the constraints.
-    private type FlowModel = DirectedAcyclicGraph[Object, DefaultEdge]
+    private type FlowModel = DefaultDirectedGraph[Constraint, DefaultEdge]
     private var flowModel = new FlowModel(classOf[DefaultEdge]) // maintained by post and discarded by initialize
     private def addToFlowModel(constraint: Constraint): Unit = {
         if (isCyclic(constraint)) {
             throw new CyclicConstraintNetworkException(constraint)
         }
         flowModel.addVertex(constraint)
-        try {
-            for (x <- constraint.inVariables) {
-                flowModel.addVertex(x)
-                flowModel.addEdge(x, constraint)
+        for (x <- constraint.inVariables) {
+            val maybePred = maybeDefiningConstraint(x)
+            if (maybePred.isDefined) {
+                flowModel.addEdge(maybePred.get, constraint)
             }
-            for (y <- constraint.outVariables) {
-                flowModel.addVertex(y)
-                flowModel.addEdge(constraint, y)
-             }
         }
-        catch {
-            case _: IllegalArgumentException =>
-                flowModel.removeVertex(constraint)
-                throw new CyclicConstraintNetworkException(constraint)
+        for (y <- constraint.outVariables) {
+            for (succ <- directlyAffectedConstraints(y)) {
+                flowModel.addEdge(constraint, succ)
+            }
+        }
+        // BFS seems to be faster than DFS
+        val i = new BreadthFirstIterator[Constraint, DefaultEdge](flowModel, constraint) {
+            override def encounterVertexAgain(vertex: Constraint, edge: DefaultEdge): Unit = {
+                if (vertex == constraint) {
+                    flowModel.removeVertex(constraint)
+                    throw new CyclicConstraintNetworkException(constraint)
+                } else {
+                    super.encounterVertexAgain(vertex, edge)
+                }
+            }
+        }
+        while (i.hasNext) {
+            i.next()
         }
     }
     private def removeFromFlowModel(constraint: Constraint): Unit = {
@@ -99,21 +105,9 @@ final class Space(
     private type ConstraintOrder = Array[Int]
     private var constraintOrder: ConstraintOrder = null // created by initialize
     private def sortConstraintsTopologically: Unit = {
-        require(constraintOrder == null)
-        val constraintGraph = new DefaultDirectedGraph[Constraint, DefaultEdge](classOf[DefaultEdge])
-        for (constraint <- constraints) {
-            constraintGraph.addVertex(constraint)
-        }
-        for (pred <- constraints) {
-            for (x <- pred.outVariables) {
-                for (succ <- directlyAffectedConstraints(x)) {
-                    constraintGraph.addEdge(pred, succ)
-                }
-            }
-        }
         constraintOrder = new ConstraintOrder(constraints.iterator.map(_.id).max.rawId + 1)
         // The topological ordering exists because it was possible to build the flow model.
-        for ((constraint, i) <- new TopologicalOrderIterator[Constraint, DefaultEdge](constraintGraph).asScala.zipWithIndex) {
+        for ((constraint, i) <- new TopologicalOrderIterator[Constraint, DefaultEdge](flowModel).asScala.zipWithIndex) {
             constraintOrder.update(constraint.id.rawId, i)
         }
     }
@@ -298,13 +292,14 @@ final class Space(
         require(constraintOrder == null, "Space has already been initialized")
         if (isCyclic(constraint)) true
         else if (constraints.isEmpty) false
+        else if (constraints.contains(constraint)) false
         else try {
             addToFlowModel(constraint)
             removeFromFlowModel(constraint)
             false
         }
         catch {
-            case _: IllegalArgumentException => true
+            case _: CyclicConstraintNetworkException => true
         }
     }
 
@@ -484,9 +479,10 @@ final class Space(
      * The caller has to assign values to all search variables before initializing!
      */
     def initialize(): Space = {
-        flowModel = null // free memory
         if (constraintOrder == null) {
             sortConstraintsTopologically
+            // free memory
+            flowModel = null
         }
         for (constraint <- constraints.iterator.filterNot(isImplicitConstraint).toBuffer.sorted(ConstraintOrdering)) {
             constraint.initialize(assignment).foreach(_.affect(this))
@@ -693,6 +689,13 @@ final class Space(
         require(move.id == idOfMostRecentlyAssessedMove)
         new EffectPropagator(move).run().effectsIterator.foreach(_.affect(this))
         this
+    }
+
+    /** Throws when the internal data structures are inconsistent. */
+    def checkConsistency: Unit = {
+        if (flowModel != null) {
+            assert(flowModel.vertexSet().size() == constraints.size)
+        }
     }
 
 }

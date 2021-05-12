@@ -37,6 +37,7 @@ final class SpaceTest extends UnitTest {
         assertEq(space.numberOfConstraints, 3)
         assertEq(space.numberOfConstraints(_.isInstanceOf[DummyConstraint]), 3)
         assertEq(space.numberOfConstraints(_ => false), 0)
+        space.checkConsistency
 
         val problemParams = space.problemParameters
         assertEq(problemParams, Set(v))
@@ -121,6 +122,7 @@ final class SpaceTest extends UnitTest {
         val d = new DummyConstraint(space.nextConstraintId, List(y), List(z))
         assertEx(space.post(d))
         assertEq(space.numberOfConstraints, 1)
+        space.checkConsistency
     }
 
     @Test
@@ -131,14 +133,31 @@ final class SpaceTest extends UnitTest {
         val z = space.createVariable("z", CompleteIntegerRange)
         val c = new DummyConstraint(space.nextConstraintId, List(x, x), List(x))
         assert(space.wouldIntroduceCycle(c))
+        assertEq(space.numberOfConstraints, 0)
+        space.checkConsistency
         assertEx(space.post(c), classOf[CyclicConstraintNetworkException])
+        assertEq(space.numberOfConstraints, 0)
+        space.checkConsistency
         val d = new DummyConstraint(space.nextConstraintId, List(x, y), List(z))
         assert(! space.wouldIntroduceCycle(d))
+        assertEq(space.numberOfConstraints, 0)
+        space.checkConsistency
         val e = new DummyConstraint(space.nextConstraintId, List(x, z), List(y))
         assert(! space.wouldIntroduceCycle(e))
+        assertEq(space.numberOfConstraints, 0)
+        space.checkConsistency
         space.post(d)
+        assertEq(space.numberOfConstraints, 1)
+        space.checkConsistency
         assert(space.wouldIntroduceCycle(e))
+        assertEq(space.numberOfConstraints, 1)
+        space.checkConsistency
         assertEx(space.post(e), classOf[CyclicConstraintNetworkException])
+        assertEq(space.numberOfConstraints, 1)
+        space.checkConsistency
+        assert(! space.wouldIntroduceCycle(d))
+        assertEq(space.numberOfConstraints, 1)
+        space.checkConsistency
     }
 
     @Test
@@ -152,6 +171,7 @@ final class SpaceTest extends UnitTest {
         val d = new DummyConstraint(space.nextConstraintId, List(y), List(x))
         assertEx(space.wouldIntroduceCycle(d))
         assertEq(space.numberOfConstraints, 1)
+        space.checkConsistency
     }
 
     // A spy constraint maintains the sum of its input variables and,
