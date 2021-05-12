@@ -110,34 +110,48 @@ final class SpaceTest extends UnitTest {
     }
 
     @Test
-    def testCycleDetection1: Unit = {
-        val space = new Space(logger, sigint)
-        val x = space.createVariable("x", CompleteIntegerRange)
-        val c = new DummyConstraint(space.nextConstraintId, List(x, x), List(x))
-        assert(space.wouldIntroduceCycle(c))
-        assertEx(space.post(c), classOf[CyclicConstraintNetworkException])
-    }
-
-    @Test
-    def testCycleDetection2: Unit = {
+    def testPostingAfterInitialization: Unit = {
         val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
         val z = space.createVariable("z", CompleteIntegerRange)
-        val c = new DummyConstraint(space.nextConstraintId, List(x, y), List(z))
-        assert(! space.wouldIntroduceCycle(c))
-        assert(space.findHypotheticalCycle(c).isEmpty)
-        val d = new DummyConstraint(space.nextConstraintId, List(x, z), List(y))
-        assert(! space.wouldIntroduceCycle(d))
-        assert(space.findHypotheticalCycle(d).isEmpty)
+        val c = new DummyConstraint(space.nextConstraintId, List(x), List(y))
         space.post(c)
-        assert(space.wouldIntroduceCycle(d))
-        assertEq(space.findHypotheticalCycle(d), Some(List(d, c)))
-        assertEx(space.post(d), classOf[CyclicConstraintNetworkException])
-        val e = new DummyConstraint(space.nextConstraintId, List(x, y), List(x, z))
+        space.initialize()
+        val d = new DummyConstraint(space.nextConstraintId, List(y), List(z))
+        assertEx(space.post(d))
+        assertEq(space.numberOfConstraints, 1)
+    }
+
+    @Test
+    def testCycleDetection: Unit = {
+        val space = new Space(logger, sigint)
+        val x = space.createVariable("x", CompleteIntegerRange)
+        val y = space.createVariable("y", CompleteIntegerRange)
+        val z = space.createVariable("z", CompleteIntegerRange)
+        val c = new DummyConstraint(space.nextConstraintId, List(x, x), List(x))
+        assert(space.wouldIntroduceCycle(c))
+        assertEx(space.post(c), classOf[CyclicConstraintNetworkException])
+        val d = new DummyConstraint(space.nextConstraintId, List(x, y), List(z))
+        assert(! space.wouldIntroduceCycle(d))
+        val e = new DummyConstraint(space.nextConstraintId, List(x, z), List(y))
+        assert(! space.wouldIntroduceCycle(e))
+        space.post(d)
         assert(space.wouldIntroduceCycle(e))
-        assertEq(space.findHypotheticalCycle(e), Some(List(e)))
-        assertEx(space.post(e))
+        assertEx(space.post(e), classOf[CyclicConstraintNetworkException])
+    }
+
+    @Test
+    def testCycleDetectionAfterInitialization: Unit = {
+        val space = new Space(logger, sigint)
+        val x = space.createVariable("x", CompleteIntegerRange)
+        val y = space.createVariable("y", CompleteIntegerRange)
+        val c = new DummyConstraint(space.nextConstraintId, List(x), List(y))
+        space.post(c)
+        space.initialize()
+        val d = new DummyConstraint(space.nextConstraintId, List(y), List(x))
+        assertEx(space.wouldIntroduceCycle(d))
+        assertEq(space.numberOfConstraints, 1)
     }
 
     // A spy constraint maintains the sum of its input variables and,

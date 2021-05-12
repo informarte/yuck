@@ -70,7 +70,7 @@ final class Space(
     // The flow model is a DAG which describes the flow of value changes through the
     // network of variables spanned by the constraints.
     private type FlowModel = DirectedAcyclicGraph[Object, DefaultEdge]
-    private var flowModel: FlowModel = null // maintained by post and discarded by initialize
+    private var flowModel = new FlowModel(classOf[DefaultEdge]) // maintained by post and discarded by initialize
     private def addToFlowModel(constraint: Constraint): Unit = {
         if (isCyclic(constraint)) {
             throw new CyclicConstraintNetworkException(constraint)
@@ -94,11 +94,6 @@ final class Space(
     }
     private def removeFromFlowModel(constraint: Constraint): Unit = {
         flowModel.removeVertex(constraint)
-    }
-    private def rebuildFlowModel: Unit = {
-        require(flowModel == null)
-        flowModel = new FlowModel(classOf[DefaultEdge])
-        constraints.foreach(addToFlowModel)
     }
 
     private type ConstraintOrder = Array[Int]
@@ -299,7 +294,8 @@ final class Space(
      * Hence, for cycle avoidance, just try to post the constraint; when an exception occurs,
      * you can try another approach to modeling your problem, otherwise everything is fine.
      */
-    def wouldIntroduceCycle(constraint: Constraint): Boolean =
+    def wouldIntroduceCycle(constraint: Constraint): Boolean = {
+        require(constraintOrder == null, "Space has already been initialized")
         if (isCyclic(constraint)) true
         else if (constraints.isEmpty) false
         else try {
@@ -310,31 +306,10 @@ final class Space(
         catch {
             case _: IllegalArgumentException => true
         }
-
-    /** Looks for a cycle that the given constraint would add to the constraint network. */
-    def findHypotheticalCycle(constraint: Constraint): Option[Seq[Constraint]] =
-        if (isCyclic(constraint)) Some(List(constraint))
-        else if (constraints.isEmpty) None
-        else {
-            val spalg = new DijkstraShortestPath[Object, DefaultEdge](flowModel)
-            constraint.outVariables.iterator.map(x => findPath(spalg, x, constraint))
-                .collectFirst{
-                    case Some(path) =>
-                        path.getVertexList.asScala.filter(_.isInstanceOf[Constraint])
-                            .map(_.asInstanceOf[Constraint]).+=:(constraint)}
-        }
+    }
 
     private def isCyclic(constraint: Constraint): Boolean =
         constraint.outVariables.exists(constraint.inVariables.iterator.contains)
-
-    private def findPath
-        (spalg: ShortestPathAlgorithm[Object, DefaultEdge], from: AnyVariable, to: Constraint):
-        Option[GraphPath[Object, DefaultEdge]] =
-        to.inVariables.iterator.map(x => findPath(spalg, from, x)).collectFirst{case Some(path) => path}
-    private def findPath
-        (spalg: ShortestPathAlgorithm[Object, DefaultEdge], from: AnyVariable, to: AnyVariable):
-        Option[GraphPath[Object, DefaultEdge]] =
-        Option(spalg.getPath(from, to))
 
     /**
      * Adds the given constraint to the constraint network.
@@ -343,6 +318,7 @@ final class Space(
      */
     def post(constraint: Constraint): Space = {
         logger.loggg("Adding %s".format(constraint))
+        require(constraintOrder == null, "Space has already been initialized")
         require(
             ! constraint.outVariables.exists(outVariables.contains),
             "%s shares out-variables with the following constraints:\n%s".format(
@@ -353,10 +329,6 @@ final class Space(
             "%s has out-variables that are in-variables to the following implicit constraints:\n%s".format(
                 constraint,
                 implicitConstraints.filter(_.inVariables.exists(constraint.outVariables.iterator.contains)).mkString("\n")))
-        if (flowModel == null) {
-            // This is the first call to post or initialize was called before.
-            rebuildFlowModel
-        }
         addToFlowModel(constraint)
         constraints += constraint
         // We use data structures based on sets to avoid problems with duplicate in and out variables.
