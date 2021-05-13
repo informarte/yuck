@@ -116,6 +116,9 @@ final case class FlatZincAst(
     val solveGoal: SolveGoal)
 {
 
+    // Make the Intellij IDEA debugger usable
+    override def toString = "AST"
+
     /** Returns the elements of the given array. */
     final def getArrayElems(expr: Expr): immutable.Iterable[Expr] = expr match {
         case ArrayConst(elems) =>
