@@ -6,9 +6,7 @@ import yuck.constraints._
 import yuck.core._
 
 /**
- * Relaxes the domains of FlatZinc variables that were turned into channel variables
- * (such that they can hold all intermediate values) and enforces their domains by
- * adding appropriate constraints.
+ * Enforces the domains of channel variables by adding appropriate constraints.
  *
  * @author Michael Marte
  */
@@ -17,27 +15,42 @@ final class DomainFinalizer
     extends CompilationPhase(cc, randomGenerator)
 {
 
+    private val intChannels = new mutable.HashSet[IntegerVariable]
+
     override def run() = {
         finalizeDomains()
     }
 
     private def finalizeDomains(): Unit = {
         val done = new mutable.HashSet[AnyVariable]
-        for ((key, x) <- cc.vars if ! done.contains(x)) {
-            x.domain match {
-                case dx: BooleanDomain =>
-                    finalizeBooleanDomain(BooleanValueTraits.safeDowncast(x), dx)
-                case dx: IntegerDomain =>
-                    finalizeIntegerDomain(IntegerValueTraits.safeDowncast(x), dx)
-                case dx: IntegerSetDomain =>
-                    finalizeIntegerSetDomain(IntegerSetValueTraits.safeDowncast(x), dx)
+        for (x <- cc.vars.values if ! done.contains(x)) {
+            x match {
+                case x: BooleanVariable => finalizeBooleanDomain(x)
+                case x: IntegerVariable => finalizeIntegerDomain(x)
+                case x: IntegerSetVariable => finalizeIntegerSetDomain(x)
             }
             cc.logger.logg("Domain of %s is %s".format(x, x.domain))
             done += x
         }
+        if (intChannels.size > 32) {
+            // When there are many integer channels, we enforce their domains using a single InDomain constraint.
+            // This way we speed up neighbourhood generation and reduce the overhead of goal tracking.
+            val costs = createBoolChannel
+            cc.space.post(new InDomain(nextConstraintId, null, intChannels.to(immutable.ArraySeq), costs))
+            cc.costVars += costs
+        } else {
+            // InDomain comes with more overhead than Contains and, when there are only a few integer channels,
+            // a set of Contains constraints is faster than a single InDomain constraint.
+            for (x <- intChannels) {
+                val costs = createBoolChannel
+                cc.space.post(new Contains(nextConstraintId, null, x, x.domain, costs))
+                cc.costVars += costs
+            }
+        }
     }
 
-    private def finalizeBooleanDomain(x: BooleanVariable, dx: BooleanDomain): Unit = {
+    private def finalizeBooleanDomain(x: BooleanVariable): Unit = {
+        val dx = x.domain
         if (dx.isSingleton) {
             if (cc.space.isChannelVariable(x)) {
                 if (dx.singleValue.truthValue) {
@@ -53,16 +66,15 @@ final class DomainFinalizer
         }
     }
 
-    private def finalizeIntegerDomain(x: IntegerVariable, dx: IntegerDomain): Unit = {
+    private def finalizeIntegerDomain(x: IntegerVariable): Unit = {
+        val dx = x.domain
         if (dx.isBounded) {
             if (cc.space.isChannelVariable(x)) {
                 val definingConstraint = cc.space.definingConstraint(x)
                 if (! definingConstraint.isInstanceOf[Delivery[_]] &&
                     (! definingConstraint.isInstanceOf[Bool2Int1] || dx.isSingleton))
                 {
-                    val costs = createBoolChannel
-                    cc.space.post(new Contains(nextConstraintId, null, x, dx, costs))
-                    cc.costVars += costs
+                    intChannels += x
                 }
             } else {
                 if (dx.isSingleton) {
@@ -72,7 +84,8 @@ final class DomainFinalizer
         }
     }
 
-    private def finalizeIntegerSetDomain(x: IntegerSetVariable, dx: IntegerSetDomain): Unit = {
+    private def finalizeIntegerSetDomain(x: IntegerSetVariable): Unit = {
+        val dx = x.domain
         if (dx.isBounded) {
             if (cc.space.isChannelVariable(x)) {
                 val costs = createBoolChannel
