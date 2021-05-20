@@ -31,7 +31,9 @@ final class CountVarTest extends UnitTest with AssignmentPropagationTestTooling 
                 space,
                 Initialize("setup", (s, One), (t, One), (u, One), (what, One), (n, Three)),
                 ConsultAndCommit("1", (s, Two), (n, Two)),
-                ConsultAndCommit("2", (what, Two), (n, One))))
+                ConsultAndCommit("2", (s, One), (u, Two), (n, Two)),
+                ConsultAndCommit("3", (what, Two), (n, One)),
+                ConsultAndCommit("4", (what, One), (u, One), (n, Three))))
     }
 
 }

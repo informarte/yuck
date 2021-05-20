@@ -35,7 +35,11 @@ final class ElementVarTest(offset: Int) extends UnitTest with AssignmentPropagat
                 space,
                 Initialize("setup", (s, One), (t, Two), (u, Three), (i, IntegerValue(offset)), (y, One)),
                 ConsultAndCommit("1", (s, Zero), (y, Zero)),
-                ConsultAndCommit("2", (i, IntegerValue(offset + 1)), (y, Two))))
+                ConsultAndCommit("2", (i, IntegerValue(offset - 1)), (y, Zero)),
+                ConsultAndCommit("3", (i, IntegerValue(offset + 1)), (y, Two)),
+                ConsultAndCommit("4", (i, IntegerValue(offset + 2)), (y, Three)),
+                ConsultAndCommit("5", (i, IntegerValue(offset + 3)), (y, Three)),
+                ConsultAndCommit("6", (i, IntegerValue(offset)), (s, One), (y, One))))
     }
 
 }

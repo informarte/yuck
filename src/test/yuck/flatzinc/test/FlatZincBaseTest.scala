@@ -46,6 +46,14 @@ final class FlatZincBaseTest extends FrontEndTest {
     }
 
     @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testArrayAccessWithConstrainedIndexVariables: Unit = {
+        val result = solveWithResult(task.copy(problemName = "array_access_with_constrained_index_variables"))
+        assertEq(result.space.searchVariables.size, 12)
+        assert(! result.space.searchVariables.exists(_.name == "x[5]"))
+    }
+
+    @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
     def testInconsistentProblem: Unit = {
         assertEx(

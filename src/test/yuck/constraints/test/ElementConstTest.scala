@@ -20,9 +20,6 @@ final class ElementConstTest(offset: Int) extends UnitTest with AssignmentPropag
     @Test
     def testArrayAccess: Unit = {
         val space = new Space(logger, sigint)
-        val d = IntegerRange(Zero, Nine)
-        val s = space.createVariable("s", ZeroToZeroIntegerRange)
-        val t = space.createVariable("t", OneToOneIntegerRange)
         val as = immutable.IndexedSeq(Zero, One, Two)
         val indexRange = IntegerRange(IntegerValue(offset), IntegerValue(offset + 2))
         val i = new IntegerVariable(space.nextVariableId, "i", indexRange)
@@ -33,8 +30,10 @@ final class ElementConstTest(offset: Int) extends UnitTest with AssignmentPropag
             TestScenario(
                 space,
                 Initialize("setup", (i, IntegerValue(offset)), (y, Zero)),
-                ConsultAndCommit("1", (i, IntegerValue(offset + 1)), (y, One)),
-                ConsultAndCommit("2", (i, IntegerValue(offset + 2)), (y, Two))))
+                ConsultAndCommit("1", (i, IntegerValue(offset - 1)), (y, Zero)),
+                ConsultAndCommit("2", (i, IntegerValue(offset + 1)), (y, One)),
+                ConsultAndCommit("3", (i, IntegerValue(offset + 2)), (y, Two)),
+                ConsultAndCommit("4", (i, IntegerValue(offset + 3)), (y, Two))))
     }
 
 }

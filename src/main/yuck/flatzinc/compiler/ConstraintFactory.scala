@@ -1090,24 +1090,27 @@ final class ConstraintFactory
         Iterable[BooleanVariable] =
     {
         val Constraint(_, List(as, a, b), _) = constraint
-        val xs = compileArray[Value](as)
+        val xs0 = compileArray[Value](as)
+        val y = compileExpr[Value](a)
+        // If xs(j) does not play a role (because its domain is disjoint from y.domain and hence
+        // its values will never be counted), we omit xs(j) from the constraint and hence an
+        // useless arc from the constraint network.
+        val xs = xs0.filter(_.domain.intersects(y.domain))
         val m = compileIntExpr(b)
         if (compilesToConst(a)) {
-            val y = compileExpr[Value](a).domain.singleValue
             def functionalCase = {
-                space.post(new CountConst[Value](nextConstraintId, maybeGoal, xs, y, m))
+                space.post(new CountConst[Value](nextConstraintId, maybeGoal, xs, y.domain.singleValue, m))
                 Nil
             }
             def generalCase = {
                 val n = createNonNegativeIntChannel
-                space.post(new CountConst[Value](nextConstraintId, maybeGoal, xs, y, n))
+                space.post(new CountConst[Value](nextConstraintId, maybeGoal, xs, y.domain.singleValue, n))
                 val costs = createBoolChannel
                 space.post(comparatorFactory(nextConstraintId, maybeGoal, n, m, costs))
                 List(costs)
             }
             compileConstraint(constraint, xs, List(m), functionalCase, generalCase)
         } else {
-            val y = compileExpr[Value](a)
             def functionalCase = {
                 space.post(new CountVar[Value](nextConstraintId, maybeGoal, xs, y, m))
                 Nil
@@ -1139,24 +1142,26 @@ final class ConstraintFactory
         (implicit valueTraits: OrderedValueTraits[Value]):
         Iterable[BooleanVariable] =
     {
-        val List(IntConst(offset), b, as, c) =
+        val List(IntConst(offset0), b, as, c) =
             if (constraint.params.size == 4) constraint.params
             else IntConst(1) :: constraint.params
         val i = compileIntExpr(b)
-        val xs = compileArray[Value](as)
+        val xs0 = compileArray[Value](as)
         val y = compileOrdExpr[Value](c)
-        val indexRange = createIntDomain(offset, offset + xs.size - 1)
+        val indexRange0 = createIntDomain(offset0, offset0 + xs0.size - 1)
         val result = mutable.ArrayBuffer[BooleanVariable]()
-        if (b.isConst) {
-            if (! indexRange.contains(getConst[IntegerValue](b))) {
-                throw new InconsistentConstraintException(constraint)
-            }
-        } else if (! i.domain.isSubsetOf(indexRange)) {
-            // The index may be out of range, so we have to add a check, as required by the FlatZinc spec.
-            val delta = createBoolChannel
-            space.post(new Contains(nextConstraintId, maybeGoal, i, indexRange, delta))
-            result += delta
+        if (! i.domain.intersects(indexRange0)) {
+            throw new InconsistentConstraintException(constraint)
         }
+        // If xs0(j) does not play a role (because j is not in i.domain), then there is no
+        // need to monitor xs0(j) and we either drop it or replace it by some xs0(j') with j' in i.domain
+        // to omit a useless arc from the constraint network.
+        val indexRange = indexRange0.intersect(i.domain.hull)
+        val offset = indexRange.lb.value
+        val xs1 = xs0.drop(max(0, i.domain.lb.value - indexRange0.lb.value)).take(indexRange.size)
+        val xs =
+            (for (j <- indexRange.values) yield xs1((if (i.domain.contains(j)) j else i.domain.lb).value - offset))
+                .toIndexedSeq
         def post(y: OrderedVariable[Value]): OrderedVariable[Value] = {
             if (xs.forall(_.domain.isSingleton)) {
                 val as = xs.map(_.domain.singleValue)

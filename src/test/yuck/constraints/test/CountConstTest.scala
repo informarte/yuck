@@ -29,7 +29,9 @@ final class CountConstTest extends UnitTest with AssignmentPropagationTestToolin
             TestScenario(
                 space,
                 Initialize("setup", (s, One), (t, One), (u, One), (n, Three)),
-                ConsultAndCommit("1", (s, Two), (n, Two))))
+                ConsultAndCommit("1", (s, Two), (n, Two)),
+                ConsultAndCommit("2", (s, One), (u, Two), (n, Two)),
+                ConsultAndCommit("3", (u, One), (n, Three))))
     }
 
 }
