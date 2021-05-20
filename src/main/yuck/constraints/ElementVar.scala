@@ -22,14 +22,10 @@ final class ElementVar
     extends Constraint(id)
 {
 
-    private def indexRange = IntegerRange(offset, safeDec(safeAdd(xs.size, offset)))
+    override def toString = "%s = element(%s, [%s], %d)".format(y, i, xs.mkString(", "), offset)
 
-    override def toString = "%s = element(%s, [%s])".format(y, i, xs.mkString(", "))
-
-    override def inVariables =
-        i.domain.intersect(indexRange).valuesIterator.map(i => xs(i.value - offset)).toBuffer[AnyVariable].addOne(i)
-    override def outVariables =
-        List(y)
+    override def inVariables = xs.view :+ i
+    override def outVariables = List(y)
 
     private val effect = new ReusableMoveEffectWithFixedVariable(y)
 
@@ -46,7 +42,7 @@ final class ElementVar
             NoPropagationOccurred
         } else {
             val di1 =
-                i.domain.intersect(indexRange)
+                i.domain.intersect(IntegerRange(offset, safeDec(safeAdd(xs.size, offset))))
             val dy1 =
                 y.domain.intersect(
                     di1.valuesIterator.foldLeft(valueTraits.emptyDomain){case (u, i) => u.union(xs(i.value - offset).domain)})
