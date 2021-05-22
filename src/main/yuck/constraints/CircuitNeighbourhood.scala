@@ -38,11 +38,12 @@ final class CircuitNeighbourhood
         val cycle = new Array[Int](n)
         var i = offset
         var j = 0
-        do {
+        while {
             cycle.update(j, i - offset)
             i = now.value(succ(i - offset)).value
             j += 1
-        } while (i != offset)
+            i != offset
+        } do ()
         assert(cycle.size == n)
         cycle
     }
