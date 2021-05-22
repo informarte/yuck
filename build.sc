@@ -32,19 +32,18 @@ trait YuckBuild extends ScalaModule with BuildInfo {
         )
     }
 
-    override def scalaVersion = "2.13.6"
+    override def scalaVersion = "3.0.2"
     override def millSourcePath = os.pwd
     override def sources = T.sources {millSourcePath / "src" / "main"}
     override def resources = T.sources()
     override def javacOptions = Seq("-source", "1.8", "-target", "1.8")
-    override def scalacOptions = Seq("-target:jvm-1.8", "-deprecation", "-unchecked", "-feature")
+    override def scalacOptions = Seq("-deprecation", "-unchecked", "-feature")
 
     override def ivyDeps = Agg(
         ivy"com.conversantmedia:rtree:1.0.5",
-        ivy"com.github.scopt::scopt:3.7.1",
-        ivy"io.spray::spray-json:1.3.5",
+        ivy"com.github.scopt::scopt:4.0.1",
         ivy"org.jgrapht:jgrapht-core:1.4.0",
-        ivy"org.scala-lang.modules::scala-parser-combinators:1.1.2"
+        ivy"org.scala-lang.modules::scala-parser-combinators:2.0.0"
     )
 
     val basicJvmConfiguration = Seq("-Djava.lang.Integer.IntegerCache.high=10000", "-XX:+UseParallelGC")
@@ -67,6 +66,7 @@ trait YuckBuild extends ScalaModule with BuildInfo {
 
         override def ivyDeps = Agg(
             ivy"junit:junit:4.13.2",
+            ivy"io.spray::spray-json:1.3.5".withDottyCompat(scalaVersion()),
             ivy"org.jgrapht:jgrapht-io:1.4.0",
             ivy"org.mockito:mockito-core:3.12.4"
         )
@@ -176,9 +176,6 @@ object yuck extends Module {
     object prod extends YuckBuild {
         override val buildType = "prod"
         override val skipIdea = true
-        override def scalacOptions =
-            super.scalacOptions() ++
-                Seq("-opt:l:method", "-opt:l:inline", "-opt-inline-from:yuck.core.**,yuck.constraints.**")
     }
 
 }
