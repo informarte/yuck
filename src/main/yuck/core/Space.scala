@@ -413,7 +413,7 @@ final class Space(
      */
     def removeUselessConstraints(): Space = {
         val uselessConstraints = new mutable.HashSet[Constraint]
-        do {
+        while {
             uselessConstraints.clear()
             for (constraint <- constraints) {
                 if (! isImplicitConstraint(constraint) &&
@@ -434,7 +434,8 @@ final class Space(
                 constraints -= constraint
                 logger.log("Removed useless constraint %s".format(constraint))
             }
-        } while (! uselessConstraints.isEmpty)
+            (! uselessConstraints.isEmpty)
+        } do ()
         constraintOrder = null
         this
     }

@@ -37,7 +37,7 @@ abstract class LinearConstraintLikeTest[Value <: NumericalValue[Value]] extends 
 
     private val orderingCostModel = mock(classOf[OrderingCostModel[Value]])
     private val domainPruner = mock(classOf[NumericalDomainPruner[Value]])
-    private implicit val valueTraits = mock(classOf[NumericalValueTraits[Value]])
+    private implicit val valueTraits: NumericalValueTraits[Value] = mock(classOf[NumericalValueTraits[Value]])
 
     private def setupValueTraits(): Unit = {
         when(valueTraits.orderingCostModel).thenReturn(orderingCostModel)
@@ -136,7 +136,7 @@ abstract class LinearConstraintLikeTest[Value <: NumericalValue[Value]] extends 
         if (true) {
             val a = axs.map{case AX(a, x) => a * now.value(x)}.sum(baseValueTraits.numericalOperations)
             val b = now.value(z)
-            val c = randomGenerator.nextInt(maxViolation)
+            val c = randomGenerator.nextInt(maxViolation).toLong
             relation match {
                 case EqRelation => when(orderingCostModel.eqViolation(a, b)).thenReturn(c)
                 case NeRelation => when(orderingCostModel.neViolation(a, b)).thenReturn(c)
@@ -153,7 +153,7 @@ abstract class LinearConstraintLikeTest[Value <: NumericalValue[Value]] extends 
                     (axs.map(_.x) :+ z).map(_.nextRandomMoveEffect(space, randomGenerator)))
             val a = axs.map{case AX(a, x) => a * move.value(x)}.sum(baseValueTraits.numericalOperations)
             val b = move.value(z)
-            val c = randomGenerator.nextInt(maxViolation)
+            val c = randomGenerator.nextInt(maxViolation).toLong
             relation match {
                 case EqRelation => when(orderingCostModel.eqViolation(a, b)).thenReturn(c)
                 case NeRelation => when(orderingCostModel.neViolation(a, b)).thenReturn(c)

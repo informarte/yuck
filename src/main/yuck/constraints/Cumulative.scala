@@ -143,8 +143,8 @@ final class Cumulative
             var sweepLinePos = eventPoints.get(0).x
             var i = 0
             var consumption = 0
-            do {
-                do {
+            while {
+                while {
                     val p = eventPoints.get(i)
                     if (p.isBBoxStart) {
                         consumption = safeAdd(consumption, p.bbox.h)
@@ -153,7 +153,8 @@ final class Cumulative
                     }
                     assert(consumption >= 0)
                     i += 1
-                } while (i < n && eventPoints.get(i).x == sweepLinePos)
+                    i < n && eventPoints.get(i).x == sweepLinePos
+                } do ()
                 if (i < n) {
                     val nextSweepLinePos = eventPoints.get(i).x
                     val segmentWidth = nextSweepLinePos - sweepLinePos
@@ -162,7 +163,8 @@ final class Cumulative
                         costs = safeAdd(costs, safeMul(segmentWidth.toLong, (consumption - capacity).toLong))
                     }
                 }
-            } while (i < n)
+                i < n
+            } do ()
         }
         costs
     }
@@ -202,8 +204,8 @@ final class Cumulative
         var i = 0
         var consumption = 0
         var costDelta = 0L
-        do {
-            do {
+        while {
+            while {
                 val p = eventPoints.get(i)
                 if (p.isBBoxStart) {
                     consumption = safeAdd(consumption, p.bbox.h)
@@ -212,7 +214,8 @@ final class Cumulative
                 }
                 assert(consumption >= 0)
                 i += 1
-            } while (i < n && eventPoints.get(i).x == sweepLinePos)
+                i < n && eventPoints.get(i).x == sweepLinePos
+            } do ()
             if (i < n) {
                 val nextSweepLinePos = eventPoints.get(i).x
                 val segmentWidth = nextSweepLinePos - sweepLinePos
@@ -236,7 +239,8 @@ final class Cumulative
                 }
                 sweepLinePos = nextSweepLinePos
             }
-        } while (i < n)
+            i < n
+        } do ()
         costDelta
     }
 
