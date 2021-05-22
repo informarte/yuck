@@ -89,8 +89,6 @@ object FlatZincRunner extends YuckLogging {
             .required()
             .hidden()
             .action((x, cl) => cl.copy(fznFilePath = x))
-        override def usageExample =
-            "yuck <JVM option>* -- <Yuck option>* <FlatZinc file>"
     }
 
     def main(args: Array[String]): Unit = {

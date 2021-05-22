@@ -159,11 +159,11 @@ final class Regular
         if (m > 0) {
             var i = 0
             var q = 0
-            do {
+            while {
                 i = is(j)
                 j += 1
                 q = if (i == 0) q0 else futureStates(i - 1)
-                do {
+                while {
                     val a = after.value(xs(i)).value
                     q = if (a >= 1 && a <= S) delta(q - 1)(a - 1) else 0
                     if (q > 0 && distancesToAcceptingState(q - 1) > n - i - 1) q = 0
@@ -172,8 +172,10 @@ final class Regular
                         if (j < m && is(j) == i) j += 1
                     }
                     i += 1
-                } while (i < n && q > 0 && (i - 1 > currentFailurePosition || futureStates(i - 1) != currentStates(i - 1)))
-            } while (i < n && q > 0 && j < m)
+                    i < n && q > 0 && (i - 1 > currentFailurePosition || futureStates(i - 1) != currentStates(i - 1))
+                } do ()
+                i < n && q > 0 && j < m
+            } do ()
             if (q == 0 || i == n) {
                 // We either failed or reached some state q at the end of the sequence.
                 i -= 1

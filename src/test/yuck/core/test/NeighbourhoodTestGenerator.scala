@@ -26,10 +26,8 @@ abstract class NeighbourhoodTestGenerator {
     private def configurations =
         for (moveSizeDistribution <- moveSizeDistributions;
              maybeHotSpotDistribution <- None +: hotSpotDistributions.map(Some(_));
-             fairVariableChoiceRate <-
-                 if (maybeHotSpotDistribution.isDefined) fairVariableChoiceRates else List(Probability(100));
-             numberOfVariables <-
-                 if (maybeHotSpotDistribution.isDefined) List(maybeHotSpotDistribution.get.size) else numbersOfVariables)
+             fairVariableChoiceRate <- if (maybeHotSpotDistribution.isDefined) fairVariableChoiceRates else List(Probability(100));
+             numberOfVariables <- if (maybeHotSpotDistribution.isDefined) List(maybeHotSpotDistribution.get.size) else numbersOfVariables)
             yield Vector(
                     randomGenerator.nextGen(), moveSizeDistribution, maybeHotSpotDistribution, Some(fairVariableChoiceRate),
                     numberOfVariables)
