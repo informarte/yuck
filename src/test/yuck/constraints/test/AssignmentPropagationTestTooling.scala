@@ -27,7 +27,7 @@ trait AssignmentPropagationTestTooling extends ConstraintTestTooling {
         extends TestStep
     {
         override def run(space: Space) = {
-            logger.log(comment)
+            logger.log("Initialize: %s".format(comment))
             for (effect <- assignment) {
                 effect.affect(space)
             }
@@ -45,7 +45,7 @@ trait AssignmentPropagationTestTooling extends ConstraintTestTooling {
         extends TestStep
     {
         override def run(space: Space) = {
-            logger.log(comment)
+            logger.log("Consult: %s".format(comment))
             val move = new ChangeAnyValues(space.nextMoveId, this.move)
             val after = space.consult(move)
             checkAssignments(after, effects)
@@ -61,7 +61,7 @@ trait AssignmentPropagationTestTooling extends ConstraintTestTooling {
         extends TestStep
     {
         override def run(space: Space) = {
-            logger.log(comment)
+            logger.log("ConsultAndCommit: %s".format(comment))
             val move = new ChangeAnyValues(space.nextMoveId, this.move)
             val after = space.consult(move)
             space.commit(move)

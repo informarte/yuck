@@ -26,6 +26,7 @@ import org.junit._
         classOf[DisjunctionTest],
         classOf[ElementConstTest],
         classOf[ElementVarTest],
+        classOf[IfThenElseTest],
         classOf[IntegerTableTest],
         classOf[InverseTest],
         classOf[LexLessEqTest],

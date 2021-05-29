@@ -5,9 +5,9 @@ import org.junit.experimental.categories._
 
 import scala.language.implicitConversions
 
-import yuck.constraints.{Alldistinct, ElementConst, ElementVar}
+import yuck.constraints.{Alldistinct, ElementConst, ElementVar, IfThenElse}
 import yuck.core._
-import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
+import yuck.flatzinc.compiler.{Bool2Int1, VariableWithInfiniteDomainException}
 import yuck.flatzinc.test.util._
 import yuck.test.util.ParallelTestRunner
 
@@ -51,6 +51,135 @@ final class FlatZincBaseTest extends FrontEndTest {
         val result = solveWithResult(task.copy(problemName = "array_access_with_constrained_index_variables"))
         assertEq(result.space.searchVariables.size, 12)
         assert(! result.space.searchVariables.exists(_.name == "x[5]"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testIfThenElseBool: Unit = {
+        val result = solveWithResult(task.copy(problemName = "if_then_else_bool_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IfThenElse[_]]), 2)
+        assertEq(result.space.searchVariables.map(_.name), Set("c"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testIfThenElseBoolWithConstCondition: Unit = {
+        val result = solveWithResult(task.copy(problemName = "if_then_else_bool_test_with_const_condition"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IfThenElse[_]]), 0)
+        assertEq(result.space.searchVariables, Set())
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testIfThenElseBoolWithEqualAlternatives: Unit = {
+        val result = solveWithResult(task.copy(problemName = "if_then_else_bool_test_with_equal_alternatives"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IfThenElse[_]]), 0)
+        assertEq(result.space.searchVariables, Set())
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testIfThenElseVarBool: Unit = {
+        val result = solveWithResult(task.copy(problemName = "if_then_else_var_bool_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IfThenElse[_]]), 2)
+        assertEq(result.space.searchVariables.map(_.name), Set("c", "d", "e"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testIfThenElseVarBoolWithConstCondition: Unit = {
+        val result = solveWithResult(task.copy(problemName = "if_then_else_var_bool_test_with_const_condition"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IfThenElse[_]]), 0)
+        assertEq(result.space.searchVariables.map(_.name), Set("e"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testIfThenElseInt: Unit = {
+        val result = solveWithResult(task.copy(problemName = "if_then_else_int_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IfThenElse[_]]), 2)
+        assertEq(result.space.searchVariables.map(_.name), Set("c"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testIfThenElseIntInsteadBool2Int: Unit = {
+        val result = solveWithResult(task.copy(problemName = "if_then_else_int_instead_bool2int_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IfThenElse[_]]), 0)
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Bool2Int1]), 1)
+        assertEq(result.space.searchVariables.map(_.name), Set("c", "y"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testIfThenElseIntWithConstCondition: Unit = {
+        val result = solveWithResult(task.copy(problemName = "if_then_else_int_test_with_const_condition"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IfThenElse[_]]), 0)
+        assertEq(result.space.searchVariables, Set())
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testIfThenElseIntWithEqualAlternatives: Unit = {
+        val result = solveWithResult(task.copy(problemName = "if_then_else_int_test_with_equal_alternatives"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IfThenElse[_]]), 0)
+        assertEq(result.space.searchVariables, Set())
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testIfThenElseVarInt: Unit = {
+        val result = solveWithResult(task.copy(problemName = "if_then_else_var_int_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IfThenElse[_]]), 2)
+        assertEq(result.space.searchVariables.map(_.name), Set("c", "u", "v"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testIfThenElseVarIntWithConstCondition: Unit = {
+        val result = solveWithResult(task.copy(problemName = "if_then_else_var_int_test_with_const_condition"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IfThenElse[_]]), 0)
+        assertEq(result.space.searchVariables.map(_.name), Set("u", "v"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testIfThenElseSet: Unit = {
+        val result = solveWithResult(task.copy(problemName = "if_then_else_set_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IfThenElse[_]]), 2)
+        assertEq(result.space.searchVariables.map(_.name), Set("c"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testIfThenElseSetWithConstCondition: Unit = {
+        val result = solveWithResult(task.copy(problemName = "if_then_else_set_test_with_const_condition"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IfThenElse[_]]), 0)
+        assertEq(result.space.searchVariables, Set())
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testIfThenElseSetWithEqualAlternatives: Unit = {
+        val result = solveWithResult(task.copy(problemName = "if_then_else_set_test_with_equal_alternatives"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IfThenElse[_]]), 0)
+        assertEq(result.space.searchVariables, Set())
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testIfThenElseVarSet: Unit = {
+        val result = solveWithResult(task.copy(problemName = "if_then_else_var_set_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IfThenElse[_]]), 2)
+        assertEq(result.space.searchVariables.map(_.name), Set("c", "u", "v"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testIfThenElseVarSetWithConstCondition: Unit = {
+        val result = solveWithResult(task.copy(problemName = "if_then_else_var_set_test_with_const_condition"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[IfThenElse[_]]), 0)
+        assertEq(result.space.searchVariables.map(_.name), Set("u", "v"))
     }
 
     @Test

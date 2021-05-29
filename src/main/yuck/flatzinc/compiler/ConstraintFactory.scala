@@ -536,6 +536,12 @@ final class ConstraintFactory
             compileElementConstraint[IntegerValue](maybeGoal, constraint)
         case Constraint("array_var_set_element" | "array_set_element" | "yuck_array_set_element" , _, _) =>
             compileElementConstraint[IntegerSetValue](maybeGoal, constraint)
+        case Constraint("yuck_if_then_else_var_bool" | "yuck_if_then_else_bool", _, _) =>
+            compileIfThenElseConstraint[BooleanValue](maybeGoal, constraint)
+        case Constraint("yuck_if_then_else_var_int" | "yuck_if_then_else_int", _, _) =>
+            compileIfThenElseConstraint[IntegerValue](maybeGoal, constraint)
+        case Constraint("yuck_if_then_else_var_set" | "yuck_if_then_else_set", _, _) =>
+            compileIfThenElseConstraint[IntegerSetValue](maybeGoal, constraint)
         case Constraint("set_eq", List(a, b), _) =>
             val costs = createBoolChannel
             space.post(new Eq[IntegerSetValue](nextConstraintId, maybeGoal, a, b, costs))
@@ -1149,7 +1155,6 @@ final class ConstraintFactory
         val xs0 = compileArray[Value](as)
         val y = compileOrdExpr[Value](c)
         val indexRange0 = createIntDomain(offset0, offset0 + xs0.size - 1)
-        val result = mutable.ArrayBuffer[BooleanVariable]()
         if (! i.domain.intersects(indexRange0)) {
             throw new InconsistentConstraintException(constraint)
         }
@@ -1173,16 +1178,45 @@ final class ConstraintFactory
         }
         def functionalCase = {
             post(y)
-            result
+            Nil
         }
         def generalCase = {
             val channel = post(createOrdChannel[Value])
             val costs = createBoolChannel
             space.post(new Eq[Value](nextConstraintId, maybeGoal, channel, y, costs))
-            result += costs
-            result
+            List(costs)
         }
         compileConstraint(constraint, xs :+ i, List(y), functionalCase, generalCase)
+    }
+
+    private def compileIfThenElseConstraint
+        [Value <: OrderedValue[Value]]
+        (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint)
+        (implicit valueTraits: OrderedValueTraits[Value]):
+        Iterable[BooleanVariable] =
+    {
+        val cs = compileBoolArray(constraint.params(0))
+        val xs = compileArray[Value](constraint.params(1))
+        val y = compileOrdExpr[Value](constraint.params(2))
+        require(cs.size == xs.size)
+        require(cs.size >= 2)
+        require(cs.last.domain.isSingleton)
+        require(cs.last.domain.singleValue == True)
+        def post(y: OrderedVariable[Value]): OrderedVariable[Value] = {
+            space.post(new IfThenElse[Value](nextConstraintId, maybeGoal, cs, xs, y))
+            y
+        }
+        def functionalCase = {
+            post(y)
+            Nil
+        }
+        def generalCase = {
+            val channel = post(createOrdChannel[Value])
+            val costs = createBoolChannel
+            space.post(new Eq[Value](nextConstraintId, maybeGoal, channel, y, costs))
+            List(costs)
+        }
+        compileConstraint(constraint, cs.view ++ xs, List(y), functionalCase, generalCase)
     }
 
     private def compileReifiedConstraint

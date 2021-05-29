@@ -19,6 +19,14 @@ case object NonStandardMiniZincBenchmarksLayout extends MiniZincDirectoryLayout 
  * @author Michael Marte
  *
  */
+sealed abstract class VerificationTool
+case object Gecode extends VerificationTool {}
+case object Chuffed extends VerificationTool {}
+
+/**
+ * @author Michael Marte
+ *
+ */
 case class MiniZincTestTask(
     val directoryLayout: MiniZincDirectoryLayout,
     val suitePath: String = "",
@@ -41,6 +49,7 @@ case class MiniZincTestTask(
     val reusePreviousTestResult: Boolean = true,
     val verifySolution: Boolean = true,
     val verificationModelName: String = "",
+    val verificationTool: VerificationTool = Gecode,
     val keepFlatZincFile: Boolean = true,
     val createDotFile: Boolean = false)
 {

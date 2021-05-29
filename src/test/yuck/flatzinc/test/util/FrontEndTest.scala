@@ -16,7 +16,7 @@ abstract class FrontEndTest extends MiniZincBasedTest {
         MiniZincTestTask(
             directoryLayout = MiniZincExamplesLayout,
             suitePath = "resources/mzn/tests/front-end-tests",
-            solverConfiguration = FlatZincSolverConfiguration(restartLimit = 0),
+            solverConfiguration = FlatZincSolverConfiguration(restartLimit = 0, pruneConstraintNetwork = false),
             maybeRuntimeLimitInSeconds = Some(10),
             assertWhenUnsolved = true,
             reusePreviousTestResult = false,

@@ -105,6 +105,10 @@ class MiniZincSolutionVerifier(
             solutionWriter.write("include \"%s.mzn\";".format(task.verificationModelName));
         }
         solutionWriter.close
+        val solver = task.verificationTool match {
+            case Gecode => "gecode"
+            case Chuffed => "chuffed"
+        }
         val minizincCommand = mutable.ArrayBuffer(
             "minizinc",
             "-v",
@@ -115,7 +119,7 @@ class MiniZincSolutionVerifier(
             "-I", "resources/mzn/lib/verification/yuck",
             "-D", "mzn_ignore_symmetry_breaking_constraints=true",
             "-D", "mzn_ignore_redundant_constraints=true",
-            "--solver", "gecode",
+            "--solver", solver,
             "--output-mode", "dzn",
             "--output-objective",
             "--statistics")

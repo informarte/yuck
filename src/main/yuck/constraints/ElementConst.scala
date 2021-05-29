@@ -38,7 +38,7 @@ final class ElementConst
 
     override def propagate = {
         if (valueTraits == IntegerSetValueTraits) {
-            // Integer-set domains do not support the union operation, so the below code does not work.
+            // bail out because integer-set domains do not support the union operation
             NoPropagationOccurred
         } else {
             val di1 =

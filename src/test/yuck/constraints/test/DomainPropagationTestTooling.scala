@@ -24,7 +24,7 @@ trait DomainPropagationTestTooling extends ConstraintTestTooling {
 
     protected case class Propagate(comment: String, setup: Setup, check: Check) extends TestStep {
         override def run(space: Space) = {
-            logger.log(comment)
+            logger.log("Propagate: %s".format(comment))
             setup()
             try {
                 space.propagate()
@@ -37,7 +37,7 @@ trait DomainPropagationTestTooling extends ConstraintTestTooling {
 
     protected case class PropagateAndRollback(comment: String, setup: Setup, check: Check) extends TestStep {
         override def run(space: Space) = {
-            logger.log(comment)
+            logger.log("PropagateAndRollback: %s".format(comment))
             val checkpoint = new mutable.ArrayBuffer[() => Unit]
             for (x <- space.searchVariables) {
                 checkpoint += x.createDomainRestorer
