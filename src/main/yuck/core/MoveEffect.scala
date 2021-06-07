@@ -37,10 +37,6 @@ final class ReusableMoveEffectWithFixedVariable
         _a = a
     }
     override def clone = new ImmutableMoveEffect(x, a)
-    def setValue(a: Value): ReusableMoveEffectWithFixedVariable[Value] = {
-        _a = a
-        this
-    }
 }
 
 /**

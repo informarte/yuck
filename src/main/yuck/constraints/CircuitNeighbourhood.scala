@@ -66,7 +66,8 @@ final class CircuitNeighbourhood
     private def link(i: Int, j: Int): Unit = {
         val x = succ(currentCycle((i + n) % n))
         val a = IntegerValue(currentCycle((j + n) % n) + offset)
-        effects += x.reuseableEffect.setValue(a)
+        x.reuseableEffect.a = a
+        effects += x.reuseableEffect
     }
 
     private abstract class CircuitMove extends ChangeValues(space.nextMoveId, effects) {
