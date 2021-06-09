@@ -37,6 +37,9 @@ final class FlatZincCompiler
         run(new DomainFinalizer(cc))
         randomGenerator.nextGen()
         run(new ObjectiveFactory(cc))
+        if (cfg.pruneConstraintNetwork) {
+            run(new ConstraintNetworkPruner(cc))
+        }
         randomGenerator.nextGen()
         if (cfg.runPresolver) {
             run(new Presolver(cc))

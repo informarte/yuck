@@ -29,7 +29,7 @@ final class Space(
     checkAssignmentsToNonChannelVariables: Boolean = false)
 {
 
-    private val constraints = new mutable.ArrayBuffer[Constraint] // maintained by post
+    private val constraints = new mutable.HashSet[Constraint] // maintained by post and removeUselessConstraints
     private val implicitConstraints = new mutable.HashSet[Constraint] // maintained by markAsImplicit
     private val inVariables = new mutable.HashSet[AnyVariable] // maintained by post
     private val inVariablesOfImplicitConstraints = new mutable.HashSet[AnyVariable] // maintained by markAsImplicit
@@ -40,7 +40,14 @@ final class Space(
     private type InflowModel = mutable.AnyRefMap[AnyVariable, mutable.HashSet[Constraint]]
     private val inflowModel = new InflowModel // maintained by post
     private def registerInflow(x: AnyVariable, constraint: Constraint): Unit = {
+        inVariables += x
         inflowModel += x -> (inflowModel.getOrElse(x, new mutable.HashSet[Constraint]) += constraint)
+    }
+    private def deregisterInflow(x: AnyVariable, constraint: Constraint): Unit = {
+        if ((inflowModel(x) -= constraint).isEmpty) {
+            inflowModel -= x
+            inVariables -= x
+        }
     }
 
     /** Returns the set of constraints directly affected by changing the value of the given variable. */
@@ -52,8 +59,15 @@ final class Space(
     private type OutflowModel = mutable.AnyRefMap[AnyVariable, Constraint]
     private val outflowModel = new OutflowModel // maintained by post
     private def registerOutflow(x: AnyVariable, constraint: Constraint): Unit = {
+        outVariables += x
         outflowModel += x -> constraint
     }
+    private def deregisterOutflow(x: AnyVariable): Unit = {
+        outflowModel -= x
+        outVariables -= x
+    }
+
+
 
     /** Returns the constraint that computes the value of the given variable, if any. */
     @inline def maybeDefiningConstraint(x: AnyVariable): Option[Constraint] =
@@ -155,13 +169,26 @@ final class Space(
      * register all of them, otherwise the result of consultation will not provide the
      * effects on the variables that were not registered.
      */
-    def registerObjectiveVariable(x: AnyVariable): Unit = {
+    def registerObjectiveVariable(x: AnyVariable): Space = {
         objectiveVariables += x
+        this
     }
 
-    /** Returns true iff the given variable is to be considered as objective variable. */
+    /** Returns true iff the given variable is an objective variable. */
     @inline def isObjectiveVariable(x: AnyVariable): Boolean =
         objectiveVariables.isEmpty || objectiveVariables.contains(x)
+
+    private val outputVariables = new mutable.HashSet[AnyVariable]
+
+    /** Registers the given variable as output variable. */
+    def registerOutputVariable(x: AnyVariable): Space = {
+        outputVariables += x
+        this
+    }
+
+    /** Returns true iff the given variable is an output variable. */
+    @inline def isOutputVariable(x: AnyVariable): Boolean =
+        outputVariables.isEmpty || outputVariables.contains(x)
 
     /** Assigns the given value to the given variable. */
     def setValue[Value <: AnyValue](x: Variable[Value], a: Value): Space = {
@@ -326,13 +353,10 @@ final class Space(
                 implicitConstraints.filter(_.inVariables.exists(constraint.outVariables.iterator.contains)).mkString("\n")))
         addToFlowModel(constraint)
         constraints += constraint
-        // We use data structures based on sets to avoid problems with duplicate in and out variables.
         for (x <- constraint.inVariables) {
-            inVariables += x
             registerInflow(x, constraint)
         }
         for (x <- constraint.outVariables) {
-            outVariables += x
             registerOutflow(x, constraint)
         }
         constraintOrder = null
@@ -380,6 +404,40 @@ final class Space(
 
     /** Returns the number of constraints that were posted and later marked as implicit. */
     def numberOfImplicitConstraints: Int = implicitConstraints.size
+
+    /**
+     * This method finds and removes useless constraints.
+     *
+     * A constraint is considered useful if one of its output variables is an objective or output variable
+     * or input to another constraint.
+     */
+    def removeUselessConstraints(): Space = {
+        val uselessConstraints = new mutable.HashSet[Constraint]
+        do {
+            uselessConstraints.clear()
+            for (constraint <- constraints) {
+                if (! isImplicitConstraint(constraint) &&
+                    constraint.outVariables.forall(
+                        x => ! isOutputVariable(x) && ! isObjectiveVariable(x) && directlyAffectedConstraints(x).isEmpty))
+                {
+                    uselessConstraints += constraint
+                }
+            }
+            for (constraint <- uselessConstraints) {
+                for (x <- constraint.inVariables) {
+                    deregisterInflow(x, constraint)
+                }
+                for (x <- constraint.outVariables) {
+                    deregisterOutflow(x)
+                }
+                removeFromFlowModel(constraint)
+                constraints -= constraint
+                logger.log("Removed useless constraint %s".format(constraint))
+            }
+        } while (! uselessConstraints.isEmpty)
+        constraintOrder = null
+        this
+    }
 
     /** Counts how often Constraint.propagate was called. */
     var numberOfPropagations = 0

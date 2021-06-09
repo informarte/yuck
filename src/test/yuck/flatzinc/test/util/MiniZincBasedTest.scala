@@ -300,6 +300,7 @@ class MiniZincBasedTest extends IntegrationTest {
                 "number-of-threads" -> JsNumber(cfg.numberOfThreads),
                 "focus-on-top-objective" -> JsBoolean(cfg.focusOnTopObjective),
                 "stop-on-first-solution" -> JsBoolean(cfg.stopOnFirstSolution),
+                "prune-constraint-network" -> JsBoolean(cfg.pruneConstraintNetwork),
                 "run-presolver" -> JsBoolean(cfg.runPresolver),
                 "use-implicit-solving" -> JsBoolean(cfg.useImplicitSolving),
                 "use-progressive-tightening" -> JsBoolean(cfg.useProgressiveTightening)

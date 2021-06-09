@@ -174,6 +174,32 @@ final class SpaceTest extends UnitTest {
         space.checkConsistency
     }
 
+    @Test
+    def testNetworkPruning: Unit = {
+        val space = new Space(logger, sigint)
+        val vars @ IndexedSeq(s, t, u, v, w, x, y, z) =
+            for (name <- 's' to 'z') yield space.createVariable(name.toString, CompleteIntegerRange)
+        val c = new DummyConstraint(space.nextConstraintId, List(s), List(t, y))
+        val d = new DummyConstraint(space.nextConstraintId, List(t), List(u))
+        val e = new DummyConstraint(space.nextConstraintId, List(t), List(v))
+        val f = new DummyConstraint(space.nextConstraintId, List(t), List(w))
+        val g = new DummyConstraint(space.nextConstraintId, List(w), List(x))
+        val h = new DummyConstraint(space.nextConstraintId, List(z), Nil)
+        space
+            .registerOutputVariable(u)
+            .registerObjectiveVariable(v)
+            .post(c).post(d).post(e).post(f).post(g).post(h)
+            .markAsImplicit(h)
+            .removeUselessConstraints()
+        assertEq(space.numberOfConstraints, 4)
+        assertEq(space.numberOfConstraints(_.id == c.id), 1)
+        assertEq(space.numberOfConstraints(_.id == d.id), 1)
+        assertEq(space.numberOfConstraints(_.id == e.id), 1)
+        assertEq(space.numberOfConstraints(_.id == f.id), 0)
+        assertEq(space.numberOfConstraints(_.id == g.id), 0)
+        assertEq(space.numberOfConstraints(_.id == h.id), 1)
+    }
+
     // A spy constraint maintains the sum of its input variables and,
     // on each call to consult and commit, checks that Space calls these methods
     // according to their contracts.

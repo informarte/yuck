@@ -28,6 +28,7 @@ case class FlatZincSolverConfiguration(
     val maybeTargetObjectiveValue: Option[Int] = None,
     val focusOnTopObjective: Boolean = true,
     val stopOnFirstSolution: Boolean = false,
+    val pruneConstraintNetwork: Boolean = true,
     val runPresolver: Boolean = true,
     val useImplicitSolving: Boolean = true,
     val useProgressiveTightening: Boolean = true,
