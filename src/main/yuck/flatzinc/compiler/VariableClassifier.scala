@@ -10,9 +10,9 @@ import yuck.flatzinc.ast._
  *
  * @author Michael Marte
  */
-class VariableClassifier
-    (cc: CompilationContext, randomGenerator: RandomGenerator)
-    extends CompilationPhase(cc, randomGenerator)
+final class VariableClassifier
+    (override protected val cc: CompilationContext)
+    extends CompilationPhase
 {
 
     private val declaredVars = cc.declaredVars

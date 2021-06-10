@@ -25,14 +25,21 @@ final class FlatZincCompiler
 
         val cc = new CompilationContext(ast, cfg, logger, sigint)
 
-        run(new DomainInitializer(cc, randomGenerator.nextGen()))
-        run(new VariableFactory(cc, randomGenerator.nextGen()))
-        run(new VariableClassifier(cc, randomGenerator.nextGen()))
-        run(new ConstraintFactory(cc, randomGenerator.nextGen(), sigint))
-        run(new DomainFinalizer(cc, randomGenerator.nextGen()))
-        run(new ObjectiveFactory(cc, randomGenerator.nextGen()))
+        randomGenerator.nextGen()
+        run(new DomainInitializer(cc))
+        randomGenerator.nextGen()
+        run(new VariableFactory(cc))
+        randomGenerator.nextGen()
+        run(new VariableClassifier(cc))
+        randomGenerator.nextGen()
+        run(new ConstraintFactory(cc, sigint))
+        randomGenerator.nextGen()
+        run(new DomainFinalizer(cc))
+        randomGenerator.nextGen()
+        run(new ObjectiveFactory(cc))
+        randomGenerator.nextGen()
         if (cfg.runPresolver) {
-            run(new Presolver(cc, randomGenerator.nextGen(), sigint))
+            run(new Presolver(cc))
         }
         run(new ConstraintDrivenNeighbourhoodFactory(cc, randomGenerator.nextGen(), sigint))
 

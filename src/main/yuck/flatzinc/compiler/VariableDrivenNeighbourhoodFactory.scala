@@ -25,8 +25,10 @@ import yuck.util.arm.Sigint
  * @author Michael Marte
  */
 final class VariableDrivenNeighbourhoodFactory
-    (cc: CompilationContext, randomGenerator: RandomGenerator, sigint: Sigint)
-    extends NeighbourhoodFactory(cc, randomGenerator)
+    (override protected val cc: CompilationContext,
+     override protected val randomGenerator: RandomGenerator,
+     sigint: Sigint)
+    extends NeighbourhoodFactory
 {
 
     protected override def createMinimizationNeighbourhood

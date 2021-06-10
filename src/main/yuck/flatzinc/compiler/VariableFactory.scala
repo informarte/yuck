@@ -14,9 +14,9 @@ import yuck.flatzinc.ast._
  *
  * @author Michael Marte
  */
-class VariableFactory
-    (cc: CompilationContext, randomGenerator: RandomGenerator)
-    extends CompilationPhase(cc, randomGenerator)
+final class VariableFactory
+    (override protected val cc: CompilationContext)
+    extends CompilationPhase
 {
 
     private val domains = cc.domains

@@ -36,10 +36,10 @@ import yuck.core._
  *
  * @author Michael Marte
  */
-class NeighbourhoodFactory
-    (cc: CompilationContext, randomGenerator: RandomGenerator)
-    extends CompilationPhase(cc, randomGenerator)
-{
+abstract class NeighbourhoodFactory extends CompilationPhase {
+
+    protected val randomGenerator: RandomGenerator
+
     protected val cfg = cc.cfg
     protected val logger = cc.logger
     protected val ast = cc.ast

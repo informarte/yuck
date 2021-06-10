@@ -31,8 +31,8 @@ import yuck.util.logging.LogScope
  * @author Michael Marte
  */
 final class ConstraintFactory
-    (cc: CompilationContext, randomGenerator: RandomGenerator, sigint: Sigint)
-    extends CompilationPhase(cc, randomGenerator)
+    (override protected val cc: CompilationContext, sigint: Sigint)
+    extends CompilationPhase
 {
 
     private val space = cc.space

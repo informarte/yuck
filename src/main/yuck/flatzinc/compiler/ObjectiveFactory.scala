@@ -12,8 +12,8 @@ import yuck.flatzinc.ast._
  * @author Michael Marte
  */
 final class ObjectiveFactory
-    (cc: CompilationContext, randomGenerator: RandomGenerator)
-    extends CompilationPhase(cc, randomGenerator)
+    (override protected val cc: CompilationContext)
+    extends CompilationPhase
 {
 
     private val cfg = cc.cfg

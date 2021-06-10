@@ -13,8 +13,8 @@ import yuck.flatzinc.ast._
  * @author Michael Marte
  */
 final class DomainInitializer
-    (cc: CompilationContext, randomGenerator: RandomGenerator)
-    extends CompilationPhase(cc, randomGenerator)
+    (override protected val cc: CompilationContext)
+    extends CompilationPhase
 {
 
     private val declaredVars = cc.declaredVars

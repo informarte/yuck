@@ -12,11 +12,9 @@ import yuck.flatzinc.parser._
  *
  * @author Michael Marte
  */
-abstract class CompilationPhase(
-    val cc: CompilationContext,
-    val randomGenerator: RandomGenerator)
-    extends Runnable
-{
+abstract class CompilationPhase extends Runnable {
+
+    protected val cc: CompilationContext
 
     protected final def compilesToConst(a: Expr): Boolean =
         a.isConst || cc.domains(a).isSingleton

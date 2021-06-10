@@ -11,8 +11,8 @@ import yuck.core._
  * @author Michael Marte
  */
 final class DomainFinalizer
-    (cc: CompilationContext, randomGenerator: RandomGenerator)
-    extends CompilationPhase(cc, randomGenerator)
+    (override protected val cc: CompilationContext)
+    extends CompilationPhase
 {
 
     private val intChannels = new mutable.HashSet[IntegerVariable]

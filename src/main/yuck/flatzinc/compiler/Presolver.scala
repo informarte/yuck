@@ -15,13 +15,12 @@ import yuck.util.arm.Sigint
  * @author Michael Marte
  */
 final class Presolver
-    (cc: CompilationContext, randomGenerator: RandomGenerator, sigint: Sigint)
-    extends CompilationPhase(cc, randomGenerator)
+    (override protected val cc: CompilationContext)
+    extends CompilationPhase
 {
 
     private val space = cc.space
     private val costVars = cc.costVars
-    private val logger = cc.logger
 
     override def run() = {
         reduceDomains()
