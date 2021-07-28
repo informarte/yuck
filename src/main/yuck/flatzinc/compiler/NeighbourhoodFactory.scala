@@ -45,6 +45,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
     protected val ast = cc.ast
     protected val space = cc.space
     protected val implicitlyConstrainedVars = cc.implicitlyConstrainedVars
+    protected val neighbourhoodsFromImplicitConstraints = new mutable.ArrayBuffer[Neighbourhood]
 
     override def run() = {
         cc.maybeNeighbourhood = createNeighbourhood
@@ -86,7 +87,8 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
         val candidatesForImplicitSolving =
             if (cfg.useImplicitSolving && space.maybeDefiningConstraint(x).exists(_.isInstanceOf[Conjunction])) {
                 space.definingConstraint(x).inVariables.iterator
-                    .map(space.definingConstraint).filter(_.isCandidateForImplicitSolving(space)).toBuffer.sorted
+                    .map(space.maybeDefiningConstraint).filter(_.isDefined).map(_.get)
+                    .filter(_.isCandidateForImplicitSolving(space)).toBuffer.sorted
             } else {
                 Nil
             }
@@ -103,7 +105,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
                     constraint.createNeighbourhood(
                         space, randomGenerator, cfg.moveSizeDistribution, logger, cc.sigint,
                         ExtraNeighbourhoodFactoryConfiguration(
-                            createHotSpotDistribution = xs => Some(createHotSpotDistribution(xs)),
+                            createHotSpotDistribution = xs => Some(createHotSpotDistribution1(xs)),
                             maybeFairVariableChoiceRate = levelCfg.maybeFairVariableChoiceRate,
                             checkIncrementalCostUpdate = cfg.checkIncrementalCostUpdate,
                             checkAssignmentsToNonChannelVariables = cfg.checkAssignmentsToNonChannelVariables))
@@ -112,6 +114,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
                     space.markAsImplicit(constraint)
                     logger.log("Adding a neighbourhood for implicit constraint %s".format(constraint))
                     neighbourhoods += maybeNeighbourhood.get
+                    neighbourhoodsFromImplicitConstraints += maybeNeighbourhood.get
                 }
             }
         }
@@ -121,30 +124,45 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
             for (x <- searchVars if ! x.domain.isFinite) {
                 throw new VariableWithInfiniteDomainException(x)
             }
-            if (levelCfg.guideOptimization) {
-                logger.logg("Adding a neighbourhood over %s".format(searchVars))
-                neighbourhoods +=
-                    new RandomReassignmentGenerator(
-                        space, searchVars, randomGenerator, cfg.moveSizeDistribution,
-                        Some(createHotSpotDistribution(searchVars)), levelCfg.maybeFairVariableChoiceRate)
-            } else {
-                createNeighbourhoodOnInvolvedSearchVariables(x)
-            }
+            logger.logg("Adding a neighbourhood over %s".format(searchVars))
+            neighbourhoods +=
+                new RandomReassignmentGenerator(
+                    space, searchVars, randomGenerator, cfg.moveSizeDistribution,
+                    if (levelCfg.guideOptimization) Some(createHotSpotDistribution1(searchVars)) else None,
+                    if (levelCfg.guideOptimization) levelCfg.maybeFairVariableChoiceRate else None)
         }
         if (neighbourhoods.size < 2) {
             neighbourhoods.headOption
         } else {
-            Some(new NeighbourhoodCollection(neighbourhoods.toIndexedSeq, randomGenerator, None, None))
+            Some(new NeighbourhoodCollection(
+                neighbourhoods.toIndexedSeq, randomGenerator,
+                if (levelCfg.guideOptimization) Some(createHotSpotDistribution2(neighbourhoods)) else None,
+                if (levelCfg.guideOptimization) levelCfg.maybeFairVariableChoiceRate else None))
         }
     }
 
-    private def createHotSpotDistribution(searchVarSeq: Seq[AnyVariable]): Distribution = {
-        val searchVarIndex = searchVarSeq.iterator.zipWithIndex.toMap
-        val searchVarSet = searchVarSeq.toSet
-        val hotSpotDistribution = Distribution(searchVarSeq.size)
+    private def createHotSpotDistribution1(searchVars: Seq[AnyVariable]): Distribution = {
+        val searchVarIndex = searchVars.iterator.zipWithIndex.toMap
+        val hotSpotDistribution = Distribution(searchVars.size)
         def involvedSearchVars(x: AnyVariable) =
-            searchVarSet.intersect(space.involvedSearchVariables(x)).iterator.map(searchVarIndex).toIndexedSeq
+            space.involvedSearchVariables(x).diff(implicitlyConstrainedVars).iterator.map(searchVarIndex).toIndexedSeq
         val involvementMatrix = cc.costVars.iterator.map(x => (x, involvedSearchVars(x))).filter(_._2.nonEmpty).toMap
+        space.post(new SatisfactionGoalTracker(space.nextConstraintId, None, involvementMatrix, hotSpotDistribution))
+        hotSpotDistribution
+    }
+
+    private def createHotSpotDistribution2(neighbourhoods: Seq[Neighbourhood]): Distribution = {
+        val neighbourhoodIndex = neighbourhoods.iterator.zipWithIndex.toMap
+        val hotSpotDistribution = Distribution(neighbourhoods.size)
+        def involvedNeighbourhoods(x: AnyVariable) = {
+            val xs = space.involvedSearchVariables(x)
+            def isInvolved(neighbourhood: Neighbourhood) = {
+                val ys = neighbourhood.searchVariables.toSet
+                xs.exists(ys.contains)
+            }
+            neighbourhoods.iterator.filter(isInvolved).map(neighbourhoodIndex).toIndexedSeq
+        }
+        val involvementMatrix = cc.costVars.iterator.map(x => (x, involvedNeighbourhoods(x))).filter(_._2.nonEmpty).toMap
         space.post(new SatisfactionGoalTracker(space.nextConstraintId, None, involvementMatrix, hotSpotDistribution))
         hotSpotDistribution
     }
