@@ -13,12 +13,13 @@ import yuck.core._
  *
  * @author Michael Marte
  */
-abstract class Table
-    [Value <: AnyValue]
-    (id: Id[Constraint],
+final class Table
+    [Value <: OrderedValue[Value]]
+    (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.IndexedSeq[Variable[Value]],
      private var rows: immutable.IndexedSeq[immutable.IndexedSeq[Value]],
      costs: BooleanVariable)
+    (implicit valueTraits: OrderedValueTraits[Value])
     extends Constraint(id)
 {
 
@@ -27,14 +28,14 @@ abstract class Table
 
     private val hasDuplicateVariables = xs.toSet.size < n
 
-    final override def toString =
+    override def toString =
         "table([%s], [%s], %s)".format(
             xs.mkString(", "),
             rows.iterator.map(row => "[%s]".format(row.mkString(", "))).mkString(", "),
             costs)
 
-    final override def inVariables = xs
-    final override def outVariables = List(costs)
+    override def inVariables = xs
+    override def outVariables = List(costs)
 
     private var cols: immutable.IndexedSeq[immutable.IndexedSeq[Value]] = null // columns improve data locality
 
@@ -62,10 +63,13 @@ abstract class Table
 
     private val effect = new ReusableMoveEffectWithFixedVariable(costs)
 
-    protected def createDomain(values: Set[Value]): Domain[Value]
-    protected def computeDistance(a: Value, b: Value): Long
+    private def createDomain(values: Set[Value]): Domain[Value] =
+        valueTraits.createDomain(values)
 
-    final override def propagate = {
+    private def computeDistance(a: Value, b: Value): Long =
+        valueTraits.orderingCostModel.eqViolation(a, b).violation
+
+    override def propagate = {
         if (costs.domain == TrueDomain) {
             rows = rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(row(i))))
             val effects =
@@ -83,7 +87,7 @@ abstract class Table
         }
     }
 
-    final override def initialize(now: SearchState) = {
+    override def initialize(now: SearchState) = {
         val m = rows.size
         cols = rows.transpose
         currentDistances = new Array[Long](m)
@@ -99,18 +103,7 @@ abstract class Table
         effect
     }
 
-    protected def computeFutureDistances(col: IndexedSeq[Value], a: Value, b: Value): Unit = {
-        var j = 0
-        val m = col.size
-        while (j < m) {
-            val c = col(j)
-            futureDistances(j) =
-                safeAdd(futureDistances(j), safeSub(computeDistance(b, c), computeDistance(a, c)))
-            j += 1
-        }
-    }
-
-    final override def consult(before: SearchState, after: SearchState, move: Move) = {
+    override def consult(before: SearchState, after: SearchState, move: Move) = {
         if (cols == null) {
             initialize(before)
         }
@@ -134,11 +127,22 @@ abstract class Table
         effect
     }
 
-    final override def commit(before: SearchState, after: SearchState, move: Move) = {
+    override def commit(before: SearchState, after: SearchState, move: Move) = {
         val tmp = currentDistances
         currentDistances = futureDistances
         futureDistances = tmp
         effect
+    }
+
+    private def computeFutureDistances(col: IndexedSeq[Value], a: Value, b: Value): Unit = {
+        var j = 0
+        val m = col.size
+        while (j < m) {
+            val c = col(j)
+            futureDistances(j) =
+                safeAdd(futureDistances(j), safeSub(computeDistance(b, c), computeDistance(a, c)))
+            j += 1
+        }
     }
 
     private def computeMinDistance(distances: Array[Long]): Long = {

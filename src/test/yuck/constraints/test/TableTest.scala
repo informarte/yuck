@@ -13,13 +13,13 @@ import yuck.test.util.UnitTest
  *
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class IntegerTableTest
+final class TableTest
     extends UnitTest
     with AssignmentPropagationTestTooling
     with DomainPropagationTestTooling
 {
 
-    private def createTable(m: Int)(elems: Int*) =
+    private def createTable(m: Int)(elems: Int*): immutable.IndexedSeq[immutable.IndexedSeq[IntegerValue]] =
         elems.toIndexedSeq.map(IntegerValue.apply).grouped(m).toIndexedSeq
 
     @Test
@@ -29,7 +29,7 @@ final class IntegerTableTest
         val Vector(s, t, u) = xs
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         val rows = createTable(3)(0, 0, 0, 1, 2, 3)
-        space.post(new IntegerTable(space.nextConstraintId, null, xs, rows, costs))
+        space.post(new Table(space.nextConstraintId, null, xs, rows, costs))
         assertEq(space.searchVariables, xs.toSet)
         runScenario(
             TestScenario(
@@ -45,7 +45,7 @@ final class IntegerTableTest
         val Vector(s, t) = Vector("s", "t").map(new IntegerVariable(space.nextVariableId, _, IntegerRange(Zero, Nine)))
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         val rows = createTable(3)(0, 0, 0, 1, 2, 3, 2, 2, 3)
-        space.post(new IntegerTable(space.nextConstraintId, null, Vector(s, s, t), rows, costs))
+        space.post(new Table(space.nextConstraintId, null, Vector(s, s, t), rows, costs))
         assertEq(space.searchVariables, Set(s, t))
         runScenario(
             TestScenario(
@@ -70,7 +70,7 @@ final class IntegerTableTest
                 3, 0, 3, 3,
                 4, 0, 4, 4,
                 5, 0, 5, 1, 5, 2, 5, 3, 5, 4)
-        space.post(new IntegerTable(space.nextConstraintId, null, Vector(s, t), rows, costs))
+        space.post(new Table(space.nextConstraintId, null, Vector(s, t), rows, costs))
         runScenario(
             TestScenario(
                 space,
@@ -98,7 +98,7 @@ final class IntegerTableTest
                 3, 0,
                 4, 0, 4, 4,
                 5, 0, 5, 1, 5, 2, 5, 3, 5, 4)
-        space.post(new IntegerTable(space.nextConstraintId, null, Vector(s, s), rows, costs))
+        space.post(new Table(space.nextConstraintId, null, Vector(s, s), rows, costs))
         runScenario(
             TestScenario(
                 space,
