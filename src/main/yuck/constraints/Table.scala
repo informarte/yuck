@@ -63,11 +63,10 @@ final class Table
 
     private val effect = new ReusableMoveEffectWithFixedVariable(costs)
 
-    private def createDomain(values: Set[Value]): Domain[Value] =
-        valueTraits.createDomain(values)
+    private val orderingCostModel = valueTraits.orderingCostModel
 
     private def computeDistance(a: Value, b: Value): Long =
-        valueTraits.orderingCostModel.eqViolation(a, b).violation
+        orderingCostModel.eqViolation(a, b)
 
     override def propagate = {
         if (costs.domain == TrueDomain) {
@@ -77,7 +76,7 @@ final class Table
                     (0 until n).iterator.map{i =>
                         val feasibleValues = rows.iterator.map(row => row(i)).toSet
                         val x = xs(i)
-                        (x, x.domain.intersect(createDomain(feasibleValues)))})
+                        (x, x.domain.intersect(valueTraits.createDomain(feasibleValues)))})
             if (! effects.affectedVariables.isEmpty) {
                 cols = null
             }

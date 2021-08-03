@@ -83,12 +83,13 @@ abstract class LinearConstraintLike
 
     protected final def computeCosts(a: Value, b: Value): BooleanValue = {
         val costModel = valueTraits.orderingCostModel
-        relation match {
+        val violation = relation match {
             case EqRelation => costModel.eqViolation(a, b)
             case NeRelation => costModel.neViolation(a, b)
             case LtRelation => costModel.ltViolation(a, b)
             case LeRelation => costModel.leViolation(a, b)
         }
+        BooleanValue(violation)
     }
 
     final override def initialize(now: SearchState) = {

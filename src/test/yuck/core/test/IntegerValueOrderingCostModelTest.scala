@@ -18,14 +18,14 @@ final class IntegerValueOrderingCostModelTest extends UnitTest with IntegerValue
     def testOrderingCostModel: Unit = {
         for (a <- testData) {
             for (b <- testData) {
-                assertEq(costModel.eqViolation(a, b).truthValue, a == b)
-                assertEq(costModel.neViolation(a, b).truthValue, a != b)
-                assertEq(costModel.ltViolation(a, b).truthValue, a < b)
-                assertEq(costModel.leViolation(a, b).truthValue, a <= b)
+                assertEq(BooleanValue(costModel.eqViolation(a, b)).truthValue, a == b)
+                assertEq(BooleanValue(costModel.neViolation(a, b)).truthValue, a != b)
+                assertEq(BooleanValue(costModel.ltViolation(a, b)).truthValue, a < b)
+                assertEq(BooleanValue(costModel.leViolation(a, b)).truthValue, a <= b)
                 for (c <- testData) {
                     if (a < b && a < c && b < c) {
-                        assertLe(costModel.eqViolation(a, b).violation, costModel.eqViolation(a, c).violation)
-                        assertLe(costModel.ltViolation(a, b).violation, costModel.ltViolation(a, c).violation)
+                        assertLe(costModel.eqViolation(a, b), costModel.eqViolation(a, c))
+                        assertLe(costModel.ltViolation(a, b), costModel.ltViolation(a, c))
                     }
                 }
             }

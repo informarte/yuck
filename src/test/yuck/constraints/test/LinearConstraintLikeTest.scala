@@ -128,7 +128,7 @@ abstract class LinearConstraintLikeTest[Value <: NumericalValue[Value]] extends 
         if (true) {
             val a = axs.map{case AX(a, x) => a * now.value(x)}.sum(baseValueTraits.numericalOperations)
             val b = now.value(z)
-            val c = BooleanValue(randomGenerator.nextInt(maxViolation))
+            val c = randomGenerator.nextInt(maxViolation)
             relation match {
                 case EqRelation => (costModel.eqViolation _).expects(a, b).returns(c)
                 case NeRelation => (costModel.neViolation _).expects(a, b).returns(c)
@@ -136,7 +136,7 @@ abstract class LinearConstraintLikeTest[Value <: NumericalValue[Value]] extends 
                 case LeRelation => (costModel.leViolation _).expects(a, b).returns(c)
             }
             space.initialize()
-            assertEq(now.value(costs), c)
+            assertEq(now.value(costs).violation, c)
         }
         if (true) {
             val move =
@@ -145,7 +145,7 @@ abstract class LinearConstraintLikeTest[Value <: NumericalValue[Value]] extends 
                     (axs.map(_.x) :+ z).map(_.nextRandomMoveEffect(space, randomGenerator)))
             val a = axs.map{case AX(a, x) => a * move.value(x)}.sum(baseValueTraits.numericalOperations)
             val b = move.value(z)
-            val c = BooleanValue(randomGenerator.nextInt(maxViolation))
+            val c = randomGenerator.nextInt(maxViolation)
             relation match {
                 case EqRelation => (costModel.eqViolation _).expects(a, b).returns(c).twice()
                 case NeRelation => (costModel.neViolation _).expects(a, b).returns(c).twice()
@@ -153,11 +153,11 @@ abstract class LinearConstraintLikeTest[Value <: NumericalValue[Value]] extends 
                 case LeRelation => (costModel.leViolation _).expects(a, b).returns(c).twice()
             }
             val after = space.consult(move)
-            assertEq(after.value(costs), c)
+            assertEq(after.value(costs).violation, c)
             space.commit(move)
-            assertEq(now.value(costs), c)
+            assertEq(now.value(costs).violation, c)
             space.initialize()
-            assertEq(now.value(costs), c)
+            assertEq(now.value(costs).violation, c)
         }
     }
 

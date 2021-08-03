@@ -15,7 +15,7 @@ final class Eq
     with ReifiedBinaryConstraintPropagator[OrderedDomain[Value], OrderedDomain[Value]]
 {
     override def toString = "eq(%s, %s, %s)".format(x, y, z)
-    override def op(a: Value, b: Value) = valueTraits.orderingCostModel.eqViolation(a, b)
+    override def op(a: Value, b: Value) = BooleanValue(valueTraits.orderingCostModel.eqViolation(a, b))
     override def propagate = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
@@ -39,7 +39,7 @@ final class Ne
     with ReifiedBinaryConstraintPropagator[OrderedDomain[Value], OrderedDomain[Value]]
 {
     override def toString = "ne(%s, %s, %s)".format(x, y, z)
-    override def op(a: Value, b: Value) = valueTraits.orderingCostModel.neViolation(a, b)
+    override def op(a: Value, b: Value) = BooleanValue(valueTraits.orderingCostModel.neViolation(a, b))
     override def propagate = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
@@ -63,7 +63,7 @@ final class Lt
     with ReifiedBinaryConstraintPropagator[OrderedDomain[Value], OrderedDomain[Value]]
 {
     override def toString = "lt(%s, %s, %s)".format(x, y, z)
-    override def op(a: Value, b: Value) = valueTraits.orderingCostModel.ltViolation(a, b)
+    override def op(a: Value, b: Value) = BooleanValue(valueTraits.orderingCostModel.ltViolation(a, b))
     override def propagate = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
@@ -89,7 +89,7 @@ final class Le
     with ReifiedBinaryConstraintPropagator[OrderedDomain[Value], OrderedDomain[Value]]
 {
     override def toString = "le(%s, %s, %s)".format(x, y, z)
-    override def op(a: Value, b: Value) = valueTraits.orderingCostModel.leViolation(a, b)
+    override def op(a: Value, b: Value) = BooleanValue(valueTraits.orderingCostModel.leViolation(a, b))
     override def propagate = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)

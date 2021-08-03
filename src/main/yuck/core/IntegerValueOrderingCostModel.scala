@@ -7,11 +7,11 @@ package yuck.core
  */
 object IntegerValueOrderingCostModel extends OrderingCostModel[IntegerValue] {
     override def eqViolation(lhs: IntegerValue, rhs: IntegerValue) =
-        BooleanValue(abs(safeSub(lhs.value, rhs.value)))
+        abs(safeSub(lhs.value, rhs.value))
     override def neViolation(lhs: IntegerValue, rhs: IntegerValue) =
-        if (lhs != rhs) True else False
+        if (lhs != rhs) 0 else 1
     override def ltViolation(lhs: IntegerValue, rhs: IntegerValue) =
-        if (lhs < rhs) True else BooleanValue(safeInc(safeSub(lhs.value, rhs.value)))
+        if (lhs < rhs) 0 else safeInc(safeSub(lhs.value, rhs.value))
     override def leViolation(lhs: IntegerValue, rhs: IntegerValue) =
-        if (lhs <= rhs) True else BooleanValue(safeSub(lhs.value, rhs.value))
+        if (lhs <= rhs) 0 else safeSub(lhs.value, rhs.value)
 }
