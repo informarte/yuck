@@ -22,7 +22,7 @@ abstract class CircuitTracker
     final override def inVariables = succ
     final override def outVariables = List(costs)
 
-    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
+    private val effect = costs.reuseableEffect
 
     private def computeCycleLengths(searchState: SearchState): Seq[Int] = {
 

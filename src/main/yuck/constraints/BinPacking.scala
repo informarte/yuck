@@ -48,7 +48,7 @@ final class BinPacking
     private val currentLoads = new mutable.HashMap[Int, Load] // bin -> load
     private val loadDeltas = new mutable.HashMap[Int, Load] // bin -> load delta
     private val effects = // bin -> effect
-        (for ((i, load) <- loads) yield i -> new ReusableMoveEffectWithFixedVariable[Load](load)).toMap
+        (for ((i, load) <- loads) yield i -> load.reuseableEffect).toMap
 
     override def initialize(now: SearchState) = {
         currentLoads.clear()

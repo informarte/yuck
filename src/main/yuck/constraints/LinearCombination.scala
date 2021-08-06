@@ -25,7 +25,7 @@ final class LinearCombination
 
     private val x2ax = immutable.HashMap[AnyVariable, AX[Value]]() ++ (axs.iterator.map(_.x).zip(axs.iterator))
     private var sum = valueTraits.zero
-    private val effect = new ReusableMoveEffectWithFixedVariable(y)
+    private val effect = y.reuseableEffect
 
     override def propagate = {
         val lhs0 = new Iterable[(Value, NumericalDomain[Value])] {

@@ -64,7 +64,7 @@ final class Table
             null
         }
 
-    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
+    private val effect = costs.reuseableEffect
 
     private val orderingCostModel = valueTraits.orderingCostModel
 

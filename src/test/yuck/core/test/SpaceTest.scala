@@ -213,7 +213,7 @@ final class SpaceTest extends UnitTest {
         override def inVariables = xs
         override def outVariables = List(sum)
 
-        private val effects = Vector(new ReusableMoveEffectWithFixedVariable[IntegerValue](sum))
+        private val effects = Vector(sum.reuseableEffect)
 
         var numberOfPropagations = 0
         var numberOfInitializations = 0

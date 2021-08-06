@@ -24,7 +24,7 @@ final class LexLess
     override def inVariables = xs.view ++ ys.view
     override def outVariables = List(costs)
 
-    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
+    private val effect = costs.reuseableEffect
 
     @tailrec
     private def findFailurePosition(searchState: SearchState, i: Int): Option[Int] =

@@ -24,14 +24,15 @@ final class InDomain
 
     private var currentViolation = 0L
     private var futureViolation = 0L
+    private val effect = costs.reuseableEffect
 
     override def initialize(now: SearchState) = {
         currentViolation = 0
         for (x <- xs) {
             currentViolation = safeAdd(currentViolation, x.domain.distanceTo(now.value(x)).value)
         }
-        costs.reuseableEffect.a = BooleanValue(currentViolation)
-        costs.reuseableEffect
+        effect.a = BooleanValue(currentViolation)
+        effect
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
@@ -42,8 +43,8 @@ final class InDomain
             val delta = safeSub(dx.distanceTo(after.value(x)).value, dx.distanceTo(before.value(x)).value)
             futureViolation = safeAdd(futureViolation, delta)
         }
-        costs.reuseableEffect.a = BooleanValue(futureViolation)
-        costs.reuseableEffect
+        effect.a = BooleanValue(futureViolation)
+        effect
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {

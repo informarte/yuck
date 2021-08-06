@@ -113,7 +113,7 @@ final class Cumulative
         .map{case (x, buf) => (x, buf.toIndexedSeq)}
         .toMap
 
-    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
+    private val effect = costs.reuseableEffect
 
     private var currentCosts = 0L
     private var futureCosts = 0L

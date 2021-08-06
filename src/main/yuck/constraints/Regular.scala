@@ -113,8 +113,7 @@ final class Regular
     private var futureCosts = 0
     private var futureStates: immutable.IndexedSeq[Int] = null
     private var futureFailurePosition = 0
-
-    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
+    private val effect = costs.reuseableEffect
 
     override def initialize(now: SearchState) = {
         currentStates = immutable.IndexedSeq[Int]() ++ (0 until n).map(i => 0)

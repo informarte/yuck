@@ -43,7 +43,7 @@ abstract class ValueFrequencyTracker
         if (occurenceCount == 0) valueRegistry - a else valueRegistry + (a -> occurenceCount)
     }
 
-    private val effect = new ReusableMoveEffectWithFixedVariable(y)
+    private val effect = y.reuseableEffect
 
     override def initialize(now: SearchState) = {
         valueRegistry = valueRegistryFactory.empty

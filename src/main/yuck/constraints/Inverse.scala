@@ -67,7 +67,7 @@ final class Inverse
 
     private var currentCosts = 0
     private var futureCosts = 0
-    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
+    private val effect = costs.reuseableEffect
 
     private def computeCosts(
         f: InverseFunction, g: InverseFunction, i: Int, searchState: SearchState): Int =

@@ -23,7 +23,7 @@ final class Conjunction
     override def outVariables = List(y)
 
     private var sum = True
-    private val effect = new ReusableMoveEffectWithFixedVariable(y)
+    private val effect = y.reuseableEffect
 
     override def propagate = {
         val lhs0 = xs.view.map(_.domain)

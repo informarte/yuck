@@ -22,7 +22,7 @@ final class CountConst
     override def outVariables = List(n)
 
     private var count = 0
-    private val effect = new ReusableMoveEffectWithFixedVariable(n)
+    private val effect = n.reuseableEffect
 
     private def propagate1(effects: PropagationEffects): PropagationEffects = {
         var lb = 0

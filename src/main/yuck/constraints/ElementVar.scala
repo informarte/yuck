@@ -27,7 +27,7 @@ final class ElementVar
     override def inVariables = xs.view :+ i
     override def outVariables = List(y)
 
-    private val effect = new ReusableMoveEffectWithFixedVariable(y)
+    private val effect = y.reuseableEffect
 
     private def computeEffect(searchState: SearchState): Unit = {
         // When i is a channel variable, the value of i may be out-of-bounds!
