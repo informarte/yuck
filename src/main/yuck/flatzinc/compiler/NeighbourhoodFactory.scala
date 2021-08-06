@@ -118,17 +118,16 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
                 }
             }
         }
-        val searchVars =
-            space.involvedSearchVariables(x).diff(implicitlyConstrainedVars).toBuffer.sorted.toIndexedSeq
-        if (! searchVars.isEmpty) {
-            for (x <- searchVars if ! x.domain.isFinite) {
+        val xs = space.involvedSearchVariables(x).diff(implicitlyConstrainedVars).toBuffer.sorted.toIndexedSeq
+        if (! xs.isEmpty) {
+            for (x <- xs if ! x.domain.isFinite) {
                 throw new VariableWithInfiniteDomainException(x)
             }
-            logger.logg("Adding a neighbourhood over %s".format(searchVars))
+            logger.logg("Adding a neighbourhood over %s".format(xs))
             neighbourhoods +=
                 new RandomReassignmentGenerator(
-                    space, searchVars, randomGenerator, cfg.moveSizeDistribution,
-                    if (levelCfg.guideOptimization) Some(createHotSpotDistribution1(searchVars)) else None,
+                    space, xs, randomGenerator, cfg.moveSizeDistribution,
+                    if (levelCfg.guideOptimization) Some(createHotSpotDistribution1(xs)) else None,
                     if (levelCfg.guideOptimization) levelCfg.maybeFairVariableChoiceRate else None)
         }
         if (neighbourhoods.size < 2) {

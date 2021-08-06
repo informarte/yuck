@@ -151,10 +151,9 @@ final class ConstraintDrivenNeighbourhoodFactory
                     throw new VariableWithInfiniteDomainException(x)
                 }
                 logger.logg("Adding a neighbourhood over %s".format(xs))
-                Some(
-                    new RandomReassignmentGenerator(
-                        space, xs, randomGenerator, cfg.moveSizeDistribution,
-                        Some(createHotSpotDistribution(mode, weights)), None))
+                val hotSpotDistribution = createHotSpotDistribution(mode, weights)
+                Some(new RandomReassignmentGenerator(
+                    space, xs, randomGenerator, cfg.moveSizeDistribution, Some(hotSpotDistribution), None))
             }
         } else {
             val weightedNeighbourhoods = new mutable.ArrayBuffer[(AX[Value], Neighbourhood)]
@@ -162,23 +161,20 @@ final class ConstraintDrivenNeighbourhoodFactory
                 if (sigint.isSet) {
                     throw new FlatZincCompilerInterruptedException
                 }
-                val maybeConstraint = space.maybeDefiningConstraint(ax.x)
-                if (maybeConstraint.isDefined) {
-                    val maybeNeighbourhood = createNeighbourhood(mode, levelCfg, maybeConstraint.get)
-                    if (maybeNeighbourhood.isDefined) {
-                        weightedNeighbourhoods += ax -> maybeNeighbourhood.get
+                val maybeNeighbourhood = {
+                    if (space.isChannelVariable(ax.x)) {
+                        createNeighbourhood(mode, levelCfg, space.definingConstraint(ax.x))
+                    } else if (space.isProblemParameter(ax.x)) {
+                        None
+                    } else if (implicitlyConstrainedVars.contains(ax.x)) {
+                        neighbourhoodsFromImplicitConstraints.find(_.searchVariables.contains(ax.x))
+                    } else {
+                        logger.logg("Adding a neighbourhood over %s".format(ax.x))
+                        Some(new SimpleRandomReassignmentGenerator(space, Vector(ax.x), randomGenerator))
                     }
-                } else if (! space.isProblemParameter(ax.x)) {
-                    val maybeNeighbourhood =
-                        if (implicitlyConstrainedVars.contains(ax.x)) {
-                            neighbourhoodsFromImplicitConstraints.find(_.searchVariables.contains(ax.x))
-                        } else {
-                            logger.logg("Adding a neighbourhood over %s".format(ax.x))
-                            Some(new SimpleRandomReassignmentGenerator(space, Vector(ax.x), randomGenerator))
-                        }
-                    if (maybeNeighbourhood.isDefined) {
-                        weightedNeighbourhoods += ax -> maybeNeighbourhood.get
-                    }
+                }
+                if (maybeNeighbourhood.isDefined) {
+                    weightedNeighbourhoods += ax -> maybeNeighbourhood.get
                 }
             }
             val maybeNeighbourhood =
@@ -187,9 +183,10 @@ final class ConstraintDrivenNeighbourhoodFactory
                 } else {
                     val (weights, neighbourhoods) = weightedNeighbourhoods.unzip
                     val hotSpotDistribution = createHotSpotDistribution(mode, weights)
-                    Some(new NeighbourhoodCollection(neighbourhoods.toIndexedSeq, randomGenerator, Some(hotSpotDistribution), None))
+                    Some(new NeighbourhoodCollection(
+                        neighbourhoods.toIndexedSeq, randomGenerator, Some(hotSpotDistribution), None))
                 }
-            maybeNeighbourhood.map(considerVariableChoiceRate(_, levelCfg))
+            maybeNeighbourhood.map(considerFairVariableChoiceRate(_, levelCfg))
         }
     }
 
@@ -204,7 +201,7 @@ final class ConstraintDrivenNeighbourhoodFactory
         hotSpotDistribution
     }
 
-    private def considerVariableChoiceRate
+    private def considerFairVariableChoiceRate
         (neighbourhood0: Neighbourhood, levelCfg: FlatZincLevelConfiguration): Neighbourhood =
     {
         val rate = (levelCfg.maybeFairVariableChoiceRate.getOrElse(Probability(0)).value * 100).toInt
