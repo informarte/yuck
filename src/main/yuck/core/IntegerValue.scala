@@ -70,7 +70,9 @@ object IntegerValue {
     implicit def numericalOperations = IntegerValueOperations
     implicit def domainOrdering = IntegerDomainOrdering
 
-    private val valueRange = Range(-10000, 10000, 1)
+    private val lb = -10000
+    private val ub = 10000
+    private val valueRange = Range(lb, ub, 1)
     private val valueCache = valueRange.iterator.map(new IntegerValue(_)).toArray
 
     /**
@@ -81,6 +83,6 @@ object IntegerValue {
      * For other values, a new IntegerValue instance is created.
      */
     def apply(a: Int): IntegerValue =
-       if (valueRange.contains(a)) valueCache(a - valueRange.start) else new IntegerValue(a)
+       if (lb <= a && a < ub) valueCache(a - lb) else new IntegerValue(a)
 
 }

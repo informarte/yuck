@@ -46,7 +46,8 @@ object BooleanValue {
     implicit def valueOrdering = BooleanValueOrdering
     implicit def domainOrdering = BooleanDomainOrdering
 
-    private val valueRange = Range(0, 10000, 1)
+    private val ub = 10000
+    private val valueRange = Range(0, ub, 1)
     private val valueCache = valueRange.map(new BooleanValue(_)).toArray
 
     /**
@@ -58,7 +59,7 @@ object BooleanValue {
         if (a) True else False
 
     def apply(a: Int): BooleanValue =
-        if (valueRange.contains(a)) valueCache(a - valueRange.start) else new BooleanValue(a)
+        if (a < ub) valueCache(a) else new BooleanValue(a)
 
     /**
      * Returns a BooleanValue instance for the given violation.
