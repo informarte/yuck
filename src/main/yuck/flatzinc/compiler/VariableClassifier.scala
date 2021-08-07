@@ -81,11 +81,15 @@ final class VariableClassifier
                 }
             case Term(search, Term(id, Nil) :: _)
             if List("bool_search", "int_search", "set_search").contains(search) =>
-                cc.ast.varDeclsByName(id).varType match {
-                    case ArrayType(Some(IntRange(1, n)), _) =>
-                        for (idx <- 1 to n) {
-                            searchVars += compileAnyExpr(ArrayAccess(id, IntConst(idx)))
-                        }
+                if (cc.ast.varDeclsByName.contains(id)) {
+                    cc.ast.varDeclsByName(id).varType match {
+                        case ArrayType(Some(IntRange(1, n)), _) =>
+                            for (idx <- 1 to n) {
+                                searchVars += compileAnyExpr(ArrayAccess(id, IntConst(idx)))
+                            }
+                    }
+                } else {
+                    assert(cc.ast.paramDeclsByName.contains(id))
                 }
             case Term("seq_search", ArrayConst(searches) :: _) =>
                 searches.foreach(findSearchVars)
