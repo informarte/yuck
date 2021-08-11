@@ -1,5 +1,7 @@
 package yuck.flatzinc.test
 
+import java.io.File
+
 import scala.jdk.CollectionConverters._
 
 import org.junit._
@@ -30,6 +32,22 @@ object MiniZincBenchmarks extends MiniZincTestTaskFactory {
 
     override protected val SuitePath = "resources/mzn/tests/minizinc-benchmarks"
     override protected val MaybeInstancesPerProblem = Some(5)
+
+    private val incompleteModels =
+        List(
+            "cvrp", "cvrp_cp", "cvrp_yuck",
+            "cvrptw", "cvrptw_cp", "cvrptw_yuck",
+            "pattern_set_mining",
+            "tsptw",
+            "vrp")
+    private val brokenModels =
+        List(
+            "search_stress2",
+            "zephyrus_15_10", "zephyrus_20_20", "zephyrus_5_20", "zephyrus_5_4", "zephyrus-FH-2-15")
+
+    override protected def modelFilter(file: File) =
+        super.modelFilter(file) &&
+            ! (incompleteModels ++ brokenModels).exists(model => file.getName == model ++ ".mzn")
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")
     def parameters = tasks.map(Array(_)).asJava
