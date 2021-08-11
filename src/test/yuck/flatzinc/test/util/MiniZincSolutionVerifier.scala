@@ -8,7 +8,7 @@ import yuck.core._
 import yuck.flatzinc.ast._
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.flatzinc.runner._
-import yuck.test.util.ProcessRunner
+import yuck.test.util.{DefaultRuntimeLimitInSeconds, ProcessRunner}
 import yuck.util.logging.LazyLogger
 
 /**
@@ -122,7 +122,9 @@ class MiniZincSolutionVerifier(
             "--solver", solver,
             "--output-mode", "dzn",
             "--output-objective",
-            "--statistics")
+            "--statistics",
+            // Verification should never take longer than solving.
+            "--time-limit", (task.maybeRuntimeLimitInSeconds.getOrElse(DefaultRuntimeLimitInSeconds) * 1000L).toString)
         for ((key, value) <- task.dataAssignments) {
             minizincCommand ++= List("-D", "%s=%s".format(key, value))
         }
