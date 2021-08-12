@@ -158,14 +158,16 @@ def run(args):
                 data['task']['optimum'] = quality
             data['result']['quality'] = quality
             data['result']['optimal'] = quality and complete
-            data['quality-step-function'] = qualityStepFunction
+            data['result']['quality-step-function'] = qualityStepFunction
         data['solver-statistics'] = {
             'runtime-in-seconds': runtimeInMillis / 1000
         }
     else:
-        data['error'] = {
-            'return-code': solverResult.returncode,
-            'stderr': solverResult.stderr.strip()
+        data['result'] = {
+            'error': {
+                'return-code': solverResult.returncode,
+                'stderr': solverResult.stderr.strip()
+            }
         }
     with open(summaryFilePath, 'w') as summaryFile:
         json.dump(data, summaryFile, sort_keys = True, indent = 2)

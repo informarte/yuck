@@ -61,7 +61,7 @@ def importResults(run, file, cursor):
              task['problem-type'],
              task.get('optimum'),
              task.get('high-score'),
-             result['solved'] if result else False,
+             result['solved'] if result and 'solved' in result else False,
              result.get('violation') if result else None,
              result.get('quality') if result else None,
              modelStatistics['number-of-search-variables'] + modelStatistics['number-of-channel-variables'] if modelStatistics else None,

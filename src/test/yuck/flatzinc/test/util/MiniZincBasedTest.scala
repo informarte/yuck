@@ -9,7 +9,7 @@ import yuck.BuildInfo
 import yuck.core._
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast._
-import yuck.flatzinc.compiler.FlatZincCompilerResult
+import yuck.flatzinc.compiler.{FlatZincCompilerResult, UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
 import yuck.flatzinc.parser._
 import yuck.flatzinc.runner._
 import yuck.test.util.{IntegrationTest, ProcessRunner}
@@ -50,6 +50,7 @@ class MiniZincBasedTest extends IntegrationTest {
 
     private val jsonRoot = new JsSection
     private val envNode = new JsSection
+    private val resultNode = new JsSection
 
     protected def solveWithResult(task: MiniZincTestTask): Result = {
         solve(task.copy(reusePreviousTestResult = false)).get
@@ -90,6 +91,7 @@ class MiniZincBasedTest extends IntegrationTest {
         if (task.reusePreviousTestResult && new java.io.File(jsonFilePath).exists() && ! task.assertWhenUnsolved) {
             None
         } else {
+            jsonRoot += "result" -> resultNode
             val logFileHandler = new java.util.logging.FileHandler(logFilePath)
             logFileHandler.setFormatter(formatter)
             scoped(new ManagedLogHandler(nativeLogger, logFileHandler)) {
@@ -103,14 +105,7 @@ class MiniZincBasedTest extends IntegrationTest {
                 }
                 catch {
                     case error: Throwable =>
-                        val cause = findUltimateCause(error)
-                        val errorNode = new JsSection
-                        errorNode += "type" -> JsString(cause.getClass.getName)
-                        if (cause.getMessage != null && ! cause.getMessage.isEmpty) {
-                            errorNode += "message" -> JsString(cause.getMessage)
-                        }
-                        jsonRoot += "error" -> errorNode
-                        handleException(task, cause)
+                        handleException(task, findUltimateCause(error))
                         None
                 }
                 finally {
@@ -341,7 +336,6 @@ class MiniZincBasedTest extends IntegrationTest {
     private def logResult(result: Result): Unit = {
         val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
         val objectiveVariables = compilerResult.objective.objectiveVariables
-        val resultNode = new JsSection
         resultNode += "solved" -> JsBoolean(result.isSolution)
         if (! result.isSolution) {
             val costVar = objectiveVariables(0).asInstanceOf[BooleanVariable]
@@ -357,7 +351,6 @@ class MiniZincBasedTest extends IntegrationTest {
                 case _ =>
             }
         }
-        jsonRoot += "result" -> resultNode
     }
 
     private def logQualityStepFunction(monitor: OptimizationMonitor): Unit = {
@@ -366,7 +359,7 @@ class MiniZincBasedTest extends IntegrationTest {
                 monitor.maybeQualityStepFunction.get.flatMap(
                     step => Vector(JsNumber(step.runtimeInMillis),
                                    JsNumber(step.quality.asInstanceOf[IntegerValue].value)))
-            jsonRoot += "quality-step-function" -> JsArray(array.toVector)
+            resultNode += "quality-step-function" -> JsArray(array.toVector)
         }
     }
 
@@ -423,21 +416,46 @@ class MiniZincBasedTest extends IntegrationTest {
         }
     }
 
-    private def handleException(task: MiniZincTestTask, error: Throwable) = error match {
-        case error: FlatZincParserException =>
-            nativeLogger.info(error.getMessage)
-            throw error
-        case error: InconsistentProblemException =>
-            nativeLogger.info(error.getMessage)
-            nativeLogger.info(FlatZincInconsistentProblemIndicator)
-            throw error
-        case error: SolverInterruptedException =>
-            nativeLogger.info(error.getMessage)
-            nativeLogger.info(FlatZincNoSolutionFoundIndicator)
-            assert(error.getMessage, ! task.assertWhenUnsolved)
-        case error: Throwable =>
-            nativeLogger.log(java.util.logging.Level.SEVERE, "", error)
-            throw error
+    private def handleException(task: MiniZincTestTask, error: Throwable) = {
+        def createErrorNode = {
+            val node = new JsSection
+            node += "type" -> JsString(error.getClass.getName)
+            if (error.getMessage != null && ! error.getMessage.isEmpty) {
+                node += "message" -> JsString(error.getMessage)
+            }
+            node
+        }
+        def addErrorNode() = {
+            resultNode += "error" -> createErrorNode
+        }
+        def addWarningNode() = {
+            resultNode += "warning" -> createErrorNode
+        }
+        error match {
+            case _: FlatZincParserException =>
+                addErrorNode()
+                nativeLogger.severe(error.getMessage)
+                throw error
+            case _: UnsupportedFlatZincTypeException | _: VariableWithInfiniteDomainException =>
+                addWarningNode()
+                nativeLogger.warning(error.getMessage)
+                throw error
+            case _: InconsistentProblemException =>
+                addWarningNode()
+                resultNode += "satisfiable" -> JsBoolean(false)
+                nativeLogger.warning(error.getMessage)
+                nativeLogger.info(FlatZincInconsistentProblemIndicator)
+                throw error
+            case _: InterruptedException =>
+                addWarningNode()
+                nativeLogger.warning(error.getMessage)
+                nativeLogger.info(FlatZincNoSolutionFoundIndicator)
+                assert(error.getMessage, ! task.assertWhenUnsolved)
+            case _: Throwable =>
+                addErrorNode()
+                nativeLogger.log(java.util.logging.Level.SEVERE, "", error)
+                throw error
+        }
     }
 
     private def findUltimateCause(error: Throwable): Throwable =
