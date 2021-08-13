@@ -216,7 +216,8 @@ final class Inverse
     override def isCandidateForImplicitSolving(space: Space) =
         f.isSuitableForImplicitSolving(space) &&
         g.isSuitableForImplicitSolving(space) &&
-        f.xs.size == g.xs.size
+        f.xs.size == g.xs.size &&
+        (f.xs.exists(! _.domain.isSingleton) || g.xs.exists(! _.domain.isSingleton))
 
     override def createNeighbourhood(
         space: Space,
