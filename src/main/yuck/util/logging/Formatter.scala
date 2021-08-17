@@ -19,10 +19,10 @@ final class Formatter extends java.util.logging.Formatter {
         val builder = new StringBuilder
         val message = logRecord.getMessage
         val error = logRecord.getThrown
-        if (message != null && ! message.isEmpty) {
+        if (message.ne(null) && ! message.isEmpty) {
             builder ++= "%s%s\n".format(prefix, logRecord.getMessage)
         }
-        if (error != null) {
+        if (error.ne(null)) {
             builder ++= "%s%s\n".format(prefix, error.toString)
             error.getStackTrace.foreach(frame => builder ++= "%s%s\n".format(prefix, frame.toString))
         }

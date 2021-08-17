@@ -11,11 +11,13 @@ abstract class Domain[Value <: AnyValue] extends AnyDomain {
         case rhs: Domain[_] => {
             val lhs = this
             lhs.eq(rhs) ||
-            (lhs.valueType == rhs.valueType && lhs.equals(rhs.asInstanceOf[Domain[Value]]))
+            (lhs.valueType == rhs.valueType && lhs == rhs.asInstanceOf[Domain[Value]])
         }
         case _ => false
     }
-    def equals(that: Domain[Value]): Boolean
+
+    def ==(that: Domain[Value]): Boolean
+    def !=(that: Domain[Value]): Boolean
 
     override def toString = "{%s}".format(valuesIterator.map(_.toString).mkString(", "))
 

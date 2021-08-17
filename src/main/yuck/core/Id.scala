@@ -7,10 +7,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-final class Id[T](val rawId: Int) extends AnyVal {
-    override def toString = rawId.toString
-    @inline def compare(that: Id[T]) = this.rawId - that.rawId
-}
+final class Id[T](val rawId: Int) extends AnyVal
 
 /**
  * Companion object to Id[T].
@@ -19,9 +16,8 @@ final class Id[T](val rawId: Int) extends AnyVal {
  */
 object Id {
 
-    implicit def idOrdering[T] = new Ordering[Id[T]] {
-        override def compare(lhs: Id[T], rhs: Id[T]) =
-            lhs.compare(rhs)
+    implicit def idOrdering[T]: Ordering[Id[T]] = new Ordering[Id[T]] {
+        override def compare(lhs: Id[T], rhs: Id[T]) = lhs.rawId - rhs.rawId
     }
 
 }

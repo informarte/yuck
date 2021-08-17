@@ -8,21 +8,22 @@ package yuck.core
  */
 abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
     final override def valueType = classOf[IntegerSetValue]
-    final override def equals(that: Domain[IntegerSetValue]): Boolean = (this, that) match {
-        case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) => lhs.equals(rhs)
-        case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowersetDomain) => lhs.base.isEmpty && rhs.base.isEmpty
-        case (lhs: IntegerPowersetDomain, rhs: IntegerPowersetDomain) => lhs.equals(rhs)
-        case (lhs: IntegerPowersetDomain, rhs: SingletonIntegerSetDomain) => lhs.base.isEmpty && rhs.base.isEmpty
-        case _ => ???
-    }
     final override def hasLb = true
     final override def hasUb = true
-    final override def compare(that: OrderedDomain[IntegerSetValue]): Int =
+    final override def compare(that: OrderedDomain[IntegerSetValue]) =
         if (this.lb < that.lb) -1
         else if (this.lb > that.lb) +1
         else if (this.ub < that.ub) -1
         else if (this.ub > that.ub) +1
         else 0
+    final override def ==(that: Domain[IntegerSetValue]) = (this, that) match {
+        case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) => lhs == rhs
+        case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowersetDomain) => lhs.base.isEmpty && rhs.base.isEmpty
+        case (lhs: IntegerPowersetDomain, rhs: IntegerPowersetDomain) => lhs == rhs
+        case (lhs: IntegerPowersetDomain, rhs: SingletonIntegerSetDomain) => lhs.base.isEmpty && rhs.base.isEmpty
+        case _ => ???
+    }
+    @inline final override def !=(that: Domain[IntegerSetValue]) = ! (this == that)
     final override def randomSubdomain(randomGenerator: RandomGenerator): IntegerSetDomain = ???
     final override def isSubsetOf(that: Domain[IntegerSetValue]): Boolean = (this, that) match {
         case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) => lhs.isSubsetOf(rhs)

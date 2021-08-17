@@ -19,11 +19,12 @@ final class ArrayBackedAssignment private
     }
 
     override def clone = new ArrayBackedAssignment(variables.clone, values.clone)
-    override def mappedVariables = variables.iterator.filter(_ != null).toSet
-    override def hasValue(x: AnyVariable) = x.id.rawId < values.size && values(x.id.rawId) != null
+
+    override def mappedVariables = variables.iterator.filter(_.ne(null)).toSet
+    override def hasValue(x: AnyVariable) = x.id.rawId < values.size && values(x.id.rawId).ne(null)
     override def value(x: AnyVariable) = {
         val a = values(x.id.rawId)
-        if (a == null) {
+        if (a.eq(null)) {
             throw new RuntimeException("%s has no value assigned".format(x))
         }
         a

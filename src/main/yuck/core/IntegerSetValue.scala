@@ -13,7 +13,7 @@ final class IntegerSetValue(val set: IntegerDomain) extends OrderedValue[Integer
     override def equals(that: Any) = that match {
         case rhs: IntegerSetValue => {
             val lhs = this
-            lhs.eq(rhs) || lhs.set.eq(rhs.set) || lhs.set.equals(rhs.set)
+            lhs.eq(rhs) || lhs.set.eq(rhs.set) || lhs.set == rhs.set
         }
         case _ => false
     }

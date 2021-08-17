@@ -16,10 +16,10 @@ abstract class OrderedDomain[Value <: OrderedValue[Value]] extends Domain[Value]
     def isBounded: Boolean
 
     /** Returns true iff the domain has a lower bound. */
-    def hasLb: Boolean = lb != null
+    def hasLb: Boolean = lb.ne(null)
 
     /** Returns true iff the domain has an upper bound. */
-    def hasUb: Boolean = ub != null
+    def hasUb: Boolean = ub.ne(null)
 
     /** Provides the domain's lower bound as Option instance. */
     def maybeLb: Option[Value] = Option(lb)

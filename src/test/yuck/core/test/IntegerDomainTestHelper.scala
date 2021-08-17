@@ -100,7 +100,10 @@ final class IntegerDomainTestHelper
             assertEq(result, e.values.exists(a => d.contains(a)))
         } else if (d.isComplete || e.isComplete) {
             assert(result)
-        } else if (d.lb == e.lb || d.lb == e.ub || d.ub == e.lb || d.ub == e.ub) {
+        } else if (
+            Option(d.lb) == Option(e.lb) || Option(d.lb) == Option(e.ub) ||
+            Option(d.ub) == Option(e.lb) || Option(d.ub) == Option(e.ub))
+        {
             assert(result)
         } else {
             logger.logg("Operation intersects(%s, %s) not verified".format(d, e))
@@ -132,10 +135,10 @@ final class IntegerDomainTestHelper
                 assertEq(result, e)
             } else if (e.isComplete) {
                 assertEq(result, d)
-            } else if (d.hasUb && d.ub == e.lb) {
+            } else if (d.hasUb && Option(d.ub) == Option(e.lb)) {
                 assert(result.isSingleton)
                 assertEq(result.singleValue, d.ub)
-            } else if (e.hasUb && e.ub == d.lb) {
+            } else if (e.hasUb && Option(e.ub) == Option(d.lb)) {
                 assert(result.isSingleton)
                 assertEq(result.singleValue, e.ub)
             } else {

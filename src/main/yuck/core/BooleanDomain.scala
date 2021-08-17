@@ -9,15 +9,7 @@ abstract class BooleanDomain extends OrderedDomain[BooleanValue] {
 
     final override def valueType = classOf[BooleanValue]
 
-    final override def equals(that: Domain[BooleanValue]): Boolean = (this, that) match {
-        case (lhs: BooleanDecisionDomain, rhs: BooleanDecisionDomain) => lhs.equals(rhs)
-        case (lhs: BooleanDecisionDomain, rhs: BooleanChannelDomain.type) => false
-        case (lhs: BooleanChannelDomain.type, rhs: BooleanChannelDomain.type) => true
-        case (lhs: BooleanChannelDomain.type, rhs: BooleanDecisionDomain) => false
-        case _ => ???
-    }
-
-    final override def compare(that: OrderedDomain[BooleanValue]): Int = (this, that) match {
+    final override def compare(that: OrderedDomain[BooleanValue]) = (this, that) match {
         case (lhs: BooleanDecisionDomain, rhs: BooleanDecisionDomain) =>
             BooleanDecisionDomain.ordering.compare(lhs, rhs)
         case (lhs: BooleanDecisionDomain, rhs: BooleanChannelDomain.type) => -1
@@ -25,6 +17,14 @@ abstract class BooleanDomain extends OrderedDomain[BooleanValue] {
         case (lhs: BooleanChannelDomain.type, rhs: BooleanDecisionDomain) => 1
         case _ => ???
     }
+    final override def ==(that: Domain[BooleanValue]) = (this, that) match {
+        case (lhs: BooleanDecisionDomain, rhs: BooleanDecisionDomain) => lhs == rhs
+        case (lhs: BooleanDecisionDomain, rhs: BooleanChannelDomain.type) => false
+        case (lhs: BooleanChannelDomain.type, rhs: BooleanChannelDomain.type) => true
+        case (lhs: BooleanChannelDomain.type, rhs: BooleanDecisionDomain) => false
+        case _ => ???
+    }
+    @inline final override def !=(that: Domain[BooleanValue]) = ! (this == that)
 
     final override def randomSubdomain(randomGenerator: RandomGenerator): BooleanDomain = ???
 

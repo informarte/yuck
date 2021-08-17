@@ -121,11 +121,11 @@ final class OnDemandGeneratedSolver(
 
     override def name = solverGenerator.solverName
 
-    override def hasFinished = solver != null && solver.hasFinished
+    override def hasFinished = solver.ne(null) && solver.hasFinished
 
     override def call() = {
         require(! hasFinished)
-        if (solver == null) {
+        if (solver.eq(null)) {
             if (sigint.isSet) {
                 logger.loggg("Interrupted, not generating solver")
             } else {

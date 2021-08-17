@@ -421,7 +421,7 @@ class MiniZincBasedTest extends IntegrationTest {
         def createErrorNode = {
             val node = new JsSection
             node += "type" -> JsString(error.getClass.getName)
-            if (error.getMessage != null && ! error.getMessage.isEmpty) {
+            if (error.getMessage.ne(null) && ! error.getMessage.isEmpty) {
                 node += "message" -> JsString(error.getMessage)
             }
             node
@@ -460,6 +460,6 @@ class MiniZincBasedTest extends IntegrationTest {
     }
 
     private def findUltimateCause(error: Throwable): Throwable =
-        if (error.getCause == null) error else findUltimateCause(error.getCause)
+        if (error.getCause.eq(null)) error else findUltimateCause(error.getCause)
 
 }

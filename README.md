@@ -363,6 +363,7 @@ In addition, the following rules apply:
 
   * Lines should not be much longer than 120 characters.
   * Don't give a result type when overriding a definition.
+  * Use `eq` and `ne` to compare to `null` because many classes have `==` and `!=` implementations which do not check for `null`.
 
 ## References
 

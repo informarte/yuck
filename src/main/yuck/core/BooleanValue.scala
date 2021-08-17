@@ -29,6 +29,8 @@ final class BooleanValue(val violation: Long) extends OrderedValue[BooleanValue]
         if (this.violation < that.violation) -1
         else if (this.violation > that.violation) 1
         else 0
+    @inline def ==(that: BooleanValue): Boolean = this.violation == that.violation
+    @inline def !=(that: BooleanValue): Boolean = this.violation != that.violation
     @inline override def <(that: BooleanValue) = this.violation < that.violation
     @inline override def <=(that: BooleanValue) = this.violation <= that.violation
     @inline override def >(that: BooleanValue) = this.violation > that.violation

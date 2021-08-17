@@ -11,10 +11,11 @@ final class IntegerPowersetDomain
     (val base: IntegerDomain)
     extends IntegerSetDomain
 {
-    override def toString = "P(%s)".format(base.toString)
-    def equals(that: IntegerPowersetDomain): Boolean =
-        this.eq(that) || this.base.eq(that.base) || this.base == that.base
     override def hashCode = base.hashCode
+    override def toString = "P(%s)".format(base.toString)
+    def ==(that: IntegerPowersetDomain): Boolean =
+        this.eq(that) || this.base.eq(that.base) || this.base == that.base
+    @inline def !=(that: IntegerPowersetDomain): Boolean = ! (this == that)
     override def size = {
         require(base.size < 31)
         1 << base.size

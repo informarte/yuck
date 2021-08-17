@@ -197,7 +197,7 @@ object FlatZincRunner extends YuckLogging {
         case error: java.nio.file.AccessDeniedException =>
             Console.err.println("%s: Access denied".format(error.getFile))
             System.exit(1)
-        case error: java.nio.file.FileSystemException if error.getReason != null =>
+        case error: java.nio.file.FileSystemException if error.getReason.ne(null) =>
             Console.err.println("%s: %s".format(error.getFile, error.getReason))
             System.exit(1)
         case error: java.nio.file.FileSystemException =>
@@ -224,6 +224,6 @@ object FlatZincRunner extends YuckLogging {
     }
 
     private def findUltimateCause(error: Throwable): Throwable =
-        if (error.getCause == null) error else findUltimateCause(error.getCause)
+        if (error.getCause.eq(null)) error else findUltimateCause(error.getCause)
 
 }
