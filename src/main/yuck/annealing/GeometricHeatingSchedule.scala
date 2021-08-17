@@ -38,7 +38,7 @@ final class GeometricHeatingSchedule(
         currentTemperature
 
     override def isFrozen =
-        lastRoundLog != null &&
+        lastRoundLog.ne(null) &&
         (lastRoundLog.bestProposalWasImproved ||
          lastRoundLog.uphillAcceptanceRatio >= targetUphillAcceptanceRatio)
 

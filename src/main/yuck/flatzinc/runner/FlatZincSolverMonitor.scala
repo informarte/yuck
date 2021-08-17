@@ -17,7 +17,7 @@ final class FlatZincSolverMonitor(logger: LazyLogger) extends StandardAnnealingM
         synchronized {
             super.onBetterProposal(result)
             if (result.isSolution &&
-                (costsOfBestSolution == null ||
+                (costsOfBestSolution.eq(null) ||
                  result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestSolution)))
             {
                 costsOfBestSolution = result.costsOfBestProposal

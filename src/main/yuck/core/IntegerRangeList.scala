@@ -22,19 +22,20 @@ final class IntegerRangeList
         require(! range.isEmpty)
     }
     for (i <- 1 until ranges.size) {
-        require(ranges(i - 1).ub + One < ranges(i).lb)
+        require(safeInc(ranges(i - 1).ub.value) < ranges(i).lb.value)
     }
 
-    def equals(that: IntegerRangeList): Boolean = this.eq(that) || this.ranges == that.ranges
+    @inline def ==(that: IntegerRangeList): Boolean = this.eq(that) || this.ranges == that.ranges
+    @inline def !=(that: IntegerRangeList): Boolean = ! (this == that)
 
     override def toString = if (isEmpty) "{}" else ranges.iterator.map(_.toString).mkString(" union ")
 
     @inline override def isEmpty = ranges.isEmpty
-    override lazy val size = ranges.map(_.size).foldLeft(0)(safeAdd)
+    override lazy val size = ranges.iterator.map(_.size).foldLeft(0)(safeAdd)
     override def isComplete = ranges.size == 1 && ranges.head.isComplete
-    override def isFinite = isEmpty || (lb != null && ub != null)
+    override def isFinite = isEmpty || (lb.ne(null) && ub.ne(null))
     override def hasGaps = ranges.size > 1
-    override def isBounded = isEmpty || (lb != null || ub != null)
+    override def isBounded = isEmpty || (lb.ne(null) || ub.ne(null))
     @inline override def lb = if (isEmpty) One else ranges.head.lb
     @inline override def ub = if (isEmpty) Zero else ranges.last.ub
     override def hull: IntegerRange = if (ranges.size == 1) ranges.head else IntegerRange(lb, ub)
@@ -149,8 +150,8 @@ final class IntegerRangeList
     override def distanceTo(a0: NumericalValue[IntegerValue]): IntegerValue = {
         require(! isEmpty)
         val a = a0.asInstanceOf[IntegerValue]
-        if (lb != null && a < lb) lb - a
-        else if (ub != null && a > ub) a - ub
+        if (lb.ne(null) && a < lb) lb - a
+        else if (ub.ne(null) && a > ub) a - ub
         else if (ranges.size == 1) Zero
         else {
             val i = findIndexOfContainingHole(a, 0, ranges.size - 2)
@@ -266,7 +267,7 @@ object IntegerRangeList {
      * Tries to avoid memory allocation by re-using existing objects.
      */
     def apply(a: IntegerValue, b: IntegerValue) =
-        if (a != null && b != null && b < a) EmptyIntegerRangeList
+        if (a.ne(null) && b.ne(null) && b < a) EmptyIntegerRangeList
         else new IntegerRangeList(immutable.IndexedSeq(IntegerRange(a, b)))
 
     // In the following methods we prefer indices and tail recursion over iterators and loops

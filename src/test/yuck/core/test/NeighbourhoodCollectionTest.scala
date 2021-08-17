@@ -46,12 +46,12 @@ class NeighbourhoodCollectionTest
             override def searchVariables = neighbourhood.searchVariables
             override def children = neighbourhood.children
             override def nextMove = {
-                assert(lastMove == null)
+                assert(lastMove.eq(null))
                 lastMove = neighbourhood.nextMove
                 lastMove
             }
             override def commit(move: Move) = {
-                assert(lastMove != null)
+                assert(lastMove.ne(null))
                 assertEq(lastMove, move)
                 neighbourhood.commit(move)
                 lastMove = null
@@ -69,7 +69,7 @@ class NeighbourhoodCollectionTest
             neighbourhood.commit(move)
         }
         for (neighbourhood <- neighbourhoods) {
-            assert(neighbourhood.lastMove == null)
+            assert(neighbourhood.lastMove.eq(null))
         }
     }
 

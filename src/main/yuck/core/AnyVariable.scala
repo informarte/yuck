@@ -11,14 +11,22 @@ abstract class AnyVariable
 {
 
     @inline final override def hashCode = id.rawId
+
     override def toString = if (name.isEmpty) "_YUCK_%d".format(id.rawId) else name
-    @inline final override def compare(that: AnyVariable) = this.id.compare(that.id)
+
+    @inline final override def compare(that: AnyVariable) = this.id.rawId - that.id.rawId
+    @inline final def ==(that: AnyVariable): Boolean = this.id.rawId == that.id.rawId
+    @inline final def !=(that: AnyVariable): Boolean = this.id.rawId != that.id.rawId
+    @inline final override def <(that: AnyVariable): Boolean = this.id.rawId < that.id.rawId
+    @inline final override def <=(that: AnyVariable): Boolean = this.id.rawId <= that.id.rawId
+    @inline final override def >(that: AnyVariable): Boolean = this.id.rawId > that.id.rawId
+    @inline final override def >=(that: AnyVariable): Boolean = this.id.rawId >= that.id.rawId
 
     /** Returns the variable's domain. */
     def domain: AnyDomain
 
     /** Returns a function that will restore the domain of the variable. */
-    def createDomainRestorer: Function0[Unit]
+    def createDomainRestorer: () => Unit
 
     /** Returns the type of the elements of the variable's domain. */
     @inline final def valueType: Class[_] = domain.valueType

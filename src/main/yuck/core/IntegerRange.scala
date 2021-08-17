@@ -14,8 +14,13 @@ final class IntegerRange
     (override val lb: IntegerValue, override val ub: IntegerValue)
     extends IntegerDomain
 {
-    def equals(that: IntegerRange): Boolean =
-        this.eq(that) || (this.isEmpty && that.isEmpty) || this.lb == that.lb && this.ub == that.ub
+
+    def ==(that: IntegerRange): Boolean =
+        this.eq(that) ||
+        (this.isEmpty && that.isEmpty) ||
+        ((this.lb.eq(that.lb) || (this.lb.ne(null) && that.lb.ne(null) && this.lb == that.lb)) &&
+         (this.ub.eq(that.ub) || (this.ub.ne(null) && that.ub.ne(null) && this.ub == that.ub)))
+    @inline def !=(that: IntegerRange): Boolean = ! (this == that)
 
     override def toString =
         if (isEmpty)
@@ -24,19 +29,19 @@ final class IntegerRange
             "{%s}".format(singleValue)
         else
             "%s..%s".format(
-                if (lb == null) "-inf" else lb.toString,
-                if (ub == null) "+inf" else ub.toString)
+                if (lb.eq(null)) "-inf" else lb.toString,
+                if (ub.eq(null)) "+inf" else ub.toString)
 
     override def size = {
         require(isFinite)
         max(0, safeInc(safeSub(ub.value, lb.value)))
     }
-    override def isComplete = lb == null && ub == null
-    override def isFinite = lb != null && ub != null
+    override def isComplete = lb.eq(null) && ub.eq(null)
+    override def isFinite = lb.ne(null) && ub.ne(null)
     override def isEmpty = isFinite && lb > ub
     override def isSingleton = isFinite && lb == ub
     override def hasGaps = false
-    override def isBounded = lb != null || ub != null
+    override def isBounded = lb.ne(null) || ub.ne(null)
     override def maybeLb = Option(lb)
     override def maybeUb = Option(ub)
     override def hull = this
@@ -62,7 +67,7 @@ final class IntegerRange
         lb
     }
     override def contains(a: IntegerValue) =
-        (lb == null || lb <= a) && (ub == null || a <= ub)
+        (lb.eq(null) || lb <= a) && (ub.eq(null) || a <= ub)
 
     override def randomValue(randomGenerator: RandomGenerator) = {
         require(! isEmpty && isFinite)
@@ -96,8 +101,8 @@ final class IntegerRange
     override def distanceTo(a0: NumericalValue[IntegerValue]): IntegerValue = {
         require(! isEmpty)
         val a = a0.asInstanceOf[IntegerValue]
-        if (lb != null && a < lb) lb - a
-        else if (ub != null && a > ub) a - ub
+        if (lb.ne(null) && a < lb) lb - a
+        else if (ub.ne(null) && a > ub) a - ub
         else Zero
     }
 
@@ -215,8 +220,8 @@ object IntegerRange {
      * Tries to avoid memory allocation by re-using existing objects.
      */
     def apply(lb: IntegerValue, ub: IntegerValue): IntegerRange =
-        if (lb == null && ub == null) CompleteIntegerRange
-        else if (lb != null && ub != null && ub < lb) EmptyIntegerRange
+        if (lb.eq(null) && ub.eq(null)) CompleteIntegerRange
+        else if (lb.ne(null) && ub.ne(null) && ub < lb) EmptyIntegerRange
         else new IntegerRange(lb, ub)
 
 

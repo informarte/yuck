@@ -68,7 +68,7 @@ final class SimulatedAnnealing(
             }
             result
         }
-        else if (proposalBeforeSuspension != null) resume()
+        else if (proposalBeforeSuspension.ne(null)) resume()
         else start()
 
     private def start(): AnnealingResult = {

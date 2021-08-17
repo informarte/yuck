@@ -74,7 +74,7 @@ class StandardAnnealingMonitor(logger: LazyLogger) extends AnnealingMonitor with
 
     override def onBetterProposal(result: AnnealingResult) = {
         synchronized {
-            if (costsOfBestProposal == null ||
+            if (costsOfBestProposal.eq(null) ||
                 result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestProposal))
             {
                 costsOfBestProposal = result.costsOfBestProposal

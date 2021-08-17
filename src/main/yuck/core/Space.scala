@@ -316,7 +316,7 @@ final class Space(
      * you can try another approach to modeling your problem, otherwise everything is fine.
      */
     def wouldIntroduceCycle(constraint: Constraint): Boolean = {
-        require(constraintOrder == null, "Space has already been initialized")
+        require(constraintOrder.eq(null), "Space has already been initialized")
         if (isCyclic(constraint)) true
         else if (constraints.isEmpty) false
         else if (constraints.contains(constraint)) false
@@ -340,7 +340,7 @@ final class Space(
      */
     def post(constraint: Constraint): Space = {
         logger.loggg("Adding %s".format(constraint))
-        require(constraintOrder == null, "Space has already been initialized")
+        require(constraintOrder.eq(null), "Space has already been initialized")
         require(
             ! constraint.outVariables.exists(outVariables.contains),
             "%s shares out-variables with the following constraints:\n%s".format(
@@ -537,7 +537,7 @@ final class Space(
      * The caller has to assign values to all search variables before initializing!
      */
     def initialize(): Space = {
-        if (constraintOrder == null) {
+        if (constraintOrder.eq(null)) {
             sortConstraintsTopologically
             // free memory
             flowModel = null
@@ -565,7 +565,7 @@ final class Space(
         // This makes consulting more expensive, increases code complexity, and does not
         // pay off because commits are very rare at the normal operating temperatures of
         // simulated annealing.
-        require(constraintOrder != null, "Call initialize after posting the last constraint")
+        require(constraintOrder.ne(null), "Call initialize after posting the last constraint")
         protected val diff = new BulkMove(move.id)
         private val diffs = new java.util.TreeMap[Constraint, BulkMove](ConstraintOrdering)
         private def propagateEffect(effect: AnyMoveEffect): Unit = {
@@ -574,7 +574,7 @@ final class Space(
                 for (constraint <- affectedConstraints) {
                     if (! isImplicitConstraint(constraint)) {
                         var diff = diffs.get(constraint)
-                        if (diff == null) {
+                        if (diff.eq(null)) {
                             diff = new BulkMove(move.id)
                             diffs.put(constraint, diff)
                         }
@@ -751,7 +751,7 @@ final class Space(
 
     /** Throws when the internal data structures are inconsistent. */
     def checkConsistency: Unit = {
-        if (flowModel != null) {
+        if (flowModel.ne(null)) {
             assert(flowModel.vertexSet().size() == constraints.size)
         }
     }

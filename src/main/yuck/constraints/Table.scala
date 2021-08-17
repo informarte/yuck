@@ -106,7 +106,7 @@ final class Table
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
-        if (cols == null) {
+        if (cols.eq(null)) {
             initialize(before)
         }
         Array.copy(currentDistances, 0, futureDistances, 0, rows.size)

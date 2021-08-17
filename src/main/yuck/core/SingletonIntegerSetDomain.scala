@@ -10,8 +10,9 @@ final class SingletonIntegerSetDomain
     extends IntegerSetDomain
 {
     override def toString = "{%s}".format(base.toString)
-    def equals(that: SingletonIntegerSetDomain): Boolean =
+    def ==(that: SingletonIntegerSetDomain): Boolean =
         this.eq(that) || this.base.eq(that.base) || this.base == that.base
+    @inline def !=(that: SingletonIntegerSetDomain): Boolean = ! (this == that)
     override def hashCode = base.hashCode
     override def size = 1
     override def isEmpty = false

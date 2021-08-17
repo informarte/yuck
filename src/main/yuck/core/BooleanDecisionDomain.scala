@@ -10,8 +10,9 @@ final class BooleanDecisionDomain
     extends BooleanDomain
 {
     override def hashCode = 3 * (3 + containsFalse.hashCode) + containsTrue.hashCode
-    def equals(that: BooleanDecisionDomain): Boolean =
+    def ==(that: BooleanDecisionDomain) =
         this.eq(that) || (this.containsFalse == that.containsFalse && this.containsTrue == that.containsTrue)
+    @inline def !=(that: BooleanDecisionDomain) = ! (this == that)
     override def size = (if (containsFalse) 1 else 0) + (if (containsTrue) 1 else 0)
     override def isComplete = false
     override def isFinite = true
@@ -69,7 +70,7 @@ object BooleanDecisionDomain {
     /** {}  < {false} < {true} < {false, true} */
     val ordering = new Ordering[BooleanDecisionDomain] {
         override def compare(lhs: BooleanDecisionDomain, rhs: BooleanDecisionDomain) =
-            if (lhs.equals(rhs)) 0
+            if (lhs == rhs) 0
             else if (lhs.isEmpty) -1
             else if (lhs.containsFalse && ! lhs.containsTrue && rhs.containsTrue) -1
             else if (! lhs.containsFalse && lhs.containsTrue && rhs.containsFalse && rhs.containsTrue) -1

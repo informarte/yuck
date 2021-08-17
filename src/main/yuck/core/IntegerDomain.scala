@@ -13,20 +13,11 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
 
     final override def valueType = classOf[IntegerValue]
 
-    final override def equals(that: Domain[IntegerValue]): Boolean = (this, that) match {
-        case (lhs: IntegerRange, rhs: IntegerRange) => lhs.equals(rhs)
-        case (lhs: IntegerRange, rhs: IntegerRangeList) =>
-            (lhs.isEmpty && rhs.isEmpty) || (rhs.ranges.size == 1 && lhs.equals(rhs.ranges.head))
-        case (lhs: IntegerRangeList, rhs: IntegerRangeList) => lhs.equals(rhs)
-        case (lhs: IntegerRangeList, rhs: IntegerRange) =>
-            (lhs.isEmpty && rhs.isEmpty) || (lhs.ranges.size == 1 && rhs.equals(lhs.ranges.head))
-        case _ => ???
-    }
     final override def hashCode =
-        (3 * (3 + (if (isEmpty || lb == null) 0 else lb.hashCode)) +
-            (if (isEmpty || ub == null) 0 else ub.hashCode))
+        (3 * (3 + (if (isEmpty || lb.eq(null)) 0 else lb.hashCode)) +
+            (if (isEmpty || ub.eq(null)) 0 else ub.hashCode))
 
-    final override def compare(that: OrderedDomain[IntegerValue]): Int = (this, that) match {
+    final override def compare(that: OrderedDomain[IntegerValue]) = (this, that) match {
         case (lhs: IntegerRange, rhs: IntegerRange) =>
             rangeOrdering.compare(lhs, rhs)
         case (lhs: IntegerRange, rhs: IntegerRangeList) =>
@@ -37,6 +28,16 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
             rangeListOrdering.compare(lhs, ensureRangeList(rhs))
         case _ => ???
     }
+    final override def ==(that: Domain[IntegerValue]) = (this, that) match {
+        case (lhs: IntegerRange, rhs: IntegerRange) => lhs == rhs
+        case (lhs: IntegerRange, rhs: IntegerRangeList) =>
+            (lhs.isEmpty && rhs.isEmpty) || (rhs.ranges.size == 1 && lhs == rhs.ranges.head)
+        case (lhs: IntegerRangeList, rhs: IntegerRangeList) => lhs == rhs
+        case (lhs: IntegerRangeList, rhs: IntegerRange) =>
+            (lhs.isEmpty && rhs.isEmpty) || (lhs.ranges.size == 1 && rhs ==lhs.ranges.head)
+        case _ => ???
+    }
+    @inline final override def !=(that: Domain[IntegerValue]) = ! (this == that)
 
     override def hull: IntegerRange
     override def mirrored: IntegerDomain
