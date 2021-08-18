@@ -67,7 +67,7 @@ object yuck extends ScalaModule with BuildInfo {
             ivy"org.scalamock::scalamock:4.4.0"
         )
         override def runIvyDeps = Agg(
-            ivy"com.novocode:junit-interface:0.11"
+            ivy"com.github.sbt:junit-interface:0.12"
         )
 
         val jvmHeapSize = Option(System.getenv("YUCK_TEST_HEAP_SIZE")).getOrElse("2G")
