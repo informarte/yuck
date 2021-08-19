@@ -6,7 +6,9 @@ import scalalib._
 import $ivy.`com.lihaoyi::mill-contrib-buildinfo:$MILL_VERSION`
 import mill.contrib.buildinfo.BuildInfo
 
-object yuck extends ScalaModule with BuildInfo {
+trait YuckBuild extends ScalaModule with BuildInfo {
+
+    val buildType: String
 
     def git(args: String*) = os.proc("git" :: args.toList).call().out.lines.head
     def retrieveGitCommitHash() = T.command {git("rev-parse", "HEAD")}
@@ -18,9 +20,11 @@ object yuck extends ScalaModule with BuildInfo {
     def shortVersion = T {gitCommitDate()}
     def longVersion = T {"%s-%s-%s".format(gitCommitDate(), gitBranch().replaceAll("/", "-"), gitCommitHash().take(8))}
     def version = T {if (gitBranch() == "master") shortVersion() else longVersion()}
+
     override def buildInfoPackageName = Some("yuck")
     override def buildInfoMembers: T[Map[String, String]] = T {
         Map(
+            "buildType" -> buildType,
             "gitBranch" -> gitBranch(),
             "gitCommitDate" -> gitCommitDate(),
             "gitCommitHash" -> gitCommitHash(),
@@ -159,6 +163,22 @@ object yuck extends ScalaModule with BuildInfo {
         perms.add(PosixFilePermission.OWNER_EXECUTE)
         perms.add(PosixFilePermission.OTHERS_EXECUTE)
         Files.setPosixFilePermissions(path.toNIO, perms)
+    }
+
+}
+
+object yuck extends Module {
+
+    object dev extends YuckBuild {
+        override val buildType = "dev"
+    }
+
+    object prod extends YuckBuild {
+        override val buildType = "prod"
+        override val skipIdea = true
+        override def scalacOptions =
+            super.scalacOptions() ++
+                Seq("-opt:l:method", "-opt:l:inline", "-opt-inline-from:yuck.core.**,yuck.constraints.**")
     }
 
 }

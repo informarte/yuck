@@ -39,7 +39,7 @@ object FlatZincRunner extends YuckLogging {
         val defaultCfg = defaultCl.cfg
         val logLevels = yuck.util.logging.logLevels
         val logLevelMap = logLevels.map(level => (level.toString -> level)).toMap
-        head("Yuck FlatZinc front end", BuildInfo.version)
+        head("Yuck FlatZinc front end %s, %s build".format(BuildInfo.version, BuildInfo.buildType))
         help("help").abbr("h").text("Show this help message")
         version("version")
         // -a and -f are used by MiniZinc challenge scripts!
@@ -153,6 +153,7 @@ object FlatZincRunner extends YuckLogging {
         logger.withLogScope("Yuck version") {
             logger.log("Git branch: %s".format(BuildInfo.gitBranch))
             logger.log("Git commit hash: %s".format(BuildInfo.gitCommitHash))
+            logger.log("Build type: %s".format(BuildInfo.buildType))
         }
     }
 
