@@ -15,7 +15,7 @@ minizinc-challenges: yuck.flatzinc.test.MiniZincChallenges archive.minizinc-chal
 minizinc-benchmarks: yuck.flatzinc.test.MiniZincBenchmarks archive.minizinc-benchmarks
 
 yuck.test.% yuck.flatzinc.test.%:
-	./mill yuck.test.run $@
+	./mill yuck.dev.test.run $@
 
 .PHONY: archive stage zip doc clean render-readme
 
@@ -34,22 +34,22 @@ idea-project-files:
 	./mill mill.scalalib.GenIdea/idea
 
 compile:
-	./mill yuck.test.compile
+	./mill yuck.dev.test.compile
 
 run:
-	./mill yuck.run
+	./mill yuck.dev.run
 
 stage:
-	./mill yuck.launcher
+	./mill yuck.dev.launcher
 
 deb:
-	./mill yuck.debianPackage
+	./mill yuck.dev.debianPackage
 
 zip:
-	./mill yuck.universalPackage
+	./mill yuck.dev.universalPackage
 
 doc:
-	./mill yuck.docJar
+	./mill yuck.dev.docJar
 
 clean:
 	./mill clean
