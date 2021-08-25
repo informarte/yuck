@@ -52,13 +52,13 @@ final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
         val delta = safeSub(a.value, b.value)
         if (delta == 0) this else IntegerValue(safeAdd(this.value, safeMul(s.value, delta)))
     }
-    override def abs = if (value < 0) IntegerValue(safeNeg(value)) else this
-    override def negate = IntegerValue(safeNeg(value))
-    override def toInt = value
-    override def toLong = value.toLong
-    override def toFloat = value.toFloat
-    override def toDouble = value.toDouble
-    override def isEven = value % 2 == 0
+    @inline override def abs = if (value < 0) negate else this
+    @inline override def negate = IntegerValue(safeNeg(value))
+    @inline override def toInt = value
+    @inline override def toLong = value.toLong
+    @inline override def toFloat = value.toFloat
+    @inline override def toDouble = value.toDouble
+    @inline override def isEven = value % 2 == 0
 }
 
 /**
@@ -68,9 +68,9 @@ final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
  */
 object IntegerValue {
 
-    def min(a: IntegerValue, b: IntegerValue): IntegerValue = if (a < b) a else b
+    @inline def min(a: IntegerValue, b: IntegerValue): IntegerValue = if (a < b) a else b
 
-    def max(a: IntegerValue, b: IntegerValue): IntegerValue = if (a > b) a else b
+    @inline def max(a: IntegerValue, b: IntegerValue): IntegerValue = if (a > b) a else b
 
     implicit def valueTraits = IntegerValueTraits
     implicit def numericalOperations = IntegerValueOperations

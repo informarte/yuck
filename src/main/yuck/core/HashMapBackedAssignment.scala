@@ -16,13 +16,14 @@ final class HashMapBackedAssignment(valDir: mutable.AnyRefMap[AnyVariable, AnyVa
     }
 
     override def clone = new HashMapBackedAssignment(valDir.clone)
-    override def mappedVariables = valDir.keysIterator.toSet
-    override def hasValue(x: AnyVariable) = valDir.contains(x)
-    override def value(x: AnyVariable) = valDir(x)
-    override def maybeValue(x: AnyVariable) = valDir.get(x)
+
+    @inline override def mappedVariables = valDir.keysIterator.toSet
+    @inline override def hasValue(x: AnyVariable) = valDir.contains(x)
+    @inline override def value(x: AnyVariable) = valDir(x)
+    @inline override def maybeValue(x: AnyVariable) = valDir.get(x)
 
     /** Assigns the given value to the given variable. */
-    def setValue[Value <: AnyValue](x: Variable[Value], a: Value): HashMapBackedAssignment = {
+    @inline def setValue[Value <: AnyValue](x: Variable[Value], a: Value): HashMapBackedAssignment = {
         valDir += x -> a
         this
     }

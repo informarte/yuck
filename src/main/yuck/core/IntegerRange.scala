@@ -36,14 +36,14 @@ final class IntegerRange
         require(isFinite)
         max(0, safeInc(safeSub(ub.value, lb.value)))
     }
-    override def isComplete = lb.eq(null) && ub.eq(null)
-    override def isFinite = lb.ne(null) && ub.ne(null)
-    override def isEmpty = isFinite && lb > ub
-    override def isSingleton = isFinite && lb == ub
+    @inline override def isComplete = lb.eq(null) && ub.eq(null)
+    @inline override def isFinite = lb.ne(null) && ub.ne(null)
+    @inline override def isEmpty = isFinite && lb > ub
+    @inline override def isSingleton = isFinite && lb == ub
     override def hasGaps = false
-    override def isBounded = lb.ne(null) || ub.ne(null)
-    override def maybeLb = Option(lb)
-    override def maybeUb = Option(ub)
+    @inline override def isBounded = lb.ne(null) || ub.ne(null)
+    @inline override def maybeLb = Option(lb)
+    @inline override def maybeUb = Option(ub)
     override def hull = this
     override def values = {
         require(isFinite)

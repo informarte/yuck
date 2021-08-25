@@ -61,7 +61,7 @@ object BooleanValue {
      *
      * Tries to avoid memory allocation by re-using existing objects.
      */
-    def apply(a: Boolean): BooleanValue =
+    @inline def apply(a: Boolean): BooleanValue =
         if (a) True else False
 
     def apply(a: Int): BooleanValue =

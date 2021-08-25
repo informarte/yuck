@@ -36,9 +36,9 @@ abstract class ValueFrequencyTracker
     type ValueRegistry = immutable.Map[Value, Int]
     private var valueRegistry: ValueRegistry = null
     private var futureValueRegistry: ValueRegistry = null
-    private def registerValue(valueRegistry: ValueRegistry, a: Value, n: Int): ValueRegistry =
+    @inline private def registerValue(valueRegistry: ValueRegistry, a: Value, n: Int): ValueRegistry =
         valueRegistry + (a -> safeAdd(valueRegistry.getOrElse(a, 0), n))
-    private def deregisterValue(valueRegistry: ValueRegistry, a: Value, n: Int): ValueRegistry = {
+    @inline private def deregisterValue(valueRegistry: ValueRegistry, a: Value, n: Int): ValueRegistry = {
         val occurenceCount = valueRegistry(a) - n
         if (occurenceCount == 0) valueRegistry - a else valueRegistry + (a -> occurenceCount)
     }
