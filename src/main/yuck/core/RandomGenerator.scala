@@ -25,7 +25,7 @@ abstract class RandomGenerator {
     def nextProbability(): Double
 
     /** Generates a random decision. */
-    final def nextDecision(): Boolean = nextInt(2) != 0
+    @inline final def nextDecision(): Boolean = nextInt(2) != 0
 
     /** Generates a random decision under consideration of the given probability for "yes". */
     final def nextDecision(p: Probability): Boolean =
@@ -90,7 +90,7 @@ abstract class RandomGenerator {
      * In case not all elements are needed, lazyShuffle is more efficient than
      * shuffle because less random numbers are generated.
      */
-    @inline final def lazyShuffle[T](source: IndexedSeq[T]): Iterator[T] =
+    final def lazyShuffle[T](source: IndexedSeq[T]): Iterator[T] =
         if (source.isEmpty) Iterator.empty
         else if (source.size == 1) source.iterator
         else new LazyShuffleIterator[T](source)

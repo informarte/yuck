@@ -12,32 +12,32 @@ final class BulkMove(id: Id[Move]) extends Move(id) {
     private var effectDir = new mutable.AnyRefMap[AnyVariable, AnyMoveEffect]
 
     /** Adds the given effect. */
-    def +=(effect: AnyMoveEffect): BulkMove = {
+    @inline def +=(effect: AnyMoveEffect): BulkMove = {
         require(effectDir.put(effect.x, effect).isEmpty, "%s is re-assignment".format(effect))
         this
     }
 
     /** Adds the given effects. */
-    def ++=(effects: Iterable[AnyMoveEffect]): BulkMove = {
+    @inline def ++=(effects: Iterable[AnyMoveEffect]): BulkMove = {
         effects.foreach(this += _)
         this
     }
 
     /** Adds the given effects. */
-    def ++=(effects: Iterator[AnyMoveEffect]): BulkMove = {
+    @inline def ++=(effects: Iterator[AnyMoveEffect]): BulkMove = {
         effects.foreach(this += _)
         this
     }
 
-    override def isEmpty = effectDir.isEmpty
-    override def effects = effectDir.view.values
-    override def effectsIterator = effectDir.valuesIterator
-    override def foreach[U](f: AnyVariable => U) = effectDir.foreachKey(f)
-    override def size = effectDir.size
-    override def involvedVariables = effectDir.view.keys
-    override def involvedVariablesIterator = effectDir.keysIterator
-    override def involves(x: AnyVariable) = effectDir.contains(x)
-    override def value(x: AnyVariable) = effectDir(x).a
-    override def maybeValue(x: AnyVariable) = effectDir.get(x).map(_.a)
+    @inline override def isEmpty = effectDir.isEmpty
+    @inline override def effects = effectDir.view.values
+    @inline override def effectsIterator = effectDir.valuesIterator
+    @inline override def foreach[U](f: AnyVariable => U) = effectDir.foreachKey(f)
+    @inline override def size = effectDir.size
+    @inline override def involvedVariables = effectDir.view.keys
+    @inline override def involvedVariablesIterator = effectDir.keysIterator
+    @inline override def involves(x: AnyVariable) = effectDir.contains(x)
+    @inline override def value(x: AnyVariable) = effectDir(x).a
+    @inline override def maybeValue(x: AnyVariable) = effectDir.get(x).map(_.a)
 
 }

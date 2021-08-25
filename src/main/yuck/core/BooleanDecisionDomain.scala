@@ -19,8 +19,8 @@ final class BooleanDecisionDomain
     override def isBounded = true
     override def hasLb = true
     override def hasUb = true
-    override def lb = if (containsTrue) True else False
-    override def ub = if (containsFalse) False else True
+    @inline override def lb = if (containsTrue) True else False
+    @inline override def ub = if (containsFalse) False else True
     override def values =
         if (containsFalse && containsTrue) BooleanDecisionDomain.listWithFalseAndTrue
         else if (containsFalse) BooleanDecisionDomain.listWithFalse

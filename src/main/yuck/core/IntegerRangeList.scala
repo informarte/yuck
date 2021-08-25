@@ -32,10 +32,10 @@ final class IntegerRangeList
 
     @inline override def isEmpty = ranges.isEmpty
     override lazy val size = ranges.iterator.map(_.size).foldLeft(0)(safeAdd)
-    override def isComplete = ranges.size == 1 && ranges.head.isComplete
-    override def isFinite = isEmpty || (lb.ne(null) && ub.ne(null))
-    override def hasGaps = ranges.size > 1
-    override def isBounded = isEmpty || (lb.ne(null) || ub.ne(null))
+    @inline override def isComplete = ranges.size == 1 && ranges.head.isComplete
+    @inline override def isFinite = isEmpty || (ranges.head.lb.ne(null) && ranges.last.ub.ne(null))
+    @inline override def hasGaps = ranges.size > 1
+    @inline override def isBounded = isEmpty || (ranges.head.lb.ne(null) || ranges.last.ub.ne(null))
     @inline override def lb = if (isEmpty) One else ranges.head.lb
     @inline override def ub = if (isEmpty) Zero else ranges.last.ub
     override def hull: IntegerRange = if (ranges.size == 1) ranges.head else IntegerRange(lb, ub)

@@ -196,7 +196,7 @@ final class Regular
     }
 
     // Cost model: see the class comment
-    @inline def computeCosts(states: immutable.IndexedSeq[Int], i: Int, q: Int): Int = {
+    def computeCosts(states: immutable.IndexedSeq[Int], i: Int, q: Int): Int = {
         assert(i >= 0 && i < n)
         assert(q == 0 || i == n - 1)
         // We avoid the search by relying on distance checking in initialize and consult.
