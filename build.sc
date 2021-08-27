@@ -67,7 +67,7 @@ trait YuckBuild extends ScalaModule with BuildInfo {
         override def ivyDeps = Agg(
             ivy"junit:junit:4.13.2",
             ivy"org.jgrapht:jgrapht-io:1.4.0",
-            ivy"org.scalamock::scalamock:4.4.0"
+            ivy"org.mockito:mockito-core:3.12.4"
         )
 
         val jvmHeapSize = Option(System.getenv("YUCK_TEST_HEAP_SIZE")).getOrElse("2G")
