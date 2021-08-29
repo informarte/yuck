@@ -52,6 +52,11 @@ trait YuckAssert {
         assertEx(operation, classOf[IllegalArgumentException])
     }
 
+    /** Expects a NotImplementedError. */
+    protected def assertNie(operation: => Unit): Unit = {
+        assertEx(operation, classOf[NotImplementedError])
+    }
+
     protected def assertEx(operation: => Unit, expectedExceptionType: Class[_ <: Throwable]): Unit = {
         var failed = true
         try {
