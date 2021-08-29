@@ -13,6 +13,7 @@ import org.junit._
         classOf[BooleanDecisionDomainTest],
         classOf[BooleanChannelDomainTest],
         classOf[BooleanDomainPrunerTest],
+        classOf[EmptyIntegerSetDomainTest],
         classOf[IntegerDomainTest],
         classOf[IntegerRangeTest],
         classOf[IntegerRangeListTest],

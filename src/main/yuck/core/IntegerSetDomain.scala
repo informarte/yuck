@@ -17,6 +17,9 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         else if (this.ub > that.ub) +1
         else 0
     final override def ==(that: Domain[IntegerSetValue]) = (this, that) match {
+        case (lhs: EmptyIntegerSetDomain.type, rhs: EmptyIntegerSetDomain.type) => true
+        case (lhs: EmptyIntegerSetDomain.type, _) => false
+        case (_, rhs: EmptyIntegerSetDomain.type) => false
         case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) => lhs == rhs
         case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowersetDomain) => lhs.base.isEmpty && rhs.base.isEmpty
         case (lhs: IntegerPowersetDomain, rhs: IntegerPowersetDomain) => lhs == rhs
@@ -26,6 +29,8 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
     @inline final override def !=(that: Domain[IntegerSetValue]) = ! (this == that)
     final override def randomSubdomain(randomGenerator: RandomGenerator): IntegerSetDomain = ???
     final override def isSubsetOf(that: Domain[IntegerSetValue]): Boolean = (this, that) match {
+        case (lhs: EmptyIntegerSetDomain.type, _) => true
+        case (_, rhs: EmptyIntegerSetDomain.type) => false
         case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) => lhs.isSubsetOf(rhs)
         case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowersetDomain) => lhs.base.isSubsetOf(rhs.base)
         case (lhs: IntegerPowersetDomain, rhs: IntegerPowersetDomain) => lhs.isSubsetOf(rhs)
@@ -33,6 +38,8 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         case _ => ???
     }
     final override def intersects(that: Domain[IntegerSetValue]): Boolean = (this, that) match {
+        case (lhs: EmptyIntegerSetDomain.type, _) => false
+        case (_, rhs: EmptyIntegerSetDomain.type) => false
         case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) => lhs.intersects(rhs)
         case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowersetDomain) => lhs.base.isSubsetOf(rhs.base)
         case (lhs: IntegerPowersetDomain, rhs: IntegerPowersetDomain) => lhs.intersects(rhs)
@@ -40,6 +47,8 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         case _ => ???
     }
     final override def intersect(that: Domain[IntegerSetValue]): IntegerSetDomain = (this, that) match {
+        case (lhs: EmptyIntegerSetDomain.type, _) => lhs
+        case (_, rhs: EmptyIntegerSetDomain.type) => rhs
         case (lhs: IntegerPowersetDomain, rhs: IntegerPowersetDomain) =>
             lhs.intersect(rhs)
         case (lhs: IntegerPowersetDomain, rhs: SingletonIntegerSetDomain) =>
@@ -51,10 +60,14 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         case _ => ???
     }
     final override def union(that: Domain[IntegerSetValue]): IntegerSetDomain = (this, that) match {
-        case _ => !!!
+        case (lhs: EmptyIntegerSetDomain.type, rhs: IntegerSetDomain) => rhs
+        case (lhs, rhs: EmptyIntegerSetDomain.type) => lhs
+        case _ => ???
     }
     final override def diff(that: Domain[IntegerSetValue]): IntegerSetDomain = (this, that) match {
-        case _ => !!!
+        case (lhs: EmptyIntegerSetDomain.type, _) => lhs
+        case (lhs, rhs: EmptyIntegerSetDomain.type) => lhs
+        case _ => ???
     }
 }
 

@@ -16,14 +16,17 @@ final class IntegerSetValueTraitsTest extends UnitTest {
 
     @Test
     def testSpecialDomains: Unit = {
-        assertEx(emptyDomain)
+        assertEq(emptyDomain, EmptyIntegerSetDomain)
         assertEq(completeDomain, CompleteIntegerSetDomain)
     }
 
     @Test
     def testDomainFactories: Unit = {
-        assertEx(createDomain(Set()))
-        assertEx(createDomain(EmptyIntegerSetValue, CompleteIntegerSetValue))
+        assertEq(createDomain(Set()), EmptyIntegerSetDomain)
+        assertNie(createDomain(Set(EmptyIntegerSetValue)))
+        assertEq(createDomain(CompleteIntegerSetValue, EmptyIntegerSetValue), EmptyIntegerSetDomain)
+        assertEq(createDomain(CompleteIntegerSetValue, CompleteIntegerSetValue), new SingletonIntegerSetDomain(CompleteIntegerRange))
+        assertEq(createDomain(EmptyIntegerSetValue, CompleteIntegerSetValue), CompleteIntegerSetDomain)
     }
 
     @Test
