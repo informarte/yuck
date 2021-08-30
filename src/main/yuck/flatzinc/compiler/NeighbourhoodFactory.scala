@@ -87,7 +87,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
         val candidatesForImplicitSolving =
             if (cfg.useImplicitSolving && space.maybeDefiningConstraint(x).exists(_.isInstanceOf[Conjunction])) {
                 space.definingConstraint(x).inVariables.iterator
-                    .map(space.maybeDefiningConstraint).filter(_.isDefined).map(_.get)
+                    .map(space.maybeDefiningConstraint(_)).filter(_.isDefined).map(_.get)
                     .filter(_.isCandidateForImplicitSolving(space)).toBuffer.sorted
             } else {
                 Nil

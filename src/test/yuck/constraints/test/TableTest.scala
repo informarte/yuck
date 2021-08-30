@@ -118,7 +118,7 @@ final class TableTest
             constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
         assertEq(neighbourhood.getClass, classOf[TableNeighbourhood[_]])
         assert(xs.forall(x => x.domain.contains(now.value(x))))
-        assert(rows.contains(xs.map(now.value)))
+        assert(rows.contains(xs.map(now.value(_))))
         assertEq(now.value(costs), True)
         assertEq(neighbourhood.searchVariables, xs.toSet)
     }
@@ -154,7 +154,7 @@ final class TableTest
             constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
         assertEq(neighbourhood.getClass, classOf[TableNeighbourhood[_]])
         assert(xs.forall(x => x.domain.contains(now.value(x))))
-        assert(rows.contains(xs.map(now.value)))
+        assert(rows.contains(xs.map(now.value(_))))
         assertEq(now.value(costs), True)
         assertEq(neighbourhood.searchVariables, Set(t, u))
     }

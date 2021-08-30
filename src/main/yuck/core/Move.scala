@@ -7,17 +7,17 @@ package yuck.core
  */
 abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVariable] {
 
-    @inline final override def hashCode = id.rawId
+    final override def hashCode = id.rawId
 
     override def toString = effectsIterator.toList.sortBy(_.x).mkString(", ")
 
-    @inline final override def compare(that: Move) = this.id.rawId - that.id.rawId
-    @inline final def ==(that: Move): Boolean = this.id.rawId == that.id.rawId
-    @inline final def !=(that: Move): Boolean = this.id.rawId != that.id.rawId
-    @inline final override def <(that: Move): Boolean = this.id.rawId < that.id.rawId
-    @inline final override def <=(that: Move): Boolean = this.id.rawId <= that.id.rawId
-    @inline final override def >(that: Move): Boolean = this.id.rawId > that.id.rawId
-    @inline final override def >=(that: Move): Boolean = this.id.rawId >= that.id.rawId
+    inline final override def compare(that: Move) = this.id.rawId - that.id.rawId
+    inline final def ==(that: Move): Boolean = this.id.rawId == that.id.rawId
+    inline final def !=(that: Move): Boolean = this.id.rawId != that.id.rawId
+    inline final override def <(that: Move): Boolean = this.id.rawId < that.id.rawId
+    inline final override def <=(that: Move): Boolean = this.id.rawId <= that.id.rawId
+    inline final override def >(that: Move): Boolean = this.id.rawId > that.id.rawId
+    inline final override def >=(that: Move): Boolean = this.id.rawId >= that.id.rawId
 
     /** Returns the effects of the move. */
     def effects: Iterable[AnyMoveEffect]
@@ -65,7 +65,7 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVar
      *
      * Throws when the given variable is not involved in the move.
      */
-    @inline final def value[Value <: AnyValue](x: Variable[Value]): Value =
+    inline final def value[Value <: AnyValue](x: Variable[Value]): Value =
         value(x.asInstanceOf[AnyVariable]).asInstanceOf[Value]
 
     /**
@@ -73,7 +73,7 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVar
      * otherwise it returns Some(a) where a is the value assigned to x
      * by the move.
      */
-    @inline final def maybeValue[Value <: AnyValue](x: Variable[Value]): Option[Value] =
+    inline final def maybeValue[Value <: AnyValue](x: Variable[Value]): Option[Value] =
         maybeValue(x.asInstanceOf[AnyVariable]).map(_.asInstanceOf[Value])
 
 }

@@ -64,10 +64,10 @@ abstract class AnyObjective {
     def compareCosts(lhs: Costs, rhs: Costs): Int
 
     /** Compares the given costs and decides whether lhs is lower than rhs. */
-    @inline final def isLowerThan(lhs: Costs, rhs: Costs): Boolean = compareCosts(lhs, rhs) < 0
+    inline final def isLowerThan(lhs: Costs, rhs: Costs): Boolean = compareCosts(lhs, rhs) < 0
 
     /** Compares the given costs and decides whether lhs is higher than rhs. */
-    @inline final def isHigherThan(lhs: Costs, rhs: Costs): Boolean = compareCosts(lhs, rhs) > 0
+    inline final def isHigherThan(lhs: Costs, rhs: Costs): Boolean = compareCosts(lhs, rhs) > 0
 
     /**
      * Addresses a problem with objective variables that are search variables:

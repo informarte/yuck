@@ -29,7 +29,7 @@ final class ElementVar
 
     private val effect = y.reuseableEffect
 
-    @inline private def computeEffect(searchState: SearchState): Unit = {
+    inline private def computeEffect(searchState: SearchState): Unit = {
         // When i is a channel variable, the value of i may be out-of-bounds!
         // Nevertheless, we have to provide some value for y.
         val j = min(max(0, safeSub(searchState.value(i).value, offset)), xs.size - 1)

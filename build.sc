@@ -176,9 +176,6 @@ object yuck extends Module {
     object prod extends YuckBuild {
         override val buildType = "prod"
         override val skipIdea = true
-        override def scalacOptions =
-            super.scalacOptions() ++
-                Seq("-opt:l:method", "-opt:l:inline", "-opt-inline-from:yuck.core.**,yuck.constraints.**")
     }
 
 }

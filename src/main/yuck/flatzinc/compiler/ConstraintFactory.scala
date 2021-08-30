@@ -1040,13 +1040,13 @@ final class ConstraintFactory
                      if x.domain.singleValue != zero && (! y.domain.isSingleton || y.domain.singleValue != zero))
                     yield new AX[Value](x.domain.singleValue, y))
         axs match {
-            case List(AX(`one`, x)) if maybeChannel.isEmpty =>
+            case List(AX(a, x)) if a == one && maybeChannel.isEmpty =>
                 x
-            case List(AX(`one`, x), AX(`minusOne`, y)) =>
+            case List(AX(a, x), AX(b, y)) if a == one && b == minusOne =>
                 val channel = maybeChannel.getOrElse(createNumChannel[Value])
                 space.post(new Minus[Value](nextConstraintId, maybeGoal, x, y, channel))
                 channel
-            case List(AX(`minusOne`, x), AX(`one`, y)) =>
+            case List(AX(a, x), AX(b, y)) if a == minusOne && b == one =>
                 val channel = maybeChannel.getOrElse(createNumChannel[Value])
                 space.post(new Minus[Value](nextConstraintId, maybeGoal, y, x, channel))
                 channel

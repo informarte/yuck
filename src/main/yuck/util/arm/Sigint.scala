@@ -12,7 +12,7 @@ package yuck.util.arm
  */
 abstract class Sigint {
     protected var interrupted = false
-    @inline final def isSet: Boolean = interrupted
+    inline final def isSet: Boolean = interrupted
 }
 
 /**

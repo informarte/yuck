@@ -8,7 +8,7 @@ import java.lang.Math.pow
  * @author Michael Marte
  */
 final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
-    @inline override def hashCode = value
+    inline override def hashCode = value
     override def equals(that: Any) = that match {
         case rhs: IntegerValue => {
             val lhs = this
@@ -20,12 +20,12 @@ final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
         if (this.value < that.value) -1
         else if (this.value > that.value) 1
         else 0
-    @inline def ==(that: IntegerValue): Boolean = this.value == that.value
-    @inline def !=(that: IntegerValue): Boolean = this.value != that.value
-    @inline override def <(that: IntegerValue) = this.value < that.value
-    @inline override def <=(that: IntegerValue) = this.value <= that.value
-    @inline override def >(that: IntegerValue) = this.value > that.value
-    @inline override def >=(that: IntegerValue) = this.value >= that.value
+    inline def ==(that: IntegerValue): Boolean = this.value == that.value
+    inline def !=(that: IntegerValue): Boolean = this.value != that.value
+    inline override def <(that: IntegerValue) = this.value < that.value
+    inline override def <=(that: IntegerValue) = this.value <= that.value
+    inline override def >(that: IntegerValue) = this.value > that.value
+    inline override def >=(that: IntegerValue) = this.value >= that.value
     override def toString = value.toString
     override def +(that: IntegerValue) =
         if (this.value == 0) that
@@ -52,13 +52,13 @@ final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
         val delta = safeSub(a.value, b.value)
         if (delta == 0) this else IntegerValue(safeAdd(this.value, safeMul(s.value, delta)))
     }
-    @inline override def abs = if (value < 0) negate else this
-    @inline override def negate = IntegerValue(safeNeg(value))
-    @inline override def toInt = value
-    @inline override def toLong = value.toLong
-    @inline override def toFloat = value.toFloat
-    @inline override def toDouble = value.toDouble
-    @inline override def isEven = value % 2 == 0
+    inline override def abs = if (value < 0) negate else this
+    inline override def negate = IntegerValue(safeNeg(value))
+    inline override def toInt = value
+    inline override def toLong = value.toLong
+    inline override def toFloat = value.toFloat
+    inline override def toDouble = value.toDouble
+    inline override def isEven = value % 2 == 0
 }
 
 /**
@@ -68,9 +68,9 @@ final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
  */
 object IntegerValue {
 
-    @inline def min(a: IntegerValue, b: IntegerValue): IntegerValue = if (a < b) a else b
+    inline def min(a: IntegerValue, b: IntegerValue): IntegerValue = if (a < b) a else b
 
-    @inline def max(a: IntegerValue, b: IntegerValue): IntegerValue = if (a > b) a else b
+    inline def max(a: IntegerValue, b: IntegerValue): IntegerValue = if (a > b) a else b
 
     implicit def valueTraits: IntegerValueTraits.type = IntegerValueTraits
     implicit def numericalOperations: IntegerValueOperations.type = IntegerValueOperations

@@ -68,7 +68,7 @@ final class Table
 
     private val orderingCostModel = valueTraits.orderingCostModel
 
-    @inline private def computeDistance(a: Value, b: Value): Long =
+    inline private def computeDistance(a: Value, b: Value): Long =
         orderingCostModel.eqViolation(a, b)
 
     override def propagate = {

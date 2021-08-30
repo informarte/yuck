@@ -9,8 +9,16 @@ final case class AX
     [Value <: NumericalValue[Value]]
     (val a: Value, val x: NumericalVariable[Value])
 {
-    override def toString = "%s * %s".format(a, x)
     override def hashCode = x.hashCode
+    override def equals(that: Any) = that match {
+        case rhs: AX[_] => {
+            val lhs = this
+            // First compare variables to ensure that scalar comparison does not throw due to type mismatch!
+            lhs.x == rhs.x && lhs.a == rhs.a
+        }
+        case _ => false
+    }
+    override def toString = "%s * %s".format(a, x)
 }
 
 /**

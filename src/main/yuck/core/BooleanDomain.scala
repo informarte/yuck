@@ -24,7 +24,7 @@ abstract class BooleanDomain extends OrderedDomain[BooleanValue] {
         case (lhs: BooleanChannelDomain.type, rhs: BooleanDecisionDomain) => false
         case _ => ???
     }
-    @inline final override def !=(that: Domain[BooleanValue]) = ! (this == that)
+    inline final override def !=(that: Domain[BooleanValue]) = ! (this == that)
 
     final override def randomSubdomain(randomGenerator: RandomGenerator): BooleanDomain = ???
 

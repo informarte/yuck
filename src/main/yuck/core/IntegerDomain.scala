@@ -37,7 +37,7 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
             (lhs.isEmpty && rhs.isEmpty) || (lhs.ranges.size == 1 && rhs ==lhs.ranges.head)
         case _ => ???
     }
-    @inline final override def !=(that: Domain[IntegerValue]) = ! (this == that)
+    inline final override def !=(that: Domain[IntegerValue]) = ! (this == that)
 
     override def hull: IntegerRange
     override def mirrored: IntegerDomain

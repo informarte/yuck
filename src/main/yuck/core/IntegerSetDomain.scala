@@ -26,7 +26,7 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         case (lhs: IntegerPowersetDomain, rhs: SingletonIntegerSetDomain) => lhs.base.isEmpty && rhs.base.isEmpty
         case _ => ???
     }
-    @inline final override def !=(that: Domain[IntegerSetValue]) = ! (this == that)
+    inline final override def !=(that: Domain[IntegerSetValue]) = ! (this == that)
     final override def randomSubdomain(randomGenerator: RandomGenerator): IntegerSetDomain = ???
     final override def isSubsetOf(that: Domain[IntegerSetValue]): Boolean = (this, that) match {
         case (lhs: EmptyIntegerSetDomain.type, _) => true

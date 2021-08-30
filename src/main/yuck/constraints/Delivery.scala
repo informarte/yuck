@@ -78,7 +78,7 @@ final class Delivery
         val space = this.space.get.get
         val maybeCircuit =
             space.directlyAffectedConstraints(succ(0)).iterator
-                 .filter(_.isInstanceOf[Circuit]).filter(space.isImplicitConstraint).nextOption()
+                 .filter(_.isInstanceOf[Circuit]).filter(space.isImplicitConstraint(_)).nextOption()
         require(maybeCircuit.isDefined)
         val circuit = maybeCircuit.get
         require(circuit.inVariables.toSet == succ.toSet)
@@ -158,7 +158,7 @@ final class Delivery
     // tours affected by the last move examined by consult (in terms of 0-based tour indices)
     private val affectedTours = new mutable.HashSet[Int]
 
-    @inline private def distanceDelta
+    inline private def distanceDelta
         (dx: NumericalDomain[Time], beforeValue: NumericalValue[Time], afterValue: NumericalValue[Time]): Long =
         safeSub(dx.distanceTo(afterValue).toLong, dx.distanceTo(beforeValue).toLong)
 

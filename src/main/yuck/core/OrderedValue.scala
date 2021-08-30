@@ -15,7 +15,7 @@ abstract class OrderedValue[Value] extends AnyValue with Ordered[Value] {
         case _ => false
     }
 
-    @inline def ==(that: OrderedValue[Value]): Boolean = this.eq(that) || this.compare(that.asInstanceOf[Value]) == 0
-    @inline def !=(that: OrderedValue[Value]): Boolean = ! ( this == that)
+    inline def ==(that: OrderedValue[Value]): Boolean = this.eq(that) || this.compare(that.asInstanceOf[Value]) == 0
+    inline def !=(that: OrderedValue[Value]): Boolean = ! ( this == that)
 
 }

@@ -12,15 +12,15 @@ final class BooleanDecisionDomain
     override def hashCode = 3 * (3 + containsFalse.hashCode) + containsTrue.hashCode
     def ==(that: BooleanDecisionDomain) =
         this.eq(that) || (this.containsFalse == that.containsFalse && this.containsTrue == that.containsTrue)
-    @inline def !=(that: BooleanDecisionDomain) = ! (this == that)
+    inline def !=(that: BooleanDecisionDomain) = ! (this == that)
     override def size = (if (containsFalse) 1 else 0) + (if (containsTrue) 1 else 0)
     override def isComplete = false
     override def isFinite = true
     override def isBounded = true
     override def hasLb = true
     override def hasUb = true
-    @inline override def lb = if (containsTrue) True else False
-    @inline override def ub = if (containsFalse) False else True
+    inline override def lb = if (containsTrue) True else False
+    inline override def ub = if (containsFalse) False else True
     override def values =
         if (containsFalse && containsTrue) BooleanDecisionDomain.listWithFalseAndTrue
         else if (containsFalse) BooleanDecisionDomain.listWithFalse
@@ -97,13 +97,8 @@ object BooleanDecisionDomain {
      * Tries to avoid memory allocation by re-using existing objects
      */
     def apply(lb: BooleanValue, ub: BooleanValue): BooleanDecisionDomain = {
-        (lb, ub) match {
-            case (False, False) => FalseDomain
-            case (False, True) => EmptyBooleanDomain
-            case (True, False) => CompleteBooleanDecisionDomain
-            case (True, True) => TrueDomain
-            case _ => ???
-        }
+        require(lb.violation <= 1 && ub.violation <= 1)
+        BooleanDecisionDomain(! ub.truthValue, lb.truthValue)
     }
 
 }
