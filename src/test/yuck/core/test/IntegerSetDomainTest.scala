@@ -43,7 +43,7 @@ final class IntegerSetDomainTest extends UnitTest {
     def testOrdering: Unit = {
         val sampleSize = 8
         val testData = createTestData(sampleSize)
-        val helper2 = new OrderingTestHelper[IntegerSetDomain](randomGenerator)
+        val helper2 = new OrderingTestHelper[OrderedDomain[IntegerSetValue]](randomGenerator)
         helper2.testOrdering(testData, IntegerSetDomainOrdering)
     }
 

@@ -2,8 +2,6 @@ package yuck.constraints.test
 
 import org.junit._
 
-import scala.language.existentials
-
 import yuck.constraints._
 import yuck.core._
 import yuck.test.util.UnitTest
@@ -18,7 +16,7 @@ class SatisfactionGoalTrackerTest extends UnitTest {
     @Test
     def testTracking: Unit = {
         val space = new Space(logger, sigint)
-        val Vector(c1, c2, c3) =
+        val IndexedSeq(c1, c2, c3) =
             (0 to 2).map(i => new BooleanVariable(space.nextVariableId, "c%d".format(i), BooleanChannelDomain))
         val m = Map(c1 -> Vector(0, 2), c2 -> Vector(2), c3 -> Vector(0, 1, 2))
         val d = new ArrayBackedDistribution(3)

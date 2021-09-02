@@ -210,8 +210,8 @@ final class SpaceTest extends UnitTest {
         require(! xs.isEmpty)
 
         override def toString = "spy([%s], %s)".format(xs.mkString(", "), sum)
-        override def inVariables = xs
-        override def outVariables = List(sum)
+        override def inVariables: Iterable[IntegerVariable] = xs
+        override def outVariables: Seq[IntegerVariable] = List(sum)
 
         private val effects = Vector(sum.reuseableEffect)
 

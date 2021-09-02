@@ -53,14 +53,14 @@ final class MinimizationObjectiveTest extends UnitTest {
         a.setValue(x, Zero)
         val b = new HashMapBackedAssignment
         b.setValue(x, One)
-        assertEq(objective.assessMove(a, a), 0)
-        assertEq(objective.assessMove(b, b), 0)
-        assertEq(objective.assessMove(a, b), 1)
+        assertEq(objective.assessMove(a, a), 0.0)
+        assertEq(objective.assessMove(b, b), 0.0)
+        assertEq(objective.assessMove(a, b), 1.0)
         b.setValue(x, Two)
-        assertGt(objective.assessMove(a, b), 1)
+        assertGt(objective.assessMove(a, b), 1.0)
         b.setValue(x, Three)
-        assertGt(objective.assessMove(a, b), 1)
-        assertLt(objective.assessMove(b, a), -1)
+        assertGt(objective.assessMove(a, b), 1.0)
+        assertLt(objective.assessMove(b, a), -1.0)
     }
 
     @Test

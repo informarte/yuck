@@ -75,7 +75,7 @@ trait DomainPropagationTestTooling extends ConstraintTestTooling {
         }
     }
 
-    protected implicit def createDomainReduction[Value <: AnyValue](reduction: (Variable[Value], Domain[Value])) =
+    protected implicit def createDomainReduction[Value <: AnyValue](reduction: (Variable[Value], Domain[Value])): DomainReduction[Value] =
         new DomainReduction[Value](reduction._1, reduction._2)
 
     protected implicit def createSetup(setup: () => Unit): Setup =
@@ -86,7 +86,7 @@ trait DomainPropagationTestTooling extends ConstraintTestTooling {
         createSetup1(List(new DomainReduction[Value](reduction._1, reduction._2)))
     protected implicit def createSetup3[Value <: AnyValue](reductions: List[(Variable[Value], Domain[Value])]): Setup =
         createSetup1(for (reduction <- reductions) yield new DomainReduction[Value](reduction._1, reduction._2))
-    protected implicit def createSetup4(nil: scala.collection.immutable.Nil.type) =
+    protected implicit def createSetup4(nil: scala.collection.immutable.Nil.type): Setup =
         createSetup(() => {})
 
     protected implicit def createCheck(check: () => Unit): Check =

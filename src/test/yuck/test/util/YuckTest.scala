@@ -3,8 +3,6 @@ package yuck.test.util
 import org.junit._
 import org.junit.rules.{RuleChain, TestName}
 
-import scala.annotation.meta.getter
-
 import yuck.util.arm.DummyResource
 import yuck.util.logging.YuckLogging
 
@@ -28,8 +26,8 @@ abstract class YuckTest extends YuckAssert with YuckLogging {
 
     protected val sigint = new yuck.util.arm.SettableSigint
 
-    @(Rule @getter)
-    protected val environmentManagement =
+    @Rule
+    def environmentManagement =
         RuleChain
         .outerRule(testName)
         // For the case that the test method under execution initiates a shutdown upon interrupt,

@@ -14,7 +14,7 @@ abstract class NumericalObjective
     override val x: NumericalVariable[Value]
     protected val maybeY: Option[NumericalVariable[Value]]
 
-    final override def costs(searchState: SearchState) = searchState.value(x)
+    final override def costs(searchState: SearchState): NumericalValue[Value] = searchState.value(x)
     final override def isSolution(costs: Costs) = isGoodEnough(costs)
 
     final override private[core] def findActualObjectiveValue(space: Space, rootObjective: AnyObjective) = {

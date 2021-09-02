@@ -73,7 +73,7 @@ trait AssignmentPropagationTestTooling extends ConstraintTestTooling {
             ConsultAndCommit(comment, effects.take(effects.size - 1).toList, List(effects.last))
     }
 
-    protected implicit def createMoveEffect[Value <: AnyValue](assignment: (Variable[Value], Value)) =
+    protected implicit def createMoveEffect[Value <: AnyValue](assignment: (Variable[Value], Value)): MoveEffect[Value] =
         new ImmutableMoveEffect[Value](assignment._1, assignment._2)
 
 }
