@@ -54,9 +54,9 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
                 assertEq(d.inverseCdf(volume - 1), n - 1)
             }
         }
-        assertGt(d.volume, 0)
+        assertGt(d.volume, 0L)
         d.clear()
-        assertEq(d.volume, 0)
+        assertEq(d.volume, 0L)
         assertEq(d.numberOfAlternatives, 0)
     }
 
@@ -89,10 +89,10 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
         for (i <- 0 until sampleSize) {
             e.addFrequencyDelta(d.nextIndex(randomGenerator), 1)
         }
-        assertEq(e.frequency(0), 0)
-        assertGt(e.frequency(1), 300)
-        assertGt(e.frequency(2), 600)
-        assertEq(e.volume, 1000)
+        assertEq(e.frequency(0), 0L)
+        assertGt(e.frequency(1), 300L)
+        assertGt(e.frequency(2), 600L)
+        assertEq(e.volume, 1000L)
     }
 
     @Test

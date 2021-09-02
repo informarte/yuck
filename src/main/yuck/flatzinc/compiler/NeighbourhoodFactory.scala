@@ -185,9 +185,8 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
     }
 
     private def createNeighbourhoodOnInvolvedSearchVariables(x: AnyVariable): Option[Neighbourhood] = {
-        val xs =
-            (if (space.isSearchVariable(x)) Set(x) else space.involvedSearchVariables(x))
-                .diff(implicitlyConstrainedVars)
+        val xs0 = if (space.isSearchVariable(x)) Set(x) else space.involvedSearchVariables(x)
+        val xs = xs0.diff(implicitlyConstrainedVars)
         if (xs.isEmpty) {
             None
         } else {

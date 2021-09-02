@@ -17,7 +17,7 @@ class OrderingTestHelper[T](randomGenerator: RandomGenerator) extends EqualityTe
     // >= is the inverse of <=
     // > is the inverse of <
     // For efficiency, testData should not contain duplicates.
-    def testOrdering(testData: Seq[T], ord: Ordering[U] forSome {type U >: T}): Unit = {
+    def testOrdering(testData: Seq[T], ord: Ordering[T]): Unit = {
         for (a <- testData) {
             // reflexivity of =
             assertEq(ord.compare(a, a), 0)

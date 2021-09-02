@@ -71,8 +71,8 @@ final class CircuitNeighbourhood
         effects += effect
     }
 
-    private abstract class CircuitMove extends ChangeValues(space.nextMoveId, effects) {
-        override def toString = "%s(%s)".format(getClass.getSimpleName, effects.mkString(", "))
+    private abstract class CircuitMove extends ChangeValues(space.nextMoveId, effects) { outer =>
+        override def toString = "%s(%s)".format(getClass.getSimpleName, outer.effects.mkString(", "))
     }
     private case class NodeSwap(i: Int, j: Int) extends CircuitMove
     private case class SegmentSwap(i: Int, j: Int, k: Int) extends CircuitMove

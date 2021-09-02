@@ -3,7 +3,6 @@ package yuck.constraints.test
 import org.junit._
 
 import scala.collection._
-import scala.language.existentials
 
 import yuck.constraints._
 import yuck.core._
@@ -27,7 +26,7 @@ final class CumulativeTest extends UnitTest with AssignmentPropagationTestToolin
         val space = new Space(logger, sigint)
         val d = IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
-        val Vector(t1, t2) = tasks
+        val IndexedSeq(t1, t2) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
@@ -39,7 +38,7 @@ final class CumulativeTest extends UnitTest with AssignmentPropagationTestToolin
         val space = new Space(logger, sigint)
         val d = IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
-        val Vector(t1, t2) = tasks
+        val IndexedSeq(t1, t2) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
@@ -60,7 +59,7 @@ final class CumulativeTest extends UnitTest with AssignmentPropagationTestToolin
         val space = new Space(logger, sigint)
         val d = IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
-        val Vector(t1, t2) = tasks
+        val IndexedSeq(t1, t2) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
@@ -89,7 +88,7 @@ final class CumulativeTest extends UnitTest with AssignmentPropagationTestToolin
         val space = new Space(logger, sigint)
         val d = IntegerRange(Zero, Nine)
         val tasks = (1 to 1).map(createTask(space, _, d))
-        val Vector(t1) = tasks
+        val IndexedSeq(t1) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
@@ -133,7 +132,7 @@ final class CumulativeTest extends UnitTest with AssignmentPropagationTestToolin
         val space = new Space(logger, sigint)
         val d = IntegerRange(Zero, Nine)
         val tasks = (1 to 1).map(createTask(space, _, d))
-        val Vector(t1) = tasks
+        val IndexedSeq(t1) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
@@ -153,7 +152,7 @@ final class CumulativeTest extends UnitTest with AssignmentPropagationTestToolin
         val space = new Space(logger, sigint)
         val d = IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
-        val Vector(t1, t2) = tasks
+        val IndexedSeq(t1, t2) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))
@@ -176,7 +175,7 @@ final class CumulativeTest extends UnitTest with AssignmentPropagationTestToolin
         val space = new Space(logger, sigint)
         val d = IntegerRange(Zero, Nine)
         val tasks = (1 to 2).map(createTask(space, _, d))
-        val Vector(t1, t2) = tasks
+        val IndexedSeq(t1, t2) = tasks
         val ub = new IntegerVariable(space.nextVariableId, "ub", d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Cumulative(space.nextConstraintId, null, tasks, ub, costs))

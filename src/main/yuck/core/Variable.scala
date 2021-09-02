@@ -81,7 +81,7 @@ abstract class Variable
         reuseableEffect
     }
 
-    final override def nextRandomMoveEffect(space: Space, randomGenerator: RandomGenerator) = {
+    final override def nextRandomMoveEffect(space: Space, randomGenerator: RandomGenerator): MoveEffect[Value] = {
         reuseableEffect.a = domain.nextRandomValue(randomGenerator, space.searchState.value(this))
         reuseableEffect
     }

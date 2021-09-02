@@ -3,7 +3,6 @@ package yuck.constraints.test
 import org.junit._
 
 import scala.collection._
-import scala.language.existentials
 
 import yuck.constraints._
 import yuck.core._
@@ -27,7 +26,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     def testSearchVariables: Unit = {
         val space = new Space(logger, sigint)
         val rects = (1 to 2).map(createRect(space, _, IntegerRange(Zero, Nine)))
-        val Vector(r1, r2) = rects
+        val IndexedSeq(r1, r2) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
         assertEq(space.searchVariables, Set(r1.x, r1.y, r1.w, r1.h, r2.x, r2.y, r2.w, r2.h))
@@ -37,7 +36,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     def testRectangleMovement: Unit = {
         val space = new Space(logger, sigint)
         val rects = (1 to 4).map(createRect(space, _, IntegerRange(Zero, Nine)))
-        val Vector(r1, r2, r3, r4) = rects
+        val IndexedSeq(r1, r2, r3, r4) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
         runScenario(
@@ -59,7 +58,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     def testRectangleResizing: Unit = {
         val space = new Space(logger, sigint)
         val rects = (1 to 2).map(createRect(space, _, IntegerRange(Zero, Nine)))
-        val Vector(r1, r2) = rects
+        val IndexedSeq(r1, r2) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
         runScenario(
@@ -79,7 +78,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     def testSimultaneousRectangleMovementAndResizing: Unit = {
         val space = new Space(logger, sigint)
         val rects = (1 to 2).map(createRect(space, _, IntegerRange(Zero, Nine)))
-        val Vector(r1, r2) = rects
+        val IndexedSeq(r1, r2) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
         runScenario(
@@ -101,7 +100,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     def testHandlingOfAdjacentRectangles: Unit = {
         val space = new Space(logger, sigint)
         val rects = (1 to 3).map(createRect(space, _, IntegerRange(Zero, Nine)))
-        val Vector(r1, r2, r3) = rects
+        val IndexedSeq(r1, r2, r3) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
         runScenario(
@@ -128,7 +127,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
                 new IntegerVariable(space.nextVariableId, "h2", d))
         val r3 = createRect(space, 3, d)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        space.post(new Disjoint2(space.nextConstraintId, null, Vector(r1, r2, r3, r1), false, costs))
+        space.post(new Disjoint2(space.nextConstraintId, null, immutable.IndexedSeq(r1, r2, r3, r1), false, costs))
         runScenario(
             TestScenario(
                 space,
@@ -146,7 +145,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     def testConsultWithoutCommit: Unit = {
         val space = new Space(logger, sigint)
         val rects = (1 to 2).map(createRect(space, _, IntegerRange(Zero, Nine)))
-        val Vector(r1, r2) = rects
+        val IndexedSeq(r1, r2) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
         runScenario(
@@ -165,7 +164,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     def testNonStrictSemantics: Unit = {
         val space = new Space(logger, sigint)
         val rects = (1 to 2).map(createRect(space, _, IntegerRange(Zero, Nine)))
-        val Vector(r1, r2) = rects
+        val IndexedSeq(r1, r2) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
         runScenario(
@@ -184,7 +183,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     def testRectangleMovementWithStrictSemantics: Unit = {
         val space = new Space(logger, sigint)
         val rects = (1 to 9).map(createRect(space, _, IntegerRange(Zero, Nine)))
-        val Vector(r1, r2, r3, r4, vl1, vl2, hl1, hl2, p1) = rects
+        val IndexedSeq(r1, r2, r3, r4, vl1, vl2, hl1, hl2, p1) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, true, costs))
         runScenario(
@@ -236,7 +235,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     def testRectangleResizingWithStrictSemantics: Unit = {
         val space = new Space(logger, sigint)
         val rects = (1 to 3).map(createRect(space, _, IntegerRange(Zero, Nine)))
-        val Vector(r1, r2, r3) = rects
+        val IndexedSeq(r1, r2, r3) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, true, costs))
         runScenario(
@@ -261,7 +260,7 @@ final class Disjoint2Test extends UnitTest with AssignmentPropagationTestTooling
     def testHandlingOfNegativeWidthAndHeight: Unit = {
         val space = new Space(logger, sigint)
         val rects = (1 to 3).map(createRect(space, _, IntegerRange(Zero, Nine)))
-        val Vector(r1, r2, r3) = rects
+        val IndexedSeq(r1, r2, r3) = rects
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         space.post(new Disjoint2(space.nextConstraintId, null, rects, true, costs))
         runScenario(

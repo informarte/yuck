@@ -7,7 +7,7 @@ package yuck.core
  */
 final class SatisfactionObjective(override val x: BooleanVariable) extends PrimitiveObjective {
     override def targetCosts = True
-    override def costs(searchState: SearchState) = searchState.value(x)
+    override def costs(searchState: SearchState): BooleanValue = searchState.value(x)
     override def isSolution(costs: Costs): Boolean = costs == True
     override def isGoodEnough(costs: Costs): Boolean = costs == True
     override def isOptimal(costs: Costs): Boolean = costs == True

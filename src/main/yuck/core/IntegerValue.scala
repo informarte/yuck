@@ -72,9 +72,9 @@ object IntegerValue {
 
     @inline def max(a: IntegerValue, b: IntegerValue): IntegerValue = if (a > b) a else b
 
-    implicit def valueTraits = IntegerValueTraits
-    implicit def numericalOperations = IntegerValueOperations
-    implicit def domainOrdering = IntegerDomainOrdering
+    implicit def valueTraits: IntegerValueTraits.type = IntegerValueTraits
+    implicit def numericalOperations: IntegerValueOperations.type = IntegerValueOperations
+    implicit def domainOrdering: IntegerDomainOrdering.type = IntegerDomainOrdering
 
     private val lb = -10000
     private val ub = 10000

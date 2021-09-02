@@ -33,7 +33,7 @@ final class BooleanDecisionDomainTest extends UnitTest {
             assertEq(d, d)
             assertNe(d, new BooleanDecisionDomain(! f, t))
             assertNe(d, new BooleanDecisionDomain(f, ! t))
-            assert(if (f || t) ! d.isEmpty else d.isEmpty)
+            assert(if (f || t) (! d.isEmpty) else d.isEmpty)
             assertEq(d.size, (if (f) 1 else 0) + (if (t) 1 else 0))
             assertEq(d.size == 1, d.isSingleton)
             assert(d.isFinite)
