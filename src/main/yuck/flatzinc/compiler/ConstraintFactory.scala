@@ -337,8 +337,8 @@ final class ConstraintFactory
                 case (Nil, _) => compileConstraint(maybeGoal, Constraint("array_bool_and", List(bs, BoolConst(false)), Nil))
                 case (_, Nil) => compileConstraint(maybeGoal, Constraint("array_bool_or", List(as, BoolConst(true)), Nil))
                 case _ =>
-                    val List(costs0) = compileConstraint(maybeGoal, Constraint("array_bool_or", List(as, BoolConst(true)), Nil))
-                    val List(costs1) = compileConstraint(maybeGoal, Constraint("array_bool_and", List(bs, BoolConst(true)), Nil))
+                    val List(costs0) = compileConstraint(maybeGoal, Constraint("array_bool_or", List(as, BoolConst(true)), Nil)).toList
+                    val List(costs1) = compileConstraint(maybeGoal, Constraint("array_bool_and", List(bs, BoolConst(true)), Nil)).toList
                     val costs = createBoolChannel
                     space.post(new Le[BooleanValue](nextConstraintId, maybeGoal, costs1, costs0, costs))
                     List(costs)
@@ -735,7 +735,7 @@ final class ConstraintFactory
             val constraint = new Inverse(nextConstraintId, maybeGoal, new InverseFunction(f, fOffset), new InverseFunction(g, gOffset), costs)
             val constraints = constraint.decompose(space)
             constraints.foreach(space.post)
-            constraints.view.flatMap(_.outVariables)
+            constraints.view.flatMap(_.outVariables).map(_.asInstanceOf[BooleanVariable])
         case Constraint("yuck_bin_packing_load", List(loads0, bins0, weights0, IntConst(minLoadIndex)), _) =>
             val bins = compileIntArray(bins0)
             val weights = getArrayElems(weights0).map(getConst[IntegerValue](_))

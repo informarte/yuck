@@ -17,18 +17,14 @@ class OrderedDomainTestHelper
     extends DomainTestHelper[Value](logger)
 {
 
-    def testOrdering
-        [Domain <: OrderedDomain[Value]]
-        (testData: Seq[Domain]):
-        Unit =
-    {
+    def testOrdering(testData: Seq[OrderedDomain[Value]]): Unit = {
         logger.withRootLogLevel(FineLogLevel) {
             logger.withLogScope("Test data") {
                 testData.foreach(item => logger.log(item.toString))
             }
         }
-        val helper = new OrderingTestHelper[Domain](randomGenerator)
-        val ord = new OrderingFromOrdered[Domain]
+        val helper = new OrderingTestHelper[OrderedDomain[Value]](randomGenerator)
+        val ord = new OrderingFromOrdered[OrderedDomain[Value]]
         helper.testOrdering(testData, ord)
     }
 

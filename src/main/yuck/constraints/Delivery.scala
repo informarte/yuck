@@ -47,7 +47,7 @@ final class Delivery
 {
 
     private val timeOps = timeTraits.numericalOperations
-    private implicit val timeClassTag = ClassTag[Time](timeTraits.valueType)
+    private implicit val timeClassTag: ClassTag[Time] = ClassTag[Time](timeTraits.valueType)
 
     private val nodes = IntegerRange(offset, offset + succ.size - 1)
     require(! startNodes.isEmpty)

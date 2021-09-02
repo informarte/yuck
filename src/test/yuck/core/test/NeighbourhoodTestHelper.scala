@@ -74,7 +74,7 @@ final class NeighbourhoodTestHelper
         }
         val failureCount = (1 until moveSizeDistribution.size).iterator.map(checkMoveSizeFrequency).count(! _)
         import scala.math.Ordering.Double.TotalOrdering
-        assertLe(failureCount, moveSizeDistribution.size * maxFailureRate)
+        assertLe(failureCount.toDouble, moveSizeDistribution.size * maxFailureRate)
     }
 
     def checkVariableFrequencies(result: MeasurementResult, tolerance: Double, maxFailureRate: Double): Unit = {
@@ -141,7 +141,7 @@ final class NeighbourhoodTestHelper
         }
         val failureCount = (0 until xs.size).iterator.map(checkVariableFrequency).count(! _)
         import scala.math.Ordering.Double.TotalOrdering
-        assertLe(failureCount, xs.size * maxFailureRate)
+        assertLe(failureCount.toDouble, xs.size * maxFailureRate)
     }
 
 }

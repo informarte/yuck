@@ -48,9 +48,9 @@ final class BooleanValue(val violation: Long) extends OrderedValue[BooleanValue]
  */
 object BooleanValue {
 
-    implicit def valueTraits = BooleanValueTraits
-    implicit def valueOrdering = BooleanValueOrdering
-    implicit def domainOrdering = BooleanDomainOrdering
+    implicit def valueTraits: BooleanValueTraits.type = BooleanValueTraits
+    implicit def valueOrdering: BooleanValueOrdering.type = BooleanValueOrdering
+    implicit def domainOrdering: BooleanDomainOrdering.type = BooleanDomainOrdering
 
     private val ub = 10000
     private val valueRange = Range(0, ub, 1)

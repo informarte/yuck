@@ -29,7 +29,7 @@ class MiniZincBasedTest extends IntegrationTest {
     private object JsEntry {
         def apply(value: JsValue): JsEntry = new JsEntry(value)
     }
-    private implicit def createJsNode(value: JsValue) = new JsEntry(value)
+    private implicit def createJsNode(value: JsValue): JsNode = new JsEntry(value)
     private class JsSection extends JsNode {
         private val fields = new mutable.HashMap[String, JsNode]
         override def value =
