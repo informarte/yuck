@@ -17,8 +17,8 @@ final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
         case _ => false
     }
     override def compare(that: IntegerValue) =
-        if (this.value < that.value) -1
-        else if (this.value > that.value) 1
+        if this.value < that.value then -1
+        else if this.value > that.value then 1
         else 0
     inline def ==(that: IntegerValue): Boolean = this.value == that.value
     inline def !=(that: IntegerValue): Boolean = this.value != that.value
