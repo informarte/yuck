@@ -64,15 +64,10 @@ trait YuckBuild extends ScalaModule with BuildInfo {
         override def sources = T.sources {millSourcePath / "src" / "test"}
         override def resources = T.sources()
 
-        override def testFrameworks = Seq("com.novocode.junit.JUnitFramework")
-
         override def ivyDeps = Agg(
             ivy"junit:junit:4.13.2",
             ivy"org.jgrapht:jgrapht-io:1.4.0",
             ivy"org.scalamock::scalamock:4.4.0"
-        )
-        override def runIvyDeps = Agg(
-            ivy"com.github.sbt:junit-interface:0.13.2"
         )
 
         val jvmHeapSize = Option(System.getenv("YUCK_TEST_HEAP_SIZE")).getOrElse("2G")
