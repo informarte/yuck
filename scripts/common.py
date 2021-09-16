@@ -12,6 +12,7 @@ def analyzeResult(result, bins = 10, range = None):
         q3 = quartiles[2]
         iqr = q3 - q1
         return {
+            'count': len(values),
             'min': min(values),
             'q1': q1,
             'q2': q2,

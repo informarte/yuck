@@ -8,7 +8,14 @@
 #
 # The result database is created in the working directory under the name results.db
 # unless another name is specified by way of the --db option.
-
+#
+# The --model-override option addresses the following use case:
+# When we study a particular problem, we want to compare different models or different
+# solvers which require specific models. However, as all the downstream scripts distinguish
+# results by the key (problem, model, instance), results with different models are not
+# comparable. To obtain comparable results, organize results for different models or
+# from different solvers into separate runs and use --model-override to replace the models
+# from the result files with the given model.
 
 import argparse
 import json
@@ -40,7 +47,7 @@ def createDb(cursor):
         'CONSTRAINT result_unique_constraint UNIQUE (run, problem, model, instance) ON CONFLICT IGNORE)')
     cursor.execute('CREATE INDEX IF NOT EXISTS result_index ON result(run, problem, model, instance)')
 
-def importResults(run, file, cursor):
+def importResults(args, file, cursor):
     data = json.load(file)
     task = data.get('task')
     modelStatistics = data.get('yuck-model-statistics')
@@ -53,10 +60,10 @@ def importResults(run, file, cursor):
     else:
         cursor.execute(
             'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            (run,
+            (args.run,
              task['suite'],
              task['problem'],
-             task['model'],
+             args.modelOverride if args.modelOverride else task['model'],
              task['instance'],
              task['problem-type'],
              task.get('optimum'),
@@ -77,6 +84,7 @@ def main():
         description = 'Puts integration test results into a database',
         formatter_class = argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--db', '--database', dest = 'database', default = 'results.db', help = 'Define results database')
+    parser.add_argument('--model-override', dest = 'modelOverride', default = '', help = 'Replace the models from the result files with the given model')
     parser.add_argument('run', metavar = 'run')
     parser.add_argument('filenames', metavar = 'json-result-file', nargs = '+')
     args = parser.parse_args()
@@ -88,7 +96,7 @@ def main():
         for filename in args.filenames:
             print("Importing ", filename)
             with open(filename) as file:
-                importResults(args.run, file, cursor)
+                importResults(args, file, cursor)
                 conn.commit()
 
 main()

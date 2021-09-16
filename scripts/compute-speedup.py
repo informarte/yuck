@@ -16,20 +16,21 @@ import common
 
 def computeSpeedups(cursor, args):
     runs = [args.referenceRun] + args.runs
-    query = 'SELECT run, problem, instance, moves_per_second, runtime_in_seconds FROM result WHERE run IN (%s)' % ','.join('?' for run in runs)
+    query = 'SELECT run, problem, model, instance, moves_per_second, runtime_in_seconds FROM result WHERE run IN (%s)' % ','.join('?' for run in runs)
     tasks = set()
     data = {}
     problemPattern = re.compile(args.problemFilter)
+    modelPattern = re.compile(args.modelFilter)
     instancePattern = re.compile(args.instanceFilter)
-    for (run, problem, instance, movesPerSecond, runtimeInSeconds) in cursor.execute(query, runs):
-        if problemPattern.match(problem) and instancePattern.match(instance):
-            task = (problem, instance)
+    for (run, problem, model, instance, movesPerSecond, runtimeInSeconds) in cursor.execute(query, runs):
+        if problemPattern.match(problem) and modelPattern.match(model) and instancePattern.match(instance):
+            task = (problem, model, instance)
             tasks.add(task)
             data[(run, task)] = {'mps': movesPerSecond, 'rts': runtimeInSeconds}
     for task in tasks:
         if not (args.referenceRun, task) in data:
-            (problem, instance) = task
-            print('Warning: No reference result found for instance {}/{}'.format(problem, instance, file = sys.stderr))
+            (problem, model, instance) = task
+            print('Warning: No reference result found for instance {}/{}/{}'.format(problem, model, instance, file = sys.stderr))
     return {
         run: {
             task:
@@ -41,15 +42,18 @@ def computeSpeedups(cursor, args):
              if (args.referenceRun, task) in data]
             if newData['mps']
             if refData['mps']
-            if newData['rts'] and newData['rts'] >= args.minRuntime
-            if refData['rts'] and refData['rts'] >= args.minRuntime
+            if newData['rts'] and newData['rts'] >= args.minRuntimeInSeconds
+            if refData['rts'] and refData['rts'] >= args.minRuntimeInSeconds
         }
         for run in args.runs
     }
 
 def plotDiagrams(args, results):
     title = 'Speedups (wrt. {})'.format(args.referenceRun)
-    filters = ([args.problemFilter] if args.problemFilter else []) + ([args.instanceFilter] if args.instanceFilter else [])
+    filters = \
+        ([args.problemFilter] if args.problemFilter else ['']) + \
+        ([args.modelFilter] if args.modelFilter else []) + \
+        ([args.instanceFilter] if args.instanceFilter else [])
     if filters:
         title += ' ({})'.format(', '.join(filters))
     common.plotDiagrams(
@@ -66,8 +70,9 @@ def main():
     parser.add_argument('--db', '--database', dest = 'database', default = 'results.db', help = 'Define results database')
     parser.add_argument('-p', '--plot', dest = 'plotDiagrams', action = 'store_true', help = 'Plot diagrams')
     parser.add_argument('--problem-filter', dest = 'problemFilter', default = '', help = 'Consider only problems that match the given regexp')
+    parser.add_argument('--model-filter', dest = 'modelFilter', default = '', help = 'Consider only models that match the given regexp')
     parser.add_argument('--instance-filter', dest = 'instanceFilter', default = '', help = 'Consider only instances that match the given regexp')
-    parser.add_argument('--min-runtime', dest = 'minRuntime', type = int, default = 1, help = 'Ignore quicker runs')
+    parser.add_argument('--min-runtime', dest = 'minRuntimeInSeconds', type = int, default = 1, help = 'Ignore runs quicker than the lower bound given in seconds')
     parser.add_argument('referenceRun', metavar = 'reference-run')
     parser.add_argument('runs', metavar = 'run', nargs = '+')
     args = parser.parse_args()
