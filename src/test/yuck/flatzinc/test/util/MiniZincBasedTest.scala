@@ -268,12 +268,14 @@ class MiniZincBasedTest extends IntegrationTest {
     }
 
     private def logYuckVersion: Unit = {
-        envNode +=
-            "yuck" -> JsSection(
+        jsonRoot +=
+            "solver" -> JsSection(
+                "name" -> JsString("yuck"),
                 "branch" -> JsString(BuildInfo.gitBranch),
                 "commit-date" -> JsString(BuildInfo.gitCommitDate),
                 "commit-hash" -> JsString(BuildInfo.gitCommitHash),
-                "build-type" -> JsString(BuildInfo.buildType))
+                "build-type" -> JsString(BuildInfo.buildType),
+                "version" -> JsString(BuildInfo.version))
     }
 
     private def logMiniZincVersion(versionInfo: String): Unit = {

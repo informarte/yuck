@@ -27,6 +27,8 @@ def createDb(cursor):
     cursor.execute(
         'CREATE TABLE IF NOT EXISTS result ('\
         'run TEXT NOT NULL, '\
+        'solver TEXT, '\
+        'solver_version TEXT, '\
         'suite TEXT NOT NULL, '\
         'problem TEXT NOT NULL, '\
         'model TEXT NOT NULL, '\
@@ -44,14 +46,15 @@ def createDb(cursor):
         'moves_per_second DOUBLE CONSTRAINT result_moves_per_second_constraint CHECK (moves_per_second >= 0), '\
         'consultations_per_move DOUBLE CONSTRAINT result_consultations_per_move_constraint CHECK (consultations_per_move >= 0), '\
         'commitments_per_move DOUBLE CONSTRAINT result_commitments_per_move_constraint CHECK (commitments_per_move >= 0), '\
-        'CONSTRAINT result_unique_constraint UNIQUE (run, problem, model, instance) ON CONFLICT IGNORE)')
-    cursor.execute('CREATE INDEX IF NOT EXISTS result_index ON result(run, problem, model, instance)')
+        'CONSTRAINT result_unique_constraint UNIQUE (run, solver, solver_version, problem, model, instance) ON CONFLICT IGNORE)')
+    cursor.execute('CREATE INDEX IF NOT EXISTS result_index ON result(run, solver, solver_version, problem, model, instance)')
 
 def importResults(args, file, cursor):
     data = json.load(file)
     task = data.get('task')
     modelStatistics = data.get('yuck-model-statistics')
     result = data.get('result')
+    solver = data.get('solver')
     solverStatistics = data.get('solver-statistics')
     if not task:
          print("No task (MiniZinc compiler error?)")
@@ -59,8 +62,10 @@ def importResults(args, file, cursor):
         print("No model statistics (FlatZinc compiler error?)")
     else:
         cursor.execute(
-            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             (args.run,
+             solver['name'] if solver else None,
+             solver['version'] if solver else None,
              task['suite'],
              task['problem'],
              args.modelOverride if args.modelOverride else task['model'],
