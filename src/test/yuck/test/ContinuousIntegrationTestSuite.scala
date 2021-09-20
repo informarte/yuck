@@ -3,6 +3,7 @@ package yuck.test
 import org.junit._
 
 import yuck.flatzinc.test._
+import yuck.flatzinc.test.util.test.MiniZincSolutionVerifierTest
 
 /**
  * Test suite for CI runs
@@ -13,7 +14,8 @@ import yuck.flatzinc.test._
 @runners.Suite.SuiteClasses(
     Array(
         classOf[UnitTestSuite],
-        classOf[FrontEndTestSuite],
         classOf[HelloWorldTestSuite],
+        classOf[MiniZincSolutionVerifierTest],
+        classOf[FrontEndTestSuite],
         classOf[TractableMiniZincExamples]))
 final class ContinuousIntegrationTestSuite
