@@ -118,6 +118,9 @@ class MiniZincBasedTest extends IntegrationTest {
         }
     }
 
+    // hook for testing verification
+    protected def onSolved(result: Result): Unit = {}
+
     private def solve
         (task: MiniZincTestTask,
          mznFilePath: String, dznFilePath: String, fznFilePath: String, jsonFilePath: String, dotFilePath: String):
@@ -197,17 +200,22 @@ class MiniZincBasedTest extends IntegrationTest {
                 new DotExporter(result.space, dotWriter).run()
             }
         }
-        assert(
-            "No solution found, quality of best proposal was %s".format(result.costsOfBestProposal),
-            result.isSolution || ! task.assertWhenUnsolved)
-        if (result.isSolution && task.verifySolution) {
-            logger.withTimedLogScope("Verifying solution") {
-                logger.withRootLogLevel(FineLogLevel) {
-                    assert(
-                        "Solution not verified",
-                        new MiniZincSolutionVerifier(task, result, logger).call())
+        if (result.isSolution) {
+            onSolved(result)
+            if (task.verifySolution) {
+                logger.withTimedLogScope("Verifying solution") {
+                    logger.withRootLogLevel(FineLogLevel) {
+                        val verifier = new MiniZincSolutionVerifier(task, result, logger)
+                        if (! verifier.call()) {
+                            throw new SolutionNotVerifiedException
+                        }
+                    }
                 }
             }
+        } else {
+            assert(
+                "No solution found, quality of best proposal was %s".format(result.costsOfBestProposal),
+                ! task.assertWhenUnsolved)
         }
         if (! task.keepFlatZincFile) {
             new java.io.File(fznFilePath).delete()
@@ -436,7 +444,7 @@ class MiniZincBasedTest extends IntegrationTest {
             resultNode += "warning" -> createErrorNode
         }
         error match {
-            case _: FlatZincParserException =>
+            case _: FlatZincParserException | _: SolutionNotVerifiedException =>
                 addErrorNode()
                 nativeLogger.severe(error.getMessage)
                 throw error
