@@ -5,6 +5,7 @@ import org.junit._
 import scala.collection._
 
 import yuck.constraints._
+import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core._
 import yuck.test.util.UnitTest
 
@@ -14,7 +15,7 @@ import yuck.test.util.UnitTest
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class DisjunctionTest extends UnitTest with AssignmentPropagationTestTooling {
+final class DisjunctionTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testDisjunction: Unit = {

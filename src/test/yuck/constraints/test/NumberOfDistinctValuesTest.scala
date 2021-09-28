@@ -3,6 +3,7 @@ package yuck.constraints.test
 import org.junit._
 
 import yuck.constraints._
+import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core._
 import yuck.test.util.UnitTest
 
@@ -11,7 +12,7 @@ import yuck.test.util.UnitTest
  *
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class NumberOfDistinctValuesTest extends UnitTest with AssignmentPropagationTestTooling {
+final class NumberOfDistinctValuesTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testNumberOfDistinctValues: Unit = {

@@ -6,6 +6,7 @@ import scala.collection._
 
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints._
+import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core._
 import yuck.test.util.UnitTest
 
@@ -14,11 +15,7 @@ import yuck.test.util.UnitTest
  *
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class TableTest
-    extends UnitTest
-    with AssignmentPropagationTestTooling
-    with DomainPropagationTestTooling
-{
+final class TableTest extends UnitTest with ConstraintTestTooling {
 
     private val randomGenerator = new JavaRandomGenerator
     private val space = new Space(logger, sigint)
@@ -78,12 +75,11 @@ final class TableTest
                 Propagate(
                     "1",
                     Nil,
-                    List((s, IntegerDomain(List(Two, Three, Five))),
-                         (t, IntegerDomain(List(Two, Three))))),
+                    List((s, IntegerDomain(List(Two, Three, Five))), (t, IntegerDomain(List(Two, Three))))),
                 Propagate(
                     "2",
-                    (t, IntegerRange(Two, Two)),
-                    (s, IntegerDomain(List(Two, Five))))))
+                    List((t, IntegerRange(Two, Two))),
+                    List((s, IntegerDomain(List(Two, Five)))))))
     }
 
     @Test
@@ -105,7 +101,7 @@ final class TableTest
                 Propagate(
                     "1",
                     Nil,
-                    (s, IntegerDomain(List(Two, Four))))))
+                    List((s, IntegerDomain(List(Two, Four)))))))
     }
 
     @Test
