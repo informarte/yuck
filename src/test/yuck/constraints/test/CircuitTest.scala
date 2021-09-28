@@ -6,6 +6,7 @@ import scala.collection._
 import scala.jdk.CollectionConverters._
 
 import yuck.annealing.DefaultMoveSizeDistribution
+import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.constraints.{Circuit, CircuitNeighbourhood, CircuitTracker}
 import yuck.core._
 import yuck.test.util.UnitTest
@@ -16,11 +17,7 @@ import yuck.test.util.UnitTest
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
-final class CircuitTest(offset: Int)
-    extends UnitTest
-    with AssignmentPropagationTestTooling
-    with DomainPropagationTestTooling
-{
+final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling {
 
     private val InvalidIndex1 = IntegerValue(offset - 1)
     private val One = IntegerValue(offset)
@@ -30,13 +27,15 @@ final class CircuitTest(offset: Int)
     private val Five = IntegerValue(offset + 4)
     private val InvalidIndex2 = IntegerValue(offset + 5)
 
+    private val validIndexRange = IntegerRange(One, Five)
+
     private val randomGenerator = new JavaRandomGenerator
     private val space = new Space(logger, sigint)
     private val now = space.searchState
 
     private val baseDomain = IntegerRange(InvalidIndex1, InvalidIndex2)
-    private val succ @ IndexedSeq(x1, x2, x3, x4, x5) =
-        for (i <- 1 to 5) yield new IntegerVariable(space.nextVariableId, "x%d".format(i), baseDomain)
+    private val succ = for (i <- 1 to 5) yield new IntegerVariable(space.nextVariableId, "x%d".format(i), baseDomain)
+    private val IndexedSeq(x1, x2, x3, x4, x5) = succ
     private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
 
     @Test
@@ -56,29 +55,24 @@ final class CircuitTest(offset: Int)
             TestScenario(
                 space,
                 Propagate(
-                    "Do not propagate 1", Nil, () => assert(succ.forall(_.domain == baseDomain))),
+                    "Do not propagate 1",
+                    Nil,
+                    succ.map((_, baseDomain))),
                 PropagateAndRollback(
-                    "Do not propagate 2", (costs, FalseDomain), () => assert(succ.forall(_.domain == baseDomain))),
+                    "Do not propagate 2",
+                    List((costs, FalseDomain)),
+                    succ.map((_, baseDomain))),
                 Propagate(
                     "Root-node propagation",
-                    (costs, TrueDomain),
-                    () => {
-                        val validIndexRange = IntegerRange(One, Five)
-                        for (i <- 0 to 4) {
-                            assert(succ(i).domain.isSubsetOf(validIndexRange))
-                            assert(! succ(i).domain.contains(IntegerValue(offset + i)))
-                        }
-                    }
-                ),
+                    List((costs, TrueDomain)),
+                    succ.indices.map(i => (succ(i), validIndexRange.diff(IntegerDomain(List(IntegerValue(offset + i))))))),
                 Propagate(
                     "Propagate fixed node reference",
-                    (x1, IntegerRange(Three, Three)),
-                    () => {
-                        for (i <- 1 to 4) {
-                            assert(! succ(i).domain.contains(Three))
-                        }
-                    }
-                )))
+                    List((x1, IntegerDomain(List(Three)))),
+                    succ.indices.map(i =>
+                        (succ(i),
+                         if (i == 0) IntegerDomain(List(Three))
+                         else validIndexRange.diff(IntegerDomain(List(IntegerValue(offset + i), Three))))))))
     }
 
     @Test

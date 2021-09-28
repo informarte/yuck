@@ -6,6 +6,7 @@ import scala.collection._
 
 import yuck.annealing._
 import yuck.constraints._
+import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core._
 import yuck.test.util.UnitTest
 
@@ -14,7 +15,7 @@ import yuck.test.util.UnitTest
  *
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class AlldistinctTest extends UnitTest with AssignmentPropagationTestTooling {
+final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testAlldistinct: Unit = {

@@ -2,6 +2,8 @@ package yuck.constraints.test
 
 import org.junit._
 
+import yuck.constraints.test.util.test.ConstraintTestToolingTest
+
 /**
  * @author Michael Marte
  *
@@ -9,8 +11,7 @@ import org.junit._
 @runner.RunWith(classOf[runners.Suite])
 @runners.Suite.SuiteClasses(
     Array(
-        classOf[AssignmentPropagationTestToolingTest],
-        classOf[DomainPropagationTestToolingTest],
+        classOf[ConstraintTestToolingTest],
         classOf[BasicNumericalConstraintsTest],
         classOf[AlldistinctTest],
         classOf[BinPackingTest],

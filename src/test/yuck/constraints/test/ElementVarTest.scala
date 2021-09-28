@@ -6,6 +6,7 @@ import scala.collection._
 import scala.jdk.CollectionConverters._
 
 import yuck.constraints._
+import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core._
 import yuck.test.util.UnitTest
 
@@ -15,7 +16,7 @@ import yuck.test.util.UnitTest
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
-final class ElementVarTest(offset: Int) extends UnitTest with AssignmentPropagationTestTooling {
+final class ElementVarTest(offset: Int) extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testArrayAccess: Unit = {

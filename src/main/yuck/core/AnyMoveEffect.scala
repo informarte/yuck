@@ -15,7 +15,7 @@ abstract class AnyMoveEffect extends Cloneable[AnyMoveEffect] with Iterable[AnyM
     /** Returns the value assigned to the variable by the move. */
     def a: AnyValue
 
-    final override def toString = (x -> a).toString
+    final override def toString = "(%s, %s)".format(x, a)
 
     final override def iterator = Iterator.single(this)
     final override def foreach[U](f: AnyMoveEffect => U) = f(this)
