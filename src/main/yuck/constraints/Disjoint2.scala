@@ -37,7 +37,7 @@ final class Disjoint2
     extends Disjoint(id, rects.size, costs)
 {
 
-    override def toString = "disjoint2(%s, %s)".format(rects.mkString(", "), costs)
+    override def toString = "disjoint2([%s], %s)".format(rects.mkString(", "), costs)
 
     override protected def variablesIterator(i: Int) =
         new Iterator[IntegerVariable] {
