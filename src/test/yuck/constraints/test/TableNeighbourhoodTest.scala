@@ -15,7 +15,7 @@ import yuck.test.util.UnitTest
 final class TableNeighbourhoodTest extends UnitTest {
 
     private def createTable(m: Int)(elems: Int*) =
-        elems.toIndexedSeq.map(IntegerValue.apply).grouped(m).toIndexedSeq
+        elems.toVector.map(IntegerValue.apply).grouped(m).toVector
 
     private val randomGenerator = new JavaRandomGenerator
     private val space = new Space(logger, sigint)
@@ -23,7 +23,7 @@ final class TableNeighbourhoodTest extends UnitTest {
 
     @Test
     def testMoveGeneration: Unit = {
-        val xs = Vector("s", "t").map(new IntegerVariable(space.nextVariableId, _, IntegerRange(Zero, Nine)))
+        val xs = Vector("s", "t").map(new IntegerVariable(space.nextVariableId, _, IntegerRange(0, 9)))
         val rows = createTable(2)(0, 1, 0, 7, 1, 1, 1, 5, 3, 3, 5, 1, 5, 9, 8, 2, 8, 3, 9, 9)
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         val constraint = new Table(space.nextConstraintId, null, xs, rows, costs)
