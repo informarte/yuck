@@ -130,9 +130,4 @@ object CircuitTracker {
         cycles
     }
 
-    def isHamiltonianCircuit(succ: IndexedSeq[IntegerVariable], offset: Int, searchState: SearchState): Boolean = {
-        val cycles = findCycles(succ, offset, searchState)
-        cycles.size == 1 && cycles.get(0).size == succ.size;
-    }
-
 }

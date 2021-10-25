@@ -35,7 +35,7 @@ final class CircuitNeighbourhoodTest(offset: Int) extends UnitTest {
         val neighbourhood =
             constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
         assertEq(neighbourhood.getClass, classOf[CircuitNeighbourhood])
-        assert(CircuitTracker.isHamiltonianCircuit(succ, offset, now))
+        assert(Circuit.isHamiltonianCircuit(succ, offset, now))
         assertEq(now.value(costs), True)
         space.initialize()
         val sampleSize = 1000
@@ -43,7 +43,7 @@ final class CircuitNeighbourhoodTest(offset: Int) extends UnitTest {
             val move = neighbourhood.nextMove
             val after = space.consult(move)
             assert(succ.exists(x => now.value(x) != after.value(x)))
-            assert(CircuitTracker.isHamiltonianCircuit(succ, offset, after))
+            assert(Circuit.isHamiltonianCircuit(succ, offset, after))
             if (randomGenerator.nextDecision()) {
                 space.commit(move)
                 neighbourhood.commit(move)
