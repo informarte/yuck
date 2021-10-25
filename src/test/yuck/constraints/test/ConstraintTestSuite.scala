@@ -14,6 +14,7 @@ import yuck.constraints.test.util.test.ConstraintTestToolingTest
         classOf[ConstraintTestToolingTest],
         classOf[BasicNumericalConstraintsTest],
         classOf[AlldistinctTest],
+        classOf[AlldistinctExceptZeroTest],
         classOf[BinPackingTest],
         classOf[CircuitTest],
         classOf[CircuitNeighbourhoodTest],
