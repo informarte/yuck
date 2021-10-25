@@ -27,29 +27,9 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testAlldifferentWithEqualDomains: Unit = {
-        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_equal_domains"))
-        assert(neighbourhood(result).isInstanceOf[AlldistinctNeighbourhood[_]])
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testAlldifferentWithEqualDomainsAndMoreValuesThanVariables: Unit = {
-        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_equal_domains_and_more_values_than_variables"))
-        assert(neighbourhood(result).isInstanceOf[AlldistinctNeighbourhood[_]])
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testAlldifferentWithDifferentDomains: Unit = {
-        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_different_domains"))
-        assert(neighbourhood(result).isInstanceOf[AlldistinctNeighbourhood[_]])
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testAlldifferentWithDifferentDomainsAndMoreValuesThanVariables: Unit = {
-        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test_with_different_domains_and_more_values_than_variables"))
+    def testAlldifferent: Unit = {
+        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test"))
+        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Alldistinct[_]]), 1)
         assert(neighbourhood(result).isInstanceOf[AlldistinctNeighbourhood[_]])
     }
 
