@@ -27,6 +27,7 @@ import yuck.constraints.test.util.test.ConstraintTestToolingTest
         classOf[DisjunctionTest],
         classOf[ElementConstTest],
         classOf[ElementVarTest],
+        classOf[GeneralInverseNeighbourhoodTest],
         classOf[IfThenElseTest],
         classOf[TableTest],
         classOf[InverseTest],
@@ -40,6 +41,8 @@ import yuck.constraints.test.util.test.ConstraintTestToolingTest
         classOf[OptimizationGoalTrackerTest],
         classOf[RegularTest],
         classOf[SatisfactionGoalTrackerTest],
+        classOf[SelfInverseNeighbourhoodTest],
+        classOf[SimpleInverseNeighbourhoodTest],
         classOf[SumConstraintTest],
         classOf[SumTest],
         classOf[TableNeighbourhoodTest]))
