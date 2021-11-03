@@ -2,9 +2,11 @@ package yuck.constraints.test
 
 import org.junit._
 
-import scala.collection._
+import scala.jdk.CollectionConverters._
 
-import yuck.constraints._
+import yuck.annealing.DefaultMoveSizeDistribution
+import yuck.constraints.{GeneralInverseNeighbourhood, Inverse, InverseFunction, InverseNeighbourhood,
+    SelfInverseNeighbourhood, SimpleInverseNeighbourhood}
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core._
 import yuck.test.util.UnitTest
@@ -14,87 +16,252 @@ import yuck.test.util.UnitTest
  *
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class InverseTest extends UnitTest with ConstraintTestTooling {
+@runner.RunWith(classOf[runners.Parameterized])
+final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with ConstraintTestTooling {
+
+    private val randomGenerator = new JavaRandomGenerator
+    private val space = new Space(logger, sigint)
+    private val now = space.searchState
+
+    private val baseDomain = CompleteIntegerRange
+    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId, "x%d".format(i), baseDomain)
+    private val Seq(x1, x2, x3) = xs
+    private val ys = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId, "y%d".format(i), baseDomain)
+    private val Seq(y1, y2, y3) = ys
+    private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+    private val f = new InverseFunction(xs, fOffset)
+    private val g = new InverseFunction(ys, gOffset)
 
     @Test
-    def testInverseWithIdenticalOffsets: Unit = {
-        val space = new Space(logger, sigint)
-        val d = IntegerRange(One, Three)
-        val f1 = new IntegerVariable(space.nextVariableId, "f1", d)
-        val f2 = new IntegerVariable(space.nextVariableId, "f2", d)
-        val f3 = new IntegerVariable(space.nextVariableId, "f3", d)
-        val g1 = new IntegerVariable(space.nextVariableId, "g1", d)
-        val g2 = new IntegerVariable(space.nextVariableId, "g2", d)
-        val g3 = new IntegerVariable(space.nextVariableId, "g3", d)
-        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        val f = immutable.IndexedSeq(f1, f2, f3)
-        val g = immutable.IndexedSeq(g1, g2, g3)
-        space.post(new Inverse(space.nextConstraintId, null, new InverseFunction(f, 1), new InverseFunction(g, 1), costs))
-        assertEq(space.searchVariables, Set(f1, f2, f3, g1, g2, g3))
+    def testBasics: Unit = {
+        val constraint = new Inverse(space.nextConstraintId, null, f, g, costs)
+        assertEq(constraint.toString, "inverse([x1, x2, x3], %d, [y1, y2, y3], %d, costs)".format(fOffset, gOffset))
+        assertEq(constraint.inVariables.size, 6)
+        assertEq(constraint.inVariables.toSet, xs.toSet.union(ys.toSet))
+        assertEq(constraint.outVariables.size, 1)
+        assertEq(constraint.outVariables.head, costs)
+    }
+
+    @Test
+    def testPropagation: Unit = {
+        space.post(new Inverse(space.nextConstraintId, null, f, g, costs))
         runScenario(
             TestScenario(
                 space,
+                Propagate("do not propagate soft constraint", Nil, Nil),
+                PropagateAndRollback("do not propagate negation", List(costs << FalseDomain), Nil),
+                Propagate(
+                    "root-node propagation",
+                    List(costs << TrueDomain),
+                    f.xs.map(_ << g.indexDomain).concat(g.xs.map(_ << f.indexDomain))),
+                PropagateAndRollback(
+                    "x2 -> y1",
+                    List(x2 << IntegerDomain(List(gOffset))),
+                    List(x1, x3)
+                        .map(_ << g.indexDomain.diff(IntegerDomain(gOffset)))
+                        .appended(y1 << IntegerDomain(fOffset + 1))
+                        .concat(List(y2, y3).map(_ << f.indexDomain.diff(IntegerDomain(fOffset + 1))))),
+                Propagate(
+                    "y1 -> x2",
+                    List(y1 << IntegerDomain(List(fOffset + 1))),
+                    List(y2, y3)
+                        .map(_ << f.indexDomain.diff(IntegerDomain(fOffset + 1)))
+                        .appended(x2 << IntegerDomain(gOffset))
+                        .concat(List(x1, x3).map(_ << g.indexDomain.diff(IntegerDomain(gOffset)))))))
+    }
+
+    @Test
+    def testHandlingOfDuplicateVariablesInPropagation: Unit = {
+        val f = new InverseFunction(Vector(x1, x1, x3), fOffset)
+        val g = new InverseFunction(Vector(y1, y3, y3), gOffset)
+        space.post(new Inverse(space.nextConstraintId, null, f, g, costs))
+        runScenario(
+            TestScenario(
+                space,
+                Propagate(
+                    "root-node propagation",
+                    List(costs << TrueDomain),
+                    f.xs.map(_ << g.indexDomain).concat(g.xs.map(_ << f.indexDomain))),
+                PropagateAndRollback(
+                    "x1 -> y1",
+                    List(x1 << List(gOffset)),
+                    List(y1 << EmptyIntegerRange, y3 << List(fOffset + 2))),
+                Propagate(
+                    "y3 -> x3",
+                    List(y3 << List(fOffset + 2)),
+                    List(x1 << List(gOffset), x3 << EmptyIntegerRange))))
+    }
+
+    @Test
+    def testCostComputation: Unit = {
+        space.post(new Inverse(space.nextConstraintId, null, f, g, costs))
+        runScenario(
+            TestScenario(
+                space,
+                // 3 2 1 (assuming both offsets are 1)
+                // 3 2 1
+                Initialize(
+                    "inverse functions",
+                    x1 << gOffset + 2, x2 << gOffset + 1, x3 << gOffset,
+                    y1 << fOffset + 2, y2 << fOffset + 1, y3 << fOffset,
+                    costs << True),
+                // 1 2 1
+                // 3 2 1
+                Consult("1", x1 << gOffset, costs << False4),
+                // 3 2 1
+                // 3 2 3
+                Consult("2", y3 << fOffset + 2, costs << False4),
                 // 3 1 2
                 // 3 1 2
-                Initialize("setup", (f1, Three), (f2, One), (f3, Two), (g1, Three), (g2, One), (g3, Two), (costs, False8)),
-                // swap values of g1 and g3:
+                Initialize(
+                    "non-inverse functions",
+                    x1 << gOffset + 2, x2 << gOffset, x3 << gOffset + 1,
+                    y1 << fOffset + 2, y2 << fOffset, y3 << fOffset + 1,
+                    costs << False8),
+                // swap values of y1 and y3:
                 // 3 1 2
                 // 2 1 3
                 // This move checks the functioning of the logic that avoids revisiting the same node twice
                 // when computing the cost delta.
-                // Here f2 is the node in question because it is referenced by before(g3) and after(g1).
-                ConsultAndCommit("1", (g1, Two), (g3, Three), (costs, False6)),
-                // swap values of f1 and f3:
+                // Here x2 is the node in question because it is referenced by before(y3) and after(y1).
+                ConsultAndCommit("1", y1 << fOffset + 1, y3 << fOffset + 2, costs << False6),
+                // swap values of x1 and x3:
                 // 2 1 3
                 // 2 1 3
-                ConsultAndCommit("2", (f1, Two), (f3, Three), (costs, True)),
-                // swap values of f2 and g1:
+                ConsultAndCommit("2", x1 << gOffset + 1, x3 << gOffset + 2, costs << True),
+                // swap values of x2 and y1:
                 // 2 2 3
                 // 1 1 3
-                ConsultAndCommit("3", (f2, Two), (g1, One), (costs, False2)),
+                ConsultAndCommit("3", x2 << gOffset + 1, y1 << fOffset, costs << False2),
                 // reverting previous move in two steps, this is step one:
                 // 2 1 3
                 // 1 1 3
-                ConsultAndCommit("4a", (f2, One), (costs, False2)),
+                ConsultAndCommit("4a", x2 << gOffset, costs << False2),
                 // ... this is step two:
                 // 2 1 3
                 // 2 1 3
-                ConsultAndCommit("4b", (g1, Two), (costs, True))))
+                ConsultAndCommit("4b", y1 << fOffset + 1, costs << True)))
     }
 
     @Test
-    def testInverseWithDifferentOffsets: Unit = {
-        val space = new Space(logger, sigint)
-        val fd = IntegerRange(Zero, Two)
-        val gd = IntegerRange(One, Three)
-        val f1 = new IntegerVariable(space.nextVariableId, "f1", fd)
-        val f2 = new IntegerVariable(space.nextVariableId, "f2", fd)
-        val f3 = new IntegerVariable(space.nextVariableId, "f3", fd)
-        val g1 = new IntegerVariable(space.nextVariableId, "g1", gd)
-        val g2 = new IntegerVariable(space.nextVariableId, "g2", gd)
-        val g3 = new IntegerVariable(space.nextVariableId, "g3", gd)
-        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        val f = immutable.IndexedSeq(f1, f2, f3)
-        val g = immutable.IndexedSeq(g1, g2, g3)
-        space.post(new Inverse(space.nextConstraintId, null, new InverseFunction(f, 1), new InverseFunction(g, 0), costs))
-        assertEq(space.searchVariables, Set(f1, f2, f3, g1, g2, g3))
+    def testHandlingOfDuplicateVariablesInCostComputation: Unit = {
+        val f = new InverseFunction(Vector(x1, x1, x3), fOffset)
+        val g = new InverseFunction(Vector(y1, y3, y3), gOffset)
+        space.post(new Inverse(space.nextConstraintId, null, f, g, costs))
         runScenario(
             TestScenario(
                 space,
-                // 2 0 1
-                // 3 1 2
-                Initialize("setup", (f1, Two), (f2, Zero), (f3, One), (g1, Three), (g2, One), (g3, Two), (costs, False8)),
-                // swap values of g1 and g3:
-                // 2 0 1
-                // 2 1 3
-                // This move checks the functioning of the logic that avoids revisiting the same node twice
-                // when computing the cost delta.
-                // Here f2 is the node in question because it is referenced by before(g3) and after(g1).
-                ConsultAndCommit("1", (g1, Two), (g3, Three), (costs, False6)),
-                // swap values of f1 and f3:
-                // 1 0 2
-                // 2 1 3
-                ConsultAndCommit("2", (f1, One), (f3, Two), (costs, True))))
+                // 3 3 1 (assuming both offsets are 1)
+                // 3 1 1
+                Initialize(
+                    "non-inverse functions",
+                    x1 << gOffset + 2, x3 << gOffset,
+                    y1 << fOffset + 2, y3 << fOffset,
+                    costs << False2),
+                // 1 1 1
+                // 3 3 3
+                Consult("1", x1 << gOffset, y3 << fOffset + 2, costs << False6),
+                // 2 2 1
+                // 3 2 2
+                ConsultAndCommit("1", x1 << gOffset + 1, y3 << fOffset + 1, costs << False2)
+           ))
     }
+
+    @Test
+    def testInverseFunctionTest: Unit = {
+        for (i <- xs.indices) {
+            space.setValue(xs(i), IntegerValue(gOffset + i))
+            space.setValue(ys(i), IntegerValue(fOffset + i))
+        }
+        assert(Inverse.areInverseFunctionsOfEachOther(f, g, now))
+        assert(Inverse.areInverseFunctionsOfEachOther(g, f, now))
+        space.setValue(x1, IntegerValue(gOffset - 1))
+        assert(! Inverse.areInverseFunctionsOfEachOther(f, g, now))
+        assert(! Inverse.areInverseFunctionsOfEachOther(g, f, now))
+        space.setValue(x1, IntegerValue(gOffset)).setValue(y1, IntegerValue(fOffset + 1))
+        assert(! Inverse.areInverseFunctionsOfEachOther(f, g, now))
+        assert(! Inverse.areInverseFunctionsOfEachOther(g, f, now))
+        space.setValue(y1, IntegerValue(fOffset)).setValue(x3, IntegerValue(gOffset + 1))
+        assert(! Inverse.areInverseFunctionsOfEachOther(f, g, now))
+        assert(! Inverse.areInverseFunctionsOfEachOther(g, f, now))
+    }
+
+    private def assertNeighbourhood
+        (f: InverseFunction, g: InverseFunction, expectedNeighbourhoodClass: Class[_ <: InverseNeighbourhood]): Unit =
+    {
+        require(f.xs.forall(_.domain.isFinite))
+        require(g.xs.forall(_.domain.isFinite))
+        val constraint = new Inverse(space.nextConstraintId, null, f, g, costs)
+        assert(constraint.isCandidateForImplicitSolving(space))
+        val neighbourhood =
+            constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
+        assertEq(neighbourhood.getClass, expectedNeighbourhoodClass)
+        assert(f.xs.forall(x => x.domain.contains(now.value(x))))
+        assert(g.xs.forall(x => x.domain.contains(now.value(x))))
+        assert(Inverse.areInverseFunctionsOfEachOther(f, g, now))
+        assertEq(now.value(costs), True)
+        assertEq(neighbourhood.searchVariables, f.xs.view.concat(g.xs).filterNot(_.domain.isSingleton).toSet)
+    }
+
+    private def assertNoNeighbourhood(f: InverseFunction, g: InverseFunction, isCandidate: Boolean = false): Unit = {
+        require(f.xs.forall(_.domain.isFinite))
+        require(g.xs.forall(_.domain.isFinite))
+        val constraint = new Inverse(space.nextConstraintId, null, f, g, costs)
+        assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
+        assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint), None)
+    }
+
+    @Test
+    def testNeighbourhoodGenerationWithUnrestrictedPairing: Unit = {
+        xs.foreach(_.pruneDomain(g.indexDomain))
+        ys.foreach(_.pruneDomain(f.indexDomain))
+        assertNeighbourhood(f, g, classOf[SimpleInverseNeighbourhood])
+    }
+
+    @Test
+    def testNeighbourhoodGenerationWithRestrictedPairing: Unit = {
+        xs.foreach(_.pruneDomain(g.indexDomain))
+        ys.foreach(_.pruneDomain(f.indexDomain))
+        x1.pruneDomain(IntegerDomain(List(gOffset)))
+        assertNeighbourhood(f, g, classOf[GeneralInverseNeighbourhood])
+    }
+
+    @Test
+    def testNeighbourhoodGenerationWithOneFunction: Unit = {
+        val f = new InverseFunction(xs ++ ys, fOffset)
+        f.xs.foreach(_.pruneDomain(IntegerRange(fOffset, fOffset + 5)))
+        assertNeighbourhood(f, f, classOf[SelfInverseNeighbourhood])
+    }
+
+    @Test
+    def testHandlingOfDuplicateVariablesInNeighbourhoodGeneration: Unit = {
+        xs.foreach(_.pruneDomain(g.indexDomain))
+        ys.foreach(_.pruneDomain(f.indexDomain))
+        assertNoNeighbourhood(new InverseFunction(Vector(x1, x1, x3), fOffset), g)
+        assertNoNeighbourhood(f, new InverseFunction(Vector(y1, y2, y2), gOffset))
+    }
+
+    @Test
+    def testHandlingOfChannelVariablesInNeighbourhoodGeneration: Unit = {
+        xs.foreach(_.pruneDomain(g.indexDomain))
+        ys.foreach(_.pruneDomain(f.indexDomain))
+        import yuck.constraints.Plus
+        space.post(new Plus(space.nextConstraintId, null, x1, x2, y1))
+        assertNoNeighbourhood(f, g)
+    }
+
+}
+
+/**
+ * @author Michael Marte
+ *
+ */
+object InverseTest {
+
+    private def offsets = List(-1, 0, 1).map(Integer.valueOf)
+    private def configurations = for (fOffset <- offsets; gOffset <- offsets) yield Vector(fOffset, gOffset)
+
+    @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
+    def parameters = configurations.map(_.toArray).asJava
 
 }

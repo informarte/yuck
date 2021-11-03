@@ -1,6 +1,3 @@
-% Tests the ability of the system to set up and use implicit solving for
-% inverse in cases where NOT every x in f can be paired with every y in g.
-
 include "inverse.mzn";
 
 int: N = 50;

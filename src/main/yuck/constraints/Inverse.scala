@@ -79,6 +79,8 @@ final class Inverse
 
     private def propagate(effects: PropagationEffects, f: InverseFunction, g: InverseFunction): PropagationEffects = {
         effects
+            .pruneDomains(for (x <- f.xs) yield (x, g.indexDomain))
+            .pruneDomains(for (x <- g.xs) yield (x, f.indexDomain))
             .pruneDomains(
                 for (i <- f.indexRange.iterator;
                      x = f.xs(i - f.offset);
@@ -242,7 +244,10 @@ final class Inverse
                     }
                     space.setValue(costs, True)
                     Some(new SimpleInverseNeighbourhood(space, f, g, randomGenerator))
-                } else {
+                }
+                else if (f.xs.forall(x => x.domain.isSubsetOf(g.indexDomain)) &&
+                         g.xs.forall(x => x.domain.isSubsetOf(f.indexDomain)))
+                {
                     // general case
                     val subspace =
                         new Space(logger, sigint, extraCfg.checkIncrementalCostUpdate, extraCfg.checkAssignmentsToNonChannelVariables)
@@ -286,6 +291,8 @@ final class Inverse
                     } else {
                         None
                     }
+                } else {
+                    None
                 }
             } else if (f.xs.size % 2 == 0 && f.xs.size > 2 && f.xs == g.xs &&
                        f.offset == g.offset && f.xs.forall(x => x.domain == f.indexDomain))
@@ -535,5 +542,21 @@ final class SelfInverseNeighbourhood
         effects(3).set(x4, a2)
         new ChangeValues(space.nextMoveId, effects)
     }
+
+}
+
+/**
+ * Companion object to Inverse.
+ *
+ * @author Michael Marte
+ */
+object Inverse {
+
+    def areInverseFunctionsOfEachOther(f: InverseFunction, g: InverseFunction, searchState: SearchState): Boolean =
+        f.xs.size == g.xs.size &&
+        f.indexRange.forall(i => {
+            val j = searchState.value(f.xs(i - f.offset)).value
+            g.indexRange.contains(j) && searchState.value(g.xs(j - g.offset)).value == i
+        })
 
 }

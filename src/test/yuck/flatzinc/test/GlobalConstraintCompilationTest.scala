@@ -333,47 +333,23 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
-    def testInverseWithBoundedSearchVariables: Unit = {
-        val result = solveWithResult(task.copy(problemName = "inverse_test_with_bounded_search_variables"))
-        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Inverse]), 1)
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
-    def testInverseWithUnboundedSearchVariables: Unit = {
-        val result = solveWithResult(task.copy(problemName = "inverse_test_with_unbounded_search_variables"))
-        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Inverse]), 1)
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
-    def testInverseWithChannelVariables: Unit = {
-        val result = solveWithResult(task.copy(problemName = "inverse_test_with_channel_variables"))
-        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Inverse]), 1)
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
-    def testInverseWithUnrestrictedPairing: Unit = {
-        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_test_with_unrestricted_pairing"))
-        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Inverse]), 1)
-        assert(neighbourhood(result).isInstanceOf[SimpleInverseNeighbourhood])
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
-    def testInverseWithRestrictedPairing: Unit = {
-        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_test_with_restricted_pairing"))
+    def testInverse: Unit = {
+        val result = solveWithResult(task.copy(problemName = "inverse_test"))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[Inverse]), 1)
         assert(neighbourhood(result).isInstanceOf[GeneralInverseNeighbourhood])
     }
 
+    // This test verifies that Yuck's definition of fzn_inverse constrains the codomain
+    // of one function to be a subset of the other function's domain.
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
-    def testInverseWithOneFunction: Unit = {
-        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_test_with_one_function"))
+    def testInverseWithUnboundedSearchVariables: Unit = {
+        val result =
+            solveWithResult(
+                task.copy(
+                    problemName = "inverse_test_with_unbounded_search_variables",
+                    solverConfiguration = task.solverConfiguration.copy(runPresolver = false)))
         assertEq(result.space.numberOfConstraints(_.isInstanceOf[Inverse]), 1)
-        assert(neighbourhood(result).isInstanceOf[SelfInverseNeighbourhood])
     }
 
     @Test
