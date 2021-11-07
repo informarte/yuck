@@ -31,6 +31,7 @@ class StandardAnnealingMonitor(logger: LazyLogger) extends AnnealingMonitor with
         require(solverState.get == ThreadIsIdle)
         solverState.set(SolverIsRunnable)
         logger.log("Launched solver")
+        logger.log("Initial proposal has quality %s".format(result.costsOfBestProposal))
         solverState.set(SolverIsRunning)
     }
 
@@ -38,10 +39,10 @@ class StandardAnnealingMonitor(logger: LazyLogger) extends AnnealingMonitor with
         require(solverState.get == SolverIsRunning)
         solverState.set(SolverIsRunnable)
         if (result.roundLogs.isEmpty) {
-            logger.log("Suspended solver before first round")
+            logger.log("Suspended solver before search")
         } else {
             logger.criticalSection {
-                logger.log("Suspended solver in round %d".format(result.roundLogs.size - 1))
+                logger.log("Suspended solver in round %d".format(result.roundLogs.size))
                 logStatistics(result)
             }
         }
@@ -50,9 +51,9 @@ class StandardAnnealingMonitor(logger: LazyLogger) extends AnnealingMonitor with
     override def onSolverResumed(result: AnnealingResult) = {
         require(solverState.get == SolverIsRunnable)
         if (result.roundLogs.isEmpty) {
-            logger.log("Resumed solver that was suspended before first round")
+            logger.log("Resumed solver that was suspended before search")
         } else {
-            logger.log("Resumed solver in round %d".format(result.roundLogs.size - 1))
+            logger.log("Resumed solver in round %d".format(result.roundLogs.size))
         }
         solverState.set(SolverIsRunning)
     }
@@ -61,9 +62,13 @@ class StandardAnnealingMonitor(logger: LazyLogger) extends AnnealingMonitor with
         require(solverState.get == SolverIsRunning)
         solverState.set(ThreadIsIdle)
         logger.criticalSection {
-            logger.log(
-                "Solver finished with proposal of quality %s in round %d".format(
-                    result.costsOfBestProposal, result.roundLogs.size - 1))
+            if (result.roundLogs.isEmpty) {
+                logger.log("Solver finished with proposal of quality %s".format(result.costsOfBestProposal))
+            } else {
+                logger.log(
+                    "Solver finished with proposal of quality %s in round %d".format(
+                        result.costsOfBestProposal, result.roundLogs.size))
+            }
             logStatistics(result)
         }
     }
@@ -80,11 +85,11 @@ class StandardAnnealingMonitor(logger: LazyLogger) extends AnnealingMonitor with
                 costsOfBestProposal = result.costsOfBestProposal
                 logger.log(
                     "Improved global proposal quality to %s in round %d".format(
-                        costsOfBestProposal, result.roundLogs.size - 1))
+                        result.costsOfBestProposal, result.roundLogs.size))
             } else {
                 logger.logg(
                     "Improved local proposal quality to %s in round %d".format(
-                        result.costsOfBestProposal, result.roundLogs.size - 1))
+                        result.costsOfBestProposal, result.roundLogs.size))
             }
             if (result.isGoodEnough) {
                 logger.log("Objective achieved")
@@ -96,14 +101,14 @@ class StandardAnnealingMonitor(logger: LazyLogger) extends AnnealingMonitor with
         val roundLog = result.roundLogs.last
         logger.logg(
             "Reheating started after round %d from uphill acceptance ratio %1.6f at temperature %3.6f".format(
-                result.roundLogs.size - 1, roundLog.uphillAcceptanceRatio, roundLog.temperature))
+                result.roundLogs.size, roundLog.uphillAcceptanceRatio, roundLog.temperature))
     }
 
     override def onReheatingFinished(result: AnnealingResult) = {
         val roundLog = result.roundLogs.last
         logger.logg(
             "Reheating finished after round %d with uphill acceptance ratio %1.6f at temperature %3.6f".format(
-                result.roundLogs.size - 1, roundLog.uphillAcceptanceRatio, roundLog.temperature))
+                result.roundLogs.size, roundLog.uphillAcceptanceRatio, roundLog.temperature))
     }
 
     override def onObjectiveTightened(x: AnyVariable) = {
