@@ -63,7 +63,6 @@ final class SimulatedAnnealing(
                 // In this case, notify the monitor about the initial assignment.
                 val monitor = maybeMonitor.get
                 monitor.onSolverLaunched(result)
-                monitor.onBetterProposal(result)
                 monitor.onSolverFinished(result)
             }
             result
@@ -75,7 +74,6 @@ final class SimulatedAnnealing(
         if (maybeMonitor.isDefined) {
             val monitor = maybeMonitor.get
             monitor.onSolverLaunched(result)
-            monitor.onBetterProposal(result)
         }
         try {
             anneal()
