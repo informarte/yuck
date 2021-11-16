@@ -23,6 +23,8 @@ final class SumConstraint
     extends LinearConstraintLike[V](id)
 {
 
+    require(xs.toSet.size == xs.size)
+
     override protected val n = xs.size
     override protected def a(i: Int) = valueTraits.one
     override protected def x(i: Int) = xs(i)

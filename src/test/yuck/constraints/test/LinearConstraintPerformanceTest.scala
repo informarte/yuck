@@ -19,7 +19,7 @@ class LinearConstraintPerformanceTest(relation: OrderingRelation, withUnitCoeffi
 
     private val randomGenerator = new JavaRandomGenerator
     private val space = new Space(logger, sigint)
-    private val baseDomain = IntegerRange(Zero, Nine)
+    private val baseDomain = IntegerRange(0, 9)
     private val numberOfTerms = 10
     private val initialDomains =
       for (i <- 0 until numberOfTerms) yield baseDomain.randomSubdomain(randomGenerator)

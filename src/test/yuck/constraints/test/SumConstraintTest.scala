@@ -19,13 +19,13 @@ final class SumConstraintTest
     extends LinearConstraintLikeTest[IntegerValue]
 {
     override protected val baseValueTraits = IntegerValueTraits
-    override protected val baseDomain: IntegerRange = IntegerRange(Zero, Nine)
+    override protected val baseDomain: IntegerRange = IntegerRange(0, 9)
     private val numberOfTerms = 3
     override protected val axs =
-        for (i <- 0 until numberOfTerms) yield AX(
+        for (i <- 1 to numberOfTerms) yield AX(
             One,
             new IntegerVariable(
-                space.nextVariableId, "x%d".format(i + 1), baseDomain.randomSubdomain(randomGenerator)))
+                space.nextVariableId, "x%d".format(i), baseDomain.randomSubdomain(randomGenerator)))
     override protected def createConstraint(implicit valueTraits: NumericalValueTraits[IntegerValue]) =
         new SumConstraint(space.nextConstraintId, null, axs.map(_.x), y, relation, z, costs)(valueTraits)
 }

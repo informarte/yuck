@@ -1,10 +1,10 @@
 package yuck.constraints.test
 
+import org.junit._
+
 import org.mockito.AdditionalAnswers._
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
-
-import org.junit._
 
 import yuck.constraints._
 import yuck.core._
@@ -21,6 +21,10 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
     protected val baseValueTraits: NumericalValueTraits[V]
 
     protected val randomGenerator = new JavaRandomGenerator
+
+    private def nonEmptyRandomSubdomain(d: NumericalDomain[V]): NumericalDomain[V] =
+        LazyList.continually(d).map(_.randomSubdomain(randomGenerator)).dropWhile(_.isEmpty).head
+
     protected val space = new Space(logger, sigint)
 
     protected val relation: OrderingRelation
@@ -28,12 +32,9 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
     protected val baseDomain: NumericalDomain[V]
     protected val axs: IndexedSeq[AX[V]]
     protected final lazy val y = baseValueTraits.createChannel(space)
-    protected final lazy val z = baseValueTraits.createVariable(space, "z", baseDomain.randomSubdomain(randomGenerator))
+    protected final lazy val z = baseValueTraits.createVariable(space, "z", nonEmptyRandomSubdomain(baseDomain))
     protected final val costs = new BooleanVariable(space.nextVariableId, "costs", costsDomain)
     protected def createConstraint(implicit valueTraits: NumericalValueTraits[V]): Constraint
-
-    protected def nonEmptyRandomSubdomain(d: NumericalDomain[V]) =
-        LazyList.continually(d).map(_.randomSubdomain(randomGenerator)).dropWhile(_.isEmpty).head
 
     private val orderingCostModel = mock(classOf[OrderingCostModel[V]])
     private val domainPruner = mock(classOf[NumericalDomainPruner[V]])
@@ -49,9 +50,14 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
     }
 
     @Test
-    def testSearchVariables: Unit = {
-        space.post(createConstraint)
-        assertEq(space.searchVariables, (axs.map(_.x) :+ z).toSet)
+    def testBasics: Unit = {
+        setupValueTraits()
+        val constraint = createConstraint
+        assertEq(constraint.toString, "sum([%s], %s, %s, %s)".format(axs.mkString(", "), relation, z, costs))
+        assertEq(constraint.inVariables.size, axs.size + 1)
+        assertEq(constraint.inVariables.toSet, axs.map(_.x).toSet.union(Set(z)))
+        assertEq(constraint.outVariables.size, 1)
+        assertEq(constraint.outVariables.head, costs)
     }
 
     @Test
@@ -61,7 +67,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
         val lhs0 = for (i <- 0 until axs.size) yield (axs(i).a, axs(i).x.domain)
         val dy0 = baseValueTraits.completeDomain
         val dz0 = z.domain
-        val lhs1 = for ((a, d) <- lhs0) yield (a, nonEmptyRandomSubdomain(d))
+        val lhs1 = for ((a, dx) <- lhs0) yield (a, nonEmptyRandomSubdomain(dx))
         val dy1 = nonEmptyRandomSubdomain(baseDomain)
         val dz1 = nonEmptyRandomSubdomain(dz0)
         when(domainPruner.linEqRule(lhs0, dy0)).thenReturn((lhs1.iterator.map(_._2), dy1))
@@ -123,7 +129,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
     }
 
     @Test
-    def testConsultAndCommit: Unit = {
+    def testCostComputation: Unit = {
         setupValueTraits()
         val maxViolation = 10
         space.post(createConstraint)
@@ -134,7 +140,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
         space.setValue(z, z.domain.randomValue(randomGenerator))
         val now = space.searchState
         if (true) {
-            val a = axs.map{case AX(a, x) => a * now.value(x)}.sum(baseValueTraits.numericalOperations)
+            val a = axs.map{case ax => ax.a * now.value(ax.x)}.sum(baseValueTraits.numericalOperations)
             val b = now.value(z)
             val c = randomGenerator.nextInt(maxViolation).toLong
             relation match {
@@ -151,7 +157,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
                 new ChangeValues(
                     space.nextMoveId,
                     (axs.map(_.x) :+ z).map(_.nextRandomMoveEffect(space, randomGenerator)))
-            val a = axs.map{case AX(a, x) => a * move.value(x)}.sum(baseValueTraits.numericalOperations)
+            val a = axs.map{case ax => ax.a * move.value(ax.x)}.sum(baseValueTraits.numericalOperations)
             val b = move.value(z)
             val c = randomGenerator.nextInt(maxViolation).toLong
             relation match {
