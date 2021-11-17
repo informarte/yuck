@@ -38,7 +38,9 @@ final class BinPacking
     require(items.iterator.map(_.bin).toSet.size == items.size)
 
     override def toString =
-        "bin_packing([%s], [%s])".format(items.mkString(", "), loads.mkString(", "))
+        "bin_packing([%s], [%s])".format(
+            items.mkString(", "),
+            loads.iterator.map(item => "(%s, %s)".format(item._1, item._2)).mkString(", "))
 
     override def inVariables = items.view.filter(_.weight > valueTraits.zero).map(_.bin)
     override def outVariables = loads.view.values
