@@ -537,13 +537,6 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem]))
-    def testRegularWithDuplicateInputVariables: Unit = {
-        val result = solveWithResult(task.copy(problemName = "regular_test_with_duplicate_input_variables"))
-        assertEq(result.space.numberOfConstraints(_.isInstanceOf[Regular]), 1)
-    }
-
-    @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
     def testTableBool: Unit = {
         val result = solveWithResult(task.copy(problemName = "table_bool_test"))
