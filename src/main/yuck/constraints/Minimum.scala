@@ -23,9 +23,7 @@ final class Minimum
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
         valueRegistry.head._1
     override def propagate = {
-        val lhs0 = new Iterable[OrderedDomain[V]] {
-            override def iterator = xs.iterator.map(x => x.domain)
-        }
+        val lhs0 = xs.view.map(_.domain)
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.minRule(lhs0, rhs0)
         NoPropagationOccurred.pruneDomains(xs.iterator.zip(lhs1.iterator)).pruneDomain(y, rhs1)
