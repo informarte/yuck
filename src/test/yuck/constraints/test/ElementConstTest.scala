@@ -2,7 +2,6 @@ package yuck.constraints.test
 
 import org.junit._
 
-import scala.collection._
 import scala.jdk.CollectionConverters._
 
 import yuck.constraints._
@@ -18,23 +17,49 @@ import yuck.test.util.UnitTest
 @runner.RunWith(classOf[runners.Parameterized])
 final class ElementConstTest(offset: Int) extends UnitTest with ConstraintTestTooling {
 
+    private val space = new Space(logger, sigint)
+
+    private val as = Vector(Four, Seven, Two)
+    private val indexRange = IntegerRange(offset, offset + 2)
+    private val i = new IntegerVariable(space.nextVariableId, "i", CompleteIntegerRange)
+    private val y = new IntegerVariable(space.nextVariableId, "y", CompleteIntegerRange)
+    private val constraint = new ElementConst(space.nextConstraintId, null, as, i, y, offset)
+
     @Test
-    def testArrayAccess: Unit = {
-        val space = new Space(logger, sigint)
-        val as = immutable.IndexedSeq(Zero, One, Two)
-        val indexRange = IntegerRange(IntegerValue(offset), IntegerValue(offset + 2))
-        val i = new IntegerVariable(space.nextVariableId, "i", indexRange)
-        val y = space.createVariable("y", NonNegativeIntegerRange)
-        space.post(new ElementConst(space.nextConstraintId, null, as, i, y, offset))
-        assertEq(space.searchVariables, Set(i))
+    def testBasics: Unit = {
+        assertEq(constraint.toString, "y = element(i, [4, 7, 2], %d)".format(offset))
+        assertEq(constraint.inVariables.size, 1)
+        assertEq(constraint.inVariables.head, i)
+        assertEq(constraint.outVariables.size, 1)
+        assertEq(constraint.outVariables.head, y)
+    }
+
+    @Test
+    def testPropagation: Unit = {
+        space.post(constraint)
         runScenario(
             TestScenario(
                 space,
-                Initialize("setup", (i, IntegerValue(offset)), (y, Zero)),
-                ConsultAndCommit("1", (i, IntegerValue(offset - 1)), (y, Zero)),
-                ConsultAndCommit("2", (i, IntegerValue(offset + 1)), (y, One)),
-                ConsultAndCommit("3", (i, IntegerValue(offset + 2)), (y, Two)),
-                ConsultAndCommit("4", (i, IntegerValue(offset + 3)), (y, Two))))
+                Propagate("root-node propagation", Nil, List(i << indexRange, y << IntegerDomain(as))),
+                PropagateAndRollback("reduce domain of i", List(i << List(offset, offset + 2)), List(y << List(2, 4))),
+                PropagateAndRollback("reduce domain of y", List(y << List(7)), List(i << List(offset + 1))),
+                Propagate(
+                    "reduce domains of i and y",
+                    List(i << (offset, offset + 1), y << List(2, 7)),
+                    List(i << List(offset + 1), y << List(7)))))
+    }
+
+    @Test
+    def testArrayAccess: Unit = {
+        space.post(constraint)
+        runScenario(
+            TestScenario(
+                space,
+                Initialize("offset - 1", i << offset - 1, y << 4),
+                Initialize("offset",     i << offset,     y << 4),
+                Initialize("offset + 1", i << offset + 1, y << 7),
+                Initialize("offset + 3", i << offset + 2, y << 2),
+                Initialize("offset + 3", i << offset + 3, y << 2)))
     }
 
 }
