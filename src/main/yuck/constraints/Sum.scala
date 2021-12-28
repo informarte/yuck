@@ -27,9 +27,7 @@ final class Sum
     private val effect = y.reuseableEffect
 
     override def propagate = {
-        val lhs0 = new Iterable[(V, NumericalDomain[V])] {
-            override def iterator = xs.iterator.map(x => (valueTraits.one, x.domain))
-        }
+        val lhs0 = xs.view.map(x => (valueTraits.one, x.domain))
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.linEqRule(lhs0, rhs0)
         NoPropagationOccurred.pruneDomains(xs.iterator.zip(lhs1.iterator)).pruneDomain(y, rhs1)
