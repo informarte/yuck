@@ -105,6 +105,12 @@ class BooleanDomainPrunerTest extends UnitTest {
         checkPruning(
             (List(FalseDomain, TrueDomain), FalseDomain),
             (List(FalseDomain, TrueDomain), FalseDomain))
+        checkPruning(
+            (List(FalseDomain, CompleteBooleanDecisionDomain), FalseDomain),
+            (List(FalseDomain, CompleteBooleanDecisionDomain), FalseDomain))
+        checkPruning(
+            (List(TrueDomain, CompleteBooleanDecisionDomain), FalseDomain),
+            (List(TrueDomain, FalseDomain), FalseDomain))
 
         // propagate from lhs to rhs
         checkPruning(
@@ -170,6 +176,9 @@ class BooleanDomainPrunerTest extends UnitTest {
         checkPruning(
             (List(FalseDomain, TrueDomain), CompleteBooleanDomain),
             (List(FalseDomain, TrueDomain), TrueDomain))
+        checkPruning(
+            (List(FalseDomain, FalseDomain), CompleteBooleanDomain),
+            (List(FalseDomain, FalseDomain), FalseDomain))
 
         // empty domains
         checkPruning(

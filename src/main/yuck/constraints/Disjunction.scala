@@ -38,10 +38,9 @@ final class Disjunction
     extends Constraint(id)
 {
 
-    require(! xs.isEmpty)
-    require(xs.size <= Int.MaxValue)
+    require(xs.toSet.size == xs.size)
 
-    override def toString = "disjunction([%s], %s)".format(xs.mkString(", "), y)
+    override def toString = "%s = or([%s])".format(y, xs.mkString(", "))
 
     override def inVariables = xs
     override def outVariables = List(y)
