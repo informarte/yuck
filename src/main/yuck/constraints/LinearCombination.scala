@@ -28,9 +28,7 @@ final class LinearCombination
     private val effect = y.reuseableEffect
 
     override def propagate = {
-        val lhs0 = new Iterable[(V, NumericalDomain[V])] {
-            override def iterator = axs.iterator.map(ax => (ax.a, ax.x.domain))
-        }
+        val lhs0 = axs.view.map(ax => (ax.a, ax.x.domain))
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.linEqRule(lhs0, rhs0)
         NoPropagationOccurred.pruneDomains(axs.iterator.map(_.x).zip(lhs1.iterator)).pruneDomain(y, rhs1)
