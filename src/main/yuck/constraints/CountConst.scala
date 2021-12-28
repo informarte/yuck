@@ -21,6 +21,18 @@ final class CountConst
     override def inVariables = xs
     override def outVariables = List(n)
 
+    private val x2n =
+        xs
+        .iterator
+        .foldLeft(new mutable.HashMap[AnyVariable, Int]) {
+            case (map, x) =>
+                map.updateWith(x)(maybeN => Some(maybeN.getOrElse(0) + 1))
+                map
+        }
+        .iterator
+        .filter{case (_, n) => n > 1}
+        .toMap
+
     private var count = 0
     private val effect = n.reuseableEffect
 
@@ -78,9 +90,9 @@ final class CountConst
         var delta = 0
         for (x <- move) {
             if (before.value(x) == a && after.value(x) != a) {
-                delta -= 1
+                delta -= x2n.getOrElse(x, 1)
             } else if (before.value(x) != a && after.value(x) == a) {
-                delta += 1
+                delta += x2n.getOrElse(x, 1)
             }
         }
         delta
