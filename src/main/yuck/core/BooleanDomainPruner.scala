@@ -77,8 +77,8 @@ object BooleanDomainPruner extends OrderedDomainPruner[BooleanValue] {
         } else if (rhs0 == FalseDomain) {
             if (lhs0.forall(_ == TrueDomain)) {
                 (lhs1, EmptyBooleanDomain)
-            } else if (lhs0.size == 1) {
-                (for (d <- lhs0.iterator) yield d.diff(TrueDomain), rhs0)
+            } else if (lhs0.count(_ == FalseDomain) == 0 && lhs0.count(_ == CompleteBooleanDecisionDomain) == 1) {
+                (for (d <- lhs0.iterator) yield if (d == CompleteBooleanDecisionDomain) d.diff(TrueDomain) else d, rhs0)
             } else {
                 (lhs1, rhs0)
             }
