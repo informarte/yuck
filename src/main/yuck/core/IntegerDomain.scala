@@ -1,5 +1,6 @@
 package yuck.core
 
+import scala.annotation.targetName
 import scala.collection._
 
 /**
@@ -210,18 +211,30 @@ object IntegerDomain {
      *
      * Tries to avoid memory allocation by re-using existing objects.
      */
-    def apply(ranges: Seq[IntegerRange]): IntegerDomain =
+    @targetName("fromRanges")
+    def apply(ranges: Iterable[IntegerRange]): IntegerDomain = {
         if (ranges.isEmpty) EmptyIntegerRange
         else if (ranges.size == 1) ranges.head
         else new IntegerRangeList(ranges.toIndexedSeq)
+    }
 
-    /** Creates an integer domain from a given value set. */
-    def apply(values: Iterable[IntegerValue]): IntegerDomain =
+    /**
+     * Creates an integer domain from a sorted sequence of non-empty, disjoint,
+     * and non-adjacent integer ranges.
+     *
+     * Tries to avoid memory allocation by re-using existing objects.
+     */
+    @targetName("fromVarArgRanges")
+    def apply(ranges: IntegerRange*): IntegerDomain = apply(ranges)
+
+    /** Creates an integer domain from the given values. */
+    @targetName("fromIntegerValues")
+    def apply(values: Iterable[IntegerValue]): IntegerDomain = {
         if (values.isEmpty) {
             EmptyIntegerRange
         } else {
             val inIt =
-                if (values.isInstanceOf[SortedSet[IntegerValue]]) values.iterator
+                if (values.isInstanceOf[SortedSet[IntegerValue @ unchecked]]) values.iterator
                 else values.toBuffer.sorted.iterator
             val outBuf = new mutable.ArrayBuffer[IntegerRange]
             var lb = inIt.next()
@@ -239,5 +252,18 @@ object IntegerDomain {
             outBuf += IntegerRange(lb, ub)
             IntegerDomain(outBuf)
         }
+    }
+
+    /** Creates an integer domain from the given values. */
+    @targetName("fromVarArgIntegerValues")
+    def apply(values: IntegerValue*): IntegerDomain = apply(values)
+
+    /** Creates an integer domain from the given values. */
+    @targetName("fromIntegers")
+    def apply(values: Iterable[Int]): IntegerDomain = IntegerDomain(values.view.map(IntegerValue.apply))
+
+    /** Creates an integer domain from the given values. */
+    @targetName("fromVarArgIntegers")
+    def apply(values: Int*): IntegerDomain = apply(values)
 
 }

@@ -69,8 +69,12 @@ final class IntegerDomainTest extends UnitTest {
         assertEq(
             IntegerDomain(List(NegativeIntegerRange, PositiveIntegerRange)),
             IntegerRangeList(Vector(NegativeIntegerRange, PositiveIntegerRange)))
+        assertEq(
+            IntegerDomain(NegativeIntegerRange, PositiveIntegerRange),
+            IntegerRangeList(Vector(NegativeIntegerRange, PositiveIntegerRange)))
     }
 
+    @Test
     def testDomainCreationFromValueSets: Unit = {
         val testData = List(
             List(List()) -> EmptyIntegerRange,
@@ -80,14 +84,28 @@ final class IntegerDomainTest extends UnitTest {
                 IntegerRangeList(Vector(ZeroToOneIntegerRange, IntegerRange(Three, Four))))
         for ((inputs, expectation) <- testData) {
             for (input <- inputs) {
-                def check(values: Iterable[IntegerValue]) = {
-                    val result = IntegerDomain(values)
+                def check(result: IntegerDomain) = {
                     assertEq(result, expectation)
                     assertEq(result.getClass, expectation.getClass)
                 }
-                check(input.toList)
-                check(input.toSet)
-                check(immutable.TreeSet[IntegerValue]() ++ input)
+                def check1a(values: Iterable[IntegerValue]) = check(IntegerDomain(values))
+                def check1b(values: IntegerValue*) = check(IntegerDomain(values: _*))
+                def check2a(values: Iterable[Int]) = check(IntegerDomain(values))
+                def check2b(values: Int*) = check(IntegerDomain(values: _*))
+                check1a(input.toList)
+                check1a(input.toVector)
+                check1a(input.toSet)
+                check1a(immutable.TreeSet[IntegerValue]() ++ input)
+                check1b(input.toList: _*)
+                check1b(input.toVector: _*)
+                val intView = input.view.map(_.value)
+                check2a(intView)
+                check2a(intView.toList)
+                check2a(intView.toVector)
+                check2a(intView.toSet)
+                check2a(immutable.TreeSet[Int]() ++ intView)
+                check2b(intView.toList: _*)
+                check2b(intView.toVector: _*)
             }
         }
     }
