@@ -20,17 +20,14 @@ final class IntegerDomainTest extends UnitTest {
 
     @Test
     def testEquality: Unit = {
-        val CompleteIntegerRangeList = IntegerRangeList(CompleteIntegerRange)
-        assertEq(EmptyIntegerRange.asInstanceOf[IntegerDomain], EmptyIntegerRange)
-        assertNe(EmptyIntegerRange.asInstanceOf[IntegerDomain], CompleteIntegerRange)
-        assertEq(EmptyIntegerRange, EmptyIntegerRangeList)
-        assertNe(EmptyIntegerRange, CompleteIntegerRangeList)
-        assertEq(CompleteIntegerRange, CompleteIntegerRangeList)
-        assertNe(CompleteIntegerRange, EmptyIntegerRangeList)
-        assertEq(IntegerRange(Zero, Two), IntegerRangeList(Zero, Two))
-        assertNe(IntegerRange(Zero, Two), IntegerRangeList(Vector(IntegerRange(Zero, Zero), IntegerRange(Two, Two))))
-        assertEq(EmptyIntegerRangeList.asInstanceOf[IntegerDomain], EmptyIntegerRange)
-        assertNe(EmptyIntegerRangeList.asInstanceOf[IntegerDomain], CompleteIntegerRange)
+        val sampleSize = 16
+        val testData = helper.createTestData(baseRange, sampleSize)
+        helper.testEquality(testData)
+        for (d <- testData if d.isInstanceOf[IntegerRange]) {
+            val e = IntegerDomain.ensureRangeList(d)
+            assertEq(d, e)
+            assertEq(e, d)
+        }
     }
 
     @Test
@@ -46,18 +43,6 @@ final class IntegerDomainTest extends UnitTest {
         val testData = helper.createTestData(baseRange, sampleSize)
         val extendedBaseRange = IntegerRange(baseRange.lb - One, baseRange.ub + One)
         helper.testOperations(testData, extendedBaseRange.values.toSeq)
-    }
-
-    @Test
-    def testRandomSubdomainCreation: Unit = {
-        val sampleSize = 1000
-        val sample = new mutable.HashSet[IntegerDomain]
-        for (i <- 1 to sampleSize) {
-            val e = baseRange.randomSubdomain(randomGenerator)
-            assert(e.isSubsetOf(baseRange))
-            sample += e
-        }
-        assertGt(sample.size, 10 * baseRange.size * (baseRange.size + 1) / 2)
     }
 
     @Test
