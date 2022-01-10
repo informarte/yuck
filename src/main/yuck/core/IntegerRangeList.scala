@@ -177,9 +177,17 @@ final class IntegerRangeList
         IntegerDomain(buf)
     }
 
-    override def randomSubrange(randomGenerator: RandomGenerator) =
+    override def randomSubrange(randomGenerator: RandomGenerator) = {
+        require(isFinite)
         if (isEmpty) EmptyIntegerRange
-        else ranges(randomGenerator.nextInt(ranges.size)).randomSubrange(randomGenerator)
+        else {
+            val numberOfSubrangesDistribution = new ArrayBackedDistribution(ranges.size)
+            for (i <- 0 until ranges.size) {
+                numberOfSubrangesDistribution.setFrequency(i, safeMul(ranges(i).size, ranges(i).size + 1) / 2)
+            }
+            ranges(numberOfSubrangesDistribution.nextIndex(randomGenerator)).randomSubrange(randomGenerator)
+        }
+    }
 
     override def mirrored: IntegerRangeList =
         if (isEmpty) this

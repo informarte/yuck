@@ -1,8 +1,8 @@
 package yuck.core.test
 
-import scala.collection._
 import org.junit._
 
+import yuck.core.IntegerDomain.ensureRangeList
 import yuck.core._
 import yuck.test.util.UnitTest
 
@@ -16,13 +16,11 @@ final class IntegerRangeListTest extends UnitTest {
     private val randomGenerator = new JavaRandomGenerator
     private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
     private val baseRange = IntegerRange(IntegerValue(-5), Five)
-    private val testData = {
-        val (a, _) = IntegerDomainPruner.neRule(IntegerRange(Zero, Nine), IntegerRange(Five, Five))
-        val (b, _) = IntegerDomainPruner.neRule(a, IntegerRange(Seven, Seven))
-        val (c, _) = IntegerDomainPruner.neRule(b, IntegerRange(Six, Six))
-        val d = IntegerRangeList(CompleteIntegerRange).diff(b)
-        List(a, b, c, d)
-    }
+    private val testData = List(
+        IntegerRangeList(Vector(IntegerRange(Zero, Four), IntegerRange(Six, Nine))),
+        IntegerRangeList(Vector(IntegerRange(Zero, Four), IntegerRange(Six, Six), IntegerRange(Eight, Nine))),
+        IntegerRangeList(Vector(IntegerRange(Zero, Four), IntegerRange(Eight, Nine))),
+        IntegerRangeList(Vector(IntegerRange(null, MinusOne), IntegerRange(Five, Five), IntegerRange(Seven, Seven), IntegerRange(Ten, null))))
 
     @Test
     def testRepresentation: Unit = {
@@ -116,9 +114,8 @@ final class IntegerRangeListTest extends UnitTest {
 
     @Test
     def testEquality: Unit = {
-        val testData =
-            (List(EmptyIntegerRange, IntegerRange(Zero, Nine)) ++ helper.specialInfiniteRanges ++ this.testData)
-                .map(IntegerDomain.ensureRangeList)
+        val sampleSize = 16
+        val testData = helper.createTestData(baseRange, sampleSize).map(ensureRangeList)
         helper.testEquality(testData)
         for (a <- testData) {
             val b = IntegerRangeList(a.ranges)
@@ -132,29 +129,23 @@ final class IntegerRangeListTest extends UnitTest {
     @Test
     def testOrdering: Unit = {
         val sampleSize = 16
-        val testData = helper.createTestData(baseRange, sampleSize).map(IntegerDomain.ensureRangeList)
+        val testData = helper.createTestData(baseRange, sampleSize).map(ensureRangeList)
         helper.testOrdering(testData)
     }
 
     @Test
     def testOperations: Unit = {
         val sampleSize = 8
-        val testData = helper.createTestData(baseRange, sampleSize).map(IntegerDomain.ensureRangeList)
+        val testData = helper.createTestData(baseRange, sampleSize).map(ensureRangeList)
         val extendedBaseRange = IntegerRange(baseRange.lb - One, baseRange.ub + One)
         helper.testOperations(testData, extendedBaseRange.values.toSeq)
     }
 
     @Test
-    def testRandomSubrangeCreation: Unit = {
-        val sampleSize = 1000
-        val baseDomain = IntegerRangeList(Vector(IntegerRange(Zero, Four), IntegerRange(Six, Nine)))
-        val sample = mutable.HashSet[IntegerRange]()
-        for (i <- 1 to sampleSize) {
-            val e = baseDomain.randomSubrange(randomGenerator)
-            assert(e.isSubsetOf(baseDomain))
-            sample += e
-        }
-        assertGe(sample.size, baseDomain.size * (baseDomain.size + 1) / 4)
+    def testRandomSubdomainCreation: Unit = {
+        val testData = this.testData ++ IntegerDomainTestHelper.createEdgeCases(baseRange).map(ensureRangeList)
+        helper.testRandomSubrangeCreation(testData)
+        helper.testRandomSubdomainCreation(testData)
     }
 
 }

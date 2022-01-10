@@ -17,8 +17,6 @@ final class IntegerRangeTest extends UnitTest {
     private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
     private val baseRange = IntegerRange(IntegerValue(-5), Five)
 
-    private def createRange(a: Int, b: Int) = IntegerRange(IntegerValue(a), IntegerValue(b))
-
     @Test
     def testRepresentation: Unit = {
         helper.testRepresentation((a, b) => IntegerRange(a, b))
@@ -35,8 +33,10 @@ final class IntegerRangeTest extends UnitTest {
 
     @Test
     def testEquality: Unit = {
+        val sampleSize = 32
         val testData =
-            List(EmptyIntegerRange) ++ helper.specialInfiniteRanges ++ List(baseRange, createRange(0, 0), createRange(0, 9))
+            helper.createTestData(baseRange, sampleSize)
+                .filter(_.isInstanceOf[IntegerRange]).map(_.asInstanceOf[IntegerRange])
         helper.testEquality(testData)
         for (a <- testData) {
             val b = IntegerRange(a.lb, a.ub)
@@ -67,38 +67,33 @@ final class IntegerRangeTest extends UnitTest {
     }
 
     @Test
-    def testRandomSubrangeCreation: Unit = {
-        val sampleSize = 1000
-        val sample = new mutable.HashSet[IntegerRange]
-        for (i <- 1 to sampleSize) {
-            val e = baseRange.randomSubrange(randomGenerator)
-            assert(e.isSubsetOf(baseRange))
-            sample += e
-        }
-        assertEq(sample.size, baseRange.size * (baseRange.size + 1) / 2)
+    def testRandomSubdomainCreation: Unit = {
+        val testData = IntegerDomainTestHelper.createEdgeCases(baseRange)
+        helper.testRandomSubrangeCreation(testData)
+        helper.testRandomSubdomainCreation(testData)
     }
 
     @Test
     def testMultiplication: Unit = {
         assertEq(EmptyIntegerRange.mult(EmptyIntegerRange), EmptyIntegerRange)
-        assertEq(EmptyIntegerRange.mult(createRange(1, 10)), EmptyIntegerRange)
-        assertEq(createRange(1, 10).mult(EmptyIntegerRange), EmptyIntegerRange)
-        assertEq(createRange(0, 2).mult(createRange(1, 2)), createRange(0, 4))
-        assertEq(createRange(0, 2).mult(createRange(-1, 2)), createRange(-2, 4))
-        assertEq(createRange(-2, 2).mult(createRange(3, 10)), createRange(-20, 20))
+        assertEq(EmptyIntegerRange.mult(IntegerRange(1, 10)), EmptyIntegerRange)
+        assertEq(IntegerRange(1, 10).mult(EmptyIntegerRange), EmptyIntegerRange)
+        assertEq(IntegerRange(0, 2).mult(IntegerRange(1, 2)), IntegerRange(0, 4))
+        assertEq(IntegerRange(0, 2).mult(IntegerRange(-1, 2)), IntegerRange(-2, 4))
+        assertEq(IntegerRange(-2, 2).mult(IntegerRange(3, 10)), IntegerRange(-20, 20))
     }
 
     @Test
     def testDivision: Unit = {
         assertEq(EmptyIntegerRange.div(EmptyIntegerRange), EmptyIntegerRange)
-        assertEq(EmptyIntegerRange.div(createRange(1, 10)), EmptyIntegerRange)
-        assertEq(createRange(1, 10).div(EmptyIntegerRange), EmptyIntegerRange)
-        assertEq(createRange(-1, 100).div(createRange(-2, 8)), CompleteIntegerRange)
-        assertEq(createRange(10, 100).div(createRange(0, 0)), EmptyIntegerRange)
-        assertEq(createRange(-100, -10).div(createRange(-2, 5)), createRange(-100, 100))
-        assertEq(createRange(1, 100).div(createRange(-7, 0)), createRange(1, 100).div(createRange(-7, -1)))
-        assertEq(createRange(1, 100).div(createRange(0, 7)), createRange(1, 100).div(createRange(1, 7)))
-        assertEq(createRange(155, 161).div(createRange(9, 11)), createRange(15, 17))
+        assertEq(EmptyIntegerRange.div(IntegerRange(1, 10)), EmptyIntegerRange)
+        assertEq(IntegerRange(1, 10).div(EmptyIntegerRange), EmptyIntegerRange)
+        assertEq(IntegerRange(-1, 100).div(IntegerRange(-2, 8)), CompleteIntegerRange)
+        assertEq(IntegerRange(10, 100).div(IntegerRange(0, 0)), EmptyIntegerRange)
+        assertEq(IntegerRange(-100, -10).div(IntegerRange(-2, 5)), IntegerRange(-100, 100))
+        assertEq(IntegerRange(1, 100).div(IntegerRange(-7, 0)), IntegerRange(1, 100).div(IntegerRange(-7, -1)))
+        assertEq(IntegerRange(1, 100).div(IntegerRange(0, 7)), IntegerRange(1, 100).div(IntegerRange(1, 7)))
+        assertEq(IntegerRange(155, 161).div(IntegerRange(9, 11)), IntegerRange(15, 17))
     }
 
 }

@@ -1,6 +1,8 @@
 package yuck.core.test
 
 import scala.collection._
+
+import yuck.core.IntegerDomain.ensureRangeList
 import yuck.core._
 import yuck.util.logging.{FineLogLevel, LazyLogger}
 
@@ -529,6 +531,51 @@ final class IntegerDomainTestHelper
         }
     }
 
+    def testRandomSubrangeCreation(testData: Seq[IntegerDomain]): Unit = {
+        logger.withRootLogLevel(FineLogLevel) {
+            for (d <- testData) {
+                logger.log(d.toString)
+                if (d.isEmpty) {
+                    assert(d.randomSubdomain(randomGenerator).isEmpty)
+                } else if (d.isFinite) {
+                    val sampleSize = ensureRangeList(d).ranges.iterator.map(r => r. size * (r.size + 1) / 2).sum
+                    val sample = mutable.HashSet[IntegerRange]()
+                    for (i <- 1 to sampleSize) {
+                        val e = d.randomSubrange(randomGenerator)
+                        assert(e.isInstanceOf[IntegerRange])
+                        assert(e.isSubsetOf(d))
+                        sample += e
+                    }
+                    assertGe(sample.size, sampleSize / 2)
+                } else {
+                    assertEx(d.randomSubdomain(randomGenerator))
+                }
+            }
+        }
+    }
+
+    def testRandomSubdomainCreation(testData: Seq[IntegerDomain]): Unit = {
+        logger.withRootLogLevel(FineLogLevel) {
+            for (d <- testData) {
+                logger.log(d.toString)
+                if (d.isEmpty) {
+                    assert(d.randomSubdomain(randomGenerator).isEmpty)
+                } else if (d.isFinite) {
+                    val sampleSize = 1 << d.size
+                    val sample = new mutable.HashSet[IntegerDomain]
+                    for (i <- 1 to sampleSize) {
+                        val e = d.randomSubdomain(randomGenerator)
+                        assert(e.isSubsetOf(d))
+                        sample += e
+                    }
+                    assertGe(sample.size, sampleSize / 2)
+                } else {
+                    assertEx(d.randomSubdomain(randomGenerator))
+                }
+            }
+        }
+    }
+
 }
 
 /**
@@ -542,8 +589,14 @@ object IntegerDomainTestHelper {
             NegativeIntegerRange, NonNegativeIntegerRange,
             PositiveIntegerRange, NonPositiveIntegerRange)
 
+    def createEdgeCases(baseRange: IntegerRange): Seq[IntegerRange] = {
+        require(baseRange.isFinite)
+        val singletonRanges = List(baseRange.lb, baseRange.ub).map(a => IntegerRange(a, a))
+        List(EmptyIntegerRange, baseRange) ++ specialInfiniteRanges ++ singletonRanges
+    }
+
     def createTestData(baseRange: IntegerRange, sampleSize: Int, randomGenerator: RandomGenerator): Seq[IntegerDomain] = {
-        val singletonRanges = baseRange.values.map(a => IntegerRange(a, a)).toVector
+        require(baseRange.isFinite)
         val randomFiniteRanges = for (i <- 1 to sampleSize) yield baseRange.randomSubrange(randomGenerator)
         val randomFiniteRangeLists = for (i <- 1 to sampleSize) yield baseRange.randomSubdomain(randomGenerator)
         val randomFiniteIntegerDomains = randomFiniteRanges ++ randomFiniteRangeLists
@@ -551,7 +604,7 @@ object IntegerDomainTestHelper {
             for (infiniteRange <- specialInfiniteRanges;
                  finiteDomain <- randomFiniteIntegerDomains;
                  if infiniteRange.intersects(finiteDomain)) yield infiniteRange.diff(finiteDomain)
-        val edgeCases = List(EmptyIntegerRange, baseRange) ++ specialInfiniteRanges ++ singletonRanges
+        val edgeCases = createEdgeCases(baseRange)
         val testData = (randomFiniteIntegerDomains ++ randomInfiniteRangeLists ++ edgeCases).distinct
         testData
     }
