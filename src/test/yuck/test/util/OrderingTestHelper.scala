@@ -24,21 +24,23 @@ class OrderingTestHelper[T](randomGenerator: RandomGenerator) extends EqualityTe
         }
         for (a <- testData) {
             for (b <- testData) {
+                val cmp1 = ord.compare(a, b)
+                val cmp2 = ord.compare(b, a)
                 // symmetry of =
-                assertEq(ord.compare(a, b) == 0, ord.compare(b, a) == 0)
+                assertEq(cmp1 == 0, cmp2 == 0)
                 // consistency of = with equals
-                assertEq(ord.compare(a, b) == 0, a == b)
+                assertEq(cmp1 == 0, a == b)
                 // antisymmetry of <=
-                if (ord.compare(a, b) <= 0 && ord.compare(b, a) <= 0) {
-                    assertEq(ord.compare(a, b), 0)
+                if (cmp1 <= 0 && cmp2 <= 0) {
+                    assertEq(cmp1, 0)
                 }
                 // > is the inverse of <
-                assertEq(ord.compare(a, b) < 0, ord.compare(b, a) > 0)
+                assertEq(cmp1 < 0, cmp2 > 0)
                 // >= is the inverse of <=
-                assertEq(ord.compare(a, b) <= 0, ord.compare(b, a) >= 0)
+                assertEq(cmp1 <= 0, cmp2 >= 0)
                 for (c <- testData) {
                     // transitivity of <=
-                    if (ord.compare(a, b) <= 0 && ord.compare(b, c) <= 0) {
+                    if (cmp1 <= 0 && ord.compare(b, c) <= 0) {
                         assertLe(ord.compare(a, c), 0)
                     }
                 }
