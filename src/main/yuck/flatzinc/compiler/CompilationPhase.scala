@@ -60,10 +60,10 @@ abstract class CompilationPhase extends Runnable {
     }
 
     protected final def normalizeBool(a: Expr): Expr =
-        tryGetConst[BooleanValue](a).map(_.truthValue).map(BoolConst).getOrElse(a)
+        tryGetConst[BooleanValue](a).map(_.truthValue).map(BoolConst.apply).getOrElse(a)
 
     protected final def normalizeInt(a: Expr): Expr =
-        tryGetConst[IntegerValue](a).map(_.value).map(IntConst).getOrElse(a)
+        tryGetConst[IntegerValue](a).map(_.value).map(IntConst.apply).getOrElse(a)
 
     protected final def normalizeArray(a: Expr): Expr = a match {
         case ArrayConst(a) => ArrayConst(a)

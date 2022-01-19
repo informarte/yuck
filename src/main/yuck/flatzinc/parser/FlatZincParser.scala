@@ -59,7 +59,7 @@ object FlatZincParser extends RegexParsers {
         int_range ^^ (r => IntSetConst(r)) |
         int_set ^^ (s => IntSetConst(s))
     lazy val array_const: Parser[ArrayConst] =
-        "[" ~> repsep(expr, ",") <~ "]" ^^ ArrayConst
+        "[" ~> repsep(expr, ",") <~ "]" ^^ ArrayConst.apply
     lazy val array_access: Parser[ArrayAccess] =
         identifier ~ ("[" ~> expr <~ "]") ^^ {
             case id ~ idx => ArrayAccess(id, idx)
@@ -123,7 +123,7 @@ object FlatZincParser extends RegexParsers {
         }
 
     lazy val annotation: Parser[Annotation] =
-        "::" ~> term ^^ Annotation
+        "::" ~> term ^^ Annotation.apply
 
     lazy val constraint: Parser[Constraint] =
         "constraint" ~> identifier ~ ("(" ~> rep1sep(expr, ",") <~ ")") ~ (annotation*) <~ ";" ^^ {
@@ -132,7 +132,7 @@ object FlatZincParser extends RegexParsers {
 
     lazy val solve_goal: Parser[SolveGoal] =
         "solve" ~> (
-            (annotation*) <~ "satisfy" ^^ Satisfy |
+            (annotation*) <~ "satisfy" ^^ Satisfy.apply |
             (annotation*) ~ ("minimize" ~> expr) ^^ {
                 case annotations ~ expr => Minimize(expr, annotations)
             } |
