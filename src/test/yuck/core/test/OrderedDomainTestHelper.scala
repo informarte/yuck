@@ -26,6 +26,17 @@ class OrderedDomainTestHelper
         val helper = new OrderingTestHelper[OrderedDomain[Value]](randomGenerator)
         val ord = new OrderingFromOrdered[OrderedDomain[Value]]
         helper.testOrdering(testData, ord)
+        for (d <- testData) {
+            for (e <- testData) {
+                val cmp = ord.compare(d, e)
+                assertEq(cmp == 0, d == e)
+                assertEq(cmp != 0, d != e)
+                assertEq(cmp < 0, d < e)
+                assertEq(cmp <= 0, d <= e)
+                assertEq(cmp > 0, d > e)
+                assertEq(cmp >= 0, d >= e)
+            }
+        }
     }
 
 }
