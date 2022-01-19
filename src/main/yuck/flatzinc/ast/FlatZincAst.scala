@@ -49,7 +49,7 @@ trait Type {
     val isArrayType = false
 }
 trait BaseType extends Type
-final case object BoolType extends BaseType {
+case object BoolType extends BaseType {
     override def toString = "bool"
 }
 final case class IntType(val optionalDomain: Option[ValueSet[Int]]) extends BaseType {
