@@ -72,12 +72,15 @@ final class BooleanDecisionDomainTest extends UnitTest {
     @Test
     def testEquality: Unit = {
         helper.testEquality(testData2)
-        for (a <- testData2) {
-            val b = new BooleanDecisionDomain(a.containsFalse, a.containsTrue)
-            assertEq(a, b)
-            assertEq(b, a)
-            assertNe(a, False)
-            assertNe(False, a)
+        for (d <- testData2) {
+            val e = new BooleanDecisionDomain(d.containsFalse, d.containsTrue)
+            assertEq(d, e)
+            assertEq(e, d)
+            assertNe(d, False)
+            assertNe(False, d)
+            for (e <- testData2) {
+                assert(if (d.eq(e)) d == e else d != e)
+            }
         }
     }
 

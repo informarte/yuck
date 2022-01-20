@@ -117,12 +117,15 @@ final class IntegerRangeListTest extends UnitTest {
         val sampleSize = 16
         val testData = helper.createTestData(baseRange, sampleSize).map(ensureRangeList)
         helper.testEquality(testData)
-        for (a <- testData) {
-            val b = IntegerRangeList(a.ranges)
-            assertEq(a, b)
-            assertEq(b, a)
-            assertNe(a, False)
-            assertNe(False, a)
+        for (d <- testData) {
+            val e = IntegerRangeList(d.ranges)
+            assertEq(d, e)
+            assertEq(e, d)
+            assertNe(d, False)
+            assertNe(False, d)
+            for (e <- testData) {
+                assert(if (d.eq(e)) d == e else d != e)
+            }
         }
     }
 

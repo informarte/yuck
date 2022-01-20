@@ -23,6 +23,11 @@ final class IntegerDomainTest extends UnitTest {
         val sampleSize = 16
         val testData = helper.createTestData(baseRange, sampleSize)
         helper.testEquality(testData)
+        for (d <- testData) {
+            for (e <- testData) {
+                assert(if (d.eq(e)) d == e else d != e)
+            }
+        }
         for (d <- testData if d.isInstanceOf[IntegerRange]) {
             val e = IntegerDomain.ensureRangeList(d)
             assertEq(d, e)

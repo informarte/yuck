@@ -59,6 +59,9 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
             assertEq(b, a)
             assertNe(a, Zero)
             assertNe(Zero, a)
+            for (b <- testData) {
+                assert(if (a.eq(b)) a == b else a != b)
+            }
         }
     }
 

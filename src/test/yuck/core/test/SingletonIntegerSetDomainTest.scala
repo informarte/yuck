@@ -13,6 +13,10 @@ import yuck.test.util.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class SingletonIntegerSetDomainTest extends UnitTest {
 
+    private val randomGenerator = new JavaRandomGenerator
+    private val helper = new IntegerSetDomainTestHelper(randomGenerator, logger)
+    private val baseRange = IntegerRange(IntegerValue(-5), Five)
+
     @Test
     def testBasics: Unit = {
         val randomGenerator = new JavaRandomGenerator
@@ -81,6 +85,34 @@ final class SingletonIntegerSetDomainTest extends UnitTest {
         assertEq(usd.ub, us)
         assertEq(usd.hull, usd)
 
+    }
+
+    @Test
+    def testEquality: Unit = {
+        val sampleSize = 16
+        val testData =
+            helper.createTestData(baseRange, sampleSize)
+                .filter(_.isInstanceOf[SingletonIntegerSetDomain]).map(_.asInstanceOf[SingletonIntegerSetDomain])
+        helper.testEquality(testData)
+        for (d <- testData) {
+            val e = SingletonIntegerSetDomain(d.base)
+            assertEq(d, e)
+            assertEq(e, d)
+            assertNe(d, False)
+            assertNe(False, d)
+            for (e <- testData) {
+                assert(if (d.eq(e)) d == e else d != e)
+            }
+        }
+    }
+
+    @Test
+    def testOrdering: Unit = {
+        val sampleSize = 8
+        val testData =
+            helper.createTestData(baseRange, sampleSize)
+                .filter(_.isInstanceOf[SingletonIntegerSetDomain]).map(_.asInstanceOf[SingletonIntegerSetDomain])
+        helper.testOrdering(testData)
     }
 
     @Test

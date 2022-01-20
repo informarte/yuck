@@ -55,6 +55,9 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
             assertEq(b, a)
             assertNe(a, False)
             assertNe(False, a)
+            for (b <- testData) {
+                assert(if (a.eq(b)) a == b else a != b)
+            }
         }
     }
 
