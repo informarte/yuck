@@ -1,7 +1,7 @@
 package yuck.core
 
 /**
- * Provides an interface for working with typed domains.
+ * Provides an interface for working with domains of known type.
  *
  * @author Michael Marte
  */
@@ -17,7 +17,7 @@ abstract class Domain[V <: AnyValue] extends AnyDomain {
     }
 
     def ==(that: Domain[V]): Boolean
-    def !=(that: Domain[V]): Boolean
+    @inline final def !=(that: Domain[V]): Boolean = ! ( this == that)
 
     override def toString = "{%s}".format(valuesIterator.map(_.toString).mkString(", "))
 
