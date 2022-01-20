@@ -13,11 +13,11 @@ import yuck.core._
  * @author Michael Marte
  */
 final class OptimizationGoalTracker
-    [Value <: NumericalValue[Value]]
+    [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      mode: OptimizationMode.Value,
-     axs: immutable.IndexedSeq[AX[Value]], distribution: Distribution)
-    (implicit valueTraits: NumericalValueTraits[Value])
+     axs: immutable.IndexedSeq[AX[V]], distribution: Distribution)
+    (implicit valueTraits: NumericalValueTraits[V])
     extends Constraint(id)
 {
 
@@ -29,7 +29,7 @@ final class OptimizationGoalTracker
     override def inVariables = axs.view.map(_.x)
     override def outVariables = Nil
 
-    private val indexMap: immutable.Map[AnyVariable, (Int, AX[Value])] =
+    private val indexMap: immutable.Map[AnyVariable, (Int, AX[V])] =
         (0 until axs.size).iterator.map(i => (axs(i).x, (i, axs(i)))).toMap
 
     override def initialize(now: SearchState) = {
@@ -51,7 +51,7 @@ final class OptimizationGoalTracker
         Nil
     }
 
-    private def computeFrequency(ax: AX[Value], searchState: SearchState): Long = {
+    private def computeFrequency(ax: AX[V], searchState: SearchState): Long = {
         val a = ax.a.toLong
         val b = searchState.value(ax.x).toLong
         val dx = ax.x.domain

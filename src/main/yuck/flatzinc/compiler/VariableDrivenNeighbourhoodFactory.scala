@@ -32,9 +32,9 @@ final class VariableDrivenNeighbourhoodFactory
 {
 
     protected override def createMinimizationNeighbourhood
-        [Value <: NumericalValue[Value]]
-        (x: NumericalVariable[Value])
-        (implicit valueTraits: NumericalValueTraits[Value]):
+        [V <: NumericalValue[V]]
+        (x: NumericalVariable[V])
+        (implicit valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         val levelCfg = cfg.level1Configuration
@@ -43,9 +43,9 @@ final class VariableDrivenNeighbourhoodFactory
     }
 
     private def createNeighbourhood
-        [Value <: NumericalValue[Value]]
-        (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[Value])
-        (implicit valueTraits: NumericalValueTraits[Value]):
+        [V <: NumericalValue[V]]
+        (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
+        (implicit valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         require(mode == OptimizationMode.Min)
@@ -94,22 +94,22 @@ final class VariableDrivenNeighbourhoodFactory
     // 3. All other cases.
     //    (Maybe there is only a single soft constraint.)
     private def createHotSpotIndicators
-        [Value <: NumericalValue[Value]]
+        [V <: NumericalValue[V]]
         (x: AnyVariable)
-        (implicit valueTraits: NumericalValueTraits[Value]):
-        Map[AnyVariable, NumericalVariable[Value]] =
+        (implicit valueTraits: NumericalValueTraits[V]):
+        Map[AnyVariable, NumericalVariable[V]] =
     {
-        val zs = new mutable.AnyRefMap[AnyVariable, mutable.ArrayBuffer[AX[Value]]]
+        val zs = new mutable.AnyRefMap[AnyVariable, mutable.ArrayBuffer[AX[V]]]
         if (space.isSearchVariable(x)) {
-            zs += x -> new mutable.ArrayBuffer[AX[Value]]
+            zs += x -> new mutable.ArrayBuffer[AX[V]]
         }
         else if (space.isChannelVariable(x)) {
             for (y <- space.involvedSearchVariables(x)) {
-                zs += y -> new mutable.ArrayBuffer[AX[Value]]
+                zs += y -> new mutable.ArrayBuffer[AX[V]]
             }
             val constraint: yuck.core.Constraint = space.definingConstraint(x)
             constraint match {
-                case lc: LinearCombination[Value @ unchecked] =>
+                case lc: LinearCombination[V @ unchecked] =>
                     for (ax <- lc.axs
                          if ax.a >= valueTraits.zero && ax.x.domain.maybeLb.exists(_ >= valueTraits.zero))
                     {
@@ -117,7 +117,7 @@ final class VariableDrivenNeighbourhoodFactory
                             zs(y) += ax
                         }
                     }
-                case sum: Sum[Value @ unchecked] =>
+                case sum: Sum[V @ unchecked] =>
                     for (x <- sum.xs if x.domain.maybeLb.exists(_ >= valueTraits.zero)) {
                         for (y <- space.involvedSearchVariables(x)) {
                             zs(y) += new AX(valueTraits.one, x)
@@ -126,9 +126,9 @@ final class VariableDrivenNeighbourhoodFactory
                 case _ =>
             }
         }
-        val s = new mutable.AnyRefMap[AnyVariable, NumericalVariable[Value]]
+        val s = new mutable.AnyRefMap[AnyVariable, NumericalVariable[V]]
         for (x <- zs.keys) {
-            s += x -> createNonNegativeChannel[Value]
+            s += x -> createNonNegativeChannel[V]
             val zl = AX.compact(zs(x))
             if (zl.forall(ax => ax.a == valueTraits.one)) {
                space.post(new Sum(nextConstraintId, null, zl.iterator.map(ax => ax.x).toIndexedSeq, s(x)))
@@ -140,10 +140,10 @@ final class VariableDrivenNeighbourhoodFactory
     }
 
     private def createHotSpotDistribution
-        [Value <: NumericalValue[Value]]
-        (hotSpotIndicators: Map[AnyVariable, NumericalVariable[Value]])
+        [V <: NumericalValue[V]]
+        (hotSpotIndicators: Map[AnyVariable, NumericalVariable[V]])
         (xs: Seq[AnyVariable])
-        (implicit valueTraits: NumericalValueTraits[Value]):
+        (implicit valueTraits: NumericalValueTraits[V]):
         Option[Distribution] =
     {
         val hotSpotDistribution = Distribution(xs.size)

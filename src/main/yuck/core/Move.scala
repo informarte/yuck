@@ -65,15 +65,15 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVar
      *
      * Throws when the given variable is not involved in the move.
      */
-    @inline final def value[Value <: AnyValue](x: Variable[Value]): Value =
-        value(x.asInstanceOf[AnyVariable]).asInstanceOf[Value]
+    @inline final def value[V <: AnyValue](x: Variable[V]): V =
+        value(x.asInstanceOf[AnyVariable]).asInstanceOf[V]
 
     /**
      * Returns None if the move does not involve the given variable x,
      * otherwise it returns Some(a) where a is the value assigned to x
      * by the move.
      */
-    @inline final def maybeValue[Value <: AnyValue](x: Variable[Value]): Option[Value] =
-        maybeValue(x.asInstanceOf[AnyVariable]).map(_.asInstanceOf[Value])
+    @inline final def maybeValue[V <: AnyValue](x: Variable[V]): Option[V] =
+        maybeValue(x.asInstanceOf[AnyVariable]).map(_.asInstanceOf[V])
 
 }

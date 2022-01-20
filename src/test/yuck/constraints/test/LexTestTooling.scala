@@ -8,15 +8,15 @@ import yuck.test.util.YuckAssert
  * @author Michael Marte
  *
  */
-trait LexTestTooling [Value <: OrderedValue[Value]] extends YuckAssert {
+trait LexTestTooling [V <: OrderedValue[V]] extends YuckAssert {
 
-    protected val valueTraits: OrderedValueTraits[Value]
+    protected val valueTraits: OrderedValueTraits[V]
     protected val space: Space
 
     protected trait TestVar
     protected case class X(i: Int /* 1-based */) extends TestVar
     protected case class Y(y: Int /* 1-based */) extends TestVar
-    protected case class TestStep(expectedResult: BooleanValue, assignments: (TestVar, Value)*)
+    protected case class TestStep(expectedResult: BooleanValue, assignments: (TestVar, V)*)
     protected case class TestScenario(relation: OrderingRelation, n: Int, m: Int, steps: TestStep*)
 
     protected def runScenario(scenario: TestScenario): Unit = {
@@ -29,8 +29,8 @@ trait LexTestTooling [Value <: OrderedValue[Value]] extends YuckAssert {
         }
         val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
         scenario.relation match {
-            case LtRelation => space.post(new LexLess[Value](space.nextConstraintId, null, xs, ys, costs))
-            case LeRelation => space.post(new LexLessEq[Value](space.nextConstraintId, null, xs, ys, costs))
+            case LtRelation => space.post(new LexLess[V](space.nextConstraintId, null, xs, ys, costs))
+            case LeRelation => space.post(new LexLessEq[V](space.nextConstraintId, null, xs, ys, costs))
         }
         assertEq(space.searchVariables, (xs ++ ys).toSet)
         for ((x, a) <- scenario.steps.head.assignments) {

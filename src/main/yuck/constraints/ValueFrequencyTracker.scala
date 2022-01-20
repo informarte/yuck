@@ -13,14 +13,14 @@ import yuck.core._
  * @author Michael Marte
  */
 abstract class ValueFrequencyTracker
-    [Value <: AnyValue,
+    [V <: AnyValue,
      Result <: AnyValue]
     (id: Id[Constraint],
-     protected val xs: immutable.Seq[Variable[Value]],
+     protected val xs: immutable.Seq[Variable[V]],
      protected val y: Variable[Result],
      val variableRegistryFactory: immutable.Map[AnyVariable, Int],
-     val valueRegistryFactory: immutable.Map[Value, Int])
-    (implicit valueTraits: ValueTraits[Value])
+     val valueRegistryFactory: immutable.Map[V, Int])
+    (implicit valueTraits: ValueTraits[V])
     extends Constraint(id)
 {
 
@@ -33,12 +33,12 @@ abstract class ValueFrequencyTracker
     private val variableRegistry =
         xs.foldLeft(variableRegistryFactory.empty)(registerVariable)
 
-    type ValueRegistry = immutable.Map[Value, Int]
+    type ValueRegistry = immutable.Map[V, Int]
     private var valueRegistry: ValueRegistry = null
     private var futureValueRegistry: ValueRegistry = null
-    @inline private def registerValue(valueRegistry: ValueRegistry, a: Value, n: Int): ValueRegistry =
+    @inline private def registerValue(valueRegistry: ValueRegistry, a: V, n: Int): ValueRegistry =
         valueRegistry + (a -> safeAdd(valueRegistry.getOrElse(a, 0), n))
-    @inline private def deregisterValue(valueRegistry: ValueRegistry, a: Value, n: Int): ValueRegistry = {
+    @inline private def deregisterValue(valueRegistry: ValueRegistry, a: V, n: Int): ValueRegistry = {
         val occurenceCount = valueRegistry(a) - n
         if (occurenceCount == 0) valueRegistry - a else valueRegistry + (a -> occurenceCount)
     }

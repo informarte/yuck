@@ -9,13 +9,13 @@ import yuck.core._
  *
  */
 class NumberOfDistinctValues
-    [Value <: OrderedValue[Value]]
+    [V <: OrderedValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.Seq[Variable[Value]], n: IntegerVariable)
-    (implicit valueTraits: OrderedValueTraits[Value])
-    extends ValueFrequencyTracker[Value, IntegerValue](
+     xs: immutable.Seq[Variable[V]], n: IntegerVariable)
+    (implicit valueTraits: OrderedValueTraits[V])
+    extends ValueFrequencyTracker[V, IntegerValue](
         id, xs, n,
-        immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[Value, Int]())(
+        immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[V, Int]())(
         valueTraits)
 {
     override def toString = "%s = numberOfDistinctValues([%s])".format(n, xs.mkString(", "))

@@ -16,9 +16,9 @@ class ChangeAnyValues
  * @author Michael Marte
  */
 class ChangeValues
-    [Value <: AnyValue]
+    [V <: AnyValue]
     (id: Id[Move],
-     override val effects: Iterable[MoveEffect[Value]])
+     override val effects: Iterable[MoveEffect[V]])
     extends Move(id)
 
 /**
@@ -27,7 +27,7 @@ class ChangeValues
  * @author Michael Marte
  */
 final class ChangeValue
-    [Value <: AnyValue]
+    [V <: AnyValue]
     (id: Id[Move],
-     x: Variable[Value], a: Value)
+     x: Variable[V], a: V)
     extends ChangeAnyValues(id, new ImmutableMoveEffect(x, a))

@@ -9,10 +9,10 @@ import yuck.core._
  *
  */
 final class CountConst
-    [Value <: AnyValue]
+    [V <: AnyValue]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: Seq[Variable[Value]], a: Value, val n: IntegerVariable)
-    (implicit valueTraits: ValueTraits[Value])
+     xs: Seq[Variable[V]], a: V, val n: IntegerVariable)
+    (implicit valueTraits: ValueTraits[V])
     extends Constraint(id)
 {
 

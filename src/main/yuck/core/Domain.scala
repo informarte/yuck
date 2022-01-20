@@ -5,35 +5,35 @@ package yuck.core
  *
  * @author Michael Marte
  */
-abstract class Domain[Value <: AnyValue] extends AnyDomain {
+abstract class Domain[V <: AnyValue] extends AnyDomain {
 
     override def equals(that: Any) = that match {
         case rhs: Domain[_] => {
             val lhs = this
             lhs.eq(rhs) ||
-            (lhs.valueType == rhs.valueType && lhs == rhs.asInstanceOf[Domain[Value]])
+            (lhs.valueType == rhs.valueType && lhs == rhs.asInstanceOf[Domain[V]])
         }
         case _ => false
     }
 
-    def ==(that: Domain[Value]): Boolean
-    def !=(that: Domain[Value]): Boolean
+    def ==(that: Domain[V]): Boolean
+    def !=(that: Domain[V]): Boolean
 
     override def toString = "{%s}".format(valuesIterator.map(_.toString).mkString(", "))
 
-    override def values: Iterable[Value]
-    override def valuesIterator: Iterator[Value] = values.iterator
-    override def singleValue: Value
+    override def values: Iterable[V]
+    override def valuesIterator: Iterator[V] = values.iterator
+    override def singleValue: V
 
     /** Decides whether the domain contains the given value. */
-    def contains(a: Value): Boolean
+    def contains(a: V): Boolean
 
     /**
      * Returns a random value from the domain.
      *
      * Throws when the domain is empty or infinite.
      */
-    def randomValue(randomGenerator: RandomGenerator): Value
+    def randomValue(randomGenerator: RandomGenerator): V
 
     /**
      * Returns a random value from the domain.
@@ -43,31 +43,31 @@ abstract class Domain[Value <: AnyValue] extends AnyDomain {
      *
      * Throws when the domain is empty or infinite.
      */
-    def nextRandomValue(randomGenerator: RandomGenerator, currentValue: Value): Value
+    def nextRandomValue(randomGenerator: RandomGenerator, currentValue: V): V
 
     /**
      * Chooses a random subdomain from the domain.
      *
      * Throws when the domain is infinite.
      */
-    def randomSubdomain(randomGenerator: RandomGenerator): Domain[Value]
+    def randomSubdomain(randomGenerator: RandomGenerator): Domain[V]
 
     /** Decides whether this is a subset of that. */
-    def isSubsetOf(that: Domain[Value]): Boolean
+    def isSubsetOf(that: Domain[V]): Boolean
 
     /** Decides whether this intersects that. */
-    def intersects(that: Domain[Value]): Boolean
+    def intersects(that: Domain[V]): Boolean
 
     /** Computes the intersection of this and that. */
-    def intersect(that: Domain[Value]): Domain[Value]
+    def intersect(that: Domain[V]): Domain[V]
 
     /** Computes the union of this and that. */
-    def union(that: Domain[Value]): Domain[Value]
+    def union(that: Domain[V]): Domain[V]
 
     /** Computes this \ that. */
-    def diff(that: Domain[Value]): Domain[Value]
+    def diff(that: Domain[V]): Domain[V]
 
     /** Computes the symmetrical difference of this and that. */
-    def symdiff(that: Domain[Value]): Domain[Value] = this.union(that).diff(this.intersect(that))
+    def symdiff(that: Domain[V]): Domain[V] = this.union(that).diff(this.intersect(that))
 
 }

@@ -1,42 +1,42 @@
 package yuck.core
 
 /**
- * OrderedDomain[Value] pruner interface for use by generic constraints.
+ * OrderedDomain[V] pruner interface for use by generic constraints.
  *
  * @author Michael Marte
  */
-abstract class OrderedDomainPruner[Value <: OrderedValue[Value]] extends DomainPruner[Value] {
+abstract class OrderedDomainPruner[V <: OrderedValue[V]] extends DomainPruner[V] {
 
-    override protected val valueTraits: OrderedValueTraits[Value]
+    override protected val valueTraits: OrderedValueTraits[V]
 
     override def eqRule
-        (lhs: Domain[Value], rhs: Domain[Value]):
-        (OrderedDomain[Value], OrderedDomain[Value]) =
+        (lhs: Domain[V], rhs: Domain[V]):
+        (OrderedDomain[V], OrderedDomain[V]) =
         (valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
 
     override def neRule
-        (lhs: Domain[Value], rhs: Domain[Value]):
-        (OrderedDomain[Value], OrderedDomain[Value]) =
+        (lhs: Domain[V], rhs: Domain[V]):
+        (OrderedDomain[V], OrderedDomain[V]) =
         (valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
 
     def ltRule
-        (lhs: OrderedDomain[Value], rhs: OrderedDomain[Value]):
-        (OrderedDomain[Value], OrderedDomain[Value]) =
+        (lhs: OrderedDomain[V], rhs: OrderedDomain[V]):
+        (OrderedDomain[V], OrderedDomain[V]) =
         (lhs, rhs)
 
     def leRule
-        (lhs: OrderedDomain[Value], rhs: OrderedDomain[Value]):
-        (OrderedDomain[Value], OrderedDomain[Value]) =
+        (lhs: OrderedDomain[V], rhs: OrderedDomain[V]):
+        (OrderedDomain[V], OrderedDomain[V]) =
         (lhs, rhs)
 
     def minRule
-        (lhs: Iterable[OrderedDomain[Value]], rhs: OrderedDomain[Value]):
-        (Iterator[OrderedDomain[Value]], OrderedDomain[Value]) =
+        (lhs: Iterable[OrderedDomain[V]], rhs: OrderedDomain[V]):
+        (Iterator[OrderedDomain[V]], OrderedDomain[V]) =
         (lhs.iterator, rhs)
 
     def maxRule
-        (lhs: Iterable[OrderedDomain[Value]], rhs: OrderedDomain[Value]):
-        (Iterator[OrderedDomain[Value]], OrderedDomain[Value]) =
+        (lhs: Iterable[OrderedDomain[V]], rhs: OrderedDomain[V]):
+        (Iterator[OrderedDomain[V]], OrderedDomain[V]) =
         (lhs.iterator, rhs)
 
 }

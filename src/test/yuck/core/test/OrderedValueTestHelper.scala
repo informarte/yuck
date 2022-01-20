@@ -11,14 +11,14 @@ import yuck.util.OrderingFromOrdered
  *
  */
 class OrderedValueTestHelper
-    [Value <: OrderedValue[Value]]
+    [V <: OrderedValue[V]]
     (randomGenerator: RandomGenerator)
-    extends ValueTestHelper[Value]
+    extends ValueTestHelper[V]
 {
 
-    def testOrdering(testData: Seq[Value]): Unit = {
-        val helper = new OrderingTestHelper[Value](randomGenerator)
-        val ord = new OrderingFromOrdered[Value]
+    def testOrdering(testData: Seq[V]): Unit = {
+        val helper = new OrderingTestHelper[V](randomGenerator)
+        val ord = new OrderingFromOrdered[V]
         helper.testOrdering(testData, ord)
         for (a <- testData) {
             for (b <- testData) {

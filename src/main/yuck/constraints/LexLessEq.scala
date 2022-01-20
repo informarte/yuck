@@ -11,11 +11,11 @@ import yuck.core._
  * @author Michael Marte
  */
 final class LexLessEq
-    [Value <: OrderedValue[Value]]
+    [V <: OrderedValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.IndexedSeq[OrderedVariable[Value]], ys: immutable.IndexedSeq[OrderedVariable[Value]],
+     xs: immutable.IndexedSeq[OrderedVariable[V]], ys: immutable.IndexedSeq[OrderedVariable[V]],
      costs: BooleanVariable)
-    (implicit val ord: Ordering[Value])
+    (implicit val ord: Ordering[V])
     extends Constraint(id)
 {
 

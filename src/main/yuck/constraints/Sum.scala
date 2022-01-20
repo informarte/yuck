@@ -9,10 +9,10 @@ import yuck.core._
  *
  */
 final class Sum
-    [Value <: NumericalValue[Value]]
+    [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     val xs: immutable.Seq[NumericalVariable[Value]], y: NumericalVariable[Value])
-    (implicit valueTraits: NumericalValueTraits[Value])
+     val xs: immutable.Seq[NumericalVariable[V]], y: NumericalVariable[V])
+    (implicit valueTraits: NumericalValueTraits[V])
     extends Constraint(id)
 {
 
@@ -27,7 +27,7 @@ final class Sum
     private val effect = y.reuseableEffect
 
     override def propagate = {
-        val lhs0 = new Iterable[(Value, NumericalDomain[Value])] {
+        val lhs0 = new Iterable[(V, NumericalDomain[V])] {
             override def iterator = xs.iterator.map(x => (valueTraits.one, x.domain))
         }
         val rhs0 = y.domain

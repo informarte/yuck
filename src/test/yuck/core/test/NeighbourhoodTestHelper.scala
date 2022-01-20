@@ -12,13 +12,13 @@ import yuck.util.logging.LazyLogger
  *
  */
 final class NeighbourhoodTestHelper
-    [Value <: AnyValue]
+    [V <: AnyValue]
     (logger: LazyLogger,
-     xs: IndexedSeq[Variable[Value]],
+     xs: IndexedSeq[Variable[V]],
      moveSizeDistribution: Distribution,
      maybeHotSpotDistribution: Option[Distribution], // goes together with xs
      maybeFairVariableChoiceRate: Option[Probability])
-    (implicit valueTraits: ValueTraits[Value])
+    (implicit valueTraits: ValueTraits[V])
     extends YuckAssert
 {
 
@@ -34,7 +34,7 @@ final class NeighbourhoodTestHelper
 
     final class MeasurementResult {
         val moveSizeFrequencies = new Array[Int](moveSizeDistribution.size)
-        val variableFrequencies = new mutable.HashMap[Variable[Value], Int] ++ xs.map(_ -> 0)
+        val variableFrequencies = new mutable.HashMap[Variable[V], Int] ++ xs.map(_ -> 0)
     }
 
     private val sampleSize = 10000

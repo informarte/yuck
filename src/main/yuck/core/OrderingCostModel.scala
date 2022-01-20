@@ -5,18 +5,18 @@ package yuck.core
  *
  * @author Michael Marte
  */
-abstract class OrderingCostModel[Value <: OrderedValue[Value]] {
+abstract class OrderingCostModel[V <: OrderedValue[V]] {
 
     /** Basis for implementing equality constraints. */
-    def eqViolation(lhs: Value, rhs: Value): Long = if (lhs == rhs) 0 else 1
+    def eqViolation(lhs: V, rhs: V): Long = if (lhs == rhs) 0 else 1
 
     /** Basis for implementing inequality constraints. */
-    def neViolation(lhs: Value, rhs: Value): Long = if (lhs != rhs) 0 else 1
+    def neViolation(lhs: V, rhs: V): Long = if (lhs != rhs) 0 else 1
 
     /** Basis for implementing less-than constraints. */
-    def ltViolation(lhs: Value, rhs: Value): Long = if (lhs < rhs) 0 else 1
+    def ltViolation(lhs: V, rhs: V): Long = if (lhs < rhs) 0 else 1
 
     /** Basis for implementing less-than-or-equal constraints. */
-    def leViolation(lhs: Value, rhs: Value): Long = if (lhs <= rhs) 0 else 1
+    def leViolation(lhs: V, rhs: V): Long = if (lhs <= rhs) 0 else 1
 
 }

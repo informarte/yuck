@@ -12,19 +12,19 @@ import yuck.util.logging.{FineLogLevel, LazyLogger}
  *
  */
 class OrderedDomainTestHelper
-    [Value <: OrderedValue[Value]]
+    [V <: OrderedValue[V]]
     (logger: LazyLogger, randomGenerator: RandomGenerator)
-    extends DomainTestHelper[Value](logger)
+    extends DomainTestHelper[V](logger)
 {
 
-    def testOrdering(testData: Seq[OrderedDomain[Value]]): Unit = {
+    def testOrdering(testData: Seq[OrderedDomain[V]]): Unit = {
         logger.withRootLogLevel(FineLogLevel) {
             logger.withLogScope("Test data") {
                 testData.foreach(item => logger.log(item.toString))
             }
         }
-        val helper = new OrderingTestHelper[OrderedDomain[Value]](randomGenerator)
-        val ord = new OrderingFromOrdered[OrderedDomain[Value]]
+        val helper = new OrderingTestHelper[OrderedDomain[V]](randomGenerator)
+        val ord = new OrderingFromOrdered[OrderedDomain[V]]
         helper.testOrdering(testData, ord)
         for (d <- testData) {
             for (e <- testData) {

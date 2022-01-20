@@ -10,31 +10,31 @@ import yuck.util.logging.{FineLogLevel, LazyLogger}
  * @author Michael Marte
  *
  */
-class DomainTestHelper[Value <: AnyValue](logger: LazyLogger) extends YuckAssert {
+class DomainTestHelper[V <: AnyValue](logger: LazyLogger) extends YuckAssert {
 
-    def testEquality(testData: Seq[Domain[Value]]): Unit = {
+    def testEquality(testData: Seq[Domain[V]]): Unit = {
         logger.withRootLogLevel(FineLogLevel) {
             logger.withLogScope("Test data") {
                 testData.foreach(item => logger.log(item.toString))
             }
         }
-        val helper = new EqualityTestHelper[Domain[Value]]
+        val helper = new EqualityTestHelper[Domain[V]]
         helper.testEquality(testData)
     }
 
     // Checks that values are chosen uniformly from the given domain.
-    def testUniformityOfDistribution(randomGenerator: RandomGenerator, d: Domain[Value]): Unit = {
+    def testUniformityOfDistribution(randomGenerator: RandomGenerator, d: Domain[V]): Unit = {
         val sampleSize = 100000
         val maxError = 0.05
-        def checkDistribution(f: Map[Value, Int]): Unit = {
+        def checkDistribution(f: Map[V, Int]): Unit = {
             for (a <- d.values) {
                 import scala.math.Ordering.Double.TotalOrdering
                 assertGt(f.getOrElse(a, 0).toDouble, sampleSize / d.size * (1 - maxError))
                 assertLt(f.getOrElse(a, 0).toDouble, sampleSize / d.size * (1 + maxError))
             }
         }
-        val f1 = new mutable.AnyRefMap[Value, Int]
-        val f2 = new mutable.AnyRefMap[Value, Int]
+        val f1 = new mutable.AnyRefMap[V, Int]
+        val f2 = new mutable.AnyRefMap[V, Int]
         for (i <- 1 to sampleSize) {
             val a = d.randomValue(randomGenerator)
             assert(d.contains(a))

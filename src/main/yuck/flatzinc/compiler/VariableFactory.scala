@@ -98,10 +98,10 @@ final class VariableFactory
     }
 
     private def createVariable
-        [Value <: OrderedValue[Value]]
+        [V <: OrderedValue[V]]
         (key: Expr)
-        (implicit valueTraits: OrderedValueTraits[Value]):
-        OrderedVariable[Value] =
+        (implicit valueTraits: OrderedValueTraits[V]):
+        OrderedVariable[V] =
     {
         def factory(key: Expr) =
             valueTraits.createVariable(space, key.toString, valueTraits.safeDowncast(domains(key)))

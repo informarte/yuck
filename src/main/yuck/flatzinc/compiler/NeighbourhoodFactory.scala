@@ -167,18 +167,18 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
     }
 
     protected def createMinimizationNeighbourhood
-        [Value <: NumericalValue[Value]]
-        (x: NumericalVariable[Value])
-        (implicit valueTraits: NumericalValueTraits[Value]):
+        [V <: NumericalValue[V]]
+        (x: NumericalVariable[V])
+        (implicit valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         createNeighbourhoodOnInvolvedSearchVariables(x)
     }
 
     protected def createMaximizationNeighbourhood
-        [Value <: NumericalValue[Value]]
-        (x: NumericalVariable[Value])
-        (implicit valueTraits: NumericalValueTraits[Value]):
+        [V <: NumericalValue[V]]
+        (x: NumericalVariable[V])
+        (implicit valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         createNeighbourhoodOnInvolvedSearchVariables(x)

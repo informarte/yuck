@@ -16,28 +16,28 @@ import yuck.test.util.UnitTest
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
-abstract class LinearConstraintLikeTest[Value <: NumericalValue[Value]] extends UnitTest {
+abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest {
 
-    protected val baseValueTraits: NumericalValueTraits[Value]
+    protected val baseValueTraits: NumericalValueTraits[V]
 
     protected val randomGenerator = new JavaRandomGenerator
     protected val space = new Space(logger, sigint)
 
     protected val relation: OrderingRelation
     protected val costsDomain: BooleanDecisionDomain
-    protected val baseDomain: NumericalDomain[Value]
-    protected val axs: IndexedSeq[AX[Value]]
+    protected val baseDomain: NumericalDomain[V]
+    protected val axs: IndexedSeq[AX[V]]
     protected final lazy val y = baseValueTraits.createChannel(space)
     protected final lazy val z = baseValueTraits.createVariable(space, "z", baseDomain.randomSubdomain(randomGenerator))
     protected final val costs = new BooleanVariable(space.nextVariableId, "costs", costsDomain)
-    protected def createConstraint(implicit valueTraits: NumericalValueTraits[Value]): Constraint
+    protected def createConstraint(implicit valueTraits: NumericalValueTraits[V]): Constraint
 
-    protected def nonEmptyRandomSubdomain(d: NumericalDomain[Value]) =
+    protected def nonEmptyRandomSubdomain(d: NumericalDomain[V]) =
         LazyList.continually(d).map(_.randomSubdomain(randomGenerator)).dropWhile(_.isEmpty).head
 
-    private val orderingCostModel = mock(classOf[OrderingCostModel[Value]])
-    private val domainPruner = mock(classOf[NumericalDomainPruner[Value]])
-    private implicit val valueTraits: NumericalValueTraits[Value] = mock(classOf[NumericalValueTraits[Value]])
+    private val orderingCostModel = mock(classOf[OrderingCostModel[V]])
+    private val domainPruner = mock(classOf[NumericalDomainPruner[V]])
+    private implicit val valueTraits: NumericalValueTraits[V] = mock(classOf[NumericalValueTraits[V]])
 
     private def setupValueTraits(): Unit = {
         when(valueTraits.orderingCostModel).thenReturn(orderingCostModel)
@@ -114,11 +114,11 @@ abstract class LinearConstraintLikeTest[Value <: NumericalValue[Value]] extends 
                 assertEq(axs(i).x.domain, lhs1(i)._2)
             }
             assertEq(z.domain, dz1)
-            verify(domainPruner, atMost(2)).eqRule(any[Domain[Value]], any[Domain[Value]])
-            verify(domainPruner, atMost(2)).neRule(any[Domain[Value]], any[Domain[Value]])
-            verify(domainPruner, atMost(2)).ltRule(any[OrderedDomain[Value]], any[OrderedDomain[Value]])
-            verify(domainPruner, atMost(2)).leRule(any[OrderedDomain[Value]], any[OrderedDomain[Value]])
-            verify(domainPruner, times(2)).linEqRule(any[Iterable[(Value, NumericalDomain[Value])]], any[NumericalDomain[Value]])
+            verify(domainPruner, atMost(2)).eqRule(any[Domain[V]], any[Domain[V]])
+            verify(domainPruner, atMost(2)).neRule(any[Domain[V]], any[Domain[V]])
+            verify(domainPruner, atMost(2)).ltRule(any[OrderedDomain[V]], any[OrderedDomain[V]])
+            verify(domainPruner, atMost(2)).leRule(any[OrderedDomain[V]], any[OrderedDomain[V]])
+            verify(domainPruner, times(2)).linEqRule(any[Iterable[(V, NumericalDomain[V])]], any[NumericalDomain[V]])
         }
     }
 
@@ -168,10 +168,10 @@ abstract class LinearConstraintLikeTest[Value <: NumericalValue[Value]] extends 
             assertEq(now.value(costs).violation, c)
         }
         relation match {
-            case EqRelation => verify(orderingCostModel, times(3)).eqViolation(any[Value], any[Value])
-            case NeRelation => verify(orderingCostModel, times(3)).neViolation(any[Value], any[Value])
-            case LtRelation => verify(orderingCostModel, times(3)).ltViolation(any[Value], any[Value])
-            case LeRelation => verify(orderingCostModel, times(3)).leViolation(any[Value], any[Value])
+            case EqRelation => verify(orderingCostModel, times(3)).eqViolation(any[V], any[V])
+            case NeRelation => verify(orderingCostModel, times(3)).neViolation(any[V], any[V])
+            case LtRelation => verify(orderingCostModel, times(3)).ltViolation(any[V], any[V])
+            case LeRelation => verify(orderingCostModel, times(3)).leViolation(any[V], any[V])
         }
     }
 

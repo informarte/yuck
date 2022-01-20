@@ -12,15 +12,15 @@ import yuck.core._
  * @author Michael Marte
  */
 final class LinearConstraint
-    [Value <: NumericalValue[Value]]
+    [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     axs: immutable.IndexedSeq[AX[Value]],
-     override protected val y: NumericalVariable[Value],
+     axs: immutable.IndexedSeq[AX[V]],
+     override protected val y: NumericalVariable[V],
      override protected val relation: OrderingRelation,
-     override protected val z: NumericalVariable[Value],
+     override protected val z: NumericalVariable[V],
      override protected val costs: BooleanVariable)
-    (implicit override protected val valueTraits: NumericalValueTraits[Value])
-    extends LinearConstraintLike[Value](id)
+    (implicit override protected val valueTraits: NumericalValueTraits[V])
+    extends LinearConstraintLike[V](id)
 {
 
     require(axs.iterator.map(_.x).toSet.size == axs.size)

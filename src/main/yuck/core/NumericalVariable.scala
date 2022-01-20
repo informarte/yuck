@@ -6,9 +6,9 @@ package yuck.core
  * @author Michael Marte
  */
 abstract class NumericalVariable
-    [Value <: NumericalValue[Value]]
+    [V <: NumericalValue[V]]
     (id: Id[AnyVariable], name: String)
-    extends OrderedVariable[Value](id, name)
+    extends OrderedVariable[V](id, name)
 {
-    override def domain: NumericalDomain[Value]
+    override def domain: NumericalDomain[V]
 }

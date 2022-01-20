@@ -41,8 +41,8 @@ trait ConstraintTestTooling extends YuckAssert {
     }
 
     protected final case class DomainReduction
-        [Value <: AnyValue]
-        (override val x: Variable[Value], override val dx: Domain[Value])
+        [V <: AnyValue]
+        (override val x: Variable[V], override val dx: Domain[V])
         extends AnyDomainReduction
     {
         override def perform() = x.pruneDomain(dx)
@@ -54,8 +54,8 @@ trait ConstraintTestTooling extends YuckAssert {
     }
 
     protected implicit def createDomainReduction
-        [Value <: AnyValue](reduction: (Variable[Value], Domain[Value])): DomainReduction[Value] =
-        DomainReduction[Value](reduction._1, reduction._2)
+        [V <: AnyValue](reduction: (Variable[V], Domain[V])): DomainReduction[V] =
+        DomainReduction[V](reduction._1, reduction._2)
 
     protected implicit def createIntegerDomainReductionFromRange
         (reduction: (Variable[IntegerValue], (Int, Int))): DomainReduction[IntegerValue] =
@@ -223,14 +223,14 @@ trait ConstraintTestTooling extends YuckAssert {
             ConsultAndCommit(comment, effects.take(effects.size - 1), List(effects.last))
     }
 
-    protected implicit def createMoveEffect[Value <: AnyValue](assignment: (Variable[Value], Value)): MoveEffect[Value] =
-        new ImmutableMoveEffect[Value](assignment._1, assignment._2)
+    protected implicit def createMoveEffect[V <: AnyValue](assignment: (Variable[V], V)): MoveEffect[V] =
+        new ImmutableMoveEffect[V](assignment._1, assignment._2)
 
     protected implicit def createIntegerMoveEffect(assignment: (Variable[IntegerValue], Int)): MoveEffect[IntegerValue] =
         new ImmutableMoveEffect(assignment._1, IntegerValue(assignment._2))
 
     protected implicit def createMoveEffects
-        [Value <: AnyValue](effects: Seq[(Variable[Value], Value)]): Seq[MoveEffect[Value]] =
+        [V <: AnyValue](effects: Seq[(Variable[V], V)]): Seq[MoveEffect[V]] =
         effects.map(createMoveEffect)
 
     protected implicit def createIntegerMoveEffects

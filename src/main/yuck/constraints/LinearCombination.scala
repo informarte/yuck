@@ -9,10 +9,10 @@ import yuck.core._
  *
  */
 final class LinearCombination
-    [Value <: NumericalValue[Value]]
+    [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     val axs: immutable.Seq[AX[Value]], y: NumericalVariable[Value])
-    (implicit valueTraits: NumericalValueTraits[Value])
+     val axs: immutable.Seq[AX[V]], y: NumericalVariable[V])
+    (implicit valueTraits: NumericalValueTraits[V])
     extends Constraint(id)
 {
 
@@ -23,12 +23,12 @@ final class LinearCombination
     override def inVariables = axs.view.map(_.x)
     override def outVariables = List(y)
 
-    private val x2ax = immutable.HashMap[AnyVariable, AX[Value]]() ++ (axs.iterator.map(_.x).zip(axs.iterator))
+    private val x2ax = immutable.HashMap[AnyVariable, AX[V]]() ++ (axs.iterator.map(_.x).zip(axs.iterator))
     private var sum = valueTraits.zero
     private val effect = y.reuseableEffect
 
     override def propagate = {
-        val lhs0 = new Iterable[(Value, NumericalDomain[Value])] {
+        val lhs0 = new Iterable[(V, NumericalDomain[V])] {
             override def iterator = axs.iterator.map(ax => (ax.a, ax.x.domain))
         }
         val rhs0 = y.domain
