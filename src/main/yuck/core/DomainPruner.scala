@@ -5,18 +5,18 @@ package yuck.core
  *
  * @author Michael Marte
  */
-abstract class DomainPruner[Value <: AnyValue] {
+abstract class DomainPruner[V <: AnyValue] {
 
-    protected val valueTraits: ValueTraits[Value]
+    protected val valueTraits: ValueTraits[V]
 
     def eqRule
-        (lhs: Domain[Value], rhs: Domain[Value]):
-        (Domain[Value], Domain[Value]) =
+        (lhs: Domain[V], rhs: Domain[V]):
+        (Domain[V], Domain[V]) =
         (lhs, rhs)
 
     def neRule
-        (lhs: Domain[Value], rhs: Domain[Value]):
-        (Domain[Value], Domain[Value]) =
+        (lhs: Domain[V], rhs: Domain[V]):
+        (Domain[V], Domain[V]) =
         (lhs, rhs)
 
 }

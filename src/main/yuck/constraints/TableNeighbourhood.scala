@@ -9,10 +9,10 @@ import yuck.core._
  *
  */
 final class TableNeighbourhood
-    [Value <: AnyValue]
+    [V <: AnyValue]
     (space: Space,
-     xs: immutable.IndexedSeq[Variable[Value]],
-     rows: immutable.IndexedSeq[immutable.IndexedSeq[Value]],
+     xs: immutable.IndexedSeq[Variable[V]],
+     rows: immutable.IndexedSeq[immutable.IndexedSeq[V]],
      randomGenerator: RandomGenerator)
     extends Neighbourhood
 {

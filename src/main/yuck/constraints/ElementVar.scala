@@ -15,10 +15,10 @@ import yuck.core._
  *
  */
 final class ElementVar
-    [Value <: AnyValue]
+    [V <: AnyValue]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.IndexedSeq[Variable[Value]], i: IntegerVariable, y: Variable[Value], offset: Int)
-    (implicit valueTraits: ValueTraits[Value])
+     xs: immutable.IndexedSeq[Variable[V]], i: IntegerVariable, y: Variable[V], offset: Int)
+    (implicit valueTraits: ValueTraits[V])
     extends Constraint(id)
 {
 

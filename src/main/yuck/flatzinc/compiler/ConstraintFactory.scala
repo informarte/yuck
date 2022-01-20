@@ -1021,37 +1021,37 @@ final class ConstraintFactory
     }
 
     private def compileLinearCombination
-        [Value <: NumericalValue[Value]]
+        [V <: NumericalValue[V]]
         (maybeGoal: Option[Goal],
          as0: Expr, bs: Expr,
-         maybeChannel: Option[NumericalVariable[Value]] = None)
-        (implicit valueTraits: NumericalValueTraits[Value]):
-        NumericalVariable[Value] =
+         maybeChannel: Option[NumericalVariable[V]] = None)
+        (implicit valueTraits: NumericalValueTraits[V]):
+        NumericalVariable[V] =
     {
         val zero = valueTraits.zero
         val one = valueTraits.one
         val minusOne = one.negate
-        val as = compileNumArray[Value](as0)
-        val xs = compileNumArray[Value](bs)
+        val as = compileNumArray[V](as0)
+        val xs = compileNumArray[V](bs)
         require(as.size == xs.size)
         val axs =
             AX.compact(
                 for ((x, y) <- as.view.zip(xs.view)
                      if x.domain.singleValue != zero && (! y.domain.isSingleton || y.domain.singleValue != zero))
-                    yield new AX[Value](x.domain.singleValue, y))
+                    yield new AX[V](x.domain.singleValue, y))
         axs match {
             case List(AX(`one`, x)) if maybeChannel.isEmpty =>
                 x
             case List(AX(`one`, x), AX(`minusOne`, y)) =>
-                val channel = maybeChannel.getOrElse(createNumChannel[Value])
-                space.post(new Minus[Value](nextConstraintId, maybeGoal, x, y, channel))
+                val channel = maybeChannel.getOrElse(createNumChannel[V])
+                space.post(new Minus[V](nextConstraintId, maybeGoal, x, y, channel))
                 channel
             case List(AX(`minusOne`, x), AX(`one`, y)) =>
-                val channel = maybeChannel.getOrElse(createNumChannel[Value])
-                space.post(new Minus[Value](nextConstraintId, maybeGoal, y, x, channel))
+                val channel = maybeChannel.getOrElse(createNumChannel[V])
+                space.post(new Minus[V](nextConstraintId, maybeGoal, y, x, channel))
                 channel
             case _ =>
-                val channel = maybeChannel.getOrElse(createNumChannel[Value])
+                val channel = maybeChannel.getOrElse(createNumChannel[V])
                 if (axs.forall(_.a == one)) {
                     if (axs.size == 2) {
                         val List(AX(_, x), AX(_, y)) = axs
@@ -1068,24 +1068,24 @@ final class ConstraintFactory
     }
 
     private def compileLinearConstraint
-        [Value <: NumericalValue[Value]]
+        [V <: NumericalValue[V]]
         (maybeGoal: Option[Goal],
          as0: Expr, bs: Expr, relation: OrderingRelation, c: Expr,
          maybeCosts: Option[BooleanVariable] = None)
-        (implicit valueTraits: NumericalValueTraits[Value]):
+        (implicit valueTraits: NumericalValueTraits[V]):
         BooleanVariable =
     {
         val zero = valueTraits.zero
-        val as = compileNumArray[Value](as0)
-        val xs = compileNumArray[Value](bs)
+        val as = compileNumArray[V](as0)
+        val xs = compileNumArray[V](bs)
         require(as.size == xs.size)
         val axs =
             AX.compact(
                 for ((x, y) <- as.view.zip(xs.view)
                      if x.domain.singleValue != zero && (! y.domain.isSingleton || y.domain.singleValue != zero))
-                    yield new AX[Value](x.domain.singleValue, y))
-        val y = createNumChannel[Value]
-        val z = compileNumExpr[Value](c)
+                    yield new AX[V](x.domain.singleValue, y))
+        val y = createNumChannel[V]
+        val z = compileNumExpr[V](c)
         val costs = maybeCosts.getOrElse(createBoolChannel)
         if (axs.forall(_.a == valueTraits.one)) {
             space.post(new SumConstraint(nextConstraintId, maybeGoal, axs.map(_.x).to(immutable.ArraySeq), y, relation, z, costs))
@@ -1096,16 +1096,16 @@ final class ConstraintFactory
     }
 
     private def compileCountConstraint
-        [Value <: AnyValue]
+        [V <: AnyValue]
         (maybeGoal: Option[Goal],
          constraint: yuck.flatzinc.ast.Constraint,
          comparatorFactory: TernaryConstraintFactory[IntegerVariable, IntegerVariable, BooleanVariable])
-        (implicit valueTraits: ValueTraits[Value]):
+        (implicit valueTraits: ValueTraits[V]):
         Iterable[BooleanVariable] =
     {
         val Constraint(_, List(as, a, b), _) = constraint
-        val xs0 = compileArray[Value](as)
-        val y = compileExpr[Value](a)
+        val xs0 = compileArray[V](as)
+        val y = compileExpr[V](a)
         // If xs(j) does not play a role (because its domain is disjoint from y.domain and hence
         // its values will never be counted), we omit xs(j) from the constraint and hence an
         // useless arc from the constraint network.
@@ -1113,12 +1113,12 @@ final class ConstraintFactory
         val m = compileIntExpr(b)
         if (compilesToConst(a)) {
             def functionalCase = {
-                space.post(new CountConst[Value](nextConstraintId, maybeGoal, xs, y.domain.singleValue, m))
+                space.post(new CountConst[V](nextConstraintId, maybeGoal, xs, y.domain.singleValue, m))
                 Nil
             }
             def generalCase = {
                 val n = createNonNegativeIntChannel
-                space.post(new CountConst[Value](nextConstraintId, maybeGoal, xs, y.domain.singleValue, n))
+                space.post(new CountConst[V](nextConstraintId, maybeGoal, xs, y.domain.singleValue, n))
                 val costs = createBoolChannel
                 space.post(comparatorFactory(nextConstraintId, maybeGoal, n, m, costs))
                 List(costs)
@@ -1126,12 +1126,12 @@ final class ConstraintFactory
             compileConstraint(constraint, xs, List(m), functionalCase, generalCase)
         } else {
             def functionalCase = {
-                space.post(new CountVar[Value](nextConstraintId, maybeGoal, xs, y, m))
+                space.post(new CountVar[V](nextConstraintId, maybeGoal, xs, y, m))
                 Nil
             }
             def generalCase = {
                 val n = createNonNegativeIntChannel
-                space.post(new CountVar[Value](nextConstraintId, maybeGoal, xs, y, n))
+                space.post(new CountVar[V](nextConstraintId, maybeGoal, xs, y, n))
                 val costs = createBoolChannel
                 space.post(comparatorFactory(nextConstraintId, maybeGoal, n, m, costs))
                 List(costs)
@@ -1141,9 +1141,9 @@ final class ConstraintFactory
     }
 
     private def compileMemberConstraint
-        [Value <: AnyValue]
+        [V <: AnyValue]
         (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint)
-        (implicit valueTraits: ValueTraits[Value]):
+        (implicit valueTraits: ValueTraits[V]):
         Iterable[BooleanVariable] =
         compileCountConstraint(
             maybeGoal,
@@ -1151,17 +1151,17 @@ final class ConstraintFactory
             new Eq[IntegerValue](_, _, _, _, _))
 
     private def compileElementConstraint
-        [Value <: OrderedValue[Value]]
+        [V <: OrderedValue[V]]
         (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint)
-        (implicit valueTraits: OrderedValueTraits[Value]):
+        (implicit valueTraits: OrderedValueTraits[V]):
         Iterable[BooleanVariable] =
     {
         val List(IntConst(offset0), b, as, c) =
             if (constraint.params.size == 4) constraint.params
             else IntConst(1) :: constraint.params
         val i = compileIntExpr(b)
-        val xs0 = compileArray[Value](as)
-        val y = compileOrdExpr[Value](c)
+        val xs0 = compileArray[V](as)
+        val y = compileOrdExpr[V](c)
         val indexRange0 = createIntDomain(offset0, offset0 + xs0.size - 1)
         if (! i.domain.intersects(indexRange0)) {
             throw new InconsistentConstraintException(constraint)
@@ -1175,12 +1175,12 @@ final class ConstraintFactory
         val xs =
             (for (j <- indexRange.values) yield xs1((if (i.domain.contains(j)) j else i.domain.lb).value - offset))
                 .toIndexedSeq
-        def post(y: OrderedVariable[Value]): OrderedVariable[Value] = {
+        def post(y: OrderedVariable[V]): OrderedVariable[V] = {
             if (xs.forall(_.domain.isSingleton)) {
                 val as = xs.map(_.domain.singleValue)
-                space.post(new ElementConst[Value](nextConstraintId, maybeGoal, as, i, y, offset))
+                space.post(new ElementConst[V](nextConstraintId, maybeGoal, as, i, y, offset))
             } else {
-                space.post(new ElementVar[Value](nextConstraintId, maybeGoal, xs, i, y, offset))
+                space.post(new ElementVar[V](nextConstraintId, maybeGoal, xs, i, y, offset))
             }
             y
         }
@@ -1189,29 +1189,29 @@ final class ConstraintFactory
             Nil
         }
         def generalCase = {
-            val channel = post(createOrdChannel[Value])
+            val channel = post(createOrdChannel[V])
             val costs = createBoolChannel
-            space.post(new Eq[Value](nextConstraintId, maybeGoal, channel, y, costs))
+            space.post(new Eq[V](nextConstraintId, maybeGoal, channel, y, costs))
             List(costs)
         }
         compileConstraint(constraint, xs :+ i, List(y), functionalCase, generalCase)
     }
 
     private def compileIfThenElseConstraint
-        [Value <: OrderedValue[Value]]
+        [V <: OrderedValue[V]]
         (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint)
-        (implicit valueTraits: OrderedValueTraits[Value]):
+        (implicit valueTraits: OrderedValueTraits[V]):
         Iterable[BooleanVariable] =
     {
         val cs = compileBoolArray(constraint.params(0))
-        val xs = compileArray[Value](constraint.params(1))
-        val y = compileOrdExpr[Value](constraint.params(2))
+        val xs = compileArray[V](constraint.params(1))
+        val y = compileOrdExpr[V](constraint.params(2))
         require(cs.size == xs.size)
         require(cs.size >= 2)
         require(cs.last.domain.isSingleton)
         require(cs.last.domain.singleValue == True)
-        def post(y: OrderedVariable[Value]): OrderedVariable[Value] = {
-            space.post(new IfThenElse[Value](nextConstraintId, maybeGoal, cs, xs, y))
+        def post(y: OrderedVariable[V]): OrderedVariable[V] = {
+            space.post(new IfThenElse[V](nextConstraintId, maybeGoal, cs, xs, y))
             y
         }
         def functionalCase = {
@@ -1219,9 +1219,9 @@ final class ConstraintFactory
             Nil
         }
         def generalCase = {
-            val channel = post(createOrdChannel[Value])
+            val channel = post(createOrdChannel[V])
             val costs = createBoolChannel
-            space.post(new Eq[Value](nextConstraintId, maybeGoal, channel, y, costs))
+            space.post(new Eq[V](nextConstraintId, maybeGoal, channel, y, costs))
             List(costs)
         }
         compileConstraint(constraint, cs.view ++ xs, List(y), functionalCase, generalCase)

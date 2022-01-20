@@ -16,13 +16,13 @@ import yuck.core._
  * @author Michael Marte
  */
 final class AlldistinctExceptZero
-    [Value <: NumericalValue[Value]]
+    [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.Seq[NumericalVariable[Value]], costs: BooleanVariable)
-    (implicit valueTraits: NumericalValueTraits[Value])
-    extends ValueFrequencyTracker[Value, BooleanValue](
+     xs: immutable.Seq[NumericalVariable[V]], costs: BooleanVariable)
+    (implicit valueTraits: NumericalValueTraits[V])
+    extends ValueFrequencyTracker[V, BooleanValue](
         id, xs, costs,
-        immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[Value, Int]())(
+        immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[V, Int]())(
         valueTraits)
 {
     override def toString = "alldistinctExceptZero([%s], %s)".format(xs.mkString(", "), costs)

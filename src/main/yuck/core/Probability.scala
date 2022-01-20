@@ -1,7 +1,7 @@
 package yuck.core
 
 /**
- * Value class for type-safe representation of probabilities.
+ * V class for type-safe representation of probabilities.
  *
  * Use Probability.from to construct instances.
  *

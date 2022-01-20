@@ -27,9 +27,9 @@ import scala.collection._
  * @author Michael Marte
  */
 final class RandomCircularSwapGenerator
-    [Value <: AnyValue]
+    [V <: AnyValue]
     (space: Space,
-     xs: immutable.IndexedSeq[Variable[Value]],
+     xs: immutable.IndexedSeq[Variable[V]],
      randomGenerator: RandomGenerator,
      moveSizeDistribution: Distribution,
      maybeHotSpotDistribution: Option[Distribution],
@@ -54,14 +54,14 @@ final class RandomCircularSwapGenerator
     private val uniformDistribution = Distribution(n)
     (0 until n).foreach(i => uniformDistribution.setFrequency(i, 1))
     private val s = moveSizeDistribution.size
-    private val effects = for (i <- 1 until s) yield new ReusableMoveEffect[Value]
+    private val effects = for (i <- 1 until s) yield new ReusableMoveEffect[V]
     private val swaps = for (n <- 1 until s) yield effects.take(n)
     private val frequencyRestorers = for (i <- 1 until s) yield new FrequencyRestorer
-    @inline private def fillEffect(effect: ReusableMoveEffect[Value], x: Variable[Value]): Unit = {
+    @inline private def fillEffect(effect: ReusableMoveEffect[V], x: Variable[V]): Unit = {
         effect.x = x
         effect.a = space.searchState.value(x)
     }
-    private def swapValues(swap: IndexedSeq[ReusableMoveEffect[Value]]): Unit = {
+    private def swapValues(swap: IndexedSeq[ReusableMoveEffect[V]]): Unit = {
         // x <- y <- z <- x
         val m = swap.size
         val a0 = swap(0).a

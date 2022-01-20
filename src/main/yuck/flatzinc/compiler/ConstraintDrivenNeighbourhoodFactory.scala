@@ -34,9 +34,9 @@ final class ConstraintDrivenNeighbourhoodFactory
 {
 
     protected override def createMinimizationNeighbourhood
-        [Value <: NumericalValue[Value]]
-        (x: NumericalVariable[Value])
-        (implicit valueTraits: NumericalValueTraits[Value]):
+        [V <: NumericalValue[V]]
+        (x: NumericalVariable[V])
+        (implicit valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         val levelCfg = cfg.level1Configuration
@@ -45,9 +45,9 @@ final class ConstraintDrivenNeighbourhoodFactory
     }
 
     protected override def createMaximizationNeighbourhood
-        [Value <: NumericalValue[Value]]
-        (x: NumericalVariable[Value])
-        (implicit valueTraits: NumericalValueTraits[Value]):
+        [V <: NumericalValue[V]]
+        (x: NumericalVariable[V])
+        (implicit valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         val levelCfg = cfg.level1Configuration
@@ -56,9 +56,9 @@ final class ConstraintDrivenNeighbourhoodFactory
     }
 
     private def createNeighbourhood
-        [Value <: NumericalValue[Value]]
-        (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[Value])
-        (implicit valueTraits: NumericalValueTraits[Value]):
+        [V <: NumericalValue[V]]
+        (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
+        (implicit valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         space.registerObjectiveVariable(x)
@@ -88,22 +88,22 @@ final class ConstraintDrivenNeighbourhoodFactory
     }
 
     private def createNeighbourhood
-        [Value <: NumericalValue[Value]]
+        [V <: NumericalValue[V]]
         (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, constraint: yuck.core.Constraint)
-        (implicit valueTraits: NumericalValueTraits[Value]):
+        (implicit valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         (mode, constraint) match {
-            case (OptimizationMode.Min, lc: LinearCombination[Value @ unchecked])
+            case (OptimizationMode.Min, lc: LinearCombination[V @ unchecked])
             if (lc.axs.forall(ax => if (ax.a < valueTraits.zero) ax.x.domain.hasUb else ax.x.domain.hasLb)) =>
                 createNeighbourhood(mode, levelCfg, lc.axs)
-            case (OptimizationMode.Max, lc: LinearCombination[Value @ unchecked])
+            case (OptimizationMode.Max, lc: LinearCombination[V @ unchecked])
             if (lc.axs.forall(ax => if (ax.a < valueTraits.zero) ax.x.domain.hasLb else ax.x.domain.hasUb)) =>
                 createNeighbourhood(mode, levelCfg, lc.axs)
-            case (OptimizationMode.Min, sum: Sum[Value @ unchecked])
+            case (OptimizationMode.Min, sum: Sum[V @ unchecked])
             if (sum.xs.forall(x => x.domain.hasLb)) =>
                 createNeighbourhood(mode, levelCfg, sum.xs.map(new AX(valueTraits.one, _)))
-            case (OptimizationMode.Max, sum: Sum[Value @ unchecked])
+            case (OptimizationMode.Max, sum: Sum[V @ unchecked])
             if (sum.xs.forall(x => x.domain.hasUb)) =>
                 createNeighbourhood(mode, levelCfg, sum.xs.map(new AX(valueTraits.one, _)))
             case _ => {
@@ -133,9 +133,9 @@ final class ConstraintDrivenNeighbourhoodFactory
     }
 
     private def createNeighbourhood
-        [Value <: NumericalValue[Value]]
-        (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, axs0: Seq[AX[Value]])
-        (implicit valueTraits: NumericalValueTraits[Value]):
+        [V <: NumericalValue[V]]
+        (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, axs0: Seq[AX[V]])
+        (implicit valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         val axs = axs0.sortBy(_.x)
@@ -156,7 +156,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                     space, xs, randomGenerator, cfg.moveSizeDistribution, Some(hotSpotDistribution), None))
             }
         } else {
-            val weightedNeighbourhoods = new mutable.ArrayBuffer[(AX[Value], Neighbourhood)]
+            val weightedNeighbourhoods = new mutable.ArrayBuffer[(AX[V], Neighbourhood)]
             for (ax <- axs) {
                 if (sigint.isSet) {
                     throw new FlatZincCompilerInterruptedException
@@ -191,9 +191,9 @@ final class ConstraintDrivenNeighbourhoodFactory
     }
 
     private def createHotSpotDistribution
-        [Value <: NumericalValue[Value]]
-        (mode: OptimizationMode.Value, weights: Seq[AX[Value]])
-        (implicit valueTraits: NumericalValueTraits[Value]):
+        [V <: NumericalValue[V]]
+        (mode: OptimizationMode.Value, weights: Seq[AX[V]])
+        (implicit valueTraits: NumericalValueTraits[V]):
         Distribution =
     {
         val hotSpotDistribution = Distribution(weights.size)

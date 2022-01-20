@@ -18,13 +18,13 @@ import yuck.util.logging.LazyLogger
  * @author Michael Marte
  */
 final class Alldistinct
-    [Value <: AnyValue]
+    [V <: AnyValue]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.IndexedSeq[Variable[Value]], costs: BooleanVariable)
-    (implicit valueTraits: ValueTraits[Value])
-    extends ValueFrequencyTracker[Value, BooleanValue](
+     xs: immutable.IndexedSeq[Variable[V]], costs: BooleanVariable)
+    (implicit valueTraits: ValueTraits[V])
+    extends ValueFrequencyTracker[V, BooleanValue](
         id, xs, costs,
-        immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[Value, Int]())(
+        immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[V, Int]())(
         valueTraits)
 {
 
@@ -136,17 +136,17 @@ final class Alldistinct
  * @author Michael Marte
  */
 final class AlldistinctNeighbourhood
-    [Value <: AnyValue]
+    [V <: AnyValue]
     (space: Space,
-     xs: immutable.IndexedSeq[Variable[Value]],
+     xs: immutable.IndexedSeq[Variable[V]],
      randomGenerator: RandomGenerator,
      moveSizeDistribution: Distribution)
-    (implicit valueTraits: ValueTraits[Value])
+    (implicit valueTraits: ValueTraits[V])
     extends Neighbourhood
 {
 
     private val n = xs.size
-    private def value(x: Variable[Value]) = space.searchState.value(x)
+    private def value(x: Variable[V]) = space.searchState.value(x)
 
     require(n > 1)
     require(xs.toSet.size == n)
@@ -162,10 +162,10 @@ final class AlldistinctNeighbourhood
     private val probabilityOfSwappingInValues = moveSizeDistribution.probability(1)
     private val variablesHaveTheSameDomain = xs.forall(x => x.domain == xs.head.domain)
     private val swappingInValuesIsPossible = xs.iterator.flatMap(_.domain.valuesIterator).toSet.size > n
-    private val effects = Vector.fill(3){new ReusableMoveEffect[Value]}
+    private val effects = Vector.fill(3){new ReusableMoveEffect[V]}
     private val swaps = for (n <- 1 to 3) yield effects.take(n)
-    private def succeed(n: Int): Move = new ChangeValues[Value](space.nextMoveId, swaps(n - 1))
-    private def fail: Move = new ChangeValues[Value](space.nextMoveId, Nil)
+    private def succeed(n: Int): Move = new ChangeValues[V](space.nextMoveId, swaps(n - 1))
+    private def fail: Move = new ChangeValues[V](space.nextMoveId, Nil)
 
     private def nextMove(m: Int): Move = {
         require(m <= n)

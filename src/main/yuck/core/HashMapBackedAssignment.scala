@@ -23,7 +23,7 @@ final class HashMapBackedAssignment(valDir: mutable.AnyRefMap[AnyVariable, AnyVa
     @inline override def maybeValue(x: AnyVariable) = valDir.get(x)
 
     /** Assigns the given value to the given variable. */
-    @inline def setValue[Value <: AnyValue](x: Variable[Value], a: Value): HashMapBackedAssignment = {
+    @inline def setValue[V <: AnyValue](x: Variable[V], a: V): HashMapBackedAssignment = {
         valDir += x -> a
         this
     }

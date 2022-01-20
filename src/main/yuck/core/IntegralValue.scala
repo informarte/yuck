@@ -7,8 +7,8 @@ package yuck.core
   *
   * @author Michael Marte
   */
-abstract class IntegralValue[Value] extends NumericalValue[Value] {
-    def /(that: Value): Value
-    def %(that: Value): Value
+abstract class IntegralValue[V] extends NumericalValue[V] {
+    def /(that: V): V
+    def %(that: V): V
     def isEven: Boolean
 }

@@ -6,14 +6,14 @@ package yuck.core
  * @author Michael Marte
  */
 abstract class Variable
-    [Value <: AnyValue]
+    [V <: AnyValue]
     (id: Id[AnyVariable], name: String)
     extends AnyVariable(id, name)
 {
 
-    override def domain: Domain[Value]
+    override def domain: Domain[V]
 
-    protected def setDomain(domain: Domain[Value]): Unit
+    protected def setDomain(domain: Domain[V]): Unit
 
     /**
      * Intersects the variable's domain with the given domain.
@@ -23,7 +23,7 @@ abstract class Variable
      * Throws a [[yuck.core.DomainWipeOutException DomainWipeOutException]]
      * when the variable's domain became empty.
      */
-    final def pruneDomain(restriction: Domain[Value]): Boolean = {
+    final def pruneDomain(restriction: Domain[V]): Boolean = {
         if (restriction != domain) {
             // We try to avoid useless and expensive intersections.
             if (domain.isSubsetOf(restriction)) {
@@ -51,7 +51,7 @@ abstract class Variable
      *
      * Throws when the new domain is not a superset of the current domain.
      */
-    final def relaxDomain(relaxation: Domain[Value]): Boolean = {
+    final def relaxDomain(relaxation: Domain[V]): Boolean = {
         if (relaxation != domain) {
             require(
                 domain.isSubsetOf(relaxation),
@@ -74,14 +74,14 @@ abstract class Variable
     final override def hasValidValue(space: Space) =
         domain.contains(space.searchState.value(this))
 
-    val reuseableEffect = new ReusableMoveEffectWithFixedVariable[Value](this)
+    val reuseableEffect = new ReusableMoveEffectWithFixedVariable[V](this)
 
     final override def randomMoveEffect(randomGenerator: RandomGenerator) = {
         reuseableEffect.a = if (domain.isSingleton) domain.singleValue else domain.randomValue(randomGenerator)
         reuseableEffect
     }
 
-    final override def nextRandomMoveEffect(space: Space, randomGenerator: RandomGenerator): MoveEffect[Value] = {
+    final override def nextRandomMoveEffect(space: Space, randomGenerator: RandomGenerator): MoveEffect[V] = {
         reuseableEffect.a = domain.nextRandomValue(randomGenerator, space.searchState.value(this))
         reuseableEffect
     }

@@ -5,10 +5,10 @@ package yuck.core
  *
  * @author Michael Marte
  */
-final class IdFactory[Type] {
+final class IdFactory[T] {
     private var nextRawId = -1
-    def nextId: Id[Type] = {
+    def nextId: Id[T] = {
         nextRawId += 1
-        new Id[Type](nextRawId)
+        new Id[T](nextRawId)
     }
 }

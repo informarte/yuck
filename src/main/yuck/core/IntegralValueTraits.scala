@@ -5,8 +5,8 @@ package yuck.core
  *
  * @author Michael Marte
  */
-abstract class IntegralValueTraits[Value <: IntegralValue[Value]] extends NumericalValueTraits[Value] {
+abstract class IntegralValueTraits[V <: IntegralValue[V]] extends NumericalValueTraits[V] {
 
-    override val numericalOperations: Integral[Value]
+    override val numericalOperations: Integral[V]
 
 }

@@ -6,9 +6,9 @@ package yuck.core
  * @author Michael Marte
  */
 abstract class OrderedVariable
-    [Value <: OrderedValue[Value]]
+    [V <: OrderedValue[V]]
     (id: Id[AnyVariable], name: String)
-    extends Variable[Value](id, name)
+    extends Variable[V](id, name)
 {
-    override def domain: OrderedDomain[Value]
+    override def domain: OrderedDomain[V]
 }

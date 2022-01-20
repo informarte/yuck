@@ -5,33 +5,33 @@ package yuck.core
  *
  * @author Michael Marte
  */
-abstract class NumericalDomain[Value <: NumericalValue[Value]] extends OrderedDomain[Value] {
+abstract class NumericalDomain[V <: NumericalValue[V]] extends OrderedDomain[V] {
 
     /**
      * Returns a domain that contains all elements of this domain except for those
      * smaller than the given lower bound.
      */
-    def boundFromBelow(lb: Value): NumericalDomain[Value]
+    def boundFromBelow(lb: V): NumericalDomain[V]
 
     /**
      * Returns a domain that contains all elements of this domain except for those
      * greater than the given upper bound.
      */
-    def boundFromAbove(lb: Value): NumericalDomain[Value]
+    def boundFromAbove(lb: V): NumericalDomain[V]
 
     /**
      * Returns a bisection of this domain.
      *
      * Throws when this domain is empty or infinite.
      */
-    def bisect: (NumericalDomain[Value], NumericalDomain[Value])
+    def bisect: (NumericalDomain[V], NumericalDomain[V])
 
-    override def hull: NumericalDomain[Value]
+    override def hull: NumericalDomain[V]
 
     /**
      * Negates all values of this domain and returns the domain created from the resulting values.
      */
-    def mirrored: NumericalDomain[Value]
+    def mirrored: NumericalDomain[V]
 
     /**
      * Returns 0 if the domain contains the given value;
@@ -39,13 +39,13 @@ abstract class NumericalDomain[Value <: NumericalValue[Value]] extends OrderedDo
      *
      * Throws when the domain is empty.
      */
-    def distanceTo(a: NumericalValue[Value]): NumericalValue[Value]
+    def distanceTo(a: NumericalValue[V]): NumericalValue[V]
 
-    override def randomSubdomain(randomGenerator: RandomGenerator): NumericalDomain[Value]
-    override def intersect(that: Domain[Value]): NumericalDomain[Value]
-    override def union(that: Domain[Value]): NumericalDomain[Value]
-    override def diff(that: Domain[Value]): NumericalDomain[Value]
-    override def symdiff(that: Domain[Value]): NumericalDomain[Value] =
-        super.symdiff(that).asInstanceOf[NumericalDomain[Value]]
+    override def randomSubdomain(randomGenerator: RandomGenerator): NumericalDomain[V]
+    override def intersect(that: Domain[V]): NumericalDomain[V]
+    override def union(that: Domain[V]): NumericalDomain[V]
+    override def diff(that: Domain[V]): NumericalDomain[V]
+    override def symdiff(that: Domain[V]): NumericalDomain[V] =
+        super.symdiff(that).asInstanceOf[NumericalDomain[V]]
 
 }

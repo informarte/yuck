@@ -7,33 +7,33 @@ import scala.collection._
  *
  * @author Michael Marte
  */
-abstract class NumericalValueTraits[Value <: NumericalValue[Value]] extends OrderedValueTraits[Value] {
+abstract class NumericalValueTraits[V <: NumericalValue[V]] extends OrderedValueTraits[V] {
 
-    override def createDomain(values: Set[Value]): NumericalDomain[Value]
-    override val emptyDomain: NumericalDomain[Value]
-    override val completeDomain: NumericalDomain[Value]
-    override val domainPruner: NumericalDomainPruner[Value]
-    override def createVariable(space: Space, name: String, domain: Domain[Value]): NumericalVariable[Value]
-    override def createChannel(space: Space): NumericalVariable[Value]
-    override def safeDowncast(x: AnyDomain): NumericalDomain[Value]
-    override def safeDowncast(x: AnyVariable): NumericalVariable[Value]
+    override def createDomain(values: Set[V]): NumericalDomain[V]
+    override val emptyDomain: NumericalDomain[V]
+    override val completeDomain: NumericalDomain[V]
+    override val domainPruner: NumericalDomainPruner[V]
+    override def createVariable(space: Space, name: String, domain: Domain[V]): NumericalVariable[V]
+    override def createChannel(space: Space): NumericalVariable[V]
+    override def safeDowncast(x: AnyDomain): NumericalDomain[V]
+    override def safeDowncast(x: AnyVariable): NumericalVariable[V]
 
     /** Integrates Yuck values with the Scala library. */
-    val numericalOperations: Numeric[Value]
+    val numericalOperations: Numeric[V]
 
     /** Returns the additive identity. */
-    val zero: Value
+    val zero: V
 
     /** Returns the multiplicative identity. */
-    val one: Value
+    val one: V
 
     /** Returns the smallest representable value. */
-    val minValue: Value
+    val minValue: V
 
     /** Returns the greatest representable value. */
-    val maxValue: Value
+    val maxValue: V
 
     /** Returns the domain that contains all non-negative values. */
-    val nonNegativeDomain: NumericalDomain[Value]
+    val nonNegativeDomain: NumericalDomain[V]
 
 }

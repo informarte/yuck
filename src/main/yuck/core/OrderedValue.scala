@@ -5,17 +5,17 @@ package yuck.core
  *
  * @author Michael Marte
  */
-abstract class OrderedValue[Value] extends AnyValue with Ordered[Value] {
+abstract class OrderedValue[V] extends AnyValue with Ordered[V] {
 
     override def equals(that: Any) = that match {
         case rhs: AnyValue => {
             val lhs = this
-            lhs.eq(rhs) || (lhs.valueType == rhs.valueType && lhs.compare(rhs.asInstanceOf[Value]) == 0)
+            lhs.eq(rhs) || (lhs.valueType == rhs.valueType && lhs.compare(rhs.asInstanceOf[V]) == 0)
         }
         case _ => false
     }
 
-    @inline def ==(that: OrderedValue[Value]): Boolean = this.eq(that) || this.compare(that.asInstanceOf[Value]) == 0
-    @inline def !=(that: OrderedValue[Value]): Boolean = ! ( this == that)
+    @inline def ==(that: OrderedValue[V]): Boolean = this.eq(that) || this.compare(that.asInstanceOf[V]) == 0
+    @inline def !=(that: OrderedValue[V]): Boolean = ! ( this == that)
 
 }

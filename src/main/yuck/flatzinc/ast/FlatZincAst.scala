@@ -2,7 +2,7 @@ package yuck.flatzinc.ast
 
 import scala.collection._
 
-trait ValueSet[Value]
+trait ValueSet[V]
 final case class IntRange(val lb: Int, val ub: Int) extends ValueSet[Int] {
     override def toString = "%s..%s".format(lb, ub)
 }

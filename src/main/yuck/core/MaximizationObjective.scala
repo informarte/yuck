@@ -6,16 +6,16 @@ package yuck.core
  * @author Michael Marte
  */
 final class MaximizationObjective
-    [Value <: NumericalValue[Value]]
-    (override val x: NumericalVariable[Value],
-     maybeTargetCosts: Option[Value],
-     override protected val maybeY: Option[NumericalVariable[Value]])
-    (implicit valueTraits: NumericalValueTraits[Value])
-    extends NumericalObjective[Value]
+    [V <: NumericalValue[V]]
+    (override val x: NumericalVariable[V],
+     maybeTargetCosts: Option[V],
+     override protected val maybeY: Option[NumericalVariable[V]])
+    (implicit valueTraits: NumericalValueTraits[V])
+    extends NumericalObjective[V]
 {
     override def toString =
         "max %s".format(x)
-    override def targetCosts: Value = {
+    override def targetCosts: V = {
         val dx = x.domain
         if (dx.hasUb && maybeTargetCosts.isDefined) valueTraits.valueOrdering.min(dx.ub, maybeTargetCosts.get)
         else if (dx.hasUb) dx.ub
@@ -24,10 +24,10 @@ final class MaximizationObjective
     }
     override def isOptimal(costs: Costs) = {
         val dx = x.domain
-        dx.hasUb && costs.asInstanceOf[Value] >= dx.ub
+        dx.hasUb && costs.asInstanceOf[V] >= dx.ub
     }
     override def compareCosts(lhs: Costs, rhs: Costs) =
-        rhs.asInstanceOf[Value].compare(lhs.asInstanceOf[Value])
+        rhs.asInstanceOf[V].compare(lhs.asInstanceOf[V])
     override protected def computeDelta(before: SearchState, after: SearchState) =
         costs(before).toDouble - costs(after).toDouble
     override val optimizationMode = OptimizationMode.Max

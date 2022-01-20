@@ -6,27 +6,27 @@ package yuck.core
  * @author Michael Marte
  */
 abstract class NumericalObjective
-    [Value <: NumericalValue[Value]]
-    (implicit valueTraits: NumericalValueTraits[Value])
+    [V <: NumericalValue[V]]
+    (implicit valueTraits: NumericalValueTraits[V])
     extends PrimitiveObjective
 {
 
-    override val x: NumericalVariable[Value]
-    protected val maybeY: Option[NumericalVariable[Value]]
+    override val x: NumericalVariable[V]
+    protected val maybeY: Option[NumericalVariable[V]]
 
-    final override def costs(searchState: SearchState): NumericalValue[Value] = searchState.value(x)
+    final override def costs(searchState: SearchState): NumericalValue[V] = searchState.value(x)
     final override def isSolution(costs: Costs) = isGoodEnough(costs)
 
     final override private[core] def findActualObjectiveValue(space: Space, rootObjective: AnyObjective) = {
         val minimize = optimizationMode == OptimizationMode.Min
         val costsOnEntry = rootObjective.costs(space.searchState)
-        def isFeasibleObjectiveValue(a: Value): Boolean = {
+        def isFeasibleObjectiveValue(a: V): Boolean = {
             val move = new ChangeValue(space.nextMoveId, x, a)
             val after = space.consult(move)
             val costsAfterMove = rootObjective.costs(after)
             (! rootObjective.isHigherThan(costsAfterMove, costsOnEntry))
         }
-        def search(dx: NumericalDomain[Value]): Option[Value] =
+        def search(dx: NumericalDomain[V]): Option[V] =
             if (dx.isEmpty) None
             else if (dx.isSingleton) {
                 val a = dx.singleValue

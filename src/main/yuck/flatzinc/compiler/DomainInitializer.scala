@@ -168,9 +168,9 @@ final class DomainInitializer
     }
 
     private def propagateElementConstraint
-        [Value <: AnyValue]
-        (constraint: yuck.flatzinc.ast.Constraint, domain: Expr => Domain[Value])
-        (implicit valueTraits: ValueTraits[Value]):
+        [V <: AnyValue]
+        (constraint: yuck.flatzinc.ast.Constraint, domain: Expr => Domain[V])
+        (implicit valueTraits: ValueTraits[V]):
         Unit =
     {
         val List(IntConst(offset), b, as, c) =
@@ -187,9 +187,9 @@ final class DomainInitializer
     }
 
     private def propagateEquality
-        [Value <: AnyValue]
-        (a: Expr, b: Expr, d: Domain[Value])
-        (implicit valueTraits: ValueTraits[Value]):
+        [V <: AnyValue]
+        (a: Expr, b: Expr, d: Domain[V])
+        (implicit valueTraits: ValueTraits[V]):
         Unit =
     {
         val e = equalVars(a)
@@ -210,9 +210,9 @@ final class DomainInitializer
     }
 
     private def reduceDomain
-        [Value <: AnyValue]
-        (a: Expr, d: Domain[Value])
-        (implicit valueTraits: ValueTraits[Value]):
+        [V <: AnyValue]
+        (a: Expr, d: Domain[V])
+        (implicit valueTraits: ValueTraits[V]):
         Unit =
     {
         if (d.isEmpty) {

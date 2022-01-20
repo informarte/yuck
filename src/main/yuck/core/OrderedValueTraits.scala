@@ -7,27 +7,27 @@ import scala.collection._
  *
  * @author Michael Marte
  */
-abstract class OrderedValueTraits[Value <: OrderedValue[Value]] extends ValueTraits[Value] {
+abstract class OrderedValueTraits[V <: OrderedValue[V]] extends ValueTraits[V] {
 
-    override def createDomain(values: Set[Value]): OrderedDomain[Value]
-    override val emptyDomain: OrderedDomain[Value]
-    override val completeDomain: OrderedDomain[Value]
-    override val domainPruner: OrderedDomainPruner[Value]
-    override def createVariable(space: Space, name: String, domain: Domain[Value]): OrderedVariable[Value]
-    override def createChannel(space: Space): OrderedVariable[Value]
-    override def safeDowncast(d: AnyDomain): OrderedDomain[Value]
-    override def safeDowncast(x: AnyVariable): OrderedVariable[Value]
+    override def createDomain(values: Set[V]): OrderedDomain[V]
+    override val emptyDomain: OrderedDomain[V]
+    override val completeDomain: OrderedDomain[V]
+    override val domainPruner: OrderedDomainPruner[V]
+    override def createVariable(space: Space, name: String, domain: Domain[V]): OrderedVariable[V]
+    override def createChannel(space: Space): OrderedVariable[V]
+    override def safeDowncast(d: AnyDomain): OrderedDomain[V]
+    override def safeDowncast(x: AnyVariable): OrderedVariable[V]
 
-    /** A total ordering on Value. */
-    val valueOrdering: Ordering[Value]
+    /** A total ordering on V. */
+    val valueOrdering: Ordering[V]
 
-    /** A total ordering on OrderedDomain[Value]. */
-    val domainOrdering: Ordering[OrderedDomain[Value]]
+    /** A total ordering on OrderedDomain[V]. */
+    val domainOrdering: Ordering[OrderedDomain[V]]
 
-    /** The cost model for ordering operations over Value. */
-    val orderingCostModel: OrderingCostModel[Value]
+    /** The cost model for ordering operations over V. */
+    val orderingCostModel: OrderingCostModel[V]
 
     /** Creates a domain from the given bounds. */
-    def createDomain(lb: Value, ub: Value): OrderedDomain[Value]
+    def createDomain(lb: V, ub: V): OrderedDomain[V]
 
 }

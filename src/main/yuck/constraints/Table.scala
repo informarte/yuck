@@ -16,13 +16,13 @@ import yuck.util.logging.LazyLogger
  * @author Michael Marte
  */
 final class Table
-    [Value <: OrderedValue[Value]]
+    [V <: OrderedValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.IndexedSeq[Variable[Value]],
-     private var rows: immutable.IndexedSeq[immutable.IndexedSeq[Value]],
+     xs: immutable.IndexedSeq[Variable[V]],
+     private var rows: immutable.IndexedSeq[immutable.IndexedSeq[V]],
      costs: BooleanVariable,
      forceImplicitSolving: Boolean = false)
-    (implicit valueTraits: OrderedValueTraits[Value])
+    (implicit valueTraits: OrderedValueTraits[V])
     extends Constraint(id)
 {
 
@@ -40,7 +40,7 @@ final class Table
     override def inVariables = xs
     override def outVariables = List(costs)
 
-    private var cols: immutable.IndexedSeq[immutable.IndexedSeq[Value]] = null // columns improve data locality
+    private var cols: immutable.IndexedSeq[immutable.IndexedSeq[V]] = null // columns improve data locality
 
     private var currentDistances: Array[Long] = null // for each row
     protected var futureDistances: Array[Long] = null // for each row
@@ -68,7 +68,7 @@ final class Table
 
     private val orderingCostModel = valueTraits.orderingCostModel
 
-    @inline private def computeDistance(a: Value, b: Value): Long =
+    @inline private def computeDistance(a: V, b: V): Long =
         orderingCostModel.eqViolation(a, b)
 
     override def propagate = {
@@ -136,7 +136,7 @@ final class Table
         effect
     }
 
-    private def computeFutureDistances(col: IndexedSeq[Value], a: Value, b: Value): Unit = {
+    private def computeFutureDistances(col: IndexedSeq[V], a: V, b: V): Unit = {
         var j = 0
         val m = col.size
         while (j < m) {

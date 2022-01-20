@@ -9,13 +9,13 @@ import yuck.core._
  *
  */
 final class Minimum
-    [Value <: OrderedValue[Value]]
+    [V <: OrderedValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.Seq[OrderedVariable[Value]], y: OrderedVariable[Value])
-    (implicit valueTraits: OrderedValueTraits[Value])
-    extends ValueFrequencyTracker[Value, Value](
+     xs: immutable.Seq[OrderedVariable[V]], y: OrderedVariable[V])
+    (implicit valueTraits: OrderedValueTraits[V])
+    extends ValueFrequencyTracker[V, V](
         id, xs, y,
-        immutable.TreeMap[AnyVariable, Int](), immutable.TreeMap[Value, Int]())(
+        immutable.TreeMap[AnyVariable, Int](), immutable.TreeMap[V, Int]())(
         valueTraits)
 {
     require(! xs.isEmpty)
@@ -23,7 +23,7 @@ final class Minimum
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
         valueRegistry.head._1
     override def propagate = {
-        val lhs0 = new Iterable[OrderedDomain[Value]] {
+        val lhs0 = new Iterable[OrderedDomain[V]] {
             override def iterator = xs.iterator.map(x => x.domain)
         }
         val rhs0 = y.domain

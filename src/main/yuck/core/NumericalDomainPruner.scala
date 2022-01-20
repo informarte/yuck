@@ -1,57 +1,57 @@
 package yuck.core
 
 /**
- * NumericalDomain[Value] pruner interface for use by generic constraints.
+ * NumericalDomain[V] pruner interface for use by generic constraints.
  *
  * @author Michael Marte
  */
-abstract class NumericalDomainPruner[Value <: NumericalValue[Value]] extends OrderedDomainPruner[Value] {
+abstract class NumericalDomainPruner[V <: NumericalValue[V]] extends OrderedDomainPruner[V] {
 
-    override protected val valueTraits: NumericalValueTraits[Value]
+    override protected val valueTraits: NumericalValueTraits[V]
 
     override def eqRule
-        (lhs: Domain[Value], rhs: Domain[Value]):
-        (NumericalDomain[Value], NumericalDomain[Value]) =
+        (lhs: Domain[V], rhs: Domain[V]):
+        (NumericalDomain[V], NumericalDomain[V]) =
         (valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
 
     override def neRule
-        (lhs: Domain[Value], rhs: Domain[Value]):
-        (NumericalDomain[Value], NumericalDomain[Value]) =
+        (lhs: Domain[V], rhs: Domain[V]):
+        (NumericalDomain[V], NumericalDomain[V]) =
         (valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
 
     override def ltRule
-        (lhs: OrderedDomain[Value], rhs: OrderedDomain[Value]):
-        (NumericalDomain[Value], NumericalDomain[Value]) =
+        (lhs: OrderedDomain[V], rhs: OrderedDomain[V]):
+        (NumericalDomain[V], NumericalDomain[V]) =
         (valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
 
     override def leRule
-        (lhs: OrderedDomain[Value], rhs: OrderedDomain[Value]):
-        (NumericalDomain[Value], NumericalDomain[Value]) =
+        (lhs: OrderedDomain[V], rhs: OrderedDomain[V]):
+        (NumericalDomain[V], NumericalDomain[V]) =
         (valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
 
     override def minRule
-        (lhs: Iterable[OrderedDomain[Value]], rhs: OrderedDomain[Value]):
-        (Iterator[NumericalDomain[Value]], NumericalDomain[Value]) =
+        (lhs: Iterable[OrderedDomain[V]], rhs: OrderedDomain[V]):
+        (Iterator[NumericalDomain[V]], NumericalDomain[V]) =
         (lhs.iterator.map(valueTraits.safeDowncast), valueTraits.safeDowncast(rhs))
 
     override def maxRule
-        (lhs: Iterable[OrderedDomain[Value]], rhs: OrderedDomain[Value]):
-        (Iterator[NumericalDomain[Value]], NumericalDomain[Value]) =
+        (lhs: Iterable[OrderedDomain[V]], rhs: OrderedDomain[V]):
+        (Iterator[NumericalDomain[V]], NumericalDomain[V]) =
         (lhs.iterator.map(valueTraits.safeDowncast), valueTraits.safeDowncast(rhs))
 
     def absRule
-        (lhs: NumericalDomain[Value], rhs: NumericalDomain[Value]):
-        (NumericalDomain[Value], NumericalDomain[Value]) =
+        (lhs: NumericalDomain[V], rhs: NumericalDomain[V]):
+        (NumericalDomain[V], NumericalDomain[V]) =
         (lhs, rhs)
 
     def linEqRule
-        (lhs: Iterable[(Value, NumericalDomain[Value])], rhs: NumericalDomain[Value]):
-        (Iterator[NumericalDomain[Value]], NumericalDomain[Value]) =
+        (lhs: Iterable[(V, NumericalDomain[V])], rhs: NumericalDomain[V]):
+        (Iterator[NumericalDomain[V]], NumericalDomain[V]) =
         (lhs.iterator.map(_._2), rhs)
 
     def timesRule
-        (dx: NumericalDomain[Value], dy: NumericalDomain[Value], dz: NumericalDomain[Value]):
-        (NumericalDomain[Value], NumericalDomain[Value], NumericalDomain[Value])  =
+        (dx: NumericalDomain[V], dy: NumericalDomain[V], dz: NumericalDomain[V]):
+        (NumericalDomain[V], NumericalDomain[V], NumericalDomain[V])  =
         (dx, dy, dz)
 
 }
