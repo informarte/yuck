@@ -20,6 +20,7 @@ final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
         if (this.value < that.value) -1
         else if (this.value > that.value) 1
         else 0
+    override def ==(that: Value[IntegerValue]) = this == that.asInstanceOf[IntegerValue]
     @inline def ==(that: IntegerValue): Boolean = this.value == that.value
     @inline def !=(that: IntegerValue): Boolean = this.value != that.value
     @inline override def <(that: IntegerValue) = this.value < that.value

@@ -1,7 +1,7 @@
 package yuck.core
 
 /**
- * Provides an interface for working with typed variables.
+ * Provides an interface for working with variables of known type.
  *
  * @author Michael Marte
  */
