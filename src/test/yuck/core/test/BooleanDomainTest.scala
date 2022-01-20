@@ -19,13 +19,10 @@ final class BooleanDomainTest extends UnitTest {
 
     @Test
     def testEquality: Unit = {
-        for (a <- testData) {
-            for (b <- testData) {
-                if ((a.isComplete && b.isComplete) || (a.isFinite && b.isFinite && a.values == b.values)) {
-                    assertEq(a.asInstanceOf[BooleanDomain], b)
-                } else {
-                    assertNe(a.asInstanceOf[BooleanDomain], b)
-                }
+        helper.testEquality(testData)
+        for (d <- testData) {
+            for (e <- testData) {
+                assert(if (d.eq(e)) d == e else d != e)
             }
         }
     }

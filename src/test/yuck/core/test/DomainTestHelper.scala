@@ -20,6 +20,11 @@ class DomainTestHelper[V <: AnyValue](logger: LazyLogger) extends YuckAssert {
         }
         val helper = new EqualityTestHelper[Domain[V]]
         helper.testEquality(testData)
+        for (d <- testData) {
+            for (e <- testData) {
+                assert(if (d.eq(e)) d == e else d != e)
+            }
+        }
     }
 
     // Checks that values are chosen uniformly from the given domain.

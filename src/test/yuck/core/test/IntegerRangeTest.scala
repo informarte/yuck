@@ -38,12 +38,15 @@ final class IntegerRangeTest extends UnitTest {
             helper.createTestData(baseRange, sampleSize)
                 .filter(_.isInstanceOf[IntegerRange]).map(_.asInstanceOf[IntegerRange])
         helper.testEquality(testData)
-        for (a <- testData) {
-            val b = IntegerRange(a.lb, a.ub)
-            assertEq(a, b)
-            assertEq(b, a)
-            assertNe(a, False)
-            assertNe(False, a)
+        for (d <- testData) {
+            val e = IntegerRange(d.lb, d.ub)
+            assertEq(d, e)
+            assertEq(e, d)
+            assertNe(d, False)
+            assertNe(False, d)
+            for (e <- testData) {
+                assert(if (d.eq(e)) d == e else d != e)
+            }
         }
     }
 

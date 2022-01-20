@@ -3,7 +3,7 @@ package yuck.core.test
 import org.junit._
 
 import yuck.core._
-import yuck.test.util.{OrderingTestHelper, UnitTest}
+import yuck.test.util.{EqualityTestHelper, OrderingTestHelper, UnitTest}
 
 /**
  * @author Michael Marte
@@ -20,21 +20,20 @@ final class IntegerSetDomainTest extends UnitTest {
     // * Test that set operations return instances of OrderedDomain[IntegerSetValue].
 
     private val randomGenerator = new JavaRandomGenerator
-    private val helper1 = new IntegerDomainTestHelper(randomGenerator, logger)
+    private val helper = new IntegerSetDomainTestHelper(randomGenerator, logger)
     private val baseRange = IntegerRange(IntegerValue(-5), Five)
-    private def createTestData(sampleSize: Int) =
-        helper1
-            .createTestData(baseRange, sampleSize)
-            .flatMap(r => List(new SingletonIntegerSetDomain(r), new IntegerPowersetDomain(r)))
 
     @Test
     def testEquality: Unit = {
-        assertEq(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain], new SingletonIntegerSetDomain(EmptyIntegerRange))
-        assertNe(new SingletonIntegerSetDomain(PositiveIntegerRange).asInstanceOf[IntegerSetDomain], new SingletonIntegerSetDomain(NegativeIntegerRange))
         assertEq(new SingletonIntegerSetDomain(EmptyIntegerRange), new IntegerPowersetDomain(EmptyIntegerRange))
-        assertNe(new SingletonIntegerSetDomain(CompleteIntegerRange), CompleteIntegerSetDomain)
-        assertEq(CompleteIntegerSetDomain.asInstanceOf[IntegerSetDomain], CompleteIntegerSetDomain)
-        assertNe(CompleteIntegerSetDomain.asInstanceOf[IntegerSetDomain], new IntegerPowersetDomain(EmptyIntegerRange))
+        val sampleSize = 16
+        val testData = helper.createTestData(baseRange, sampleSize)
+        helper.testEquality(testData)
+        for (d <- testData) {
+            for (e <- testData) {
+                assert(if (d.eq(e)) d == e else d != e)
+            }
+        }
     }
 
     // The ordering is implemented in IntegerSetDomain and works for all its subclasses,
@@ -42,9 +41,8 @@ final class IntegerSetDomainTest extends UnitTest {
     @Test
     def testOrdering: Unit = {
         val sampleSize = 8
-        val testData = createTestData(sampleSize)
-        val helper2 = new OrderingTestHelper[OrderedDomain[IntegerSetValue]](randomGenerator)
-        helper2.testOrdering(testData, IntegerSetDomainOrdering)
+        val testData = helper.createTestData(baseRange, sampleSize)
+        helper.testOrdering(testData)
     }
 
     @Test
@@ -120,7 +118,7 @@ final class IntegerSetDomainTest extends UnitTest {
     @Test
     def testRandomSubdomainCreation: Unit = {
         val sampleSize = 8
-        val testData = createTestData(sampleSize)
+        val testData = helper.createTestData(baseRange, sampleSize)
         for (a <- testData) {
             assertEx(a.randomSubdomain(randomGenerator), classOf[NotImplementedError])
         }
