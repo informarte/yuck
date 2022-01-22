@@ -40,7 +40,7 @@ trait ConstraintTestTooling extends YuckAssert {
         def check(): Unit
     }
 
-    protected final case class DomainReduction
+    protected final class DomainReduction
         [V <: AnyValue]
         (override val x: Variable[V], override val dx: Domain[V])
         extends AnyDomainReduction
@@ -236,5 +236,18 @@ trait ConstraintTestTooling extends YuckAssert {
     protected implicit def createIntegerMoveEffects
         (effects: Seq[(Variable[IntegerValue], Int)]): Seq[MoveEffect[IntegerValue]] =
         effects.map(createIntegerMoveEffect)
+
+    extension [V <: AnyValue](x: Variable[V]) {
+        def <<(dx: Domain[V]): DomainReduction[V] = DomainReduction(x, dx)
+        def <<(values: Iterable[V])(implicit valueTraits: ValueTraits[V]): DomainReduction[V] =
+            DomainReduction(x, valueTraits.createDomain(values.toSet))
+        def <<(a: V): MoveEffect[V] = ImmutableMoveEffect(x, a)
+    }
+
+    extension (x: IntegerVariable) {
+        def <<(range: (Int, Int)): DomainReduction[IntegerValue] = DomainReduction(x, IntegerRange(range._1, range._2))
+        def <<(values: Iterable[Int]): DomainReduction[IntegerValue] = DomainReduction(x, IntegerDomain(values))
+        def <<(a: Int): MoveEffect[IntegerValue] = ImmutableMoveEffect(x, IntegerValue(a))
+    }
 
 }
