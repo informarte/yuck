@@ -67,10 +67,6 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     @Test
     def testImplicitConversionsToDomainReduction: Unit = {
         def unpack(reduction: AnyDomainReduction) = (reduction.x, reduction.dx)
-        assertEq(unpack((x, IntegerRange(0, 9))), (x, IntegerRange(0, 9)))
-        assertEq(unpack((x, (3, 5))), (x, IntegerRange(3, 5)))
-        assertEq(unpack((x, List(3, 5))), (x, IntegerDomain(3, 5)))
-        assertEq(unpack((z, TrueDomain)), (z, TrueDomain))
         assertEq(unpack(x << IntegerRange(0, 9)), (x, IntegerRange(0, 9)))
         assertEq(unpack(x << (3, 5)), (x, IntegerRange(3, 5)))
         assertEq(unpack(x << List(3, 5)), (x, IntegerDomain(3, 5)))
@@ -170,8 +166,6 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     @Test
     def testImplicitConversionsToMoveEffect: Unit = {
         def unpack(effect: AnyMoveEffect) = (effect.x, effect.a)
-        assertEq(unpack((x, Three)), (x, Three))
-        assertEq(unpack((z, False7)), (z, False7))
         assertEq(unpack(x << Three), (x, Three))
         assertEq(unpack(x << 3), (x, Three))
         assertEq(unpack(z << False7), (z, False7))
