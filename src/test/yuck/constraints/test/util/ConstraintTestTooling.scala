@@ -2,8 +2,6 @@ package yuck.constraints.test.util
 
 import org.junit.Assert
 
-import scala.language.implicitConversions
-
 import yuck.core._
 import yuck.test.util.YuckAssert
 import yuck.util.logging.LazyLogger
@@ -52,18 +50,6 @@ trait ConstraintTestTooling extends YuckAssert {
             }
         }
     }
-
-    protected implicit def createDomainReduction
-        [V <: AnyValue](reduction: (Variable[V], Domain[V])): DomainReduction[V] =
-        DomainReduction[V](reduction._1, reduction._2)
-
-    protected implicit def createIntegerDomainReductionFromRange
-        (reduction: (Variable[IntegerValue], (Int, Int))): DomainReduction[IntegerValue] =
-        DomainReduction(reduction._1, IntegerRange(reduction._2._1, reduction._2._2))
-
-    protected implicit def createIntegerDomainReductionFromIterable
-        (reduction: (Variable[IntegerValue], Iterable[Int])): DomainReduction[IntegerValue] =
-        DomainReduction(reduction._1, IntegerDomain(reduction._2.map(IntegerValue.apply)))
 
     private def propagate(space: Space, preconditions: Seq[AnyDomainReduction], postconditions: Seq[AnyDomainReduction]): Unit = {
         logger.log("   Given: %s".format(preconditions.mkString(", ")))
@@ -222,20 +208,6 @@ trait ConstraintTestTooling extends YuckAssert {
         def apply(comment: String, effects: AnyMoveEffect*): ConsultAndCommit =
             ConsultAndCommit(comment, effects.take(effects.size - 1), List(effects.last))
     }
-
-    protected implicit def createMoveEffect[V <: AnyValue](assignment: (Variable[V], V)): MoveEffect[V] =
-        new ImmutableMoveEffect[V](assignment._1, assignment._2)
-
-    protected implicit def createIntegerMoveEffect(assignment: (Variable[IntegerValue], Int)): MoveEffect[IntegerValue] =
-        new ImmutableMoveEffect(assignment._1, IntegerValue(assignment._2))
-
-    protected implicit def createMoveEffects
-        [V <: AnyValue](effects: Seq[(Variable[V], V)]): Seq[MoveEffect[V]] =
-        effects.map(createMoveEffect)
-
-    protected implicit def createIntegerMoveEffects
-        (effects: Seq[(Variable[IntegerValue], Int)]): Seq[MoveEffect[IntegerValue]] =
-        effects.map(createIntegerMoveEffect)
 
     extension [V <: AnyValue](x: Variable[V]) {
         def <<(dx: Domain[V]): DomainReduction[V] = DomainReduction(x, dx)
