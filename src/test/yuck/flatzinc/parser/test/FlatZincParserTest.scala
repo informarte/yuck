@@ -107,6 +107,11 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
+    def testString: Unit = {
+        expectSuccess(expr, "\"foo\"", StringConst("foo"))
+    }
+
+    @Test
     def testTypes: Unit = {
         val map = Map(
             "bool" -> BoolType,
