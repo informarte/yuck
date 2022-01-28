@@ -39,6 +39,9 @@ final case class ArrayConst(val value: List[Expr]) extends ConstExpr {
 final case class ArrayAccess(val id: String, val idx: Expr) extends Expr {
     override def toString = "%s[%s]".format(id, idx)
 }
+final case class StringConst(val string: String) extends Expr {
+    override def toString = string
+}
 // In expressions, parameters and variables are represented as 0-ary terms.
 final case class Term(val id: String, val params: List[Expr]) extends Expr {
     override def toString =
