@@ -80,7 +80,10 @@ class MiniZincSolutionVerifier(
             case StandardMiniZincBenchmarksLayout =>
                 ("%s/%s".format(suitePath, problemName),
                  "%s.mzn".format(modelName),
-                 "%s.dzn".format(instanceName),
+                 {
+                     val dznFilePath = "%s/%s/%s.dzn".format(suitePath, problemName, instanceName)
+                     (if (new java.io.File(dznFilePath).exists()) "%s.dzn" else "%s.json").format(instanceName)
+                 },
                  "tmp/%s/%s/%s/%s".format(suiteName, problemName, modelName, instanceName))
             case NonStandardMiniZincBenchmarksLayout =>
                 ("%s/%s".format(suitePath, problemName),

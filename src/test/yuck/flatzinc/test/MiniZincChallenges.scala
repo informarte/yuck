@@ -7,7 +7,7 @@ import org.junit.experimental.categories.Categories._
 import yuck.flatzinc.test.util._
 
 /**
- * A collection of problems from the MiniZinc challenges 2012 - 2020
+ * A collection of problems from the MiniZinc challenges 2012 - 2021
  *
  * @author Michael Marte
  */
@@ -42,6 +42,12 @@ final class MiniZincChallenges extends MiniZincBasedTest {
     @Category(Array(classOf[MinimizationProblem], classOf[HasCountConstraint]))
     def amaze_2012_03_19: Unit = {
         solve(task.copy(problemName = "amaze", instanceName = "2012-03-19", maybeOptimum = Some(447)))
+    }
+
+    @Test
+    @Category(Array(classOf[MinimizationProblem]))
+    def atsp_12_6_8_3: Unit = {
+        solve(task.copy(problemName = "atsp", instanceName = "instance10_0p25", maybeOptimum = Some(3711320)))
     }
 
     @Test
@@ -105,9 +111,21 @@ final class MiniZincChallenges extends MiniZincBasedTest {
     }
 
     @Test
+    @Category(Array(classOf[MaximizationProblem], classOf[HasGlobalCardinalityConstraint]))
+    def community_detection_rnd_n100_e1000_s50_d30_c6_p70: Unit = {
+        solve(task.copy(problemName = "community-detection-rnd", modelName = "community-detection", instanceName = "rnd_n100_e1000_s50_d30_c6_p70", maybeOptimum = Some(966255)))
+    }
+
+    @Test
     @Category(Array(classOf[MaximizationProblem]))
     def concert_hall_cap_mznc2018_02: Unit = {
         solve(task.copy(problemName = "concert-hall-cap", instanceName = "concert-cap.mznc2018.02", maybeOptimum = Some(48278)))
+    }
+
+    @Test
+    @Category(Array(classOf[MinimizationProblem]))
+    def connect_0018: Unit = {
+        solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "connect", instanceName = "connect__0018", maybeOptimum = Some(52490)))
     }
 
     @Test
@@ -180,6 +198,12 @@ final class MiniZincChallenges extends MiniZincBasedTest {
     @Category(Array(classOf[MinimizationProblem], classOf[HasCumulativeConstraint]))
     def fjsp_easy01: Unit = {
         solve(task.copy(problemName = "flexible-jobshop", modelName = "fjsp", instanceName = "easy01", maybeOptimum = Some(253)))
+    }
+
+    @Test
+    @Category(Array(classOf[MinimizationProblem]))
+    def flowshop_workers_5stat_ex3: Unit = {
+        solve(task.copy(problemName = "flowshop-workers", instanceName = "5stat_ex3", maybeOptimum = Some(2751)))
     }
 
     @Test
@@ -335,6 +359,12 @@ final class MiniZincChallenges extends MiniZincBasedTest {
     }
 
     @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    def monomatch_data_n_6_percentage_0_5: Unit = {
+        solve(task.copy(problemName = "monomatch", instanceName = "data_n_6_percentage_0.5"))
+    }
+
+    @Test
     @Category(Array(classOf[MinimizationProblem]))
     def mqueens_n11: Unit = {
         solve(task.copy(problemName = "mqueens", modelName = "mqueens2", instanceName = "n11", maybeOptimum = Some(5)))
@@ -455,9 +485,33 @@ final class MiniZincChallenges extends MiniZincBasedTest {
     }
 
     @Test
+    @Category(Array(classOf[MaximizationProblem], classOf[HasRegularConstraint]))
+    def peaceable_queens_40: Unit = {
+        solve(task.copy(problemName = "peaceable_queens", instanceName = "40", maybeHighScore = Some(222)))
+    }
+
+    @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasRegularConstraint]))
     def pentominoes_int_02: Unit = {
         solve(task.copy(problemName = "pentominoes", modelName = "pentominoes-int", instanceName = "02"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasRegularConstraint]))
+    def pentominoes_zayenz_size_5_tiles_20_seed_17_strategy_close: Unit = {
+        solve(task.copy(problemName = "pentominoes-zayenz", modelName = "pentominoes", instanceName = "size_5_tiles_20_seed_17_strategy_close"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
+    def perfect_square_57: Unit = {
+        solve(task.copy(problemName = "perfect_square", instanceName = "57"))
+    }
+
+    @Test
+    @Category(Array(classOf[MinimizationProblem], classOf[HasGlobalCardinalityConstraint], classOf[HasNValueConstraint]))
+    def physician_scheduling_instance03_0_34: Unit = {
+        solve(task.copy(problemName = "physician-scheduling", instanceName = "instance03_0.34", maybeOptimum = Some(1505)))
     }
 
     @Test
@@ -637,6 +691,12 @@ final class MiniZincChallenges extends MiniZincBasedTest {
     }
 
     @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def steiner_systems_steiner_t6_k6_N7: Unit = {
+        solve(task.copy(problemName = "steiner-systems", instanceName = "steiner_t6_k6_N7"))
+    }
+
+    @Test
     @Category(Array(classOf[MinimizationProblem]))
     def steiner_tree_es10fst03_stp: Unit = {
         solve(task.copy(problemName = "steiner-tree", instanceName = "es10fst03.stp", maybeOptimum = Some(26003678)))
@@ -715,6 +775,12 @@ final class MiniZincChallenges extends MiniZincBasedTest {
     }
 
     @Test
+    @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint]))
+    def vrp_submission_A_4v_22l: Unit = {
+        solve(task.copy(problemName = "vrp-submission", modelName = "cvrptw_w_reload", instanceName = "A_4v_22l", maybeHighScore = Some(481)))
+    }
+
+    @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint], classOf[HasCumulativeConstraint]))
     def vrplc_9_5_10_s1: Unit = {
         solve(task.copy(problemName = "vrplc", modelName = "vrplc_service", instanceName = "vrplc9_5_10_s1", maybeOptimum = Some(351)))
@@ -724,6 +790,18 @@ final class MiniZincChallenges extends MiniZincBasedTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def whirlpool_d8: Unit = {
         solve(task.copy(problemName = "whirlpool", modelName = "whirlpool-x", instanceName = "d8"))
+    }
+
+    @Test
+    @Category(Array(classOf[MinimizationProblem]))
+    def wmsmc_int_batch_0_case_115_instance_0_small_subset_elements_3_sumreqs_1295_candidates_41: Unit = {
+        solve(task.copy(problemName = "wmsmc-int", modelName = "multisetcover", instanceName = "batch_0_case_115_instance_0_small_subset_elements_3_sumreqs_1295_candidates_41", maybeOptimum = Some(509704)))
+    }
+
+    @Test
+    @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint], classOf[HasTableConstraint], classOf[HasValuePrecedeConstraint]))
+    def yumi_dynamic_p_4_GG_GG_yumi_grid_setup_3_4_zones : Unit = {
+        solve(task.copy(problemName = "yumi-dynamic", instanceName = "p_4_GG_GG_yumi_grid_setup_3_4_zones", maybeOptimum = Some(462)))
     }
 
     @Test

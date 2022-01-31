@@ -76,7 +76,11 @@ class MiniZincBasedTest extends IntegrationTest {
                  "tmp/%s/%s".format(suiteName, problemName))
             case StandardMiniZincBenchmarksLayout =>
                 ("%s/%s/%s.mzn".format(suitePath, problemName, modelName),
-                 "%s/%s/%s.dzn".format(suitePath, problemName, instanceName),
+                 {
+                     val dznFilePath = "%s/%s/%s.dzn".format(suitePath, problemName, instanceName)
+                     val jsonFilePath = "%s/%s/%s.json".format(suitePath, problemName, instanceName)
+                     if (new java.io.File(dznFilePath).exists()) dznFilePath else jsonFilePath
+                 },
                  "tmp/%s/%s/%s/%s".format(suiteName, problemName, modelName, instanceName))
             case NonStandardMiniZincBenchmarksLayout =>
                 ("%s/%s/%s.mzn".format(suitePath, problemName, instanceName),
