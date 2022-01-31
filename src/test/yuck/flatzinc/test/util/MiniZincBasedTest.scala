@@ -69,14 +69,18 @@ class MiniZincBasedTest extends IntegrationTest {
         val problemName = task.problemName
         val modelName = if (task.modelName.isEmpty) problemName else task.modelName
         val instanceName = if (task.instanceName.isEmpty) modelName else task.instanceName
-        val (mznFilePath, dznFilePath, outputDirectoryPath) = task.directoryLayout match {
+        val (modelFilePath, dataFilePath, outputDirectoryPath) = task.directoryLayout match {
             case MiniZincExamplesLayout =>
                 ("%s/%s.mzn".format(suitePath, problemName),
                  "",
                  "tmp/%s/%s".format(suiteName, problemName))
             case StandardMiniZincBenchmarksLayout =>
                 ("%s/%s/%s.mzn".format(suitePath, problemName, modelName),
-                 "%s/%s/%s.dzn".format(suitePath, problemName, instanceName),
+                 {
+                     val dznFilePath = "%s/%s/%s.dzn".format(suitePath, problemName, instanceName)
+                     val jsonFilePath = "%s/%s/%s.json".format(suitePath, problemName, instanceName)
+                     if (new java.io.File(dznFilePath).exists()) dznFilePath else jsonFilePath
+                 },
                  "tmp/%s/%s/%s/%s".format(suiteName, problemName, modelName, instanceName))
             case NonStandardMiniZincBenchmarksLayout =>
                 ("%s/%s/%s.mzn".format(suitePath, problemName, instanceName),
@@ -95,12 +99,12 @@ class MiniZincBasedTest extends IntegrationTest {
             val logFileHandler = new java.util.logging.FileHandler(logFilePath)
             logFileHandler.setFormatter(formatter)
             scoped(new ManagedLogHandler(nativeLogger, logFileHandler)) {
-                logger.log("Processing %s".format(mznFilePath))
+                logger.log("Processing %s".format(modelFilePath))
                 logger.log("Logging into %s".format(logFilePath))
                 try {
                     val result = solve(
                         task.copy(suiteName = suiteName, modelName = modelName, instanceName = instanceName),
-                        mznFilePath, dznFilePath, fznFilePath, jsonFilePath, dotFilePath)
+                        modelFilePath, dataFilePath, fznFilePath, jsonFilePath, dotFilePath)
                     Some(result)
                 }
                 catch {

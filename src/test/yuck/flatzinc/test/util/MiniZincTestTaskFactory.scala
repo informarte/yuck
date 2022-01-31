@@ -33,7 +33,7 @@ abstract class MiniZincTestTaskFactory {
 
     protected def modelFilter(file: File): Boolean = file.getName.endsWith(".mzn")
 
-    protected def instanceFilter(file: File): Boolean = file.getName.endsWith(".dzn")
+    protected def instanceFilter(file: File): Boolean = file.getName.endsWith(".dzn") || file.getName.endsWith(".json")
 
     protected def tasks: List[MiniZincTestTask] = {
         val randomGenerator = new JavaRandomGenerator
@@ -42,31 +42,31 @@ abstract class MiniZincTestTaskFactory {
         val problems = suiteDir.listFiles.filter(_.isDirectory).filter(problemFilter).sorted
         val buf = new mutable.ArrayBuffer[MiniZincTestTask]
         for (problem <- problems) {
-            val mznFiles = listFiles(problem, modelFilter).sorted
-            val dznFiles = listFiles(problem, instanceFilter).sorted
-            if (dznFiles.isEmpty) {
-                val mznFileSelection =
-                    randomGenerator.shuffle(mznFiles).take(MaybeInstancesPerProblem.getOrElse(mznFiles.size)).sorted
-                for (mznFile <- mznFileSelection) {
+            val modelFiles = listFiles(problem, modelFilter).sorted
+            val dataFiles = listFiles(problem, instanceFilter).sorted
+            if (dataFiles.isEmpty) {
+                val modelFileSelection =
+                    randomGenerator.shuffle(modelFiles).take(MaybeInstancesPerProblem.getOrElse(modelFiles.size)).sorted
+                for (modelFile <- modelFileSelection) {
                     buf +=
                         MiniZincTestTask(
                             directoryLayout = NonStandardMiniZincBenchmarksLayout,
                             suitePath = SuitePath,
                             problemName = problem.getName,
-                            instanceName = mznFile.getPath.replace(problem.getPath + "/", "").replace(".mzn", ""))
+                            instanceName = modelFile.getPath.replace(problem.getPath + "/", "").replace(".mzn", "").replace(".json", ""))
                 }
             } else {
-                val dznFileSelection =
-                    randomGenerator.shuffle(dznFiles).take(MaybeInstancesPerProblem.getOrElse(dznFiles.size)).sorted
-                for (mznFile <- mznFiles) {
-                    for (dznFile <- dznFileSelection) {
+                val dataFileSelection =
+                    randomGenerator.shuffle(dataFiles).take(MaybeInstancesPerProblem.getOrElse(dataFiles.size)).sorted
+                for (modelFile <- modelFiles) {
+                    for (dataFile <- dataFileSelection) {
                         buf +=
                             MiniZincTestTask(
                                 directoryLayout = StandardMiniZincBenchmarksLayout,
                                 suitePath = SuitePath,
                                 problemName = problem.getName,
-                                modelName = mznFile.getPath.replace(problem.getPath + "/", "").replace(".mzn", ""),
-                                instanceName = dznFile.getPath.replace(problem.getPath + "/", "").replace(".dzn", ""))
+                                modelName = modelFile.getPath.replace(problem.getPath + "/", "").replace(".mzn", ""),
+                                instanceName = dataFile.getPath.replace(problem.getPath + "/", "").replace(".dzn", "").replace(".json", ""))
                     }
                 }
             }

@@ -71,7 +71,7 @@ class MiniZincSolutionVerifier(
         val problemName = task.problemName
         val modelName = if (task.modelName.isEmpty) problemName else task.modelName
         val instanceName = task.instanceName
-        val (includePath, mznFileName, dznFileName, outputDirectoryPath) = task.directoryLayout match {
+        val (includePath, modelFileName, dataFileName, outputDirectoryPath) = task.directoryLayout match {
             case MiniZincExamplesLayout =>
                 ("%s".format(suitePath),
                  "%s.mzn".format(problemName),
@@ -80,7 +80,10 @@ class MiniZincSolutionVerifier(
             case StandardMiniZincBenchmarksLayout =>
                 ("%s/%s".format(suitePath, problemName),
                  "%s.mzn".format(modelName),
-                 "%s.dzn".format(instanceName),
+                 {
+                     val dataFilePath = "%s/%s/%s.dzn".format(suitePath, problemName, instanceName)
+                     (if (new java.io.File(dataFilePath).exists()) "%s.dzn" else "%s.json").format(instanceName)
+                 },
                  "tmp/%s/%s/%s/%s".format(suiteName, problemName, modelName, instanceName))
             case NonStandardMiniZincBenchmarksLayout =>
                 ("%s/%s".format(suitePath, problemName),
@@ -100,7 +103,7 @@ class MiniZincSolutionVerifier(
         // We include the MiniZinc model in the end because a few of them don't have a semicolon
         // after the last line.
         if (task.verificationModelName.isEmpty) {
-            solutionWriter.write("include \"%s\";".format(mznFileName));
+            solutionWriter.write("include \"%s\";".format(modelFileName));
         } else {
             solutionWriter.write("include \"%s.mzn\";".format(task.verificationModelName));
         }
@@ -129,7 +132,7 @@ class MiniZincSolutionVerifier(
             minizincCommand ++= List("-D", "%s=%s".format(key, value))
         }
         minizincCommand += solutionFilePath
-        if (! dznFileName.isEmpty) minizincCommand += "%s/%s".format(includePath, dznFileName)
+        if (! dataFileName.isEmpty) minizincCommand += "%s/%s".format(includePath, dataFileName)
         val outputLines = new ProcessRunner(logger, minizincCommand).call()
         val verified =
             ! outputLines.contains(FlatZincInconsistentProblemIndicator) &&
