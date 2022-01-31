@@ -42,6 +42,7 @@ def createDb(cursor):
         'number_of_variables INT CONSTRAINT result_number_of_variables_constraint CHECK (number_of_variables >= 0), '\
         'number_of_constraints INT CONSTRAINT result_number_of_constraints_constraint CHECK (number_of_constraints >= 0), '\
         'area DOUBLE CONSTRAINT result_area_constraint CHECK (area >= 0), '\
+        'solving_time_in_seconds DOUBLE CONSTRAINT result_solving_time_in_seconds_constraint CHECK (solving_time_in_seconds >= 0), '\
         'runtime_in_seconds DOUBLE CONSTRAINT result_runtime_in_seconds_constraint CHECK (runtime_in_seconds >= 0), '\
         'moves_per_second DOUBLE CONSTRAINT result_moves_per_second_constraint CHECK (moves_per_second >= 0), '\
         'consultations_per_move DOUBLE CONSTRAINT result_consultations_per_move_constraint CHECK (consultations_per_move >= 0), '\
@@ -62,7 +63,7 @@ def importResults(args, file, cursor):
         print("No model statistics (FlatZinc compiler error?)")
     else:
         cursor.execute(
-            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             (args.run,
              solver['name'] if solver else None,
              solver['version'] if solver else None,
@@ -79,6 +80,7 @@ def importResults(args, file, cursor):
              modelStatistics['number-of-search-variables'] + modelStatistics['number-of-channel-variables'] if modelStatistics else None,
              modelStatistics['number-of-constraints'] if modelStatistics else None,
              solverStatistics.get('area') if solverStatistics else None,
+             solverStatistics.get('solving-time-in-seconds') if solverStatistics else None,
              solverStatistics.get('runtime-in-seconds') if solverStatistics else None,
              solverStatistics.get('moves-per-second') if solverStatistics else None,
              solverStatistics.get('consultations-per-move') if solverStatistics else None,
