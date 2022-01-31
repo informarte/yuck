@@ -20,6 +20,7 @@ class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(l
     case class QualityImprovement(runtimeInMillis: Long, quality: NumericalValue[_])
 
     private var timeStampInMillis: Long = 0
+    private var maybeSolvingTimeInMills: Option[Long] = None
     private var runtimeInMillis: Long = 0
     private var maybeTrackArea: Option[Boolean] = None
     private var maybePreviousQuality: Option[NumericalValue[_]] = None
@@ -81,6 +82,11 @@ class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(l
         synchronized {
             super.onBetterProposal(result)
             if (result.isSolution) {
+                val now = System.currentTimeMillis
+                runtimeInMillis += now - timeStampInMillis
+                if (! maybeSolvingTimeInMills.isDefined) {
+                    maybeSolvingTimeInMills = Some(runtimeInMillis)
+                }
                 val problemHasNumericalObjective =
                     costsOfBestProposal match {
                         case value: PolymorphicListValue =>
@@ -90,8 +96,6 @@ class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(l
                 if (problemHasNumericalObjective) {
                     val quality = this.quality
                     if (qualityStepFunction.isEmpty || qualityStepFunction.last.quality != quality) {
-                        val now = System.currentTimeMillis
-                        runtimeInMillis += now - timeStampInMillis
                         if (maybeTrackArea.isEmpty) {
                             maybeTrackArea = Some(true)
                         }
@@ -104,15 +108,18 @@ class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(l
                             }
                         }
                         qualityStepFunction += QualityImprovement(runtimeInMillis, quality)
-                        timeStampInMillis = now
                     }
                 }
+                timeStampInMillis = now
             }
         }
     }
 
+    // Runtime from opening this resource until the first solution was found.
+    def maybeSolvingTimeInSeconds: Option[Double] = maybeSolvingTimeInMills.map(_ / 1000.0)
+
     // Runtime from opening this resource until closing it.
-    def runtimeInSeconds: Double = scala.math.max(1L, runtimeInMillis) / 1000.0
+    def runtimeInSeconds: Double = runtimeInMillis / 1000.0
 
     // Integral of the quality step function over the runtime horizon.
     // Only available when no negative objective values were encountered during optimization.
