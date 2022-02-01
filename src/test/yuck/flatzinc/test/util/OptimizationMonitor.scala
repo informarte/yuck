@@ -20,7 +20,8 @@ class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(l
     case class QualityImprovement(runtimeInMillis: Long, quality: NumericalValue[_])
 
     private var timeStampInMillis: Long = 0
-    private var maybeSolvingTimeInMills: Option[Long] = None
+    private var maybeSolvingTimeInMillis: Option[Long] = None
+    private var maybeRuntimeToBestSolutionInMillis: Option[Long] = None
     private var runtimeInMillis: Long = 0
     private var maybeTrackArea: Option[Boolean] = None
     private var maybePreviousQuality: Option[NumericalValue[_]] = None
@@ -84,9 +85,10 @@ class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(l
             if (result.isSolution) {
                 val now = System.currentTimeMillis
                 runtimeInMillis += now - timeStampInMillis
-                if (! maybeSolvingTimeInMills.isDefined) {
-                    maybeSolvingTimeInMills = Some(runtimeInMillis)
+                if (! maybeSolvingTimeInMillis.isDefined) {
+                    maybeSolvingTimeInMillis = Some(runtimeInMillis)
                 }
+                maybeRuntimeToBestSolutionInMillis = Some(runtimeInMillis)
                 val problemHasNumericalObjective =
                     costsOfBestProposal match {
                         case value: PolymorphicListValue =>
@@ -116,7 +118,10 @@ class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(l
     }
 
     // Runtime from opening this resource until the first solution was found.
-    def maybeSolvingTimeInSeconds: Option[Double] = maybeSolvingTimeInMills.map(_ / 1000.0)
+    def maybeSolvingTimeInSeconds: Option[Double] = maybeSolvingTimeInMillis.map(_ / 1000.0)
+
+    // Runtime from opening this resource until the best solution was found.
+    def maybeRuntimeToBestSolutionInSeconds: Option[Double] = maybeRuntimeToBestSolutionInMillis.map(_ / 1000.0)
 
     // Runtime from opening this resource until closing it.
     def runtimeInSeconds: Double = runtimeInMillis / 1000.0

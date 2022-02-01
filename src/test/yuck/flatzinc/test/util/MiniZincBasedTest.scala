@@ -396,6 +396,9 @@ class MiniZincBasedTest extends IntegrationTest {
         if (monitor.maybeSolvingTimeInSeconds.isDefined) {
             statsNode += "solving-time-in-seconds" -> JsNumber(monitor.maybeSolvingTimeInSeconds.get)
         }
+        if (monitor.maybeRuntimeToBestSolutionInSeconds.isDefined) {
+            statsNode += "runtime-to-best-solution-in-seconds" -> JsNumber(monitor.maybeRuntimeToBestSolutionInSeconds.get)
+        }
         statsNode += "runtime-in-seconds" -> JsNumber(monitor.runtimeInSeconds)
         if (monitor.maybeArea.isDefined) {
             statsNode += "area" -> JsNumber(monitor.maybeArea.get)
