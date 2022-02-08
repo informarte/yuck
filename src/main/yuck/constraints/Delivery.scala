@@ -158,7 +158,7 @@ final class Delivery
     // tours affected by the last move examined by consult (in terms of 0-based tour indices)
     private val affectedTours = new mutable.HashSet[Int]
 
-    @inline private def distanceDelta
+    inline private def distanceDelta
         (dx: NumericalDomain[Time], beforeValue: NumericalValue[Time], afterValue: NumericalValue[Time]): Long =
         safeSub(dx.distanceTo(afterValue).toLong, dx.distanceTo(beforeValue).toLong)
 

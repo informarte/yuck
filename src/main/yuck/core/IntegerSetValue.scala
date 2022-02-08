@@ -9,7 +9,7 @@ import scala.annotation.tailrec
  */
 final class IntegerSetValue(val set: IntegerDomain) extends OrderedValue[IntegerSetValue] {
     import IntegerSetValue._
-    @inline override def hashCode = set.hashCode
+    override def hashCode = set.hashCode
     override def equals(that: Any) = that match {
         case rhs: IntegerSetValue => {
             val lhs = this
@@ -20,8 +20,8 @@ final class IntegerSetValue(val set: IntegerDomain) extends OrderedValue[Integer
     override def compare(that: IntegerSetValue) = valueListOrdering.compare(this.set, that.set)
     override def toString = set.toString
     override def ==(that: Value[IntegerSetValue]) = this == that.asInstanceOf[IntegerSetValue]
-    @inline def ==(that: IntegerSetValue): Boolean = this.set == that.set
-    @inline def !=(that: IntegerSetValue): Boolean = this.set != that.set
+    inline def ==(that: IntegerSetValue): Boolean = this.set == that.set
+    inline def !=(that: IntegerSetValue): Boolean = this.set != that.set
 }
 
 /**

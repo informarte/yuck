@@ -17,7 +17,7 @@ package yuck.core
 final class BooleanValue(val violation: Long) extends OrderedValue[BooleanValue] {
     require(violation >= 0)
     def this(value: Boolean) = this(if (value) 0 else 1)
-    @inline override def hashCode = violation.hashCode
+    override def hashCode = violation.hashCode
     override def equals(that: Any) = that match {
         case rhs: BooleanValue => {
             val lhs = this
@@ -30,16 +30,16 @@ final class BooleanValue(val violation: Long) extends OrderedValue[BooleanValue]
         else if (this.violation > that.violation) 1
         else 0
     override def ==(that: Value[BooleanValue]) = this == that.asInstanceOf[BooleanValue]
-    @inline def ==(that: BooleanValue): Boolean = this.violation == that.violation
-    @inline def !=(that: BooleanValue): Boolean = this.violation != that.violation
-    @inline override def <(that: BooleanValue) = this.violation < that.violation
-    @inline override def <=(that: BooleanValue) = this.violation <= that.violation
-    @inline override def >(that: BooleanValue) = this.violation > that.violation
-    @inline override def >=(that: BooleanValue) = this.violation >= that.violation
+    inline def ==(that: BooleanValue): Boolean = this.violation == that.violation
+    inline def !=(that: BooleanValue): Boolean = this.violation != that.violation
+    inline override def <(that: BooleanValue) = this.violation < that.violation
+    inline override def <=(that: BooleanValue) = this.violation <= that.violation
+    inline override def >(that: BooleanValue) = this.violation > that.violation
+    inline override def >=(that: BooleanValue) = this.violation >= that.violation
     override def toString =
         if (violation == 0) "true" else if (violation == 1) "false" else "false(%d)".format(violation)
     /** Returns true iff the violation is zero. */
-    @inline def truthValue: Boolean = violation == 0
+    inline def truthValue: Boolean = violation == 0
 }
 
 /**
@@ -62,7 +62,7 @@ object BooleanValue {
      *
      * Tries to avoid memory allocation by re-using existing objects.
      */
-    @inline def apply(a: Boolean): BooleanValue =
+    inline def apply(a: Boolean): BooleanValue =
         if (a) True else False
 
     def apply(a: Int): BooleanValue =

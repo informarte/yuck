@@ -51,7 +51,7 @@ final class Space(
     }
 
     /** Returns the set of constraints directly affected by changing the value of the given variable. */
-    @inline def directlyAffectedConstraints(x: AnyVariable): Set[Constraint] =
+    def directlyAffectedConstraints(x: AnyVariable): Set[Constraint] =
         inflowModel.getOrElse(x, Set.empty)
 
     // The outflow model allows to find out which constraint, if any, computes the value of a
@@ -67,14 +67,12 @@ final class Space(
         outVariables -= x
     }
 
-
-
     /** Returns the constraint that computes the value of the given variable, if any. */
-    @inline def maybeDefiningConstraint(x: AnyVariable): Option[Constraint] =
+    def maybeDefiningConstraint(x: AnyVariable): Option[Constraint] =
         outflowModel.get(x)
 
     /** Returns the constraint that computes the value of the given variable. */
-    @inline def definingConstraint(x: AnyVariable): Constraint =
+    def definingConstraint(x: AnyVariable): Constraint =
         outflowModel(x)
 
     // The flow model is a DAG which describes the flow of value changes through the
@@ -126,7 +124,7 @@ final class Space(
         }
     }
     private object ConstraintOrdering extends Ordering[Constraint] {
-        @inline override def compare(lhs: Constraint, rhs: Constraint) =
+        override def compare(lhs: Constraint, rhs: Constraint) =
             constraintOrder(lhs.id.rawId) - constraintOrder(rhs.id.rawId)
     }
 
@@ -175,7 +173,7 @@ final class Space(
     }
 
     /** Returns true iff the given variable is an objective variable. */
-    @inline def isObjectiveVariable(x: AnyVariable): Boolean =
+    def isObjectiveVariable(x: AnyVariable): Boolean =
         objectiveVariables.isEmpty || objectiveVariables.contains(x)
 
     private val outputVariables = new mutable.HashSet[AnyVariable]
@@ -187,7 +185,7 @@ final class Space(
     }
 
     /** Returns true iff the given variable is an output variable. */
-    @inline def isOutputVariable(x: AnyVariable): Boolean =
+    def isOutputVariable(x: AnyVariable): Boolean =
         outputVariables.isEmpty || outputVariables.contains(x)
 
     /** Assigns the given value to the given variable. */
@@ -399,7 +397,7 @@ final class Space(
     }
 
     /** Returns true iff the given constraint was marked as implicit. */
-    @inline def isImplicitConstraint(constraint: Constraint): Boolean =
+    def isImplicitConstraint(constraint: Constraint): Boolean =
         implicitConstraints.contains(constraint)
 
     /** Returns the number of constraints that were posted and later marked as implicit. */

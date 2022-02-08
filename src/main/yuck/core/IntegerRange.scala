@@ -20,7 +20,7 @@ final class IntegerRange
         (this.isEmpty && that.isEmpty) ||
         ((this.lb.eq(that.lb) || (this.lb.ne(null) && that.lb.ne(null) && this.lb == that.lb)) &&
          (this.ub.eq(that.ub) || (this.ub.ne(null) && that.ub.ne(null) && this.ub == that.ub)))
-    @inline def !=(that: IntegerRange): Boolean = ! (this == that)
+    inline def !=(that: IntegerRange): Boolean = ! (this == that)
 
     override def toString =
         if (isEmpty)
@@ -36,14 +36,14 @@ final class IntegerRange
         require(isFinite)
         max(0, safeInc(safeSub(ub.value, lb.value)))
     }
-    @inline override def isComplete = lb.eq(null) && ub.eq(null)
-    @inline override def isFinite = lb.ne(null) && ub.ne(null)
-    @inline override def isEmpty = isFinite && lb > ub
-    @inline override def isSingleton = isFinite && lb == ub
+    inline override def isComplete = lb.eq(null) && ub.eq(null)
+    inline override def isFinite = lb.ne(null) && ub.ne(null)
+    inline override def isEmpty = isFinite && lb > ub
+    inline override def isSingleton = isFinite && lb == ub
     override def hasGaps = false
-    @inline override def isBounded = lb.ne(null) || ub.ne(null)
-    @inline override def maybeLb = Option(lb)
-    @inline override def maybeUb = Option(ub)
+    inline override def isBounded = lb.ne(null) || ub.ne(null)
+    inline override def maybeLb = Option(lb)
+    inline override def maybeUb = Option(ub)
     override def hull = this
     override def values = {
         require(isFinite)

@@ -31,7 +31,7 @@ final class TableNeighbourhoodTest extends UnitTest {
         val neighbourhood =
             constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
         assertEq(neighbourhood.getClass, classOf[TableNeighbourhood[_]])
-        assert(rows.contains(xs.map(now.value)))
+        assert(rows.contains(xs.map(now.value(_))))
         assertEq(now.value(costs), True)
         space.initialize()
         val sampleSize = 1000
@@ -39,7 +39,7 @@ final class TableNeighbourhoodTest extends UnitTest {
             val move = neighbourhood.nextMove
             val after = space.consult(move)
             assert(xs.exists(x => now.value(x) != after.value(x)))
-            assert(rows.contains(xs.map(now.value)))
+            assert(rows.contains(xs.map(now.value(_))))
             if (randomGenerator.nextDecision()) {
                 space.commit(move)
                 neighbourhood.commit(move)

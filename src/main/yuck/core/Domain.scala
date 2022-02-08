@@ -17,7 +17,7 @@ abstract class Domain[V <: AnyValue] extends AnyDomain {
     }
 
     def ==(that: Domain[V]): Boolean
-    @inline final def !=(that: Domain[V]): Boolean = ! ( this == that)
+    inline final def !=(that: Domain[V]): Boolean = ! ( this == that)
 
     override def toString = "{%s}".format(valuesIterator.map(_.toString).mkString(", "))
 

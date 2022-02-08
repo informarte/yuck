@@ -16,6 +16,6 @@ abstract class Value[V] extends AnyValue {
     }
 
     def ==(that: Value[V]): Boolean
-    @inline final def !=(that: Value[V]): Boolean = ! (this == that)
+    inline final def !=(that: Value[V]): Boolean = ! (this == that)
 
 }

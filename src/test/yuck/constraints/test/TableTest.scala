@@ -132,7 +132,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
         assertEq(neighbourhood.getClass, classOf[TableNeighbourhood[IntegerValue]])
         val now = space.searchState
         assert(xs.forall(x => x.domain.contains(now.value(x))))
-        assert(rows.contains(xs.map(now.value)))
+        assert(rows.contains(xs.map(now.value(_))))
         assertEq(now.value(costs), True)
         assertEq(neighbourhood.searchVariables, xs.filterNot(_.domain.isSingleton).toSet)
     }
