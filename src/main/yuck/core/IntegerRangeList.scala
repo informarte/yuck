@@ -25,19 +25,19 @@ final class IntegerRangeList
         require(safeInc(ranges(i - 1).ub.value) < ranges(i).lb.value)
     }
 
-    @inline def ==(that: IntegerRangeList): Boolean = this.eq(that) || this.ranges == that.ranges
-    @inline def !=(that: IntegerRangeList): Boolean = ! (this == that)
+    inline def ==(that: IntegerRangeList): Boolean = this.eq(that) || this.ranges == that.ranges
+    inline def !=(that: IntegerRangeList): Boolean = ! (this == that)
 
     override def toString = if (isEmpty) "{}" else ranges.iterator.map(_.toString).mkString(" ∪ ")
 
-    @inline override def isEmpty = ranges.isEmpty
-    override lazy val size = ranges.iterator.map(_.size).foldLeft(0)(safeAdd)
-    @inline override def isComplete = ranges.size == 1 && ranges.head.isComplete
-    @inline override def isFinite = isEmpty || (ranges.head.lb.ne(null) && ranges.last.ub.ne(null))
-    @inline override def hasGaps = ranges.size > 1
-    @inline override def isBounded = isEmpty || (ranges.head.lb.ne(null) || ranges.last.ub.ne(null))
-    @inline override def lb = if (isEmpty) One else ranges.head.lb
-    @inline override def ub = if (isEmpty) Zero else ranges.last.ub
+    inline override def isEmpty = ranges.isEmpty
+    override lazy val size = ranges.iterator.map(_.size).foldLeft(0)(safeAdd(_, _))
+    override def isComplete = ranges.size == 1 && ranges.head.isComplete
+    override def isFinite = isEmpty || (ranges.head.lb.ne(null) && ranges.last.ub.ne(null))
+    override def hasGaps = ranges.size > 1
+    override def isBounded = isEmpty || (ranges.head.lb.ne(null) || ranges.last.ub.ne(null))
+    override def lb = if (isEmpty) One else ranges.head.lb
+    override def ub = if (isEmpty) Zero else ranges.last.ub
     override def hull: IntegerRange = if (ranges.size == 1) ranges.head else IntegerRange(lb, ub)
     override def values = {
         require(isFinite)
@@ -150,13 +150,17 @@ final class IntegerRangeList
     override def distanceTo(a0: NumericalValue[IntegerValue]): IntegerValue = {
         require(! isEmpty)
         val a = a0.asInstanceOf[IntegerValue]
+        val lb = this.lb
         if (lb.ne(null) && a < lb) lb - a
-        else if (ub.ne(null) && a > ub) a - ub
-        else if (ranges.size == 1) Zero
         else {
-            val i = findIndexOfContainingHole(a, 0, ranges.size - 2)
-            if (i < 0) Zero
-            else IntegerValue(min(safeSub(a.value, ranges(i).ub.value), safeSub(ranges(i + 1).lb.value, a.value)))
+            val ub = this.ub
+            if (ub.ne(null) && a > ub) a - ub
+            else if (ranges.size == 1) Zero
+            else {
+                val i = findIndexOfContainingHole(a, 0, ranges.size - 2)
+                if (i < 0) Zero
+                else IntegerValue(min(safeSub(a.value, ranges(i).ub.value), safeSub(ranges(i + 1).lb.value, a.value)))
+            }
         }
     }
 

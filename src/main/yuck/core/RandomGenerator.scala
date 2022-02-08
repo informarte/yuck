@@ -25,7 +25,7 @@ abstract class RandomGenerator {
     def nextProbability(): Double
 
     /** Generates a random decision. */
-    @inline final def nextDecision(): Boolean = nextInt(2) != 0
+    inline final def nextDecision(): Boolean = nextInt(2) != 0
 
     /** Generates a random decision under consideration of the given probability for "yes". */
     final def nextDecision(p: Probability): Boolean =
@@ -70,7 +70,7 @@ abstract class RandomGenerator {
             }
         }
 
-        @inline override def hasNext = n > 0
+        inline override def hasNext = n > 0
         override def next() = {
             require(hasNext)
             val i = nextInt(n)

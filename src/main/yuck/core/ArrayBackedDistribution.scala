@@ -29,7 +29,7 @@ final class ArrayBackedDistribution(override val size: Int) extends Distribution
     override def addFrequencyDelta(i: Int, delta: Long) = {
         setFrequency(i, safeAdd(frequencies(i), delta))
     }
-    override def frequency(i: Int) = frequencies(i)
-    override def volume = frequencySum
-    override def numberOfAlternatives = numberOfNonZeroFrequencies
+    inline override def frequency(i: Int) = frequencies(i)
+    inline override def volume = frequencySum
+    inline override def numberOfAlternatives = numberOfNonZeroFrequencies
 }

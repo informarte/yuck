@@ -32,10 +32,10 @@ final class FenwickTreeBackedDistribution(override val size: Int) extends Distri
         val f0 = frequency(i)
         setFrequency(i, f0, safeAdd(f0, delta))
     }
-    override def frequency(i: Int) = ft.value(i + 1)
-    override def volume = frequencySum
-    override def numberOfAlternatives = numberOfNonZeroFrequencies
-    override def cdf(i: Int) = ft.prefixSum(i + 1)
+    inline override def frequency(i: Int) = ft.value(i + 1)
+    inline override def volume = frequencySum
+    inline override def numberOfAlternatives = numberOfNonZeroFrequencies
+    inline override def cdf(i: Int) = ft.prefixSum(i + 1)
     override def inverseCdf(r: Long) = {
         require(r >= 0 && r < volume)
         ft.index(r)

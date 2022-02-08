@@ -36,14 +36,14 @@ abstract class SearchState extends mutable.Cloneable[SearchState] {
      *
      * Throws when the variable has no value assignment.
      */
-    @inline final def value[V <: AnyValue](x: Variable[V]): V =
+    inline final def value[V <: AnyValue](x: Variable[V]): V =
         value(x.asInstanceOf[AnyVariable]).asInstanceOf[V]
 
     /**
      * Returns None if the given variable x has no value assignment;
      * otherwise returns Some(a) where a is the value assigned to x.
      */
-    @inline final def maybeValue[V <: AnyValue](x: Variable[V]): Option[V] =
+    inline final def maybeValue[V <: AnyValue](x: Variable[V]): Option[V] =
         maybeValue(x.asInstanceOf[AnyVariable]).map(_.asInstanceOf[V])
 
 }

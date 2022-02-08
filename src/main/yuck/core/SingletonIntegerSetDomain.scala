@@ -12,7 +12,7 @@ final class SingletonIntegerSetDomain
     override def toString = "{%s}".format(base.toString)
     def ==(that: SingletonIntegerSetDomain): Boolean =
         this.eq(that) || this.base.eq(that.base) || this.base == that.base
-    @inline def !=(that: SingletonIntegerSetDomain): Boolean = ! (this == that)
+    inline def !=(that: SingletonIntegerSetDomain): Boolean = ! (this == that)
     override def hashCode = base.hashCode
     override def size = 1
     override def isEmpty = false
@@ -27,6 +27,6 @@ final class SingletonIntegerSetDomain
     override def contains(a: IntegerSetValue) = a.set == base
     override def randomValue(randomGenerator: RandomGenerator) = singleValue
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: IntegerSetValue) = singleValue
-    def isSubsetOf(that: SingletonIntegerSetDomain): Boolean = this == that
-    def intersects(that: SingletonIntegerSetDomain): Boolean = this == that
+    inline def isSubsetOf(that: SingletonIntegerSetDomain): Boolean = this == that
+    inline def intersects(that: SingletonIntegerSetDomain): Boolean = this == that
 }

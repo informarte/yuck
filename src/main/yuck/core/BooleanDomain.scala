@@ -16,10 +16,10 @@ final class BooleanDomain
 
     override def compare(that: OrderedDomain[BooleanValue]) =
         BooleanDomain.ordering.compare(this, that.asInstanceOf[BooleanDomain])
-    override def ==(that: Domain[BooleanValue]): Boolean = this == that.asInstanceOf[BooleanDomain]
-    def ==(that: BooleanDomain): Boolean =
+    inline override def ==(that: Domain[BooleanValue]): Boolean = this == that.asInstanceOf[BooleanDomain]
+    inline def ==(that: BooleanDomain): Boolean =
         this.eq(that) || (this.containsFalse == that.containsFalse && this.containsTrue == that.containsTrue)
-    @inline def !=(that: BooleanDomain): Boolean = ! (this == that)
+    inline def !=(that: BooleanDomain): Boolean = ! (this == that)
 
     override def size = (if (containsFalse) 1 else 0) + (if (containsTrue) 1 else 0)
     override def isComplete = false
@@ -27,8 +27,9 @@ final class BooleanDomain
     override def isBounded = true
     override def hasLb = true
     override def hasUb = true
-    @inline override def lb = if (containsTrue) True else False
-    @inline override def ub = if (containsFalse) False else True
+
+    override def lb = if (containsTrue) True else False
+    override def ub = if (containsFalse) False else True
     override def hull: BooleanDomain = this
 
     override def values =
@@ -121,11 +122,11 @@ object BooleanDomain {
      * Tries to avoid memory allocation by re-using existing objects
      */
     def apply(lb: BooleanValue, ub: BooleanValue): BooleanDomain = {
-        (lb, ub) match {
-            case (False, False) => FalseDomain
-            case (False, True) => EmptyBooleanDomain
-            case (True, False) => CompleteBooleanDomain
-            case (True, True) => TrueDomain
+        (lb.violation, ub.violation) match {
+            case (1, 1) => FalseDomain
+            case (1, 0) => EmptyBooleanDomain
+            case (0, 1) => CompleteBooleanDomain
+            case (0, 0) => TrueDomain
             case _ => ???
         }
     }

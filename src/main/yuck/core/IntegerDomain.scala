@@ -224,7 +224,7 @@ object IntegerDomain {
      * Tries to avoid memory allocation by re-using existing objects.
      */
     @targetName("fromVarArgRanges")
-    def apply(ranges: IntegerRange*): IntegerDomain = apply(ranges)
+    inline def apply(ranges: IntegerRange*): IntegerDomain = apply(ranges)
 
     /** Creates an integer domain from the given values. */
     @targetName("fromIntegerValues")
@@ -255,7 +255,7 @@ object IntegerDomain {
 
     /** Creates an integer domain from the given values. */
     @targetName("fromVarArgIntegerValues")
-    def apply(values: IntegerValue*): IntegerDomain = apply(values)
+    inline def apply(values: IntegerValue*): IntegerDomain = apply(values)
 
     /** Creates an integer domain from the given values. */
     @targetName("fromIntegers")
@@ -263,6 +263,6 @@ object IntegerDomain {
 
     /** Creates an integer domain from the given values. */
     @targetName("fromVarArgIntegers")
-    def apply(values: Int*): IntegerDomain = apply(values)
+    inline def apply(values: Int*): IntegerDomain = apply(values)
 
 }

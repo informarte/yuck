@@ -92,7 +92,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
             if (cfg.useImplicitSolving && levelCfg.isTopLevel) {
                 require(space.definingConstraint(x).isInstanceOf[Conjunction])
                 space.definingConstraint(x).inVariables.iterator
-                    .map(space.maybeDefiningConstraint).filter(_.isDefined).map(_.get)
+                    .map(space.maybeDefiningConstraint(_)).filter(_.isDefined).map(_.get)
                     .filter(_.isCandidateForImplicitSolving(space)).toBuffer.sorted
             } else {
                 Nil

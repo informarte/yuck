@@ -15,16 +15,16 @@ final class IntegerPowersetDomain
     override def toString = "P(%s)".format(base.toString)
     def ==(that: IntegerPowersetDomain): Boolean =
         this.eq(that) || this.base.eq(that.base) || this.base == that.base
-    @inline def !=(that: IntegerPowersetDomain): Boolean = ! (this == that)
+    inline def !=(that: IntegerPowersetDomain): Boolean = ! (this == that)
     override def size = {
         require(base.size < 31)
         1 << base.size
     }
-    override def isComplete = base.isComplete
-    override def isFinite = base.isFinite
+    inline override def isComplete = base.isComplete
+    inline override def isFinite = base.isFinite
     override def isEmpty = false
-    override def isSingleton = base.isEmpty
-    override def isBounded = base.isBounded
+    inline override def isSingleton = base.isEmpty
+    inline override def isBounded = base.isBounded
     override def lb = EmptyIntegerSetValue
     override def ub = new IntegerSetValue(base)
     override def hull = this
@@ -35,7 +35,7 @@ final class IntegerPowersetDomain
         require(isSingleton)
         new IntegerSetValue(base)
     }
-    override def contains(a: IntegerSetValue) = a.set.isSubsetOf(base)
+    inline override def contains(a: IntegerSetValue) = a.set.isSubsetOf(base)
     override def randomValue(randomGenerator: RandomGenerator) =
         new IntegerSetValue(base.randomSubdomain(randomGenerator))
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: IntegerSetValue) = {
@@ -47,14 +47,14 @@ final class IntegerPowersetDomain
             new IntegerSetValue(currentValue.set.union(IntegerRange(a, a)))
         }
     }
-    def isSubsetOf(that: IntegerPowersetDomain): Boolean =
+    inline def isSubsetOf(that: IntegerPowersetDomain): Boolean =
         this.base.isSubsetOf(that.base)
-    def intersects(that: IntegerPowersetDomain): Boolean =
+    inline def intersects(that: IntegerPowersetDomain): Boolean =
         this.base.intersects(that.base)
-    def intersect(that: IntegerPowersetDomain): IntegerPowersetDomain =
+    inline def intersect(that: IntegerPowersetDomain): IntegerPowersetDomain =
         new IntegerPowersetDomain(this.base.intersect(that.base))
-    def union(that: IntegerPowersetDomain): IntegerPowersetDomain =
+    inline def union(that: IntegerPowersetDomain): IntegerPowersetDomain =
         ???
-    def diff(that: IntegerPowersetDomain): IntegerPowersetDomain =
+    inline def diff(that: IntegerPowersetDomain): IntegerPowersetDomain =
         new IntegerPowersetDomain(this.base.diff(that.base))
 }

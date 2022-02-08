@@ -36,15 +36,11 @@ abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
     /** The optimization goal this constraint contributes to. */
     val maybeGoal: Option[Goal] = None
 
-    @inline final override def hashCode = id.rawId
+    final override def hashCode = id.rawId
 
-    @inline final override def compare(that: Constraint) = this.id.rawId - that.id.rawId
-    @inline final def ==(that: Constraint): Boolean = this.id.rawId == that.id.rawId
-    @inline final def !=(that: Constraint): Boolean = this.id.rawId != that.id.rawId
-    @inline final override def <(that: Constraint): Boolean = this.id.rawId < that.id.rawId
-    @inline final override def <=(that: Constraint): Boolean = this.id.rawId <= that.id.rawId
-    @inline final override def >(that: Constraint): Boolean = this.id.rawId > that.id.rawId
-    @inline final override def >=(that: Constraint): Boolean = this.id.rawId >= that.id.rawId
+    inline final override def compare(that: Constraint) = this.id.rawId - that.id.rawId
+    inline final def ==(that: Constraint): Boolean = this.id.rawId == that.id.rawId
+    inline final def !=(that: Constraint): Boolean = this.id.rawId != that.id.rawId
 
     /** Returns the input variables. */
     def inVariables: Iterable[AnyVariable]

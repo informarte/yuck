@@ -44,9 +44,7 @@ abstract class NumericalObjective
                     case (false, true) => if (minimize) Some(right.lb) else search(right)
                 }
             }
-        if (space.isSearchVariable(x) &&
-            ! space.directlyAffectedConstraints(x).exists(space.isImplicitConstraint))
-        {
+        if (space.isSearchVariable(x) && ! space.isImplicitlyConstrainedSearchVariable(x)) {
             // We look for a value of x that is compatible with the current search state
             // while all smaller (or greater, respectively) values are in conflict with it.
             val dx0 = x.domain
@@ -70,7 +68,7 @@ abstract class NumericalObjective
             val a = space.searchState.value(x)
             val y = maybeY.get
             assert(! space.isChannelVariable(y))
-            assert(! space.directlyAffectedConstraints(y).exists(space.isImplicitConstraint))
+            assert(! space.isImplicitlyConstrainedSearchVariable(y))
             if (y.domain.contains(a)) {
                 val move = new ChangeValue(space.nextMoveId(), y, a)
                 space.consult(move)
