@@ -626,7 +626,7 @@ final class Space(
             // Constraint implementations re-use effect objects for efficiency reasons.
             // In particular, the final reset to the state before the move will change these effect objects!
             // Hence, to avoid havoc, we have to clone the effects before proceeding with our sanity checks.
-            val effects = constraint.consult(before, after, move).map(_.clone).toIterable
+            val effects = constraint.consult(before, after, move).map(_.clone)
             val stateAfterConsultation =
                 new MoveSimulator(after, new BulkMove(move.id) ++= effects)
             val stateAfterInitialization =
@@ -698,7 +698,7 @@ final class Space(
             // Constraint implementations re-use effect objects for efficiency reasons.
             // In particular, the final reset to the state before the move will change these effect objects!
             // Hence, to avoid havoc, we have to clone the effects before proceeding with our sanity checks.
-            val effects = constraint.commit(before, after, move).map(_.clone).toIterable
+            val effects = constraint.commit(before, after, move).map(_.clone)
             val stateAfterCommitting =
                 new MoveSimulator(after, new BulkMove(move.id) ++= effects)
             val stateAfterInitialization =
