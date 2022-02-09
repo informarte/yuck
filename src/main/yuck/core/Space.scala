@@ -51,7 +51,7 @@ final class Space(
     }
 
     /** Returns the set of constraints directly affected by changing the value of the given variable. */
-    def directlyAffectedConstraints(x: AnyVariable): Set[Constraint] =
+    inline def directlyAffectedConstraints(x: AnyVariable): Set[Constraint] =
         inflowModel.getOrElse(x, Set.empty)
 
     // The outflow model allows to find out which constraint, if any, computes the value of a
