@@ -249,6 +249,10 @@ final class ConstraintFactory
                 compileReifiedConstraint(maybeGoal, constraint)
             }
             compileConstraint(constraint, List(a, b), r, functionalCase, generalCase)
+        case Constraint("bool_and", _, _) =>
+            compileTernaryBoolConstraint(new And(_, _, _, _, _), maybeGoal, constraint)
+        case Constraint("bool_or", _, _) =>
+            compileTernaryBoolConstraint(new Or(_, _, _, _, _), maybeGoal, constraint)
         case Constraint("bool_xor", _, _) =>
             compileTernaryBoolConstraint(new Ne[BooleanValue](_, _, _, _, _), maybeGoal, constraint)
         case Constraint("array_bool_and", List(as, b), _) =>
