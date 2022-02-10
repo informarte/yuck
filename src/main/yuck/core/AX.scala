@@ -10,7 +10,6 @@ final case class AX
     (val a: V, val x: NumericalVariable[V])
 {
     override def toString = "%s * %s".format(a, x)
-    override def hashCode = x.hashCode
 }
 
 /**
@@ -32,4 +31,3 @@ object AX {
         }
 
 }
-
