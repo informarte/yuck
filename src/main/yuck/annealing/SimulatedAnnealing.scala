@@ -75,16 +75,7 @@ final class SimulatedAnnealing(
             val monitor = maybeMonitor.get
             monitor.onSolverLaunched(result)
         }
-        try {
-            anneal()
-        }
-        catch {
-            case error: Throwable =>
-                if (maybeMonitor.isDefined) {
-                    maybeMonitor.get.onSolverFinished(result)
-                }
-                throw error
-        }
+        anneal()
         result
     }
 
