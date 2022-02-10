@@ -1,6 +1,8 @@
 package yuck.flatzinc.test.util
 
+import scala.collection._
 import scala.language.implicitConversions
+import scala.reflect.ClassTag
 
 import yuck.core._
 import yuck.flatzinc.FlatZincSolverConfiguration
@@ -36,6 +38,12 @@ abstract class FrontEndTest extends MiniZincBasedTest {
 
     protected def quality(result: Result): AnyValue =
         quality(result, 1)
+
+    protected def searchVariables(result: Result): Set[AnyVariable] =
+        result.space.searchVariables
+
+    protected def numberOfConstraints[T <: Constraint](result: Result)(implicit classTag: ClassTag[T]): Int =
+        result.space.numberOfConstraints(classTag.runtimeClass.isInstance)
 
     protected implicit def createTask(problemName: String): MiniZincTestTask = task.copy(problemName = problemName)
 
