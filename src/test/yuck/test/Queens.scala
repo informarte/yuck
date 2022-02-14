@@ -26,9 +26,9 @@ final class Queens(val n: Int) extends IntegrationTest {
             // define problem
             val space = new Space(logger, sigint)
             val d = IntegerRange(Zero, new IntegerValue(n - 1))
-            var rows = new Array[IntegerVariable](n)
-            var rowsMinusI = new Array[IntegerVariable](n)
-            var rowsPlusI = new Array[IntegerVariable](n)
+            val rows = new Array[IntegerVariable](n)
+            val rowsMinusI = new Array[IntegerVariable](n)
+            val rowsPlusI = new Array[IntegerVariable](n)
             for (col <- 0 to (n - 1)) {
                 rows.update(col, new IntegerVariable(space.nextVariableId, "row[%s]".format(col) , d))
                 rowsMinusI.update(col, new IntegerVariable(space.nextVariableId, "row[%s] - %s".format(col, col), CompleteIntegerRange))
