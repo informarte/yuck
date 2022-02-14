@@ -133,7 +133,7 @@ abstract class CompilationPhase extends Runnable {
         case _ if cc.arrayConsts.contains(expr) =>
             cc.arrayConsts(expr)
         case Term(id, Nil) =>
-            cc.arrays.get(expr).get
+            cc.arrays(expr)
         case ArrayConst(elems) =>
             val array = elems.iterator.map(elem => compileAnyExpr(elem)).to(immutable.ArraySeq)
             cc.arrayConsts += expr -> array

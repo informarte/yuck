@@ -319,8 +319,8 @@ final class ConstraintFactory
             val xs = compileBoolArray(as)
             val maybeY =
                 xs
-                .sortWith((x, y) => definesVar(constraint, x) && ! definesVar(constraint, y))
                 .filter(y => definesVar(constraint, xs.filter(_ != y), y))
+                .sortWith((x, y) => definesVar(constraint, x) && ! definesVar(constraint, y))
                 .headOption
             if (maybeY.isDefined) {
                 val y = maybeY.get

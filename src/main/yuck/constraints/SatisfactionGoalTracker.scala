@@ -34,7 +34,7 @@ final class SatisfactionGoalTracker
     override def toString =
         "satisfactionGoalTracker([%s])".format(involvementMatrix.iterator.map(_._1).mkString(", "))
 
-    override def inVariables = involvementMatrix.view.map(_._1)
+    override def inVariables = involvementMatrix.view.keys
     override def outVariables = Nil
 
     override def initialize(now: SearchState) = {
