@@ -44,7 +44,7 @@ final class LazyLogger(logger: Logger) {
         this.indent = indent
     }
 
-    private var indentLevel = new ThreadLocal[Int] {
+    private val indentLevel = new ThreadLocal[Int] {
         override def initialValue = 0
     }
     private val indents = new scala.collection.mutable.HashMap[Int, String]
@@ -73,7 +73,7 @@ final class LazyLogger(logger: Logger) {
 
     private type Stack[E] = ArrayDeque[E]
 
-    private var logLevelReductions = new ThreadLocal[Stack[Int]] {
+    private val logLevelReductions = new ThreadLocal[Stack[Int]] {
         override def initialValue = {
             val stack = new Stack[Int]
             stack.push(0)

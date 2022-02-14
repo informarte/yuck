@@ -16,7 +16,7 @@ class StandardAnnealingMonitor(logger: LazyLogger) extends AnnealingMonitor with
     private case object SolverIsRunnable extends ThreadState
     private case object SolverIsRunning extends ThreadState
 
-    private var solverState = new ThreadLocal[ThreadState] {
+    private val solverState = new ThreadLocal[ThreadState] {
         override def initialValue = ThreadIsIdle
     }
     protected var costsOfBestProposal: Costs = null

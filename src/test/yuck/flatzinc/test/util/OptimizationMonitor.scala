@@ -27,7 +27,7 @@ class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(l
     private var maybeTrackArea: Option[Boolean] = None
     private var maybePreviousQuality: Option[NumericalValue[_]] = None
     private var area: Double = 0.0
-    private var qualityStepFunction = new mutable.ArrayBuffer[QualityImprovement]
+    private val qualityStepFunction = new mutable.ArrayBuffer[QualityImprovement]
 
     private def quality: NumericalValue[_] =
         costsOfBestProposal.asInstanceOf[PolymorphicListValue].value(1).asInstanceOf[NumericalValue[_]]

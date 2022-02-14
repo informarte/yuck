@@ -9,7 +9,7 @@ import scala.collection.*
  */
 final class BulkMove(id: Id[Move]) extends Move(id) {
 
-    private var effectDir = new mutable.AnyRefMap[AnyVariable, AnyMoveEffect]
+    private val effectDir = new mutable.AnyRefMap[AnyVariable, AnyMoveEffect]
 
     /** Adds the given effect. */
     @inline def +=(effect: AnyMoveEffect): BulkMove = {
