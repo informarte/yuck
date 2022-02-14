@@ -19,10 +19,9 @@ final class BooleanValue(val violation: Long) extends OrderedValue[BooleanValue]
     def this(value: Boolean) = this(if (value) 0 else 1)
     @inline override def hashCode = violation.hashCode
     override def equals(that: Any) = that match {
-        case rhs: BooleanValue => {
+        case rhs: BooleanValue =>
             val lhs = this
             lhs.violation == rhs.violation
-        }
         case _ => false
     }
     override def compare(that: BooleanValue) =

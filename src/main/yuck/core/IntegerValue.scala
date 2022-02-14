@@ -10,10 +10,9 @@ import java.lang.Math.pow
 final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
     @inline override def hashCode = value
     override def equals(that: Any) = that match {
-        case rhs: IntegerValue => {
+        case rhs: IntegerValue =>
             val lhs = this
             lhs.value == rhs.value
-        }
         case _ => false
     }
     override def compare(that: IntegerValue) =

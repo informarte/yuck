@@ -53,10 +53,9 @@ final class HierarchicalObjective
     private def compareCosts(objectives: List[AnyObjective], lhs: List[Costs], rhs: List[Costs]): Int =
         (objectives, lhs, rhs) match {
             case (Nil, Nil, Nil) => 0
-            case (o :: t, l :: u, r :: v) => {
+            case (o :: t, l :: u, r :: v) =>
                 val result = o.compareCosts(l, r)
                 if (result == 0) compareCosts(t, u, v) else result
-            }
             case _ => ???
         }
     override def assessMove(before: SearchState, after: SearchState) = {
@@ -75,10 +74,9 @@ final class HierarchicalObjective
     private def assessMove(objectives: List[AnyObjective], before: SearchState, after: SearchState): Double =
         objectives match {
             case Nil => 0
-            case (h :: t) => {
+            case (h :: t) =>
                 val delta = h.assessMove(before, after)
                 if (delta == 0) assessMove(t, before, after) else delta
-            }
         }
     override private[core] def findActualObjectiveValue(space: Space, rootObjective: AnyObjective) =
         primitiveObjectives.foreach(_.findActualObjectiveValue(space, rootObjective))

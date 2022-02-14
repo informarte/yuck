@@ -8,11 +8,10 @@ package yuck.core
 abstract class Domain[V <: AnyValue] extends AnyDomain {
 
     override def equals(that: Any) = that match {
-        case rhs: Domain[_] => {
+        case rhs: Domain[_] =>
             val lhs = this
             lhs.eq(rhs) ||
             (lhs.valueType == rhs.valueType && lhs == rhs.asInstanceOf[Domain[V]])
-        }
         case _ => false
     }
 

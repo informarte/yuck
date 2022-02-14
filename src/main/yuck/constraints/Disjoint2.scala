@@ -65,12 +65,11 @@ final class Disjoint2
     {
         override def hashCode = i
         override def equals(that: Any) = that match {
-            case rhs: Disjoint2Entry => {
+            case rhs: Disjoint2Entry =>
                 val lhs = this
                 lhs.i == rhs.i &&
                 lhs.hasZeroWidth == rhs.hasZeroWidth && lhs.hasZeroHeight == rhs.hasZeroHeight &&
                 lhs.bbox == rhs.bbox
-            }
             case _ => false
         }
         override def toString =

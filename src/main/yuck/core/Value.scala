@@ -8,10 +8,9 @@ package yuck.core
 abstract class Value[V] extends AnyValue {
 
     override def equals(that: Any) = that match {
-        case rhs: AnyValue => {
+        case rhs: AnyValue =>
             val lhs = this
             lhs.eq(rhs) || (lhs.valueType == rhs.valueType && lhs == rhs.asInstanceOf[Value[V]])
-        }
         case _ => false
     }
 
