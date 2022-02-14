@@ -22,10 +22,10 @@ import yuck.util.logging.YuckLogging
 object FlatZincRunner extends YuckLogging {
 
     private case class CommandLine(
-        val logLevel: yuck.util.logging.LogLevel = yuck.util.logging.NoLogging,
-        val logFilePath: String = "",
-        val fznFilePath: String = "",
-        val cfg: FlatZincSolverConfiguration =
+        logLevel: yuck.util.logging.LogLevel = yuck.util.logging.NoLogging,
+        logFilePath: String = "",
+        fznFilePath: String = "",
+        cfg: FlatZincSolverConfiguration =
             FlatZincSolverConfiguration(
                 numberOfThreads = 1,
                 // The parser expects the following values to be undefined!

@@ -29,30 +29,30 @@ case object Chuffed extends VerificationTool {}
  *
  */
 case class MiniZincTestTask(
-    val directoryLayout: MiniZincDirectoryLayout,
-    val suitePath: String = "",
-    val suiteName: String = "",
-    val problemName: String = "",
-    val modelName: String = "",
-    val instanceName: String = "",
-    val dataAssignments: Map[String, String] = Map[String, String](),
-    val solverConfiguration: FlatZincSolverConfiguration =
+    directoryLayout: MiniZincDirectoryLayout,
+    suitePath: String = "",
+    suiteName: String = "",
+    problemName: String = "",
+    modelName: String = "",
+    instanceName: String = "",
+    dataAssignments: Map[String, String] = Map[String, String](),
+    solverConfiguration: FlatZincSolverConfiguration =
         FlatZincSolverConfiguration(checkAssignmentsToNonChannelVariables = true),
-    val maybeRestartLimit: Option[Int] = None, // limits solverConfiguration.restartLimit
-    val maybeMaximumNumberOfThreads: Option[Int] = Some(DefaultNumberOfThreads), // limits solverConfiguration.numberOfThreads
-    val maybeRoundLimit: Option[Int] = None, // overrules solverConfiguration.maybeRoundLimitInSeconds
-    val maybeRuntimeLimitInSeconds: Option[Int] = Some(DefaultRuntimeLimitInSeconds), // overrules solverConfiguration.maybeRuntimeLimitInSeconds
-    val maybeOptimum: Option[Int] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
-    val maybeHighScore: Option[Int] = None, // best ever recorded objective value
-    val maybeTargetObjectiveValue: Option[Int] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
-    val logLevel: yuck.util.logging.LogLevel = yuck.util.logging.InfoLogLevel,
-    val assertWhenUnsolved: Boolean = false,
-    val reusePreviousTestResult: Boolean = true,
-    val verifySolution: Boolean = true,
-    val verificationModelName: String = "",
-    val verificationTool: VerificationTool = Gecode,
-    val keepFlatZincFile: Boolean = true,
-    val createDotFile: Boolean = false)
+    maybeRestartLimit: Option[Int] = None, // limits solverConfiguration.restartLimit
+    maybeMaximumNumberOfThreads: Option[Int] = Some(DefaultNumberOfThreads), // limits solverConfiguration.numberOfThreads
+    maybeRoundLimit: Option[Int] = None, // overrules solverConfiguration.maybeRoundLimitInSeconds
+    maybeRuntimeLimitInSeconds: Option[Int] = Some(DefaultRuntimeLimitInSeconds), // overrules solverConfiguration.maybeRuntimeLimitInSeconds
+    maybeOptimum: Option[Int] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
+    maybeHighScore: Option[Int] = None, // best ever recorded objective value
+    maybeTargetObjectiveValue: Option[Int] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
+    logLevel: yuck.util.logging.LogLevel = yuck.util.logging.InfoLogLevel,
+    assertWhenUnsolved: Boolean = false,
+    reusePreviousTestResult: Boolean = true,
+    verifySolution: Boolean = true,
+    verificationModelName: String = "",
+    verificationTool: VerificationTool = Gecode,
+    keepFlatZincFile: Boolean = true,
+    createDotFile: Boolean = false)
 {
     def effectiveInstanceName: String = if (instanceName.isEmpty) problemName else instanceName
     override def toString = "%s/%s/%s".format(problemName, modelName, instanceName)
