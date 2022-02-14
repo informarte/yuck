@@ -139,7 +139,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
         space.setValue(z, z.domain.randomValue(randomGenerator))
         val now = space.searchState
         if (true) {
-            val a = axs.map{case ax => ax.a * now.value(ax.x)}.sum(baseValueTraits.numericalOperations)
+            val a = axs.map(ax => ax.a * now.value(ax.x)).sum(baseValueTraits.numericalOperations)
             val b = now.value(z)
             val c = randomGenerator.nextInt(maxViolation).toLong
             relation match {
@@ -156,7 +156,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
                 new ChangeValues(
                     space.nextMoveId,
                     (axs.map(_.x) :+ z).map(_.nextRandomMoveEffect(space, randomGenerator)))
-            val a = axs.map{case ax => ax.a * move.value(ax.x)}.sum(baseValueTraits.numericalOperations)
+            val a = axs.map(ax => ax.a * move.value(ax.x)).sum(baseValueTraits.numericalOperations)
             val b = move.value(z)
             val c = randomGenerator.nextInt(maxViolation).toLong
             relation match {
