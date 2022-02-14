@@ -2,11 +2,11 @@ package yuck.flatzinc.test
 
 import java.io.File
 
-import scala.jdk.CollectionConverters._
+import org.junit.*
 
-import org.junit._
+import scala.jdk.CollectionConverters.*
 
-import yuck.flatzinc.test.util._
+import yuck.flatzinc.test.util.*
 
 /**
  * Runs Yuck on five instances of each problem of the MiniZinc benchmarks suite.

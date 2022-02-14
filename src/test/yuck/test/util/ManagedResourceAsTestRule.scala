@@ -1,6 +1,7 @@
 package yuck.test.util
 
 import org.junit.rules.ExternalResource
+
 import yuck.util.arm.ManagedResource
 
 /**

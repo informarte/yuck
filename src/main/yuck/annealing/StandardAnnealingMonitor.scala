@@ -1,6 +1,6 @@
 package yuck.annealing
 
-import yuck.core._
+import yuck.core.*
 import yuck.util.arm.ManagedResource
 import yuck.util.logging.LazyLogger
 

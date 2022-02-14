@@ -1,9 +1,9 @@
 package yuck.constraints
 
 import scala.annotation.tailrec
-import scala.collection._
+import scala.collection.*
 
-import yuck.core._
+import yuck.core.*
 
 /**
  * @author Michael Marte

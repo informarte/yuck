@@ -1,11 +1,11 @@
 package yuck.core.test
 
-import scala.collection._
-import scala.jdk.CollectionConverters._
+import org.junit.*
 
-import org.junit._
+import scala.collection.*
+import scala.jdk.CollectionConverters.*
 
-import yuck.core._
+import yuck.core.*
 
 /**
  * @author Michael Marte

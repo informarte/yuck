@@ -1,8 +1,8 @@
 package yuck.flatzinc.compiler
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.core._
+import yuck.core.*
 
 /**
  * Equivalent to set_in(x, x.domain) for all x.

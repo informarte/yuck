@@ -1,7 +1,7 @@
 package yuck.core
 
-import scala.collection._
 import scala.annotation.tailrec
+import scala.collection.*
 
 /**
  * Implements immutable integer domains with holes as lists of non-empty, disjoint,

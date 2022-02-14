@@ -1,12 +1,12 @@
 package yuck.flatzinc.test.util.test
 
-import org.junit._
+import org.junit.*
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-import yuck.core._
+import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
-import yuck.flatzinc.test.util._
+import yuck.flatzinc.test.util.*
 
 /**
  * @author Michael Marte

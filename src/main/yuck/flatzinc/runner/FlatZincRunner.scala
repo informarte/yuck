@@ -5,14 +5,14 @@ import java.util.concurrent.CancellationException
 
 import scala.math.max
 
-import scopt._
+import scopt.*
 
 import yuck.BuildInfo
 import yuck.core.InconsistentProblemException
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.{UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
-import yuck.flatzinc.parser._
-import yuck.util.arm._
+import yuck.flatzinc.parser.*
+import yuck.util.arm.*
 import yuck.util.logging.YuckLogging
 
 /**

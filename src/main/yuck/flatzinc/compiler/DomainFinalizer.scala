@@ -1,9 +1,9 @@
 package yuck.flatzinc.compiler
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.constraints._
-import yuck.core._
+import yuck.constraints.*
+import yuck.core.*
 
 /**
  * Enforces the domains of channel variables by adding appropriate constraints.

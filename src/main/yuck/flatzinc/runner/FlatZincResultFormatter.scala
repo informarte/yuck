@@ -2,10 +2,10 @@ package yuck.flatzinc.runner
 
 import java.util.concurrent.Callable
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.core._
-import yuck.flatzinc.ast._
+import yuck.core.*
+import yuck.flatzinc.ast.*
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 
 /**

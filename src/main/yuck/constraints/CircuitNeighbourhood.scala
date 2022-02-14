@@ -1,8 +1,8 @@
 package yuck.constraints
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.core._
+import yuck.core.*
 
 /**
  * This neighbourhood can be used to maintain any ''circuit'' constraint.

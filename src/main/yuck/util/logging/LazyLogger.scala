@@ -1,9 +1,8 @@
 package yuck.util.logging
 
-import java.util.concurrent.locks.ReentrantLock
-import java.util.logging.Level
-import java.util.logging.Logger
 import java.util.ArrayDeque
+import java.util.concurrent.locks.ReentrantLock
+import java.util.logging.{Level, Logger}
 
 import yuck.util.arm.scoped
 

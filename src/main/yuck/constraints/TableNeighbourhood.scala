@@ -2,7 +2,7 @@ package yuck.constraints
 
 import scala.collection.immutable
 
-import yuck.core._
+import yuck.core.*
 
 /**
  * @author Michael Marte

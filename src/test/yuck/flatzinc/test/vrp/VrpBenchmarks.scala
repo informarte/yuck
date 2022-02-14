@@ -1,6 +1,6 @@
 package yuck.flatzinc.test.vrp
 
-import org.junit._
+import org.junit.*
 import org.junit.runner.RunWith
 import org.junit.runners.Suite.SuiteClasses
 

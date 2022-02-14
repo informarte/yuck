@@ -1,9 +1,9 @@
 package yuck.flatzinc.compiler
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.core._
-import yuck.flatzinc.ast._
+import yuck.core.*
+import yuck.flatzinc.ast.*
 
 /**
  * Builds a map from variable declarations to domains.

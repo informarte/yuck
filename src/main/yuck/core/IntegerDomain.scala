@@ -1,7 +1,7 @@
 package yuck.core
 
 import scala.annotation.targetName
-import scala.collection._
+import scala.collection.*
 
 /**
  * Provides an interface for working with integer domains.
@@ -10,7 +10,7 @@ import scala.collection._
  */
 abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
 
-    import IntegerDomain._
+    import IntegerDomain.*
 
     final override def valueType = classOf[IntegerValue]
 

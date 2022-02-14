@@ -1,9 +1,9 @@
 package yuck.constraints
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.annealing._
-import yuck.core._
+import yuck.annealing.*
+import yuck.core.*
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 

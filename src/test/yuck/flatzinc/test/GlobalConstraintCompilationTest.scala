@@ -1,13 +1,14 @@
 package yuck.flatzinc.test
 
-import org.junit._
-import org.junit.experimental.categories._
+import org.junit.*
+import org.junit.experimental.categories.*
 
 import scala.language.implicitConversions
-import yuck.core._
-import yuck.constraints._
+
+import yuck.constraints.*
+import yuck.core.*
 import yuck.flatzinc.compiler.Bool2Costs2
-import yuck.flatzinc.test.util._
+import yuck.flatzinc.test.util.*
 import yuck.test.util.ParallelTestRunner
 
 /**

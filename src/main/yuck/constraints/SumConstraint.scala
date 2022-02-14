@@ -1,8 +1,8 @@
 package yuck.constraints
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.core._
+import yuck.core.*
 
 /**
  * Computes the violation of sum x(i) R z where R is an ordering relation.

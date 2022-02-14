@@ -1,9 +1,10 @@
 package yuck.core.test
 
-import scala.collection._
-import org.junit._
+import org.junit.*
 
-import yuck.core._
+import scala.collection.*
+
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**

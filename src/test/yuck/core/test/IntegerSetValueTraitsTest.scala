@@ -1,8 +1,8 @@
 package yuck.core.test
 
-import org.junit._
+import org.junit.*
 
-import yuck.core._
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**
@@ -12,7 +12,7 @@ import yuck.test.util.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerSetValueTraitsTest extends UnitTest {
 
-    import IntegerSetValueTraits._
+    import IntegerSetValueTraits.*
 
     @Test
     def testSpecialDomains: Unit = {

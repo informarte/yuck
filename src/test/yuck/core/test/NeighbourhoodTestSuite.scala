@@ -1,6 +1,6 @@
 package yuck.core.test
 
-import org.junit._
+import org.junit.*
 
 /**
  * @author Michael Marte

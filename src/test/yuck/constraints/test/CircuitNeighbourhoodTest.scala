@@ -1,12 +1,12 @@
 package yuck.constraints.test
 
-import org.junit._
+import org.junit.*
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.{Circuit, CircuitNeighbourhood, CircuitTracker}
-import yuck.core._
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**

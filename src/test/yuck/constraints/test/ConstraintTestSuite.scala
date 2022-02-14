@@ -1,6 +1,6 @@
 package yuck.constraints.test
 
-import org.junit._
+import org.junit.*
 
 import yuck.constraints.test.util.test.ConstraintTestToolingTest
 

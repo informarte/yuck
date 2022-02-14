@@ -1,7 +1,6 @@
 package yuck.util.arm
 
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{ExecutorService, TimeUnit}
 
 import yuck.util.logging.LazyLogger
 

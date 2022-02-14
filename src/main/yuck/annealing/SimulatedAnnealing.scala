@@ -1,7 +1,8 @@
 package yuck.annealing
 
-import scala.collection._
-import yuck.core._
+import scala.collection.*
+
+import yuck.core.*
 import yuck.util.arm.Sigint
 
 /**

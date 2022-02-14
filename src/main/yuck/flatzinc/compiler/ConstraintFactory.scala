@@ -1,11 +1,11 @@
 package yuck.flatzinc.compiler
 
-import scala.collection._
+import scala.collection.*
 import scala.ref.WeakReference
 
-import yuck.constraints._
-import yuck.core._
-import yuck.flatzinc.ast._
+import yuck.constraints.*
+import yuck.core.*
+import yuck.flatzinc.ast.*
 import yuck.util.arm.{Sigint, scoped}
 import yuck.util.logging.LogScope
 
@@ -163,7 +163,7 @@ final class ConstraintFactory
         }
     }
 
-    import HighPriorityImplicits._
+    import HighPriorityImplicits.*
 
     private def compileNonImplicitConstraint
         (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint):

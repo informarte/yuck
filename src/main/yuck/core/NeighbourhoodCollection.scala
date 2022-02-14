@@ -1,6 +1,6 @@
 package yuck.core
 
-import scala.collection._
+import scala.collection.*
 
 /**
  * Turns the given collection of neighbourhoods into a neighbourhood.

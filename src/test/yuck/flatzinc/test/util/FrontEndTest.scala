@@ -1,10 +1,10 @@
 package yuck.flatzinc.test.util
 
-import scala.collection._
+import scala.collection.*
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
-import yuck.core._
+import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 

@@ -1,11 +1,11 @@
 package yuck.constraints.test
 
-import org.junit._
+import org.junit.*
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-import yuck.constraints.{SelfInverseNeighbourhood, InverseFunction}
-import yuck.core._
+import yuck.constraints.{InverseFunction, SelfInverseNeighbourhood}
+import yuck.core.*
 
 /**
  * @author Michael Marte

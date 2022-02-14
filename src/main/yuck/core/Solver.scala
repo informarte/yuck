@@ -1,11 +1,11 @@
 package yuck.core
 
-import java.util.concurrent._
+import java.util.concurrent.*
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.util.arm._
-import yuck.util.logging._
+import yuck.util.arm.*
+import yuck.util.logging.*
 
 /**
  * @author Michael Marte

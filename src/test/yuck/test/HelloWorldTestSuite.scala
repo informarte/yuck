@@ -1,6 +1,6 @@
 package yuck.test
 
-import org.junit._
+import org.junit.*
 
 /**
  * A suite of rather simple integration test

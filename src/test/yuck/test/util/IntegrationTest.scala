@@ -1,7 +1,7 @@
 package yuck.test.util
 
-import yuck.annealing._
-import yuck.core._
+import yuck.annealing.*
+import yuck.core.*
 
 /**
  * @author Michael Marte

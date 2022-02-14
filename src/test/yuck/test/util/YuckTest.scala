@@ -1,6 +1,6 @@
 package yuck.test.util
 
-import org.junit._
+import org.junit.*
 import org.junit.rules.{RuleChain, TestName}
 
 import yuck.util.arm.DummyResource

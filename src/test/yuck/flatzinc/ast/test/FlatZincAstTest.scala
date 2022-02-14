@@ -1,9 +1,8 @@
 package yuck.flatzinc.ast.test
 
-import org.junit.Assert
-import org.junit.Test
+import org.junit.{Assert, Test}
 
-import yuck.flatzinc.ast._
+import yuck.flatzinc.ast.*
 import yuck.test.util.UnitTest
 
 final class FlatZincAstTest extends UnitTest {

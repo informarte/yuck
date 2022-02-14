@@ -1,12 +1,12 @@
 package yuck.constraints.test
 
-import org.junit._
+import org.junit.*
 
-import scala.collection._
-import scala.jdk.CollectionConverters._
+import scala.collection.*
+import scala.jdk.CollectionConverters.*
 
-import yuck.constraints._
-import yuck.core._
+import yuck.constraints.*
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**

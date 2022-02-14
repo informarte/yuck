@@ -1,9 +1,9 @@
 package yuck.core.test
 
-import org.junit._
+import org.junit.*
 
+import yuck.core.*
 import yuck.core.IntegerDomain.ensureRangeList
-import yuck.core._
 import yuck.test.util.UnitTest
 
 /**

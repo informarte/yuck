@@ -1,8 +1,8 @@
 package yuck.flatzinc.compiler
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.core._
+import yuck.core.*
 import yuck.flatzinc.ast.FlatZincAst
 
 /**

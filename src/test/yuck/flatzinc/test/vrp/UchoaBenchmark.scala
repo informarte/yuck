@@ -2,11 +2,11 @@ package yuck.flatzinc.test.vrp
 
 import java.io.File
 
-import org.junit._
+import org.junit.*
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-import yuck.flatzinc.test.util._
+import yuck.flatzinc.test.util.*
 import yuck.test.util.ParallelParameterizedTestRunner
 
 /**

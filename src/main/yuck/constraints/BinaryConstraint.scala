@@ -1,6 +1,6 @@
 package yuck.constraints
 
-import yuck.core._
+import yuck.core.*
 
 /**
  * @author Michael Marte

@@ -1,6 +1,6 @@
 package yuck.core.test
 
-import org.junit._
+import org.junit.*
 
 import yuck.core.Probability
 import yuck.test.util.UnitTest

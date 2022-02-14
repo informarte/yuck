@@ -1,10 +1,10 @@
 package yuck.constraints.test
 
-import org.junit._
+import org.junit.*
 
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.{Table, TableNeighbourhood}
-import yuck.core._
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**

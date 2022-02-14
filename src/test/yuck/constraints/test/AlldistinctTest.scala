@@ -1,11 +1,11 @@
 package yuck.constraints.test
 
-import org.junit._
+import org.junit.*
 
 import yuck.annealing.DefaultMoveSizeDistribution
-import yuck.constraints.{Alldistinct, AlldistinctNeighbourhood}
 import yuck.constraints.test.util.ConstraintTestTooling
-import yuck.core._
+import yuck.constraints.{Alldistinct, AlldistinctNeighbourhood}
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**

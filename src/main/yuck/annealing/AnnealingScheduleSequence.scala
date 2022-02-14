@@ -1,6 +1,6 @@
 package yuck.annealing
 
-import scala.collection._
+import scala.collection.*
 
 /**
  * Runs the given annealing schedules in sequence.

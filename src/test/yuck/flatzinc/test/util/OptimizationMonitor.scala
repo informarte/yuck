@@ -1,6 +1,7 @@
 package yuck.flatzinc.test.util
 
 import scala.collection.mutable
+
 import yuck.annealing.{AnnealingResult, StandardAnnealingMonitor}
 import yuck.core.{NumericalValue, PolymorphicListValue}
 import yuck.util.logging.LazyLogger

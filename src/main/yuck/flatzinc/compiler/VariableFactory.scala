@@ -1,7 +1,7 @@
 package yuck.flatzinc.compiler
 
-import yuck.core._
-import yuck.flatzinc.ast._
+import yuck.core.*
+import yuck.flatzinc.ast.*
 
 /**
  * Generates Yuck variables from FlatZinc variable definitions.
@@ -30,7 +30,7 @@ final class VariableFactory
         cc.ast.varDecls.foreach(createVariable)
     }
 
-    import HighPriorityImplicits._
+    import HighPriorityImplicits.*
 
     private def createParameter(decl: ParamDecl): Unit = {
         decl.paramType match {

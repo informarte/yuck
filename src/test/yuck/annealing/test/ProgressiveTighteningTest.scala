@@ -1,11 +1,11 @@
 package yuck.annealing.test
 
-import org.junit._
+import org.junit.*
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-import yuck.annealing._
-import yuck.core._
+import yuck.annealing.*
+import yuck.core.*
 import yuck.test.util.IntegrationTest
 
 

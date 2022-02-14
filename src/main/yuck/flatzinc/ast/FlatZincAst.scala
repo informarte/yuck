@@ -1,6 +1,6 @@
 package yuck.flatzinc.ast
 
-import scala.collection._
+import scala.collection.*
 
 trait ValueSet[V]
 final case class IntRange(lb: Int, ub: Int) extends ValueSet[Int] {

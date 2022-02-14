@@ -1,12 +1,12 @@
 package yuck.constraints
 
-import scala.collection._
-import scala.jdk.CollectionConverters._
-
-import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge}
 import org.jgrapht.alg.cycle.TarjanSimpleCycles
+import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge}
 
-import yuck.core._
+import scala.collection.*
+import scala.jdk.CollectionConverters.*
+
+import yuck.core.*
 
 /**
  * Base class for constraints that need to keep track of cycles.
