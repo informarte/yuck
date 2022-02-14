@@ -7,7 +7,7 @@ package yuck.core
  */
 final case class AX
     [V <: NumericalValue[V]]
-    (val a: V, val x: NumericalVariable[V])
+    (a: V, x: NumericalVariable[V])
 {
     override def toString = "%s * %s".format(a, x)
 }
