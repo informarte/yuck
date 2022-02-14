@@ -2,6 +2,8 @@ package yuck.test.util
 
 import org.junit.Assert
 
+import scala.annotation.tailrec
+
 /**
  * @author Michael Marte
  *
@@ -74,10 +76,12 @@ trait YuckAssert {
         }
     }
 
+    @tailrec
     private def findExceptionType(throwable: Throwable, expectedExceptionType: Class[_ <: Throwable]): Boolean =
         findExceptionType(throwable.getClass, expectedExceptionType) ||
             (throwable.getCause != null && findExceptionType(throwable.getCause, expectedExceptionType))
 
+    @tailrec
     private def findExceptionType(throwableType: Class[_], expectedExceptionType: Class[_ <: Throwable]): Boolean =
         throwableType == expectedExceptionType ||
             (throwableType.getSuperclass != null &&

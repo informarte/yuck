@@ -2,6 +2,8 @@ package yuck.core.test
 
 import org.junit.*
 
+import scala.annotation.tailrec
+
 import yuck.core.*
 import yuck.test.util.UnitTest
 
@@ -14,6 +16,7 @@ class BooleanDomainPrunerTest extends UnitTest {
 
     import BooleanDomain.ensureDecisionDomain
 
+    @tailrec
     private def fixedPoint[State](f: State => State, u: State): State = {
         val v = f(u)
         if (u == v) u else fixedPoint(f, v)

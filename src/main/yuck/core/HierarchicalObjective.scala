@@ -1,5 +1,7 @@
 package yuck.core
 
+import scala.annotation.tailrec
+
 /**
  * Implements a lexicographic ordering on the given objectives.
  *
@@ -47,6 +49,7 @@ final class HierarchicalObjective
             compareCosts(primitiveObjectives, lhs, rhs)
         }
     }
+    @tailrec
     private def compareCosts(objectives: List[AnyObjective], lhs: List[Costs], rhs: List[Costs]): Int =
         (objectives, lhs, rhs) match {
             case (Nil, Nil, Nil) => 0
@@ -68,6 +71,7 @@ final class HierarchicalObjective
             assessMove(primitiveObjectives, before, after)
         }
     }
+    @tailrec
     private def assessMove(objectives: List[AnyObjective], before: SearchState, after: SearchState): Double =
         objectives match {
             case Nil => 0

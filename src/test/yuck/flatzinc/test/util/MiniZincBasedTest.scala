@@ -1,5 +1,6 @@
 package yuck.flatzinc.test.util
 
+import scala.annotation.tailrec
 import scala.collection.*
 import scala.language.implicitConversions
 
@@ -480,6 +481,7 @@ class MiniZincBasedTest extends IntegrationTest {
         }
     }
 
+    @tailrec
     private def findUltimateCause(error: Throwable): Throwable =
         if (error.getCause.eq(null)) error else findUltimateCause(error.getCause)
 

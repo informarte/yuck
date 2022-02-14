@@ -1,5 +1,6 @@
 package yuck.constraints
 
+import scala.annotation.tailrec
 import scala.collection.*
 
 import yuck.core.*
@@ -70,6 +71,7 @@ final class Circuit
     private case object HeuristicFailed extends HeuristicResult
     private case class HeuristicSucceeded(neighbourhood: Neighbourhood) extends HeuristicResult
 
+    @tailrec
     private def solve
         (n: Int, result: HeuristicResult, heuristic: () => HeuristicResult, sigint: Sigint):
         Option[Neighbourhood] =
