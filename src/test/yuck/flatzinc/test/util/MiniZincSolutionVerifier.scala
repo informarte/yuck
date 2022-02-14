@@ -103,9 +103,9 @@ class MiniZincSolutionVerifier(
         // We include the MiniZinc model in the end because a few of them don't have a semicolon
         // after the last line.
         if (task.verificationModelName.isEmpty) {
-            solutionWriter.write("include \"%s\";".format(modelFileName));
+            solutionWriter.write("include \"%s\";".format(modelFileName))
         } else {
-            solutionWriter.write("include \"%s.mzn\";".format(task.verificationModelName));
+            solutionWriter.write("include \"%s.mzn\";".format(task.verificationModelName))
         }
         solutionWriter.close
         val solver = task.verificationTool match {

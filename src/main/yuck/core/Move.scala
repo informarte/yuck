@@ -44,7 +44,7 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVar
     def involvedVariablesIterator: Iterator[AnyVariable] = effectsIterator.map(_.x)
 
     /** Returns true iff the given variable is involved in the move. */
-    def involves(x: AnyVariable): Boolean = involvedVariablesIterator.exists(_ == x)
+    def involves(x: AnyVariable): Boolean = involvedVariablesIterator.contains(x)
 
     /**
      * Returns the value the move would assign to the given variable.

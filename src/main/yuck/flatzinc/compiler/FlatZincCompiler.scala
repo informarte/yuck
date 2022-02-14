@@ -102,7 +102,7 @@ final class FlatZincCompiler
         logger.logg("Search variables covered by neighbourhood: %s".format(searchVariablesCoveredByNeighbourhood))
         logger.log("%d search variables covered by neighbourhood".format(searchVariablesCoveredByNeighbourhood.size))
         logger.log("%d channel variables".format(cc.space.channelVariables.size))
-        lazy val danglingVariables = cc.vars.valuesIterator.filter(cc.space.isDanglingVariable(_)).toSet
+        lazy val danglingVariables = cc.vars.valuesIterator.filter(cc.space.isDanglingVariable).toSet
         logger.logg("Dangling variables: %s".format(danglingVariables))
         logger.log("%d dangling variables".format(danglingVariables.size))
         logger.log("%d constraints".format(cc.space.numberOfConstraints))

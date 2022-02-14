@@ -69,7 +69,7 @@ object FlatZincParser extends RegexParsers {
         "\"" ~> identifier <~ "\"" ^^ StringConst.apply
     lazy val term: Parser[Term] =
         identifier ~ (("(" ~> rep1sep(expr, ",") <~ ")")?) ^^ {
-            case id ~ optionalParams => new Term(id, optionalParams.getOrElse(Nil))
+            case id ~ optionalParams => Term(id, optionalParams.getOrElse(Nil))
         }
     lazy val expr: Parser[Expr] =
         (bool_const | float_const | int_set_const | int_const | array_const | array_access | string_const | term)

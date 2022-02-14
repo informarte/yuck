@@ -49,11 +49,11 @@ final class LazyLogger(logger: Logger) {
     }
     private val indents = new scala.collection.mutable.HashMap[Int, String]
     private def currentIndent(indentLevel: Int): String = synchronized {
-        indents.get(indentLevel).getOrElse{
+        indents.getOrElse(indentLevel, {
             val indent = if (indentLevel == 0) "" else currentIndent(indentLevel - 1) + this.indent
             indents += indentLevel -> indent
             indent
-        }
+        })
     }
 
     /** Increases the indentation by one level. */
