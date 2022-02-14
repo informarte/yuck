@@ -46,7 +46,7 @@ abstract class Disjoint
     private val x2is =
         (0 until n)
         .iterator
-        .flatMap{case i => variablesIterator(i).map((_, i))}
+        .flatMap(i => variablesIterator(i).map((_, i)))
         .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
             case (map, (x, i)) =>
                 val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])
