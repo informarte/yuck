@@ -114,7 +114,7 @@ final class NeighbourhoodTestHelper
                                     p
                                 }
                             }
-                        (0 until xs.size).iterator.map(Q).sum
+                        xs.indices.iterator.map(Q).sum
                     }
                 val p =
                     (if (fairVariableChoiceRate > 0) fairVariableChoiceRate * h(1, xs.size, 1, n) else 0) +
@@ -139,7 +139,7 @@ final class NeighbourhoodTestHelper
                 ok
             }
         }
-        val failureCount = (0 until xs.size).iterator.map(checkVariableFrequency).count(! _)
+        val failureCount = xs.indices.iterator.map(checkVariableFrequency).count(! _)
         import scala.math.Ordering.Double.TotalOrdering
         assertLe(failureCount.toDouble, xs.size * maxFailureRate)
     }
@@ -158,7 +158,7 @@ object NeighbourhoodTestHelper {
     {
         val space = new Space(logger, sigint)
         val xs =
-            for ((i, domain) <- (0 until domains.size).zip(domains)) yield {
+            for ((i, domain) <- domains.indices.zip(domains)) yield {
                 val x = new IntegerVariable(space.nextVariableId, "x%d".format(i), domain)
                 space.setValue(x, x.domain.randomValue(randomGenerator))
                 x

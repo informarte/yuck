@@ -30,11 +30,11 @@ final class OptimizationGoalTracker
     override def outVariables = Nil
 
     private val indexMap: immutable.Map[AnyVariable, (Int, AX[V])] =
-        (0 until axs.size).iterator.map(i => (axs(i).x, (i, axs(i)))).toMap
+        axs.indices.iterator.map(i => (axs(i).x, (i, axs(i)))).toMap
 
     override def initialize(now: SearchState) = {
         distribution.clear()
-        for (i <- 0 until axs.size) {
+        for (i <- axs.indices) {
             distribution.setFrequency(i, computeFrequency(axs(i), now))
         }
         Nil

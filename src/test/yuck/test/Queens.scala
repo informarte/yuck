@@ -29,7 +29,7 @@ final class Queens(val n: Int) extends IntegrationTest {
             val rows = new Array[IntegerVariable](n)
             val rowsMinusI = new Array[IntegerVariable](n)
             val rowsPlusI = new Array[IntegerVariable](n)
-            for (col <- 0 to (n - 1)) {
+            for (col <- 0 until n) {
                 rows.update(col, new IntegerVariable(space.nextVariableId, "row[%s]".format(col) , d))
                 rowsMinusI.update(col, new IntegerVariable(space.nextVariableId, "row[%s] - %s".format(col, col), CompleteIntegerRange))
                 rowsPlusI.update(col, new IntegerVariable(space.nextVariableId, "row[%s] + %s".format(col, col), CompleteIntegerRange))

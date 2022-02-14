@@ -71,7 +71,7 @@ abstract class CircuitTracker
             val indexRange = IntegerRange(offset, offset + succ.size - 1)
             NoPropagationOccurred
                 .pruneDomains(
-                    for (i <- 0 until succ.size) yield {
+                    for (i <- succ.indices) yield {
                         val a = IntegerValue(offset + i)
                         (succ(i), succ(i).domain.intersect(indexRange).diff(IntegerRange(a, a)))
                     }
