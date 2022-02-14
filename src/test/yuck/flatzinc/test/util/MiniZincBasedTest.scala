@@ -433,7 +433,7 @@ class MiniZincBasedTest extends IntegrationTest {
                     }
                 }
              } else if (! result.space.isProblemParameter(x)) {
-                logger.logg("%s = %s".format(x, a, visited))
+                logger.logg("%s = %s".format(x, a))
             }
         }
     }

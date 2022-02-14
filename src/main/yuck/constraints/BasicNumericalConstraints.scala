@@ -89,7 +89,7 @@ final class Mod
      x: NumericalVariable[V], y: NumericalVariable[V], z: NumericalVariable[V])
     extends TernaryConstraint(id, x, y, z)
 {
-    override def toString = "%s = %s % %s".format(z, x, y)
+    override def toString = "%s = %s %% %s".format(z, x, y)
     override def op(a: V, b: V) = a % b
 }
 

@@ -116,7 +116,7 @@ class StandardAnnealingMonitor(logger: LazyLogger) extends AnnealingMonitor with
     }
 
     private def logStatistics(result: AnnealingResult): Unit = {
-        logger.withLogScope("Solver statistics".format(result.solverName)) {
+        logger.withLogScope("Solver statistics") {
             logger.log("Number of rounds: %d".format(result.roundLogs.size))
             if (! result.roundLogs.isEmpty) {
                 logger.log("Moves per second: %f".format(result.movesPerSecond))
