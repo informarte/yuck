@@ -11,10 +11,9 @@ final class IntegerSetValue(val set: IntegerDomain) extends OrderedValue[Integer
     import IntegerSetValue.*
     @inline override def hashCode = set.hashCode
     override def equals(that: Any) = that match {
-        case rhs: IntegerSetValue => {
+        case rhs: IntegerSetValue =>
             val lhs = this
             lhs.eq(rhs) || lhs.set.eq(rhs.set) || lhs.set == rhs.set
-        }
         case _ => false
     }
     override def compare(that: IntegerSetValue) = valueListOrdering.compare(this.set, that.set)

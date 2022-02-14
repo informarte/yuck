@@ -171,34 +171,38 @@ final class ConstraintFactory
         (constraint: @unchecked) match
     {
         // TODO Implement other direction!?
-        case Constraint("bool2int", List(a, b), _) => {
+        case Constraint("bool2int", List(a, b), _) =>
             val x = compileBoolExpr(a)
             val y = compileIntExpr(b)
+
             def functionalCase = {
                 space.post(new Bool2Int1(nextConstraintId, maybeGoal, x, y))
                 Nil
             }
+
             def generalCase = {
                 val costs = createBoolChannel
                 space.post(new Bool2Int2(nextConstraintId, maybeGoal, x, y, costs))
                 List(costs)
             }
+
             compileConstraint(constraint, List(a), b, functionalCase, generalCase)
-        }
-        case Constraint("bool2costs", List(a, b), _) => {
+        case Constraint("bool2costs", List(a, b), _) =>
             val x = compileBoolExpr(a)
             val y = compileIntExpr(b)
+
             def functionalCase = {
                 space.post(new Bool2Costs1(nextConstraintId, maybeGoal, x, y))
                 Nil
             }
+
             def generalCase = {
                 val costs = createBoolChannel
                 space.post(new Bool2Costs2(nextConstraintId, maybeGoal, x, y, costs))
                 List(costs)
             }
+
             compileConstraint(constraint, List(a), b, functionalCase, generalCase)
-        }
         case Constraint("bool_not", List(a, b), _) =>
             def functionalCase = {
                 space.post(new Not(nextConstraintId, maybeGoal, a, b))

@@ -54,7 +54,7 @@ final class DomainInitializer
                         set += a
                         equalVars += a -> set
                     }
-                case _ => {
+                case _ =>
                     val domain = createDomain(decl.varType)
                     val a = Term(decl.id, Nil)
                     declaredVars += a
@@ -62,7 +62,6 @@ final class DomainInitializer
                     val set = new mutable.TreeSet[Expr]()(ProblemVariablesFirstOrdering)
                     set += a
                     equalVars += a -> set
-                }
             }
         }
     }
@@ -87,13 +86,12 @@ final class DomainInitializer
                             }
                         case _ =>
                     }
-                case _ => {
+                case _ =>
                     if (decl.optionalValue.isDefined) {
                         val a = Term(decl.id, Nil)
                         val b = decl.optionalValue.get
                         propagateAssignment(a, b)
                     }
-                }
             }
         }
     }

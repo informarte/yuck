@@ -71,10 +71,9 @@ final class Cumulative
     private class RTreeEntry(val i: Int, val bbox: Rect2d) {
         override def hashCode = i
         override def equals(that: Any) = that match {
-            case rhs: RTreeEntry => {
+            case rhs: RTreeEntry =>
                 val lhs = this
                 lhs.i == rhs.i && lhs.bbox == rhs.bbox
-            }
             case _ => false
         }
         override def toString = "%d -> %s".format(i, bbox)
