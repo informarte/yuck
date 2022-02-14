@@ -1,5 +1,7 @@
 package yuck.core
 
+import scala.annotation.tailrec
+
 /**
  * Objective for optimizing the value of a numerical variable.
  *
@@ -26,6 +28,7 @@ abstract class NumericalObjective
             val costsAfterMove = rootObjective.costs(after)
             (! rootObjective.isHigherThan(costsAfterMove, costsOnEntry))
         }
+        @tailrec
         def search(dx: NumericalDomain[V]): Option[V] =
             if (dx.isEmpty) None
             else if (dx.isSingleton) {

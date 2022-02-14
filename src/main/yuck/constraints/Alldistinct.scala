@@ -1,5 +1,6 @@
 package yuck.constraints
 
+import scala.annotation.tailrec
 import scala.collection.*
 
 import yuck.annealing.*
@@ -167,6 +168,7 @@ final class AlldistinctNeighbourhood
     private def succeed(n: Int): Move = new ChangeValues[V](space.nextMoveId, swaps(n - 1))
     private def fail: Move = new ChangeValues[V](space.nextMoveId, Nil)
 
+    @tailrec
     private def nextMove(m: Int): Move = {
         require(m <= n)
         val swapInAValue =

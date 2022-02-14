@@ -1,5 +1,7 @@
 package yuck.core
 
+import scala.annotation.tailrec
+
 /**
  * Represents immutable integer ranges in terms of lower and upper bounds.
  *
@@ -166,6 +168,7 @@ final class IntegerRange
      * Implements range division as described in:
      * K. R. Apt, Principles of Constraint Programming, p. 221
      */
+    @tailrec
     def div(that: IntegerRange): IntegerRange = {
         if (this.isEmpty || that.isEmpty) {
             EmptyIntegerRange

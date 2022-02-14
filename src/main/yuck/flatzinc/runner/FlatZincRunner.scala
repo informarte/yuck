@@ -3,6 +3,7 @@ package yuck.flatzinc.runner
 import java.io.IOException
 import java.util.concurrent.CancellationException
 
+import scala.annotation.tailrec
 import scala.math.max
 
 import scopt.*
@@ -222,6 +223,7 @@ object FlatZincRunner extends YuckLogging {
             throw error
     }
 
+    @tailrec
     private def findUltimateCause(error: Throwable): Throwable =
         if (error.getCause.eq(null)) error else findUltimateCause(error.getCause)
 
