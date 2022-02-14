@@ -1,10 +1,10 @@
 package yuck.constraints.test
 
-import org.junit._
+import org.junit.*
 
 import yuck.constraints.AlldistinctExceptZero
 import yuck.constraints.test.util.ConstraintTestTooling
-import yuck.core._
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**

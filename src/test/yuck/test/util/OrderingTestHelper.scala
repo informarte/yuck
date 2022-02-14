@@ -1,6 +1,6 @@
 package yuck.test.util
 
-import scala.collection._
+import scala.collection.*
 
 import yuck.core.RandomGenerator
 

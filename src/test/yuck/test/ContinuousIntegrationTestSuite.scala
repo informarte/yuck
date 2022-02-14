@@ -1,8 +1,8 @@
 package yuck.test
 
-import org.junit._
+import org.junit.*
 
-import yuck.flatzinc.test._
+import yuck.flatzinc.test.*
 import yuck.flatzinc.test.util.test.MiniZincSolutionVerifierTest
 
 /**

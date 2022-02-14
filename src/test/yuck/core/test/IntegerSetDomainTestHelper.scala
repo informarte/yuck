@@ -1,9 +1,9 @@
 package yuck.core.test
 
-import yuck.core._
-import yuck.util.logging.LazyLogger
-
 import scala.collection.Seq
+
+import yuck.core.*
+import yuck.util.logging.LazyLogger
 
 /**
  * @author Michael Marte

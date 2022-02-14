@@ -1,12 +1,12 @@
 package yuck.constraints.test
 
-import org.junit._
+import org.junit.*
 
 import scala.collection.immutable.TreeMap
 
-import yuck.constraints._
+import yuck.constraints.*
 import yuck.constraints.test.util.ConstraintTestTooling
-import yuck.core._
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**

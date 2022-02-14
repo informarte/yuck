@@ -1,8 +1,8 @@
 package yuck.core.test
 
-import org.junit._
+import org.junit.*
 
-import yuck.core._
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**
@@ -12,7 +12,7 @@ import yuck.test.util.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class BooleanValueTraitsTest extends UnitTest {
 
-    import BooleanValueTraits._
+    import BooleanValueTraits.*
 
     @Test
     def testSpecialDomains: Unit = {

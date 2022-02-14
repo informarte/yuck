@@ -1,8 +1,8 @@
 package yuck.constraints
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.core._
+import yuck.core.*
 
 /**
  * Intuitively, given a set search variables and set of constraints (represented by

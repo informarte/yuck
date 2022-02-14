@@ -1,8 +1,8 @@
 package yuck.core.test
 
-import org.junit._
+import org.junit.*
 
-import yuck.core._
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**
@@ -139,7 +139,7 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
 
     @Test
     def testConfiguration: Unit = {
-        import IntegerValue._
+        import IntegerValue.*
         assertEq(valueTraits, IntegerValueTraits)
         assertEq(numericalOperations, IntegerValueOperations)
         assertEq(domainOrdering, IntegerDomainOrdering)

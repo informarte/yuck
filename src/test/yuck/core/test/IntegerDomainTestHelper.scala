@@ -1,9 +1,9 @@
 package yuck.core.test
 
-import scala.collection._
+import scala.collection.*
 
+import yuck.core.*
 import yuck.core.IntegerDomain.ensureRangeList
-import yuck.core._
 import yuck.util.logging.{FineLogLevel, LazyLogger}
 
 /**

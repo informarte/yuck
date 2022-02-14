@@ -1,10 +1,11 @@
 package yuck.flatzinc.compiler
 
-import scala.collection._
+import scala.collection.*
+
 import yuck.constraints.{Conjunction, Lt}
-import yuck.core._
+import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
-import yuck.flatzinc.ast._
+import yuck.flatzinc.ast.*
 
 /**
  * Creates an objective from the FlatZinc solve goal.
@@ -22,7 +23,7 @@ final class ObjectiveFactory
     private val implicitlyConstrainedVars = cc.implicitlyConstrainedVars
     private val costVars = cc.costVars
 
-    import HighPriorityImplicits._
+    import HighPriorityImplicits.*
 
     override def run() = {
         val objectives = new mutable.ArrayBuffer[PrimitiveObjective]

@@ -1,7 +1,7 @@
 package yuck.flatzinc.runner
 
-import yuck.annealing._
-import yuck.core._
+import yuck.annealing.*
+import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.FlatZincAst
 import yuck.flatzinc.compiler.{FlatZincCompiler, FlatZincCompilerResult}

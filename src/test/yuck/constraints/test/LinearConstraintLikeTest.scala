@@ -1,13 +1,12 @@
 package yuck.constraints.test
 
-import org.junit._
+import org.junit.*
+import org.mockito.AdditionalAnswers.*
+import org.mockito.ArgumentMatchers.*
+import org.mockito.Mockito.*
 
-import org.mockito.AdditionalAnswers._
-import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito._
-
-import yuck.constraints._
-import yuck.core._
+import yuck.constraints.*
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**

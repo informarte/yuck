@@ -1,16 +1,16 @@
 package yuck.flatzinc.test
 
-import scala.language.implicitConversions
-
-import org.junit._
-import org.junit.experimental.categories._
-import org.junit.experimental.categories.Categories._
+import org.junit.*
+import org.junit.experimental.categories.*
+import org.junit.experimental.categories.Categories.*
 import org.junit.runner.RunWith
 import org.junit.runners.Suite.SuiteClasses
 
+import scala.language.implicitConversions
+
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
-import yuck.flatzinc.test.util._
+import yuck.flatzinc.test.util.*
 
 /**
  * Test cases taken from the MiniZinc 1.6 distribution

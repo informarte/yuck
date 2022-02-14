@@ -1,6 +1,6 @@
 package yuck.core
 
-import scala.collection._
+import scala.collection.*
 
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger

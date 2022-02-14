@@ -1,10 +1,10 @@
 package yuck.flatzinc.compiler
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.core._
+import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
-import yuck.flatzinc.ast._
+import yuck.flatzinc.ast.*
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 

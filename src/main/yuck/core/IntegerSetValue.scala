@@ -8,7 +8,7 @@ import scala.annotation.tailrec
  * @author Michael Marte
  */
 final class IntegerSetValue(val set: IntegerDomain) extends OrderedValue[IntegerSetValue] {
-    import IntegerSetValue._
+    import IntegerSetValue.*
     @inline override def hashCode = set.hashCode
     override def equals(that: Any) = that match {
         case rhs: IntegerSetValue => {

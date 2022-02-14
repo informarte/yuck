@@ -1,6 +1,6 @@
 package yuck.core
 
-import scala.collection._
+import scala.collection.*
 
 /**
  * Provides traits of integer values.

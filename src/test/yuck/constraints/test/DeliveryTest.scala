@@ -1,14 +1,14 @@
 package yuck.constraints.test
 
-import org.junit._
+import org.junit.*
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.language.implicitConversions
 import scala.ref.WeakReference
 
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.{Circuit, Delivery}
-import yuck.core._
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**

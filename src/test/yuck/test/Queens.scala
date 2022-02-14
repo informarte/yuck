@@ -1,12 +1,12 @@
 package yuck.test
 
-import org.junit._
+import org.junit.*
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-import yuck.annealing._
-import yuck.constraints._
-import yuck.core._
+import yuck.annealing.*
+import yuck.constraints.*
+import yuck.core.*
 import yuck.test.util.{DefaultNumberOfThreads, IntegrationTest}
 
 /**

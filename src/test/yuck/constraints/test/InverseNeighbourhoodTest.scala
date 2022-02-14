@@ -2,7 +2,7 @@ package yuck.constraints.test
 
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.{Inverse, InverseFunction, InverseNeighbourhood}
-import yuck.core._
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**

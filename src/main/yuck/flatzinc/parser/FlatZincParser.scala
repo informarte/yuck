@@ -5,7 +5,7 @@ import scala.util.control.Exception
 import scala.util.matching.Regex
 import scala.util.parsing.combinator.RegexParsers
 
-import yuck.flatzinc.ast._
+import yuck.flatzinc.ast.*
 
 /**
  * @author Michael Marte

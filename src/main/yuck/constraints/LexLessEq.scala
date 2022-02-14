@@ -1,9 +1,9 @@
 package yuck.constraints
 
 import scala.annotation.tailrec
-import scala.collection._
+import scala.collection.*
 
-import yuck.core._
+import yuck.core.*
 
 /**
  * Implements the ''lex_lesseq_int'' constraint as specified by MiniZinc.

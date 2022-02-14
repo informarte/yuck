@@ -1,6 +1,6 @@
 package yuck.core
 
-import scala.collection._
+import scala.collection.*
 
 /**
  * Provides an interface for random generation of decisions, integers, and probabilities.

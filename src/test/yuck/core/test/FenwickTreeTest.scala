@@ -1,7 +1,6 @@
 package yuck.core.test
 
-import org.junit.FixMethodOrder
-import org.junit.Test
+import org.junit.{FixMethodOrder, Test}
 
 import yuck.core.FenwickTree
 import yuck.test.util.UnitTest

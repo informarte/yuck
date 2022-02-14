@@ -1,7 +1,6 @@
 package yuck.flatzinc.runner
 
-import yuck.annealing.StandardAnnealingMonitor
-import yuck.annealing.AnnealingResult
+import yuck.annealing.{AnnealingResult, StandardAnnealingMonitor}
 import yuck.core.Costs
 import yuck.util.logging.LazyLogger
 

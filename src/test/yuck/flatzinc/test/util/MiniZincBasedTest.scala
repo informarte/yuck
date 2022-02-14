@@ -1,19 +1,19 @@
 package yuck.flatzinc.test.util
 
-import scala.collection._
+import scala.collection.*
 import scala.language.implicitConversions
 
-import spray.json._
+import spray.json.*
 
 import yuck.BuildInfo
-import yuck.core._
+import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
-import yuck.flatzinc.ast._
+import yuck.flatzinc.ast.*
 import yuck.flatzinc.compiler.{FlatZincCompilerResult, UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
-import yuck.flatzinc.parser._
-import yuck.flatzinc.runner._
+import yuck.flatzinc.parser.*
+import yuck.flatzinc.runner.*
 import yuck.test.util.{IntegrationTest, ProcessRunner}
-import yuck.util.arm._
+import yuck.util.arm.*
 import yuck.util.logging.{FineLogLevel, ManagedLogHandler}
 
 /**

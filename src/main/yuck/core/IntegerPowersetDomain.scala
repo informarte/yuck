@@ -1,6 +1,6 @@
 package yuck.core
 
-import scala.collection._
+import scala.collection.*
 
 /**
  * Provides the power set of a given integer domain as immutable integer-set domain.

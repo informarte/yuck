@@ -1,9 +1,9 @@
 package yuck.flatzinc.compiler
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.core._
-import yuck.flatzinc.ast._
+import yuck.core.*
+import yuck.flatzinc.ast.*
 
 /**
  * Identifies search variables and variables that occur in defines_var annotations.

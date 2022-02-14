@@ -4,9 +4,9 @@ import com.conversantmedia.util.collection.spatial.{HyperRect, RectBuilder, Spat
 
 import java.util.function.Consumer
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.core._
+import yuck.core.*
 import yuck.util.alg.rtree.RTreeTransaction
 
 /**

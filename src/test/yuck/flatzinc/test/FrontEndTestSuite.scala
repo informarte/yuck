@@ -1,6 +1,6 @@
 package yuck.flatzinc.test
 
-import org.junit._
+import org.junit.*
 
 /**
  * Test suite that exercises Yuck's FlatZinc front end

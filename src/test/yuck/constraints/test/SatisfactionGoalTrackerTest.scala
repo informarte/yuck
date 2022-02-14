@@ -1,9 +1,9 @@
 package yuck.constraints.test
 
-import org.junit._
+import org.junit.*
 
-import yuck.constraints._
-import yuck.core._
+import yuck.constraints.*
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**

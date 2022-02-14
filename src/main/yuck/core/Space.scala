@@ -1,9 +1,10 @@
 package yuck.core
 
-import scala.collection._
-import scala.jdk.CollectionConverters._
 import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge}
 import org.jgrapht.traverse.{BreadthFirstIterator, TopologicalOrderIterator}
+
+import scala.collection.*
+import scala.jdk.CollectionConverters.*
 
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger

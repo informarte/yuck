@@ -1,9 +1,9 @@
 package yuck.flatzinc.compiler
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.constraints.{OptimizationGoalTracker, LinearCombination, Sum}
-import yuck.core._
+import yuck.constraints.{LinearCombination, OptimizationGoalTracker, Sum}
+import yuck.core.*
 import yuck.flatzinc.FlatZincLevelConfiguration
 import yuck.util.arm.Sigint
 

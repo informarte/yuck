@@ -1,8 +1,8 @@
 package yuck.constraints
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.core._
+import yuck.core.*
 
 /**
  * Base class for constraints that need to keep track of which values are

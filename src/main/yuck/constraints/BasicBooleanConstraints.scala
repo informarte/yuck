@@ -1,6 +1,6 @@
 package yuck.constraints
 
-import yuck.core._
+import yuck.core.*
 
 /**
  * Implements binary conjunction on cost level (where 0 is true).

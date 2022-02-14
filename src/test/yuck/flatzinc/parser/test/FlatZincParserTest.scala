@@ -1,19 +1,16 @@
 package yuck.flatzinc.parser.test
 
-import java.io.File
-import java.io.FileInputStream
-import java.io.InputStreamReader
+import java.io.{File, FileInputStream, InputStreamReader}
 
-import org.junit.Assert
-import org.junit.Test
+import org.junit.{Assert, Test}
 
-import yuck.flatzinc.ast._
-import yuck.flatzinc.parser._
+import yuck.flatzinc.ast.*
+import yuck.flatzinc.parser.*
 import yuck.test.util.UnitTest
 
 final class FlatZincParserTest extends UnitTest {
 
-    import FlatZincParser._
+    import FlatZincParser.*
 
     private def expectSuccess[Result](parser: Parser[Result], input: String, expectation: Result): Unit = {
         parseAll(parser, input) match {

@@ -1,7 +1,7 @@
 package yuck.flatzinc.compiler
 
-import yuck.core._
-import yuck.constraints.{BinaryConstraint, TernaryConstraint, ReifiedBinaryConstraintPropagator}
+import yuck.constraints.{BinaryConstraint, ReifiedBinaryConstraintPropagator, TernaryConstraint}
+import yuck.core.*
 
 /**
  * @author Michael Marte

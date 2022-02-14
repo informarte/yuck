@@ -1,8 +1,8 @@
 package yuck.annealing
 
-import scala.math._
+import scala.math.*
 
-import yuck.core._
+import yuck.core.*
 
 /**
  * Creates annealing schedules for problems of the given size.

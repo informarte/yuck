@@ -2,12 +2,12 @@ package yuck.flatzinc.test.util
 
 import java.util.concurrent.Callable
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.core._
-import yuck.flatzinc.ast._
+import yuck.core.*
+import yuck.flatzinc.ast.*
 import yuck.flatzinc.compiler.FlatZincCompilerResult
-import yuck.flatzinc.runner._
+import yuck.flatzinc.runner.*
 import yuck.test.util.{DefaultRuntimeLimitInSeconds, ProcessRunner}
 import yuck.util.logging.LazyLogger
 

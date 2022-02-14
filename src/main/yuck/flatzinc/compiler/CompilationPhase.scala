@@ -1,11 +1,11 @@
 package yuck.flatzinc.compiler
 
+import scala.collection.*
 import scala.language.implicitConversions
-import scala.collection._
 
-import yuck.core._
-import yuck.flatzinc.ast._
-import yuck.flatzinc.parser._
+import yuck.core.*
+import yuck.flatzinc.ast.*
+import yuck.flatzinc.parser.*
 
 /**
  * The given compilation context may be modified to transport information between phases.
@@ -307,21 +307,21 @@ abstract class CompilationPhase extends Runnable {
     extends OrderedCompilationHelper[V, Variable]
 
     implicit protected object BooleanCompilationHelper extends OrderedCompilationHelper[BooleanValue, BooleanVariable] {
-        import HighPriorityImplicits._
+        import HighPriorityImplicits.*
         override def compileExpr(expr: Expr) = compileBoolExpr(expr)
         override def compileArray(expr: Expr) = compileBoolArray(expr)
         override def createChannel = createBoolChannel
     }
 
     implicit protected object IntegerCompilationHelper extends NumericalCompilationHelper[IntegerValue, IntegerVariable] {
-        import HighPriorityImplicits._
+        import HighPriorityImplicits.*
         override def compileExpr(expr: Expr) = compileIntExpr(expr)
         override def compileArray(expr: Expr) = compileIntArray(expr)
         override def createChannel = createIntChannel
     }
 
     implicit protected object IntegerSetCompilationHelper extends OrderedCompilationHelper[IntegerSetValue, IntegerSetVariable] {
-        import HighPriorityImplicits._
+        import HighPriorityImplicits.*
         override def compileExpr(expr: Expr) = compileIntSetExpr(expr)
         override def compileArray(expr: Expr) = compileIntSetArray(expr)
         override def createChannel = createIntSetChannel

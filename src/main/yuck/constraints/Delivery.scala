@@ -1,11 +1,10 @@
 package yuck.constraints
 
-import scala.collection._
+import scala.collection.*
 import scala.ref.WeakReference
-
-import yuck.core._
-
 import scala.reflect.ClassTag
+
+import yuck.core.*
 
 /**
  * Helps with solving single-depot vehicle-routing problems with time windows.

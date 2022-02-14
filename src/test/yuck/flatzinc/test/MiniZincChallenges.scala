@@ -1,10 +1,10 @@
 package yuck.flatzinc.test
 
-import org.junit._
-import org.junit.experimental.categories._
-import org.junit.experimental.categories.Categories._
+import org.junit.*
+import org.junit.experimental.categories.*
+import org.junit.experimental.categories.Categories.*
 
-import yuck.flatzinc.test.util._
+import yuck.flatzinc.test.util.*
 
 /**
  * A collection of problems from the MiniZinc challenges 2012 - 2021

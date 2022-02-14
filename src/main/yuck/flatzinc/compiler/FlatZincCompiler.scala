@@ -2,7 +2,7 @@ package yuck.flatzinc.compiler
 
 import java.util.concurrent.Callable
 
-import yuck.core._
+import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.FlatZincAst
 import yuck.util.arm.Sigint

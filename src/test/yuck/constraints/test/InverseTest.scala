@@ -1,14 +1,13 @@
 package yuck.constraints.test
 
-import org.junit._
+import org.junit.*
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import yuck.annealing.DefaultMoveSizeDistribution
-import yuck.constraints.{GeneralInverseNeighbourhood, Inverse, InverseFunction, InverseNeighbourhood,
-    SelfInverseNeighbourhood, SimpleInverseNeighbourhood}
 import yuck.constraints.test.util.ConstraintTestTooling
-import yuck.core._
+import yuck.constraints.*
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**

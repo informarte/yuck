@@ -1,6 +1,6 @@
 package yuck.util.logging
 
-import java.util.logging.{Logger, Handler}
+import java.util.logging.{Handler, Logger}
 
 import yuck.util.arm.ManagedResource
 

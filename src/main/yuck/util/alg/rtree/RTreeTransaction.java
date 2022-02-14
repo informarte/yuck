@@ -5,8 +5,8 @@ import com.conversantmedia.util.collection.spatial.RectBuilder;
 import com.conversantmedia.util.collection.spatial.SpatialSearch;
 import com.conversantmedia.util.collection.spatial.Stats;
 
-import java.util.HashSet;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.function.Consumer;
 
 /**

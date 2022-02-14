@@ -1,9 +1,9 @@
 package yuck.flatzinc.compiler
 
-import scala.collection._
+import scala.collection.*
 
-import yuck.constraints._
-import yuck.core._
+import yuck.constraints.*
+import yuck.core.*
 
 /**
  * Customizable factory for creating a neighbourhood for the problem at hand.
