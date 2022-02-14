@@ -36,15 +36,15 @@ final class BooleanDomainTest extends UnitTest {
     def testSetOperations: Unit = {
         for (a <- testData) {
             for (b <- testData) {
-                assertEq(a.asInstanceOf[BooleanDomain].isSubsetOf(b), a.isSubsetOf(b))
-                assertEq(a.asInstanceOf[BooleanDomain].intersects(b), a.intersects(b))
-                assertEq(a.asInstanceOf[BooleanDomain].intersect(b), a.intersect(b))
-                assertEq(a.asInstanceOf[BooleanDomain].union(b), a.union(b))
+                assertEq(a.isSubsetOf(b), a.isSubsetOf(b))
+                assertEq(a.intersects(b), a.intersects(b))
+                assertEq(a.intersect(b), a.intersect(b))
+                assertEq(a.union(b), a.union(b))
                 if (! a.isComplete || b.isEmpty) {
-                    assertEq(a.asInstanceOf[BooleanDomain].diff(b), a.diff(b))
+                    assertEq(a.diff(b), a.diff(b))
                 }
                 if (! a.union(b).isComplete || ! a.intersects(b)) {
-                    assertEq(a.asInstanceOf[BooleanDomain].symdiff(b), a.symdiff(b))
+                    assertEq(a.symdiff(b), a.symdiff(b))
                 }
                 if (a.isComplete) {
                     if (! b.isComplete) {
