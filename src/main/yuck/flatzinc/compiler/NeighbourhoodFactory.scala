@@ -208,7 +208,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
         override def outVariables = Nil
         override def initialize(now: SearchState) = {
             val solved = objectives(0).isSolution(now)
-            for (i <- 0 until objectives.size) {
+            for (i <- objectives.indices) {
                 distribution.setFrequency(i, if (i == 0) (if (solved) 0 else 1) else (if (solved) 1 else 0))
             }
             Nil

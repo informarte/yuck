@@ -109,11 +109,11 @@ final class Inverse
 
     override def initialize(now: SearchState) = {
         currentCosts = 0
-        for (i <- 0 until f.xs.size) {
+        for (i <- f.xs.indices) {
             f.visited(i) = -1
             f.refs(i) = new mutable.HashSet[Int]
         }
-        for (j <- 0 until g.xs.size) {
+        for (j <- g.xs.indices) {
             g.visited(j) = -1
             g.refs(j) = new mutable.HashSet[Int]
         }
@@ -170,10 +170,10 @@ final class Inverse
             }
         }
         if (debug) {
-            for (i <- 0 until f.visited.size if f.visited(i) != move.id.rawId) {
+            for (i <- f.visited.indices if f.visited(i) != move.id.rawId) {
                 assert(computeCostDelta(f, g, i + f.offset, f.visited) == 0)
             }
-            for (j <- 0 until g.visited.size if g.visited(j) != move.id.rawId) {
+            for (j <- g.visited.indices if g.visited(j) != move.id.rawId) {
                 assert(computeCostDelta(g, f, j + g.offset, g.visited) == 0)
             }
         }
@@ -444,7 +444,7 @@ final class GeneralInverseNeighbourhood
 
     private val effects = Vector.fill(4){new ReusableMoveEffect[IntegerValue]}
     private val candidates1 =
-         (0 until f.xs.size)
+         f.xs.indices
         .filter(i => f.xs(i).domain.size > 1 && g.xs(rawValue(f.xs(i)) - g.offset).domain.size > 1)
 
     override def nextMove = {

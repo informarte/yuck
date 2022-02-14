@@ -694,7 +694,7 @@ final class ConstraintFactory
             assert(xs.size == ws.size)
             val y = compileConstant(Zero)
             val h = compileConstant(One)
-            val rects = for (i <- 0 until xs.size) yield new Disjoint2Rect(xs(i), y, ws(i), h)
+            val rects = for (i <- xs.indices) yield new Disjoint2Rect(xs(i), y, ws(i), h)
             val costs = createBoolChannel
             space.post(new Disjoint2(nextConstraintId, maybeGoal, rects.to(immutable.ArraySeq), strict, costs))
             List(costs)
@@ -706,7 +706,7 @@ final class ConstraintFactory
             assert(xs.size == ys.size)
             assert(xs.size == ws.size)
             assert(xs.size == hs.size)
-            val rects = for (i <- 0 until xs.size) yield new Disjoint2Rect(xs(i), ys(i), ws(i), hs(i))
+            val rects = for (i <- xs.indices) yield new Disjoint2Rect(xs(i), ys(i), ws(i), hs(i))
             val costs = createBoolChannel
             space.post(new Disjoint2(nextConstraintId, maybeGoal, rects.to(immutable.ArraySeq), strict, costs))
             List(costs)

@@ -182,7 +182,7 @@ final class IntegerRangeList
         if (isEmpty) EmptyIntegerRange
         else {
             val numberOfSubrangesDistribution = new ArrayBackedDistribution(ranges.size)
-            for (i <- 0 until ranges.size) {
+            for (i <- ranges.indices) {
                 numberOfSubrangesDistribution.setFrequency(i, safeMul(ranges(i).size, ranges(i).size + 1) / 2)
             }
             ranges(numberOfSubrangesDistribution.nextIndex(randomGenerator)).randomSubrange(randomGenerator)

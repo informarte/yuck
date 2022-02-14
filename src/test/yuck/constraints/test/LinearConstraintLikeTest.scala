@@ -63,7 +63,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
     def testPropagation: Unit = {
         setupValueTraits()
         // We simulate a propagation process where the first call to propagate computes a fixed point.
-        val lhs0 = for (i <- 0 until axs.size) yield (axs(i).a, axs(i).x.domain)
+        val lhs0 = for (i <- axs.indices) yield (axs(i).a, axs(i).x.domain)
         val dy0 = baseValueTraits.completeDomain
         val dz0 = z.domain
         val lhs1 = for ((a, dx) <- lhs0) yield (a, nonEmptyRandomSubdomain(dx))
@@ -115,7 +115,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
         space.post(createConstraint)
         space.propagate()
         if (costsDomain.isSingleton) {
-            for (i <- 0 until axs.size) {
+            for (i <- axs.indices) {
                 assertEq(axs(i).x.domain, lhs1(i)._2)
             }
             assertEq(z.domain, dz1)
