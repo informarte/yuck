@@ -24,7 +24,7 @@ final class OptimizationGoalTracker
     require(distribution.size == axs.size)
     require(axs.forall(_.a.toLong > Long.MinValue)) // see computeFrequency
 
-    override def toString = "optimizationGoalTracker([%s])".format(axs.mkString(", "), distribution)
+    override def toString = "optimizationGoalTracker([%s], %s)".format(axs.mkString(", "), distribution)
 
     override def inVariables = axs.view.map(_.x)
     override def outVariables = Nil
