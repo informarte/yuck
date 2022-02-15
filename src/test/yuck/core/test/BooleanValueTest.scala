@@ -17,7 +17,7 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
     private val helper = new OrderedValueTestHelper[BooleanValue](randomGenerator)
 
     @Test
-    def testConstruction: Unit = {
+    def testConstruction(): Unit = {
         for (a <- testRange) {
             assertEq(new BooleanValue(a).violation, a)
         }
@@ -25,7 +25,7 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
     }
 
     @Test
-    def testSpecialValues: Unit = {
+    def testSpecialValues(): Unit = {
         assertEq(True.violation, 0)
         assertEq(False.violation, 1)
         assertEq(False2.violation, 2)
@@ -40,7 +40,7 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
     }
 
     @Test
-    def testValueFactory: Unit = {
+    def testValueFactory(): Unit = {
         assertEq(BooleanValue(false), False)
         assertEq(BooleanValue(true), True)
         for (a <- testRange) {
@@ -51,7 +51,7 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
     }
 
     @Test
-    def testEquality: Unit = {
+    def testEquality(): Unit = {
         helper.testEquality(testData)
         for (a <- testData) {
             val b = new BooleanValue(a.violation)
@@ -66,7 +66,7 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
     }
 
     @Test
-    def testOrdering: Unit = {
+    def testOrdering(): Unit = {
         helper.testOrdering(testData)
         for (a <- testData) {
             for (b <- testData) {
@@ -76,7 +76,7 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
     }
 
     @Test
-    def testConfiguration: Unit = {
+    def testConfiguration(): Unit = {
         import BooleanValue.*
         assertEq(valueTraits, BooleanValueTraits)
         assertEq(valueOrdering, BooleanValueOrdering)

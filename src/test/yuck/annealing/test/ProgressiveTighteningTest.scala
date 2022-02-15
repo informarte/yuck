@@ -36,7 +36,7 @@ final class ProgressiveTighteningTest
     // - a neighbourhood over x (so y's value can only be changed by tightening)
     // - a monitor that counts the number of tightening events
     @Test
-    def testProgressiveTightening: Unit = {
+    def testProgressiveTightening(): Unit = {
         val space = new Space(logger, sigint)
         val baseDomain = IntegerRange(Zero, Nine)
         val x = new IntegerVariable(space.nextVariableId, "x", baseDomain)

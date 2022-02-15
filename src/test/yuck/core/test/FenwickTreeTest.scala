@@ -13,7 +13,7 @@ import yuck.test.util.UnitTest
 final class FenwickTreeTest extends UnitTest {
 
     @Test
-    def testAdding: Unit = {
+    def testAdding(): Unit = {
         val n = 256
         val ft = new FenwickTree(n)
         var sum = 0
@@ -42,7 +42,7 @@ final class FenwickTreeTest extends UnitTest {
     }
 
     @Test
-    def testIndexFinding: Unit = {
+    def testIndexFinding(): Unit = {
 
         val ft = new FenwickTree(6)
         ft.addDelta(2, 2)
@@ -72,7 +72,7 @@ final class FenwickTreeTest extends UnitTest {
     }
 
     @Test
-    def testScaling: Unit = {
+    def testScaling(): Unit = {
         val ft = new FenwickTree(4)
 
         ft.addDelta(1, 1)

@@ -38,13 +38,13 @@ final class RandomGeneratorTest extends UnitTest {
     }
 
     @Test
-    def testEagerShuffling: Unit = {
+    def testEagerShuffling(): Unit = {
         testShuffling(
             (randomGenerator, data) => randomGenerator.shuffle(data))
     }
 
     @Test
-    def testLazyShuffling: Unit = {
+    def testLazyShuffling(): Unit = {
         testShuffling(
             (randomGenerator, data) => {
                 val shuffledData = new mutable.ArrayBuffer[Int]

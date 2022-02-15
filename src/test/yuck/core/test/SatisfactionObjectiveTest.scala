@@ -18,7 +18,7 @@ final class SatisfactionObjectiveTest extends UnitTest {
     private val objective = new SatisfactionObjective(x)
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         assertEq(objective.optimizationMode, OptimizationMode.Min)
         assertEq(objective.targetCosts, True)
         assertEq(objective.primitiveObjectives, Seq(objective))
@@ -37,7 +37,7 @@ final class SatisfactionObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testCostComparison: Unit = {
+    def testCostComparison(): Unit = {
         assertEq(objective.compareCosts(True, True), 0)
         assertGt(objective.compareCosts(False, True), 0)
         assertLt(objective.compareCosts(True, False), 0)
@@ -45,7 +45,7 @@ final class SatisfactionObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testMoveAssessment: Unit = {
+    def testMoveAssessment(): Unit = {
         import scala.math.Ordering.Double.TotalOrdering
         val a = new HashMapBackedAssignment
         a.setValue(x, True)

@@ -35,12 +35,12 @@ final class NumberOfDistinctValuesTest extends UnitTest with ConstraintTestTooli
     }
 
     @Test
-    def testCounting: Unit = {
+    def testCounting(): Unit = {
         testCounting(xs)
     }
 
     @Test
-    def testHandlingOfDuplicateVariablesInCounting: Unit = {
+    def testHandlingOfDuplicateVariablesInCounting(): Unit = {
         testCounting(List(x1, x2, x2, x3))
     }
 

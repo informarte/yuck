@@ -51,27 +51,27 @@ class BooleanDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testEqRule: Unit = {
+    def testEqRule(): Unit = {
         testPruning(BooleanDomainPruner.eqRule, (a, b) => a.truthValue == b.truthValue)
     }
 
     @Test
-    def testNeRule: Unit = {
+    def testNeRule(): Unit = {
         testPruning(BooleanDomainPruner.neRule, (a, b) => a.truthValue != b.truthValue)
     }
 
     @Test
-    def testLeRule: Unit = {
+    def testLeRule(): Unit = {
         testPruning(BooleanDomainPruner.leRule, (a, b) => ! a.truthValue || b.truthValue)
     }
 
     @Test
-    def testLtRule: Unit = {
+    def testLtRule(): Unit = {
         testPruning(BooleanDomainPruner.ltRule, (a, b) => ! a.truthValue && b.truthValue)
     }
 
     @Test
-    def testConjunctionRule: Unit = {
+    def testConjunctionRule(): Unit = {
 
         type State = (Iterable[BooleanDomain], BooleanDomain)
 
@@ -134,7 +134,7 @@ class BooleanDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testDisjunctionRule: Unit = {
+    def testDisjunctionRule(): Unit = {
 
         type State = (Iterable[BooleanDomain], BooleanDomain)
 

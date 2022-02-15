@@ -49,7 +49,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
     }
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         setupValueTraits()
         val constraint = createConstraint
         assertEq(constraint.toString, "sum([%s], %s, %s, %s)".format(axs.mkString(", "), relation, z, costs))
@@ -60,7 +60,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
     }
 
     @Test
-    def testPropagation: Unit = {
+    def testPropagation(): Unit = {
         setupValueTraits()
         // We simulate a propagation process where the first call to propagate computes a fixed point.
         val lhs0 = for (i <- axs.indices) yield (axs(i).a, axs(i).x.domain)
@@ -128,7 +128,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
     }
 
     @Test
-    def testCostComputation: Unit = {
+    def testCostComputation(): Unit = {
         setupValueTraits()
         val maxViolation = 10
         space.post(createConstraint)

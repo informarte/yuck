@@ -28,7 +28,7 @@ class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean) extends MiniZincB
     }
 
     @Test
-    def testVerification: Unit = {
+    def testVerification(): Unit = {
         val task =
             MiniZincTestTask(
                 directoryLayout = MiniZincExamplesLayout,

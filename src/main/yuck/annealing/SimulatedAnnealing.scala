@@ -159,7 +159,7 @@ final class SimulatedAnnealing(
         roundLog.runtimeInMillis += (endTimeInMillis - startTimeInMillis)
         roundLog.numberOfMonteCarloAttempts = schedule.numberOfMonteCarloAttempts - numberOfRemainingMonteCarloAttempts
         roundLog.costsOfFinalProposal = costsOfCurrentProposal
-        roundLog.updateAcceptanceRatio
+        roundLog.updateAcceptanceRatio()
         assert(! objective.isHigherThan(roundLog.costsOfBestProposal, roundLog.costsOfInitialProposal))
         assert(! objective.isHigherThan(roundLog.costsOfBestProposal, roundLog.costsOfFinalProposal))
         roundLog.numberOfConsultations += space.numberOfConsultations

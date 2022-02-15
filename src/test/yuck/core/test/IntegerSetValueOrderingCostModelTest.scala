@@ -16,7 +16,7 @@ final class IntegerSetValueOrderingCostModelTest extends UnitTest with IntegerSe
     private val costModel = IntegerSetValueOrderingCostModel
 
     @Test
-    def testOrderingCostModel: Unit = {
+    def testOrderingCostModel(): Unit = {
         for (a <- testData) {
             for (b <- testData) {
                 assertEq(BooleanValue(costModel.eqViolation(a, b)).truthValue, a == b)

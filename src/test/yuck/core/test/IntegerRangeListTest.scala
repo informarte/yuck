@@ -23,7 +23,7 @@ final class IntegerRangeListTest extends UnitTest {
         IntegerRangeList(Vector(IntegerRange(null, MinusOne), IntegerRange(Five, Five), IntegerRange(Seven, Seven), IntegerRange(Ten, null))))
 
     @Test
-    def testRepresentation: Unit = {
+    def testRepresentation(): Unit = {
 
         helper.testRepresentation((a, b) => IntegerRangeList(a, b))
         val List(a, b, c, d) = testData
@@ -113,7 +113,7 @@ final class IntegerRangeListTest extends UnitTest {
     }
 
     @Test
-    def testEquality: Unit = {
+    def testEquality(): Unit = {
         val sampleSize = 16
         val testData = helper.createTestData(baseRange, sampleSize).map(ensureRangeList)
         helper.testEquality(testData)
@@ -130,14 +130,14 @@ final class IntegerRangeListTest extends UnitTest {
     }
 
     @Test
-    def testOrdering: Unit = {
+    def testOrdering(): Unit = {
         val sampleSize = 16
         val testData = helper.createTestData(baseRange, sampleSize).map(ensureRangeList)
         helper.testOrdering(testData)
     }
 
     @Test
-    def testOperations: Unit = {
+    def testOperations(): Unit = {
         val sampleSize = 8
         val testData = helper.createTestData(baseRange, sampleSize).map(ensureRangeList)
         val extendedBaseRange = IntegerRange(baseRange.lb - One, baseRange.ub + One)
@@ -145,7 +145,7 @@ final class IntegerRangeListTest extends UnitTest {
     }
 
     @Test
-    def testRandomSubdomainCreation: Unit = {
+    def testRandomSubdomainCreation(): Unit = {
         val testData = this.testData ++ IntegerDomainTestHelper.createEdgeCases(baseRange).map(ensureRangeList)
         helper.testRandomSubrangeCreation(testData)
         helper.testRandomSubdomainCreation(testData)

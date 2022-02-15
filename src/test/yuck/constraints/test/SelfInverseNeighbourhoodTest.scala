@@ -16,7 +16,7 @@ import yuck.core.*
 final class SelfInverseNeighbourhoodTest(fOffset: Int) extends InverseNeighbourhoodTest {
 
     @Test
-    def testMoveGeneration: Unit = {
+    def testMoveGeneration(): Unit = {
         val domainSize = 10
         val fDomain = IntegerRange(fOffset, fOffset + domainSize - 1)
         val xs = for (i <- 1 to domainSize) yield new IntegerVariable(space.nextVariableId, "x%d".format(i), fDomain)

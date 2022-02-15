@@ -73,7 +73,7 @@ final class Delivery
     override def outVariables =
         nodes.diff(startNodes).values.view.map(i => arrivalTimes(i.value - offset)) ++ Seq(totalTravelTime, costs)
 
-    private def checkSetup: Unit = {
+    private def checkSetup(): Unit = {
         val space = this.space.get.get
         val maybeCircuit =
             space.directlyAffectedConstraints(succ(0)).iterator
@@ -103,7 +103,7 @@ final class Delivery
     }
 
     override def initialize(now: SearchState) = {
-        checkSetup
+        checkSetup()
         x2Tour.clear()
         effects.clear()
         val numberOfTours = startNodes.size

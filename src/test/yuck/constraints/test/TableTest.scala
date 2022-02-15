@@ -27,7 +27,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
         elems.toVector.map(IntegerValue.apply).grouped(m).toVector
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         val rows = createTable(3)(0, 0, 0, 1, 2, 3)
         val constraint = new Table(space.nextConstraintId, null, xs, rows, costs)
         assertEq(constraint.toString, "table([x1, x2, x3], [[0, 0, 0], [1, 2, 3]], costs)")
@@ -38,7 +38,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testPropagation: Unit = {
+    def testPropagation(): Unit = {
         val rows =
             createTable(2)(
                 0, 0,
@@ -59,7 +59,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testHandlingOfDuplicateVariablesInPropagation: Unit = {
+    def testHandlingOfDuplicateVariablesInPropagation(): Unit = {
         val rows =
             createTable(2)(
                 0, 0,
@@ -78,7 +78,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testCostComputation: Unit = {
+    def testCostComputation(): Unit = {
         val rows = createTable(3)(0, 0, 0, 1, 2, 3)
         space.post(new Table(space.nextConstraintId, null, xs, rows, costs))
         runScenario(
@@ -100,7 +100,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testHandlingOfDuplicateVariablesInCostComputation: Unit = {
+    def testHandlingOfDuplicateVariablesInCostComputation(): Unit = {
         val rows = createTable(3)(0, 0, 0, 1, 2, 3, 2, 2, 3)
         space.post(new Table(space.nextConstraintId, null, Vector(x1, x1, x2), rows, costs))
         runScenario(
@@ -150,24 +150,24 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testNeighbourhoodGeneration: Unit = {
+    def testNeighbourhoodGeneration(): Unit = {
         assertNeighbourhood(xs, createTable(3)(0, 0, 0, 1, 2, 3))
     }
 
     @Test
-    def testHandlingOfDuplicateVariablesInNeighbourhoodGeneration: Unit = {
+    def testHandlingOfDuplicateVariablesInNeighbourhoodGeneration(): Unit = {
         assertNoNeighbourhood(Vector(x1, x2, x1), createTable(3)(0, 0, 0, 1, 2, 3))
     }
 
     @Test
-    def testHandlingOfChannelVariablesInNeighbourhoodGeneration: Unit = {
+    def testHandlingOfChannelVariablesInNeighbourhoodGeneration(): Unit = {
         import yuck.constraints.Plus
         space.post(new Plus(space.nextConstraintId, null, x1, x2, x3))
         assertNoNeighbourhood(xs, createTable(3)(0, 0, 0, 1, 2, 3))
     }
 
     @Test
-    def testHandlingOfFixedColumnsInNeighbourhoodGeneration: Unit = {
+    def testHandlingOfFixedColumnsInNeighbourhoodGeneration(): Unit = {
         x1.pruneDomain(IntegerDomain(1))
         assertNeighbourhood(xs, createTable(3)(0, 0, 0, 1, 2, 3, 1, 3, 4))
     }

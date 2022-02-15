@@ -17,7 +17,7 @@ import yuck.flatzinc.test.util.*
 final class TableBenchmarks(task: MiniZincTestTask) extends MiniZincBasedTest {
 
     @Test
-    def solve: Unit = {
+    def solve(): Unit = {
         super.solve(task)
     }
 

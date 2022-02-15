@@ -23,7 +23,7 @@ final class ConjunctionTest extends UnitTest with ConstraintTestTooling {
     private val constraint = new Conjunction(space.nextConstraintId, null, xs, y)
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         assertEq(constraint.toString, "y = and([x1, x2, x3])")
         assertEq(constraint.inVariables.size, xs.size)
         assertEq(constraint.inVariables.toSet, xs.toSet)
@@ -32,7 +32,7 @@ final class ConjunctionTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testPropagation: Unit = {
+    def testPropagation(): Unit = {
         space.post(constraint)
         runScenario(
             TestScenario(
@@ -52,7 +52,7 @@ final class ConjunctionTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testComputationOfViolation: Unit = {
+    def testComputationOfViolation(): Unit = {
         space.post(constraint)
         runScenario(
             TestScenario(

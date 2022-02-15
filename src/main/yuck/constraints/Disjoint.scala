@@ -81,7 +81,7 @@ abstract class Disjoint
     }
 
     final override def consult(before: SearchState, after: SearchState, move: Move) = {
-        rTreeTransaction.rollback
+        rTreeTransaction.rollback()
         futureCosts = currentCosts
         val is =
             if (move.size == 1) x2is(move.effects.head.x)
@@ -114,7 +114,7 @@ abstract class Disjoint
     }
 
     final override def commit(before: SearchState, after: SearchState, move: Move) = {
-        rTreeTransaction.commit
+        rTreeTransaction.commit()
         assert(rTree.getEntryCount == n)
         currentCosts = futureCosts
         effect

@@ -22,7 +22,7 @@ final class MinimumTest extends UnitTest with ConstraintTestTooling {
     private val y = new IntegerVariable(space.nextVariableId, "y", CompleteIntegerRange)
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         val constraint = new Minimum(space.nextConstraintId, null, xs, y)
         assertEq(constraint.toString, "y = min([x1, x2, x3])")
         assertEq(constraint.inVariables.size, xs.size)
@@ -42,12 +42,12 @@ final class MinimumTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testPropagation: Unit = {
+    def testPropagation(): Unit = {
         testPropagation(xs)
     }
 
     @Test
-    def testHandlingOfDuplicateVariablesInPropagation: Unit = {
+    def testHandlingOfDuplicateVariablesInPropagation(): Unit = {
         testPropagation(List(x1, x2, x2, x3))
     }
 
@@ -65,12 +65,12 @@ final class MinimumTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testCostComputation: Unit = {
+    def testCostComputation(): Unit = {
         testCostComputation(xs)
     }
 
     @Test
-    def testHandlingOfDuplicateVariablesInCostComputation: Unit = {
+    def testHandlingOfDuplicateVariablesInCostComputation(): Unit = {
         testCostComputation(List(x1, x2, x2, x3))
     }
 

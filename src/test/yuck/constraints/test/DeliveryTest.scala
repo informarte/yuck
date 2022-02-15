@@ -100,7 +100,7 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
     }
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         assertEq(
             delivery.toString,
             "delivery(%s, %s, [%s], [%s], ..., %s, %s, %s)"
@@ -116,7 +116,7 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
     }
 
     @Test
-    def testInitialize: Unit = {
+    def testInitialize(): Unit = {
         val neighbourhood = createNeighbourhood
         val sampleSize = 1000
         for (i <- 1 to sampleSize) {
@@ -133,7 +133,7 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
     }
 
     @Test
-    def testConsultAndCommit: Unit = {
+    def testConsultAndCommit(): Unit = {
         val neighbourhood = createNeighbourhood
         space.initialize()
         val sampleSize = 1000

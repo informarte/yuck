@@ -28,7 +28,7 @@ final class RandomReassignmentGeneratorTest
         new NeighbourhoodTestHelper(logger, xs, moveSizeDistribution, maybeHotSpotDistribution, maybeFairVariableChoiceRate)
 
     @Test
-    def testNeighbourhood: Unit = {
+    def testNeighbourhood(): Unit = {
         val neighbourhood =
             new RandomReassignmentGenerator(
                 space, xs, randomGenerator, moveSizeDistribution, maybeHotSpotDistribution, maybeFairVariableChoiceRate)

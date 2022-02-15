@@ -107,7 +107,7 @@ object FlatZincRunner extends YuckLogging {
             scoped(new ManagedShutdownHook({})) {
                 scoped(logManager) {
                     setupLogging(cl)
-                    logVersion
+                    logVersion()
                     val sigint = new SettableSigint
                     scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set()})) {
                         maybeTimeboxed(cl.cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
@@ -148,7 +148,7 @@ object FlatZincRunner extends YuckLogging {
         logger.setThresholdLogLevel(cl.logLevel)
     }
 
-    private def logVersion: Unit = {
+    private def logVersion(): Unit = {
         logger.withLogScope("Yuck version") {
             logger.log("Git branch: %s".format(BuildInfo.gitBranch))
             logger.log("Git commit data: %s".format(BuildInfo.gitCommitDate))

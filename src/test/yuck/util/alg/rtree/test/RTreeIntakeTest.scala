@@ -19,7 +19,7 @@ final class RTreeIntakeTest extends UnitTest {
     // When a rectangle is inserted n times, the R tree will contain it n times.
 
     @Test
-    def testDoubleInsertion1: Unit = {
+    def testDoubleInsertion1(): Unit = {
         val r = new Rect2d(0, 0, 7, 7)
         rTree.add(r)
         rTree.add(r)
@@ -27,7 +27,7 @@ final class RTreeIntakeTest extends UnitTest {
     }
 
     @Test
-    def testDoubleInsertion2: Unit = {
+    def testDoubleInsertion2(): Unit = {
         val r1 = new Rect2d(0, 0, 7, 7)
         val r2 = new Rect2d(0, 0, 7, 7)
         rTree.add(r1)
@@ -38,7 +38,7 @@ final class RTreeIntakeTest extends UnitTest {
     // On deletion, however, all identical rectangles will be deleted.
 
     @Test
-    def testAmbiguousDeletion1: Unit = {
+    def testAmbiguousDeletion1(): Unit = {
         val r = new Rect2d(0, 0, 7, 7)
         rTree.add(r)
         rTree.add(r)
@@ -47,7 +47,7 @@ final class RTreeIntakeTest extends UnitTest {
     }
 
     @Test
-    def testAmbiguousDeletion2: Unit = {
+    def testAmbiguousDeletion2(): Unit = {
         val r1 = new Rect2d(0, 0, 7, 7)
         val r2 = new Rect2d(0, 0, 7, 7)
         rTree.add(r1)
@@ -57,7 +57,7 @@ final class RTreeIntakeTest extends UnitTest {
     }
 
     @Test
-    def testContains: Unit = {
+    def testContains(): Unit = {
         val r1 = new Rect2d(0, 0, 7, 7)
         val r2 = new Rect2d(0, 0, 8, 8)
         rTree.add(r2)

@@ -26,7 +26,7 @@ final class ElementConstTest(offset: Int) extends UnitTest with ConstraintTestTo
     private val constraint = new ElementConst(space.nextConstraintId, null, as, i, y, offset)
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         assertEq(constraint.toString, "y = element(i, [4, 7, 2], %d)".format(offset))
         assertEq(constraint.inVariables.size, 1)
         assertEq(constraint.inVariables.head, i)
@@ -35,7 +35,7 @@ final class ElementConstTest(offset: Int) extends UnitTest with ConstraintTestTo
     }
 
     @Test
-    def testPropagation: Unit = {
+    def testPropagation(): Unit = {
         space.post(constraint)
         runScenario(
             TestScenario(
@@ -50,7 +50,7 @@ final class ElementConstTest(offset: Int) extends UnitTest with ConstraintTestTo
     }
 
     @Test
-    def testArrayAccess: Unit = {
+    def testArrayAccess(): Unit = {
         space.post(constraint)
         runScenario(
             TestScenario(

@@ -12,7 +12,7 @@ trait YuckAssert {
 
     protected def assert(b: Boolean): Unit = {
         if (! b) {
-            Assert.fail
+            Assert.fail()
         }
     }
 

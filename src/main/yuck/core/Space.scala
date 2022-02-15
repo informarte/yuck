@@ -119,7 +119,7 @@ final class Space(
 
     private type ConstraintOrder = Array[Int]
     private var constraintOrder: ConstraintOrder = null // created by initialize
-    private def sortConstraintsTopologically: Unit = {
+    private def sortConstraintsTopologically(): Unit = {
         constraintOrder = new ConstraintOrder(constraints.iterator.map(_.id).max.rawId + 1)
         // The topological ordering exists because it was possible to build the flow model.
         for ((constraint, i) <- new TopologicalOrderIterator[Constraint, DefaultEdge](flowModel).asScala.zipWithIndex) {
@@ -540,7 +540,7 @@ final class Space(
      */
     def initialize(): Space = {
         if (constraintOrder.eq(null)) {
-            sortConstraintsTopologically
+            sortConstraintsTopologically()
             // free memory
             flowModel = null
         }
@@ -752,7 +752,7 @@ final class Space(
     }
 
     /** Throws when the internal data structures are inconsistent. */
-    def checkConsistency: Unit = {
+    def checkConsistency(): Unit = {
         if (flowModel.ne(null)) {
             assert(flowModel.vertexSet().size() == constraints.size)
         }

@@ -24,7 +24,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
     private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         val constraint = new Alldistinct(space.nextConstraintId, null, xs, costs)
         assertEq(constraint.toString, "alldistinct([x1, x2, x3], costs)")
         assertEq(constraint.inVariables.size, 3)
@@ -34,7 +34,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testPropagation: Unit = {
+    def testPropagation(): Unit = {
         space.post(new Alldistinct(space.nextConstraintId, null, xs, costs))
         runScenario(
             TestScenario(
@@ -49,7 +49,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testHandlingOfDuplicateVariablesInPropagation: Unit = {
+    def testHandlingOfDuplicateVariablesInPropagation(): Unit = {
         space.post(new Alldistinct(space.nextConstraintId, null, Vector(x1, x2, x2), costs))
         runScenario(
             TestScenario(
@@ -62,7 +62,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testCostComputation: Unit = {
+    def testCostComputation(): Unit = {
         space.post(new Alldistinct(space.nextConstraintId, null, xs, costs))
         runScenario(
             TestScenario(
@@ -77,7 +77,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testHandlingOfDuplicateVariablesInCostComputation: Unit = {
+    def testHandlingOfDuplicateVariablesInCostComputation(): Unit = {
         space.post(new Alldistinct(space.nextConstraintId, null, Vector(x1, x2, x2), costs))
         runScenario(
             TestScenario(
@@ -112,49 +112,49 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testNeighbourhoodGenerationWithEqualDomainsAndJustEnoughValues: Unit = {
+    def testNeighbourhoodGenerationWithEqualDomainsAndJustEnoughValues(): Unit = {
         xs.foreach(_.pruneDomain(IntegerRange(0, xs.size - 1)))
         assertNeighbourhood(xs)
     }
 
     @Test
-    def testNeighbourhoodGenerationWithEqualDomainsAndMoreValuesThanVariables: Unit = {
+    def testNeighbourhoodGenerationWithEqualDomainsAndMoreValuesThanVariables(): Unit = {
         assertNeighbourhood(xs)
     }
 
     @Test
-    def testNeighbourhoodGenerationWithDifferentDomainsAndJustEnoughValues: Unit = {
+    def testNeighbourhoodGenerationWithDifferentDomainsAndJustEnoughValues(): Unit = {
         xs.indices.foreach(i => xs(i).pruneDomain(IntegerRange(0, xs.size - 1).diff(IntegerDomain(List(i)))))
         assertNeighbourhood(xs)
     }
 
     @Test
-    def testNeighbourhoodGenerationWithDifferentDomainsAndMoreValuesThanVariables: Unit = {
+    def testNeighbourhoodGenerationWithDifferentDomainsAndMoreValuesThanVariables(): Unit = {
         xs.indices.foreach(i => xs(i).pruneDomain(xs(i).domain.diff(IntegerDomain(List(i)))))
         assertNeighbourhood(xs)
     }
 
     @Test
-    def testHandlingOfDuplicateVariablesInNeighbourhoodGeneration: Unit = {
+    def testHandlingOfDuplicateVariablesInNeighbourhoodGeneration(): Unit = {
         assertNoNeighbourhood(Vector(x1, x2, x2))
     }
 
     @Test
-    def testHandlingOfChannelVariablesInNeighbourhoodGeneration: Unit = {
+    def testHandlingOfChannelVariablesInNeighbourhoodGeneration(): Unit = {
         import yuck.constraints.Plus
         space.post(new Plus(space.nextConstraintId, null, x1, x2, x3))
         assertNoNeighbourhood(xs)
     }
 
     @Test
-    def testHandlingOfFixedAssignmentsInNeighbourhoodGeneration1: Unit = {
+    def testHandlingOfFixedAssignmentsInNeighbourhoodGeneration1(): Unit = {
         x1.pruneDomain(ZeroToZeroIntegerRange)
         space.setValue(x1, Zero)
         assertNoNeighbourhood(xs)
     }
 
     @Test
-    def testHandlingOfFixedAssignmentsInNeighbourhoodGeneration2: Unit = {
+    def testHandlingOfFixedAssignmentsInNeighbourhoodGeneration2(): Unit = {
         x2.pruneDomain(x2.domain.diff(ZeroToZeroIntegerRange))
         x3.pruneDomain(x3.domain.diff(ZeroToZeroIntegerRange))
         assertNeighbourhood(xs)

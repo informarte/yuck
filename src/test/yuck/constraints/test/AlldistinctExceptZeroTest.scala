@@ -22,7 +22,7 @@ final class AlldistinctExceptZeroTest extends UnitTest with ConstraintTestToolin
     private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         val constraint = new AlldistinctExceptZero(space.nextConstraintId, null, xs, costs)
         assertEq(constraint.toString, "alldistinctExceptZero([x1, x2, x3], costs)")
         assertEq(constraint.inVariables.size, 3)
@@ -32,7 +32,7 @@ final class AlldistinctExceptZeroTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testCostComputation: Unit = {
+    def testCostComputation(): Unit = {
         space.post(new AlldistinctExceptZero(space.nextConstraintId, null, xs, costs))
         runScenario(
             TestScenario(
@@ -50,7 +50,7 @@ final class AlldistinctExceptZeroTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testCostComputationWithAVariableOccuringTwice: Unit = {
+    def testCostComputationWithAVariableOccuringTwice(): Unit = {
         space.post(new AlldistinctExceptZero(space.nextConstraintId, null, List(x1, x2, x2), costs))
         runScenario(
             TestScenario(

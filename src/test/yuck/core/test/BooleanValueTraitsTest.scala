@@ -15,13 +15,13 @@ final class BooleanValueTraitsTest extends UnitTest {
     import BooleanValueTraits.*
 
     @Test
-    def testSpecialDomains: Unit = {
+    def testSpecialDomains(): Unit = {
         assertEq(emptyDomain, EmptyBooleanDomain)
         assertEq(completeDomain, CompleteBooleanDomain)
     }
 
     @Test
-    def testDomainFactories: Unit = {
+    def testDomainFactories(): Unit = {
         assertEq(createDomain(Set()), EmptyBooleanDomain)
         assertEq(createDomain(Set(False)), FalseDomain)
         assertEq(createDomain(Set(True)), TrueDomain)
@@ -34,7 +34,7 @@ final class BooleanValueTraitsTest extends UnitTest {
     }
 
     @Test
-    def testVariableFactories: Unit = {
+    def testVariableFactories(): Unit = {
         val space = new Space(logger, sigint)
         val x = createVariable(space, "x", FalseDomain)
         val c = createChannel(space)
@@ -44,19 +44,19 @@ final class BooleanValueTraitsTest extends UnitTest {
     }
 
     @Test
-    def testValueCasting: Unit = {
+    def testValueCasting(): Unit = {
         safeDowncast(False)
         assertEx(safeDowncast(Zero), classOf[ClassCastException])
     }
 
     @Test
-    def testDomainCasting: Unit = {
+    def testDomainCasting(): Unit = {
         safeDowncast(CompleteBooleanDecisionDomain)
         assertEx(safeDowncast(CompleteIntegerRange), classOf[ClassCastException])
     }
 
     @Test
-    def testVariableCasting: Unit = {
+    def testVariableCasting(): Unit = {
         val space = new Space(logger, sigint)
         val b = space.createVariable("b", CompleteBooleanDecisionDomain)
         val i = space.createVariable("i", CompleteIntegerRange)
@@ -65,7 +65,7 @@ final class BooleanValueTraitsTest extends UnitTest {
     }
 
     @Test
-    def testConfiguration: Unit = {
+    def testConfiguration(): Unit = {
         assertEq(valueType, classOf[BooleanValue])
         assertEq(valueOrdering, BooleanValueOrdering)
         assertEq(orderingCostModel, BooleanValueOrderingCostModel)

@@ -19,7 +19,7 @@ class AlldistinctNeighbourhoodTest extends UnitTest {
     private val now = space.searchState
 
     @Test
-    def testMoveGeneration: Unit = {
+    def testMoveGeneration(): Unit = {
         val numberOfVariables = 100
         val xs = for (i <- 0 until numberOfVariables) yield {
             val dx = IntegerRange(1, 2 * numberOfVariables).diff(IntegerDomain(List(i)))

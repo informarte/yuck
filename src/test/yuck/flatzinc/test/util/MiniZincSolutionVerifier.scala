@@ -107,7 +107,7 @@ class MiniZincSolutionVerifier(
         } else {
             solutionWriter.write("include \"%s.mzn\";".format(task.verificationModelName))
         }
-        solutionWriter.close
+        solutionWriter.close()
         val solver = task.verificationTool match {
             case Gecode => "gecode"
             case Chuffed => "chuffed"

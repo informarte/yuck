@@ -16,14 +16,14 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
     private val helper = new OrderedValueTestHelper[IntegerValue](randomGenerator)
 
     @Test
-    def testConstruction: Unit = {
+    def testConstruction(): Unit = {
         for (a <- testRange) {
             assertEq(new IntegerValue(a).value, a)
         }
     }
 
     @Test
-    def testSpecialValues: Unit = {
+    def testSpecialValues(): Unit = {
         assertEq(MinusOne.value, -1)
         assertEq(Zero.value, 0)
         assertEq(One.value, 1)
@@ -39,7 +39,7 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
     }
 
     @Test
-    def testValueFactory: Unit = {
+    def testValueFactory(): Unit = {
         for (a <- testRange) {
             assertEq(IntegerValue(a).value, a)
             assert(IntegerValue(a).eq(IntegerValue(a)))
@@ -47,7 +47,7 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
     }
 
     @Test
-    def testEquality: Unit = {
+    def testEquality(): Unit = {
         helper.testEquality(testData)
         for (a <- testData) {
             val b = new IntegerValue(a.value)
@@ -62,7 +62,7 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
     }
 
     @Test
-    def testOrdering: Unit = {
+    def testOrdering(): Unit = {
         helper.testOrdering(testData)
         for (a <- testData) {
             for (b <- testData) {
@@ -74,7 +74,7 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
     }
 
     @Test
-    def testNumericalOperations: Unit = {
+    def testNumericalOperations(): Unit = {
         for (a <- testData) {
             for (b <- testData) {
                 assertEq((a + b).value, a.value + b.value)
@@ -114,7 +114,7 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
     }
 
     @Test
-    def testOverflowCheckingInNumericalOperations: Unit = {
+    def testOverflowCheckingInNumericalOperations(): Unit = {
         IntegerValue(Int.MaxValue) + Zero
         assertEx(IntegerValue(Int.MaxValue) + One, classOf[ArithmeticException])
         IntegerValue(Int.MinValue) - Zero
@@ -138,7 +138,7 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
     }
 
     @Test
-    def testConfiguration: Unit = {
+    def testConfiguration(): Unit = {
         import IntegerValue.*
         assertEq(valueTraits, IntegerValueTraits)
         assertEq(numericalOperations, IntegerValueOperations)

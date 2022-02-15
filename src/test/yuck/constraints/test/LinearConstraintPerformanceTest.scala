@@ -49,7 +49,7 @@ class LinearConstraintPerformanceTest(relation: OrderingRelation, withUnitCoeffi
     private val afters = for (move <- moves) yield new MoveSimulator(now, move)
 
     @Test
-    def testConsult: Unit = {
+    def testConsult(): Unit = {
         var i = 0
         while (i < numberOfIterations) {
             val move = moves(i % numberOfMoves)
