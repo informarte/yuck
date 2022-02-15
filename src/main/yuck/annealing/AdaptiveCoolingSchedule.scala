@@ -5,7 +5,7 @@ package yuck.annealing
  * the solver (that uses this schedule) reports a successful round.
  *
  * The temperature for the next round depends on n and the given cooling rate r:
- * t' = t * r^n and hence the temperature does not drop after a successful round.
+ * t' = t * r^n^ and hence the temperature does not drop after a successful round.
  *
  * Freezes up when the temperature drops below the given final temperature or when
  * n exceeds the given threshold, that is when the search gets stuck in an attraction
