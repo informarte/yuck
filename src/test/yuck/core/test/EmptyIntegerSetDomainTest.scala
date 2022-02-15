@@ -13,7 +13,7 @@ import yuck.test.util.UnitTest
 final class EmptyIntegerSetDomainTest extends UnitTest {
 
     @Test
-    def testEverything: Unit = {
+    def testEverything(): Unit = {
         val randomGenerator = new JavaRandomGenerator
         val d = EmptyIntegerSetDomain
         assertEq(d, d)

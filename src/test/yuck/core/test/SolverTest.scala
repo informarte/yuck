@@ -45,7 +45,7 @@ final class SolverTest extends UnitTest {
     }
 
     @Test
-    def testTimeboxingWithTimeout: Unit = {
+    def testTimeboxingWithTimeout(): Unit = {
         val sigint = new RevocableSigint
         val result = new Result("0", null, null, null)
         val solver = new GoodSolver(result, 100, sigint)
@@ -62,7 +62,7 @@ final class SolverTest extends UnitTest {
     }
 
     @Test
-    def testTimeboxingWithoutTimeout: Unit = {
+    def testTimeboxingWithoutTimeout(): Unit = {
         val result = new Result("0", null, null, null)
         val solver = new TimeboxedSolver(new GoodSolver(result, 0, sigint), 1, logger, sigint)
         solver.call()
@@ -74,7 +74,7 @@ final class SolverTest extends UnitTest {
     }
 
     @Test
-    def testTimeboxingWithException: Unit = {
+    def testTimeboxingWithException(): Unit = {
         val solver = new TimeboxedSolver(new BadSolver, 1, logger, sigint)
         assertEx(solver.call(), classOf[BadSolverException])
         assert(! solver.hasFinished)
@@ -85,7 +85,7 @@ final class SolverTest extends UnitTest {
     }
 
     @Test
-    def testOnDemandGenerationWithResult: Unit = {
+    def testOnDemandGenerationWithResult(): Unit = {
         val result = new Result("0", null, null, null)
         val solverGenerator = new SolverGenerator {
             override def solverName = result.solverName
@@ -103,7 +103,7 @@ final class SolverTest extends UnitTest {
     }
 
     @Test
-    def testOnDemandGenerationWithException: Unit = {
+    def testOnDemandGenerationWithException(): Unit = {
         val solverGenerator = new SolverGenerator {
             override def solverName = classOf[BadSolver].getSimpleName
             override def call = new BadSolver
@@ -118,7 +118,7 @@ final class SolverTest extends UnitTest {
     }
 
     @Test
-    def testParallelSolvingWithSolution: Unit = {
+    def testParallelSolvingWithSolution(): Unit = {
         val sigint = new RevocableSigint
         val space = new Space(logger, sigint)
         val x = new IntegerVariable(space.nextVariableId, "x", NonNegativeIntegerRange)
@@ -145,7 +145,7 @@ final class SolverTest extends UnitTest {
     }
 
     @Test
-    def testParallelSolvingWithoutSolution: Unit = {
+    def testParallelSolvingWithoutSolution(): Unit = {
         val sigint = new RevocableSigint
         val space = new Space(logger, sigint)
         val x = new IntegerVariable(space.nextVariableId, "x", NonNegativeIntegerRange)
@@ -169,7 +169,7 @@ final class SolverTest extends UnitTest {
     }
 
     @Test
-    def testParallelSolvingWithException: Unit = {
+    def testParallelSolvingWithException(): Unit = {
         val sigint = new RevocableSigint
         val space = new Space(logger, sigint)
         val x = new IntegerVariable(space.nextVariableId, "x", NonNegativeIntegerRange)
@@ -193,7 +193,7 @@ final class SolverTest extends UnitTest {
 
     // Tests on-demand solver generation, parallel solving, timeboxing, and resumption after timeout
     @Test
-    def testPracticalSetting: Unit = {
+    def testPracticalSetting(): Unit = {
         val sigint = new RevocableSigint
         val space = new Space(logger, sigint)
         val x = new IntegerVariable(space.nextVariableId, "x", NonNegativeIntegerRange)

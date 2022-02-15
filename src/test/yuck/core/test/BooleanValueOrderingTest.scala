@@ -15,7 +15,7 @@ final class BooleanValueOrderingTest extends UnitTest with BooleanValueTestData 
     private val randomGenerator = new JavaRandomGenerator
 
     @Test
-    def testOrdering: Unit = {
+    def testOrdering(): Unit = {
         val helper = new OrderingTestHelper[BooleanValue](randomGenerator)
         val ord1 = BooleanValueOrdering
         helper.testOrdering(testData, ord1)

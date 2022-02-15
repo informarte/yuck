@@ -14,7 +14,7 @@ import yuck.test.util.UnitTest
 class SatisfactionGoalTrackerTest extends UnitTest {
 
     @Test
-    def testTracking: Unit = {
+    def testTracking(): Unit = {
         val space = new Space(logger, sigint)
         val IndexedSeq(c1, c2, c3) =
             (0 to 2).map(i => new BooleanVariable(space.nextVariableId, "c%d".format(i), BooleanChannelDomain))

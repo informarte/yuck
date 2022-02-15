@@ -19,7 +19,7 @@ final class IntegerPowersetDomainTest extends UnitTest {
     private val baseRange = IntegerRange(IntegerValue(-5), Five)
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         val randomGenerator = new JavaRandomGenerator
 
         // base domains
@@ -174,7 +174,7 @@ final class IntegerPowersetDomainTest extends UnitTest {
     }
 
     @Test
-    def testEquality: Unit = {
+    def testEquality(): Unit = {
         val sampleSize = 16
         val testData =
             helper.createTestData(baseRange, sampleSize)
@@ -193,7 +193,7 @@ final class IntegerPowersetDomainTest extends UnitTest {
     }
 
     @Test
-    def testOrdering: Unit = {
+    def testOrdering(): Unit = {
         val sampleSize = 8
         val testData =
             helper.createTestData(baseRange, sampleSize)
@@ -202,7 +202,7 @@ final class IntegerPowersetDomainTest extends UnitTest {
     }
 
     @Test
-    def testSetOperations: Unit = {
+    def testSetOperations(): Unit = {
         // All operations forward to their counterparts in IntegerDomain.
         // Hence we skip the testing.
     }

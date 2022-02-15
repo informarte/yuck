@@ -15,7 +15,7 @@ final class IntegerSetValueOrderingTest extends UnitTest with IntegerSetValueTes
     override protected val randomGenerator = new JavaRandomGenerator
 
     @Test
-    def testOrdering: Unit = {
+    def testOrdering(): Unit = {
         val helper = new OrderingTestHelper[IntegerSetValue](randomGenerator)
         val ord1 = IntegerSetValueOrdering
         helper.testOrdering(testData, ord1)

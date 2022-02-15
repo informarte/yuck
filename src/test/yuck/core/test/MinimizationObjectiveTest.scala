@@ -20,7 +20,7 @@ final class MinimizationObjectiveTest extends UnitTest {
     private val objective = new MinimizationObjective(x, Some(baseDomain.lb + One), Some(y))
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         assertEq(objective.optimizationMode, OptimizationMode.Min)
         assertEq(objective.targetCosts, baseDomain.lb + One)
         assertEq(objective.primitiveObjectives, Seq(objective))
@@ -40,14 +40,14 @@ final class MinimizationObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testCostComparison: Unit = {
+    def testCostComparison(): Unit = {
         assertEq(objective.compareCosts(Zero, Zero), 0)
         assertLt(objective.compareCosts(Zero, One), 0)
         assertGt(objective.compareCosts(One, Zero), 0)
     }
 
     @Test
-    def testMoveAssessment: Unit = {
+    def testMoveAssessment(): Unit = {
         import scala.math.Ordering.Double.TotalOrdering
         val a = new HashMapBackedAssignment
         a.setValue(x, Zero)
@@ -64,7 +64,7 @@ final class MinimizationObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testSearchForActualObjectiveValue: Unit = {
+    def testSearchForActualObjectiveValue(): Unit = {
         space
             .post(new DummyConstraint(space.nextConstraintId, List(x), Nil))
             .initialize()
@@ -78,7 +78,7 @@ final class MinimizationObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testTightening: Unit = {
+    def testTightening(): Unit = {
         space
             .post(new DummyConstraint(space.nextConstraintId, List(x), Nil))
             .setValue(y, y.domain.ub)

@@ -28,7 +28,7 @@ class NeighbourhoodCollectionTest
         new NeighbourhoodTestHelper(logger, xs, moveSizeDistribution, maybeHotSpotDistribution, maybeFairChoiceRate)
 
     @Test
-    def testMoveGeneration: Unit = {
+    def testMoveGeneration(): Unit = {
         val neighbourhoods =
             for (i <- 0 until numberOfVariables) yield
                 new SimpleRandomReassignmentGenerator(space, Vector(xs(i)), randomGenerator)
@@ -40,7 +40,7 @@ class NeighbourhoodCollectionTest
     }
 
     @Test
-    def testCommitForwarding: Unit = {
+    def testCommitForwarding(): Unit = {
         final class CommitChecker(neighbourhood: Neighbourhood) extends Neighbourhood {
             var lastMove: Move = null
             override def searchVariables = neighbourhood.searchVariables

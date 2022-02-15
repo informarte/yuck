@@ -16,7 +16,7 @@ import yuck.test.util.UnitTest
 class OptimizationGoalTrackerTest extends UnitTest {
 
     @Test
-    def testMinimizationMode: Unit = {
+    def testMinimizationMode(): Unit = {
         val d = new ArrayBackedDistribution(2)
         val space = new Space(logger, sigint)
         val dx = IntegerRange(IntegerValue(-10), IntegerValue(50))
@@ -68,7 +68,7 @@ class OptimizationGoalTrackerTest extends UnitTest {
     }
 
     @Test
-    def testMaximizationMode: Unit = {
+    def testMaximizationMode(): Unit = {
         val d = new ArrayBackedDistribution(2)
         val space = new Space(logger, sigint)
         val dx = IntegerRange(IntegerValue(0), IntegerValue(100))

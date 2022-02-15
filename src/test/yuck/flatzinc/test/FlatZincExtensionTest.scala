@@ -20,7 +20,7 @@ final class FlatZincExtensionTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasDisjunctiveConstraint]))
-    def testBool2CostsFunction: Unit = {
+    def testBool2CostsFunction(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bool2costs_function_test"))
         assertEq(numberOfConstraints[Disjoint2](result), 1)
         assertEq(quality(result), Zero)
@@ -28,7 +28,7 @@ final class FlatZincExtensionTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[MinimizationProblem]))
-    def testIntDomain: Unit = {
+    def testIntDomain(): Unit = {
         val result1 = solveWithResult(task.copy(problemName = "int_domain_min_test"))
         assertEq(quality(result1), One)
         val result2 = solveWithResult(task.copy(problemName = "int_domain_max_test"))
@@ -37,7 +37,7 @@ final class FlatZincExtensionTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[MaximizationProblem], classOf[HasBinPackingConstraint]))
-    def testIntMaxGoal: Unit = {
+    def testIntMaxGoal(): Unit = {
         val result = solveWithResult(task.copy(problemName = "int_max_goal_test", verifySolution = false))
         assertEq(numberOfConstraints[BinPacking[_]](result), 1)
         assertEq(quality(result, 0), True)
@@ -48,7 +48,7 @@ final class FlatZincExtensionTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasBinPackingConstraint]))
-    def testIntMinGoal: Unit = {
+    def testIntMinGoal(): Unit = {
         val result = solveWithResult(task.copy(problemName = "int_min_goal_test", verifySolution = false))
         assertEq(numberOfConstraints[BinPacking[_]](result), 1)
         assertEq(quality(result, 0), True)
@@ -59,7 +59,7 @@ final class FlatZincExtensionTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testSatGoal: Unit = {
+    def testSatGoal(): Unit = {
         val result = solveWithResult(task.copy(problemName = "sat_goal_test", verifySolution = false))
         assertEq(numberOfConstraints[Alldistinct[_]](result), 1)
         assertEq(quality(result, 0), True)

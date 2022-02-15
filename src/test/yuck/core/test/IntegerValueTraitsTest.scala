@@ -15,7 +15,7 @@ final class IntegerValueTraitsTest extends UnitTest {
     import IntegerValueTraits.*
 
     @Test
-    def testSpecialValues: Unit = {
+    def testSpecialValues(): Unit = {
         assertEq(zero, Zero)
         assertEq(one, One)
         assertEq(minValue.value, Int.MinValue)
@@ -23,13 +23,13 @@ final class IntegerValueTraitsTest extends UnitTest {
     }
 
     @Test
-    def testSpecialDomains: Unit = {
+    def testSpecialDomains(): Unit = {
         assertEq(emptyDomain, EmptyIntegerRange)
         assertEq(completeDomain, CompleteIntegerRange)
     }
 
     @Test
-    def testDomainFactories: Unit = {
+    def testDomainFactories(): Unit = {
         assertEq(createDomain(Set()), EmptyIntegerRange)
         assertEq(createDomain(Set(Zero)), ZeroToZeroIntegerRange)
         assertEq(createDomain(Set(Zero, One)), ZeroToOneIntegerRange)
@@ -39,7 +39,7 @@ final class IntegerValueTraitsTest extends UnitTest {
     }
 
     @Test
-    def testVariableFactories: Unit = {
+    def testVariableFactories(): Unit = {
         val space = new Space(logger, sigint)
         val x = createVariable(space, "x", NonNegativeIntegerRange)
         val c = createChannel(space)
@@ -49,20 +49,20 @@ final class IntegerValueTraitsTest extends UnitTest {
     }
 
     @Test
-    def testValueCasting: Unit = {
+    def testValueCasting(): Unit = {
         assertEx(safeDowncast(False), classOf[ClassCastException])
         safeDowncast(Zero)
     }
 
     @Test
-    def testDomainCasting: Unit = {
+    def testDomainCasting(): Unit = {
         safeDowncast(EmptyIntegerRange)
         safeDowncast(EmptyIntegerRangeList)
         assertEx(safeDowncast(EmptyBooleanDomain), classOf[ClassCastException])
     }
 
     @Test
-    def testVariableCasting: Unit = {
+    def testVariableCasting(): Unit = {
         val space = new Space(logger, sigint)
         val b = space.createVariable("b", CompleteBooleanDecisionDomain)
         val i = space.createVariable("i", CompleteIntegerRange)
@@ -71,7 +71,7 @@ final class IntegerValueTraitsTest extends UnitTest {
     }
 
     @Test
-    def testConfiguration: Unit = {
+    def testConfiguration(): Unit = {
         assertEq(valueType, classOf[IntegerValue])
         assertEq(valueOrdering, IntegerValueOperations)
         assertEq(numericalOperations, IntegerValueOperations)

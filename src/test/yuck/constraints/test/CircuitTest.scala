@@ -38,7 +38,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
     private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         val constraint = new Circuit(space.nextConstraintId, null, succ, offset, costs)
         assertEq(constraint.toString, "circuit([%s], %d, %s)".format(succ.mkString(", "), offset, costs))
         assertEq(constraint.inVariables.size, succ.size)
@@ -48,7 +48,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
     }
 
     @Test
-    def testPropagation: Unit = {
+    def testPropagation(): Unit = {
         space.post(new Circuit(space.nextConstraintId, null, succ, offset, costs))
         runScenario(
             TestScenario(
@@ -69,7 +69,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
     }
 
     @Test
-    def testHandlingOfDuplicateVariablesInPropagation: Unit = {
+    def testHandlingOfDuplicateVariablesInPropagation(): Unit = {
         space.post(new Circuit(space.nextConstraintId, null, Vector(x1, x2, x3, x4, x1), offset, costs))
         runScenario(
             TestScenario(
@@ -83,7 +83,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
     }
 
     @Test
-    def testCostComputation: Unit = {
+    def testCostComputation(): Unit = {
         space.post(new Circuit(space.nextConstraintId, null, succ, offset, costs))
         runScenario(
             TestScenario(
@@ -110,7 +110,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
     }
 
     @Test
-    def testHandlingOfDuplicateVariablesInCostComputation: Unit = {
+    def testHandlingOfDuplicateVariablesInCostComputation(): Unit = {
         space.post(new Circuit(space.nextConstraintId, null, Vector(x1, x2, x3, x4, x1), offset, costs))
         runScenario(
             TestScenario(
@@ -124,7 +124,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
     }
 
     @Test
-    def testHandlingOfInvalidNodeReferencesInCostComputation: Unit = {
+    def testHandlingOfInvalidNodeReferencesInCostComputation(): Unit = {
         val constraint = new Circuit(space.nextConstraintId, null, succ, offset, costs)
         space.post(constraint)
         runScenario(
@@ -139,7 +139,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
     }
 
     @Test
-    def testHamiltonianCircuitTest: Unit = {
+    def testHamiltonianCircuitTest(): Unit = {
         for (i <- succ.indices) {
             space.setValue(succ(i), IntegerValue(offset + i + 1))
         }
@@ -173,37 +173,37 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
     }
 
     @Test
-    def testNeighbourhoodGeneration: Unit = {
+    def testNeighbourhoodGeneration(): Unit = {
         assertNeighbourhood(succ)
     }
 
     @Test
-    def testHandlingOfDuplicateVariablesInNeighbourhoodGeneration: Unit = {
+    def testHandlingOfDuplicateVariablesInNeighbourhoodGeneration(): Unit = {
         assertNoNeighbourhood(Vector(x1, x2, x3, x4, x1))
     }
 
     @Test
-    def testHandlingOfChannelVariablesInNeighbourhoodGeneration: Unit = {
+    def testHandlingOfChannelVariablesInNeighbourhoodGeneration(): Unit = {
         import yuck.constraints.Plus
         space.post(new Plus(space.nextConstraintId, null, x1, x2, x3))
         assertNoNeighbourhood(succ)
     }
 
     @Test
-    def testHandlingOfFixedArcsInNeighbourhoodGeneration: Unit = {
+    def testHandlingOfFixedArcsInNeighbourhoodGeneration(): Unit = {
         x1.pruneDomain(IntegerRange(Three, Three))
         assertNeighbourhood(succ)
     }
 
     @Test
-    def testHandlingOfConvergingArcsInNeighbourhoodGeneration: Unit = {
+    def testHandlingOfConvergingArcsInNeighbourhoodGeneration(): Unit = {
         x1.pruneDomain(IntegerRange(Three, Three))
         x2.pruneDomain(IntegerRange(Three, Three))
         assertNoNeighbourhood(succ, true)
     }
 
     @Test
-    def testHandlingOfSubcircuitsInNeighbourhoodGeneration: Unit = {
+    def testHandlingOfSubcircuitsInNeighbourhoodGeneration(): Unit = {
         x1.pruneDomain(IntegerRange(Two, Two))
         x2.pruneDomain(IntegerRange(Three, Three))
         x3.pruneDomain(IntegerRange(One, One))

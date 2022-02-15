@@ -13,7 +13,7 @@ import yuck.test.util.UnitTest
 class ProbabilityTest extends UnitTest {
 
     @Test
-    def testCreationFromFloatValue: Unit = {
+    def testCreationFromFloatValue(): Unit = {
         assertEq(Probability(0.0).value, 0.0)
         assertEq(Probability(0.5).value, 0.5)
         assertEq(Probability(1.0).value, 1.0)
@@ -22,7 +22,7 @@ class ProbabilityTest extends UnitTest {
     }
 
     @Test
-    def testCreationFromPercentage: Unit = {
+    def testCreationFromPercentage(): Unit = {
         assertEq(Probability(0).value, 0.0)
         assertEq(Probability(50).value, 0.5)
         assertEq(Probability(100).value, 1.0)

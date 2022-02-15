@@ -17,7 +17,7 @@ import yuck.test.util.UnitTest
 final class DistributionTest(createDistribution: Int => Distribution) extends UnitTest {
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         val n = 256
         val d = createDistribution(n)
         var m = 0
@@ -62,7 +62,7 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
     }
 
     @Test
-    def testExceptionalCases: Unit = {
+    def testExceptionalCases(): Unit = {
         val n = 1
         val d = createDistribution(n)
         assertEx(d.setFrequency(-1, 0), classOf[ArrayIndexOutOfBoundsException])
@@ -78,7 +78,7 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
     }
 
     @Test
-    def testRandomIndexGeneration: Unit = {
+    def testRandomIndexGeneration(): Unit = {
         val n = 3
         val d = createDistribution(n)
         for (i <- 0 to 2) {
@@ -97,7 +97,7 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
     }
 
     @Test
-    def testOverflowChecking: Unit = {
+    def testOverflowChecking(): Unit = {
         val n = 2
         val d = createDistribution(n)
         d.setFrequency(0, Long.MaxValue)

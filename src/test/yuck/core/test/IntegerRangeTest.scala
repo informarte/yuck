@@ -19,12 +19,12 @@ final class IntegerRangeTest extends UnitTest {
     private val baseRange = IntegerRange(IntegerValue(-5), Five)
 
     @Test
-    def testRepresentation: Unit = {
+    def testRepresentation(): Unit = {
         helper.testRepresentation((a, b) => IntegerRange(a, b))
     }
 
     @Test
-    def testConstructionFromBoundaries: Unit = {
+    def testConstructionFromBoundaries(): Unit = {
         assert(IntegerRange(null, null).eq(CompleteIntegerRange))
         assert(IntegerRange(One, Zero).eq(EmptyIntegerRange))
         assertEq(IntegerRange(Zero, One), ZeroToOneIntegerRange)
@@ -33,7 +33,7 @@ final class IntegerRangeTest extends UnitTest {
     }
 
     @Test
-    def testEquality: Unit = {
+    def testEquality(): Unit = {
         val sampleSize = 32
         val testData =
             helper.createTestData(baseRange, sampleSize)
@@ -52,7 +52,7 @@ final class IntegerRangeTest extends UnitTest {
     }
 
     @Test
-    def testOrdering: Unit = {
+    def testOrdering(): Unit = {
         val sampleSize = 32
         val testData =
             helper.createTestData(baseRange, sampleSize)
@@ -61,7 +61,7 @@ final class IntegerRangeTest extends UnitTest {
     }
 
     @Test
-    def testOperations: Unit = {
+    def testOperations(): Unit = {
         val sampleSize = 16
         val testData =
             helper.createTestData(baseRange, sampleSize)
@@ -71,14 +71,14 @@ final class IntegerRangeTest extends UnitTest {
     }
 
     @Test
-    def testRandomSubdomainCreation: Unit = {
+    def testRandomSubdomainCreation(): Unit = {
         val testData = IntegerDomainTestHelper.createEdgeCases(baseRange)
         helper.testRandomSubrangeCreation(testData)
         helper.testRandomSubdomainCreation(testData)
     }
 
     @Test
-    def testMultiplication: Unit = {
+    def testMultiplication(): Unit = {
         assertEq(EmptyIntegerRange.mult(EmptyIntegerRange), EmptyIntegerRange)
         assertEq(EmptyIntegerRange.mult(IntegerRange(1, 10)), EmptyIntegerRange)
         assertEq(IntegerRange(1, 10).mult(EmptyIntegerRange), EmptyIntegerRange)
@@ -88,7 +88,7 @@ final class IntegerRangeTest extends UnitTest {
     }
 
     @Test
-    def testDivision: Unit = {
+    def testDivision(): Unit = {
         assertEq(EmptyIntegerRange.div(EmptyIntegerRange), EmptyIntegerRange)
         assertEq(EmptyIntegerRange.div(IntegerRange(1, 10)), EmptyIntegerRange)
         assertEq(IntegerRange(1, 10).div(EmptyIntegerRange), EmptyIntegerRange)

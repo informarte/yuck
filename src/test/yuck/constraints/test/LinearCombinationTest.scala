@@ -24,7 +24,7 @@ final class LinearCombinationTest extends UnitTest with ConstraintTestTooling {
     private val constraint = new LinearCombination(space.nextConstraintId, null, axs, y)
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         assertEq(constraint.toString, "y = sum([2 * x1, 0 * x2, 1 * x3])")
         assertEq(constraint.inVariables.size, xs.size)
         assertEq(constraint.inVariables.toSet, xs.toSet)
@@ -33,7 +33,7 @@ final class LinearCombinationTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testPropagation: Unit = {
+    def testPropagation(): Unit = {
         space.post(constraint)
         runScenario(
             TestScenario(
@@ -46,7 +46,7 @@ final class LinearCombinationTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testSumComputation: Unit = {
+    def testSumComputation(): Unit = {
         space.post(constraint)
         runScenario(
             TestScenario(

@@ -258,7 +258,7 @@ final class Cumulative
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
-        rTreeTransaction.rollback
+        rTreeTransaction.rollback()
         futureCosts = currentCosts
         val beforeCapacity = before.value(capacity).value
         val capacityChanged = move.involves(capacity)
@@ -289,7 +289,7 @@ final class Cumulative
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
-        rTreeTransaction.commit
+        rTreeTransaction.commit()
         assert(rTree.getEntryCount == n)
         currentCosts = futureCosts
         effect

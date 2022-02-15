@@ -20,7 +20,7 @@ import yuck.test.util.ParallelParameterizedTestRunner
 final class HombergerBenchmark(task: MiniZincTestTask) extends MiniZincBasedTest {
 
     @Test
-    def solve: Unit = {
+    def solve(): Unit = {
         super.solve(task.copy(dataAssignments = Map(("MaxKToMinKRatio", "4")), maybeMaximumNumberOfThreads = Some(1), keepFlatZincFile = false))
     }
 

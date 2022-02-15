@@ -23,7 +23,7 @@ final class CountVarTest extends UnitTest with ConstraintTestTooling {
     private val n = new IntegerVariable(space.nextVariableId, "n", NonNegativeIntegerRange)
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         val constraint = new CountVar(space.nextConstraintId, null, xs, y, n)
         assertEq(constraint.toString, "n = count(y, [x1, x2, x3])")
         assertEq(constraint.inVariables.size, xs.size + 1)
@@ -33,7 +33,7 @@ final class CountVarTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testCounting: Unit = {
+    def testCounting(): Unit = {
         space.post(new CountVar(space.nextConstraintId, null, xs, y, n))
         runScenario(
             TestScenario(
@@ -49,7 +49,7 @@ final class CountVarTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testHandlingOfDuplicateVariablesInCounting: Unit = {
+    def testHandlingOfDuplicateVariablesInCounting(): Unit = {
         space.post(new CountVar(space.nextConstraintId, null, List(x1, x1, x2, x3), y, n))
         runScenario(
             TestScenario(

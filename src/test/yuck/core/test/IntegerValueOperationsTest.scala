@@ -16,20 +16,20 @@ final class IntegerValueOperationsTest extends UnitTest with IntegerValueTestDat
     private val randomGenerator = new JavaRandomGenerator
 
     @Test
-    def testValueFactory: Unit = {
+    def testValueFactory(): Unit = {
         for (a <- testRange) {
             assertEq(num.fromInt(a).value, a)
         }
     }
 
     @Test
-    def testSpecialValues: Unit = {
+    def testSpecialValues(): Unit = {
         assertEq(num.zero, Zero)
         assertEq(num.one, One)
     }
 
     @Test
-    def testOrdering: Unit = {
+    def testOrdering(): Unit = {
         val helper = new OrderingTestHelper[IntegerValue](randomGenerator)
         helper.testOrdering(testData, num)
         val ord = new Ordering[IntegerValue] {
@@ -39,7 +39,7 @@ final class IntegerValueOperationsTest extends UnitTest with IntegerValueTestDat
     }
 
     @Test
-    def testNumericalOperations: Unit = {
+    def testNumericalOperations(): Unit = {
         for (a <- testData) {
             for (b <- testData) {
                 assertEq(num.plus(a, b), a + b)
@@ -67,7 +67,7 @@ final class IntegerValueOperationsTest extends UnitTest with IntegerValueTestDat
     }
 
     @Test
-    def testOverflowCheckingInNumericalOperations: Unit = {
+    def testOverflowCheckingInNumericalOperations(): Unit = {
         num.plus(IntegerValue(Int.MaxValue), Zero)
         assertEx(num.plus(IntegerValue(Int.MaxValue), One), classOf[ArithmeticException])
         num.minus(IntegerValue(Int.MinValue), Zero)

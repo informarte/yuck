@@ -14,7 +14,7 @@ import yuck.test.util.UnitTest
 final class SpaceTest extends UnitTest {
 
     @Test
-    def testBasicNetworkManagement: Unit = {
+    def testBasicNetworkManagement(): Unit = {
 
         /*
          * s, t -> c -> u    \
@@ -37,7 +37,7 @@ final class SpaceTest extends UnitTest {
         assertEq(space.numberOfConstraints, 3)
         assertEq(space.numberOfConstraints(_.isInstanceOf[DummyConstraint]), 3)
         assertEq(space.numberOfConstraints(_ => false), 0)
-        space.checkConsistency
+        space.checkConsistency()
 
         val problemParams = space.problemParameters
         assertEq(problemParams, Set(v))
@@ -111,7 +111,7 @@ final class SpaceTest extends UnitTest {
     }
 
     @Test
-    def testPostingAfterInitialization: Unit = {
+    def testPostingAfterInitialization(): Unit = {
         val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
@@ -122,11 +122,11 @@ final class SpaceTest extends UnitTest {
         val d = new DummyConstraint(space.nextConstraintId, List(y), List(z))
         assertEx(space.post(d))
         assertEq(space.numberOfConstraints, 1)
-        space.checkConsistency
+        space.checkConsistency()
     }
 
     @Test
-    def testCycleDetection: Unit = {
+    def testCycleDetection(): Unit = {
         val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
@@ -134,34 +134,34 @@ final class SpaceTest extends UnitTest {
         val c = new DummyConstraint(space.nextConstraintId, List(x, x), List(x))
         assert(space.wouldIntroduceCycle(c))
         assertEq(space.numberOfConstraints, 0)
-        space.checkConsistency
+        space.checkConsistency()
         assertEx(space.post(c), classOf[CyclicConstraintNetworkException])
         assertEq(space.numberOfConstraints, 0)
-        space.checkConsistency
+        space.checkConsistency()
         val d = new DummyConstraint(space.nextConstraintId, List(x, y), List(z))
         assert(! space.wouldIntroduceCycle(d))
         assertEq(space.numberOfConstraints, 0)
-        space.checkConsistency
+        space.checkConsistency()
         val e = new DummyConstraint(space.nextConstraintId, List(x, z), List(y))
         assert(! space.wouldIntroduceCycle(e))
         assertEq(space.numberOfConstraints, 0)
-        space.checkConsistency
+        space.checkConsistency()
         space.post(d)
         assertEq(space.numberOfConstraints, 1)
-        space.checkConsistency
+        space.checkConsistency()
         assert(space.wouldIntroduceCycle(e))
         assertEq(space.numberOfConstraints, 1)
-        space.checkConsistency
+        space.checkConsistency()
         assertEx(space.post(e), classOf[CyclicConstraintNetworkException])
         assertEq(space.numberOfConstraints, 1)
-        space.checkConsistency
+        space.checkConsistency()
         assert(! space.wouldIntroduceCycle(d))
         assertEq(space.numberOfConstraints, 1)
-        space.checkConsistency
+        space.checkConsistency()
     }
 
     @Test
-    def testCycleDetectionAfterInitialization: Unit = {
+    def testCycleDetectionAfterInitialization(): Unit = {
         val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
@@ -171,11 +171,11 @@ final class SpaceTest extends UnitTest {
         val d = new DummyConstraint(space.nextConstraintId, List(y), List(x))
         assertEx(space.wouldIntroduceCycle(d))
         assertEq(space.numberOfConstraints, 1)
-        space.checkConsistency
+        space.checkConsistency()
     }
 
     @Test
-    def testNetworkPruning: Unit = {
+    def testNetworkPruning(): Unit = {
         val space = new Space(logger, sigint)
         val vars @ IndexedSeq(s, t, u, v, w, x, y, z) =
             for (name <- 's' to 'z') yield space.createVariable(name.toString, CompleteIntegerRange)
@@ -301,7 +301,7 @@ final class SpaceTest extends UnitTest {
     }
 
     @Test
-    def testPropagation: Unit = {
+    def testPropagation(): Unit = {
 
         val n = 8 // number of networks
         val randomGenerator = new JavaRandomGenerator
@@ -358,7 +358,7 @@ final class SpaceTest extends UnitTest {
     }
 
     @Test
-    def testConsultAndCommit: Unit = {
+    def testConsultAndCommit(): Unit = {
 
         val n = 8 // number of networks
         val m = 64 // number of moves per network
@@ -445,7 +445,7 @@ final class SpaceTest extends UnitTest {
     }
 
     @Test
-    def testHandlingOfImplicitConstraints: Unit = {
+    def testHandlingOfImplicitConstraints(): Unit = {
 
         val space = new Space(logger, sigint)
         val IndexedSeq(s, t, u, v, w, x, y, z) =

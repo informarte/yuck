@@ -21,7 +21,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
     private val z = new IntegerVariable(space.nextVariableId, "z", baseDomain)
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         val mainObjective = new MinimizationObjective(x, Some(baseDomain.lb), None)
         val subordinateObjective = new MaximizationObjective(y, Some(baseDomain.ub - One), None)
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
@@ -45,7 +45,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testCostComparison: Unit = {
+    def testCostComparison(): Unit = {
         val mainObjective = new MinimizationObjective(x, Some(Zero), None)
         val subordinateObjective = new MaximizationObjective(y, Some(Nine), None)
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
@@ -63,7 +63,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testMoveAssessment: Unit = {
+    def testMoveAssessment(): Unit = {
         import scala.math.Ordering.Double.TotalOrdering
         val mainObjective = new MinimizationObjective(x, Some(Zero), None)
         val subordinateObjective = new MaximizationObjective(y, Some(Nine), None)
@@ -96,7 +96,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testSearchForActualObjectiveValueWhenMinimizing: Unit = {
+    def testSearchForActualObjectiveValueWhenMinimizing(): Unit = {
         val costs = new BooleanVariable(space.nextVariableId, "costs", TrueDomain)
         val mainObjective = new SatisfactionObjective(costs)
         val subordinateObjective = new MinimizationObjective(y, None, None)
@@ -113,7 +113,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testTighteningWhenMinimizing: Unit = {
+    def testTighteningWhenMinimizing(): Unit = {
         val costs = new BooleanVariable(space.nextVariableId, "costs", TrueDomain)
         val mainObjective = new SatisfactionObjective(costs)
         val subordinateObjective = new MinimizationObjective(y, None, Some(z))
@@ -143,7 +143,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testSearchForActualObjectiveValueWhenMaximizing: Unit = {
+    def testSearchForActualObjectiveValueWhenMaximizing(): Unit = {
         val costs = new BooleanVariable(space.nextVariableId, "costs", TrueDomain)
         val mainObjective = new SatisfactionObjective(costs)
         val subordinateObjective = new MaximizationObjective(y, None, None)
@@ -160,7 +160,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
     }
 
     @Test
-    def testTighteningWhenMaximizing: Unit = {
+    def testTighteningWhenMaximizing(): Unit = {
         val costs = new BooleanVariable(space.nextVariableId, "costs", TrueDomain)
         val mainObjective = new SatisfactionObjective(costs)
         val subordinateObjective = new MaximizationObjective(y, None, Some(z))

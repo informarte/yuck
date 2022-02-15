@@ -13,7 +13,7 @@ import yuck.test.util.UnitTest
 final class PropagationEffectsTest extends UnitTest {
 
     @Test
-    def testPruning1: Unit = {
+    def testPruning1(): Unit = {
         val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val effects1 = NoPropagationOccurred.pruneDomain(x, x.domain)
@@ -27,7 +27,7 @@ final class PropagationEffectsTest extends UnitTest {
     }
 
     @Test
-    def testPruning2: Unit = {
+    def testPruning2(): Unit = {
         val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
@@ -42,7 +42,7 @@ final class PropagationEffectsTest extends UnitTest {
     }
 
     @Test
-    def testPruning3: Unit = {
+    def testPruning3(): Unit = {
         val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
@@ -59,7 +59,7 @@ final class PropagationEffectsTest extends UnitTest {
     }
 
     @Test
-    def testPruningN: Unit = {
+    def testPruningN(): Unit = {
         val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)

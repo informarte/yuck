@@ -24,7 +24,7 @@ final class IfThenElseTest extends UnitTest with ConstraintTestTooling {
     private val constraint = new IfThenElse(space.nextConstraintId, None, cs, xs, y)
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         assertEq(constraint.toString, "if_then_else([%s], [%s], %s)".format(cs.mkString(", "), xs.mkString(", "), y))
         assertEq(constraint.inVariables.size, cs.size + xs.size)
         assertEq(constraint.inVariables.toSet, (cs ++ xs).toSet)
@@ -33,7 +33,7 @@ final class IfThenElseTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testPropagation: Unit = {
+    def testPropagation(): Unit = {
         space.post(constraint)
         runScenario(
             TestScenario(
@@ -108,7 +108,7 @@ final class IfThenElseTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testCostComputation: Unit = {
+    def testCostComputation(): Unit = {
         space.post(constraint)
         runScenario(
             TestScenario(

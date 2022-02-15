@@ -16,20 +16,20 @@ final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
     private val helper = new OrderedValueTestHelper[IntegerSetValue](randomGenerator)
 
     @Test
-    def testConstruction: Unit = {
+    def testConstruction(): Unit = {
         for (a <- baseData) {
             assertEq(new IntegerSetValue(a).set, a)
         }
     }
 
     @Test
-    def testSpecialValues: Unit = {
+    def testSpecialValues(): Unit = {
         assert(EmptyIntegerSetValue.set.isEmpty)
         assert(CompleteIntegerSetValue.set.isComplete)
     }
 
     @Test
-    def testEquality: Unit = {
+    def testEquality(): Unit = {
         helper.testEquality(testData)
         for (a <- testData) {
             val b = new IntegerSetValue(a.set)
@@ -65,7 +65,7 @@ final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
     }
 
     @Test
-    def testOrdering: Unit = {
+    def testOrdering(): Unit = {
         helper.testOrdering(testData)
         // We test by comparing iterators over values.
         for (a <- testData) {
@@ -153,7 +153,7 @@ final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
     }
 
     @Test
-    def testConfiguration: Unit = {
+    def testConfiguration(): Unit = {
         import IntegerSetValue.*
         assertEq(valueTraits, IntegerSetValueTraits)
         assertEq(valueOrdering, IntegerSetValueOrdering)

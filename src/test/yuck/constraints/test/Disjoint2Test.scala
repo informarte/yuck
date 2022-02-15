@@ -27,7 +27,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
             new IntegerVariable(space.nextVariableId, "h%d".format(i), baseDomain))
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         val rects = (1 to 2).map(createRect)
         val Seq(r1, r2) = rects
         val constraint = new Disjoint2(space.nextConstraintId, null, rects, false, costs)
@@ -39,7 +39,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testRectangleMovement: Unit = {
+    def testRectangleMovement(): Unit = {
         val rects = (1 to 4).map(createRect)
         val Seq(r1, r2, r3, r4) = rects
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
@@ -59,7 +59,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testRectangleResizing: Unit = {
+    def testRectangleResizing(): Unit = {
         val rects = (1 to 2).map(createRect)
         val Seq(r1, r2) = rects
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
@@ -77,7 +77,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testSimultaneousRectangleMovementAndResizing: Unit = {
+    def testSimultaneousRectangleMovementAndResizing(): Unit = {
         val rects = (1 to 2).map(createRect)
         val Seq(r1, r2) = rects
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
@@ -97,7 +97,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testHandlingOfAdjacentRectangles: Unit = {
+    def testHandlingOfAdjacentRectangles(): Unit = {
         val rects = (1 to 3).map(createRect)
         val Seq(r1, r2, r3) = rects
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
@@ -113,7 +113,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testHandlingOfSharedVariables: Unit = {
+    def testHandlingOfSharedVariables(): Unit = {
         val r1 = createRect(1)
         val r2 =
             new Disjoint2Rect(
@@ -137,7 +137,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testConsultWithoutCommit: Unit = {
+    def testConsultWithoutCommit(): Unit = {
         val rects = (1 to 2).map(createRect)
         val Seq(r1, r2) = rects
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
@@ -154,7 +154,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testNonStrictSemantics: Unit = {
+    def testNonStrictSemantics(): Unit = {
         val rects = (1 to 2).map(createRect)
         val Seq(r1, r2) = rects
         space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
@@ -171,7 +171,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testRectangleMovementWithStrictSemantics: Unit = {
+    def testRectangleMovementWithStrictSemantics(): Unit = {
         val rects = (1 to 9).map(createRect)
         val Seq(r1, r2, r3, r4, vl1, vl2, hl1, hl2, p1) = rects
         space.post(new Disjoint2(space.nextConstraintId, null, rects, true, costs))
@@ -221,7 +221,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testRectangleResizingWithStrictSemantics: Unit = {
+    def testRectangleResizingWithStrictSemantics(): Unit = {
         val rects = (1 to 3).map(createRect)
         val Seq(r1, r2, r3) = rects
         space.post(new Disjoint2(space.nextConstraintId, null, rects, true, costs))
@@ -244,7 +244,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testHandlingOfNegativeWidthAndHeight: Unit = {
+    def testHandlingOfNegativeWidthAndHeight(): Unit = {
         val rects = (1 to 3).map(createRect)
         val Seq(r1, r2, r3) = rects
         space.post(new Disjoint2(space.nextConstraintId, null, rects, true, costs))

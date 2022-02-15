@@ -30,13 +30,13 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testBool: Unit = {
+    def testBool(): Unit = {
         expectSuccess(expr, "true", BoolConst(true))
         expectSuccess(expr, "false", BoolConst(false))
     }
 
     @Test
-    def testInt: Unit = {
+    def testInt(): Unit = {
         expectSuccess(expr, "1", IntConst(1))
         expectSuccess(expr, "-1", IntConst(-1))
         expectFailure(expr, "++1")
@@ -47,7 +47,7 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testFloat: Unit = {
+    def testFloat(): Unit = {
         expectSuccess(expr, "1.5", FloatConst(1.5))
         expectSuccess(expr, "+1.5", FloatConst(1.5))
         expectSuccess(expr, "-1.5", FloatConst(-1.5))
@@ -74,13 +74,13 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testIntRange: Unit = {
+    def testIntRange(): Unit = {
         expectSuccess(expr, "1..5", IntSetConst(IntRange(1, 5)))
         expectSuccess(expr, "1 .. 5", IntSetConst(IntRange(1, 5)))
     }
 
     @Test
-    def testIntSet: Unit = {
+    def testIntSet(): Unit = {
         expectSuccess(expr, "{}", IntSetConst(IntSet(Set())))
         expectSuccess(expr, "{1}", IntSetConst(IntSet(Set(1))))
         expectSuccess(expr, "{-2, 1, 1, 3, 5}", IntSetConst(IntSet(Set(-2, 1, 3, 5))))
@@ -90,7 +90,7 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testArray: Unit = {
+    def testArray(): Unit = {
         expectSuccess(expr, "[]", ArrayConst(Nil))
         expectSuccess(expr, "[1]", ArrayConst(List(IntConst(1))))
         expectSuccess(expr, "[2, 1]", ArrayConst(List(IntConst(2), IntConst(1))))
@@ -104,12 +104,12 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testString: Unit = {
+    def testString(): Unit = {
         expectSuccess(expr, "\"foo\"", StringConst("foo"))
     }
 
     @Test
-    def testTypes: Unit = {
+    def testTypes(): Unit = {
         val map = Map(
             "bool" -> BoolType,
             "float" -> FloatType(None),
@@ -127,7 +127,7 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testPredDecl: Unit = {
+    def testPredDecl(): Unit = {
         expectSuccess(
             pred_decl,
             "predicate all_different_int(array [int] of var int: x);",
@@ -135,7 +135,7 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testParamDecl: Unit = {
+    def testParamDecl(): Unit = {
         expectSuccess(
             param_decl,
             "array [1..4] of int: distance = [5, 5, 5, 5];",
@@ -146,7 +146,7 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testVarDecl: Unit = {
+    def testVarDecl(): Unit = {
         expectSuccess(
             var_decl,
             "var 0..1: INT____00091 :: is_defined_var :: var_is_introduced;",
@@ -174,7 +174,7 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testConstraint: Unit = {
+    def testConstraint(): Unit = {
         expectSuccess(
             constraint,
             "constraint bool2int(BOOL____00090, BOOL____00091) :: defines_var(INT____00091);",
@@ -185,7 +185,7 @@ final class FlatZincParserTest extends UnitTest {
     }
 
     @Test
-    def testSolveGoal: Unit = {
+    def testSolveGoal(): Unit = {
         expectSuccess(solve_goal, "solve satisfy;", Satisfy(Nil))
         expectSuccess(solve_goal, "solve minimize x;", Minimize(Term("x", Nil), Nil))
         expectSuccess(solve_goal, "solve maximize x;", Maximize(Term("x", Nil), Nil))

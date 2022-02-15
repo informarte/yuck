@@ -27,7 +27,7 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
     private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         val constraint = new Regular(space.nextConstraintId, null, xs, Q, S, delta, q0, F, costs)
         assertEq(
             constraint.toString,
@@ -40,7 +40,7 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testCostComputation: Unit = {
+    def testCostComputation(): Unit = {
         space.post(new Regular(space.nextConstraintId, null, xs, Q, S, delta, q0, F, costs))
         runScenario(
             TestScenario(
@@ -75,7 +75,7 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testHandlingOfInvalidInputsInCostComputation: Unit = {
+    def testHandlingOfInvalidInputsInCostComputation(): Unit = {
         space.post(new Regular(space.nextConstraintId, null, xs, Q, S, delta, q0, F, costs))
         runScenario(
             TestScenario(
@@ -92,7 +92,7 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testHandlingOfDuplicateVariablesInCostComputation: Unit = {
+    def testHandlingOfDuplicateVariablesInCostComputation(): Unit = {
         val xs1 = xs.updated(4, x1).updated(9, x1)
         space.post(new Regular(space.nextConstraintId, null, xs1, Q, S, delta, q0, F, costs))
         runScenario(

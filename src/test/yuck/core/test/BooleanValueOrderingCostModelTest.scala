@@ -15,7 +15,7 @@ final class BooleanValueOrderingCostModelTest extends UnitTest with BooleanValue
     private val costModel = BooleanValueOrderingCostModel
 
     @Test
-    def testOrderingCostModel: Unit = {
+    def testOrderingCostModel(): Unit = {
         for (a <- testData) {
             for (b <- testData) {
                 assertEq(BooleanValue(costModel.eqViolation(a, b)).truthValue, a.truthValue == b.truthValue)
@@ -27,7 +27,7 @@ final class BooleanValueOrderingCostModelTest extends UnitTest with BooleanValue
     }
 
     @Test
-    def testOverflowCheckingInCostComputation: Unit = {
+    def testOverflowCheckingInCostComputation(): Unit = {
         costModel.eqViolation(True, BooleanValue(Long.MaxValue - 1))
         assertEx(costModel.eqViolation(True, BooleanValue(Long.MaxValue)), classOf[ArithmeticException])
         costModel.neViolation(False, BooleanValue(Long.MaxValue - 1))

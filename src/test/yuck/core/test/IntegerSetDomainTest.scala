@@ -24,7 +24,7 @@ final class IntegerSetDomainTest extends UnitTest {
     private val baseRange = IntegerRange(IntegerValue(-5), Five)
 
     @Test
-    def testEquality: Unit = {
+    def testEquality(): Unit = {
         assertEq(new SingletonIntegerSetDomain(EmptyIntegerRange), new IntegerPowersetDomain(EmptyIntegerRange))
         val sampleSize = 16
         val testData = helper.createTestData(baseRange, sampleSize)
@@ -39,14 +39,14 @@ final class IntegerSetDomainTest extends UnitTest {
     // The ordering is implemented in IntegerSetDomain and works for all its subclasses,
     // so we test the ordering only once and here.
     @Test
-    def testOrdering: Unit = {
+    def testOrdering(): Unit = {
         val sampleSize = 8
         val testData = helper.createTestData(baseRange, sampleSize)
         helper.testOrdering(testData)
     }
 
     @Test
-    def testSubsetRelation: Unit = {
+    def testSubsetRelation(): Unit = {
         assert(EmptyIntegerSetDomain.isSubsetOf(EmptyIntegerSetDomain))
         assert(EmptyIntegerSetDomain.isSubsetOf(CompleteIntegerSetDomain))
         assert(! CompleteIntegerSetDomain.isSubsetOf(EmptyIntegerSetDomain))
@@ -61,7 +61,7 @@ final class IntegerSetDomainTest extends UnitTest {
     }
 
     @Test
-    def testSetIntersectionRelation: Unit = {
+    def testSetIntersectionRelation(): Unit = {
         assert(! EmptyIntegerSetDomain.intersects(EmptyIntegerSetDomain))
         assert(! EmptyIntegerSetDomain.intersects(CompleteIntegerSetDomain))
         assert(! CompleteIntegerSetDomain.intersects(EmptyIntegerSetDomain))
@@ -76,7 +76,7 @@ final class IntegerSetDomainTest extends UnitTest {
     }
 
     @Test
-    def testSetIntersection: Unit = {
+    def testSetIntersection(): Unit = {
         assertEq(EmptyIntegerSetDomain.intersect(EmptyIntegerSetDomain), EmptyIntegerSetDomain)
         assertEq(EmptyIntegerSetDomain.intersect(CompleteIntegerSetDomain), EmptyIntegerSetDomain)
         assertEq(CompleteIntegerSetDomain.intersect(EmptyIntegerSetDomain), EmptyIntegerSetDomain)
@@ -89,7 +89,7 @@ final class IntegerSetDomainTest extends UnitTest {
     }
 
     @Test
-    def testSetUnion: Unit = {
+    def testSetUnion(): Unit = {
         assertEq(EmptyIntegerSetDomain.union(EmptyIntegerSetDomain), EmptyIntegerSetDomain)
         assertEq(EmptyIntegerSetDomain.union(CompleteIntegerSetDomain), CompleteIntegerSetDomain)
         assertEq(CompleteIntegerSetDomain.union(EmptyIntegerSetDomain), CompleteIntegerSetDomain)
@@ -100,7 +100,7 @@ final class IntegerSetDomainTest extends UnitTest {
     }
 
     @Test
-    def testSetDifference: Unit = {
+    def testSetDifference(): Unit = {
         assertNie(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].diff(new SingletonIntegerSetDomain(EmptyIntegerRange)))
         assertNie(new SingletonIntegerSetDomain(EmptyIntegerRange).diff(CompleteIntegerSetDomain))
         assertNie(CompleteIntegerSetDomain.asInstanceOf[IntegerSetDomain].diff(CompleteIntegerSetDomain))
@@ -108,7 +108,7 @@ final class IntegerSetDomainTest extends UnitTest {
     }
 
     @Test
-    def testSymmetricalSetDifference: Unit = {
+    def testSymmetricalSetDifference(): Unit = {
         assertNie(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].symdiff(new SingletonIntegerSetDomain(EmptyIntegerRange)))
         assertNie(new SingletonIntegerSetDomain(EmptyIntegerRange).symdiff(CompleteIntegerSetDomain))
         assertNie(CompleteIntegerSetDomain.asInstanceOf[IntegerSetDomain].symdiff(CompleteIntegerSetDomain))
@@ -116,7 +116,7 @@ final class IntegerSetDomainTest extends UnitTest {
     }
 
     @Test
-    def testRandomSubdomainCreation: Unit = {
+    def testRandomSubdomainCreation(): Unit = {
         val sampleSize = 8
         val testData = helper.createTestData(baseRange, sampleSize)
         for (a <- testData) {

@@ -32,7 +32,7 @@ final class BinPackingTest extends UnitTest with ConstraintTestTooling {
         .to(TreeMap)
 
     @Test
-    def testBasics: Unit = {
+    def testBasics(): Unit = {
         val constraint = new BinPacking(space.nextConstraintId, null, items.values.toVector, loads)
         assertEq(
             constraint.toString,
@@ -44,7 +44,7 @@ final class BinPackingTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
-    def testCostComputation: Unit = {
+    def testCostComputation(): Unit = {
         space.post(new BinPacking(space.nextConstraintId, null, items.values.toVector, loads))
         runScenario(
             TestScenario(

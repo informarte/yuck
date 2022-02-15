@@ -36,7 +36,7 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testEqRule: Unit = {
+    def testEqRule(): Unit = {
         for (d <- testData) {
             for (e <- testData) {
                 testEqRule(d, e)
@@ -51,7 +51,7 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testNeRule: Unit = {
+    def testNeRule(): Unit = {
         for (d <- testData) {
             for (e <- testData) {
                 testNeRule(d, e)
@@ -98,7 +98,7 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testLeRule: Unit = {
+    def testLeRule(): Unit = {
         for (d <- testData) {
             for (e <- testData) {
                 testLeRule(d, e)
@@ -147,7 +147,7 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testLtRule: Unit = {
+    def testLtRule(): Unit = {
         for (d <- testData) {
             for (e <- testData) {
                 testLtRule(d, e)
@@ -156,7 +156,7 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testMinRule: Unit = {
+    def testMinRule(): Unit = {
 
         type State = (List[IntegerDomain], IntegerDomain)
 
@@ -190,7 +190,7 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testMaxRule: Unit = {
+    def testMaxRule(): Unit = {
 
         type State = (List[IntegerDomain], IntegerDomain)
 
@@ -245,7 +245,7 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testAbsRule: Unit = {
+    def testAbsRule(): Unit = {
         for (d <- testData) {
             for (e <- testData) {
                 testAbsRule(d, e)
@@ -254,7 +254,7 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testLinEqRule: Unit = {
+    def testLinEqRule(): Unit = {
 
         type LinearCombination = List[(IntegerValue, IntegerDomain)]
         type State = (LinearCombination, IntegerDomain)
@@ -321,7 +321,7 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     @Test
-    def testTimesRule: Unit = {
+    def testTimesRule(): Unit = {
 
         type State = (IntegerDomain, IntegerDomain, IntegerDomain)
 

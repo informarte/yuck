@@ -77,7 +77,7 @@ final class Queens(val n: Int) extends IntegrationTest {
     }
 
     @Test
-    def queens: Unit = {
+    def queens(): Unit = {
         val randomGenerator = new JavaRandomGenerator(29071972)
         val solvers =
             (1 to DefaultRestartLimit).map(

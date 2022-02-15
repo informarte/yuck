@@ -35,7 +35,7 @@ final class MiniZincExamples extends MiniZincBasedTest {
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
-    def test2DPacking: Unit = {
+    def test2DPacking(): Unit = {
         solve(task.copy(problemName = "2DPacking", maybeOptimum = Some(1)))
     }
 
@@ -43,62 +43,62 @@ final class MiniZincExamples extends MiniZincBasedTest {
     // (http://www.mathematik.uni-bielefeld.de/~sillke/PUZZLES/ALPHAMETIC/alphacipher)
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testAlpha: Unit = {
+    def testAlpha(): Unit = {
         solve("alpha")
     }
 
     @Test
     @Category(Array(classOf[HardInstance], classOf[SatisfiabilityProblem]))
-    def testBattleships: Unit = {
+    def testBattleships(): Unit = {
         solve("battleships_1")
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testBlocksworld1: Unit = {
+    def testBlocksworld1(): Unit = {
         solve(task.copy(problemName = "blocksworld_instance_1"))
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testBlocksworld2: Unit = {
+    def testBlocksworld2(): Unit = {
         solve(task.copy(problemName = "blocksworld_instance_2"))
     }
 
     // Search variables item[] have infinite domains but pruning saves the day.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
-    def testCutstock: Unit = {
+    def testCutstock(): Unit = {
         solve(task.copy(problemName = "cutstock", maybeOptimum = Some(4)))
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
-    def testEq20: Unit = {
+    def testEq20(): Unit = {
         solve("eq20")
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
-    def testFactoryPlanning: Unit = {
+    def testFactoryPlanning(): Unit = {
         solve("factory_planning_instance")
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem], classOf[HasAlldifferentConstraint]))
-    def testGolomb: Unit = {
+    def testGolomb(): Unit = {
         solve(task.copy(problemName = "golomb", maybeOptimum = Some(6)))
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
-    def testJobshop: Unit = {
+    def testJobshop(): Unit = {
         solve(task.copy(problemName = "jobshop2x2", maybeOptimum = Some(11)))
     }
 
     @Test
     @Category(Array(classOf[HardInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testKnights: Unit = {
+    def testKnights(): Unit = {
         solve(task.copy(problemName = "knights"))
     }
 
@@ -107,7 +107,7 @@ final class MiniZincExamples extends MiniZincBasedTest {
     // Hence this model is bad for local search and we test langford2 instead.
     @Test
     @Category(Array(classOf[UnsuitableProblem], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testLangford: Unit = {
+    def testLangford(): Unit = {
         solve("langford")
     }
 
@@ -115,57 +115,57 @@ final class MiniZincExamples extends MiniZincBasedTest {
     // Removing the symmetry breaker makes the problem even harder to solve.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
-    def testLangford2: Unit = {
+    def testLangford2(): Unit = {
         solve("langford2")
     }
 
     // Runtime depends strongly on algorithmic details like choice of seed and random generator.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
-    def testLatinSquares: Unit = {
+    def testLatinSquares(): Unit = {
         solve("latin_squares_fd")
     }
 
     // Magic sequence instances have tight all_different constraints.
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
     @Test
-    def testMagicSequence3: Unit = {
+    def testMagicSequence3(): Unit = {
         solve("magicsq_3")
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
-    def testMagicSequence4: Unit = {
+    def testMagicSequence4(): Unit = {
         solve("magicsq_4")
     }
 
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
     @Test
-    def testMagicSequence5: Unit = {
+    def testMagicSequence5(): Unit = {
         solve("magicsq_5")
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MaximizationProblem]))
-    def testMultiDimKnapsack: Unit = {
+    def testMultiDimKnapsack(): Unit = {
         solve(task.copy(problemName = "multidimknapsack_simple", maybeOptimum = Some(17)))
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
-    def testOss: Unit = {
+    def testOss(): Unit = {
         solve(task.copy(problemName = "oss", maybeOptimum = Some(1168), maybeTargetObjectiveValue = Some(1250)))
     }
 
     @Test
     @Category(Array(classOf[HardInstance], classOf[SatisfiabilityProblem]))
-    def testPacking: Unit = {
+    def testPacking(): Unit = {
         solve(task.copy(problemName = "packing"))
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testPartition: Unit = {
+    def testPartition(): Unit = {
         solve("partition")
     }
 
@@ -174,20 +174,20 @@ final class MiniZincExamples extends MiniZincBasedTest {
     // This formulation maximizes the number of squares in the sum.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem], classOf[HasAlldifferentConstraint]))
-    def testPerfectSquares: Unit = {
+    def testPerfectSquares(): Unit = {
         solve(task.copy(problemName = "perfsq_ls", maybeOptimum = Some(5)))
     }
 
     // Another formulation for the perfect square problem that maximizes the sum of squares.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MaximizationProblem]))
-    def testPerfectSquares2: Unit = {
+    def testPerfectSquares2(): Unit = {
         solve(task.copy(problemName = "perfsq2", maybeOptimum = Some(337561)))
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MaximizationProblem], classOf[HasAlldifferentConstraint]))
-    def testPhoto: Unit = {
+    def testPhoto(): Unit = {
         solve(task.copy(problemName = "photo", maybeOptimum = Some(8)))
     }
 
@@ -195,14 +195,14 @@ final class MiniZincExamples extends MiniZincBasedTest {
     // Solver finds good solutions very fast but cannot find optimum.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
-    def testProductFd: Unit = {
+    def testProductFd(): Unit = {
         solve(task.copy(problemName = "product_fd", maybeOptimum = Some(37200), maybeTargetObjectiveValue = Some(37400)))
     }
 
     // Variables inside and outside do not have infinite domains and pruning cannot make them finite.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
-    def testProductLp: Unit = {
+    def testProductLp(): Unit = {
         assertEx(
             solve(task.copy(problemName = "product_lp", maybeOptimum = Some(37200))),
             classOf[VariableWithInfiniteDomainException])
@@ -211,31 +211,31 @@ final class MiniZincExamples extends MiniZincBasedTest {
     // Solved, but not to optimality.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
-    def testRadiation: Unit = {
+    def testRadiation(): Unit = {
         solve(task.copy(problemName = "radiation", maybeOptimum = Some(553), maybeTargetObjectiveValue = Some(2000)))
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testQuasigroup: Unit = {
+    def testQuasigroup(): Unit = {
         solve("quasigroup_qg5")
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testQueensCp: Unit = {
+    def testQueensCp(): Unit = {
         solve("queen_cp2")
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
-    def testQueensIp: Unit = {
+    def testQueensIp(): Unit = {
         solve("queen_ip")
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
-    def testSimpleSat: Unit = {
+    def testSimpleSat(): Unit = {
         solve("simple_sat")
     }
 
@@ -248,7 +248,7 @@ final class MiniZincExamples extends MiniZincBasedTest {
     // Do not implement set_le and set_lt as they have no obvious business value!
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
-    def testSteinerTriples: Unit = {
+    def testSteinerTriples(): Unit = {
         solve(task.copy(problemName = "steiner-triples"))
     }
 
@@ -256,7 +256,7 @@ final class MiniZincExamples extends MiniZincBasedTest {
     // Has a lot of constants in all_different constraints that are used to prune domains up-front!
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testSudoku: Unit = {
+    def testSudoku(): Unit = {
         solve("sudoku")
     }
 
@@ -265,61 +265,61 @@ final class MiniZincExamples extends MiniZincBasedTest {
     // So it seems that the redundant constraints are not that redundant ...
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
-    def testTemplateDesign: Unit = {
+    def testTemplateDesign(): Unit = {
         solve(task.copy(problemName = "template_design", maybeOptimum = Some(442)))
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
-    def testTenpenki1: Unit = {
+    def testTenpenki1(): Unit = {
         solve("tenpenki_1")
     }
 
     @Test
     @Category(Array(classOf[HardInstance], classOf[SatisfiabilityProblem]))
-    def testTenpenki2: Unit = {
+    def testTenpenki2(): Unit = {
         solve("tenpenki_2")
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
-    def testTenpenki3: Unit = {
+    def testTenpenki3(): Unit = {
         solve("tenpenki_3")
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
-    def testTenpenki4: Unit = {
+    def testTenpenki4(): Unit = {
         solve("tenpenki_4")
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
-    def testTenpenki5: Unit = {
+    def testTenpenki5(): Unit = {
         solve("tenpenki_5")
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
-    def testTenpenki6: Unit = {
+    def testTenpenki6(): Unit = {
         solve("tenpenki_6")
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testTimetabling: Unit = {
+    def testTimetabling(): Unit = {
         solve("timetabling")
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
-    def testTrucking: Unit = {
+    def testTrucking(): Unit = {
         solve(task.copy(problemName = "trucking", maybeOptimum = Some(224)))
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
-    def testWarehouses: Unit = {
+    def testWarehouses(): Unit = {
         solve(task.copy(problemName = "warehouses", maybeOptimum = Some(383)))
     }
 
@@ -327,13 +327,13 @@ final class MiniZincExamples extends MiniZincBasedTest {
     // Has six variables declared as parameters by bool_eq constraints.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
-    def testWolfGoatCabbage: Unit = {
+    def testWolfGoatCabbage(): Unit = {
         solve("wolf_goat_cabbage")
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testZebra: Unit = {
+    def testZebra(): Unit = {
         solve("zebra")
     }
 

@@ -19,7 +19,7 @@ final class IntegerDomainTest extends UnitTest {
     private val baseRange = IntegerRange(IntegerValue(-5), Five)
 
     @Test
-    def testEquality: Unit = {
+    def testEquality(): Unit = {
         val sampleSize = 16
         val testData = helper.createTestData(baseRange, sampleSize)
         helper.testEquality(testData)
@@ -36,14 +36,14 @@ final class IntegerDomainTest extends UnitTest {
     }
 
     @Test
-    def testOrdering: Unit = {
+    def testOrdering(): Unit = {
         val sampleSize = 16
         val testData = helper.createTestData(baseRange, sampleSize)
         helper.testOrdering(testData)
     }
 
     @Test
-    def testOperations: Unit = {
+    def testOperations(): Unit = {
         val sampleSize = 8
         val testData = helper.createTestData(baseRange, sampleSize)
         val extendedBaseRange = IntegerRange(baseRange.lb - One, baseRange.ub + One)
@@ -51,7 +51,7 @@ final class IntegerDomainTest extends UnitTest {
     }
 
     @Test
-    def testDomainCreationFromRanges: Unit = {
+    def testDomainCreationFromRanges(): Unit = {
         assert(IntegerDomain(List[IntegerRange]()).isInstanceOf[IntegerRange])
         assert(IntegerDomain(List[IntegerRange]()).isEmpty)
         assert(IntegerDomain(List(CompleteIntegerRange)).isInstanceOf[IntegerRange])
@@ -65,7 +65,7 @@ final class IntegerDomainTest extends UnitTest {
     }
 
     @Test
-    def testDomainCreationFromValueSets: Unit = {
+    def testDomainCreationFromValueSets(): Unit = {
         val testData = List(
             List(List()) -> EmptyIntegerRange,
             List(List(Zero), List(Zero, Zero)) -> ZeroToZeroIntegerRange,

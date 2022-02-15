@@ -22,56 +22,56 @@ final class RTreeTransactionTest extends UnitTest {
     private val r2 = new Rect2d(1, 1, 2, 2)
 
     @Test
-    def testAdd: Unit = {
+    def testAdd(): Unit = {
         rTreeTransaction.add(r1)
         rTreeTransaction.add(r2)
-        rTreeTransaction.commit
+        rTreeTransaction.commit()
         assert(rTree.contains(r1))
         assert(rTree.contains(r2))
         assertEq(rTree.getEntryCount, 2)
     }
 
     @Test
-    def testRemove: Unit = {
+    def testRemove(): Unit = {
         rTree.add(r1)
         rTree.add(r2)
         rTreeTransaction.remove(r1)
-        rTreeTransaction.commit
+        rTreeTransaction.commit()
         assert(! rTree.contains(r1))
         assert(rTree.contains(r2))
         assertEq(rTree.getEntryCount, 1)
     }
 
     @Test
-    def testAddAndRemove: Unit = {
+    def testAddAndRemove(): Unit = {
         rTreeTransaction.add(r1)
         rTreeTransaction.add(r2)
         rTreeTransaction.remove(r1)
-        rTreeTransaction.commit
+        rTreeTransaction.commit()
         assert(! rTree.contains(r1))
         assert(rTree.contains(r2))
         assertEq(rTree.getEntryCount, 1)
     }
 
     @Test
-    def testRemoveAndAdd: Unit = {
+    def testRemoveAndAdd(): Unit = {
         rTree.add(r1)
         rTreeTransaction.remove(r1)
         rTreeTransaction.add(r1)
         rTreeTransaction.add(r2)
-        rTreeTransaction.commit
+        rTreeTransaction.commit()
         assert(rTree.contains(r1))
         assert(rTree.contains(r2))
         assertEq(rTree.getEntryCount, 2)
     }
 
     @Test
-    def testRollback: Unit = {
+    def testRollback(): Unit = {
         rTree.add(r1)
         rTreeTransaction.remove(r1)
         rTreeTransaction.add(r2)
-        rTreeTransaction.rollback
-        rTreeTransaction.commit
+        rTreeTransaction.rollback()
+        rTreeTransaction.commit()
         assert(rTree.contains(r1))
         assertEq(rTree.getEntryCount, 1)
     }

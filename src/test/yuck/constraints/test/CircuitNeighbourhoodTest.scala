@@ -29,7 +29,7 @@ final class CircuitNeighbourhoodTest(offset: Int) extends UnitTest {
     private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
 
     @Test
-    def testMoveGeneration: Unit = {
+    def testMoveGeneration(): Unit = {
         val constraint = new Circuit(space.nextConstraintId, null, succ, offset, costs)
         space.post(constraint)
         val neighbourhood =

@@ -62,9 +62,9 @@ class MiniZincBasedTest extends IntegrationTest {
     protected def solve(task: MiniZincTestTask): Option[Result] = {
         logger.setThresholdLogLevel(task.logLevel)
         jsonRoot += "env" -> envNode
-        logOsEnv
-        logJavaEnv
-        logYuckVersion
+        logOsEnv()
+        logJavaEnv()
+        logYuckVersion()
         val suitePath = task.suitePath
         val suiteName = if (task.suiteName.isEmpty) new java.io.File(suitePath).getName else task.suiteName
         val problemName = task.problemName
@@ -117,7 +117,7 @@ class MiniZincBasedTest extends IntegrationTest {
                     val jsonDoc = jsonRoot.value
                     val jsonWriter = new java.io.FileWriter(jsonFilePath)
                     jsonWriter.write(jsonDoc.prettyPrint)
-                    jsonWriter.close
+                    jsonWriter.close()
                 }
             }
         }
@@ -251,7 +251,7 @@ class MiniZincBasedTest extends IntegrationTest {
         jsonRoot += "task" -> taskNode
     }
 
-    private def logOsEnv: Unit = {
+    private def logOsEnv(): Unit = {
         envNode +=
             "os" -> JsSection(
                 "arch" -> JsString(System.getProperty("os.arch", "")),
@@ -260,7 +260,7 @@ class MiniZincBasedTest extends IntegrationTest {
             )
     }
 
-    private def logJavaEnv: Unit = {
+    private def logJavaEnv(): Unit = {
         val runtime = java.lang.Runtime.getRuntime
         envNode +=
             "java" -> JsSection(
@@ -280,7 +280,7 @@ class MiniZincBasedTest extends IntegrationTest {
             )
     }
 
-    private def logYuckVersion: Unit = {
+    private def logYuckVersion(): Unit = {
         jsonRoot +=
             "solver" -> JsSection(
                 "name" -> JsString("yuck"),

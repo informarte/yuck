@@ -16,7 +16,7 @@ import yuck.core.*
 final class GeneralInverseNeighbourhoodTest(fOffset: Int, gOffset: Int) extends InverseNeighbourhoodTest {
 
     @Test
-    def testMoveGeneration: Unit = {
+    def testMoveGeneration(): Unit = {
         val domainSize = 10
         val fDomain = IntegerRange(gOffset, gOffset + domainSize - 1)
         val gDomain = IntegerRange(fOffset, fOffset + domainSize - 1)

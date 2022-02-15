@@ -30,7 +30,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
         override def consult(before: SearchState, after: SearchState, move: Move) = Nil
     }
 
-    private def checkState1: Unit = {
+    private def checkState1(): Unit = {
         assertEq(space.searchState.mappedVariables, Set())
         assertGe(space.numberOfPropagations, 1)
         assertEq(space.numberOfInitializations, 0)
@@ -65,7 +65,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testImplicitConversionsToDomainReduction: Unit = {
+    def testImplicitConversionsToDomainReduction(): Unit = {
         def unpack(reduction: AnyDomainReduction) = (reduction.x, reduction.dx)
         assertEq(unpack(x << IntegerRange(0, 9)), (x, IntegerRange(0, 9)))
         assertEq(unpack(x << (3, 5)), (x, IntegerRange(3, 5)))
@@ -76,7 +76,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testThatPropagatePassesWhenExpectationIsMet: Unit = {
+    def testThatPropagatePassesWhenExpectationIsMet(): Unit = {
         space.post(new ConstraintMock1())
         val scenario =
             TestScenario(
@@ -88,11 +88,11 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
         runScenario(scenario)
         assertEq(x.domain, ZeroToZeroIntegerRange)
         assertEq(y.domain, ZeroToZeroIntegerRange)
-        checkState1
+        checkState1()
     }
 
     @Test
-    def testThatPropagateThrowsWhenExpectationIsNotMet: Unit = {
+    def testThatPropagateThrowsWhenExpectationIsNotMet(): Unit = {
         space.post(new ConstraintMock1())
         val scenario =
             TestScenario(
@@ -102,11 +102,11 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
                     List(x << NonNegativeIntegerRange, y << NonPositiveIntegerRange),
                     List(x << ZeroToZeroIntegerRange, y << ZeroToOneIntegerRange)))
         assertEx(runScenario(scenario), classOf[AssertionError])
-        checkState1
+        checkState1()
     }
 
     @Test
-    def testThatPropgateThrowsWhenUntestedVariableGotItsDomainReduced: Unit = {
+    def testThatPropgateThrowsWhenUntestedVariableGotItsDomainReduced(): Unit = {
         space.post(new ConstraintMock1())
         val scenario =
             TestScenario(
@@ -116,11 +116,11 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
                     List(x << ZeroToZeroIntegerRange, y << NonPositiveIntegerRange),
                     Nil))
         assertEx(runScenario(scenario), classOf[AssertionError])
-        checkState1
+        checkState1()
     }
 
     @Test
-    def testThatPropagateAndRollbackPassesWhenExpectationIsMet: Unit = {
+    def testThatPropagateAndRollbackPassesWhenExpectationIsMet(): Unit = {
         space.post(new ConstraintMock1())
         val scenario =
             TestScenario(
@@ -132,11 +132,11 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
         runScenario(scenario)
         assertEq(x.domain, CompleteIntegerRange)
         assertEq(y.domain, CompleteIntegerRange)
-        checkState1
+        checkState1()
     }
 
     @Test
-    def testThatPropagateAndRollbackThrowsWhenExpectationIsNotMet: Unit = {
+    def testThatPropagateAndRollbackThrowsWhenExpectationIsNotMet(): Unit = {
         space.post(new ConstraintMock1())
         val scenario =
             TestScenario(
@@ -146,11 +146,11 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
                     List(x << NonNegativeIntegerRange, y << NonPositiveIntegerRange),
                     List(x << ZeroToZeroIntegerRange, y << ZeroToOneIntegerRange)))
         assertEx(runScenario(scenario), classOf[AssertionError])
-        checkState1
+        checkState1()
     }
 
     @Test
-    def testThatPropgateAndRollbackThrowsWhenUntestedVariableGotItsDomainReduced: Unit = {
+    def testThatPropgateAndRollbackThrowsWhenUntestedVariableGotItsDomainReduced(): Unit = {
         space.post(new ConstraintMock1())
         val scenario =
             TestScenario(
@@ -160,11 +160,11 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
                     List(x << ZeroToZeroIntegerRange, y << NonPositiveIntegerRange),
                     Nil))
         assertEx(runScenario(scenario), classOf[AssertionError])
-        checkState1
+        checkState1()
     }
 
     @Test
-    def testImplicitConversionsToMoveEffect: Unit = {
+    def testImplicitConversionsToMoveEffect(): Unit = {
         def unpack(effect: AnyMoveEffect) = (effect.x, effect.a)
         assertEq(unpack(x << Three), (x, Three))
         assertEq(unpack(x << 3), (x, Three))
@@ -172,7 +172,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testImplicitConversionToInitialize: Unit = {
+    def testImplicitConversionToInitialize(): Unit = {
         val step = Initialize("x = 0 -> y = False", x << 0, z << False)
         assertEq(step.preconditions.size, 1)
         assertEq(step.preconditions(0).x, x)
@@ -182,7 +182,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testImplicitConversionToConsult: Unit = {
+    def testImplicitConversionToConsult(): Unit = {
         val step = Consult("x = 0 -> y = False", x << 0, z << False)
         assertEq(step.preconditions.size, 1)
         assertEq(step.preconditions(0).x, x)
@@ -192,7 +192,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testImplicitConversionToConsultAndCommit: Unit = {
+    def testImplicitConversionToConsultAndCommit(): Unit = {
         val step = ConsultAndCommit("x = 0 -> y = False", x << 0, z << False)
         assertEq(step.preconditions.size, 1)
         assertEq(step.preconditions(0).x, x)
@@ -202,7 +202,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testThatInitializePassesWhenExpectationIsMet: Unit = {
+    def testThatInitializePassesWhenExpectationIsMet(): Unit = {
         space.post(new ConstraintMock2(False, False, False))
         val scenario = TestScenario(space, Initialize("x = 0 -> y = False", List(x << Zero), List(z << False)))
         runScenario(scenario)
@@ -210,7 +210,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testThatInitializeThrowsWhenExpectationIsNotMet: Unit = {
+    def testThatInitializeThrowsWhenExpectationIsNotMet(): Unit = {
         space.post(new ConstraintMock2(False, False, False))
         val scenario = TestScenario(space, Initialize("x = 0 -> y = True", List(x << Zero), List(z << True)))
         assertEx(runScenario(scenario), classOf[AssertionError])
@@ -218,7 +218,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testThatInitializeThrowsWhenUntestedVariableGotItsValueChanged: Unit = {
+    def testThatInitializeThrowsWhenUntestedVariableGotItsValueChanged(): Unit = {
         space.post(new ConstraintMock2(False, False, False)).setValue(z, True)
         val scenario = TestScenario(space, Initialize("x = 0", List(x << Zero), Nil))
         assertEx(runScenario(scenario), classOf[AssertionError])
@@ -226,7 +226,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testThatConsultPassesWhenExpectationIsMet: Unit = {
+    def testThatConsultPassesWhenExpectationIsMet(): Unit = {
         space.post(new ConstraintMock2(False, True, True)).setValue(x, Zero).initialize()
         assertEq(now.value(z), False)
         val scenario = TestScenario(space, Consult("x = 1 -> y = True", List(x << One), List(z << True)))
@@ -235,7 +235,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testThatConsultThrowsWhenExpectationIsNotMet: Unit = {
+    def testThatConsultThrowsWhenExpectationIsNotMet(): Unit = {
         space.post(new ConstraintMock2(False, True, True)).setValue(x, Zero).initialize()
         assertEq(now.value(z), False)
         val scenario = TestScenario(space, Consult("x = 1 -> y = False", List(x << One), List(z << False)))
@@ -244,7 +244,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testThatConsultThrowsWhenUntestedVariableGotItsValueChanged: Unit = {
+    def testThatConsultThrowsWhenUntestedVariableGotItsValueChanged(): Unit = {
         space.post(new ConstraintMock2(False, True, True)).setValue(x, Zero).initialize()
         assertEq(now.value(z), False)
         val scenario = TestScenario(space, Consult("x = 1", List(x << One), Nil))
@@ -253,7 +253,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testThatConsultAndCommitPassesWhenExpectationsAreMet: Unit = {
+    def testThatConsultAndCommitPassesWhenExpectationsAreMet(): Unit = {
         space.post(new ConstraintMock2(True, False, False)).setValue(x, Zero).initialize()
         assertEq(now.value(z), True)
         val scenario = TestScenario(space, ConsultAndCommit("x = 1 -> y = False", List(x << One), List(z << False)))
@@ -262,7 +262,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testThatConsultAndCommitThrowsWhenExpectationIsNotMetInConsultPhase: Unit = {
+    def testThatConsultAndCommitThrowsWhenExpectationIsNotMetInConsultPhase(): Unit = {
         space.post(new ConstraintMock2(True, True, False)).setValue(x, Zero).initialize()
         assertEq(now.value(z), True)
         val scenario = TestScenario(space, ConsultAndCommit("x = 1 -> y = False", List(x << One), List(z << False)))
@@ -271,7 +271,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testThatConsultAndCommitThrowsWhenExpectationIsNotMetInCommitPhase: Unit = {
+    def testThatConsultAndCommitThrowsWhenExpectationIsNotMetInCommitPhase(): Unit = {
         space.post(new ConstraintMock2(True, False, True)).setValue(x, Zero).initialize()
         assertEq(now.value(z), True)
         val scenario = TestScenario(space, ConsultAndCommit("x = 1 -> y = False", List(x << One), List(z << False)))
@@ -280,7 +280,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testThatConsultAndCommitThrowsWhenUntestedVariableGotItsValueChangedInConsultPhase: Unit = {
+    def testThatConsultAndCommitThrowsWhenUntestedVariableGotItsValueChangedInConsultPhase(): Unit = {
         space.post(new ConstraintMock2(True, False, False)).setValue(x, Zero).initialize()
         assertEq(now.value(z), True)
         val scenario = TestScenario(space, ConsultAndCommit("x = 1", List(x << One), Nil))
@@ -289,7 +289,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testThatConsultAndCommitThrowsWhenUntestedVariableGotItsValueChangedInCommitPhase: Unit = {
+    def testThatConsultAndCommitThrowsWhenUntestedVariableGotItsValueChangedInCommitPhase(): Unit = {
         space.post(new ConstraintMock2(True, True, False)).setValue(x, Zero).initialize()
         assertEq(now.value(z), True)
         val scenario = TestScenario(space, ConsultAndCommit("x = 1", List(x << One), Nil))
