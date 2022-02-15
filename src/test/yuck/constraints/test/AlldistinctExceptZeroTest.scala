@@ -50,7 +50,7 @@ final class AlldistinctExceptZeroTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testCostComputationWithAVariableOccuringTwice(): Unit = {
+    def testCostComputationWithAVariableOccurringTwice(): Unit = {
         space.post(new AlldistinctExceptZero(space.nextConstraintId, null, List(x1, x2, x2), costs))
         runScenario(
             TestScenario(

@@ -3,7 +3,7 @@ package yuck.util.logging
 import yuck.util.arm.ManagedResource
 
 /**
- * A managed resource that increases indendation upon opening and undoes
+ * A managed resource that increases indentation upon opening and undoes
  * the change upon closing.
  *
  * @author Michael Marte
