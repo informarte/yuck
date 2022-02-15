@@ -106,7 +106,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testThatPropgateThrowsWhenUntestedVariableGotItsDomainReduced(): Unit = {
+    def testThatPropagateThrowsWhenUntestedVariableGotItsDomainReduced(): Unit = {
         space.post(new ConstraintMock1())
         val scenario =
             TestScenario(
@@ -150,7 +150,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     }
 
     @Test
-    def testThatPropgateAndRollbackThrowsWhenUntestedVariableGotItsDomainReduced(): Unit = {
+    def testThatPropagateAndRollbackThrowsWhenUntestedVariableGotItsDomainReduced(): Unit = {
         space.post(new ConstraintMock1())
         val scenario =
             TestScenario(

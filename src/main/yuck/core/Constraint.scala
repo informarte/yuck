@@ -53,7 +53,7 @@ abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
     def outVariables: Iterable[AnyVariable]
 
     /**
-     * Propgates the constraint by pruning the domains of its variables.
+     * Propagates the constraint by pruning the domains of its variables.
      *
      * Does not need to compute a fixed point.
      *
