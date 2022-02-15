@@ -3,7 +3,7 @@ package yuck.core
 /**
  * Represents an id for an object of the given type.
  *
- * To prevent inadvertent boxing, Id[T] does not implement Ordered[Id[T]].
+ * To prevent inadvertent boxing, `Id[T]` does not implement `Ordered[Id[T]]`.
  *
  * @author Michael Marte
  */

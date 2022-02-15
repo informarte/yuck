@@ -1,7 +1,7 @@
 package yuck.core
 
 /**
- * @param userData can be used to pass information from a preprocessing to a postprocessing phase.
+ * @param maybeUserData can be used to pass information from a preprocessing to a postprocessing phase.
  *
  * @author Michael Marte
  */
