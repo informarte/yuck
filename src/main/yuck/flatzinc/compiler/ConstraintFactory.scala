@@ -947,7 +947,7 @@ final class ConstraintFactory
         val arrivalTimes = compileNumArray[Time](arrivalTimes0)
         val serviceTimes1 = compileNumArray[Time](serviceTimes0).map(_.domain.singleValue)
         require(serviceTimes1.isEmpty || serviceTimes1.size == nodes.size)
-        val serviceTimes: Function1[Int, Time] =
+        val serviceTimes: Int => Time =
             if (serviceTimes1.isEmpty) _ => timeTraits.zero else i => serviceTimes1(i)
         val travelTimes1 =
             compileNumArray[Time](travelTimes0).map(_.domain.singleValue).grouped(arrivalTimes.size)
@@ -961,7 +961,7 @@ final class ConstraintFactory
             if (! travelTimes1.isEmpty && travelTimesAreSymmetric)
                 (for (i <- 0 until nodes.size) yield travelTimes1(i).drop(i)).to(immutable.ArraySeq)
             else travelTimes1
-        val travelTimes: Function2[Int, Int, Time] =
+        val travelTimes: (Int, Int) => Time =
             if (travelTimes2.isEmpty) (_, _) => timeTraits.zero
             else if (travelTimesAreSymmetric) (i, j) => if (i <= j) travelTimes2(i)(j - i) else travelTimes2(j)(i - j)
             else (i, j) => travelTimes2(i)(j)

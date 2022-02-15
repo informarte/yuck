@@ -36,8 +36,8 @@ final class Delivery
      endNodes: IntegerDomain,
      succ: immutable.IndexedSeq[IntegerVariable], offset: Int,
      arrivalTimes: immutable.IndexedSeq[NumericalVariable[Time]],
-     serviceTimes: Function1[Int, Time],
-     travelTimes: Function2[Int, Int, Time],
+     serviceTimes: Int => Time,
+     travelTimes: (Int, Int) => Time,
      withWaiting: Boolean,
      totalTravelTime: NumericalVariable[Time],
      costs: BooleanVariable)

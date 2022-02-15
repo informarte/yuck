@@ -515,7 +515,7 @@ final class Space(
     private def propagate(propagationJob: => Unit): Unit = {
 
         // collect domains of implicitly constrained search variables
-        val backup = new mutable.ArrayBuffer[(AnyVariable, Function0[Unit])]
+        val backup = new mutable.ArrayBuffer[(AnyVariable, () => Unit)]
         for (x <- inVariablesOfImplicitConstraints) {
             backup += x -> x.createDomainRestorer
         }
