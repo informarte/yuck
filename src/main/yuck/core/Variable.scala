@@ -64,7 +64,7 @@ abstract class Variable
         }
     }
 
-    final override def createDomainRestorer = new Function0[Unit] {
+    final override def createDomainRestorer = new (() => Unit) {
         private val backup = domain
         override def apply() = {
             relaxDomain(backup)
