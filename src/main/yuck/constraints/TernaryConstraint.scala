@@ -34,8 +34,8 @@ trait ReifiedBinaryConstraintPropagator[LhsDomain <: AnyDomain, RhsDomain <: Any
     protected def enforce(lhs: LhsDomain, rhs: RhsDomain): (LhsDomain, RhsDomain)
     protected def prohibit(lhs: LhsDomain, rhs: RhsDomain): (LhsDomain, RhsDomain)
     final def propagate
-        (dx0: LhsDomain, dy0: RhsDomain, dz0: BooleanDecisionDomain):
-        (LhsDomain, RhsDomain, BooleanDecisionDomain) =
+        (dx0: LhsDomain, dy0: RhsDomain, dz0: BooleanDomain):
+        (LhsDomain, RhsDomain, BooleanDomain) =
     {
         if (dz0 == TrueDomain) {
             val (dx1, dy1) = enforce(dx0, dy0)

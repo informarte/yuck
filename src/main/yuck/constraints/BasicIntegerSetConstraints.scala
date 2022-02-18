@@ -28,7 +28,7 @@ final class Contains
     override def op(a: IntegerValue, b: IntegerSetValue) =
         if (b.set.isEmpty) False else BooleanValue(b.set.distanceTo(a).toLong)
     override def propagate = {
-        if (BooleanDomain.ensureDecisionDomain(z.domain) == TrueDomain && y.domain.isSingleton) {
+        if (z.domain == TrueDomain && y.domain.isSingleton) {
             NoPropagationOccurred.pruneDomain(x, x.domain.intersect(y.domain.singleValue.set))
         } else {
             NoPropagationOccurred

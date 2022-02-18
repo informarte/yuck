@@ -72,7 +72,7 @@ abstract class LinearConstraintLike
                     case LeRelation => domainPruner.ltRule(rhs0, lhs0).swap
                 }
         }
-        val (dy0, dz0, costsDomain0) = (y.domain, z.domain, BooleanDomain.ensureDecisionDomain(costs.domain))
+        val (dy0, dz0, costsDomain0) = (y.domain, z.domain, costs.domain)
         val (dy1, dz1, costsDomain1) = propagator.propagate(dy0, dz0, costsDomain0)
         effects.pruneDomains(y, dy1, z, dz1, costs, costsDomain1)
     }

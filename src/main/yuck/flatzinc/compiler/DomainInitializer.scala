@@ -103,7 +103,7 @@ final class DomainInitializer
             case BoolType => b match {
                 case BoolConst(value) =>
                     val da1 = boolDomain(a)
-                    val da2 = da1.intersect(new BooleanDecisionDomain(! value, value))
+                    val da2 = da1.intersect(new BooleanDomain(! value, value))
                     if (da1 != da2) equalVars(a).foreach(b => reduceDomain(b, da2))
                 case b =>
                     val da = boolDomain(a)
@@ -238,7 +238,7 @@ final class DomainInitializer
     }
 
     private def createDomain(varType: Type): AnyDomain = varType match {
-        case BoolType => CompleteBooleanDecisionDomain
+        case BoolType => CompleteBooleanDomain
         case IntType(None) => CompleteIntegerRange
         case IntType(Some(IntRange(lb, ub))) => createIntDomain(lb, ub)
         case IntType(Some(IntSet(set))) => createIntDomain(set)

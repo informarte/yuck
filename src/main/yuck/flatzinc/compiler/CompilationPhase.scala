@@ -70,10 +70,10 @@ abstract class CompilationPhase extends Runnable {
         case a => ArrayConst(getArrayElems(a).toList)
     }
 
-    protected final def boolDomain(a: Expr): BooleanDecisionDomain = a match {
+    protected final def boolDomain(a: Expr): BooleanDomain = a match {
         case BoolConst(false) => FalseDomain
         case BoolConst(true) => TrueDomain
-        case _ => cc.domains(a).asInstanceOf[BooleanDecisionDomain]
+        case _ => cc.domains(a).asInstanceOf[BooleanDomain]
     }
 
     protected final def intDomain(a: Expr): IntegerDomain = a match {

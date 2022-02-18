@@ -16,7 +16,7 @@ final class IfThenElseTest extends UnitTest with ConstraintTestTooling {
 
     private val space = new Space(logger, sigint)
 
-    private val cs = for (i <- 1 to 3) yield new BooleanVariable(space.nextVariableId, "c%d".format(i), CompleteBooleanDecisionDomain)
+    private val cs = for (i <- 1 to 3) yield new BooleanVariable(space.nextVariableId, "c%d".format(i), CompleteBooleanDomain)
     private val Seq(c1, c2, c3) = cs
     private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId, "x%d".format(i), CompleteIntegerRange)
     private val Seq(x1, x2, x3) = xs
@@ -42,28 +42,28 @@ final class IfThenElseTest extends UnitTest with ConstraintTestTooling {
                 PropagateAndRollback(
                     "propagate the union of the x[i] domains to y",
                     List(x1 << PositiveIntegerRange, x2 << ZeroToZeroIntegerRange, x3 << PositiveIntegerRange),
-                    List(c1 << CompleteBooleanDecisionDomain, c2 << CompleteBooleanDecisionDomain,
-                         c3 << CompleteBooleanDecisionDomain,
+                    List(c1 << CompleteBooleanDomain, c2 << CompleteBooleanDomain,
+                         c3 << CompleteBooleanDomain,
                          x1 << PositiveIntegerRange, x2 << ZeroToZeroIntegerRange, x3 << PositiveIntegerRange,
                          y << NonNegativeIntegerRange)),
                 PropagateAndRollback(
                     "if c1 = true, y = x1",
                     List(c1 << TrueDomain, x1 << NonPositiveIntegerRange, y << NonNegativeIntegerRange),
-                    List(c2 << CompleteBooleanDecisionDomain, c3 << CompleteBooleanDecisionDomain,
+                    List(c2 << CompleteBooleanDomain, c3 << CompleteBooleanDomain,
                          x1 << ZeroToZeroIntegerRange, x2 << CompleteIntegerRange, x3 << CompleteIntegerRange,
                          y << ZeroToZeroIntegerRange)),
                 PropagateAndRollback(
                     "if c1 = false, d(x1) plays no role",
                     List(c1 << FalseDomain,
                          x1 << PositiveIntegerRange, x2 << NegativeIntegerRange, x3 << NegativeIntegerRange),
-                    List(c2 << CompleteBooleanDecisionDomain, c3 << CompleteBooleanDecisionDomain,
+                    List(c2 << CompleteBooleanDomain, c3 << CompleteBooleanDomain,
                          x1 << PositiveIntegerRange, x2 << NegativeIntegerRange, x3 << NegativeIntegerRange,
                          y << NegativeIntegerRange)),
                 PropagateAndRollback(
                     "if c2 = false, d(x2) plays no role",
                     List(c2 << FalseDomain,
                          x1 << NegativeIntegerRange, x2 << PositiveIntegerRange, x3 << NegativeIntegerRange),
-                    List(c1 << CompleteBooleanDecisionDomain, c3 << CompleteBooleanDecisionDomain,
+                    List(c1 << CompleteBooleanDomain, c3 << CompleteBooleanDomain,
                          x1 << NegativeIntegerRange, x2 << PositiveIntegerRange, x3 << NegativeIntegerRange,
                          y << NegativeIntegerRange)),
                 PropagateAndRollback(
@@ -76,21 +76,21 @@ final class IfThenElseTest extends UnitTest with ConstraintTestTooling {
                 PropagateAndRollback(
                     "if d(x1) and d(y) are disjoint, c1 = false",
                     List(x1 << PositiveIntegerRange, y << NegativeIntegerRange),
-                    List(c1 << FalseDomain, c2 << CompleteBooleanDecisionDomain, c3 << CompleteBooleanDecisionDomain,
+                    List(c1 << FalseDomain, c2 << CompleteBooleanDomain, c3 << CompleteBooleanDomain,
                          x1 << PositiveIntegerRange, x2 << CompleteIntegerRange, x3 << CompleteIntegerRange,
                          y << NegativeIntegerRange)),
                 PropagateAndRollback(
                     "if both d(x2) and d(x3) are disjoint from d(y), c1 = true and y = x1",
                     List(x1 << NonNegativeIntegerRange, x2 << PositiveIntegerRange, x3 << PositiveIntegerRange,
                          y << NonPositiveIntegerRange),
-                    List(c1 << TrueDomain, c2 << CompleteBooleanDecisionDomain, c3 << CompleteBooleanDecisionDomain,
+                    List(c1 << TrueDomain, c2 << CompleteBooleanDomain, c3 << CompleteBooleanDomain,
                          x1 << ZeroToZeroIntegerRange, x2 << PositiveIntegerRange, x3 << PositiveIntegerRange,
                          y << ZeroToZeroIntegerRange)),
                 PropagateAndRollback(
                     "if both d(x1) and d(x3) are disjoint from d(y), c1 = false, c2 = true and y = x2",
                     List(x1 << PositiveIntegerRange, x2 << NonNegativeIntegerRange, x3 << PositiveIntegerRange,
                          y << NonPositiveIntegerRange),
-                    List(c1 << FalseDomain, c2 << TrueDomain, c3 << CompleteBooleanDecisionDomain,
+                    List(c1 << FalseDomain, c2 << TrueDomain, c3 << CompleteBooleanDomain,
                          x1 << PositiveIntegerRange, x2 << ZeroToZeroIntegerRange, x3 << PositiveIntegerRange,
                          y << ZeroToZeroIntegerRange)),
                 PropagateAndRollback(

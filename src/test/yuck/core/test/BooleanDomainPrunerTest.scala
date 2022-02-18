@@ -14,8 +14,6 @@ import yuck.test.util.UnitTest
 @FixMethodOrder(org.junit.runners.MethodSorters.NAME_ASCENDING)
 class BooleanDomainPrunerTest extends UnitTest {
 
-    import BooleanDomain.ensureDecisionDomain
-
     @tailrec
     private def fixedPoint[State](f: State => State, u: State): State = {
         val v = f(u)
@@ -27,23 +25,20 @@ class BooleanDomainPrunerTest extends UnitTest {
         (prune: (InputDomain, InputDomain) => (BooleanDomain, BooleanDomain),
          predicate: (BooleanValue, BooleanValue) => Boolean): Unit =
     {
-        val testData =
-            List(EmptyBooleanDomain, FalseDomain, TrueDomain, CompleteBooleanDecisionDomain, CompleteBooleanDomain)
+        val testData = List(EmptyBooleanDomain, FalseDomain, TrueDomain, CompleteBooleanDomain)
         for (d <- testData) {
             for (e <- testData) {
-                val feasible =
-                    ensureDecisionDomain(d).values.exists(
-                        a => ensureDecisionDomain(e).values.exists(b => predicate(a, b)))
+                val feasible = d.values.exists(a => e.values.exists(b => predicate(a, b)))
                 val (f, g) = prune(d, e)
                 assert(f.isSubsetOf(d))
                 assert(g.isSubsetOf(e))
                 assertEq(f.isEmpty || g.isEmpty, ! feasible)
                 if (feasible) {
-                    for (a <- ensureDecisionDomain(d).values) {
-                        assertEq(ensureDecisionDomain(e).values.exists(b => predicate(a, b)), f.contains(a))
+                    for (a <- d.values) {
+                        assertEq(e.values.exists(b => predicate(a, b)), f.contains(a))
                     }
-                    for (b <- ensureDecisionDomain(e).values) {
-                        assertEq(ensureDecisionDomain(d).values.exists(a => predicate(a, b)), g.contains(b))
+                    for (b <- e.values) {
+                        assertEq(d.values.exists(a => predicate(a, b)), g.contains(b))
                     }
                 }
             }
@@ -85,9 +80,9 @@ class BooleanDomainPrunerTest extends UnitTest {
             val (lhs0, rhs0) = fixedPoint[State](linEqRule, u)
             val (lhs1, rhs1) = v
             for ((d0, d1) <- lhs0.view.zip(lhs1)) {
-                assertEq(ensureDecisionDomain(d0), ensureDecisionDomain(d1))
+                assertEq(d0, d1)
             }
-            assertEq(ensureDecisionDomain(rhs0), ensureDecisionDomain(rhs1))
+            assertEq(rhs0, rhs1)
         }
 
         // propagate from rhs to lhs: enforce conjunction
@@ -109,10 +104,10 @@ class BooleanDomainPrunerTest extends UnitTest {
             (List(FalseDomain, TrueDomain), FalseDomain),
             (List(FalseDomain, TrueDomain), FalseDomain))
         checkPruning(
-            (List(FalseDomain, CompleteBooleanDecisionDomain), FalseDomain),
-            (List(FalseDomain, CompleteBooleanDecisionDomain), FalseDomain))
+            (List(FalseDomain, CompleteBooleanDomain), FalseDomain),
+            (List(FalseDomain, CompleteBooleanDomain), FalseDomain))
         checkPruning(
-            (List(TrueDomain, CompleteBooleanDecisionDomain), FalseDomain),
+            (List(TrueDomain, CompleteBooleanDomain), FalseDomain),
             (List(TrueDomain, FalseDomain), FalseDomain))
 
         // propagate from lhs to rhs
@@ -148,9 +143,9 @@ class BooleanDomainPrunerTest extends UnitTest {
             val (lhs0, rhs0) = fixedPoint[State](linEqRule, u)
             val (lhs1, rhs1) = v
             for ((d0, d1) <- lhs0.view.zip(lhs1)) {
-                assertEq(ensureDecisionDomain(d0), ensureDecisionDomain(d1))
+                assertEq(d0, d1)
             }
-            assertEq(ensureDecisionDomain(rhs0), ensureDecisionDomain(rhs1))
+            assertEq(rhs0, rhs1)
         }
 
         // propagate from rhs to lhs: enforce disjunction

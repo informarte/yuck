@@ -22,7 +22,12 @@ abstract class AnyVariable
     @inline final override def >(that: AnyVariable): Boolean = this.id.rawId > that.id.rawId
     @inline final override def >=(that: AnyVariable): Boolean = this.id.rawId >= that.id.rawId
 
-    /** Returns the variable's domain. */
+    /**
+     * Returns the variable's domain.
+     *
+     * Notice that a search variable must take its value from its domain;
+     * in contrast a channel variable may take any value.
+     */
     def domain: AnyDomain
 
     /** Returns a function that will restore the domain of the variable. */

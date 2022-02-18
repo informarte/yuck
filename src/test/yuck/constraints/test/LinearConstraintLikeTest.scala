@@ -27,7 +27,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
     protected val space = new Space(logger, sigint)
 
     protected val relation: OrderingRelation
-    protected val costsDomain: BooleanDecisionDomain
+    protected val costsDomain: BooleanDomain
     protected val baseDomain: NumericalDomain[V]
     protected val axs: IndexedSeq[AX[V]]
     protected final lazy val y = baseValueTraits.createChannel(space)
@@ -98,7 +98,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
             case LeRelation =>
                 when(domainPruner.ltRule(dz0, dy1)).thenReturn((dz1, dy1))
                 when(domainPruner.ltRule(dz1, dy1)).thenReturn((dz1, dy1))
-        } else if (costsDomain == CompleteBooleanDecisionDomain) relation match {
+        } else if (costsDomain == CompleteBooleanDomain) relation match {
             case EqRelation =>
                 when(domainPruner.eqRule(dy1, dz0)).thenReturn((dy1, dz1))
                 when(domainPruner.neRule(dy1, dz0)).thenReturn((dy1, dz1))

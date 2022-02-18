@@ -14,7 +14,7 @@ final class SatisfactionObjectiveTest extends UnitTest {
 
     private val space = new Space(logger, sigint)
     private val now = space.searchState
-    private val x = new BooleanVariable(space.nextVariableId, "x", CompleteBooleanDecisionDomain)
+    private val x = new BooleanVariable(space.nextVariableId, "x", CompleteBooleanDomain)
     private val objective = new SatisfactionObjective(x)
 
     @Test

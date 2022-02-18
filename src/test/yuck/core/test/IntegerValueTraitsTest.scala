@@ -64,7 +64,7 @@ final class IntegerValueTraitsTest extends UnitTest {
     @Test
     def testVariableCasting(): Unit = {
         val space = new Space(logger, sigint)
-        val b = space.createVariable("b", CompleteBooleanDecisionDomain)
+        val b = space.createVariable("b", CompleteBooleanDomain)
         val i = space.createVariable("i", CompleteIntegerRange)
         safeDowncast(i)
         assertEx(safeDowncast(b), classOf[ClassCastException])

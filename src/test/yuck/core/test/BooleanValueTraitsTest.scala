@@ -25,11 +25,11 @@ final class BooleanValueTraitsTest extends UnitTest {
         assertEq(createDomain(Set()), EmptyBooleanDomain)
         assertEq(createDomain(Set(False)), FalseDomain)
         assertEq(createDomain(Set(True)), TrueDomain)
-        assertEq(createDomain(Set(False, True)), CompleteBooleanDecisionDomain)
+        assertEq(createDomain(Set(False, True)), CompleteBooleanDomain)
         assertEx(createDomain(Set(False, False2, True)))
         assertEq(createDomain(False, False), FalseDomain)
         assertEq(createDomain(False, True), EmptyBooleanDomain)
-        assertEq(createDomain(True, False), CompleteBooleanDecisionDomain)
+        assertEq(createDomain(True, False), CompleteBooleanDomain)
         assertEq(createDomain(True, True), TrueDomain)
     }
 
@@ -40,7 +40,7 @@ final class BooleanValueTraitsTest extends UnitTest {
         val c = createChannel(space)
         assertEq(x.name, "x")
         assertEq(x.domain, FalseDomain)
-        assertEq(c.domain, CompleteBooleanDecisionDomain)
+        assertEq(c.domain, CompleteBooleanDomain)
     }
 
     @Test
@@ -51,14 +51,14 @@ final class BooleanValueTraitsTest extends UnitTest {
 
     @Test
     def testDomainCasting(): Unit = {
-        safeDowncast(CompleteBooleanDecisionDomain)
+        safeDowncast(CompleteBooleanDomain)
         assertEx(safeDowncast(CompleteIntegerRange), classOf[ClassCastException])
     }
 
     @Test
     def testVariableCasting(): Unit = {
         val space = new Space(logger, sigint)
-        val b = space.createVariable("b", CompleteBooleanDecisionDomain)
+        val b = space.createVariable("b", CompleteBooleanDomain)
         val i = space.createVariable("i", CompleteIntegerRange)
         safeDowncast(b)
         assertEx(safeDowncast(i), classOf[ClassCastException])
