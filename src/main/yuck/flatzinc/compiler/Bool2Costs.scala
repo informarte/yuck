@@ -34,7 +34,7 @@ final class Bool2Costs2
     override def op(a: BooleanValue, b: IntegerValue) =
         BooleanValue(abs(safeSub(a.violation, b.value)))
     override def propagate = {
-        val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
+        val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
     override protected def enforce(lhs: BooleanDomain, rhs: IntegerDomain) =
@@ -50,17 +50,16 @@ final class Bool2Costs2
 object Bool2CostsPropagator {
 
     def bool2Costs(lhs0: BooleanDomain, rhs0: IntegerDomain) = {
-        val lhs1 = BooleanDomain.ensureDecisionDomain(lhs0)
-        val lhs2 =
-            BooleanDecisionDomain(
-                lhs1.contains(False) && (! rhs0.hasUb || rhs0.ub > Zero),
-                lhs1.contains(True)  && (! rhs0.hasLb || rhs0.lb <= Zero))
-        val rhs2 =
+        val lhs1 =
+            BooleanDomain(
+                lhs0.contains(False) && (! rhs0.hasUb || rhs0.ub > Zero),
+                lhs0.contains(True)  && (! rhs0.hasLb || rhs0.lb <= Zero))
+        val rhs1 =
             rhs0.intersect(
                 IntegerRange(
                     if (lhs1.contains(True)) Zero else One,
                     if (lhs1.contains(False)) null else Zero))
-        (lhs2, rhs2)
+        (lhs1, rhs1)
     }
 
     def notBool2Costs(lhs0: BooleanDomain, rhs0: IntegerDomain) = {

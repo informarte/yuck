@@ -10,8 +10,6 @@ import org.junit.*
 @runners.Suite.SuiteClasses(
     Array(
         classOf[BooleanDomainTest],
-        classOf[BooleanDecisionDomainTest],
-        classOf[BooleanChannelDomainTest],
         classOf[BooleanDomainPrunerTest],
         classOf[EmptyIntegerSetDomainTest],
         classOf[IntegerDomainTest],

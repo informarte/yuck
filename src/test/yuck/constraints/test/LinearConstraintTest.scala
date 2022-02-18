@@ -15,7 +15,7 @@ import yuck.core.*
 @runner.RunWith(classOf[runners.Parameterized])
 final class LinearConstraintTest
     (override protected val relation: OrderingRelation,
-     override protected val costsDomain: BooleanDecisionDomain)
+     override protected val costsDomain: BooleanDomain)
     extends LinearConstraintLikeTest[IntegerValue]
 {
     override protected val baseValueTraits = IntegerValueTraits
@@ -38,7 +38,7 @@ object LinearConstraintTest {
 
     private def configurations =
         for (relation <- List(EqRelation, NeRelation, LtRelation, LeRelation);
-             costsDomain <- List(TrueDomain, FalseDomain, CompleteBooleanDecisionDomain))
+             costsDomain <- List(TrueDomain, FalseDomain, CompleteBooleanDomain))
             yield Vector(relation, costsDomain)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")

@@ -56,7 +56,7 @@ final class IntegerSetValueTraitsTest extends UnitTest {
     @Test
     def testVariableCasting(): Unit = {
         val space = new Space(logger, sigint)
-        val b = space.createVariable("b", CompleteBooleanDecisionDomain)
+        val b = space.createVariable("b", CompleteBooleanDomain)
         val s = space.createVariable("s", new IntegerPowersetDomain(CompleteIntegerRange))
         safeDowncast(s)
         assertEx(safeDowncast(b), classOf[ClassCastException])

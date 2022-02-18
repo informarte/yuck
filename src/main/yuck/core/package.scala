@@ -51,11 +51,10 @@ package object core {
     val False9 = BooleanValue(9)
     val False10 = BooleanValue(10)
 
-    val EmptyBooleanDomain = new BooleanDecisionDomain(false, false)
-    val CompleteBooleanDecisionDomain = new BooleanDecisionDomain(true, true)
-    val FalseDomain = new BooleanDecisionDomain(true, false)
-    val TrueDomain = new BooleanDecisionDomain(false, true)
-    val CompleteBooleanDomain = BooleanChannelDomain
+    val EmptyBooleanDomain = new BooleanDomain(false, false)
+    val CompleteBooleanDomain = new BooleanDomain(true, true)
+    val FalseDomain = new BooleanDomain(true, false)
+    val TrueDomain = new BooleanDomain(false, true)
 
     val MinusOne = IntegerValue(-1)
     val Zero = IntegerValue(0)

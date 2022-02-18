@@ -17,7 +17,7 @@ final class Eq
     override def toString = "eq(%s, %s, %s)".format(x, y, z)
     override def op(a: V, b: V) = BooleanValue(valueTraits.orderingCostModel.eqViolation(a, b))
     override def propagate = {
-        val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
+        val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
     override protected def enforce(lhs: OrderedDomain[V], rhs: OrderedDomain[V]) =
@@ -41,7 +41,7 @@ final class Ne
     override def toString = "ne(%s, %s, %s)".format(x, y, z)
     override def op(a: V, b: V) = BooleanValue(valueTraits.orderingCostModel.neViolation(a, b))
     override def propagate = {
-        val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
+        val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
     override protected def enforce(lhs: OrderedDomain[V], rhs: OrderedDomain[V]) =
@@ -65,7 +65,7 @@ final class Lt
     override def toString = "lt(%s, %s, %s)".format(x, y, z)
     override def op(a: V, b: V) = BooleanValue(valueTraits.orderingCostModel.ltViolation(a, b))
     override def propagate = {
-        val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
+        val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
     override protected def enforce(lhs: OrderedDomain[V], rhs: OrderedDomain[V]) =
@@ -91,7 +91,7 @@ final class Le
     override def toString = "le(%s, %s, %s)".format(x, y, z)
     override def op(a: V, b: V) = BooleanValue(valueTraits.orderingCostModel.leViolation(a, b))
     override def propagate = {
-        val (dx1, dy1, dz1) = propagate(x.domain, y.domain, BooleanDomain.ensureDecisionDomain(z.domain))
+        val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
     override protected def enforce(lhs: OrderedDomain[V], rhs: OrderedDomain[V]) =

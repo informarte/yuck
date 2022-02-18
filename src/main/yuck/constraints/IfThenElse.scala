@@ -33,9 +33,8 @@ final class IfThenElse
     // propagate from the x[i] and y to the c[i]
     private def propagate1(effects: PropagationEffects): PropagationEffects = {
         // identify impossible cases
-        def identifyImpossibleCase(i: Int): BooleanDecisionDomain =
-            BooleanDomain.ensureDecisionDomain(
-                if (xs(i).domain.intersects(y.domain)) cs(i).domain else cs(i).domain.intersect(FalseDomain))
+        def identifyImpossibleCase(i: Int): BooleanDomain =
+            if (xs(i).domain.intersects(y.domain)) cs(i).domain else cs(i).domain.intersect(FalseDomain)
         val cds = (0 until n).view.map(identifyImpossibleCase).toBuffer
         // make sure we have a default case
         @tailrec

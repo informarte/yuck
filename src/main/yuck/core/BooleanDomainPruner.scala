@@ -11,8 +11,6 @@ package yuck.core
  */
 object BooleanDomainPruner extends OrderedDomainPruner[BooleanValue] {
 
-    import BooleanDomain.ensureDecisionDomain
-
     override protected val valueTraits = BooleanValueTraits
 
     // iff
@@ -20,8 +18,8 @@ object BooleanDomainPruner extends OrderedDomainPruner[BooleanValue] {
         (lhs0: Domain[BooleanValue], rhs0: Domain[BooleanValue]):
         (BooleanDomain, BooleanDomain) =
     {
-        val lhs1 = ensureDecisionDomain(lhs0)
-        val rhs1 = ensureDecisionDomain(rhs0)
+        val lhs1 = lhs0.asInstanceOf[BooleanDomain]
+        val rhs1 = rhs0.asInstanceOf[BooleanDomain]
         val intersection = lhs1.intersect(rhs1)
         (intersection, intersection)
     }
@@ -31,8 +29,8 @@ object BooleanDomainPruner extends OrderedDomainPruner[BooleanValue] {
         (lhs0: Domain[BooleanValue], rhs0: Domain[BooleanValue]):
         (BooleanDomain, BooleanDomain) =
     {
-        val lhs1 = ensureDecisionDomain(lhs0)
-        val rhs1 = ensureDecisionDomain(rhs0)
+        val lhs1 = lhs0.asInstanceOf[BooleanDomain]
+        val rhs1 = rhs0.asInstanceOf[BooleanDomain]
         (if (rhs1.isSingleton) lhs1.diff(rhs1) else lhs1,
          if (lhs1.isSingleton) rhs1.diff(lhs1) else rhs1)
     }
@@ -49,25 +47,25 @@ object BooleanDomainPruner extends OrderedDomainPruner[BooleanValue] {
         (lhs0: OrderedDomain[BooleanValue], rhs0: OrderedDomain[BooleanValue]):
         (BooleanDomain, BooleanDomain) =
     {
-        val lhs1 = ensureDecisionDomain(lhs0)
-        val rhs1 = ensureDecisionDomain(rhs0)
-        (if (rhs1.isSingleton && rhs1.singleValue == False) BooleanDecisionDomain(lhs1.contains(False), false) else lhs1,
-         if (lhs1.isSingleton && lhs1.singleValue == True) BooleanDecisionDomain(false, rhs1.contains(True)) else rhs1)
+        val lhs1 = lhs0.asInstanceOf[BooleanDomain]
+        val rhs1 = rhs0.asInstanceOf[BooleanDomain]
+        (if (rhs1.isSingleton && rhs1.singleValue == False) BooleanDomain(lhs1.contains(False), false) else lhs1,
+         if (lhs1.isSingleton && lhs1.singleValue == True) BooleanDomain(false, rhs1.contains(True)) else rhs1)
     }
 
     def conjunctionRule
         (lhs0: Iterable[OrderedDomain[BooleanValue]], rhs0: OrderedDomain[BooleanValue]):
         (Iterator[BooleanDomain], BooleanDomain) =
     {
-        val lhs1 = lhs0.view.map(ensureDecisionDomain)
-        val rhs1 = ensureDecisionDomain(rhs0)
+        val lhs1 = lhs0.view.map(_.asInstanceOf[BooleanDomain])
+        val rhs1 = rhs0.asInstanceOf[BooleanDomain]
         val (lhs2, rhs2) = conjunctionRule(lhs1, rhs1)
         (lhs2, rhs2)
     }
 
     private def conjunctionRule
-        (lhs0: Iterable[BooleanDecisionDomain], rhs0: BooleanDecisionDomain):
-        (Iterator[BooleanDecisionDomain], BooleanDecisionDomain) =
+        (lhs0: Iterable[BooleanDomain], rhs0: BooleanDomain):
+        (Iterator[BooleanDomain], BooleanDomain) =
     {
         def lhs1 = lhs0.iterator
         if (rhs0.isEmpty || lhs0.exists(_.isEmpty)) {
@@ -77,8 +75,8 @@ object BooleanDomainPruner extends OrderedDomainPruner[BooleanValue] {
         } else if (rhs0 == FalseDomain) {
             if (lhs0.forall(_ == TrueDomain)) {
                 (lhs1, EmptyBooleanDomain)
-            } else if (lhs0.count(_ == FalseDomain) == 0 && lhs0.count(_ == CompleteBooleanDecisionDomain) == 1) {
-                (for (d <- lhs0.iterator) yield if (d == CompleteBooleanDecisionDomain) d.diff(TrueDomain) else d, rhs0)
+            } else if (lhs0.count(_ == FalseDomain) == 0 && lhs0.count(_ == CompleteBooleanDomain) == 1) {
+                (for (d <- lhs0.iterator) yield if (d == CompleteBooleanDomain) d.diff(TrueDomain) else d, rhs0)
             } else {
                 (lhs1, rhs0)
             }
@@ -95,15 +93,15 @@ object BooleanDomainPruner extends OrderedDomainPruner[BooleanValue] {
         (lhs0: Iterable[OrderedDomain[BooleanValue]], rhs0: OrderedDomain[BooleanValue]):
         (Iterator[BooleanDomain], BooleanDomain) =
     {
-        val lhs1 = lhs0.view.map(ensureDecisionDomain)
-        val rhs1 = ensureDecisionDomain(rhs0)
+        val lhs1 = lhs0.view.map(_.asInstanceOf[BooleanDomain])
+        val rhs1 = rhs0.asInstanceOf[BooleanDomain]
         val (lhs2, rhs2) = disjunctionRule(lhs1, rhs1)
         (lhs2, rhs2)
     }
 
     private def disjunctionRule
-        (lhs0: Iterable[BooleanDecisionDomain], rhs0: BooleanDecisionDomain):
-        (Iterator[BooleanDecisionDomain], BooleanDecisionDomain) =
+        (lhs0: Iterable[BooleanDomain], rhs0: BooleanDomain):
+        (Iterator[BooleanDomain], BooleanDomain) =
     {
         def lhs1 = lhs0.iterator
         if (rhs0.isEmpty || lhs0.exists(_.isEmpty)) {
