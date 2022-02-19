@@ -129,7 +129,7 @@ final class VariableDrivenNeighbourhoodFactory
         val s = new mutable.AnyRefMap[AnyVariable, NumericalVariable[V]]
         for (x <- zs.keys) {
             s += x -> createNonNegativeChannel[V]
-            val zl = AX.compact(zs(x))
+            val zl = AX.normalize(zs(x))
             if (zl.forall(ax => ax.a == valueTraits.one)) {
                space.post(new Sum(nextConstraintId, null, zl.iterator.map(ax => ax.x).toIndexedSeq, s(x)))
             } else {

@@ -238,7 +238,7 @@ class IntegerDomainPrunerTest extends UnitTest {
             assertEq(f, d.intersect(e.union(e.mirrored)))
         }
         if (e.isFinite) {
-            assert(e.valuesIterator.forall(a => g.contains(a) == (d.contains(a) || d.contains(a.negate))))
+            assert(e.valuesIterator.forall(a => g.contains(a) == (d.contains(a) || d.contains(a.negated))))
         } else {
             assertEq(g, e.intersect(d.union(d.mirrored)))
         }

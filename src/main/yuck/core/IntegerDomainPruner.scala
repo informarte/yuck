@@ -110,7 +110,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         // <-> sum a_i * x_i <= b & sum  a_i * x_i >=  b
         // <-> sum a_i * x_i <= b & sum -a_i * x_i <= -b
         val (lhs1, rhs1) = linLeRule(lhs0, rhs0)
-        val (lhs2, rhs2) = linLeRule(lhs0.map{case (a, d) => (a.negate, d)}, rhs0.hull.mirrored)
+        val (lhs2, rhs2) = linLeRule(lhs0.map{case (a, d) => (a.negated, d)}, rhs0.hull.mirrored)
         val lhs3 = for ((d, e) <- lhs1.iterator.zip(lhs2.iterator)) yield d.intersect(e)
         val rhs3 = rhs1.intersect(rhs2.mirrored)
         (lhs3, rhs3)

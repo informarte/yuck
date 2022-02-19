@@ -12,7 +12,7 @@ object IntegerValueOperations extends Integral[IntegerValue] {
     override def times(a: IntegerValue, b: IntegerValue) = a * b
     override def quot(a: IntegerValue, b: IntegerValue) = a / b
     override def rem(a: IntegerValue, b: IntegerValue) = a % b
-    override def negate(a: IntegerValue) = a.negate
+    override def negate(a: IntegerValue) = a.negated
     override def fromInt(a: Int) = IntegerValue(a)
     override def parseString(str: String) = ???
     override def toInt(a: IntegerValue) = a.toInt

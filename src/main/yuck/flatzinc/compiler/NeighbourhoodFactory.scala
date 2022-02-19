@@ -111,7 +111,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
                             checkAssignmentsToNonChannelVariables = cfg.checkAssignmentsToNonChannelVariables))
                 if (maybeNeighbourhood.isDefined) {
                     implicitlyConstrainedVars ++= xs
-                    space.markAsImplicit(constraint)
+                    space.registerImplicitConstraint(constraint)
                     logger.log("Adding a neighbourhood for implicit constraint %s".format(constraint))
                     neighbourhoods += maybeNeighbourhood.get
                     neighbourhoodsFromImplicitConstraints += maybeNeighbourhood.get

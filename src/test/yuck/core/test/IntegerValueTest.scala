@@ -104,7 +104,7 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
             } else {
                 assertEq(a.abs, a)
             }
-            assertEq(a.negate, IntegerValue(-a.value))
+            assertEq(a.negated, IntegerValue(-a.value))
             assertEq(a.toInt, a.value)
             assertEq(a.toLong, a.value.toLong)
             assertEq(a.toFloat, a.value.toFloat)
@@ -128,8 +128,8 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
         assertEx(IntegerValue(Int.MaxValue).addAndSub(One, One, Zero), classOf[ArithmeticException])
         IntegerValue(Int.MinValue + 1).abs
         assertEx(IntegerValue(Int.MinValue).abs, classOf[ArithmeticException])
-        IntegerValue(Int.MaxValue).negate
-        assertEx(IntegerValue(Int.MinValue).negate, classOf[ArithmeticException])
+        IntegerValue(Int.MaxValue).negated
+        assertEx(IntegerValue(Int.MinValue).negated, classOf[ArithmeticException])
         IntegerValue(-2) ^ IntegerValue(31)
         assertEx(IntegerValue(-2) ^ IntegerValue(32), classOf[ArithmeticException])
         Two ^ IntegerValue(30)
