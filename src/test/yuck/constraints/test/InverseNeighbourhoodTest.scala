@@ -20,8 +20,8 @@ abstract class InverseNeighbourhoodTest extends UnitTest {
          expectedNeighbourhoodClass: Class[_ <: InverseNeighbourhood]):
         Unit =
     {
-        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        val constraint = new Inverse(space.nextConstraintId, null, f, g, costs)
+        val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
+        val constraint = new Inverse(space.nextConstraintId(), null, f, g, costs)
         space.post(constraint)
         val neighbourhood =
             constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get

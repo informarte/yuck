@@ -15,14 +15,14 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
 
     private val space = new Space(logger, sigint)
     private val now = space.searchState
-    private val x = new IntegerVariable(space.nextVariableId, "x", CompleteIntegerRange)
-    private val y = new IntegerVariable(space.nextVariableId, "y", CompleteIntegerRange)
-    private val z = new BooleanVariable(space.nextVariableId, "z", CompleteBooleanDomain)
+    private val x = new IntegerVariable(space.nextVariableId(), "x", CompleteIntegerRange)
+    private val y = new IntegerVariable(space.nextVariableId(), "y", CompleteIntegerRange)
+    private val z = new BooleanVariable(space.nextVariableId(), "z", CompleteBooleanDomain)
 
-    private class ConstraintMock1 extends Constraint(space.nextConstraintId) {
+    private class ConstraintMock1 extends Constraint(space.nextConstraintId()) {
         override def inVariables = List(x, y)
         override def outVariables = Nil
-        override def propagate = {
+        override def propagate() = {
             val i = x.domain.intersect(y.domain)
             NoPropagationOccurred.pruneDomain(x, i).pruneDomain(y, i)
         }
@@ -40,7 +40,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
 
     private class ConstraintMock2
         (initializeResult: BooleanValue, consultResult: BooleanValue, commitResult: BooleanValue)
-        extends Constraint(space.nextConstraintId)
+        extends Constraint(space.nextConstraintId())
     {
         override def inVariables = List(x)
         override def outVariables = List(z)

@@ -19,13 +19,13 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
     private val space = new Space(logger, sigint)
 
     private val baseDomain = IntegerRange(0, 9)
-    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId, "x%d".format(i), baseDomain)
+    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
     private val Seq(x1, x2, x3) = xs
-    private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+    private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new Alldistinct(space.nextConstraintId, null, xs, costs)
+        val constraint = new Alldistinct(space.nextConstraintId(), null, xs, costs)
         assertEq(constraint.toString, "alldistinct([x1, x2, x3], costs)")
         assertEq(constraint.inVariables.size, 3)
         assertEq(constraint.inVariables.toSet, xs.toSet)
@@ -35,7 +35,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testPropagation(): Unit = {
-        space.post(new Alldistinct(space.nextConstraintId, null, xs, costs))
+        space.post(new Alldistinct(space.nextConstraintId(), null, xs, costs))
         runScenario(
             TestScenario(
                 space,
@@ -50,7 +50,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfDuplicateVariablesInPropagation(): Unit = {
-        space.post(new Alldistinct(space.nextConstraintId, null, Vector(x1, x2, x2), costs))
+        space.post(new Alldistinct(space.nextConstraintId(), null, Vector(x1, x2, x2), costs))
         runScenario(
             TestScenario(
                 space,
@@ -63,7 +63,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testCostComputation(): Unit = {
-        space.post(new Alldistinct(space.nextConstraintId, null, xs, costs))
+        space.post(new Alldistinct(space.nextConstraintId(), null, xs, costs))
         runScenario(
             TestScenario(
                 space,
@@ -78,7 +78,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfDuplicateVariablesInCostComputation(): Unit = {
-        space.post(new Alldistinct(space.nextConstraintId, null, Vector(x1, x2, x2), costs))
+        space.post(new Alldistinct(space.nextConstraintId(), null, Vector(x1, x2, x2), costs))
         runScenario(
             TestScenario(
                 space,
@@ -91,7 +91,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
     }
 
     private def assertNeighbourhood(xs: IndexedSeq[IntegerVariable]): Unit = {
-        val constraint = new Alldistinct(space.nextConstraintId, null, xs, costs)
+        val constraint = new Alldistinct(space.nextConstraintId(), null, xs, costs)
         space.post(constraint)
         assert(constraint.isCandidateForImplicitSolving(space))
         val neighbourhood =
@@ -105,7 +105,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
     }
 
     private def assertNoNeighbourhood(xs: IndexedSeq[IntegerVariable], isCandidate: Boolean = false): Unit = {
-        val constraint = new Alldistinct(space.nextConstraintId, null, xs, costs)
+        val constraint = new Alldistinct(space.nextConstraintId(), null, xs, costs)
         space.post(constraint)
         assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
         assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint), None)
@@ -142,7 +142,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
     @Test
     def testHandlingOfChannelVariablesInNeighbourhoodGeneration(): Unit = {
         import yuck.constraints.Plus
-        space.post(new Plus(space.nextConstraintId, null, x1, x2, x3))
+        space.post(new Plus(space.nextConstraintId(), null, x1, x2, x3))
         assertNoNeighbourhood(xs)
     }
 

@@ -44,7 +44,7 @@ final class SelfInverseNeighbourhood
         effects(1).set(x3, a1)
         effects(2).set(x2, a4)
         effects(3).set(x4, a2)
-        new ChangeValues(space.nextMoveId, effects)
+        new ChangeValues(space.nextMoveId(), effects)
     }
 
 }

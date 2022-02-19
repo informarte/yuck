@@ -100,7 +100,7 @@ final class Inverse
                     (y, y.domain.intersect(IntegerRange(i, i))))
     }
 
-    override def propagate =
+    override def propagate() =
         if (costs.domain == TrueDomain) {
             propagate(propagate(NoPropagationOccurred, f, g), g, f)
         } else {
@@ -251,11 +251,11 @@ final class Inverse
                     // general case
                     val subspace =
                         new Space(logger, sigint, extraCfg.checkIncrementalCostUpdate, extraCfg.checkAssignmentsToNonChannelVariables)
-                    val subf = new InverseFunction(f.xs.map(x => new IntegerVariable(subspace.nextVariableId, x.name, x.domain)), f.offset)
-                    val subg = new InverseFunction(g.xs.map(y => new IntegerVariable(subspace.nextVariableId, y.name, y.domain)), g.offset)
+                    val subf = new InverseFunction(f.xs.map(x => new IntegerVariable(subspace.nextVariableId(), x.name, x.domain)), f.offset)
+                    val subg = new InverseFunction(g.xs.map(y => new IntegerVariable(subspace.nextVariableId(), y.name, y.domain)), g.offset)
                     val result = logger.withTimedLogScope("Solving %s".format(this)) {
-                        val subcosts = new BooleanVariable(subspace.nextVariableId, "", CompleteBooleanDomain)
-                        subspace.post(new Inverse(subspace.nextConstraintId, maybeGoal, subf, subg, subcosts))
+                        val subcosts = new BooleanVariable(subspace.nextVariableId(), "", CompleteBooleanDomain)
+                        subspace.post(new Inverse(subspace.nextConstraintId(), maybeGoal, subf, subg, subcosts))
                         val initializer = new RandomInitializer(subspace, randomGenerator.nextGen())
                         initializer.run()
                         val n = subspace.searchVariables.size * 4
@@ -342,9 +342,9 @@ final class Inverse
         if (isDecomposable) {
             for (domain <- fPartitionByDomain.keysIterator.toList) yield {
                 val offset = domain.lb.value
-                val costs = new BooleanVariable(space.nextVariableId, "", CompleteBooleanDomain)
+                val costs = new BooleanVariable(space.nextVariableId(), "", CompleteBooleanDomain)
                 new Inverse(
-                    space.nextConstraintId, maybeGoal,
+                    space.nextConstraintId(), maybeGoal,
                     new InverseFunction(fPartitionByDomain(domain).toIndexedSeq, offset),
                     new InverseFunction(gPartitionByDomain(domain).toIndexedSeq, offset),
                     costs)

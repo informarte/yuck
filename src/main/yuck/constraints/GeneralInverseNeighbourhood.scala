@@ -22,7 +22,7 @@ final class GeneralInverseNeighbourhood
 
     override def nextMove = {
         if (candidates1.isEmpty) {
-            new ChangeValues[IntegerValue](space.nextMoveId, Nil)
+            new ChangeValues[IntegerValue](space.nextMoveId(), Nil)
         } else {
             val i1 = candidates1(randomGenerator.nextInt(candidates1.size))
             val x1 = f.xs(i1)
@@ -50,7 +50,7 @@ final class GeneralInverseNeighbourhood
                     })
                 .toIndexedSeq
             if (candidates2.isEmpty) {
-                new ChangeValues[IntegerValue](space.nextMoveId, Nil)
+                new ChangeValues[IntegerValue](space.nextMoveId(), Nil)
             } else {
                 val i2 = candidates2(randomGenerator.nextInt(candidates2.size))
                 val x2 = f.xs(i2)
@@ -64,7 +64,7 @@ final class GeneralInverseNeighbourhood
                 effects(1).set(x2, a1)
                 effects(2).set(y1, b2)
                 effects(3).set(y2, b1)
-                new ChangeValues(space.nextMoveId, effects)
+                new ChangeValues(space.nextMoveId(), effects)
             }
         }
     }

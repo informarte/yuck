@@ -87,6 +87,6 @@ abstract class Variable
     }
 
     final override def nextMove(space: Space, randomGenerator: RandomGenerator) =
-        new ChangeValues(space.nextMoveId, Some(nextRandomMoveEffect(space, randomGenerator)))
+        new ChangeValues(space.nextMoveId(), Some(nextRandomMoveEffect(space, randomGenerator)))
 
 }

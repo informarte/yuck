@@ -126,7 +126,7 @@ final class RandomCircularSwapGenerator
                 }
             }
         }
-        new ChangeValues(space.nextMoveId, swap)
+        new ChangeValues(space.nextMoveId(), swap)
     }
 
 }

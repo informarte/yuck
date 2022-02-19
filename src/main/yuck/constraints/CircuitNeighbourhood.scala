@@ -72,7 +72,7 @@ final class CircuitNeighbourhood
         effects += effect
     }
 
-    private abstract class CircuitMove extends ChangeValues(space.nextMoveId, effects) { outer =>
+    private abstract class CircuitMove extends ChangeValues(space.nextMoveId(), effects) { outer =>
         override def toString = "%s(%s)".format(getClass.getSimpleName, outer.effects.mkString(", "))
     }
     private case class NodeSwap(i: Int, j: Int) extends CircuitMove

@@ -17,20 +17,20 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     private val space = new Space(logger, sigint)
 
     private val baseDomain = IntegerRange(0, 9)
-    private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+    private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
     private def createRect(i: Int): Disjoint2Rect =
         new Disjoint2Rect(
-            new IntegerVariable(space.nextVariableId, "x%d".format(i), baseDomain),
-            new IntegerVariable(space.nextVariableId, "y%d".format(i), baseDomain),
-            new IntegerVariable(space.nextVariableId, "w%d".format(i), baseDomain),
-            new IntegerVariable(space.nextVariableId, "h%d".format(i), baseDomain))
+            new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain),
+            new IntegerVariable(space.nextVariableId(), "y%d".format(i), baseDomain),
+            new IntegerVariable(space.nextVariableId(), "w%d".format(i), baseDomain),
+            new IntegerVariable(space.nextVariableId(), "h%d".format(i), baseDomain))
 
     @Test
     def testBasics(): Unit = {
         val rects = (1 to 2).map(createRect)
         val Seq(r1, r2) = rects
-        val constraint = new Disjoint2(space.nextConstraintId, null, rects, false, costs)
+        val constraint = new Disjoint2(space.nextConstraintId(), null, rects, false, costs)
         assertEq(constraint.toString, "disjoint2([(x1, y1, w1, h1), (x2, y2, w2, h2)], costs)")
         assertEq(constraint.inVariables.size, 8)
         assertEq(constraint.inVariables.toSet, Set(r1.x, r1.y, r1.w, r1.h, r2.x, r2.y, r2.w, r2.h))
@@ -42,7 +42,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     def testRectangleMovement(): Unit = {
         val rects = (1 to 4).map(createRect)
         val Seq(r1, r2, r3, r4) = rects
-        space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
+        space.post(new Disjoint2(space.nextConstraintId(), null, rects, false, costs))
         runScenario(
             TestScenario(
                 space,
@@ -62,7 +62,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     def testRectangleResizing(): Unit = {
         val rects = (1 to 2).map(createRect)
         val Seq(r1, r2) = rects
-        space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
+        space.post(new Disjoint2(space.nextConstraintId(), null, rects, false, costs))
         runScenario(
             TestScenario(
                 space,
@@ -80,7 +80,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     def testSimultaneousRectangleMovementAndResizing(): Unit = {
         val rects = (1 to 2).map(createRect)
         val Seq(r1, r2) = rects
-        space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
+        space.post(new Disjoint2(space.nextConstraintId(), null, rects, false, costs))
         runScenario(
             TestScenario(
                 space,
@@ -100,7 +100,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     def testHandlingOfAdjacentRectangles(): Unit = {
         val rects = (1 to 3).map(createRect)
         val Seq(r1, r2, r3) = rects
-        space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
+        space.post(new Disjoint2(space.nextConstraintId(), null, rects, false, costs))
         runScenario(
             TestScenario(
                 space,
@@ -118,11 +118,11 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
         val r2 =
             new Disjoint2Rect(
                 r1.x,
-                new IntegerVariable(space.nextVariableId, "y2", baseDomain),
+                new IntegerVariable(space.nextVariableId(), "y2", baseDomain),
                 r1.w,
-                new IntegerVariable(space.nextVariableId, "h2", baseDomain))
+                new IntegerVariable(space.nextVariableId(), "h2", baseDomain))
         val r3 = createRect(3)
-        space.post(new Disjoint2(space.nextConstraintId, null, Vector(r1, r2, r3, r1), false, costs))
+        space.post(new Disjoint2(space.nextConstraintId(), null, Vector(r1, r2, r3, r1), false, costs))
         runScenario(
             TestScenario(
                 space,
@@ -140,7 +140,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     def testConsultWithoutCommit(): Unit = {
         val rects = (1 to 2).map(createRect)
         val Seq(r1, r2) = rects
-        space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
+        space.post(new Disjoint2(space.nextConstraintId(), null, rects, false, costs))
         runScenario(
             TestScenario(
                 space,
@@ -157,7 +157,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     def testNonStrictSemantics(): Unit = {
         val rects = (1 to 2).map(createRect)
         val Seq(r1, r2) = rects
-        space.post(new Disjoint2(space.nextConstraintId, null, rects, false, costs))
+        space.post(new Disjoint2(space.nextConstraintId(), null, rects, false, costs))
         runScenario(
             TestScenario(
                 space,
@@ -174,7 +174,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     def testRectangleMovementWithStrictSemantics(): Unit = {
         val rects = (1 to 9).map(createRect)
         val Seq(r1, r2, r3, r4, vl1, vl2, hl1, hl2, p1) = rects
-        space.post(new Disjoint2(space.nextConstraintId, null, rects, true, costs))
+        space.post(new Disjoint2(space.nextConstraintId(), null, rects, true, costs))
         runScenario(
             TestScenario(
                 space,
@@ -224,7 +224,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     def testRectangleResizingWithStrictSemantics(): Unit = {
         val rects = (1 to 3).map(createRect)
         val Seq(r1, r2, r3) = rects
-        space.post(new Disjoint2(space.nextConstraintId, null, rects, true, costs))
+        space.post(new Disjoint2(space.nextConstraintId(), null, rects, true, costs))
         runScenario(
             TestScenario(
                 space,
@@ -247,7 +247,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     def testHandlingOfNegativeWidthAndHeight(): Unit = {
         val rects = (1 to 3).map(createRect)
         val Seq(r1, r2, r3) = rects
-        space.post(new Disjoint2(space.nextConstraintId, null, rects, true, costs))
+        space.post(new Disjoint2(space.nextConstraintId(), null, rects, true, costs))
         runScenario(
             TestScenario(
                 space,

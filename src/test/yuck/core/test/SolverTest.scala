@@ -121,7 +121,7 @@ final class SolverTest extends UnitTest {
     def testParallelSolvingWithSolution(): Unit = {
         val sigint = new RevocableSigint
         val space = new Space(logger, sigint)
-        val x = new IntegerVariable(space.nextVariableId, "x", NonNegativeIntegerRange)
+        val x = new IntegerVariable(space.nextVariableId(), "x", NonNegativeIntegerRange)
         val objective = new MinimizationObjective(x, Some(Zero), None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         results.indices.foreach(i => results(i).costsOfBestProposal = if (i == 8) Zero else One)
@@ -148,7 +148,7 @@ final class SolverTest extends UnitTest {
     def testParallelSolvingWithoutSolution(): Unit = {
         val sigint = new RevocableSigint
         val space = new Space(logger, sigint)
-        val x = new IntegerVariable(space.nextVariableId, "x", NonNegativeIntegerRange)
+        val x = new IntegerVariable(space.nextVariableId(), "x", NonNegativeIntegerRange)
         val objective = new MinimizationObjective(x, Some(Zero), None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         results.indices.foreach(i => results(i).costsOfBestProposal = One)
@@ -172,7 +172,7 @@ final class SolverTest extends UnitTest {
     def testParallelSolvingWithException(): Unit = {
         val sigint = new RevocableSigint
         val space = new Space(logger, sigint)
-        val x = new IntegerVariable(space.nextVariableId, "x", NonNegativeIntegerRange)
+        val x = new IntegerVariable(space.nextVariableId(), "x", NonNegativeIntegerRange)
         val objective = new MinimizationObjective(x, Some(Zero), None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         results.indices.foreach(i => results(i).costsOfBestProposal = One)
@@ -196,7 +196,7 @@ final class SolverTest extends UnitTest {
     def testPracticalSetting(): Unit = {
         val sigint = new RevocableSigint
         val space = new Space(logger, sigint)
-        val x = new IntegerVariable(space.nextVariableId, "x", NonNegativeIntegerRange)
+        val x = new IntegerVariable(space.nextVariableId(), "x", NonNegativeIntegerRange)
         val objective = new MinimizationObjective(x, Some(Zero), None)
         val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
         results.indices.foreach(i => results(i).costsOfBestProposal = if (i == 8) Zero else One)

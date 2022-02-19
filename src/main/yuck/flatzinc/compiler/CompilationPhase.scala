@@ -327,8 +327,8 @@ abstract class CompilationPhase extends Runnable {
         override def createChannel = createIntSetChannel
     }
 
-    protected final def nextConstraintId: Id[yuck.core.Constraint] =
-        cc.space.nextConstraintId
+    protected final def nextConstraintId(): Id[yuck.core.Constraint] =
+        cc.space.nextConstraintId()
 
     implicit protected final def xs2axs
         [V <: NumericalValue[V]]

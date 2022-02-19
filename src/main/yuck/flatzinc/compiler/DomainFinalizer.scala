@@ -36,14 +36,14 @@ final class DomainFinalizer
             // When there are many integer channels, we enforce their domains using a single InDomain constraint.
             // This way we speed up neighbourhood generation and reduce the overhead of goal tracking.
             val costs = createBoolChannel
-            cc.space.post(new InDomain(nextConstraintId, null, intChannels.to(immutable.ArraySeq), costs))
+            cc.space.post(new InDomain(nextConstraintId(), null, intChannels.to(immutable.ArraySeq), costs))
             cc.costVars += costs
         } else {
             // InDomain comes with more overhead than Contains and, when there are only a few integer channels,
             // a set of Contains constraints is faster than a single InDomain constraint.
             for (x <- intChannels) {
                 val costs = createBoolChannel
-                cc.space.post(new Contains(nextConstraintId, null, x, x.domain, costs))
+                cc.space.post(new Contains(nextConstraintId(), null, x, x.domain, costs))
                 cc.costVars += costs
             }
         }
@@ -57,7 +57,7 @@ final class DomainFinalizer
                     cc.costVars += x
                 } else {
                     val costs = createBoolChannel
-                    cc.space.post(new Not(nextConstraintId, null, x, costs))
+                    cc.space.post(new Not(nextConstraintId(), null, x, costs))
                     cc.costVars += costs
                 }
             } else {
@@ -91,9 +91,9 @@ final class DomainFinalizer
                 val costs = createBoolChannel
                 dx match {
                     case dx: IntegerPowersetDomain =>
-                        cc.space.post(new Subset(nextConstraintId, null, x, dx.base, costs))
+                        cc.space.post(new Subset(nextConstraintId(), null, x, dx.base, costs))
                     case dx: SingletonIntegerSetDomain =>
-                        cc.space.post(new Eq(nextConstraintId, null, x, dx.base, costs))
+                        cc.space.post(new Eq(nextConstraintId(), null, x, dx.base, costs))
                 }
                 cc.costVars += costs
             } else {

@@ -71,7 +71,7 @@ final class Table
     @inline private def computeDistance(a: V, b: V): Long =
         orderingCostModel.eqViolation(a, b)
 
-    override def propagate = {
+    override def propagate() = {
         if (costs.domain == TrueDomain) {
             rows = rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(row(i))))
             val effects =

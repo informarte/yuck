@@ -17,10 +17,10 @@ final class ConjunctionTest extends UnitTest with ConstraintTestTooling {
     private val space = new Space(logger, sigint)
 
     private val baseDomain = CompleteBooleanDomain
-    private val xs = for (i <- 1 to 3) yield new BooleanVariable(space.nextVariableId, "x%d".format(i), baseDomain)
+    private val xs = for (i <- 1 to 3) yield new BooleanVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
     private val Seq(x1, x2, x3) = xs
-    private val y = new BooleanVariable(space.nextVariableId, "y", baseDomain)
-    private val constraint = new Conjunction(space.nextConstraintId, null, xs, y)
+    private val y = new BooleanVariable(space.nextVariableId(), "y", baseDomain)
+    private val constraint = new Conjunction(space.nextConstraintId(), null, xs, y)
 
     @Test
     def testBasics(): Unit = {

@@ -159,11 +159,11 @@ object NeighbourhoodTestHelper {
         val space = new Space(logger, sigint)
         val xs =
             for ((i, domain) <- domains.indices.zip(domains)) yield {
-                val x = new IntegerVariable(space.nextVariableId, "x%d".format(i), domain)
+                val x = new IntegerVariable(space.nextVariableId(), "x%d".format(i), domain)
                 space.setValue(x, x.domain.randomValue(randomGenerator))
                 x
             }
-        space.post(new DummyConstraint(space.nextConstraintId, xs, Nil))
+        space.post(new DummyConstraint(space.nextConstraintId(), xs, Nil))
         (space, xs)
     }
 

@@ -27,7 +27,7 @@ final class LinearCombination
     private var sum = valueTraits.zero
     private val effect = y.reuseableEffect
 
-    override def propagate = {
+    override def propagate() = {
         val lhs0 = axs.view.map(ax => (ax.a, ax.x.domain))
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.linEqRule(lhs0, rhs0)

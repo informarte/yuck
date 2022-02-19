@@ -169,7 +169,7 @@ trait ConstraintTestTooling extends YuckAssert {
     {
         override def run(space: Space) = {
             logger.withLogScope("Consult: %s".format(comment)) {
-                val move = new ChangeAnyValues(space.nextMoveId, preconditions)
+                val move = new ChangeAnyValues(space.nextMoveId(), preconditions)
                 checkAssignments(preconditions, postconditions, space.searchState.clone(), space.consult(move))
             }
         }
@@ -192,7 +192,7 @@ trait ConstraintTestTooling extends YuckAssert {
     {
         override def run(space: Space) = {
             logger.withLogScope("ConsultAndCommit: %s".format(comment)) {
-                val move = new ChangeAnyValues(space.nextMoveId, preconditions)
+                val move = new ChangeAnyValues(space.nextMoveId(), preconditions)
                 val before = space.searchState.clone()
                 logger.withLogScope("Consult:") {
                     checkAssignments(preconditions, postconditions, before, space.consult(move))

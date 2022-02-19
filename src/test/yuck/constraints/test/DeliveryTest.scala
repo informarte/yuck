@@ -37,37 +37,37 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
         else if (range.isInclusive) IntegerRange(offset + range.start, offset + range.end)
         else IntegerRange(offset + range.start, offset + range.end - 1)
     }
-    private val succ = nodes.map(i => new IntegerVariable(space.nextVariableId, "x%d".format(i + 1), nodes))
+    private val succ = nodes.map(i => new IntegerVariable(space.nextVariableId(), "x%d".format(i + 1), nodes))
     for (i <- endNodes) {
         val j = if (i == endNodes.end) startNodes.start else startNodes.start + (i - endNodes.start) + 1
         succ(i).pruneDomain(Range.inclusive(j, j))
     }
-    private val circuitCosts = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-    private val circuit = new Circuit(space.nextConstraintId, null, succ, offset, circuitCosts)
+    private val circuitCosts = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
+    private val circuit = new Circuit(space.nextConstraintId(), null, succ, offset, circuitCosts)
     private val serviceTimes = nodes.map(_ => IntegerValue(randomGenerator.nextInt(numberOfCities)))
     private val travelTimes = nodes.map(_ => nodes.map(_ => IntegerValue(randomGenerator.nextInt(numberOfCities) + 1)))
     private val timeRange = IntegerRange(0, nodes.map(i => nodes.map(j => travelTimes(i)(j).value).max).sum)
     private val arrivalTimes =
         for (i <- nodes) yield
             new IntegerVariable(
-                space.nextVariableId, "x%d".format(i + 1),
+                space.nextVariableId(), "x%d".format(i + 1),
                 if (withTimeWindows) timeRange.randomSubrange(randomGenerator) else timeRange)
     for (i <- startNodes) {
         space.setValue(arrivalTimes(i), arrivalTimes(i).domain.lb)
     }
     private val totalTravelTime =
         new IntegerVariable(
-            space.nextVariableId, "totalTravelTime",
+            space.nextVariableId(), "totalTravelTime",
             if (randomGenerator.nextDecision()) IntegerRange(timeRange.ub, timeRange.ub)
             else IntegerRange(timeRange.lb, timeRange.lb))
     private val deliveryCosts =
-        new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+        new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
     private val delivery =
         new Delivery(
-            WeakReference(space), space.nextConstraintId, null, startNodes, endNodes, succ, offset,
+            WeakReference(space), space.nextConstraintId(), null, startNodes, endNodes, succ, offset,
             arrivalTimes, serviceTimes.apply, (i, j) => travelTimes(i)(j), withWaiting, totalTravelTime, deliveryCosts)
 
-    private def createNeighbourhood: Neighbourhood = {
+    private def createNeighbourhood() = {
         space.post(circuit).registerImplicitConstraint(circuit).post(delivery)
         circuit.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
     }
@@ -117,7 +117,7 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
 
     @Test
     def testInitialize(): Unit = {
-        val neighbourhood = createNeighbourhood
+        val neighbourhood = createNeighbourhood()
         val sampleSize = 1000
         for (i <- 1 to sampleSize) {
             space.initialize()
@@ -134,7 +134,7 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
 
     @Test
     def testConsultAndCommit(): Unit = {
-        val neighbourhood = createNeighbourhood
+        val neighbourhood = createNeighbourhood()
         space.initialize()
         val sampleSize = 1000
         for (i <- 1 to sampleSize) {

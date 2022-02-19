@@ -23,10 +23,10 @@ class AlldistinctNeighbourhoodTest extends UnitTest {
         val numberOfVariables = 100
         val xs = for (i <- 0 until numberOfVariables) yield {
             val dx = IntegerRange(1, 2 * numberOfVariables).diff(IntegerDomain(List(i)))
-            new IntegerVariable(space.nextVariableId, "x%d".format(i + 1), dx)
+            new IntegerVariable(space.nextVariableId(), "x%d".format(i + 1), dx)
         }
-        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        val constraint = new Alldistinct(space.nextConstraintId, null, xs, costs)
+        val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
+        val constraint = new Alldistinct(space.nextConstraintId(), null, xs, costs)
         space.post(constraint)
         val neighbourhood =
             constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get

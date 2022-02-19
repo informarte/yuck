@@ -22,18 +22,18 @@ final class BinPackingTest extends UnitTest with ConstraintTestTooling {
     private val binDomain = IntegerRange(1, 3)
     private val items =
         (for (i <- 1 to 5) yield {
-            val bin = new IntegerVariable(space.nextVariableId, "bin%d".format(i), binDomain)
+            val bin = new IntegerVariable(space.nextVariableId(), "bin%d".format(i), binDomain)
             i -> new BinPackingItem(bin, IntegerValue(i))
         })
         .to(TreeMap)
     private val loads =
         (for (i <- binDomain.values) yield
-            i.value -> new IntegerVariable(space.nextVariableId, "load%d".format(i.value), CompleteIntegerRange))
+            i.value -> new IntegerVariable(space.nextVariableId(), "load%d".format(i.value), CompleteIntegerRange))
         .to(TreeMap)
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new BinPacking(space.nextConstraintId, null, items.values.toVector, loads)
+        val constraint = new BinPacking(space.nextConstraintId(), null, items.values.toVector, loads)
         assertEq(
             constraint.toString,
             "bin_packing([(bin1, 1), (bin2, 2), (bin3, 3), (bin4, 4), (bin5, 5)], [(1, load1), (2, load2), (3, load3)])")
@@ -45,7 +45,7 @@ final class BinPackingTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testCostComputation(): Unit = {
-        space.post(new BinPacking(space.nextConstraintId, null, items.values.toVector, loads))
+        space.post(new BinPacking(space.nextConstraintId(), null, items.values.toVector, loads))
         runScenario(
             TestScenario(
                 space,

@@ -54,7 +54,7 @@ final class ObjectiveFactory
                 objectives.append(createMaximizationObjective(a, cfg))
         }
         val costVar = createBoolChannel
-        space.post(new Conjunction(nextConstraintId, null, costVars.toIndexedSeq, costVar))
+        space.post(new Conjunction(nextConstraintId(), null, costVars.toIndexedSeq, costVar))
         objectives.prepend(createSatisfactionObjective(costVar, cfg))
         cc.objective =
             if (objectives.size == 1) objectives.head
@@ -86,12 +86,12 @@ final class ObjectiveFactory
             }
             else if (cfg.useProgressiveTightening && dx.maybeUb.isDefined) {
                 logger.log("Objective variable %s has upper bound, setting up for progressive tightening".format(x))
-                val y = new IntegerVariable(space.nextVariableId, "_YUCK_UB", IntegerRange(dx.lb + One, dx.ub + One))
+                val y = new IntegerVariable(space.nextVariableId(), "_YUCK_UB", IntegerRange(dx.lb + One, dx.ub + One))
                 space.setValue(y, dx.ub + One)
                 implicitlyConstrainedVars += y
                 val costs = createBoolChannel
                 costVars += costs
-                space.post(new Lt(nextConstraintId, null, x, y, costs))
+                space.post(new Lt(nextConstraintId(), null, x, y, costs))
                 Some(y)
             } else {
                 None
@@ -117,12 +117,12 @@ final class ObjectiveFactory
             }
             else if (cfg.useProgressiveTightening && dx.maybeLb.isDefined) {
                 logger.log("Objective variable %s has lower bound, setting up for progressive tightening".format(x))
-                val y = new IntegerVariable(space.nextVariableId, "_YUCK_LB", IntegerRange(dx.lb - One, dx.ub - One))
+                val y = new IntegerVariable(space.nextVariableId(), "_YUCK_LB", IntegerRange(dx.lb - One, dx.ub - One))
                 space.setValue(y, dx.lb - One)
                 implicitlyConstrainedVars += y
                 val costs = createBoolChannel
                 costVars += costs
-                space.post(new Lt(nextConstraintId, null, y, x, costs))
+                space.post(new Lt(nextConstraintId(), null, y, x, costs))
                 Some(y)
             } else {
                 None

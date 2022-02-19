@@ -32,7 +32,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
     protected val axs: IndexedSeq[AX[V]]
     protected final lazy val y = baseValueTraits.createChannel(space)
     protected final lazy val z = baseValueTraits.createVariable(space, "z", nonEmptyRandomSubdomain(baseDomain))
-    protected final val costs = new BooleanVariable(space.nextVariableId, "costs", costsDomain)
+    protected final val costs = new BooleanVariable(space.nextVariableId(), "costs", costsDomain)
     protected def createConstraint(implicit valueTraits: NumericalValueTraits[V]): Constraint
 
     private val orderingCostModel = mock(classOf[OrderingCostModel[V]])
@@ -154,7 +154,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
         if (true) {
             val move =
                 new ChangeValues(
-                    space.nextMoveId,
+                    space.nextMoveId(),
                     (axs.map(_.x) :+ z).map(_.nextRandomMoveEffect(space, randomGenerator)))
             val a = axs.map(ax => ax.a * move.value(ax.x)).sum(baseValueTraits.numericalOperations)
             val b = move.value(z)

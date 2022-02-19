@@ -17,18 +17,18 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
     private val space = new Space(logger, sigint)
 
     private val baseDomain = IntegerRange(1, 2)
-    private val xs = for (i <- 1 to 10) yield new IntegerVariable(space.nextVariableId, "x%d".format(i), baseDomain)
+    private val xs = for (i <- 1 to 10) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
     private val Seq(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) = xs
     private val Q = 6
     private val S = 2
     private val delta = Vector(1, 2, 3, 0, 3, 4, 0, 5, 0, 6, 6, 0).grouped(2).toVector
     private val q0 = 1
     private val F = IntegerRange(6, 6)
-    private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+    private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new Regular(space.nextConstraintId, null, xs, Q, S, delta, q0, F, costs)
+        val constraint = new Regular(space.nextConstraintId(), null, xs, Q, S, delta, q0, F, costs)
         assertEq(
             constraint.toString,
             "regular([%s], 6, 2, [[1, 2], [3, 0], [3, 4], [0, 5], [0, 6], [6, 0]], 1, {6}, costs)"
@@ -41,7 +41,7 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testCostComputation(): Unit = {
-        space.post(new Regular(space.nextConstraintId, null, xs, Q, S, delta, q0, F, costs))
+        space.post(new Regular(space.nextConstraintId(), null, xs, Q, S, delta, q0, F, costs))
         runScenario(
             TestScenario(
                 space,
@@ -76,7 +76,7 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfInvalidInputsInCostComputation(): Unit = {
-        space.post(new Regular(space.nextConstraintId, null, xs, Q, S, delta, q0, F, costs))
+        space.post(new Regular(space.nextConstraintId(), null, xs, Q, S, delta, q0, F, costs))
         runScenario(
             TestScenario(
                 space,
@@ -94,7 +94,7 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
     @Test
     def testHandlingOfDuplicateVariablesInCostComputation(): Unit = {
         val xs1 = xs.updated(4, x1).updated(9, x1)
-        space.post(new Regular(space.nextConstraintId, null, xs1, Q, S, delta, q0, F, costs))
+        space.post(new Regular(space.nextConstraintId(), null, xs1, Q, S, delta, q0, F, costs))
         runScenario(
             TestScenario(
                 space,

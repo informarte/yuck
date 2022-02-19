@@ -25,12 +25,12 @@ final class CircuitNeighbourhoodTest(offset: Int) extends UnitTest {
     private val baseDomain = IntegerRange(offset, offset + numberOfNodes - 1)
     private val succ =
         for (i <- 1 to numberOfNodes) yield
-            new IntegerVariable(space.nextVariableId, "x%d".format(i), baseDomain.randomSubdomain(randomGenerator))
-    private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+            new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain.randomSubdomain(randomGenerator))
+    private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
     @Test
     def testMoveGeneration(): Unit = {
-        val constraint = new Circuit(space.nextConstraintId, null, succ, offset, costs)
+        val constraint = new Circuit(space.nextConstraintId(), null, succ, offset, costs)
         space.post(constraint)
         val neighbourhood =
             constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
