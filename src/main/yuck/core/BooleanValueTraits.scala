@@ -22,9 +22,9 @@ object BooleanValueTraits extends OrderedValueTraits[BooleanValue] {
     override val domainOrdering = BooleanDomainOrdering
     override val domainPruner = BooleanDomainPruner
     override def createVariable(space: Space, name: String, domain: Domain[BooleanValue]): BooleanVariable =
-        new BooleanVariable(space.nextVariableId, name, safeDowncast(domain))
+        new BooleanVariable(space.nextVariableId(), name, safeDowncast(domain))
     override def createChannel(space: Space): BooleanVariable =
-        new BooleanVariable(space.nextVariableId, "", CompleteBooleanDomain)
+        new BooleanVariable(space.nextVariableId(), "", CompleteBooleanDomain)
     override def safeDowncast(a: AnyValue): BooleanValue = a.asInstanceOf[BooleanValue]
     override def safeDowncast(x: AnyDomain): BooleanDomain = x.asInstanceOf[BooleanDomain]
     override def safeDowncast(x: AnyVariable): BooleanVariable = x.asInstanceOf[BooleanVariable]

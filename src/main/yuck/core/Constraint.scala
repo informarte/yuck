@@ -59,7 +59,7 @@ abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
      *
      * The default implementation does nothing.
      */
-    def propagate: PropagationEffects = NoPropagationOccurred
+    def propagate(): PropagationEffects = NoPropagationOccurred
 
     /**
      * Initializes the constraint's internal state according to the given search state
@@ -102,7 +102,7 @@ abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
      *
      *  - Assigns values to the constraint's search variables such that the
      *    assignment satisfies the constraint.
-     *  - Assigns zero to the constraint's cost variable.
+     *  - Assigns True to the constraint's cost variable.
      *  - Creates and returns a neighbourhood that maintains feasibility.
      *
      * The implementation can assume that this constraint has been posted

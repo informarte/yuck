@@ -26,7 +26,7 @@ final class Sum
     private var sum = valueTraits.zero
     private val effect = y.reuseableEffect
 
-    override def propagate = {
+    override def propagate() = {
         val lhs0 = xs.view.map(x => (valueTraits.one, x.domain))
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.linEqRule(lhs0, rhs0)

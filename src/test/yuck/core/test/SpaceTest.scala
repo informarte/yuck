@@ -28,10 +28,10 @@ final class SpaceTest extends UnitTest {
             if (List('u', 'v').contains(name)) ZeroToZeroIntegerRange else CompleteIntegerRange
         val vars @ IndexedSeq(s, t, u, v, w, x, y, z) =
             for (name <- 's' to 'z') yield space.createVariable(name.toString, domain(name))
-        val c = new DummyConstraint(space.nextConstraintId, List(s, t), List(u))
-        val d = new DummyConstraint(space.nextConstraintId, List(s, v), List(w, x))
-        val e = new DummyConstraint(space.nextConstraintId, List(u, w, x), List(y))
-        val f = new DummyConstraint(space.nextConstraintId, List(s, t), List(x, y))
+        val c = new DummyConstraint(space.nextConstraintId(), List(s, t), List(u))
+        val d = new DummyConstraint(space.nextConstraintId(), List(s, v), List(w, x))
+        val e = new DummyConstraint(space.nextConstraintId(), List(u, w, x), List(y))
+        val f = new DummyConstraint(space.nextConstraintId(), List(s, t), List(x, y))
         space.post(c).post(d).post(e)
         assertEx(space.post(f))
         assertEq(space.numberOfConstraints, 3)
@@ -116,10 +116,10 @@ final class SpaceTest extends UnitTest {
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
         val z = space.createVariable("z", CompleteIntegerRange)
-        val c = new DummyConstraint(space.nextConstraintId, List(x), List(y))
+        val c = new DummyConstraint(space.nextConstraintId(), List(x), List(y))
         space.post(c)
         space.initialize()
-        val d = new DummyConstraint(space.nextConstraintId, List(y), List(z))
+        val d = new DummyConstraint(space.nextConstraintId(), List(y), List(z))
         assertEx(space.post(d))
         assertEq(space.numberOfConstraints, 1)
         space.checkConsistency()
@@ -131,18 +131,18 @@ final class SpaceTest extends UnitTest {
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
         val z = space.createVariable("z", CompleteIntegerRange)
-        val c = new DummyConstraint(space.nextConstraintId, List(x, x), List(x))
+        val c = new DummyConstraint(space.nextConstraintId(), List(x, x), List(x))
         assert(space.wouldIntroduceCycle(c))
         assertEq(space.numberOfConstraints, 0)
         space.checkConsistency()
         assertEx(space.post(c), classOf[CyclicConstraintNetworkException])
         assertEq(space.numberOfConstraints, 0)
         space.checkConsistency()
-        val d = new DummyConstraint(space.nextConstraintId, List(x, y), List(z))
+        val d = new DummyConstraint(space.nextConstraintId(), List(x, y), List(z))
         assert(! space.wouldIntroduceCycle(d))
         assertEq(space.numberOfConstraints, 0)
         space.checkConsistency()
-        val e = new DummyConstraint(space.nextConstraintId, List(x, z), List(y))
+        val e = new DummyConstraint(space.nextConstraintId(), List(x, z), List(y))
         assert(! space.wouldIntroduceCycle(e))
         assertEq(space.numberOfConstraints, 0)
         space.checkConsistency()
@@ -165,10 +165,10 @@ final class SpaceTest extends UnitTest {
         val space = new Space(logger, sigint)
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
-        val c = new DummyConstraint(space.nextConstraintId, List(x), List(y))
+        val c = new DummyConstraint(space.nextConstraintId(), List(x), List(y))
         space.post(c)
         space.initialize()
-        val d = new DummyConstraint(space.nextConstraintId, List(y), List(x))
+        val d = new DummyConstraint(space.nextConstraintId(), List(y), List(x))
         assertEx(space.wouldIntroduceCycle(d))
         assertEq(space.numberOfConstraints, 1)
         space.checkConsistency()
@@ -179,12 +179,12 @@ final class SpaceTest extends UnitTest {
         val space = new Space(logger, sigint)
         val vars @ IndexedSeq(s, t, u, v, w, x, y, z) =
             for (name <- 's' to 'z') yield space.createVariable(name.toString, CompleteIntegerRange)
-        val c = new DummyConstraint(space.nextConstraintId, List(s), List(t, y))
-        val d = new DummyConstraint(space.nextConstraintId, List(t), List(u))
-        val e = new DummyConstraint(space.nextConstraintId, List(t), List(v))
-        val f = new DummyConstraint(space.nextConstraintId, List(t), List(w))
-        val g = new DummyConstraint(space.nextConstraintId, List(w), List(x))
-        val h = new DummyConstraint(space.nextConstraintId, List(z), Nil)
+        val c = new DummyConstraint(space.nextConstraintId(), List(s), List(t, y))
+        val d = new DummyConstraint(space.nextConstraintId(), List(t), List(u))
+        val e = new DummyConstraint(space.nextConstraintId(), List(t), List(v))
+        val f = new DummyConstraint(space.nextConstraintId(), List(t), List(w))
+        val g = new DummyConstraint(space.nextConstraintId(), List(w), List(x))
+        val h = new DummyConstraint(space.nextConstraintId(), List(z), Nil)
         space
             .registerOutputVariable(u)
             .registerObjectiveVariable(v)
@@ -220,7 +220,7 @@ final class SpaceTest extends UnitTest {
         var numberOfConsultations = 0
         var numberOfCommitments = 0
 
-        override def propagate = {
+        override def propagate() = {
             numberOfPropagations += 1
             val lhs0 = new Iterable[(IntegerValue, IntegerDomain)] {
                 override def iterator = xs.iterator.map(x => (One, x.domain))
@@ -279,7 +279,7 @@ final class SpaceTest extends UnitTest {
         // build constraint network (see above for how we do it)
         val xs = new mutable.ArrayBuffer[IntegerVariable]
         for (i <- 1 to k) {
-            xs += new IntegerVariable(space.nextVariableId, "x(0, %d)".format(i), dx)
+            xs += new IntegerVariable(space.nextVariableId(), "x(0, %d)".format(i), dx)
         }
         for (i <- 1 to l) {
             val ps = new mutable.HashSet[IntegerVariable]
@@ -288,9 +288,9 @@ final class SpaceTest extends UnitTest {
             }
             var j = 1
             for (qs <- ps.subsets() if ! qs.isEmpty) {
-                val sum = new IntegerVariable(space.nextVariableId, "sum(%d, %d)".format(i, j), NonNegativeIntegerRange)
+                val sum = new IntegerVariable(space.nextVariableId(), "sum(%d, %d)".format(i, j), NonNegativeIntegerRange)
                 xs += sum
-                val spy = new Spy(space.nextConstraintId, qs, sum)
+                val spy = new Spy(space.nextConstraintId(), qs, sum)
                 space.post(spy)
                 spies += spy
                 j += 1
@@ -315,7 +315,7 @@ final class SpaceTest extends UnitTest {
             space.propagate()
             for (spy <- spies) {
                 assertGe(spy.numberOfPropagations, 2)
-                assertEq(spy.propagate, NoPropagationOccurred)
+                assertEq(spy.propagate(), NoPropagationOccurred)
             }
             assertEq(space.numberOfPropagations, spies.iterator.map(_.numberOfPropagations - 1).sum)
             for (spy <- spies) {
@@ -331,7 +331,7 @@ final class SpaceTest extends UnitTest {
                     x.pruneDomain(x.domain.randomSubrange(randomGenerator))
                     space.propagate(List(x))
                     for (spy <- spies) {
-                        assertEq(spy.propagate, NoPropagationOccurred)
+                        assertEq(spy.propagate(), NoPropagationOccurred)
                     }
                     assertEq(space.numberOfPropagations, spies.iterator.map(_.numberOfPropagations - 1).sum)
                     for (spy <- spies) {
@@ -450,12 +450,12 @@ final class SpaceTest extends UnitTest {
         val space = new Space(logger, sigint)
         val IndexedSeq(s, t, u, v, w, x, y, z) =
             for (name <- 's' to 'z')
-                yield new IntegerVariable(space.nextVariableId, name.toString, CompleteIntegerRange)
-        val c = new Spy(space.nextConstraintId, Set(s), t)
-        val d = new Spy(space.nextConstraintId, Set(u, v, w), x)
-        val e = new Spy(space.nextConstraintId, Set(u, v), y)
-        val f = new Spy(space.nextConstraintId, Set(z), u)
-        val g = new Spy(space.nextConstraintId, Set(x), z)
+                yield new IntegerVariable(space.nextVariableId(), name.toString, CompleteIntegerRange)
+        val c = new Spy(space.nextConstraintId(), Set(s), t)
+        val d = new Spy(space.nextConstraintId(), Set(u, v, w), x)
+        val e = new Spy(space.nextConstraintId(), Set(u, v), y)
+        val f = new Spy(space.nextConstraintId(), Set(z), u)
+        val g = new Spy(space.nextConstraintId(), Set(x), z)
 
         // check book keeping and enforcement of invariants
         assertEx(space.registerImplicitConstraint(c)) // because c was not yet posted
@@ -498,7 +498,7 @@ final class SpaceTest extends UnitTest {
         space.setValue(u, Zero).setValue(v, Zero).setValue(w, Zero).setValue(x, Zero).initialize()
         assertEq(c.numberOfInitializations, 0)
         assertEq(d.numberOfInitializations, 0)
-        val move = new ChangeValue(space.nextMoveId, u, One)
+        val move = new ChangeValue(space.nextMoveId(), u, One)
         space.consult(move)
         assertEq(c.numberOfConsultations, 0)
         assertEq(d.numberOfConsultations, 0)

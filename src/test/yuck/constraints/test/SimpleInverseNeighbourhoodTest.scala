@@ -20,8 +20,8 @@ final class SimpleInverseNeighbourhoodTest(fOffset: Int, gOffset: Int) extends I
         val domainSize = 100
         val fDomain = IntegerRange(gOffset, gOffset + domainSize - 1)
         val gDomain = IntegerRange(fOffset, fOffset + domainSize - 1)
-        val xs = for (i <- 1 to domainSize) yield new IntegerVariable(space.nextVariableId, "x%d".format(i), fDomain)
-        val ys = for (i <- 1 to domainSize) yield new IntegerVariable(space.nextVariableId, "y%d".format(i), gDomain)
+        val xs = for (i <- 1 to domainSize) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), fDomain)
+        val ys = for (i <- 1 to domainSize) yield new IntegerVariable(space.nextVariableId(), "y%d".format(i), gDomain)
         val f = new InverseFunction(xs, fOffset)
         val g = new InverseFunction(ys, gOffset)
         testMoveGeneration(f, g, 100, classOf[SimpleInverseNeighbourhood])

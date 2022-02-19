@@ -16,9 +16,9 @@ final class HierarchicalObjectiveTest extends UnitTest {
     private val space = new Space(logger, sigint)
     private val now = space.searchState
     private val baseDomain = IntegerRange(Zero, Nine)
-    private val x = new IntegerVariable(space.nextVariableId, "x", baseDomain)
-    private val y = new IntegerVariable(space.nextVariableId, "y", baseDomain)
-    private val z = new IntegerVariable(space.nextVariableId, "z", baseDomain)
+    private val x = new IntegerVariable(space.nextVariableId(), "x", baseDomain)
+    private val y = new IntegerVariable(space.nextVariableId(), "y", baseDomain)
+    private val z = new IntegerVariable(space.nextVariableId(), "z", baseDomain)
 
     @Test
     def testBasics(): Unit = {
@@ -97,11 +97,11 @@ final class HierarchicalObjectiveTest extends UnitTest {
 
     @Test
     def testSearchForActualObjectiveValueWhenMinimizing(): Unit = {
-        val costs = new BooleanVariable(space.nextVariableId, "costs", TrueDomain)
+        val costs = new BooleanVariable(space.nextVariableId(), "costs", TrueDomain)
         val mainObjective = new SatisfactionObjective(costs)
         val subordinateObjective = new MinimizationObjective(y, None, None)
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
-        space.post(new Le(space.nextConstraintId, null, x, y, costs))
+        space.post(new Le(space.nextConstraintId(), null, x, y, costs))
         for (a <- x.domain.values) {
             space.setValue(x, a).setValue(y, y.domain.ub).initialize()
             objective.findActualObjectiveValue(space)
@@ -114,12 +114,12 @@ final class HierarchicalObjectiveTest extends UnitTest {
 
     @Test
     def testTighteningWhenMinimizing(): Unit = {
-        val costs = new BooleanVariable(space.nextVariableId, "costs", TrueDomain)
+        val costs = new BooleanVariable(space.nextVariableId(), "costs", TrueDomain)
         val mainObjective = new SatisfactionObjective(costs)
         val subordinateObjective = new MinimizationObjective(y, None, Some(z))
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
         space
-            .post(new Le(space.nextConstraintId, null, x, y, costs))
+            .post(new Le(space.nextConstraintId(), null, x, y, costs))
             .setValue(z, z.domain.ub)
         for (a <- x.domain.values; b <- y.domain.values) {
             space.setValue(x, a).setValue(y, b).initialize()
@@ -144,11 +144,11 @@ final class HierarchicalObjectiveTest extends UnitTest {
 
     @Test
     def testSearchForActualObjectiveValueWhenMaximizing(): Unit = {
-        val costs = new BooleanVariable(space.nextVariableId, "costs", TrueDomain)
+        val costs = new BooleanVariable(space.nextVariableId(), "costs", TrueDomain)
         val mainObjective = new SatisfactionObjective(costs)
         val subordinateObjective = new MaximizationObjective(y, None, None)
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
-        space.post(new Le(space.nextConstraintId, null, y, x, costs))
+        space.post(new Le(space.nextConstraintId(), null, y, x, costs))
         for (a <- x.domain.values) {
             space.setValue(x, a).setValue(y, y.domain.lb).initialize()
             objective.findActualObjectiveValue(space)
@@ -161,12 +161,12 @@ final class HierarchicalObjectiveTest extends UnitTest {
 
     @Test
     def testTighteningWhenMaximizing(): Unit = {
-        val costs = new BooleanVariable(space.nextVariableId, "costs", TrueDomain)
+        val costs = new BooleanVariable(space.nextVariableId(), "costs", TrueDomain)
         val mainObjective = new SatisfactionObjective(costs)
         val subordinateObjective = new MaximizationObjective(y, None, Some(z))
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
         space
-            .post(new Le(space.nextConstraintId, null, y, x, costs))
+            .post(new Le(space.nextConstraintId(), null, y, x, costs))
             .setValue(z, z.domain.lb)
         for (a <- x.domain.values; b <- y.domain.values) {
             space.setValue(x, a).setValue(y, b).initialize()

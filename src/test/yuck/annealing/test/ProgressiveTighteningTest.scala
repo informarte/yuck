@@ -39,9 +39,9 @@ final class ProgressiveTighteningTest
     def testProgressiveTightening(): Unit = {
         val space = new Space(logger, sigint)
         val baseDomain = IntegerRange(Zero, Nine)
-        val x = new IntegerVariable(space.nextVariableId, "x", baseDomain)
-        val y = new IntegerVariable(space.nextVariableId, "y", baseDomain)
-        space.post(new DummyConstraint(space.nextConstraintId, List(x, y), Nil))
+        val x = new IntegerVariable(space.nextVariableId(), "x", baseDomain)
+        val y = new IntegerVariable(space.nextVariableId(), "y", baseDomain)
+        space.post(new DummyConstraint(space.nextConstraintId(), List(x, y), Nil))
         val mainObjective = mainObjectiveType match {
             case OptimizationMode.Min =>
                 space.setValue(x, Nine)
@@ -50,8 +50,8 @@ final class ProgressiveTighteningTest
                 space.setValue(x, Zero)
                 new MaximizationObjective(x, Some(Nine), None)
         }
-        val z = new IntegerVariable(space.nextVariableId, "z", baseDomain)
-        space.post(new DummyConstraint(space.nextConstraintId, List(y, z), Nil))
+        val z = new IntegerVariable(space.nextVariableId(), "z", baseDomain)
+        space.post(new DummyConstraint(space.nextConstraintId(), List(y, z), Nil))
         val subordinateObjective = subordinateObjectiveType match {
             case OptimizationMode.Min =>
                 space.setValue(y, Nine)

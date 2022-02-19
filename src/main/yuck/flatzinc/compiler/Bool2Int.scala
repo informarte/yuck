@@ -14,7 +14,7 @@ final class Bool2Int1
 {
     override def toString = "%s = bool2int(%s)".format(y, x)
     override def op(a: BooleanValue) = if (a.truthValue) One else Zero
-    override def propagate = {
+    override def propagate() = {
         val (dx, dy) = Bool2IntPropagator.bool2Int(x.domain, y.domain)
         NoPropagationOccurred.pruneDomains(x, dx, y, dy)
     }
@@ -33,7 +33,7 @@ final class Bool2Int2
     override def toString = "bool2int(%s, %s, %s)".format(x, y, z)
     override def op(a: BooleanValue, b: IntegerValue) =
         if ((a.truthValue && b == One) || (! a.truthValue && b == Zero)) True else False
-    override def propagate = {
+    override def propagate() = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }

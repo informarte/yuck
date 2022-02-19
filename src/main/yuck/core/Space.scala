@@ -136,17 +136,17 @@ final class Space(
     private val variableIdFactory = new IdFactory[AnyVariable]
 
     /** Provides a unique variable id. */
-    def nextVariableId = variableIdFactory.nextId
+    def nextVariableId() = variableIdFactory.nextId()
 
     private val constraintIdFactory = new IdFactory[Constraint]
 
     /** Provides a unique constraint id. */
-    def nextConstraintId = constraintIdFactory.nextId
+    def nextConstraintId() = constraintIdFactory.nextId()
 
     private val moveIdFactory = new IdFactory[Move]
 
     /** Provides a unique move id. */
-    def nextMoveId = moveIdFactory.nextId
+    def nextMoveId() = moveIdFactory.nextId()
 
     /** Convenience method for creating variables. */
     def createVariable
@@ -459,7 +459,7 @@ final class Space(
         propagate {
             val tasks = new mutable.HashSet[Constraint]
             for (constraint <- constraints) {
-                val effects = constraint.propagate
+                val effects = constraint.propagate()
                 numberOfPropagations += 1
                 for (x <- effects.affectedVariables) {
                     tasks ++= directlyAffectedConstraints(x)
@@ -500,7 +500,7 @@ final class Space(
     private def propagate(tasks: mutable.HashSet[Constraint]): Unit = {
         while (! tasks.isEmpty && ! sigint.isSet) {
             val constraint = tasks.head
-            val effects = constraint.propagate
+            val effects = constraint.propagate()
             numberOfPropagations += 1
             for (x <- effects.affectedVariables) {
                 tasks ++= directlyAffectedConstraints(x)
@@ -665,7 +665,7 @@ final class Space(
         }
     }
 
-    private var idOfMostRecentlyAssessedMove = moveIdFactory.nextId
+    private var idOfMostRecentlyAssessedMove = moveIdFactory.nextId()
 
     /**
      * Computes the search state that would result from applying the given move to

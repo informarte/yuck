@@ -52,7 +52,7 @@ final class Disjunction
     private var futureTrueCount = 0
     private val effect = y.reuseableEffect
 
-    override def propagate = {
+    override def propagate() = {
         val lhs0 = xs.view.map(_.domain)
         val rhs0 = y.domain
         val (lhs1, rhs1) = BooleanDomainPruner.disjunctionRule(lhs0, rhs0)

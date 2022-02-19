@@ -7,7 +7,7 @@ package yuck.core
  */
 final class IdFactory[T] {
     private var nextRawId = -1
-    def nextId: Id[T] = {
+    def nextId(): Id[T] = {
         nextRawId += 1
         new Id[T](nextRawId)
     }

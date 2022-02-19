@@ -30,7 +30,7 @@ final class Alldistinct
 
     override def toString = "alldistinct([%s], %s)".format(xs.mkString(", "), costs)
 
-    override def propagate = {
+    override def propagate() = {
         if (costs.domain == TrueDomain) {
             NoPropagationOccurred.pruneDomains(
                 for (x <- xs.iterator if x.domain.isSingleton;
@@ -88,8 +88,8 @@ final class Alldistinct
                     new Space(logger, sigint, extraCfg.checkIncrementalCostUpdate, extraCfg.checkAssignmentsToNonChannelVariables)
                 val subxs = xs.map(x => valueTraits.createVariable(subspace, x.name, x.domain))
                 val result = logger.withTimedLogScope("Solving %s".format(this)) {
-                    val subcosts = new BooleanVariable(subspace.nextVariableId, "", CompleteBooleanDomain)
-                    subspace.post(new Alldistinct(subspace.nextConstraintId, maybeGoal, subxs, subcosts))
+                    val subcosts = new BooleanVariable(subspace.nextVariableId(), "", CompleteBooleanDomain)
+                    subspace.post(new Alldistinct(subspace.nextConstraintId(), maybeGoal, subxs, subcosts))
                     val initializer = new RandomInitializer(subspace, randomGenerator.nextGen())
                     initializer.run()
                     val n = subspace.searchVariables.size * 4

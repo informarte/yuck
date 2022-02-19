@@ -19,7 +19,7 @@ final class SelfInverseNeighbourhoodTest(fOffset: Int) extends InverseNeighbourh
     def testMoveGeneration(): Unit = {
         val domainSize = 10
         val fDomain = IntegerRange(fOffset, fOffset + domainSize - 1)
-        val xs = for (i <- 1 to domainSize) yield new IntegerVariable(space.nextVariableId, "x%d".format(i), fDomain)
+        val xs = for (i <- 1 to domainSize) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), fDomain)
         val f = new InverseFunction(xs, fOffset)
         testMoveGeneration(f, f, 1000, classOf[SelfInverseNeighbourhood])
     }

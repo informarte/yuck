@@ -14,7 +14,7 @@ final class And
 {
     override def toString = "%s = %s /\\ %s".format(z, x, y)
     override def op(a: BooleanValue, b: BooleanValue) = BooleanValue(safeAdd(a.violation, b.violation))
-    override def propagate = {
+    override def propagate() = {
         val lhs0 = Seq(x.domain, y.domain)
         val (lhs1, dz1) = BooleanDomainPruner.conjunctionRule(lhs0, z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
@@ -39,7 +39,7 @@ final class Or
     override def op(a: BooleanValue, b: BooleanValue) =
         if (a.truthValue || b.truthValue) True
         else BooleanValue(safeAdd(a.violation, b.violation) / 2)
-    override def propagate = {
+    override def propagate() = {
         val lhs0 = Seq(x.domain, y.domain)
         val (lhs1, dz1) = BooleanDomainPruner.disjunctionRule(lhs0, z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
@@ -59,7 +59,7 @@ final class Not
 {
     override def toString = "%s = not(%s)".format(y, x)
     override def op(a: BooleanValue) = if (a.truthValue) False else True
-    override def propagate = {
+    override def propagate() = {
         val dx0 = x.domain
         val dy0 = y.domain
         val (dx1, dy1) = BooleanDomainPruner.neRule(dx0, dy0)

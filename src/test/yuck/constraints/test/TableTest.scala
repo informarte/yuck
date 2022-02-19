@@ -19,9 +19,9 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
     private val space = new Space(logger, sigint)
 
     private val baseDomain = IntegerRange(0, 9)
-    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId, "x%d".format(i), baseDomain)
+    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
     private val Seq(x1, x2, x3) = xs
-    private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+    private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
     private def createTable(m: Int)(elems: Int*): IndexedSeq[IndexedSeq[IntegerValue]] =
         elems.toVector.map(IntegerValue.apply).grouped(m).toVector
@@ -29,7 +29,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
     @Test
     def testBasics(): Unit = {
         val rows = createTable(3)(0, 0, 0, 1, 2, 3)
-        val constraint = new Table(space.nextConstraintId, null, xs, rows, costs)
+        val constraint = new Table(space.nextConstraintId(), null, xs, rows, costs)
         assertEq(constraint.toString, "table([x1, x2, x3], [[0, 0, 0], [1, 2, 3]], costs)")
         assertEq(constraint.inVariables.size, 3)
         assertEq(constraint.inVariables.toSet, xs.toSet)
@@ -47,7 +47,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
                 3, 0, 3, 3,
                 4, 0, 4, 4,
                 5, 0, 5, 1, 5, 2, 5, 3, 5, 4)
-        space.post(new Table(space.nextConstraintId, null, Vector(x1, x2), rows, costs))
+        space.post(new Table(space.nextConstraintId(), null, Vector(x1, x2), rows, costs))
         runScenario(
             TestScenario(
                 space,
@@ -68,7 +68,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
                 3, 0,
                 4, 0, 4, 4,
                 5, 0, 5, 1, 5, 2, 5, 3, 5, 4)
-        space.post(new Table(space.nextConstraintId, null, Vector(x1, x1), rows, costs))
+        space.post(new Table(space.nextConstraintId(), null, Vector(x1, x1), rows, costs))
         runScenario(
             TestScenario(
                 space,
@@ -80,7 +80,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
     @Test
     def testCostComputation(): Unit = {
         val rows = createTable(3)(0, 0, 0, 1, 2, 3)
-        space.post(new Table(space.nextConstraintId, null, xs, rows, costs))
+        space.post(new Table(space.nextConstraintId(), null, xs, rows, costs))
         runScenario(
             TestScenario(
                 space,
@@ -102,7 +102,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
     @Test
     def testHandlingOfDuplicateVariablesInCostComputation(): Unit = {
         val rows = createTable(3)(0, 0, 0, 1, 2, 3, 2, 2, 3)
-        space.post(new Table(space.nextConstraintId, null, Vector(x1, x1, x2), rows, costs))
+        space.post(new Table(space.nextConstraintId(), null, Vector(x1, x1, x2), rows, costs))
         runScenario(
             TestScenario(
                 space,
@@ -124,7 +124,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
          rows: IndexedSeq[IndexedSeq[IntegerValue]]):
          Unit =
     {
-        val constraint = new Table(space.nextConstraintId, null, xs, rows, costs)
+        val constraint = new Table(space.nextConstraintId(), null, xs, rows, costs)
         space.post(constraint)
         assert(constraint.isCandidateForImplicitSolving(space))
         val neighbourhood =
@@ -143,7 +143,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
          isCandidate: Boolean = false):
         Unit =
     {
-        val constraint = new Table(space.nextConstraintId, null, xs, rows, costs)
+        val constraint = new Table(space.nextConstraintId(), null, xs, rows, costs)
         space.post(constraint)
         assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
         assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint), None)
@@ -162,7 +162,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
     @Test
     def testHandlingOfChannelVariablesInNeighbourhoodGeneration(): Unit = {
         import yuck.constraints.Plus
-        space.post(new Plus(space.nextConstraintId, null, x1, x2, x3))
+        space.post(new Plus(space.nextConstraintId(), null, x1, x2, x3))
         assertNoNeighbourhood(xs, createTable(3)(0, 0, 0, 1, 2, 3))
     }
 

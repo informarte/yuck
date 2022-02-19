@@ -15,8 +15,8 @@ final class MinimizationObjectiveTest extends UnitTest {
     private val space = new Space(logger, sigint)
     private val now = space.searchState
     private val baseDomain = IntegerRange(Zero, Nine)
-    private val x = new IntegerVariable(space.nextVariableId, "x", baseDomain)
-    private val y = new IntegerVariable(space.nextVariableId, "y", baseDomain)
+    private val x = new IntegerVariable(space.nextVariableId(), "x", baseDomain)
+    private val y = new IntegerVariable(space.nextVariableId(), "y", baseDomain)
     private val objective = new MinimizationObjective(x, Some(baseDomain.lb + One), Some(y))
 
     @Test
@@ -66,7 +66,7 @@ final class MinimizationObjectiveTest extends UnitTest {
     @Test
     def testSearchForActualObjectiveValue(): Unit = {
         space
-            .post(new DummyConstraint(space.nextConstraintId, List(x), Nil))
+            .post(new DummyConstraint(space.nextConstraintId(), List(x), Nil))
             .initialize()
         for (a <- x.domain.values) {
             space.setValue(x, a)
@@ -80,7 +80,7 @@ final class MinimizationObjectiveTest extends UnitTest {
     @Test
     def testTightening(): Unit = {
         space
-            .post(new DummyConstraint(space.nextConstraintId, List(x), Nil))
+            .post(new DummyConstraint(space.nextConstraintId(), List(x), Nil))
             .setValue(y, y.domain.ub)
             .initialize()
         for (a <- x.domain.values) {

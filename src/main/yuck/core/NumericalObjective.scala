@@ -23,7 +23,7 @@ abstract class NumericalObjective
         val minimize = optimizationMode == OptimizationMode.Min
         val costsOnEntry = rootObjective.costs(space.searchState)
         def isFeasibleObjectiveValue(a: V): Boolean = {
-            val move = new ChangeValue(space.nextMoveId, x, a)
+            val move = new ChangeValue(space.nextMoveId(), x, a)
             val after = space.consult(move)
             val costsAfterMove = rootObjective.costs(after)
             (! rootObjective.isHigherThan(costsAfterMove, costsOnEntry))
@@ -56,7 +56,7 @@ abstract class NumericalObjective
             if (maybeB.isDefined) {
                 val b = maybeB.get
                 // So b is the actual objective value!
-                val move = new ChangeValue(space.nextMoveId, x, b)
+                val move = new ChangeValue(space.nextMoveId(), x, b)
                 space.consult(move)
                 space.commit(move)
                 val finalCosts = rootObjective.costs(space.searchState)
@@ -72,7 +72,7 @@ abstract class NumericalObjective
             assert(! space.isChannelVariable(y))
             assert(! space.directlyAffectedConstraints(y).exists(space.isImplicitConstraint))
             if (y.domain.contains(a)) {
-                val move = new ChangeValue(space.nextMoveId, y, a)
+                val move = new ChangeValue(space.nextMoveId(), y, a)
                 space.consult(move)
                 space.commit(move)
                 val dy0 = y.domain

@@ -196,7 +196,7 @@ final class ConstraintDrivenNeighbourhoodFactory
         Distribution =
     {
         val hotSpotDistribution = Distribution(weights.size)
-        space.post(new OptimizationGoalTracker(nextConstraintId, null, mode, weights.toIndexedSeq, hotSpotDistribution))
+        space.post(new OptimizationGoalTracker(nextConstraintId(), null, mode, weights.toIndexedSeq, hotSpotDistribution))
         hotSpotDistribution
     }
 

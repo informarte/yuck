@@ -66,7 +66,7 @@ abstract class CircuitTracker
         cycleLengths
     }
 
-    override def propagate = {
+    override def propagate() = {
         if (costs.domain == TrueDomain) {
             val indexRange = IntegerRange(offset, offset + succ.size - 1)
             NoPropagationOccurred

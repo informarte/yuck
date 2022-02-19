@@ -146,7 +146,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
         def involvedSearchVars(x: AnyVariable) =
             space.involvedSearchVariables(x).diff(implicitlyConstrainedVars).iterator.map(searchVarIndex).toIndexedSeq
         val involvementMatrix = cc.costVars.iterator.map(x => (x, involvedSearchVars(x))).filter(_._2.nonEmpty).toMap
-        space.post(new SatisfactionGoalTracker(space.nextConstraintId, None, involvementMatrix, hotSpotDistribution))
+        space.post(new SatisfactionGoalTracker(space.nextConstraintId(), None, involvementMatrix, hotSpotDistribution))
         hotSpotDistribution
     }
 
@@ -162,7 +162,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
             neighbourhoods.iterator.filter(isInvolved).map(neighbourhoodIndex).toIndexedSeq
         }
         val involvementMatrix = cc.costVars.iterator.map(x => (x, involvedNeighbourhoods(x))).filter(_._2.nonEmpty).toMap
-        space.post(new SatisfactionGoalTracker(space.nextConstraintId, None, involvementMatrix, hotSpotDistribution))
+        space.post(new SatisfactionGoalTracker(space.nextConstraintId(), None, involvementMatrix, hotSpotDistribution))
         hotSpotDistribution
     }
 
@@ -225,7 +225,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
         require(objectives.size > 1)
         require(objectives.size == neighbourhoods.size)
         val hotSpotDistribution = new ArrayBackedDistribution(objectives.size)
-        space.post(new LevelWeightMaintainer(nextConstraintId, objectives, hotSpotDistribution))
+        space.post(new LevelWeightMaintainer(nextConstraintId(), objectives, hotSpotDistribution))
         new NeighbourhoodCollection(neighbourhoods, randomGenerator, Some(hotSpotDistribution), None)
     }
 

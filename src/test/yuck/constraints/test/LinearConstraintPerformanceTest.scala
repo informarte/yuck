@@ -25,12 +25,12 @@ class LinearConstraintPerformanceTest(relation: OrderingRelation, withUnitCoeffi
       for (i <- 0 until numberOfTerms) yield baseDomain.randomSubdomain(randomGenerator)
     private val xs =
       for (i <- 0 until numberOfTerms) yield
-          new IntegerVariable(space.nextVariableId, "x%d".format(i + 1), initialDomains(i))
+          new IntegerVariable(space.nextVariableId(), "x%d".format(i + 1), initialDomains(i))
     private val y = IntegerValueTraits.createChannel(space)
-    private val z = new IntegerVariable(space.nextVariableId, "z", baseDomain.randomSubdomain(randomGenerator))
-    private val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
+    private val z = new IntegerVariable(space.nextVariableId(), "z", baseDomain.randomSubdomain(randomGenerator))
+    private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
     private val axs = xs.map(AX(if (withUnitCoefficients) One else baseDomain.randomValue(randomGenerator), _))
-    private val constraint = new LinearConstraint(space.nextConstraintId, null, axs, y, relation, z, costs)
+    private val constraint = new LinearConstraint(space.nextConstraintId(), null, axs, y, relation, z, costs)
     private val moveSizeDistribution = Distribution(1, for (n <- 10 to 1 by -1) yield n)
     private val neighbourhood = new RandomReassignmentGenerator(space, xs, randomGenerator, moveSizeDistribution, None, None)
     private val numberOfMoves = 1000
@@ -42,7 +42,7 @@ class LinearConstraintPerformanceTest(relation: OrderingRelation, withUnitCoeffi
     space.initialize()
     private val moves = for (i <- 0 until numberOfMoves) yield {
         val move = neighbourhood.nextMove
-        val bulkMove = new BulkMove(space.nextMoveId)
+        val bulkMove = new BulkMove(space.nextMoveId())
         bulkMove ++= move.effects
     }
     private val now = space.searchState

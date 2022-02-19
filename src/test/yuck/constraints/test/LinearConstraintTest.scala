@@ -25,9 +25,9 @@ final class LinearConstraintTest
         for (i <- 1 to numberOfTerms) yield AX(
             baseDomain.randomValue(randomGenerator),
             new IntegerVariable(
-                space.nextVariableId, "x%d".format(i), baseDomain.randomSubdomain(randomGenerator)))
+                space.nextVariableId(), "x%d".format(i), baseDomain.randomSubdomain(randomGenerator)))
     override protected def createConstraint(implicit valueTraits: NumericalValueTraits[IntegerValue]) =
-        new LinearConstraint(space.nextConstraintId, null, axs, y, relation, z, costs)(valueTraits)
+        new LinearConstraint(space.nextConstraintId(), null, axs, y, relation, z, costs)(valueTraits)
 }
 
 /**

@@ -22,7 +22,7 @@ final class Minimum
     override def toString = "%s = min([%s])".format(y, xs.mkString(", "))
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
         valueRegistry.head._1
-    override def propagate = {
+    override def propagate() = {
         val lhs0 = xs.view.map(_.domain)
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.minRule(lhs0, rhs0)

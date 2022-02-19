@@ -82,7 +82,7 @@ final class IfThenElse
         }
     }
 
-    override def propagate = {
+    override def propagate() = {
         propagate2(propagate1(NoPropagationOccurred), 0)
     }
 

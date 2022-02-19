@@ -45,7 +45,7 @@ final class SimpleInverseNeighbourhood
         effects(1).set(x2, a1)
         effects(2).set(y1, b2)
         effects(3).set(y2, b1)
-        new ChangeValues(space.nextMoveId, effects)
+        new ChangeValues(space.nextMoveId(), effects)
     }
 
 }

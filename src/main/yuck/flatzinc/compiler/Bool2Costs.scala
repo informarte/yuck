@@ -14,7 +14,7 @@ final class Bool2Costs1
 {
     override def toString = "%s = bool2costs(%s)".format(y, x)
     override def op(a: BooleanValue) = IntegerValue(safeToInt(a.violation))
-    override def propagate = {
+    override def propagate() = {
         val (dx, dy) = Bool2CostsPropagator.bool2Costs(x.domain, y.domain)
         NoPropagationOccurred.pruneDomains(x, dx, y, dy)
     }
@@ -33,7 +33,7 @@ final class Bool2Costs2
     override def toString = "bool2costs(%s, %s, %s)".format(x, y, z)
     override def op(a: BooleanValue, b: IntegerValue) =
         BooleanValue(abs(safeSub(a.violation, b.value)))
-    override def propagate = {
+    override def propagate() = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }

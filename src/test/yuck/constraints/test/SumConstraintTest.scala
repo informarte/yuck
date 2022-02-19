@@ -25,9 +25,9 @@ final class SumConstraintTest
         for (i <- 1 to numberOfTerms) yield AX(
             One,
             new IntegerVariable(
-                space.nextVariableId, "x%d".format(i), baseDomain.randomSubdomain(randomGenerator)))
+                space.nextVariableId(), "x%d".format(i), baseDomain.randomSubdomain(randomGenerator)))
     override protected def createConstraint(implicit valueTraits: NumericalValueTraits[IntegerValue]) =
-        new SumConstraint(space.nextConstraintId, null, axs.map(_.x), y, relation, z, costs)(valueTraits)
+        new SumConstraint(space.nextConstraintId(), null, axs.map(_.x), y, relation, z, costs)(valueTraits)
 }
 
 /**

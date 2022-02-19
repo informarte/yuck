@@ -23,10 +23,10 @@ final class TableNeighbourhoodTest extends UnitTest {
 
     @Test
     def testMoveGeneration(): Unit = {
-        val xs = Vector("s", "t").map(new IntegerVariable(space.nextVariableId, _, IntegerRange(0, 9)))
+        val xs = Vector("s", "t").map(new IntegerVariable(space.nextVariableId(), _, IntegerRange(0, 9)))
         val rows = createTable(2)(0, 1, 0, 7, 1, 1, 1, 5, 3, 3, 5, 1, 5, 9, 8, 2, 8, 3, 9, 9)
-        val costs = new BooleanVariable(space.nextVariableId, "costs", CompleteBooleanDomain)
-        val constraint = new Table(space.nextConstraintId, null, xs, rows, costs)
+        val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
+        val constraint = new Table(space.nextConstraintId(), null, xs, rows, costs)
         space.post(constraint)
         val neighbourhood =
             constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get

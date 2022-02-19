@@ -16,7 +16,7 @@ final class Eq
 {
     override def toString = "eq(%s, %s, %s)".format(x, y, z)
     override def op(a: V, b: V) = BooleanValue(valueTraits.orderingCostModel.eqViolation(a, b))
-    override def propagate = {
+    override def propagate() = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
@@ -40,7 +40,7 @@ final class Ne
 {
     override def toString = "ne(%s, %s, %s)".format(x, y, z)
     override def op(a: V, b: V) = BooleanValue(valueTraits.orderingCostModel.neViolation(a, b))
-    override def propagate = {
+    override def propagate() = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
@@ -64,7 +64,7 @@ final class Lt
 {
     override def toString = "lt(%s, %s, %s)".format(x, y, z)
     override def op(a: V, b: V) = BooleanValue(valueTraits.orderingCostModel.ltViolation(a, b))
-    override def propagate = {
+    override def propagate() = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
@@ -90,7 +90,7 @@ final class Le
 {
     override def toString = "le(%s, %s, %s)".format(x, y, z)
     override def op(a: V, b: V) = BooleanValue(valueTraits.orderingCostModel.leViolation(a, b))
-    override def propagate = {
+    override def propagate() = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
@@ -115,7 +115,7 @@ final class Min
 {
     override def toString = "%s = min(%s, %s)".format(z, x, y)
     override def op(a: V, b: V) = if (a < b) a else b
-    override def propagate = {
+    override def propagate() = {
         val (lhs1, dz1) = valueTraits.domainPruner.minRule(Seq(x.domain, y.domain), z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
@@ -135,7 +135,7 @@ final class Max
 {
     override def toString = "%s = max(%s, %s)".format(z, x, y)
     override def op(a: V, b: V) = if (a > b) a else b
-    override def propagate = {
+    override def propagate() = {
         val (lhs1, dz1) = valueTraits.domainPruner.maxRule(Seq(x.domain, y.domain), z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)

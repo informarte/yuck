@@ -22,11 +22,11 @@ final class GeneralInverseNeighbourhoodTest(fOffset: Int, gOffset: Int) extends 
         val gDomain = IntegerRange(fOffset, fOffset + domainSize - 1)
         val xs = for (i <- 0 until domainSize) yield {
             val dx = if (i == 0) IntegerDomain(List(gOffset + domainSize - 1)) else fDomain.diff(IntegerDomain(List(gOffset + i)))
-            new IntegerVariable(space.nextVariableId, "x%d".format(i + 1), dx)
+            new IntegerVariable(space.nextVariableId(), "x%d".format(i + 1), dx)
         }
         val ys = for (i <- 0 until domainSize) yield {
             val dy = if (i == domainSize - 1) IntegerDomain(List(fOffset)) else gDomain.diff(IntegerDomain(List(fOffset + i)))
-            new IntegerVariable(space.nextVariableId, "y%d".format(i + 1), dy)
+            new IntegerVariable(space.nextVariableId(), "y%d".format(i + 1), dy)
         }
         val f = new InverseFunction(xs, fOffset)
         val g = new InverseFunction(ys, gOffset)

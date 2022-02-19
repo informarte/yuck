@@ -22,7 +22,7 @@ final class Maximum
     override def toString = "%s = max([%s])".format(y, xs.mkString(", "))
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
         valueRegistry.last._1
-    override def propagate = {
+    override def propagate() = {
         val lhs0 = xs.view.map(_.domain)
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.maxRule(lhs0, rhs0)

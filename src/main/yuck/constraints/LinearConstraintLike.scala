@@ -77,7 +77,7 @@ abstract class LinearConstraintLike
         effects.pruneDomains(y, dy1, z, dz1, costs, costsDomain1)
     }
 
-    final override def propagate = {
+    final override def propagate() = {
         propagate2(propagate1(NoPropagationOccurred))
     }
 

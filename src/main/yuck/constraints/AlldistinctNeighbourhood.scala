@@ -39,8 +39,8 @@ final class AlldistinctNeighbourhood
     private val swappingInValuesIsPossible = xs.iterator.flatMap(_.domain.valuesIterator).toSet.size > n
     private val effects = Vector.fill(3){new ReusableMoveEffect[V]}
     private val swaps = for (n <- 1 to 3) yield effects.take(n)
-    private def succeed(n: Int): Move = new ChangeValues[V](space.nextMoveId, swaps(n - 1))
-    private def fail: Move = new ChangeValues[V](space.nextMoveId, Nil)
+    private def succeed(n: Int): Move = new ChangeValues[V](space.nextMoveId(), swaps(n - 1))
+    private def fail: Move = new ChangeValues[V](space.nextMoveId(), Nil)
 
     @tailrec
     private def nextMove(m: Int): Move = {

@@ -36,7 +36,7 @@ final class ElementConst
         effect.a = as(j)
     }
 
-    override def propagate = {
+    override def propagate() = {
         if (valueTraits == IntegerSetValueTraits) {
             // bail out because integer-set domains do not support the union operation
             NoPropagationOccurred

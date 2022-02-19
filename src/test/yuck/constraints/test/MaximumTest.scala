@@ -17,13 +17,13 @@ final class MaximumTest extends UnitTest with ConstraintTestTooling {
     private val space = new Space(logger, sigint)
 
     private val baseDomain = IntegerRange(0, 9)
-    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId, "x%d".format(i), baseDomain)
+    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
     private val Seq(x1, x2, x3) = xs
-    private val y = new IntegerVariable(space.nextVariableId, "y", CompleteIntegerRange)
+    private val y = new IntegerVariable(space.nextVariableId(), "y", CompleteIntegerRange)
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new Maximum(space.nextConstraintId, null, xs, y)
+        val constraint = new Maximum(space.nextConstraintId(), null, xs, y)
         assertEq(constraint.toString, "y = max([x1, x2, x3])")
         assertEq(constraint.inVariables.size, xs.size)
         assertEq(constraint.inVariables.toSet, xs.toSet)
@@ -32,7 +32,7 @@ final class MaximumTest extends UnitTest with ConstraintTestTooling {
     }
 
     private def testPropagation(xs: Seq[IntegerVariable]): Unit = {
-        space.post(new Maximum(space.nextConstraintId, null, xs, y))
+        space.post(new Maximum(space.nextConstraintId(), null, xs, y))
         runScenario(
             TestScenario(
                 space,
@@ -52,7 +52,7 @@ final class MaximumTest extends UnitTest with ConstraintTestTooling {
     }
 
     private def testCostComputation(xs: Seq[IntegerVariable]): Unit = {
-        space.post(new Maximum(space.nextConstraintId, null, xs, y))
+        space.post(new Maximum(space.nextConstraintId(), null, xs, y))
         runScenario(
             TestScenario(
                 space,

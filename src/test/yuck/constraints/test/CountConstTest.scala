@@ -17,13 +17,13 @@ final class CountConstTest extends UnitTest with ConstraintTestTooling {
     private val space = new Space(logger, sigint)
 
     private val baseDomain = IntegerRange(0, 9)
-    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId, "x%d".format(i), baseDomain)
+    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
     private val Seq(x1, x2, x3) = xs
-    private val n = new IntegerVariable(space.nextVariableId, "n", CompleteIntegerRange)
+    private val n = new IntegerVariable(space.nextVariableId(), "n", CompleteIntegerRange)
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new CountConst(space.nextConstraintId, null, xs, One, n)
+        val constraint = new CountConst(space.nextConstraintId(), null, xs, One, n)
         assertEq(constraint.toString, "n = count(1, [x1, x2, x3])")
         assertEq(constraint.inVariables.size, xs.size)
         assertEq(constraint.inVariables.toSet, xs.toSet)
@@ -33,7 +33,7 @@ final class CountConstTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testPropagation(): Unit = {
-        space.post(new CountConst(space.nextConstraintId, null, xs, One, n))
+        space.post(new CountConst(space.nextConstraintId(), null, xs, One, n))
         runScenario(
             TestScenario(
                 space,
@@ -47,7 +47,7 @@ final class CountConstTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfDuplicateVariablesInPropagation(): Unit = {
-        space.post(new CountConst(space.nextConstraintId, null, List(x1, x1, x2, x3), One, n))
+        space.post(new CountConst(space.nextConstraintId(), null, List(x1, x1, x2, x3), One, n))
         runScenario(
             TestScenario(
                 space,
@@ -61,7 +61,7 @@ final class CountConstTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testCounting(): Unit = {
-        space.post(new CountConst(space.nextConstraintId, null, xs, One, n))
+        space.post(new CountConst(space.nextConstraintId(), null, xs, One, n))
         runScenario(
             TestScenario(
                 space,
@@ -76,7 +76,7 @@ final class CountConstTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfDuplicateVariablesInCounting(): Unit = {
-        space.post(new CountConst(space.nextConstraintId, null, List(x1, x1, x2, x3), One, n))
+        space.post(new CountConst(space.nextConstraintId(), null, List(x1, x1, x2, x3), One, n))
         runScenario(
             TestScenario(
                 space,

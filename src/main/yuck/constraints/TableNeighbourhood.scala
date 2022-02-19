@@ -45,7 +45,7 @@ final class TableNeighbourhood
             effects(colIndex).a = row(colIndex)
             colIndex -= 1
         }
-        new ChangeValues(space.nextMoveId, effects)
+        new ChangeValues(space.nextMoveId(), effects)
     }
 
     override def commit(move: Move) = {
