@@ -189,7 +189,7 @@ final class SpaceTest extends UnitTest {
             .registerOutputVariable(u)
             .registerObjectiveVariable(v)
             .post(c).post(d).post(e).post(f).post(g).post(h)
-            .markAsImplicit(h)
+            .registerImplicitConstraint(h)
             .removeUselessConstraints()
         assertEq(space.numberOfConstraints, 4)
         assertEq(space.numberOfConstraints(_.id == c.id), 1)
@@ -458,15 +458,15 @@ final class SpaceTest extends UnitTest {
         val g = new Spy(space.nextConstraintId, Set(x), z)
 
         // check book keeping and enforcement of invariants
-        assertEx(space.markAsImplicit(c)) // because c was not yet posted
+        assertEx(space.registerImplicitConstraint(c)) // because c was not yet posted
         space.post(c)
         assert(! space.isImplicitConstraint(c))
         space.post(d)
         space.post(e)
         assertEq(space.numberOfImplicitConstraints, 0)
-        space.markAsImplicit(c)
-        space.markAsImplicit(d)
-        assertEx(space.markAsImplicit(e)) // because u and v are already implicitly constrained by d
+        space.registerImplicitConstraint(c)
+        space.registerImplicitConstraint(d)
+        assertEx(space.registerImplicitConstraint(e)) // because u and v are already implicitly constrained by d
         assertEq(space.numberOfImplicitConstraints, 2)
         assert(space.isImplicitConstraint(c))
         assert(space.isImplicitConstraint(d))
@@ -479,7 +479,7 @@ final class SpaceTest extends UnitTest {
         }
         assertEx(space.post(f)) // because u is already implicitly constrained by d
         space.post(g)
-        assertEx(space.markAsImplicit(g)) // because x is an out-variable of d
+        assertEx(space.registerImplicitConstraint(g)) // because x is an out-variable of d
 
         // check that implicit constraints are propagated and that domains of implicitly constrained variables
         // get restored after propagation

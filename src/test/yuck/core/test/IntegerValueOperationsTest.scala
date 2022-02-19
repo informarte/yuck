@@ -58,7 +58,7 @@ final class IntegerValueOperationsTest extends UnitTest with IntegerValueTestDat
             } else {
                 assertEq(num.abs(a), a)
             }
-            assertEq(num.negate(a), a.negate)
+            assertEq(num.negate(a), a.negated)
             assertEq(num.toInt(a), a.toInt)
             assertEq(num.toLong(a), a.toLong)
             assertEq(num.toFloat(a), a.toFloat)

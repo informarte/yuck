@@ -315,13 +315,13 @@ final class IntegerDomainTestHelper
         val e = d.mirrored
         if (d.isFinite) {
             assert(e.isFinite)
-            d.valuesIterator.forall(a => e.contains(a.negate))
-            e.valuesIterator.forall(a => d.contains(a.negate))
+            d.valuesIterator.forall(a => e.contains(a.negated))
+            e.valuesIterator.forall(a => d.contains(a.negated))
         } else {
             d match {
                 case _: IntegerRange =>
-                    assertEq(e.lb, if (d.hasUb) d.ub.negate else null)
-                    assertEq(e.ub, if (d.hasLb) d.lb.negate else null)
+                    assertEq(e.lb, if (d.hasUb) d.ub.negated else null)
+                    assertEq(e.ub, if (d.hasLb) d.lb.negated else null)
                 case d: IntegerRangeList =>
                     assertEq(e, IntegerRangeList(d.ranges.reverseIterator.map(_.mirrored).toIndexedSeq))
             }

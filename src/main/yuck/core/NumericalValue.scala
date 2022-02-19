@@ -17,7 +17,7 @@ abstract class NumericalValue[V] extends OrderedValue[V] {
     def addAndSub(s: V, a: V, b: V): V
     def ^(that: V): V
     def abs: V
-    def negate: V
+    def negated: V
     def toInt: Int
     def toLong: Long
     def toFloat: Float

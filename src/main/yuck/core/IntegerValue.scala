@@ -52,8 +52,8 @@ final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
         val delta = safeSub(a.value, b.value)
         if (delta == 0) this else IntegerValue(safeAdd(this.value, safeMul(s.value, delta)))
     }
-    @inline override def abs = if (value < 0) negate else this
-    @inline override def negate = IntegerValue(safeNeg(value))
+    @inline override def abs = if (value < 0) negated else this
+    @inline override def negated = IntegerValue(safeNeg(value))
     @inline override def toInt = value
     @inline override def toLong = value.toLong
     @inline override def toFloat = value.toFloat

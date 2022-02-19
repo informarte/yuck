@@ -143,7 +143,7 @@ final class IntegerRange
 
     override def mirrored: IntegerRange =
         if (isEmpty) this
-        else IntegerRange(maybeUb.map(_.negate).orNull, maybeLb.map(_.negate).orNull)
+        else IntegerRange(maybeUb.map(_.negated).orNull, maybeLb.map(_.negated).orNull)
 
     /**
      * Implements range multiplication as described in:

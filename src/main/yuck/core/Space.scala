@@ -372,25 +372,25 @@ final class Space(
         constraints.count(p)
 
     /**
-     * Marks the given constraint as implicit.
+     * Registers the given constraint as implicit.
      *
      * Implicit constraints will not be initialized and they will never be consulted.
      *
-     * Throws when the constraint has not yet been posted or cannot be marked as implicit.
+     * Throws when the constraint has not yet been posted or cannot be registered as implicit.
      */
-    def markAsImplicit(constraint: Constraint): Space = {
-        logger.loggg("Marking %s as implicit".format(constraint))
+    def registerImplicitConstraint(constraint: Constraint): Space = {
+        logger.loggg("Registering %s as implicit".format(constraint))
         require(
             constraints.contains(constraint),
-            "%s cannot be marked as implicit because it has not yet been posted".format(constraint))
+            "%s cannot be registered as implicit because it has not yet been posted".format(constraint))
         require(
             ! constraint.inVariables.exists(isChannelVariable),
-            "%s cannot be marked as implicit because the following in-variables are channels: %s".format(
+            "%s cannot be registered as implicit because the following in-variables are channels: %s".format(
                 constraint,
                 constraint.inVariables.filter(isChannelVariable).mkString(", ")))
         require(
             ! constraint.inVariables.exists(isImplicitlyConstrainedSearchVariable),
-            "%s cannot be marked as implicit because the following in-variables are already implicitly constrained: %s".format(
+            "%s cannot be registered as implicit because the following in-variables are already implicitly constrained: %s".format(
                 constraint,
                 constraint.inVariables.filter(isImplicitlyConstrainedSearchVariable).mkString(", ")))
         implicitConstraints.add(constraint)
@@ -399,11 +399,11 @@ final class Space(
         this
     }
 
-    /** Returns true iff the given constraint was marked as implicit. */
+    /** Returns true iff the given constraint was registered as implicit. */
     @inline def isImplicitConstraint(constraint: Constraint): Boolean =
         implicitConstraints.contains(constraint)
 
-    /** Returns the number of constraints that were posted and later marked as implicit. */
+    /** Returns the number of constraints that were posted and later registered as implicit. */
     def numberOfImplicitConstraints: Int = implicitConstraints.size
 
     /**

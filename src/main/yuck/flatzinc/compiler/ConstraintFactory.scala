@@ -1038,12 +1038,12 @@ final class ConstraintFactory
     {
         val zero = valueTraits.zero
         val one = valueTraits.one
-        val minusOne = one.negate
+        val minusOne = one.negated
         val as = compileNumArray[V](as0)
         val xs = compileNumArray[V](bs)
         require(as.size == xs.size)
         val axs =
-            AX.compact(
+            AX.normalize(
                 for ((x, y) <- as.view.zip(xs.view)
                      if x.domain.singleValue != zero && (! y.domain.isSingleton || y.domain.singleValue != zero))
                     yield new AX[V](x.domain.singleValue, y))
@@ -1088,7 +1088,7 @@ final class ConstraintFactory
         val xs = compileNumArray[V](bs)
         require(as.size == xs.size)
         val axs =
-            AX.compact(
+            AX.normalize(
                 for ((x, y) <- as.view.zip(xs.view)
                      if x.domain.singleValue != zero && (! y.domain.isSingleton || y.domain.singleValue != zero))
                     yield new AX[V](x.domain.singleValue, y))

@@ -23,7 +23,7 @@ object AX {
      * Interprets the given sequence of scalar-variable pairs as linear combination
      * and transforms it into an equivalent linear combination of minimal size.
      */
-    def compact[V <: NumericalValue[V]](axs: Iterable[AX[V]]): List[AX[V]] =
+    def normalize[V <: NumericalValue[V]](axs: Iterable[AX[V]]): List[AX[V]] =
         axs.toSeq.sortBy(_.x).foldLeft(Nil: List[AX[V]]) {
             case (Nil, ax) => ax :: Nil
             case (h :: t, ax) if h.x == ax.x => new AX[V](h.a + ax.a, h.x) :: t

@@ -68,7 +68,7 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
             arrivalTimes, serviceTimes.apply, (i, j) => travelTimes(i)(j), withWaiting, totalTravelTime, deliveryCosts)
 
     private def createNeighbourhood: Neighbourhood = {
-        space.post(circuit).markAsImplicit(circuit).post(delivery)
+        space.post(circuit).registerImplicitConstraint(circuit).post(delivery)
         circuit.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
     }
 
