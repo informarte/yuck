@@ -26,6 +26,6 @@ final class Minimum
         val lhs0 = xs.view.map(_.domain)
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.minRule(lhs0, rhs0)
-        NoPropagationOccurred.pruneDomains(xs.iterator.zip(lhs1.iterator)).pruneDomain(y, rhs1)
+        NoPropagationOccurred.pruneDomains(xs.iterator.zip(lhs1)).pruneDomain(y, rhs1)
     }
 }

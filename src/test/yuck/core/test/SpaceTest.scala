@@ -227,7 +227,7 @@ final class SpaceTest extends UnitTest {
             }
             val rhs0 = sum.domain
             val (lhs1, rhs1) = IntegerValueTraits.domainPruner.linEqRule(lhs0, rhs0)
-            NoPropagationOccurred.pruneDomains(xs.iterator.zip(lhs1.iterator)).pruneDomain(sum, rhs1)
+            NoPropagationOccurred.pruneDomains(xs.iterator.zip(lhs1)).pruneDomain(sum, rhs1)
         }
 
         override def initialize(now: SearchState) = {
