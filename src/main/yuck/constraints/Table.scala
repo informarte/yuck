@@ -76,10 +76,10 @@ final class Table
             rows = rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(row(i))))
             val effects =
                 NoPropagationOccurred.pruneDomains(
-                    (0 until n).iterator.map{i =>
+                    (0 until n).iterator.map(i =>
                         val feasibleValues = rows.iterator.map(row => row(i)).toSet
                         val x = xs(i)
-                        (x, x.domain.intersect(valueTraits.createDomain(feasibleValues)))})
+                        (x, x.domain.intersect(valueTraits.createDomain(feasibleValues)))))
             if (! effects.affectedVariables.isEmpty) {
                 cols = null
             }

@@ -49,7 +49,7 @@ abstract class LinearConstraintLike
         }
         val rhs0 = y.domain
         val (lhs1, rhs1) = valueTraits.domainPruner.linEqRule(lhs0, rhs0)
-        effects.pruneDomains((0 until n).iterator.map(x).zip(lhs1.iterator)).pruneDomain(y, rhs1)
+        effects.pruneDomains((0 until n).iterator.map(x).zip(lhs1)).pruneDomain(y, rhs1)
     }
 
     // Propagates y relation z.
