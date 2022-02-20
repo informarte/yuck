@@ -10,7 +10,7 @@ abstract class VrpTestTaskFactory extends MiniZincTestTaskFactory {
 
     override protected val SuitePath = "resources/mzn/tests/minizinc-benchmarks"
 
-    protected case class ObjectiveValue(value: Int, isOptimal: Boolean = false)
+    protected final case class ObjectiveValue(value: Int, isOptimal: Boolean = false)
 
     protected val Results: Map[String, ObjectiveValue]
 
