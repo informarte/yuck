@@ -22,7 +22,7 @@ trait ConstraintTestTooling extends YuckAssert {
         def run(space: Space): Unit
     }
 
-    protected case class TestScenario(space: Space, steps: TestStep*)
+    protected final case class TestScenario(space: Space, steps: TestStep*)
 
     protected def runScenario(scenario: TestScenario): Unit = {
         for (step <- scenario.steps) {
@@ -78,7 +78,7 @@ trait ConstraintTestTooling extends YuckAssert {
      *
      * Also checks that only the expected reductions have happened.
      */
-    protected case class Propagate
+    protected final case class Propagate
         (comment: String, preconditions: Seq[AnyDomainReduction], postconditions: Seq[AnyDomainReduction])
         extends TestStep
     {
@@ -95,7 +95,7 @@ trait ConstraintTestTooling extends YuckAssert {
      *
      * Also checks that only the expected reductions have happened.
      */
-    protected case class PropagateAndRollback
+    protected final case class PropagateAndRollback
         (comment: String, preconditions: Seq[AnyDomainReduction], postconditions: Seq[AnyDomainReduction])
         extends TestStep
     {
@@ -140,7 +140,7 @@ trait ConstraintTestTooling extends YuckAssert {
      *
      * Also checks that only the expected assignments have happened.
      */
-    protected case class Initialize
+    protected final case class Initialize
         (comment: String, preconditions: Seq[AnyMoveEffect], postconditions: Seq[AnyMoveEffect])
         extends TestStep
     {
@@ -163,7 +163,7 @@ trait ConstraintTestTooling extends YuckAssert {
      *
      * Also checks that only the expected assignments have happened.
      */
-    protected case class Consult
+    protected final case class Consult
         (comment: String, preconditions: Seq[AnyMoveEffect], postconditions: Seq[AnyMoveEffect])
         extends TestStep
     {
@@ -186,7 +186,7 @@ trait ConstraintTestTooling extends YuckAssert {
      *
      * Also checks that only the expected assignments have happened.
      */
-    protected case class ConsultAndCommit
+    protected final case class ConsultAndCommit
         (comment: String, preconditions: Seq[AnyMoveEffect], postconditions: Seq[AnyMoveEffect])
         extends TestStep
     {

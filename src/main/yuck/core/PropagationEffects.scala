@@ -85,7 +85,7 @@ case object NoPropagationOccurred extends PropagationEffects {
   *
   * @author Michael Marte
   */
-case class ReschedulePropagationStep
+final case class ReschedulePropagationStep
     (override val affectedVariables: mutable.Set[AnyVariable])
     extends PropagationEffects
 {

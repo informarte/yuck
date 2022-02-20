@@ -28,7 +28,7 @@ case object Chuffed extends VerificationTool {}
  * @author Michael Marte
  *
  */
-case class MiniZincTestTask(
+final case class MiniZincTestTask(
     directoryLayout: MiniZincDirectoryLayout,
     suitePath: String = "",
     suiteName: String = "",

@@ -18,7 +18,7 @@ import yuck.util.logging.LazyLogger
  */
 class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(logger) {
 
-    case class QualityImprovement(runtimeInMillis: Long, quality: NumericalValue[_])
+    final case class QualityImprovement(runtimeInMillis: Long, quality: NumericalValue[_])
 
     private var timeStampInMillis: Long = 0
     private var maybeSolvingTimeInMillis: Option[Long] = None

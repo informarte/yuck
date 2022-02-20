@@ -6,7 +6,7 @@ import yuck.core.{DefaultRestartLimit, DefaultSeed, Distribution, Probability}
  * @author Michael Marte
  *
  */
-case class FlatZincLevelConfiguration(
+final case class FlatZincLevelConfiguration(
     guideOptimization: Boolean,
     maybeFairVariableChoiceRate: Option[Probability])
 {
@@ -18,7 +18,7 @@ case class FlatZincLevelConfiguration(
  * @author Michael Marte
  *
  */
-case class FlatZincSolverConfiguration(
+final case class FlatZincSolverConfiguration(
     attachGoals: Boolean = false,
     seed: Long = DefaultSeed,
     restartLimit: Int = DefaultRestartLimit,
