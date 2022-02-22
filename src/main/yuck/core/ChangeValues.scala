@@ -5,7 +5,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-class ChangeAnyValues
+final class ChangeAnyValues
     (id: Id[Move],
      override val effects: Iterable[AnyMoveEffect])
     extends Move(id)
@@ -15,7 +15,7 @@ class ChangeAnyValues
  *
  * @author Michael Marte
  */
-class ChangeValues
+final class ChangeValues
     [V <: AnyValue]
     (id: Id[Move],
      override val effects: Iterable[MoveEffect[V]])
@@ -30,4 +30,7 @@ final class ChangeValue
     [V <: AnyValue]
     (id: Id[Move],
      x: Variable[V], a: V)
-    extends ChangeAnyValues(id, new ImmutableMoveEffect(x, a))
+    extends Move(id)
+{
+    override val effects = List(new ImmutableMoveEffect(x, a))
+}
