@@ -59,8 +59,4 @@ object IntegerSetValue {
         }
     }
 
-    implicit def valueTraits: IntegerSetValueTraits.type = IntegerSetValueTraits
-    implicit def valueOrdering: IntegerSetValueOrdering.type = IntegerSetValueOrdering
-    implicit def domainOrdering: IntegerSetDomainOrdering.type = IntegerSetDomainOrdering
-
 }

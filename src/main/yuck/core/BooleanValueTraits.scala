@@ -7,7 +7,7 @@ import scala.collection.*
  *
  * @author Michael Marte
  */
-object BooleanValueTraits extends OrderedValueTraits[BooleanValue] {
+implicit object BooleanValueTraits extends OrderedValueTraits[BooleanValue] {
     override val valueType = classOf[BooleanValue]
     override val valueOrdering = BooleanValueOrdering
     override val orderingCostModel = BooleanValueOrderingCostModel

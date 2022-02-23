@@ -7,7 +7,7 @@ import scala.collection.*
  *
  * @author Michael Marte
  */
-object IntegerValueTraits extends IntegralValueTraits[IntegerValue] {
+implicit object IntegerValueTraits extends IntegralValueTraits[IntegerValue] {
     override val valueType = classOf[IntegerValue]
     override val zero = Zero
     override val one = One

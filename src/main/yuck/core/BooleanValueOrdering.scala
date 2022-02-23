@@ -7,4 +7,4 @@ import yuck.util.OrderingFromOrdered
  *
  * @author Michael Marte
  */
-object BooleanValueOrdering extends OrderingFromOrdered[BooleanValue]
+implicit object BooleanValueOrdering extends OrderingFromOrdered[BooleanValue]
