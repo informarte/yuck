@@ -13,13 +13,11 @@ final class Maximum
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.Seq[OrderedVariable[V]], y: OrderedVariable[V])
     (implicit valueTraits: OrderedValueTraits[V])
-    extends ValueFrequencyTracker[V, V](
-        id, xs, y,
-        immutable.TreeMap[AnyVariable, Int](), immutable.TreeMap[V, Int]())(
-        valueTraits)
+    extends ValueFrequencyTracker[V, V](id, xs, y)
 {
     require(! xs.isEmpty)
     override def toString = "%s = max([%s])".format(y, xs.mkString(", "))
+    override protected def createValueRegistry() = immutable.TreeMap[V, Int]()
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
         valueRegistry.last._1
     override def propagate() = {
