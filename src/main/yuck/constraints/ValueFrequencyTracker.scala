@@ -13,13 +13,9 @@ import yuck.core.*
  * @author Michael Marte
  */
 abstract class ValueFrequencyTracker
-    [V <: AnyValue,
-     Result <: AnyValue]
+    [V <: AnyValue, Result <: AnyValue]
     (id: Id[Constraint],
-     protected val xs: immutable.Seq[Variable[V]],
-     protected val y: Variable[Result],
-     val variableRegistryFactory: immutable.Map[AnyVariable, Int],
-     val valueRegistryFactory: immutable.Map[V, Int])
+     xs: immutable.Seq[Variable[V]], y: Variable[Result])
     (implicit valueTraits: ValueTraits[V])
     extends Constraint(id)
 {
@@ -28,12 +24,14 @@ abstract class ValueFrequencyTracker
     override def outVariables = List(y)
 
     type VariableRegistry = immutable.Map[AnyVariable, Int]
+    protected def createVariableRegistry(): VariableRegistry = immutable.TreeMap[AnyVariable, Int]()
     private def registerVariable(registry: VariableRegistry, x: AnyVariable) =
         registry + (x -> (registry.getOrElse(x, 0) + 1))
     private val variableRegistry =
-        xs.foldLeft(variableRegistryFactory.empty)(registerVariable)
+        xs.foldLeft(createVariableRegistry())(registerVariable)
 
     type ValueRegistry = immutable.Map[V, Int]
+    protected def createValueRegistry(): ValueRegistry = immutable.HashMap[V, Int]()
     private var valueRegistry: ValueRegistry = null
     private var futureValueRegistry: ValueRegistry = null
     @inline private def registerValue(valueRegistry: ValueRegistry, a: V, n: Int): ValueRegistry =
@@ -46,7 +44,7 @@ abstract class ValueFrequencyTracker
     private val effect = y.reuseableEffect
 
     override def initialize(now: SearchState) = {
-        valueRegistry = valueRegistryFactory.empty
+        valueRegistry = createValueRegistry()
         for (x <- xs) {
             valueRegistry = registerValue(valueRegistry, now.value(x), 1)
         }

@@ -73,7 +73,7 @@ final class CircuitNeighbourhood
     }
 
     private abstract class CircuitMove extends Move(space.nextMoveId()) {
-        final override val effects: Iterable[MoveEffect[IntegerValue]] = CircuitNeighbourhood.this.effects
+        final override val effects = CircuitNeighbourhood.this.effects
         final override def toString = "%s(%s)".format(getClass.getSimpleName, effects.mkString(", "))
     }
     private case class NodeSwap(i: Int, j: Int) extends CircuitMove

@@ -22,10 +22,7 @@ final class Alldistinct
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.IndexedSeq[Variable[V]], costs: BooleanVariable)
     (implicit valueTraits: ValueTraits[V])
-    extends ValueFrequencyTracker[V, BooleanValue](
-        id, xs, costs,
-        immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[V, Int]())(
-        valueTraits)
+    extends ValueFrequencyTracker[V, BooleanValue](id, xs, costs)
 {
 
     override def toString = "alldistinct([%s], %s)".format(xs.mkString(", "), costs)

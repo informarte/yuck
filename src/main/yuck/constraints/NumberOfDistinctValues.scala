@@ -13,10 +13,7 @@ class NumberOfDistinctValues
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.Seq[Variable[V]], n: IntegerVariable)
     (implicit valueTraits: OrderedValueTraits[V])
-    extends ValueFrequencyTracker[V, IntegerValue](
-        id, xs, n,
-        immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[V, Int]())(
-        valueTraits)
+    extends ValueFrequencyTracker[V, IntegerValue](id, xs, n)
 {
     override def toString = "%s = numberOfDistinctValues([%s])".format(n, xs.mkString(", "))
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =

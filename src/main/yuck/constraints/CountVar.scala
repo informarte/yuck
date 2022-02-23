@@ -13,10 +13,7 @@ final class CountVar
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.Seq[Variable[V]], y: Variable[V], n: IntegerVariable)
     (implicit valueTraits: ValueTraits[V])
-    extends ValueFrequencyTracker[V, IntegerValue](
-        id, xs, n,
-        immutable.TreeMap[AnyVariable, Int](), immutable.HashMap[V, Int]())(
-        valueTraits)
+    extends ValueFrequencyTracker[V, IntegerValue](id, xs, n)
 {
 
     override def toString = "%s = count(%s, [%s])".format(n, y, xs.mkString(", "))
