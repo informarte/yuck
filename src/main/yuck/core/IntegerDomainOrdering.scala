@@ -7,4 +7,4 @@ import yuck.util.OrderingFromOrdered
  *
  * @author Michael Marte
  */
-object IntegerDomainOrdering extends OrderingFromOrdered[OrderedDomain[IntegerValue]]
+implicit object IntegerDomainOrdering extends OrderingFromOrdered[OrderedDomain[IntegerValue]]

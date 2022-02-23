@@ -137,12 +137,4 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
         assertEx(IntegerValue(Int.MaxValue) ^ IntegerValue(Int.MaxValue), classOf[ArithmeticException])
     }
 
-    @Test
-    def testConfiguration(): Unit = {
-        import IntegerValue.*
-        assertEq(valueTraits, IntegerValueTraits)
-        assertEq(numericalOperations, IntegerValueOperations)
-        assertEq(domainOrdering, IntegerDomainOrdering)
-    }
-
 }

@@ -5,7 +5,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-object IntegerValueOperations extends Integral[IntegerValue] {
+implicit object IntegerValueOperations extends Integral[IntegerValue] {
     override def compare(a: IntegerValue, b: IntegerValue) = a.compare(b)
     override def plus(a: IntegerValue, b: IntegerValue) = a + b
     override def minus(a: IntegerValue, b: IntegerValue) = a - b
