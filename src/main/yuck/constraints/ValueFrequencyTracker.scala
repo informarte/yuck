@@ -15,8 +15,8 @@ import yuck.core.*
 abstract class ValueFrequencyTracker
     [V <: AnyValue, Result <: AnyValue]
     (id: Id[Constraint],
-     xs: immutable.Seq[Variable[V]], y: Variable[Result])
-    (implicit valueTraits: ValueTraits[V])
+     protected val xs: immutable.Seq[Variable[V]], protected val y: Variable[Result])
+    (implicit protected val valueTraits: ValueTraits[V])
     extends Constraint(id)
 {
 

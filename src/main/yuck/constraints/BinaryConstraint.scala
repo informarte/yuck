@@ -9,7 +9,7 @@ import yuck.core.*
 abstract class BinaryConstraint
     [In <: AnyValue, Out <: AnyValue]
     (id: Id[Constraint],
-     x: Variable[In], y: Variable[Out])
+     protected val x: Variable[In], protected val y: Variable[Out])
     extends Constraint(id)
 {
     override def inVariables = List(x)
