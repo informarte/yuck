@@ -27,7 +27,7 @@ final class CircuitNeighbourhood
     require(succ.toSet.size == n)
     require(succ.forall(! space.isChannelVariable(_)))
     require(succ.forall(_.domain.isFinite))
-    require(succ.forall(x => x.domain.contains(now.value(x))))
+    require(succ.forall(_.hasValidValue(space)))
     require(Circuit.isHamiltonianCircuit(succ, offset, space.searchState))
 
     override def searchVariables = succ.iterator.filterNot(_.domain.isSingleton).toSet
