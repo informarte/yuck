@@ -25,10 +25,9 @@ final class AlldistinctNeighbourhood
 
     require(n > 1)
     require(xs.toSet.size == n)
-    require(xs.forall(! space.isChannelVariable(_)))
+    require(xs.forall(space.isSearchVariable))
     require(xs.forall(_.domain.isFinite))
-    require(xs.forall(! _.domain.isSingleton))
-    require(xs.forall(x => x.domain.contains(value(x))))
+    require(xs.forall(_.hasValidValue(space)))
     require(xs.map(value).toSet.size == n)
 
     require(moveSizeDistribution.frequency(0) == 0)
