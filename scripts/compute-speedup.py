@@ -51,7 +51,7 @@ def computeSpeedups(cursor, args):
 def plotDiagrams(args, results):
     title = 'Speedups (wrt. {})'.format(args.referenceRun)
     filters = \
-        ([args.problemFilter] if args.problemFilter else ['']) + \
+        ([args.problemFilter] if args.problemFilter else []) + \
         ([args.modelFilter] if args.modelFilter else []) + \
         ([args.instanceFilter] if args.instanceFilter else [])
     if filters:

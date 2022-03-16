@@ -22,7 +22,7 @@ def analyzeResult(result, bins = 10, range = None):
             'pstdev': statistics.pstdev(values),
             'histogram': numpy.histogram(values, 'auto')[0].tolist(),
             'extreme-values': {
-                task[0] + "/" + task[1]: result[task]
+                task[0] + "/" + task[1] + "/" + task[2]: result[task]
                 for task in result
                 if result[task] < q1 - 1.5 * iqr or result[task] > q3 + 1.5 * iqr
             }
