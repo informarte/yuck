@@ -183,7 +183,7 @@ final class SpaceTest extends UnitTest {
         val d = new DummyConstraint(space.nextConstraintId(), List(t), List(u))
         val e = new DummyConstraint(space.nextConstraintId(), List(t), List(v))
         val f = new DummyConstraint(space.nextConstraintId(), List(t), List(w))
-        val g = new DummyConstraint(space.nextConstraintId(), List(w), List(x))
+        val g = new DummyConstraint(space.nextConstraintId(), List(w, w, w), List(x))
         val h = new DummyConstraint(space.nextConstraintId(), List(z), Nil)
         space
             .registerOutputVariable(u)

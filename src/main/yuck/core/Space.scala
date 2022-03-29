@@ -425,7 +425,8 @@ final class Space(
                 }
             }
             for (constraint <- uselessConstraints) {
-                for (x <- constraint.inVariables) {
+                logger.log("Removing useless constraint %s".format(constraint))
+                for (x <- constraint.inVariables.toSet) {
                     deregisterInflow(x, constraint)
                 }
                 for (x <- constraint.outVariables) {
@@ -433,7 +434,6 @@ final class Space(
                 }
                 removeFromFlowModel(constraint)
                 constraints -= constraint
-                logger.log("Removed useless constraint %s".format(constraint))
             }
             (! uselessConstraints.isEmpty)
         } do ()
