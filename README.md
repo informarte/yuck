@@ -28,14 +28,14 @@ When you decided for the ZIP package, proceed as follows:
 
 1. Make sure that a [Java runtime environment](https://openjdk.java.net/install) is available on your system; Yuck requires at least version 8.
 2. Unzip the package in a suitable location.
-3. To register Yuck as a backend for the MiniZinc toolchain, define the ```MZN_SOLVER_PATH``` environment variable to point to the ```mzn``` subfolder of the Yuck distribution. (For other ways of providing a solver configuration file to the MiniZinc toolchain, see the section on [Solver Configuration Files](http://www.minizinc.org/doc-2.5.5/en/fzn-spec.html#solver-configuration-files) of *The MiniZinc Handbook*.)
-4. If you want to use Yuck on Windows, then you need to take another step to work around a bug in recent MiniZinc versions: go to the ```mzn``` subfolder of the Yuck distribution, open the file ```yuck.msc```, find the line ```"executable": "../bin/yuck"``` and replace it with ```"executable": "../bin/yuck.bat"```.
+3. To register Yuck as a backend for the MiniZinc toolchain, define the ```MZN_SOLVER_PATH``` environment variable to point to the ```mzn``` subfolder of the Yuck distribution. (For other ways of providing a solver configuration file to the MiniZinc toolchain, see the section on [Solver Configuration Files](http://www.minizinc.org/doc-2.6.2/en/fzn-spec.html#solver-configuration-files) of *The MiniZinc Handbook*.)
+4. If you want to use Yuck on Windows with a MiniZinc version prior to 2.6.0, you need to take another step to work around a bug in MiniZinc: go to the ```mzn``` subfolder of the Yuck distribution, open the file ```yuck.msc```, find the line ```"executable": "../bin/yuck"``` and replace it with ```"executable": "../bin/yuck.bat"```.
 
 The Docker image contains an OpenJDK Java runtime, the MiniZinc compiler and Yuck itself; it neither contains the MiniZinc IDE nor other solvers.
 
 ## Usage as MiniZinc backend
 
-To apply Yuck to MiniZinc models, you need a working [MiniZinc](https://www.minizinc.org/software.html) installation. This section assumes that you have at least version 2.5.5 installed and that Yuck has been properly registered as a MiniZinc backend (see above).
+To apply Yuck to MiniZinc models, you need a working [MiniZinc](https://www.minizinc.org/software.html) installation. This section assumes that you have at least version 2.6.2 installed and that Yuck has been properly registered as a MiniZinc backend (see above).
 
 To use Yuck from inside the MiniZinc IDE, just select it from the menu of solver configurations before running your model.
 
@@ -326,7 +326,7 @@ To build and rebuild Yuck and its documentation, use the following targets:
 ### Testing
 
 Yuck tests are based on [JUnit 4](http://junit.org/junit4/) and
-[MiniZinc 2.5.5](http://www.minizinc.org/software.html).
+[MiniZinc 2.6.2](http://www.minizinc.org/software.html).
 
 * `make unit-tests` builds and runs all unit tests.
 * `make front-end-tests` runs all FlatZinc front-end tests.
