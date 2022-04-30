@@ -5,6 +5,7 @@ import scala.collection.mutable
 import yuck.annealing.{AnnealingResult, StandardAnnealingMonitor}
 import yuck.core.{NumericalValue, PolymorphicListValue}
 import yuck.util.logging.LazyLogger
+import yuck.util.DescriptiveStatistics.*
 
 /**
  * Collects statistics about the optimization process for testing purposes.
@@ -139,10 +140,10 @@ class OptimizationMonitor(logger: LazyLogger) extends StandardAnnealingMonitor(l
 
     // Do not use the following methods when there was no search!
     def numberOfRestarts: Int = solverStatistics.size - 1
-    def movesPerSecond: Double = solverStatistics.iterator.map(_.movesPerSecond).sum / solverStatistics.size
-    def consultationsPerSecond: Double = solverStatistics.iterator.map(_.consultationsPerSecond).sum / solverStatistics.size
-    def consultationsPerMove: Double = solverStatistics.iterator.map(_.consultationsPerMove).sum / solverStatistics.size
-    def commitmentsPerSecond: Double = solverStatistics.iterator.map(_.commitmentsPerSecond).sum / solverStatistics.size
-    def commitmentsPerMove: Double = solverStatistics.iterator.map(_.commitmentsPerMove).sum / solverStatistics.size
+    def movesPerSecond: Double = solverStatistics.map(_.movesPerSecond).median
+    def consultationsPerSecond: Double = solverStatistics.map(_.consultationsPerSecond).median
+    def consultationsPerMove: Double = solverStatistics.map(_.consultationsPerMove).median
+    def commitmentsPerSecond: Double = solverStatistics.map(_.commitmentsPerSecond).median
+    def commitmentsPerMove: Double = solverStatistics.map(_.commitmentsPerMove).median
 
 }
