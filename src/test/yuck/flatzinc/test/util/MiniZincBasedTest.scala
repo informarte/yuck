@@ -150,6 +150,7 @@ class MiniZincBasedTest extends IntegrationTest {
                 }
             }
         logMiniZincVersion(outputLines.head)
+        val md5Sum = computeMd5Sum(fznFilePath)
         val cfg =
             task.solverConfiguration.copy(
                 restartLimit =
@@ -175,7 +176,7 @@ class MiniZincBasedTest extends IntegrationTest {
                             new FlatZincFileParser(fznFilePath, logger).call()
                         }
                     logTask(task, ast)
-                    logFlatZincModelStatistics(ast)
+                    logFlatZincModelStatistics(ast, md5Sum)
                     logger.withTimedLogScope("Solving problem") {
                         scoped(monitor) {
                             new FlatZincSolverGenerator(ast, cfg, sigint, logger, monitor).call().call()
@@ -226,6 +227,15 @@ class MiniZincBasedTest extends IntegrationTest {
             new java.io.File(fznFilePath).delete()
         }
         result
+    }
+
+    private def computeMd5Sum(filePath: String): String = {
+        import java.math.BigInteger
+        import java.nio.file.{Files, Paths}
+        import java.security.MessageDigest
+        val md = MessageDigest.getInstance("MD5")
+        md.update(Files.readAllBytes(Paths.get(filePath)))
+        new BigInteger(1, md.digest).toString(16)
     }
 
     private def logTask(task: MiniZincTestTask, ast: FlatZincAst): Unit = {
@@ -329,9 +339,10 @@ class MiniZincBasedTest extends IntegrationTest {
         jsonRoot +="solver-configuration" -> cfgNode
     }
 
-    private def logFlatZincModelStatistics(ast: FlatZincAst): Unit = {
+    private def logFlatZincModelStatistics(ast: FlatZincAst, md5Sum: String): Unit = {
         jsonRoot +=
             "flatzinc-model-statistics" -> JsSection(
+                "md5sum" -> JsString(md5Sum),
                 "number-of-predicate-declarations" -> JsNumber(ast.predDecls.size),
                 "number-of-parameter-declarations" -> JsNumber(ast.paramDecls.size),
                 "number-of-variable-declarations" -> JsNumber(ast.varDecls.size),

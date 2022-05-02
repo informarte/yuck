@@ -39,6 +39,7 @@ def createDb(cursor):
         'solved INT NOT NULL CONSTRAINT result_solved_constraint CHECK (solved in (0, 1)), '\
         'violation INT CONSTRAINT result_violation_constraint CHECK (violation >= 0), '\
         'quality INT, '\
+        'md5sum TEXT, '\
         'number_of_variables INT CONSTRAINT result_number_of_variables_constraint CHECK (number_of_variables >= 0), '\
         'number_of_constraints INT CONSTRAINT result_number_of_constraints_constraint CHECK (number_of_constraints >= 0), '\
         'area DOUBLE CONSTRAINT result_area_constraint CHECK (area >= 0), '\
@@ -54,17 +55,18 @@ def createDb(cursor):
 def importResults(args, file, cursor):
     data = json.load(file)
     task = data.get('task')
-    modelStatistics = data.get('yuck-model-statistics')
+    flatZincModelStatistics = data.get('flatzinc-model-statistics')
+    yuckModelStatistics = data.get('yuck-model-statistics')
     result = data.get('result')
     solver = data.get('solver')
     solverStatistics = data.get('solver-statistics')
     if not task:
          print("No task (MiniZinc compiler error?)")
-    elif data['env'].get('yuck') and not modelStatistics:
+    elif data['env'].get('yuck') and not yuckModelStatistics:
         print("No model statistics (FlatZinc compiler error?)")
     else:
         cursor.execute(
-            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             (args.run,
              solver['name'] if solver else None,
              solver['version'] if solver else None,
@@ -78,8 +80,9 @@ def importResults(args, file, cursor):
              result['solved'] if result and 'solved' in result else False,
              result.get('violation') if result else None,
              result.get('quality') if result else None,
-             modelStatistics['number-of-search-variables'] + modelStatistics['number-of-channel-variables'] if modelStatistics else None,
-             modelStatistics['number-of-constraints'] if modelStatistics else None,
+             flatZincModelStatistics.get('md5sum') if flatZincModelStatistics else None,
+             yuckModelStatistics['number-of-search-variables'] + yuckModelStatistics['number-of-channel-variables'] if yuckModelStatistics else None,
+             yuckModelStatistics['number-of-constraints'] if yuckModelStatistics else None,
              solverStatistics.get('area') if solverStatistics else None,
              solverStatistics.get('solving-time-in-seconds') if solverStatistics else None,
              solverStatistics.get('runtime-to-best-solution-in-seconds') if solverStatistics else None,
