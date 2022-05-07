@@ -35,24 +35,22 @@ final class ConstraintDrivenNeighbourhoodFactory
 
     protected override def createMinimizationNeighbourhood
         [V <: NumericalValue[V]]
-        (x: NumericalVariable[V])
+        (levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
         (implicit valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
-        val levelCfg = cfg.level1Configuration
         if (levelCfg.guideOptimization) createNeighbourhood(OptimizationMode.Min, levelCfg, x)
-        else super.createMinimizationNeighbourhood(x)
+        else super.createMinimizationNeighbourhood(levelCfg, x)
     }
 
     protected override def createMaximizationNeighbourhood
         [V <: NumericalValue[V]]
-        (x: NumericalVariable[V])
+        (levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
         (implicit valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
-        val levelCfg = cfg.level1Configuration
         if (levelCfg.guideOptimization) createNeighbourhood(OptimizationMode.Max, levelCfg, x)
-        else super.createMaximizationNeighbourhood(x)
+        else super.createMaximizationNeighbourhood(levelCfg, x)
     }
 
     private def createNeighbourhood
@@ -68,10 +66,10 @@ final class ConstraintDrivenNeighbourhoodFactory
             mode match {
                 case OptimizationMode.Min =>
                     // assign minimum value
-                    super.createMinimizationNeighbourhood(x)
+                    super.createMinimizationNeighbourhood(levelCfg, x)
                 case OptimizationMode.Max =>
                     // assign maximum value
-                    super.createMaximizationNeighbourhood(x)
+                    super.createMaximizationNeighbourhood(levelCfg, x)
             }
         }
         else if (space.isSearchVariable(x)) {

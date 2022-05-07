@@ -7,6 +7,7 @@ import yuck.core.{DefaultRestartLimit, DefaultSeed, Distribution, Probability}
  *
  */
 final case class FlatZincLevelConfiguration(
+    isTopLevel: Boolean,
     guideOptimization: Boolean,
     maybeFairVariableChoiceRate: Option[Probability])
 {
@@ -35,11 +36,13 @@ final case class FlatZincSolverConfiguration(
     checkIncrementalCostUpdate: Boolean = false,
     checkAssignmentsToNonChannelVariables: Boolean = false,
     moveSizeDistribution: Distribution = Distribution(1, List(90, 10)),
-    level0Configuration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, Some(Probability(9))),
-    level1Configuration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, Some(Probability(13))))
+    topLevelConfiguration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, true, Some(Probability(9))),
+    subordinateLevelConfiguration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(false, true, Some(Probability(13))))
 {
     require(restartLimit >= 0)
     require(numberOfThreads > 0)
     require(maybeRoundLimit.getOrElse(0) >= 0)
     require(maybeRuntimeLimitInSeconds.getOrElse(0) >= 0)
+    require(topLevelConfiguration.isTopLevel)
+    require(! subordinateLevelConfiguration.isTopLevel)
 }

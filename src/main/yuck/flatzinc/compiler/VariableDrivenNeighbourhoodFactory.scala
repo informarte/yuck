@@ -33,13 +33,12 @@ final class VariableDrivenNeighbourhoodFactory
 
     protected override def createMinimizationNeighbourhood
         [V <: NumericalValue[V]]
-        (x: NumericalVariable[V])
+        (levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
         (implicit valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
-        val levelCfg = cfg.level1Configuration
         if (levelCfg.guideOptimization) createNeighbourhood(OptimizationMode.Min, levelCfg, x)
-        else super.createMinimizationNeighbourhood(x)
+        else super.createMinimizationNeighbourhood(levelCfg, x)
     }
 
     private def createNeighbourhood
