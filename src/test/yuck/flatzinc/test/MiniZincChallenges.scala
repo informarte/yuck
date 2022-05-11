@@ -824,7 +824,6 @@ final class MiniZincChallenges extends MiniZincBasedTest {
     }
 
     @Test
-    @Ignore("https://github.com/MiniZinc/libminizinc/issues/563")
     @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint], classOf[HasTableConstraint], classOf[HasValuePrecedeConstraint]))
     def yumi_dynamic_p_4_GG_GG_yumi_grid_setup_3_4_zones() : Unit = {
         solve(task.copy(problemName = "yumi-dynamic", instanceName = "p_4_GG_GG_yumi_grid_setup_3_4_zones", maybeOptimum = Some(462)))

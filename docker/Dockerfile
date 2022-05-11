@@ -12,7 +12,7 @@ RUN apt-get install -y default-jre-headless && \
     java -version
 
 # Install MiniZinc compiler
-ARG minizinc_version=2.6.2
+ARG minizinc_version=2.6.3
 LABEL minizinc_version=${minizinc_version}
 RUN apt-get install -y bison clang cmake flex git && \
     git clone https://github.com/MiniZinc/libminizinc.git && \
