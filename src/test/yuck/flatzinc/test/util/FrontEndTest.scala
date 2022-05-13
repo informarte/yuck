@@ -24,26 +24,30 @@ abstract class FrontEndTest extends MiniZincBasedTest {
             reusePreviousTestResult = false,
             createDotFile = true)
 
-    protected def neighbourhood(result: Result): Neighbourhood =
-        result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult].maybeNeighbourhood.get
+    extension (result: Result) {
 
-    protected def violation(result: Result): BooleanValue =
-        result.costsOfBestProposal match {
-            case violation: BooleanValue => violation
-            case costs: PolymorphicListValue => costs.value(0).asInstanceOf[BooleanValue]
-        }
+        protected def neighbourhood: Neighbourhood =
+            result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult].maybeNeighbourhood.get
 
-    protected def quality(result: Result, i: Int): AnyValue =
-        result.costsOfBestProposal.asInstanceOf[PolymorphicListValue].value(i)
+        protected def violation: BooleanValue =
+            result.costsOfBestProposal match {
+                case violation: BooleanValue => violation
+                case costs: PolymorphicListValue => costs.value(0).asInstanceOf[BooleanValue]
+            }
 
-    protected def quality(result: Result): AnyValue =
-        quality(result, 1)
+        protected def quality(i: Int): AnyValue =
+            result.costsOfBestProposal.asInstanceOf[PolymorphicListValue].value(i)
 
-    protected def searchVariables(result: Result): Set[AnyVariable] =
-        result.space.searchVariables
+        protected def quality: AnyValue =
+            result.quality(1)
 
-    protected def numberOfConstraints[T <: Constraint](result: Result)(implicit classTag: ClassTag[T]): Int =
-        result.space.numberOfConstraints(classTag.runtimeClass.isInstance)
+        protected def searchVariables: Set[AnyVariable] =
+            result.space.searchVariables
+
+        protected def numberOfConstraints[T <: Constraint](implicit classTag: ClassTag[T]): Int =
+            result.space.numberOfConstraints(classTag.runtimeClass.isInstance)
+
+    }
 
     protected implicit def createTask(problemName: String): MiniZincTestTask = task.copy(problemName = problemName)
 

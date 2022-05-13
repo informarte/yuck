@@ -22,48 +22,48 @@ final class FlatZincExtensionTest extends FrontEndTest {
     @Category(Array(classOf[MinimizationProblem], classOf[HasDisjunctiveConstraint]))
     def testBool2CostsFunction(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bool2costs_function_test"))
-        assertEq(numberOfConstraints[Disjoint2](result), 1)
-        assertEq(quality(result), Zero)
+        assertEq(result.numberOfConstraints[Disjoint2], 1)
+        assertEq(result.quality, Zero)
     }
 
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def testIntDomain(): Unit = {
         val result1 = solveWithResult(task.copy(problemName = "int_domain_min_test"))
-        assertEq(quality(result1), One)
+        assertEq(result1.quality, One)
         val result2 = solveWithResult(task.copy(problemName = "int_domain_max_test"))
-        assertEq(quality(result2), Two)
+        assertEq(result2.quality, Two)
     }
 
     @Test
     @Category(Array(classOf[MaximizationProblem], classOf[HasBinPackingConstraint]))
     def testIntMaxGoal(): Unit = {
         val result = solveWithResult(task.copy(problemName = "int_max_goal_test", verifySolution = false))
-        assertEq(numberOfConstraints[BinPacking[_]](result), 1)
-        assertEq(quality(result, 0), True)
-        assertEq(quality(result, 1), Ten)
-        assertEq(quality(result, 2), Eight)
-        assertEq(quality(result, 3), Three)
+        assertEq(result.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.quality(0), True)
+        assertEq(result.quality(1), Ten)
+        assertEq(result.quality(2), Eight)
+        assertEq(result.quality(3), Three)
     }
 
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasBinPackingConstraint]))
     def testIntMinGoal(): Unit = {
         val result = solveWithResult(task.copy(problemName = "int_min_goal_test", verifySolution = false))
-        assertEq(numberOfConstraints[BinPacking[_]](result), 1)
-        assertEq(quality(result, 0), True)
-        assertEq(quality(result, 1), Three)
-        assertEq(quality(result, 2), Eight)
-        assertEq(quality(result, 3), Ten)
+        assertEq(result.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.quality(0), True)
+        assertEq(result.quality(1), Three)
+        assertEq(result.quality(2), Eight)
+        assertEq(result.quality(3), Ten)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testSatGoal(): Unit = {
         val result = solveWithResult(task.copy(problemName = "sat_goal_test", verifySolution = false))
-        assertEq(numberOfConstraints[Alldistinct[_]](result), 1)
-        assertEq(quality(result, 0), True)
-        assertEq(quality(result, 1), False)
+        assertEq(result.numberOfConstraints[Alldistinct[_]], 1)
+        assertEq(result.quality(0), True)
+        assertEq(result.quality(1), False)
     }
 
 }
