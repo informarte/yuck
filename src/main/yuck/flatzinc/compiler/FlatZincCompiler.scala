@@ -45,6 +45,7 @@ final class FlatZincCompiler
             run(new Presolver(cc))
         }
         run(new ConstraintDrivenNeighbourhoodFactory(cc, randomGenerator.nextGen(), sigint))
+        run(new WarmStartAnnotationParser(cc))
 
         checkSearchVariableDomains(cc)
         assignValuesToDanglingVariables(cc)
@@ -57,7 +58,8 @@ final class FlatZincCompiler
 
         val vars = (for ((key, x) <- cc.vars) yield key.toString -> x).toMap
         val arrays = (for ((key, array) <- cc.arrays) yield key.toString -> array).toMap
-        new FlatZincCompilerResult(cc.ast, cc.space, vars, arrays, cc.objective, cc.maybeNeighbourhood)
+        new FlatZincCompilerResult(
+            cc.ast, cc.space, vars, arrays, cc.objective, cc.maybeNeighbourhood, ! cc.warmStartAssignment.isEmpty)
 
     }
 

@@ -39,7 +39,7 @@ final class ObjectiveFactory
                                 maybeTargetObjectiveValue = if (i == 0) cfg.maybeTargetObjectiveValue else None)
                         goal match {
                             case Term("sat_goal", List(a)) =>
-                                objectives.append(createSatisfactionObjective(a, goalCfg))
+                                objectives.append(createSatisfactionObjective(compileBoolExpr(a), goalCfg))
                             case Term("int_min_goal", List(a)) =>
                                 objectives.append(createMinimizationObjective(a, goalCfg))
                             case Term("int_max_goal", List(a)) =>
@@ -53,12 +53,19 @@ final class ObjectiveFactory
             case Maximize(a, _) =>
                 objectives.append(createMaximizationObjective(a, cfg))
         }
-        val costVar = createBoolChannel
-        space.post(new Conjunction(nextConstraintId(), null, costVars.toIndexedSeq, costVar))
-        objectives.prepend(createSatisfactionObjective(costVar, cfg))
+        objectives.prepend(createSatisfactionObjective(costVars, cfg))
         cc.objective =
             if (objectives.size == 1) objectives.head
             else new HierarchicalObjective(objectives.toList, cfg.focusOnTopObjective, cfg.stopOnFirstSolution)
+    }
+
+    private def createSatisfactionObjective
+        (costVars: Seq[BooleanVariable], cfg: FlatZincSolverConfiguration):
+        SatisfactionObjective =
+    {
+        val costVar = createBoolChannel
+        space.post(new Conjunction(nextConstraintId(), null, costVars.toIndexedSeq, costVar))
+        createSatisfactionObjective(costVar, cfg)
     }
 
     private def createSatisfactionObjective

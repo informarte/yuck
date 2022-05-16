@@ -31,6 +31,7 @@ final class CompilationContext(
     val definedVars = new mutable.HashSet[AnyVariable] // variables that occur in a defines_var annotation
     val implicitlyConstrainedVars = new mutable.HashSet[AnyVariable]
     val costVars = new mutable.ArrayBuffer[BooleanVariable]
+    val warmStartAssignment = new mutable.HashMap[AnyVariable, AnyVariable]
     var objective: AnyObjective = null
     var maybeNeighbourhood: Option[Neighbourhood] = null
 }

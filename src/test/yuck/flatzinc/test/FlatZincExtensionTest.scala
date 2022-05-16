@@ -66,4 +66,46 @@ final class FlatZincExtensionTest extends FrontEndTest {
         assertEq(result.quality(1), False)
     }
 
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testWarmStartFromSolution(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "warm_start_test_from_solution"))
+        assert(result.isSolution)
+        assert(result.warmStartWasPerformed)
+        assertEq(
+            result.space.searchVariables.toSeq.sortBy(_.name).map(result.assignment.value),
+            Seq(Three, Two, Two, One, Two, One))
+        assert(! result.searchWasPerformed)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testWarmStartFromPartialSolution(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "warm_start_test_from_partial_solution"))
+        assert(result.isSolution)
+        assert(result.warmStartWasPerformed)
+        assert(result.searchWasPerformed)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testWarmStartFromInvalidSolution(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "warm_start_test_from_invalid_solution"))
+        assert(result.isSolution)
+        assert(result.warmStartWasPerformed)
+        assert(result.searchWasPerformed)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testExtendedWarmStartSyntax(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "extended_warm_start_syntax_test"))
+        assert(result.isSolution)
+        assert(result.warmStartWasPerformed)
+        assertEq(
+            result.searchVariables.toSeq.sortBy(_.name).map(result.assignment.value),
+            Seq(Three, Two, Two, One, Two, One))
+        assert(! result.searchWasPerformed)
+    }
+
 }

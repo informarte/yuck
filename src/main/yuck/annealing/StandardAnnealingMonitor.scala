@@ -33,6 +33,7 @@ class StandardAnnealingMonitor(logger: LazyLogger) extends AnnealingMonitor with
         logger.log("Launched solver")
         logger.log("Initial proposal has quality %s".format(result.costsOfBestProposal))
         solverState.set(SolverIsRunning)
+        onBetterProposal(result)
     }
 
     override def onSolverSuspended(result: AnnealingResult) = {
