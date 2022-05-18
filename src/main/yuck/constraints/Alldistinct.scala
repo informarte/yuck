@@ -28,7 +28,10 @@ final class Alldistinct
     override def toString = "alldistinct([%s], %s)".format(xs.mkString(", "), costs)
 
     override def propagate() = {
-        if (costs.domain == TrueDomain) {
+        if (valueTraits == IntegerSetValueTraits) {
+            // bail out because integer-set domains do not support the diff operation
+            NoPropagationOccurred
+        } else if (costs.domain == TrueDomain) {
             NoPropagationOccurred.pruneDomains(
                 for (x <- xs.iterator if x.domain.isSingleton;
                      y <- xs.iterator if y != x && y.domain.contains(x.domain.singleValue))
@@ -45,6 +48,7 @@ final class Alldistinct
     override def isCandidateForImplicitSolving(space: Space) = {
         val (xs, ys) = this.xs.partition(! _.domain.isSingleton)
         val as = ys.iterator.map(_.domain.singleValue).toSet
+        valueTraits == IntegerValueTraits &&
         xs.size > 1 &&
         xs.toSet.size == xs.size &&
         xs.forall(! space.isChannelVariable(_)) &&
