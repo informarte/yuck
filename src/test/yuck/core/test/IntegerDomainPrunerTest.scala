@@ -29,7 +29,8 @@ class IntegerDomainPrunerTest extends UnitTest {
     }
 
     private val randomGenerator = new JavaRandomGenerator
-    private val testData = IntegerDomainTestHelper.createTestData(baseRange = -5 to 5, sampleSize = 32, randomGenerator)
+    private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
+    private val testData = helper.createTestData(-5 to 5, 32)
 
     private def testEqRule(d: IntegerDomain, e: IntegerDomain): Unit = {
         assertEq(IntegerDomainPruner.eqRule(d, e), (d.intersect(e), d.intersect(e)))

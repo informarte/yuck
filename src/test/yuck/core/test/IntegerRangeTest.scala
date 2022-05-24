@@ -20,33 +20,23 @@ final class IntegerRangeTest extends UnitTest {
 
     @Test
     def testRepresentation(): Unit = {
-        helper.testRepresentation((a, b) => IntegerRange(a, b))
-    }
-
-    @Test
-    def testConstructionFromBoundaries(): Unit = {
-        assert(IntegerRange(null, null).eq(CompleteIntegerRange))
-        assert(IntegerRange(One, Zero).eq(EmptyIntegerRange))
-        assertEq(IntegerRange(Zero, One), ZeroToOneIntegerRange)
-        assert(IntegerRange(1, 0).eq(EmptyIntegerRange))
-        assertEq(IntegerRange(0, 1), ZeroToOneIntegerRange)
+        helper.testRangeRepresentation((a, b) => IntegerRange(a, b))
     }
 
     @Test
     def testEquality(): Unit = {
         val sampleSize = 32
-        val testData =
-            helper.createTestData(baseRange, sampleSize)
-                .filter(_.isInstanceOf[IntegerRange]).map(_.asInstanceOf[IntegerRange])
+        val testData = helper.createRanges(baseRange, sampleSize)
         helper.testEquality(testData)
         for (d <- testData) {
-            val e = IntegerRange(d.lb, d.ub)
-            assertEq(d, e)
-            assertEq(e, d)
-            assertNe(d, False)
-            assertNe(False, d)
-            for (e <- testData) {
-                assert(if (d.eq(e)) d == e else d != e)
+            for (e <- List(IntegerRange(d.lb, d.ub), IntegerRangeList(d))) {
+                assertEq(d, e)
+                assertEq(e, d)
+                assertNe(d, False)
+                assertNe(False, d)
+                for (e <- testData) {
+                    assert(if (d.eq(e)) d == e else d != e)
+                }
             }
         }
     }
@@ -54,25 +44,23 @@ final class IntegerRangeTest extends UnitTest {
     @Test
     def testOrdering(): Unit = {
         val sampleSize = 32
-        val testData =
-            helper.createTestData(baseRange, sampleSize)
-                .filter(_.isInstanceOf[IntegerRange]).map(_.asInstanceOf[IntegerRange])
+        val testData = helper.createRanges(baseRange, sampleSize)
         helper.testOrdering(testData)
     }
 
     @Test
     def testOperations(): Unit = {
         val sampleSize = 16
-        val testData =
-            helper.createTestData(baseRange, sampleSize)
-                .filter(_.isInstanceOf[IntegerRange]).map(_.asInstanceOf[IntegerRange])
-        val extendedBaseRange = IntegerRange(baseRange.lb - One, baseRange.ub + One)
-        helper.testOperations(testData, extendedBaseRange.values.toSeq)
+        val testDomains = helper.createRanges(baseRange, sampleSize)
+        val testValues = IntegerRange(baseRange.lb - One, baseRange.ub + One).values.toSeq
+        helper.testUnaryOperations(testDomains, testValues)
+        helper.testBinaryOperations(testDomains)
     }
 
     @Test
     def testRandomSubdomainCreation(): Unit = {
-        val testData = IntegerDomainTestHelper.createEdgeCases(baseRange)
+        val sampleSize = 16
+        val testData = helper.createRanges(baseRange, sampleSize)
         helper.testRandomSubrangeCreation(testData)
         helper.testRandomSubdomainCreation(testData)
     }
@@ -98,6 +86,17 @@ final class IntegerRangeTest extends UnitTest {
         assertEq(IntegerRange(1, 100).div(IntegerRange(-7, 0)), IntegerRange(1, 100).div(IntegerRange(-7, -1)))
         assertEq(IntegerRange(1, 100).div(IntegerRange(0, 7)), IntegerRange(1, 100).div(IntegerRange(1, 7)))
         assertEq(IntegerRange(155, 161).div(IntegerRange(9, 11)), IntegerRange(15, 17))
+    }
+
+    @Test
+    def testConstruction(): Unit = {
+        assert(IntegerRange(null, null).eq(CompleteIntegerRange))
+        assert(IntegerRange(One, Zero).eq(EmptyIntegerRange))
+        assert(IntegerRange(Zero, One).isInstanceOf[IntegerRange])
+        assertEq(IntegerRange(Zero, One), ZeroToOneIntegerRange)
+        assert(IntegerRange(1, 0).eq(EmptyIntegerRange))
+        assert(IntegerRange(0, 1).isInstanceOf[IntegerRange])
+        assertEq(IntegerRange(0, 1), ZeroToOneIntegerRange)
     }
 
 }

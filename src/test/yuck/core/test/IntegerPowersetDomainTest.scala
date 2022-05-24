@@ -18,6 +18,11 @@ final class IntegerPowersetDomainTest extends UnitTest {
     private val helper = new IntegerSetDomainTestHelper(randomGenerator, logger)
     private val baseRange = IntegerRange(IntegerValue(-5), Five)
 
+    private def createTestData(sampleSize: Int): Seq[IntegerPowersetDomain] =
+        helper.createTestData(baseRange, sampleSize)
+            .filter(_.isInstanceOf[IntegerPowersetDomain])
+            .map(_.asInstanceOf[IntegerPowersetDomain])
+
     @Test
     def testBasics(): Unit = {
         val randomGenerator = new JavaRandomGenerator
@@ -176,9 +181,7 @@ final class IntegerPowersetDomainTest extends UnitTest {
     @Test
     def testEquality(): Unit = {
         val sampleSize = 16
-        val testData =
-            helper.createTestData(baseRange, sampleSize)
-                .filter(_.isInstanceOf[IntegerPowersetDomain]).map(_.asInstanceOf[IntegerPowersetDomain])
+        val testData = createTestData(sampleSize).distinct
         helper.testEquality(testData)
         for (d <- testData) {
             val e = IntegerPowersetDomain(d.base)
@@ -195,9 +198,7 @@ final class IntegerPowersetDomainTest extends UnitTest {
     @Test
     def testOrdering(): Unit = {
         val sampleSize = 8
-        val testData =
-            helper.createTestData(baseRange, sampleSize)
-                .filter(_.isInstanceOf[IntegerPowersetDomain]).map(_.asInstanceOf[IntegerPowersetDomain])
+        val testData = createTestData(sampleSize)
         helper.testOrdering(testData)
     }
 

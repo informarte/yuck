@@ -7,18 +7,17 @@ import yuck.core.IntegerDomain.ensureRangeList
 import yuck.util.logging.{FineLogLevel, LazyLogger}
 
 /**
+
  * @author Michael Marte
  *
  */
 final class IntegerDomainTestHelper
-    (randomGenerator: RandomGenerator, logger: LazyLogger)
-    extends OrderedDomainTestHelper[IntegerValue](logger, randomGenerator)
+    (override protected val randomGenerator: RandomGenerator,
+     override protected val logger: LazyLogger)
+    extends OrderedDomainTestHelper[IntegerValue]
 {
 
-    val specialInfiniteRanges = IntegerDomainTestHelper.specialInfiniteRanges
-
-    def createTestData(baseRange: IntegerRange, sampleSize: Int): Seq[IntegerDomain] =
-        IntegerDomainTestHelper.createTestData(baseRange, sampleSize, randomGenerator)
+    import IntegerDomainTestHelper.SpecialInfiniteRanges
 
     private def testEnsureRangeList(d: IntegerDomain): Unit = {
         val e = IntegerDomain.ensureRangeList(d)
@@ -53,6 +52,15 @@ final class IntegerDomainTestHelper
             assertEq(d.size, d.values.size)
         } else {
             assertEx(d.size)
+        }
+    }
+
+    private def testIteration(d: IntegerDomain): Unit = {
+        if (d.isFinite) {
+            assertEq(d.valuesIterator.toList, d.values.toList)
+            assertEq(d.values.iterator.toList, d.values.toList)
+        } else {
+            assertEx(d.valuesIterator)
         }
     }
 
@@ -245,7 +253,6 @@ final class IntegerDomainTestHelper
         val result = d.contains(a)
         if (d.isFinite) {
             assertEq(result, d.values.exists(_ == a))
-            assertEq(result, d.valuesIterator.contains(a))
         } else {
             assertEq(result, d.intersects(IntegerRange(a, a)))
         }
@@ -305,7 +312,7 @@ final class IntegerDomainTestHelper
                 assert(! d2.isEmpty)
                 assertLt(d1.ub, d2.lb)
             }
-            if ((d.ub - d.lb + One).value == d.size) {
+            if (! d.hasGaps) {
                 assertLe(scala.math.abs(d1.size - d2.size), 1)
             }
         }
@@ -328,7 +335,7 @@ final class IntegerDomainTestHelper
         }
     }
 
-    def testRepresentation(createRange: (IntegerValue, IntegerValue) => IntegerDomain): Unit = {
+    def testFiniteRangeRepresentation(createRange: (IntegerValue, IntegerValue) => IntegerDomain): Unit = {
 
         // {}
         val a = createRange(One, Zero)
@@ -341,7 +348,6 @@ final class IntegerDomainTestHelper
         assert(! a.contains(Zero))
         assertEx(a.singleValue)
         assertEq(a.values.toList, Nil)
-        assertEq(a.valuesIterator.toList, Nil)
         assert(a.isBounded)
         assert(a.hasLb)
         assert(a.hasUb)
@@ -366,7 +372,6 @@ final class IntegerDomainTestHelper
         assert(! b.contains(One))
         assertEq(b.singleValue, Zero)
         assertEq(b.values.toList, List(Zero))
-        assertEq(b.valuesIterator.toList, b.values.toList)
         assert(b.isBounded)
         assert(b.hasLb)
         assert(b.hasUb)
@@ -393,7 +398,6 @@ final class IntegerDomainTestHelper
         assertEx(c.singleValue)
         assertEq(c.values.size, 10)
         assertEq(c.values.toList, List(Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine))
-        assertEq(c.valuesIterator.toList, c.values.toList)
         assert(c.isBounded)
         assert(c.hasLb)
         assert(c.hasUb)
@@ -406,6 +410,10 @@ final class IntegerDomainTestHelper
         assertEq(c.hull.size, 10)
         assert(! c.hasGaps)
 
+    }
+
+    def testInfiniteRangeRepresentation(createRange: (IntegerValue, IntegerValue) => IntegerDomain): Unit = {
+
         // ]-inf, +inf[
         val d = createRange(null, null)
         assertEq(d.toString, "-inf..+inf")
@@ -417,7 +425,6 @@ final class IntegerDomainTestHelper
         assert(d.contains(Zero))
         assertEx(d.singleValue)
         assertEx(d.values)
-        assertEx(d.valuesIterator)
         assert(! d.isBounded)
         assert(! d.hasLb)
         assert(! d.hasUb)
@@ -440,7 +447,6 @@ final class IntegerDomainTestHelper
         assert(! e.contains(One))
         assertEx(e.singleValue)
         assertEx(e.values)
-        assertEx(e.valuesIterator)
         assert(e.isBounded)
         assert(! e.hasLb)
         assert(e.hasUb)
@@ -463,7 +469,6 @@ final class IntegerDomainTestHelper
         assert(f.contains(One))
         assertEx(f.singleValue)
         assertEx(f.values)
-        assertEx(f.valuesIterator)
         assert(f.isBounded)
         assert(f.hasLb)
         assert(! f.hasUb)
@@ -475,27 +480,95 @@ final class IntegerDomainTestHelper
 
     }
 
-    def testOperations(dl: Seq[IntegerDomain], vl: Seq[IntegerValue]): Unit = {
+    def testRangeRepresentation(createRange: (IntegerValue, IntegerValue) => IntegerDomain): Unit = {
+        testFiniteRangeRepresentation(createRange)
+        testInfiniteRangeRepresentation(createRange)
+    }
+
+    def testFiniteRepresentationWithGaps(createDomain: Iterable[IntegerValue] => IntegerDomain): Unit = {
+
+        // [0, 9] \ {5}
+        val a0 = List(Zero, One, Two, Three, Four, Six, Seven, Eight, Nine)
+        val a = createDomain(a0)
+        assert(! a.isEmpty)
+        assertEq(a.size, 9)
+        assertEq(a.toString, "0..4 ∪ 6..9")
+        assert(! a.contains(Five))
+        assertEq(a.values.size, 9)
+        assertEq(a.values.toList, a0)
+        assert(! a.isComplete)
+        assert(a.isFinite)
+        assert(a.isBounded)
+        assert(a.hasLb)
+        assert(a.hasUb)
+        assertEq(a.maybeLb.get, Zero)
+        assertEq(a.maybeUb.get, Nine)
+        assertEq(a.lb, Zero)
+        assertEq(a.ub, Nine)
+        assertEq(a.hull.lb, Zero)
+        assertEq(a.hull.ub, Nine)
+        assertEq(a.hull.size, 10)
+        assert(a.hasGaps)
+
+        // [0, 9] \ {5, 7}
+        val b0 = List(Zero, One, Two, Three, Four, Six, Eight, Nine)
+        val b = createDomain(b0)
+        assert(! b.isEmpty)
+        assertEq(b.size, 8)
+        assertEq(b.toString, "0..4 ∪ {6} ∪ 8..9")
+        assert(! b.contains(Seven))
+        assertEq(b.values.size, 8)
+        assertEq(b.values.toList, b0)
+        assert(! b.isComplete)
+        assert(b.isFinite)
+        assert(b.isBounded)
+        assert(b.hasLb)
+        assert(b.hasUb)
+        assertEq(b.maybeLb.get, Zero)
+        assertEq(b.maybeUb.get, Nine)
+        assertEq(b.lb, Zero)
+        assertEq(b.ub, Nine)
+        assertEq(b.hull.lb, Zero)
+        assertEq(b.hull.ub, Nine)
+        assertEq(b.hull.size, 10)
+        assert(b.hasGaps)
+
+        // [0, 9] \ {5, 6, 7}
+        val c0 = List(Zero, One, Two, Three, Four, Eight, Nine)
+        val c = createDomain(c0)
+        assert(! c.isEmpty)
+        assertEq(c.size, 7)
+        assertEq(c.toString, "0..4 ∪ 8..9")
+        assert(! c.contains(Six))
+        assertEq(c.values.size, 7)
+        assertEq(c.values.toList, c0)
+        assert(! c.isComplete)
+        assert(c.isFinite)
+        assert(c.isBounded)
+        assert(c.hasLb)
+        assert(c.hasUb)
+        assertEq(c.maybeLb.get, Zero)
+        assertEq(c.maybeUb.get, Nine)
+        assertEq(c.lb, Zero)
+        assertEq(c.ub, Nine)
+        assertEq(c.hull.lb, Zero)
+        assertEq(c.hull.ub, Nine)
+        assertEq(c.hull.size, 10)
+        assert(c.hasGaps)
+
+    }
+
+    def testUnaryOperations(domains: Seq[IntegerDomain], values: Seq[IntegerValue]): Unit = {
         logger.withRootLogLevel(FineLogLevel) {
             logger.withLogScope("Test data") {
-                dl.foreach(d => logger.log(d.toString))
+                domains.foreach(d => logger.log(d.toString))
             }
         }
-        require(dl.size > 1)
-        require(! vl.isEmpty)
-        for (d <- dl) {
+        for (d <- domains) {
             testEnsureRangeList(d)
             testSetSize(d)
-            for (e <- dl) {
-                testSpatialRelations(d, e)
-                testSubsetRelation(d, e)
-                testSetIntersectionRelation(d, e)
-                testSetIntersection(d, e)
-                testSetUnion(d, e)
-                testSetDifference(d, e)
-                testSymmetricalSetDifference(d, e)
-            }
-            for (a <- vl) {
+            testIteration(d)
+            for (a <- values) {
                 testSetContainment(d, a)
                 testDistanceToSet(d, a)
             }
@@ -531,6 +604,25 @@ final class IntegerDomainTestHelper
         }
     }
 
+    def testBinaryOperations(domains: Seq[IntegerDomain]): Unit = {
+        logger.withRootLogLevel(FineLogLevel) {
+            logger.withLogScope("Test data") {
+                domains.foreach(d => logger.log(d.toString))
+            }
+        }
+        for (d <- domains) {
+            for (e <- domains) {
+                testSpatialRelations(d, e)
+                testSubsetRelation(d, e)
+                testSetIntersectionRelation(d, e)
+                testSetIntersection(d, e)
+                testSetUnion(d, e)
+                testSetDifference(d, e)
+                testSymmetricalSetDifference(d, e)
+            }
+        }
+    }
+
     def testRandomSubrangeCreation(testData: Seq[IntegerDomain]): Unit = {
         logger.withRootLogLevel(FineLogLevel) {
             for (d <- testData) {
@@ -538,11 +630,11 @@ final class IntegerDomainTestHelper
                 if (d.isEmpty) {
                     assert(d.randomSubdomain(randomGenerator).isEmpty)
                 } else if (d.isFinite) {
-                    val sampleSize = ensureRangeList(d).ranges.iterator.map(r => r. size * (r.size + 1) / 2).sum
-                    val sample = mutable.HashSet[IntegerRange]()
+                    val sampleSize = ensureRangeList(d).ranges.iterator.map(r => r.size * (r.size + 1) / 2).sum
+                    val sample = mutable.HashSet[IntegerDomain]()
                     for (i <- 1 to sampleSize) {
                         val e = d.randomSubrange(randomGenerator)
-                        assert(e.isInstanceOf[IntegerRange])
+                        assert(! e.hasGaps)
                         assert(e.isSubsetOf(d))
                         sample += e
                     }
@@ -561,7 +653,7 @@ final class IntegerDomainTestHelper
                 if (d.isEmpty) {
                     assert(d.randomSubdomain(randomGenerator).isEmpty)
                 } else if (d.isFinite) {
-                    val sampleSize = 1 << d.size
+                    val sampleSize = d.size * (d.size + 1) / 2
                     val sample = new mutable.HashSet[IntegerDomain]
                     for (i <- 1 to sampleSize) {
                         val e = d.randomSubdomain(randomGenerator)
@@ -576,6 +668,41 @@ final class IntegerDomainTestHelper
         }
     }
 
+    def createRanges(baseRange: IntegerRange, sampleSize: Int): Seq[IntegerRange] = {
+        require(baseRange.isFinite)
+        val singletonRanges = List(baseRange.lb, baseRange.ub).map(a => IntegerRange(a, a))
+        val randomFiniteRanges = for (i <- 1 to sampleSize) yield baseRange.randomSubrange(randomGenerator)
+        val ranges =
+            List(SpecialInfiniteRanges, List(EmptyIntegerRange, baseRange), singletonRanges, randomFiniteRanges)
+                .flatten.distinct
+        ranges
+    }
+
+    def createRangeLists(baseRange: IntegerRange, sampleSize: Int): Seq[IntegerRangeList] = {
+        val ranges = createRanges(baseRange, sampleSize)
+        val randomFiniteRanges = ranges.filter(_.isFinite)
+        val randomFiniteRangeLists = for (i <- 1 to sampleSize) yield ensureRangeList(baseRange.randomSubdomain(randomGenerator))
+        val randomFiniteIntegerDomains = randomFiniteRanges ++ randomFiniteRangeLists
+        val randomInfiniteRangeLists =
+            for (infiniteRange <- SpecialInfiniteRanges;
+                 finiteDomain <- randomFiniteIntegerDomains;
+                 if infiniteRange.intersects(finiteDomain)) yield ensureRangeList(infiniteRange.diff(finiteDomain))
+        val rangeLists = List(ranges.map(ensureRangeList), randomFiniteRangeLists, randomFiniteRangeLists).flatten.distinct
+        rangeLists
+    }
+
+    def createBitSets(sampleSize: Int): Seq[SixtyFourBitSet] = {
+        val singletonBitSets = List(SixtyFourBitSet.ValueRange.lb, SixtyFourBitSet.ValueRange.ub).map(a => SixtyFourBitSet(a, a))
+        val randomBitSets = for (i <- 1 to sampleSize) yield FullBitSet.randomSubdomain(randomGenerator)
+        val bitSets = List(List(EmptyBitSet, FullBitSet), singletonBitSets, randomBitSets).flatten.distinct
+        bitSets
+    }
+
+    def createTestData(baseRange: IntegerRange, sampleSize: Int): Seq[IntegerDomain] =
+        createRanges(baseRange, sampleSize) ++
+        createRangeLists(baseRange, sampleSize) ++
+        createBitSets(sampleSize)
+
 }
 
 /**
@@ -584,29 +711,9 @@ final class IntegerDomainTestHelper
  */
 object IntegerDomainTestHelper {
 
-    val specialInfiniteRanges =
-        List(CompleteIntegerRange,
-            NegativeIntegerRange, NonNegativeIntegerRange,
-            PositiveIntegerRange, NonPositiveIntegerRange)
-
-    def createEdgeCases(baseRange: IntegerRange): Seq[IntegerRange] = {
-        require(baseRange.isFinite)
-        val singletonRanges = List(baseRange.lb, baseRange.ub).map(a => IntegerRange(a, a))
-        List(EmptyIntegerRange, baseRange) ++ specialInfiniteRanges ++ singletonRanges
-    }
-
-    def createTestData(baseRange: IntegerRange, sampleSize: Int, randomGenerator: RandomGenerator): Seq[IntegerDomain] = {
-        require(baseRange.isFinite)
-        val randomFiniteRanges = for (i <- 1 to sampleSize) yield baseRange.randomSubrange(randomGenerator)
-        val randomFiniteRangeLists = for (i <- 1 to sampleSize) yield baseRange.randomSubdomain(randomGenerator)
-        val randomFiniteIntegerDomains = randomFiniteRanges ++ randomFiniteRangeLists
-        val randomInfiniteRangeLists =
-            for (infiniteRange <- specialInfiniteRanges;
-                 finiteDomain <- randomFiniteIntegerDomains;
-                 if infiniteRange.intersects(finiteDomain)) yield infiniteRange.diff(finiteDomain)
-        val edgeCases = createEdgeCases(baseRange)
-        val testData = (randomFiniteIntegerDomains ++ randomInfiniteRangeLists ++ edgeCases).distinct
-        testData
-    }
+    val SpecialInfiniteRanges = List(
+        CompleteIntegerRange,
+        NegativeIntegerRange, NonNegativeIntegerRange,
+        PositiveIntegerRange, NonPositiveIntegerRange)
 
 }

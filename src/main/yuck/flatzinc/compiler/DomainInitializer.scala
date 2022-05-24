@@ -2,7 +2,9 @@ package yuck.flatzinc.compiler
 
 import scala.collection.*
 
+import yuck.core
 import yuck.core.*
+import yuck.core.IntegerDomain.ensureRangeList
 import yuck.flatzinc.ast.*
 
 /**
@@ -39,6 +41,7 @@ final class DomainInitializer
         initializeDomains()
         propagateAssignments()
         propagateConstraints()
+        revisitIntegerSetDomains()
     }
 
     private def initializeDomains(): Unit = {
@@ -101,9 +104,9 @@ final class DomainInitializer
         checkTypeCompatibility(exprType, getExprType(b))
         exprType match {
             case BoolType => b match {
-                case BoolConst(value) =>
+                case BoolConst(_) =>
                     val da1 = boolDomain(a)
-                    val da2 = da1.intersect(new BooleanDomain(! value, value))
+                    val da2 = da1.intersect(boolDomain(b))
                     if (da1 != da2) equalVars(a).foreach(b => reduceDomain(b, da2))
                 case b =>
                     val da = boolDomain(a)
@@ -112,9 +115,9 @@ final class DomainInitializer
                     propagateEquality(a, b, d)
             }
             case IntType(_) => b match {
-                case IntConst(value) =>
+                case IntConst(_) =>
                     val da1 = intDomain(a)
-                    val da2 = da1.intersect(createIntDomain(value, value))
+                    val da2 = da1.intersect(intDomain(b))
                     if (da1 != da2) equalVars(a).foreach(b => reduceDomain(b, da2))
                 case b =>
                     val da = intDomain(a)
@@ -122,11 +125,17 @@ final class DomainInitializer
                     val d = da.intersect(db)
                     propagateEquality(a, b, d)
             }
-            case IntSetType(_) =>
-                val da = intSetDomain(a)
-                val db = intSetDomain(b)
-                val d = da.intersect(db)
-                propagateEquality(a, b, d)
+            case IntSetType(_) => b match {
+                case IntSetConst(_) =>
+                    val da1 = intSetDomain(a)
+                    val da2 = da1.intersect(intSetDomain(b))
+                    if (da1 != da2) equalVars(a).foreach(b => reduceDomain(b, da2))
+                case b =>
+                    val da = intSetDomain(a)
+                    val db = intSetDomain(b)
+                    val d = da.intersect(db)
+                    propagateEquality(a, b, d)
+            }
         }
     }
 
@@ -190,6 +199,7 @@ final class DomainInitializer
         (implicit valueTraits: ValueTraits[V]):
         Unit =
     {
+        cc.logger.log("%s = %s".format(a, b))
         val e = equalVars(a)
         val f = equalVars(b)
         if (domains(a) != d) {
@@ -240,12 +250,45 @@ final class DomainInitializer
     private def createDomain(varType: Type): AnyDomain = varType match {
         case BoolType => CompleteBooleanDomain
         case IntType(None) => CompleteIntegerRange
-        case IntType(Some(IntRange(lb, ub))) => createIntDomain(lb, ub)
-        case IntType(Some(IntSet(set))) => createIntDomain(set)
+        case IntType(Some(IntRange(lb, ub))) => IntegerRange(lb, ub)
+        case IntType(Some(IntSet(set))) => IntegerDomain(set)
         case IntSetType(None) => CompleteIntegerSetDomain
-        case IntSetType(Some(IntRange(lb, ub))) => new IntegerPowersetDomain(createIntDomain(lb, ub))
-        case IntSetType(Some(IntSet(set))) => new IntegerPowersetDomain(createIntDomain(set))
+        case IntSetType(Some(IntRange(lb, ub))) =>
+            val d0 = IntegerRange(lb, ub)
+            val d = if (d0.isSubsetOf(SixtyFourBitSet.ValueRange)) SixtyFourBitSet(lb, ub) else d0
+            new IntegerPowersetDomain(d)
+        case IntSetType(Some(IntSet(set))) =>
+            val d0 = IntegerDomain(set)
+            val d = if (d0.isSubsetOf(SixtyFourBitSet.ValueRange)) SixtyFourBitSet(d0) else d0
+            new IntegerPowersetDomain(d)
         case other => throw new UnsupportedFlatZincTypeException(other)
+    }
+
+    // To avoid frequent conversions from bit sets, this method replaces bit-set based integer-set domains
+    // by domains based on ranges or range lists if there is at least one integer-set domain based on a
+    // range or a range list.
+    private def revisitIntegerSetDomains(): Unit = {
+        val keysToIntegerSetDomains =
+            domains.keysIterator.filter(domains(_).isInstanceOf[IntegerSetDomain]).toList
+        val nonBitSetDomainExists =
+            keysToIntegerSetDomains.exists(domains(_) match {
+                case d: EmptyIntegerSetDomain.type => false
+                case d: SingletonIntegerSetDomain => ! d.base.isInstanceOf[SixtyFourBitSet]
+                case d: IntegerPowersetDomain => ! d.base.isInstanceOf[SixtyFourBitSet]
+            })
+        if (nonBitSetDomainExists) {
+            for (expr <- keysToIntegerSetDomains) domains(expr) match {
+                case d: EmptyIntegerSetDomain.type =>
+                case d: SingletonIntegerSetDomain =>
+                    if (d.base.isInstanceOf[SixtyFourBitSet]) {
+                         domains.put(expr, new SingletonIntegerSetDomain(IntegerDomain(d.base.values)))
+                    }
+                case d: IntegerPowersetDomain =>
+                    if (d.base.isInstanceOf[SixtyFourBitSet]) {
+                         domains.put(expr, new IntegerPowersetDomain(IntegerDomain(d.base.values)))
+                    }
+            }
+        }
     }
 
 }

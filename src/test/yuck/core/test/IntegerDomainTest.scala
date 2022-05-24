@@ -21,7 +21,7 @@ final class IntegerDomainTest extends UnitTest {
     @Test
     def testEquality(): Unit = {
         val sampleSize = 16
-        val testData = helper.createTestData(baseRange, sampleSize)
+        val testData = helper.createTestData(baseRange, sampleSize).distinct
         helper.testEquality(testData)
         for (d <- testData) {
             for (e <- testData) {
@@ -46,12 +46,11 @@ final class IntegerDomainTest extends UnitTest {
     def testOperations(): Unit = {
         val sampleSize = 8
         val testData = helper.createTestData(baseRange, sampleSize)
-        val extendedBaseRange = IntegerRange(baseRange.lb - One, baseRange.ub + One)
-        helper.testOperations(testData, extendedBaseRange.values.toSeq)
+        helper.testBinaryOperations(testData)
     }
 
     @Test
-    def testDomainCreationFromRanges(): Unit = {
+    def testConstructionFromRanges(): Unit = {
         assert(IntegerDomain(List[IntegerRange]()).isInstanceOf[IntegerRange])
         assert(IntegerDomain(List[IntegerRange]()).isEmpty)
         assert(IntegerDomain(List(CompleteIntegerRange)).isInstanceOf[IntegerRange])
@@ -65,7 +64,7 @@ final class IntegerDomainTest extends UnitTest {
     }
 
     @Test
-    def testDomainCreationFromValueSets(): Unit = {
+    def testConstructionFromValueSets(): Unit = {
         val testData = List(
             List(List()) -> EmptyIntegerRange,
             List(List(Zero), List(Zero, Zero)) -> ZeroToZeroIntegerRange,

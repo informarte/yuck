@@ -30,6 +30,7 @@ final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
 
     @Test
     def testEquality(): Unit = {
+        val testData = this.testData.distinct
         helper.testEquality(testData)
         for (a <- testData) {
             val b = new IntegerSetValue(a.set)

@@ -74,6 +74,9 @@ package object core {
 
     val EmptyIntegerRangeList = new IntegerRangeList(immutable.IndexedSeq[IntegerRange]())
 
+    val EmptyBitSet = new SixtyFourBitSet(0L)
+    val FullBitSet = new SixtyFourBitSet(SixtyFourBitSet.MaxUInt)
+
     val EmptyIntegerSetValue = new IntegerSetValue(EmptyIntegerRange)
     val CompleteIntegerSetValue = new IntegerSetValue(CompleteIntegerRange)
 

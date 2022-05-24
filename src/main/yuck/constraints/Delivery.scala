@@ -158,7 +158,7 @@ final class Delivery
     private val affectedTours = new mutable.HashSet[Int]
 
     inline private def distanceDelta
-        (dx: NumericalDomain[Time], beforeValue: NumericalValue[Time], afterValue: NumericalValue[Time]): Long =
+        (dx: NumericalDomain[Time], beforeValue: Time, afterValue: Time): Long =
         safeSub(dx.distanceTo(afterValue).toLong, dx.distanceTo(beforeValue).toLong)
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {

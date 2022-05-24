@@ -23,6 +23,7 @@ final class SingletonIntegerSetDomain
     override def ub = singleValue
     override def hull = this
     override def values = List(singleValue)
+    override def valuesIterator = Iterator.single(singleValue)
     override def singleValue = new IntegerSetValue(base)
     override def contains(a: IntegerSetValue) = a.set == base
     override def randomValue(randomGenerator: RandomGenerator) = singleValue

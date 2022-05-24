@@ -11,11 +11,9 @@ import yuck.util.logging.{FineLogLevel, LazyLogger}
  * @author Michael Marte
  *
  */
-class OrderedDomainTestHelper
-    [V <: OrderedValue[V]]
-    (logger: LazyLogger, randomGenerator: RandomGenerator)
-    extends DomainTestHelper[V](logger)
-{
+abstract class OrderedDomainTestHelper[V <: OrderedValue[V]] extends DomainTestHelper[V] {
+
+    protected val randomGenerator: RandomGenerator
 
     def testOrdering(testData: Seq[OrderedDomain[V]]): Unit = {
         logger.withRootLogLevel(FineLogLevel) {

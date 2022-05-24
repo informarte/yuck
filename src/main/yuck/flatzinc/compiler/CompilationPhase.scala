@@ -51,8 +51,8 @@ abstract class CompilationPhase extends Runnable {
         a match {
             case BoolConst(a) => Some(if (a) True else False)
             case IntConst(a) => Some(IntegerValue(a))
-            case IntSetConst(IntRange(lb, ub)) => Some(new IntegerSetValue(createIntDomain(lb, ub)))
-            case IntSetConst(IntSet(set)) => Some(new IntegerSetValue(createIntDomain(set)))
+            case IntSetConst(IntRange(lb, ub)) => Some(new IntegerSetValue(IntegerRange(lb, ub)))
+            case IntSetConst(IntSet(set)) => Some(new IntegerSetValue(IntegerDomain(set)))
             case FloatConst(_) => throw new UnsupportedFlatZincTypeException(FloatType(None))
             case _ if cc.domains(a).isSingleton => Some(cc.domains(a).singleValue)
             case _ => None
@@ -77,48 +77,37 @@ abstract class CompilationPhase extends Runnable {
     }
 
     protected final def intDomain(a: Expr): IntegerDomain = a match {
-        case IntConst(a) => createIntDomain(a, a)
-        case IntSetConst(IntRange(lb, ub)) => createIntDomain(lb, ub)
-        case IntSetConst(IntSet(set)) => createIntDomain(set)
+        case IntConst(a) => IntegerRange(a, a)
+        case IntSetConst(IntRange(lb, ub)) => IntegerRange(lb, ub)
+        case IntSetConst(IntSet(set)) => IntegerDomain(set)
         case _ => cc.domains(a).asInstanceOf[IntegerDomain]
     }
 
     protected final def intSetDomain(a: Expr): IntegerSetDomain = a match {
-        case IntSetConst(IntRange(lb, ub)) => new SingletonIntegerSetDomain(createIntDomain(lb, ub))
-        case IntSetConst(IntSet(set)) => new SingletonIntegerSetDomain(createIntDomain(set))
+        case IntSetConst(IntRange(lb, ub)) =>
+            val d0 = IntegerRange(lb, ub)
+            val d = if (d0.isSubsetOf(SixtyFourBitSet.ValueRange)) SixtyFourBitSet(lb, ub) else d0
+            new SingletonIntegerSetDomain(d)
+        case IntSetConst(IntSet(set)) =>
+            val d0 = IntegerDomain(set)
+            val d = if (d0.isSubsetOf(SixtyFourBitSet.ValueRange)) SixtyFourBitSet(d0) else d0
+            new SingletonIntegerSetDomain(d)
         case _ => cc.domains(a).asInstanceOf[IntegerSetDomain]
     }
-
-    protected final def getArrayElems(expr: Expr): immutable.Iterable[Expr] =
-        cc.ast.getArrayElems(expr)
-
-    protected final def createIntDomain(lb: Long, ub: Long): IntegerDomain =
-        IntegerRange(lb, ub)
-
-    protected final def createIntDomain(set: Set[Long]): IntegerDomain =
-        IntegerDomain(set.map(IntegerValue.apply))
 
     protected final def compileAnyExpr(expr: Expr): AnyVariable = expr match {
         case _ if cc.consts.contains(expr) =>
             cc.consts(expr)
-        case BoolConst(value) =>
-            val domain = if (value) TrueDomain else FalseDomain
-            val x = cc.space.createVariable(expr.toString, domain)
+        case BoolConst(_) =>
+            val x = cc.space.createVariable(expr.toString, boolDomain(expr))
             cc.consts += expr -> x
             x
-        case IntConst(value) =>
-            val domain = createIntDomain(value, value)
-            val x = cc.space.createVariable(expr.toString, domain)
+        case IntConst(_) =>
+            val x = cc.space.createVariable(expr.toString, intDomain(expr))
             cc.consts += expr -> x
             x
-        case IntSetConst(IntRange(lb, ub)) =>
-            val domain = new SingletonIntegerSetDomain(createIntDomain(lb, ub))
-            val x = cc.space.createVariable(expr.toString, domain)
-            cc.consts += expr -> x
-            x
-        case IntSetConst(IntSet(set)) =>
-            val domain = new SingletonIntegerSetDomain(createIntDomain(set))
-            val x = cc.space.createVariable(expr.toString, domain)
+        case IntSetConst(_) =>
+            val x = cc.space.createVariable(expr.toString, intSetDomain(expr))
             cc.consts += expr -> x
             x
         case FloatConst(_) =>
@@ -139,6 +128,9 @@ abstract class CompilationPhase extends Runnable {
             cc.arrayConsts += expr -> array
             array
     }
+
+    protected final def getArrayElems(expr: Expr): immutable.Iterable[Expr] =
+        cc.ast.getArrayElems(expr)
 
     protected trait LowestPriorityImplicits {
 

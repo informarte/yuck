@@ -7,7 +7,7 @@ import scala.language.implicitConversions
 
 import yuck.constraints.{Alldistinct, ElementConst, ElementVar, IfThenElse}
 import yuck.core.*
-import yuck.flatzinc.compiler.{Bool2Int1, VariableWithInfiniteDomainException}
+import yuck.flatzinc.compiler.{Bool2Int1, FlatZincCompilerResult, VariableWithInfiniteDomainException}
 import yuck.flatzinc.test.util.*
 import yuck.test.util.ParallelTestRunner
 
@@ -278,6 +278,46 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEx(
             solve(task.copy(problemName = "problem_with_unbounded_relevant_search_variable")),
             classOf[VariableWithInfiniteDomainException])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testBitSetCompilation(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "bitset_compilation_test"))
+        val l = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult].arrays("l")
+        assertEq(l.size, 4)
+        assert(l(0).domain.isInstanceOf[SingletonIntegerSetDomain])
+        assertEq(l(0).domain.asInstanceOf[SingletonIntegerSetDomain].base.getClass, classOf[SixtyFourBitSet])
+        assertEq(l(0).domain.asInstanceOf[SingletonIntegerSetDomain].base, IntegerRange(1, 62))
+        assert(l(1).domain.isInstanceOf[IntegerPowersetDomain])
+        assertEq(l(1).domain.asInstanceOf[IntegerPowersetDomain].base.getClass, classOf[SixtyFourBitSet])
+        assertEq(l(1).domain.asInstanceOf[IntegerPowersetDomain].base, IntegerRange(0, 63))
+        assert(l(2).domain.isInstanceOf[IntegerPowersetDomain])
+        assertEq(l(2).domain.asInstanceOf[IntegerPowersetDomain].base.getClass, classOf[SixtyFourBitSet])
+        assertEq(l(2).domain.asInstanceOf[IntegerPowersetDomain].base, IntegerDomain(10, 11, 12, 27, 28, 29))
+        assert(l(3).domain.isInstanceOf[SingletonIntegerSetDomain])
+        assertEq(l(3).domain.asInstanceOf[SingletonIntegerSetDomain].base.getClass, classOf[SixtyFourBitSet])
+        assertEq(l(3).domain.asInstanceOf[SingletonIntegerSetDomain].base, IntegerDomain(1, 2, 3, 7, 8, 9))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testBitSetConversion(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "bitset_conversion_test"))
+        val l = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult].arrays("l")
+        assertEq(l.size, 4)
+        assert(l(0).domain.isInstanceOf[SingletonIntegerSetDomain])
+        assertEq(l(0).domain.asInstanceOf[SingletonIntegerSetDomain].base.getClass, classOf[IntegerRange])
+        assertEq(l(0).domain.asInstanceOf[SingletonIntegerSetDomain].base, IntegerRange(1, 62))
+        assert(l(1).domain.isInstanceOf[IntegerPowersetDomain])
+        assertEq(l(1).domain.asInstanceOf[IntegerPowersetDomain].base.getClass, classOf[IntegerRange])
+        assertEq(l(1).domain.asInstanceOf[IntegerPowersetDomain].base, IntegerRange(0, 64))
+        assert(l(2).domain.isInstanceOf[IntegerPowersetDomain])
+        assertEq(l(2).domain.asInstanceOf[IntegerPowersetDomain].base.getClass, classOf[IntegerRangeList])
+        assertEq(l(2).domain.asInstanceOf[IntegerPowersetDomain].base, IntegerDomain(10, 11, 12, 27, 28, 29))
+        assert(l(3).domain.isInstanceOf[SingletonIntegerSetDomain])
+        assertEq(l(3).domain.asInstanceOf[SingletonIntegerSetDomain].base.getClass, classOf[IntegerRangeList])
+        assertEq(l(3).domain.asInstanceOf[SingletonIntegerSetDomain].base, IntegerDomain(1, 2, 3, 7, 8, 9))
     }
 
 }

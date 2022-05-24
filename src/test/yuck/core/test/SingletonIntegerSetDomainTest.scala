@@ -18,8 +18,14 @@ final class SingletonIntegerSetDomainTest extends UnitTest {
     private val helper = new IntegerSetDomainTestHelper(randomGenerator, logger)
     private val baseRange = IntegerRange(IntegerValue(-5), Five)
 
+    private def createTestData(sampleSize: Int): Seq[SingletonIntegerSetDomain] =
+        helper.createTestData(baseRange, sampleSize)
+            .filter(_.isInstanceOf[SingletonIntegerSetDomain])
+            .map(_.asInstanceOf[SingletonIntegerSetDomain])
+
     @Test
     def testBasics(): Unit = {
+
         val randomGenerator = new JavaRandomGenerator
 
         // set domains
@@ -91,9 +97,7 @@ final class SingletonIntegerSetDomainTest extends UnitTest {
     @Test
     def testEquality(): Unit = {
         val sampleSize = 16
-        val testData =
-            helper.createTestData(baseRange, sampleSize)
-                .filter(_.isInstanceOf[SingletonIntegerSetDomain]).map(_.asInstanceOf[SingletonIntegerSetDomain])
+        val testData = createTestData(sampleSize).distinct
         helper.testEquality(testData)
         for (d <- testData) {
             val e = SingletonIntegerSetDomain(d.base)
@@ -110,9 +114,7 @@ final class SingletonIntegerSetDomainTest extends UnitTest {
     @Test
     def testOrdering(): Unit = {
         val sampleSize = 8
-        val testData =
-            helper.createTestData(baseRange, sampleSize)
-                .filter(_.isInstanceOf[SingletonIntegerSetDomain]).map(_.asInstanceOf[SingletonIntegerSetDomain])
+        val testData = createTestData(sampleSize)
         helper.testOrdering(testData)
     }
 

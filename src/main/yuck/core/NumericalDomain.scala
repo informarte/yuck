@@ -17,7 +17,7 @@ abstract class NumericalDomain[V <: NumericalValue[V]] extends OrderedDomain[V] 
      * Returns a domain that contains all elements of this domain except for those
      * greater than the given upper bound.
      */
-    def boundFromAbove(lb: V): NumericalDomain[V]
+    def boundFromAbove(ub: V): NumericalDomain[V]
 
     /**
      * Returns a bisection of this domain.
@@ -39,7 +39,7 @@ abstract class NumericalDomain[V <: NumericalValue[V]] extends OrderedDomain[V] 
      *
      * Throws when the domain is empty.
      */
-    def distanceTo(a: NumericalValue[V]): NumericalValue[V]
+    def distanceTo(a: V): V
 
     override def randomSubdomain(randomGenerator: RandomGenerator): NumericalDomain[V]
     override def intersect(that: Domain[V]): NumericalDomain[V]

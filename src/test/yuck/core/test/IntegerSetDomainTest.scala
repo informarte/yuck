@@ -27,7 +27,7 @@ final class IntegerSetDomainTest extends UnitTest {
     def testEquality(): Unit = {
         assertEq(new SingletonIntegerSetDomain(EmptyIntegerRange), new IntegerPowersetDomain(EmptyIntegerRange))
         val sampleSize = 16
-        val testData = helper.createTestData(baseRange, sampleSize)
+        val testData = helper.createTestData(baseRange, sampleSize).distinct
         helper.testEquality(testData)
         for (d <- testData) {
             for (e <- testData) {

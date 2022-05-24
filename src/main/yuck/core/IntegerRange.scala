@@ -58,12 +58,17 @@ final class IntegerRange
             private var i = lb.value
             override def hasNext = i <= ub.value
             override def next() = {
+                if (! hasNext) {
+                    throw new NoSuchElementException
+                }
                 val a = IntegerValue(i)
                 i += 1
                 a
             }
+            override def knownSize = IntegerRange.this.size
         }
     }
+
     override def singleValue = {
         require(isSingleton)
         lb
@@ -100,9 +105,8 @@ final class IntegerRange
          this.intersect(IntegerRange(IntegerValue(mid), ub)))
     }
 
-    override def distanceTo(a0: NumericalValue[IntegerValue]): IntegerValue = {
+    override def distanceTo(a: IntegerValue): IntegerValue = {
         require(! isEmpty)
-        val a = a0.asInstanceOf[IntegerValue]
         if (lb.ne(null) && a < lb) lb - a
         else if (ub.ne(null) && a > ub) a - ub
         else Zero
@@ -129,7 +133,7 @@ final class IntegerRange
     }
 
     def maybeIntersectionSize(that: IntegerRange): Option[Int] = {
-        val tmp = intersect(that)
+        val tmp = this.intersect(that)
         if (tmp.isFinite) Some(tmp.size) else None
     }
 
@@ -229,7 +233,7 @@ object IntegerRange {
 
 
     /**
-     * Creates an integer range from the given boundaries.
+     * Creates an IntegerRange instance from the given boundaries.
      *
      * Tries to avoid memory allocation by re-using existing objects.
      */

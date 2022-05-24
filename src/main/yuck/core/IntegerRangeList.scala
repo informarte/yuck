@@ -38,7 +38,7 @@ final class IntegerRangeList
     override def isBounded = isEmpty || (ranges.head.lb.ne(null) || ranges.last.ub.ne(null))
     override def lb = if (isEmpty) One else ranges.head.lb
     override def ub = if (isEmpty) Zero else ranges.last.ub
-    override def hull: IntegerRange = if (ranges.size == 1) ranges.head else IntegerRange(lb, ub)
+    override def hull = if (ranges.size == 1) ranges.head else IntegerRange(lb, ub)
     override def values = {
         require(isFinite)
         ranges.view.flatMap(_.values)
@@ -147,9 +147,8 @@ final class IntegerRangeList
         }
     }
 
-    override def distanceTo(a0: NumericalValue[IntegerValue]): IntegerValue = {
+    override def distanceTo(a: IntegerValue): IntegerValue = {
         require(! isEmpty)
-        val a = a0.asInstanceOf[IntegerValue]
         val lb = this.lb
         if (lb.ne(null) && a < lb) lb - a
         else {
@@ -181,7 +180,7 @@ final class IntegerRangeList
         IntegerDomain(buf)
     }
 
-    override def randomSubrange(randomGenerator: RandomGenerator) = {
+    override def randomSubrange(randomGenerator: RandomGenerator): IntegerRange = {
         require(isFinite)
         if (isEmpty) EmptyIntegerRange
         else {
@@ -247,13 +246,6 @@ final class IntegerRangeList
  * @author Michael Marte
  */
 object IntegerRangeList {
-
-    /**
-     * Returns an empty IntegerRangeList instance.
-     *
-     * Avoids memory allocation by re-using an existing object.
-     */
-    def apply() = EmptyIntegerRangeList
 
     /**
      * Creates an IntegerRangeList instance from the given ranges.

@@ -10,13 +10,14 @@ import yuck.util.logging.LazyLogger
  *
  */
 final class IntegerSetDomainTestHelper
-    (randomGenerator: RandomGenerator, logger: LazyLogger)
-    extends OrderedDomainTestHelper[IntegerSetValue](logger, randomGenerator)
+    (override protected val randomGenerator: RandomGenerator,
+     override protected val logger: LazyLogger)
+    extends OrderedDomainTestHelper[IntegerSetValue]
 {
 
     def createTestData(baseRange: IntegerRange, sampleSize: Int): Seq[IntegerSetDomain] =
-        IntegerDomainTestHelper
-            .createTestData(baseRange, sampleSize, randomGenerator)
+        new IntegerDomainTestHelper(randomGenerator, logger)
+            .createTestData(baseRange, sampleSize)
             .flatMap(r =>
                 // {{}} = P({}), so we keep only one of them to facilitate equality testing
                 if (r.isEmpty) List(new SingletonIntegerSetDomain(r))

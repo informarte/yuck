@@ -118,6 +118,10 @@ Yuck's FlatZinc front end supports all of FlatZinc except for float variables an
 
 Integers in Yuck are 64 bits wide.
 
+Integer domains are represented as ranges or range lists.
+
+If all integer-set variables are constrained to take their values from the powerset of [0, 63], values of integer-set variables are represented as 64-bit integers, otherwise they are represented as ranges or range lists.
+
 When used as a FlatZinc interpreter, Yuck proceeds as follows:
 
 * It eliminates variables by exploiting equality constraints.

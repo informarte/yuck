@@ -13,7 +13,7 @@ import yuck.test.util.UnitTest
 final class BooleanDomainTest extends UnitTest {
 
     private val randomGenerator = new JavaRandomGenerator
-    private val helper = new OrderedDomainTestHelper[BooleanValue](logger, randomGenerator)
+    private val helper = new BooleanDomainTestHelper(randomGenerator, logger)
     private val testData1 = List((false, false), (true, false), (false, true), (true, true))
     private val testData2 = List(EmptyBooleanDomain, FalseDomain, TrueDomain, CompleteBooleanDomain)
 

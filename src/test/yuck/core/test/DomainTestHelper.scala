@@ -10,7 +10,9 @@ import yuck.util.logging.{FineLogLevel, LazyLogger}
  * @author Michael Marte
  *
  */
-class DomainTestHelper[V <: AnyValue](logger: LazyLogger) extends YuckAssert {
+abstract class DomainTestHelper[V <: AnyValue] extends YuckAssert {
+
+    protected val logger: LazyLogger
 
     def testEquality(testData: Seq[Domain[V]]): Unit = {
         logger.withRootLogLevel(FineLogLevel) {
