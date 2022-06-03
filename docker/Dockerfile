@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 LABEL maintainer="informarte@freenet.de"
 LABEL description="Yuck is a local-search constraint solver with FlatZinc interface"
@@ -7,7 +7,7 @@ LABEL homepage="https://github.com/informarte/yuck"
 RUN apt-get update
 
 # Install Java runtime
-RUN apt-get install -y default-jre-headless && \
+RUN apt-get install -y openjdk-17-jre-headless && \
     apt-get clean && \
     java -version
 
@@ -22,6 +22,7 @@ RUN apt-get install -y bison clang cmake flex git && \
     cd build && \
     cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr/local .. && \
     cmake --build . --target install && \
+    minizinc --version && \
     apt-get remove -y --purge --autoremove bison clang cmake flex git && \
     apt-get clean && \
     cd ../.. && \
