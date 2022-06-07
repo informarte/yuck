@@ -211,7 +211,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.numberOfConstraints[Delivery[_]], 2)
         assertEq(result.numberOfConstraints[Eq[_]], 0)
         assert(result.neighbourhood.isInstanceOf[CircuitNeighbourhood])
-        assertLe(result.quality.asInstanceOf[IntegerValue].value, 700)
+        assertLe(result.quality.asInstanceOf[IntegerValue].value, 700L)
     }
 
     @Test

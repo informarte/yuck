@@ -92,7 +92,7 @@ final class Cumulative
         val s = searchState.value(t.s).value
         val d = max(0, searchState.value(t.d).value)
         val c = max(0, searchState.value(t.c).value)
-        val entry = new RTreeEntry(i, new Rect2d(s, 0, safeAdd(s, d), c))
+        val entry = new RTreeEntry(i, new Rect2d(s.toDouble, 0, safeAdd(s, d).toDouble, c.toDouble))
         entry
     }
 
@@ -251,7 +251,7 @@ final class Cumulative
             val entry = createRTreeEntry(i, now)
             rTree.add(entry)
         }
-        currentCosts = computeCosts(rTree, now.value(capacity).value)
+        currentCosts = computeCosts(rTree, now.value(capacity).toInt)
         assert(currentCosts >= 0)
         effect.a = BooleanValue(currentCosts)
         effect
@@ -260,7 +260,7 @@ final class Cumulative
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         rTreeTransaction.rollback()
         futureCosts = currentCosts
-        val beforeCapacity = before.value(capacity).value
+        val beforeCapacity = before.value(capacity).toInt
         val capacityChanged = move.involves(capacity)
         val is =
             if (move.size == 1) x2is.getOrElse(move.effects.head.x, Nil)
@@ -280,7 +280,7 @@ final class Cumulative
             rTreeTransaction.add(afterEntry)
         }
         if (capacityChanged) {
-            val afterCapacity = after.value(capacity).value
+            val afterCapacity = after.value(capacity).toInt
             futureCosts = computeCosts(rTreeTransaction, afterCapacity)
         }
         assert(futureCosts >= 0)

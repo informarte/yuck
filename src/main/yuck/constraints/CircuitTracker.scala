@@ -41,7 +41,7 @@ abstract class CircuitTracker
                 pending -= x
                 path += x -> 0
             }
-            val j = searchState.value(x).value - offset
+            val j = searchState.value(x).toInt - offset
             if (j < 0 || j >= succ.size) {
                 // handle invalid node reference
                 path.clear()
@@ -123,7 +123,7 @@ object CircuitTracker {
             graph.addVertex(x)
         }
         for (x <- succ) {
-            val i = searchState.value(x).value - offset
+            val i = searchState.value(x).toInt - offset
             if (i >= 0 && i < succ.size) {
                 graph.addEdge(x, succ(i))
             }

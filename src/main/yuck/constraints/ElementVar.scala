@@ -32,7 +32,7 @@ final class ElementVar
     inline private def computeEffect(searchState: SearchState): Unit = {
         // When i is a channel variable, the value of i may be out-of-bounds!
         // Nevertheless, we have to provide some value for y.
-        val j = min(max(0, safeSub(searchState.value(i).value, offset)), xs.size - 1)
+        val j = min(max(0, safeSub(searchState.value(i).toInt, offset)), xs.size - 1)
         effect.a = searchState.value(xs(j))
     }
 
@@ -45,10 +45,10 @@ final class ElementVar
                 i.domain.intersect(IntegerRange(offset, safeDec(safeAdd(xs.size, offset))))
             val dy1 =
                 y.domain.intersect(
-                    di1.valuesIterator.foldLeft(valueTraits.emptyDomain){case (u, i) => u.union(xs(i.value - offset).domain)})
+                    di1.valuesIterator.foldLeft(valueTraits.emptyDomain){case (u, i) => u.union(xs(i.toInt - offset).domain)})
             val di2 =
                 IntegerDomain(
-                    di1.valuesIterator.filter(i => xs(i.value - offset).domain.intersects(dy1)).toSet)
+                    di1.valuesIterator.filter(i => xs(i.toInt - offset).domain.intersects(dy1)).toSet)
             NoPropagationOccurred.pruneDomains(i, di2, y, dy1)
         }
     }

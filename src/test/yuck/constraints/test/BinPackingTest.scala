@@ -28,7 +28,7 @@ final class BinPackingTest extends UnitTest with ConstraintTestTooling {
         .to(TreeMap)
     private val loads =
         (for (i <- binDomain.values) yield
-            i.value -> new IntegerVariable(space.nextVariableId(), "load%d".format(i.value), CompleteIntegerRange))
+            i.toInt -> new IntegerVariable(space.nextVariableId(), "load%d".format(i.value), CompleteIntegerRange))
         .to(TreeMap)
 
     @Test

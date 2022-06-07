@@ -18,30 +18,30 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
     @Test
     def testConstruction(): Unit = {
         for (a <- testRange) {
-            assertEq(new IntegerValue(a).value, a)
+            assertEq(new IntegerValue(a).toInt, a)
         }
     }
 
     @Test
     def testSpecialValues(): Unit = {
-        assertEq(MinusOne.value, -1)
-        assertEq(Zero.value, 0)
-        assertEq(One.value, 1)
-        assertEq(Two.value, 2)
-        assertEq(Three.value, 3)
-        assertEq(Four.value, 4)
-        assertEq(Five.value, 5)
-        assertEq(Six.value, 6)
-        assertEq(Seven.value, 7)
-        assertEq(Eight.value, 8)
-        assertEq(Nine.value, 9)
-        assertEq(Ten.value, 10)
+        assertEq(MinusOne.value, -1L)
+        assertEq(Zero.value, 0L)
+        assertEq(One.value, 1L)
+        assertEq(Two.value, 2L)
+        assertEq(Three.value, 3L)
+        assertEq(Four.value, 4L)
+        assertEq(Five.value, 5L)
+        assertEq(Six.value, 6L)
+        assertEq(Seven.value, 7L)
+        assertEq(Eight.value, 8L)
+        assertEq(Nine.value, 9L)
+        assertEq(Ten.value, 10L)
     }
 
     @Test
     def testValueFactory(): Unit = {
         for (a <- testRange) {
-            assertEq(IntegerValue(a).value, a)
+            assertEq(IntegerValue(a).toInt, a)
             assert(IntegerValue(a).eq(IntegerValue(a)))
         }
     }
@@ -90,7 +90,7 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
                 if (a == Zero && b < Zero) {
                     assertEx(a ^ b, classOf[ArithmeticException])
                 } else {
-                    assertEq((a ^ b).value, scala.math.pow(a.value, b.value).toInt)
+                    assertEq((a ^ b).value, scala.math.pow(a.value.toDouble, b.value.toDouble).toLong)
                 }
                 for (c <- testData) {
                     assertEq(a.addAndSub(b, c).value, a.value + b.value - c.value)
@@ -105,8 +105,8 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
                 assertEq(a.abs, a)
             }
             assertEq(a.negated, IntegerValue(-a.value))
-            assertEq(a.toInt, a.value)
-            assertEq(a.toLong, a.value.toLong)
+            assertEq(a.toInt, a.value.toInt)
+            assertEq(a.toLong, a.value)
             assertEq(a.toFloat, a.value.toFloat)
             assertEq(a.toDouble, a.value.toDouble)
             assertEq(a.isEven, a.value % 2 == 0)
@@ -115,26 +115,26 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
 
     @Test
     def testOverflowCheckingInNumericalOperations(): Unit = {
-        IntegerValue(Int.MaxValue) + Zero
-        assertEx(IntegerValue(Int.MaxValue) + One, classOf[ArithmeticException])
-        IntegerValue(Int.MinValue) - Zero
-        assertEx(IntegerValue(Int.MinValue) - One, classOf[ArithmeticException])
-        IntegerValue(Int.MaxValue / 2) * Two
-        assertEx(IntegerValue(Int.MaxValue) * Two, classOf[ArithmeticException])
-        IntegerValue(Int.MaxValue - 1).addAndSub(One, Zero)
-        One.addAndSub(IntegerValue(Int.MaxValue), IntegerValue(Int.MaxValue - 1))
-        IntegerValue(Int.MaxValue - 1).addAndSub(One, One, Zero)
-        One.addAndSub(One, IntegerValue(Int.MaxValue), IntegerValue(Int.MaxValue - 1))
-        assertEx(IntegerValue(Int.MaxValue).addAndSub(One, One, Zero), classOf[ArithmeticException])
-        IntegerValue(Int.MinValue + 1).abs
-        assertEx(IntegerValue(Int.MinValue).abs, classOf[ArithmeticException])
-        IntegerValue(Int.MaxValue).negated
-        assertEx(IntegerValue(Int.MinValue).negated, classOf[ArithmeticException])
-        IntegerValue(-2) ^ IntegerValue(31)
-        assertEx(IntegerValue(-2) ^ IntegerValue(32), classOf[ArithmeticException])
-        Two ^ IntegerValue(30)
-        assertEx(Two ^ IntegerValue(31), classOf[ArithmeticException])
-        assertEx(IntegerValue(Int.MaxValue) ^ IntegerValue(Int.MaxValue), classOf[ArithmeticException])
+        IntegerValue(Long.MaxValue) + Zero
+        assertEx(IntegerValue(Long.MaxValue) + One, classOf[ArithmeticException])
+        IntegerValue(Long.MinValue) - Zero
+        assertEx(IntegerValue(Long.MinValue) - One, classOf[ArithmeticException])
+        IntegerValue(Long.MaxValue / 2) * Two
+        assertEx(IntegerValue(Long.MaxValue) * Two, classOf[ArithmeticException])
+        IntegerValue(Long.MaxValue - 1).addAndSub(One, Zero)
+        One.addAndSub(IntegerValue(Long.MaxValue), IntegerValue(Long.MaxValue - 1))
+        IntegerValue(Long.MaxValue - 1).addAndSub(One, One, Zero)
+        One.addAndSub(One, IntegerValue(Long.MaxValue), IntegerValue(Long.MaxValue - 1))
+        assertEx(IntegerValue(Long.MaxValue).addAndSub(One, One, Zero), classOf[ArithmeticException])
+        assertEq(IntegerValue(Long.MinValue + 1).abs.value, Long.MaxValue)
+        assertEx(IntegerValue(Long.MinValue).abs, classOf[ArithmeticException])
+        assertEq(IntegerValue(Long.MaxValue).negated.value, Long.MinValue + 1)
+        assertEx(IntegerValue(Long.MinValue).negated, classOf[ArithmeticException])
+        assertEq((IntegerValue(-2) ^ IntegerValue(63)).value, Long.MinValue)
+        assertEx(IntegerValue(-2) ^ IntegerValue(64), classOf[ArithmeticException])
+        assertEq((Two ^ IntegerValue(63)).value, Long.MaxValue)
+        assertEx(Two ^ IntegerValue(64), classOf[ArithmeticException])
+        assertEx(IntegerValue(Long.MaxValue) ^ IntegerValue(Long.MaxValue), classOf[ArithmeticException])
     }
 
 }

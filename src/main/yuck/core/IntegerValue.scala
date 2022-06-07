@@ -7,8 +7,8 @@ import java.lang.Math.pow
  *
  * @author Michael Marte
  */
-final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
-    override def hashCode = value
+final class IntegerValue(val value: Long) extends IntegralValue[IntegerValue] {
+    override def hashCode = value.hashCode
     override def equals(that: Any) = that match {
         case rhs: IntegerValue =>
             val lhs = this
@@ -36,13 +36,14 @@ final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
     override def /(that: IntegerValue) = IntegerValue(this.value / that.value)
     override def %(that: IntegerValue) = IntegerValue(this.value % that.value)
     override def ^(that: IntegerValue) = {
-        val result: Double = pow(this.value, that.value)
+        val result: Double = pow(this.toDouble, that.toDouble)
         if (result == java.lang.Double.NEGATIVE_INFINITY || result == java.lang.Double.POSITIVE_INFINITY ||
-            result < Int.MinValue || result > Int.MaxValue)
+            result < Long.MinValue || result > Long.MaxValue ||
+            ! (if (this.value >= 0) result >= 0 else if (that.value % 2 == 0) result > 0 else result < 0))
         {
             throw new java.lang.ArithmeticException("integer overflow")
         }
-        IntegerValue(result.toInt)
+        IntegerValue(result.toLong)
     }
     override def addAndSub(a: IntegerValue, b: IntegerValue) = {
         val delta = safeSub(a.value, b.value)
@@ -54,8 +55,8 @@ final class IntegerValue(val value: Int) extends IntegralValue[IntegerValue] {
     }
     inline override def abs = if (value < 0) negated else this
     inline override def negated = IntegerValue(safeNeg(value))
-    inline override def toInt = value
-    inline override def toLong = value.toLong
+    inline override def toInt = safeToInt(value)
+    inline override def toLong = value
     inline override def toFloat = value.toFloat
     inline override def toDouble = value.toDouble
     inline override def isEven = value % 2 == 0
@@ -85,6 +86,16 @@ object IntegerValue {
      * For other values, a new IntegerValue instance is created.
      */
     def apply(a: Int): IntegerValue =
-       if (lb <= a && a < ub) valueCache(a - lb) else new IntegerValue(a)
+       if (lb <= a && a < ub) valueCache(a - lb) else new IntegerValue(a.toLong)
+
+    /**
+     * Returns an IntegerValue instance for the given integer.
+     *
+     * Values in valueRange are used as index into an array of prefabricated
+     * IntegerValue instances, so the operation is cheap for them.
+     * For other values, a new IntegerValue instance is created.
+     */
+    def apply(a: Long): IntegerValue =
+       if (lb <= a && a < ub) valueCache(a.toInt - lb) else new IntegerValue(a)
 
 }

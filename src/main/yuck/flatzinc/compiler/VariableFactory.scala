@@ -70,7 +70,7 @@ final class VariableFactory
                 createVariable[IntegerSetValue](Term(decl.id, Nil))
             case ArrayType(Some(IntRange(1, n)), BoolType) =>
                 val array =
-                    for (idx <- 1 to n) yield {
+                    for (idx <- 1 to n.toInt) yield {
                         val name = "%s[%d]".format(decl.id, idx)
                         val key = ArrayAccess(decl.id, IntConst(idx))
                         createVariable[BooleanValue](key)
@@ -78,7 +78,7 @@ final class VariableFactory
                 arrays += Term(decl.id, Nil) -> array
             case ArrayType(Some(IntRange(1, n)), IntType(_)) =>
                 val array =
-                    for (idx <- 1 to n) yield {
+                    for (idx <- 1 to n.toInt) yield {
                         val name = "%s[%d]".format(decl.id, idx)
                         val key = ArrayAccess(decl.id, IntConst(idx))
                         createVariable[IntegerValue](key)
@@ -86,7 +86,7 @@ final class VariableFactory
                 arrays += Term(decl.id, Nil) -> array
             case ArrayType(Some(IntRange(1, n)), IntSetType(_)) =>
                 val array =
-                    for (idx <- 1 to n) yield {
+                    for (idx <- 1 to n.toInt) yield {
                         val name = "%s[%d]".format(decl.id, idx)
                         val key = ArrayAccess(decl.id, IntConst(idx))
                         createVariable[IntegerSetValue](key)

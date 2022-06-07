@@ -84,7 +84,7 @@ final class VariableClassifier
                 if (cc.ast.varDeclsByName.contains(id)) {
                     cc.ast.varDeclsByName(id).varType match {
                         case ArrayType(Some(IntRange(1, n)), _) =>
-                            for (idx <- 1 to n) {
+                            for (idx <- 1 to n.toInt) {
                                 searchVars += compileAnyExpr(ArrayAccess(id, IntConst(idx)))
                             }
                     }

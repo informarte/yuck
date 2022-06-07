@@ -111,7 +111,7 @@ final class Circuit
         var unsatisfiable = false
 
         for (i <- 0 until n if ! failed && succ(i).domain.isSingleton) {
-            val j = succ(i).domain.singleValue.value - offset
+            val j = succ(i).domain.singleValue.toInt - offset
             if (maybePredecessor(j).isDefined) {
                 logger.log("Detected a node with two incoming arcs")
                 failed = true

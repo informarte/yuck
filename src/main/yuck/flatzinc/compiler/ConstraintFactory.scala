@@ -730,28 +730,27 @@ final class ConstraintFactory
             space.post(new Table(nextConstraintId(), maybeGoal, xs, rows, costs, forceImplicitSolving))
             List(costs)
         case Constraint("fzn_regular", List(xs, IntConst(q), IntConst(s), flatDelta, IntConst(q0), f), _) =>
-            val Q = q
-            val S = s
-            val delta = compileIntArray(flatDelta).map(_.domain.singleValue.value).grouped(s).to(immutable.ArraySeq)
+            val delta = compileIntArray(flatDelta).map(_.domain.singleValue.toInt).grouped(s.toInt).to(immutable.ArraySeq)
             val F = compileIntSetExpr(f).domain.singleValue.set
             val costs = createBoolChannel
-            space.post(new Regular(nextConstraintId(), maybeGoal, xs, Q, S, delta, q0, F, costs))
+            space.post(new Regular(nextConstraintId(), maybeGoal, xs, q.toInt, s.toInt, delta, q0.toInt, F, costs))
             List(costs)
         case Constraint("yuck_circuit", List(succ, IntConst(offset)), _) =>
             val costs = createBoolChannel
-            space.post(new Circuit(nextConstraintId(), maybeGoal, succ, offset, costs))
+            space.post(new Circuit(nextConstraintId(), maybeGoal, succ, safeToInt(offset), costs))
             List(costs)
         case Constraint("yuck_delivery", _, _) =>
             compileDeliveryConstraint[IntegerValue](maybeGoal, constraint)
         case Constraint("yuck_inverse", List(f, IntConst(fOffset), g, IntConst(gOffset)), _) =>
             val costs = createBoolChannel
-            val constraint = new Inverse(nextConstraintId(), maybeGoal, new InverseFunction(f, fOffset), new InverseFunction(g, gOffset), costs)
+            val constraint = new Inverse(nextConstraintId(), maybeGoal, new InverseFunction(f, safeToInt(fOffset)), new InverseFunction(g, safeToInt(gOffset)), costs)
             val constraints = constraint.decompose(space)
             constraints.foreach(space.post)
             constraints.view.flatMap(_.outVariables).map(_.asInstanceOf[BooleanVariable])
-        case Constraint("yuck_bin_packing_load", List(loads0, bins0, weights0, IntConst(minLoadIndex)), _) =>
+        case Constraint("yuck_bin_packing_load", List(loads0, bins0, weights0, IntConst(minLoadIndex0)), _) =>
             val bins = compileIntArray(bins0)
             val weights = getArrayElems(weights0).map(getConst[IntegerValue](_))
+            val minLoadIndex = safeToInt(minLoadIndex0)
             require(bins.size == weights.size)
             val itemGenerator =
                 for ((bin, weight) <- bins.iterator.zip(weights.iterator)) yield
@@ -763,7 +762,7 @@ final class ConstraintFactory
         case Constraint("fzn_global_cardinality", List(xs0, cover0, counts0), _) =>
             val xs = compileIntArray(xs0)
             val items = xs.map(new BinPackingItem(_, One))
-            val cover = getArrayElems(cover0).map(getConst[IntegerValue](_).value)
+            val cover = getArrayElems(cover0).map(getConst[IntegerValue](_).toInt)
             val counts = compileIntArray(counts0)
             require(cover.size == counts.size)
             val loads = cover.iterator.zip(counts.iterator).toMap
@@ -985,7 +984,7 @@ final class ConstraintFactory
             val delivery =
                 new Delivery[Time](
                     WeakReference(space), nextConstraintId(), maybeGoal,
-                    startNodes, endNodes, succ, offset, arrivalTimes, serviceTimes, travelTimes,
+                    startNodes, endNodes, succ, safeToInt(offset), arrivalTimes, serviceTimes, travelTimes,
                     withWaiting, totalTravelTime, costs)
             space.post(delivery)
             List(costs)
@@ -996,7 +995,7 @@ final class ConstraintFactory
                 val definableVars = this.definedVars(constraint)
                 val definedVars = new mutable.HashSet[NumericalVariable[Time]]
                 for (i <- nodes.values.toIndexedSeq) yield {
-                    val arrivalTime = arrivalTimes(i.value - offset)
+                    val arrivalTime = arrivalTimes(safeToInt(safeSub(i.value, offset)))
                     if (startNodes.contains(i)) {
                         arrivalTime
                     }
@@ -1015,7 +1014,7 @@ final class ConstraintFactory
             space.post(
                 new Delivery[Time](
                     WeakReference(space), nextConstraintId(), maybeGoal,
-                    startNodes, endNodes, succ, offset, arrivalTimes1, serviceTimes, travelTimes,
+                    startNodes, endNodes, succ, safeToInt(offset), arrivalTimes1, serviceTimes, travelTimes,
                     withWaiting, totalTravelTime1, costs))
             val pairs = (arrivalTimes :+ totalTravelTime).zip(arrivalTimes1 :+ totalTravelTime1)
             val deltas =
@@ -1028,8 +1027,8 @@ final class ConstraintFactory
         }
         compileConstraint(
             constraint,
-            startNodes.values.view.map(i => arrivalTimes(i.value - offset)) ++ succ,
-            nodes.diff(startNodes).values.view.map(i => arrivalTimes(i.value - offset)) ++ Seq(totalTravelTime),
+            startNodes.values.view.map(i => arrivalTimes(safeToInt(safeSub(i.value, offset)))) ++ succ,
+            nodes.diff(startNodes).values.view.map(i => arrivalTimes(safeToInt(safeSub(i.value, offset)))) ++ Seq(totalTravelTime),
             functionalCase, generalCase)
     }
 
@@ -1183,10 +1182,10 @@ final class ConstraintFactory
         // need to monitor xs0(j) and we either drop it or replace it by some xs0(j') with j' in i.domain
         // to omit a useless arc from the constraint network.
         val indexRange = indexRange0.intersect(i.domain.hull)
-        val offset = indexRange.lb.value
-        val xs1 = xs0.drop(max(0, i.domain.lb.value - indexRange0.lb.value)).take(indexRange.size)
+        val offset = indexRange.lb.toInt
+        val xs1 = xs0.drop(max(0, i.domain.lb.toInt - indexRange0.lb.toInt)).take(indexRange.size)
         val xs =
-            (for (j <- indexRange.values) yield xs1((if (i.domain.contains(j)) j else i.domain.lb).value - offset))
+            (for (j <- indexRange.values) yield xs1((if (i.domain.contains(j)) j else i.domain.lb).toInt - offset))
                 .toIndexedSeq
         def post(y: OrderedVariable[V]): OrderedVariable[V] = {
             if (xs.forall(_.domain.isSingleton)) {

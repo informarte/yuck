@@ -54,10 +54,10 @@ final class Delivery
     require(startNodes.size == endNodes.size)
     require(startNodes.isSubsetOf(nodes))
     require(endNodes.isSubsetOf(nodes))
-    require(endNodes.values.forall(i => succ(i.value - offset).domain.isSingleton))
+    require(endNodes.values.forall(i => succ(i.toInt - offset).domain.isSingleton))
     require(
         endNodes.values.foldLeft(IntegerValueTraits.emptyDomain){
-            case (acc, i) => acc.union(succ(i.value - offset).domain)} == startNodes)
+            case (acc, i) => acc.union(succ(i.toInt - offset).domain)} == startNodes)
     require(succ.forall(_.domain.isSubsetOf(nodes)))
     require(arrivalTimes.size == nodes.size)
     require(arrivalTimes.toSet.size == arrivalTimes.size)
@@ -69,9 +69,9 @@ final class Delivery
                 withWaiting, totalTravelTime, costs)
 
     override def inVariables =
-        startNodes.values.view.map(i => arrivalTimes(i.value - offset)) ++ succ
+        startNodes.values.view.map(i => arrivalTimes(i.toInt - offset)) ++ succ
     override def outVariables =
-        nodes.diff(startNodes).values.view.map(i => arrivalTimes(i.value - offset)) ++ Seq(totalTravelTime, costs)
+        nodes.diff(startNodes).values.view.map(i => arrivalTimes(i.toInt - offset)) ++ Seq(totalTravelTime, costs)
 
     private def checkSetup(): Unit = {
         val space = this.space.get.get
@@ -112,14 +112,14 @@ final class Delivery
         currentTotalTravelTime = timeTraits.zero
         currentCosts = 0
         for (i <- 0 until numberOfTours) {
-            var k = startNodes.lb.value + i - offset
+            var k = startNodes.lb.toInt + i - offset
             x2Tour.update(arrivalTimes(k), i)
             x2Tour.update(succ(k), i)
             var time = now.value(arrivalTimes(k))
             var j = now.value(succ(k))
             var tourTravelTime = timeTraits.zero
             while (! startNodes.contains(j)) {
-                val l = j.value - offset
+                val l = j.toInt - offset
                 x2Tour.update(succ(l), i)
                 val x = arrivalTimes(l)
                 val dx = x.domain
@@ -169,12 +169,12 @@ final class Delivery
         affectedTours.clear()
         affectedTours ++= move.involvedVariables.map(x2Tour)
         for (i <- affectedTours) {
-            var k = startNodes.lb.value + i - offset
+            var k = startNodes.lb.toInt + i - offset
             var time = after.value(arrivalTimes(k))
             var j = after.value(succ(k))
             var tourTravelTime = timeTraits.zero
             while (! startNodes.contains(j)) {
-                val l = j.value - offset
+                val l = j.toInt - offset
                 val x = arrivalTimes(l)
                 val dx = x.domain
                 time += serviceTimes(k)
@@ -221,10 +221,10 @@ final class Delivery
         currentTotalTravelTime = futureTotalTravelTime
         currentCosts = futureCosts
         for (i <- affectedTours) {
-            var k = startNodes.lb.value + i - offset
+            var k = startNodes.lb.toInt + i - offset
             var j = after.value(succ(k))
             while (! startNodes.contains(j)) {
-                val l = j.value - offset
+                val l = j.toInt - offset
                 x2Tour.update(succ(l), i)
                 k = l
                 j = after.value(succ(k))

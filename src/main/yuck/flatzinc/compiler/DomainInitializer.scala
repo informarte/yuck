@@ -46,7 +46,7 @@ final class DomainInitializer
             decl.varType match {
                 case ArrayType(Some(IntRange(1, n)), baseType) =>
                     val domain = createDomain(baseType)
-                    for (idx <- 1 to n) {
+                    for (idx <- 1 to n.toInt) {
                         val a = ArrayAccess(decl.id, IntConst(idx))
                         declaredVars += a
                         domains += a -> domain
@@ -73,14 +73,14 @@ final class DomainInitializer
                     decl.optionalValue match {
                         case Some(Term(rhsId, Nil)) =>
                             val lhsId = decl.id
-                            for (idx <- 1 to n) {
+                            for (idx <- 1 to n.toInt) {
                                 val a = ArrayAccess(lhsId, IntConst(idx))
                                 val b = ArrayAccess(rhsId, IntConst(idx))
                                 propagateAssignment(a, b)
                             }
                         case Some(ArrayConst(elems)) =>
                             assert(elems.size == n)
-                            for ((idx, b) <- (1 to n).zip(elems)) {
+                            for ((idx, b) <- (1 to n.toInt).zip(elems)) {
                                 val a = ArrayAccess(decl.id, IntConst(idx))
                                 propagateAssignment(a, b)
                             }
@@ -176,7 +176,7 @@ final class DomainInitializer
             else IntConst(1) :: constraint.params
         if (b.isConst && ! c.isConst) {
             val IntConst(i) = b
-            val a = getArrayElems(as).toIndexedSeq.apply(i - offset)
+            val a = getArrayElems(as).toIndexedSeq.apply(i.toInt - offset.toInt)
             if (! a.isConst) {
                 propagateEquality(a, c, domain(a).intersect(domain(c)))
                 impliedConstraints += constraint

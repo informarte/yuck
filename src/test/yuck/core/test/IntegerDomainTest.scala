@@ -80,8 +80,8 @@ final class IntegerDomainTest extends UnitTest {
                 }
                 def check1a(values: Iterable[IntegerValue]) = check(IntegerDomain(values))
                 def check1b(values: IntegerValue*) = check(IntegerDomain(values: _*))
-                def check2a(values: Iterable[Int]) = check(IntegerDomain(values))
-                def check2b(values: Int*) = check(IntegerDomain(values: _*))
+                def check2a(values: Iterable[Long]) = check(IntegerDomain(values))
+                def check2b(values: Long*) = check(IntegerDomain(values: _*))
                 check1a(input.toList)
                 check1a(input.toVector)
                 check1a(input.toSet)
@@ -93,7 +93,7 @@ final class IntegerDomainTest extends UnitTest {
                 check2a(intView.toList)
                 check2a(intView.toVector)
                 check2a(intView.toSet)
-                check2a(immutable.TreeSet[Int]() ++ intView)
+                check2a(immutable.TreeSet[Long]() ++ intView)
                 check2b(intView.toList: _*)
                 check2b(intView.toVector: _*)
             }

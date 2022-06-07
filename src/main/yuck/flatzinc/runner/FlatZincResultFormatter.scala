@@ -31,7 +31,7 @@ final class FlatZincResultFormatter(result: Result) extends Callable[Seq[String]
                                 dimensions.size,
                                 (for (IntSetConst(IntRange(lb, ub)) <- dimensions) yield
                                     "%d..%d".format(lb, ub)).mkString(", "),
-                                (for (idx <- 1 to n) yield
+                                (for (idx <- 1 to n.toInt) yield
                                     value(compilerResult.arrays(decl.id)(idx - 1)).toString).mkString(", "))
                         sortedMap = sortedMap + (decl.id -> a)
                     case _ =>

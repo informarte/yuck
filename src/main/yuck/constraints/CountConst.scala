@@ -82,7 +82,7 @@ final class CountConst
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
-        count = effect.a.value
+        count = effect.a.toInt
         effect
     }
 

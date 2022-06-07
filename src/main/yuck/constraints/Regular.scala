@@ -74,7 +74,7 @@ final class Regular
                 for (j <- 0 until Q)
                     if (d(i)(k) < Int.MaxValue && d(k)(j) < Int.MaxValue && d(i)(j) > d(i)(k) + d(k)(j))
                         d(i)(j) = d(i)(k) + d(k)(j)
-        for (i <- 0 until Q) yield F.valuesIterator.map(f => d(i)(f.value - 1)).min
+        for (i <- 0 until Q) yield F.valuesIterator.map(f => d(i)(f.toInt - 1)).min
     }
 
     override def toString =
@@ -120,7 +120,7 @@ final class Regular
         var i = 0
         var q = q0
         while (i < n && q > 0) {
-            val a = now.value(xs(i)).value
+            val a = now.value(xs(i)).toInt
             q = if (a >= 1 && a <= S) delta(q - 1)(a - 1) else 0
             if (q > 0 && distancesToAcceptingState(q - 1) > n - i - 1) q = 0
             currentStates = currentStates.updated(i, q)
@@ -164,7 +164,7 @@ final class Regular
                 j += 1
                 q = if (i == 0) q0 else futureStates(i - 1)
                 while {
-                    val a = after.value(xs(i)).value
+                    val a = after.value(xs(i)).toInt
                     q = if (a >= 1 && a <= S) delta(q - 1)(a - 1) else 0
                     if (q > 0 && distancesToAcceptingState(q - 1) > n - i - 1) q = 0
                     if (q != currentStates(i)) {

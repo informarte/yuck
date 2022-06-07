@@ -74,7 +74,7 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
 
     private def checkArrivalTimes(searchState: SearchState): Unit = {
         for (i <- nodes if ! endNodes.contains(i)) {
-            val j = searchState.value(succ(i)).value - offset
+            val j = searchState.value(succ(i)).toInt - offset
             val (x, y) = (arrivalTimes(i), arrivalTimes(j))
             val (a, b) = (searchState.value(x), searchState.value(y))
             val c = a + serviceTimes(i) + travelTimes(i)(j)
@@ -85,7 +85,7 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
     private def checkTotalTravelTime(searchState: SearchState): Unit = {
         var expectedTotalTravelTime = Zero
         for (i <- nodes if ! endNodes.contains(i)) {
-            val j = searchState.value(succ(i)).value - offset
+            val j = searchState.value(succ(i)).toInt - offset
             expectedTotalTravelTime += travelTimes(i)(j)
         }
         assertEq(searchState.value(totalTravelTime), expectedTotalTravelTime)

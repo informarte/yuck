@@ -42,9 +42,9 @@ final case class MiniZincTestTask(
     maybeMaximumNumberOfThreads: Option[Int] = Some(DefaultNumberOfThreads), // limits solverConfiguration.numberOfThreads
     maybeRoundLimit: Option[Int] = None, // overrules solverConfiguration.maybeRoundLimitInSeconds
     maybeRuntimeLimitInSeconds: Option[Int] = Some(DefaultRuntimeLimitInSeconds), // overrules solverConfiguration.maybeRuntimeLimitInSeconds
-    maybeOptimum: Option[Int] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
-    maybeHighScore: Option[Int] = None, // best ever recorded objective value
-    maybeTargetObjectiveValue: Option[Int] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
+    maybeOptimum: Option[Long] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
+    maybeHighScore: Option[Long] = None, // best ever recorded objective value
+    maybeTargetObjectiveValue: Option[Long] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
     logLevel: yuck.util.logging.LogLevel = yuck.util.logging.InfoLogLevel,
     assertWhenUnsolved: Boolean = false,
     reusePreviousTestResult: Boolean = true,

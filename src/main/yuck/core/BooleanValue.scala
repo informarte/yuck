@@ -60,6 +60,13 @@ object BooleanValue {
     inline def apply(a: Boolean): BooleanValue =
         if (a) True else False
 
+    /**
+     * Returns a BooleanValue instance for the given violation.
+     *
+     * Violations in valueRange are used as index into an array of prefabricated
+     * BooleanValue instances, so the operation is cheap for them.
+     * For other violations, a new BooleanValue instance is created.
+     */
     def apply(a: Int): BooleanValue =
         if (a < ub) valueCache(a) else new BooleanValue(a)
 

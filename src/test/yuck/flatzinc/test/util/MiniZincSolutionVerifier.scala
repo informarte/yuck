@@ -167,14 +167,14 @@ class MiniZincSolutionVerifier(
                 // ghoulomb:
                 // var 0..81: objective :: output_var = mark2[9];
                 // solve  :: int_search(...) minimize mark2[9];
-                checkObjective(outputLines, compilerResult.arrays(id)(idx - 1))
+                checkObjective(outputLines, compilerResult.arrays(id)(idx.toInt - 1))
             case Maximize(Term(id, _), _) =>
                 // photo:
                 // var 0..17: satisfies :: output_var = INT____00018;
                 // solve :: int_search(...) maximize INT____00018;
                 checkObjective(outputLines, compilerResult.vars(id))
             case Maximize(ArrayAccess(id, IntConst(idx)), _) =>
-                checkObjective(outputLines, compilerResult.arrays(id)(idx - 1))
+                checkObjective(outputLines, compilerResult.arrays(id)(idx.toInt - 1))
         }
     }
 

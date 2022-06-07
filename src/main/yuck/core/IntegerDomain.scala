@@ -262,7 +262,15 @@ object IntegerDomain {
     def apply(values: Iterable[Int]): IntegerDomain = IntegerDomain(values.view.map(IntegerValue.apply))
 
     /** Creates an integer domain from the given values. */
+    @targetName("fromLongIntegers")
+    def apply(values: Iterable[Long]): IntegerDomain = IntegerDomain(values.view.map(IntegerValue.apply))
+
+    /** Creates an integer domain from the given values. */
     @targetName("fromVarArgIntegers")
     inline def apply(values: Int*): IntegerDomain = apply(values)
+
+    /** Creates an integer domain from the given values. */
+    @targetName("fromVarArgLongIntegers")
+    def apply(values: Long*): IntegerDomain = apply(values)
 
 }

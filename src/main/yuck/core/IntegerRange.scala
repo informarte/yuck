@@ -36,7 +36,7 @@ final class IntegerRange
 
     override def size = {
         require(isFinite)
-        max(0, safeInc(safeSub(ub.value, lb.value)))
+        max(0, safeToInt(safeInc(safeSub(ub.value, lb.value))))
     }
     inline override def isComplete = lb.eq(null) && ub.eq(null)
     inline override def isFinite = lb.ne(null) && ub.ne(null)
@@ -233,7 +233,7 @@ object IntegerRange {
      *
      * Tries to avoid memory allocation by re-using existing objects.
      */
-    def apply(lb: Int, ub: Int): IntegerRange =
+    def apply(lb: Long, ub: Long): IntegerRange =
         if (ub < lb) EmptyIntegerRange
         else new IntegerRange(IntegerValue(lb), IntegerValue(ub))
 

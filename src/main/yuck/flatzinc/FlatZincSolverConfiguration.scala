@@ -26,7 +26,7 @@ final case class FlatZincSolverConfiguration(
     numberOfThreads: Int = Runtime.getRuntime.availableProcessors,
     maybeRoundLimit: Option[Int] = None,
     maybeRuntimeLimitInSeconds: Option[Int] = None,
-    maybeTargetObjectiveValue: Option[Int] = None,
+    maybeTargetObjectiveValue: Option[Long] = None,
     focusOnTopObjective: Boolean = true,
     stopOnFirstSolution: Boolean = false,
     pruneConstraintNetwork: Boolean = true,

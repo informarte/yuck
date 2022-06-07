@@ -14,7 +14,7 @@ abstract class InverseNeighbourhood
 {
 
     protected final def value(x: IntegerVariable): IntegerValue = space.searchState.value(x)
-    protected final def rawValue(x: IntegerVariable): Int = value(x).value
+    protected final def rawValue(x: IntegerVariable): Int = value(x).toInt
 
     require(f.xs.size == g.xs.size)
     require(f.isSuitableForImplicitSolving(space))

@@ -141,8 +141,8 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         } else if (lhs0.forall{case (a, d) => if (a.value >= 0) d.hasLb else d.hasUb}) {
             val lhs1 =
                 if (rhs0.hasUb) {
-                    lazy val posTerm = lhs0.foldLeft(0){case (sum, (a, d)) => safeAdd(sum, if (a.value >= 0) safeMul(a.value, d.lb.value) else 0)}
-                    lazy val negTerm = lhs0.foldLeft(0){case (sum, (a, d)) => safeAdd(sum, if (a.value < 0) safeMul(safeNeg(a.value), d.ub.value) else 0)}
+                    lazy val posTerm = lhs0.foldLeft(0L){case (sum, (a, d)) => safeAdd(sum, if (a.value >= 0) safeMul(a.value, d.lb.value) else 0)}
+                    lazy val negTerm = lhs0.foldLeft(0L){case (sum, (a, d)) => safeAdd(sum, if (a.value < 0) safeMul(safeNeg(a.value), d.ub.value) else 0)}
                     for ((a, d) <- lhs0.iterator) yield {
                         if (a.value > 0) {
                             val alpha = safeAdd(safeSub(rhs0.ub.value, safeSub(posTerm, a.value * d.lb.value)), negTerm).toDouble / a.value
@@ -158,7 +158,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
                 } else {
                     lhs0.iterator.map(_._2.asInstanceOf[IntegerDomain])
                 }
-            val lhs0Lb = lhs0.foldLeft(0){case (sum, (a, d)) => safeAdd(sum, safeMul(a.value, if (a.value >= 0) d.lb.value else d.ub.value))}
+            val lhs0Lb = lhs0.foldLeft(0L){case (sum, (a, d)) => safeAdd(sum, safeMul(a.value, if (a.value >= 0) d.lb.value else d.ub.value))}
             val rhs1 = IntegerRange(IntegerValue(lhs0Lb), null).intersect(rhs0)
             (lhs1, rhs1)
         } else {

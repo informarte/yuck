@@ -92,10 +92,10 @@ abstract class CompilationPhase extends Runnable {
     protected final def getArrayElems(expr: Expr): immutable.Iterable[Expr] =
         cc.ast.getArrayElems(expr)
 
-    protected final def createIntDomain(lb: Int, ub: Int): IntegerDomain =
+    protected final def createIntDomain(lb: Long, ub: Long): IntegerDomain =
         IntegerRange(lb, ub)
 
-    protected final def createIntDomain(set: Set[Int]): IntegerDomain =
+    protected final def createIntDomain(set: Set[Long]): IntegerDomain =
         IntegerDomain(set.map(IntegerValue.apply))
 
     protected final def compileAnyExpr(expr: Expr): AnyVariable = expr match {
@@ -126,7 +126,7 @@ abstract class CompilationPhase extends Runnable {
         case Term(id, Nil) =>
             cc.vars(expr)
         case ArrayAccess(id, IntConst(idx)) =>
-            cc.arrays(Term(id, Nil))(idx - 1)
+            cc.arrays(Term(id, Nil))(safeToInt(idx - 1))
     }
 
     protected final def compileAnyArray(expr: Expr): immutable.IndexedSeq[AnyVariable] = expr match {

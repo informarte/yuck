@@ -72,8 +72,8 @@ final class Inverse
     private def computeCosts(
         f: InverseFunction, g: InverseFunction, i: Int, searchState: SearchState): Int =
     {
-        val j = searchState.value(f.xs(i - f.offset)).value
-        if (g.indexRange.contains(j)) abs(safeSub(searchState.value(g.xs(j - g.offset)).value, i))
+        val j = searchState.value(f.xs(i - f.offset)).toInt
+        if (g.indexRange.contains(j)) abs(safeSub(searchState.value(g.xs(j - g.offset)).toInt, i))
         else 0
     }
 
@@ -86,7 +86,7 @@ final class Inverse
                      x = f.xs(i - f.offset);
                      dx = x.domain;
                      di = IntegerRange(i, i);
-                     j <- g.indexDomain.diff(dx).valuesIterator.map(_.value);
+                     j <- g.indexDomain.diff(dx).valuesIterator.map(_.toInt);
                      y = g.xs(j - g.offset))
                 yield
                     (y, y.domain.diff(di)))
@@ -95,7 +95,7 @@ final class Inverse
                      x = f.xs(i - f.offset);
                      dx = x.domain;
                      if dx.isSingleton;
-                     y = g.xs(dx.singleValue.value - g.offset))
+                     y = g.xs(dx.singleValue.toInt - g.offset))
                 yield
                     (y, y.domain.intersect(IntegerRange(i, i))))
     }
@@ -119,14 +119,14 @@ final class Inverse
         }
         for (i <- f.indexRange) {
             currentCosts = safeAdd(currentCosts, computeCosts(f, g, i, now))
-            val j = now.value(f.xs(i - f.offset)).value
+            val j = now.value(f.xs(i - f.offset)).toInt
             if (g.indexRange.contains(j)) {
                 g.refs(j - g.offset) += i
             }
         }
         for (j <- g.indexRange) {
             currentCosts = safeAdd(currentCosts, computeCosts(g, f, j, now))
-            val i = now.value(g.xs(j - g.offset)).value
+            val i = now.value(g.xs(j - g.offset)).toInt
             if (f.indexRange.contains(i)) {
                 f.refs(i - f.offset) += j
             }
@@ -156,7 +156,7 @@ final class Inverse
                 for (j <- f.refs(i - f.offset)) {
                     futureCosts = safeAdd(futureCosts, computeCostDelta(g, f, j, g.visited))
                 }
-                futureCosts = safeAdd(futureCosts, computeCostDelta(g, f, after.value(x).value, g.visited))
+                futureCosts = safeAdd(futureCosts, computeCostDelta(g, f, after.value(x).toInt, g.visited))
             }
             val maybeJ = g.x2i.get(x)
             if (maybeJ.isDefined) {
@@ -166,7 +166,7 @@ final class Inverse
                 for (i <- g.refs(j - g.offset)) {
                     futureCosts = safeAdd(futureCosts, computeCostDelta(f, g, i, f.visited))
                 }
-                futureCosts = safeAdd(futureCosts, computeCostDelta(f, g, after.value(y).value, f.visited))
+                futureCosts = safeAdd(futureCosts, computeCostDelta(f, g, after.value(y).toInt, f.visited))
             }
         }
         if (debug) {
@@ -188,11 +188,11 @@ final class Inverse
             if (maybeI.isDefined) {
                 val i = maybeI.get
                 val x = f.xs(i - f.offset)
-                val jBefore = before.value(x).value
+                val jBefore = before.value(x).toInt
                 if (g.indexRange.contains(jBefore)) {
                     g.refs(jBefore - g.offset) -= i
                 }
-                val jAfter = after.value(x).value
+                val jAfter = after.value(x).toInt
                 if (g.indexRange.contains(jAfter)) {
                     g.refs(jAfter - g.offset) += i
                 }
@@ -201,11 +201,11 @@ final class Inverse
             if (maybeJ.isDefined) {
                 val j = maybeJ.get
                 val y = g.xs(j - g.offset)
-                val iBefore = before.value(y).value
+                val iBefore = before.value(y).toInt
                 if (f.indexRange.contains(iBefore)) {
                     f.refs(iBefore - f.offset) -= j
                 }
-                val iAfter = after.value(y).value
+                val iAfter = after.value(y).toInt
                 if (f.indexRange.contains(iAfter)) {
                     f.refs(iAfter - f.offset) += j
                 }
@@ -341,7 +341,7 @@ final class Inverse
                 fPartitionByDomain.keysIterator.map(_.size).sum
         if (isDecomposable) {
             for (domain <- fPartitionByDomain.keysIterator.toList) yield {
-                val offset = domain.lb.value
+                val offset = domain.lb.toInt
                 val costs = new BooleanVariable(space.nextVariableId(), "", CompleteBooleanDomain)
                 new Inverse(
                     space.nextConstraintId(), maybeGoal,
@@ -366,7 +366,7 @@ object Inverse {
     def areInverseFunctionsOfEachOther(f: InverseFunction, g: InverseFunction, searchState: SearchState): Boolean =
         f.xs.size == g.xs.size &&
         f.indexRange.forall(i => {
-            val j = searchState.value(f.xs(i - f.offset)).value
+            val j = searchState.value(f.xs(i - f.offset)).toInt
             g.indexRange.contains(j) && searchState.value(g.xs(j - g.offset)).value == i
         })
 

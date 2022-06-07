@@ -40,7 +40,7 @@ final class CircuitNeighbourhood
         var j = 0
         while {
             cycle.update(j, i - offset)
-            i = now.value(succ(i - offset)).value
+            i = now.value(succ(i - offset)).toInt
             j += 1
             i != offset
         } do ()
@@ -146,7 +146,7 @@ final class CircuitNeighbourhood
             }
             // recompute s2
             while (l <= k) {
-                currentCycle.update(l % n, now.value(succ(currentCycle((l - 1) % n))).value - offset)
+                currentCycle.update(l % n, now.value(succ(currentCycle((l - 1) % n))).toInt - offset)
                 l += 1
             }
         } else {
@@ -159,7 +159,7 @@ final class CircuitNeighbourhood
             // recompute s3
             l += 1
             while (l <= i + m3) {
-                currentCycle.update(l % n, now.value(succ(currentCycle((l - 1) % n))).value - offset)
+                currentCycle.update(l % n, now.value(succ(currentCycle((l - 1) % n))).toInt - offset)
                 l += 1
             }
         }

@@ -87,16 +87,17 @@ final class Disjoint2
         }
 
     protected override def createRTreeEntry(i: Int, searchState: SearchState) = {
-        val r = rects(i)
-        val x1 = searchState.value(r.x).value
-        val y1 = searchState.value(r.y).value
-        val w = searchState.value(r.w).value
-        val h = searchState.value(r.h).value
+        val r1 = rects(i)
+        val x1 = searchState.value(r1.x).value
+        val y1 = searchState.value(r1.y).value
+        val w = searchState.value(r1.w).value
+        val h = searchState.value(r1.h).value
         val hasZeroWidth = w == 0
         val hasZeroHeight = h == 0
         val x2 = safeAdd(x1, if (hasZeroWidth && isStrict) 1 else max(w, 0))
         val y2 = safeAdd(y1, if (hasZeroHeight && isStrict) 1 else max(h, 0))
-        val entry = new RTreeEntry(i, hasZeroWidth, hasZeroHeight, new Rect2d(x1, y1, x2, y2))
+        val r2 = new Rect2d(x1.toDouble, y1.toDouble, x2.toDouble, y2.toDouble)
+        val entry = new RTreeEntry(i, hasZeroWidth, hasZeroHeight, r2)
         entry
     }
 

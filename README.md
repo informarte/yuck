@@ -116,6 +116,8 @@ env JAVA_OPTS=-Xmx4g yuck zebra.fzn
 
 Yuck's FlatZinc front end supports all of FlatZinc except for float variables and float constraints.
 
+Integers in Yuck are 64 bits wide.
+
 When used as a FlatZinc interpreter, Yuck proceeds as follows:
 
 * It eliminates variables by exploiting equality constraints.

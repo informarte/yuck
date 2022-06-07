@@ -2,11 +2,13 @@ package yuck.flatzinc.ast
 
 import scala.collection.*
 
+import yuck.core.safeToInt
+
 trait ValueSet[V]
-final case class IntRange(lb: Int, ub: Int) extends ValueSet[Int] {
+final case class IntRange(lb: Long, ub: Long) extends ValueSet[Long] {
     override def toString = "%s..%s".format(lb, ub)
 }
-final case class IntSet(value: Set[Int]) extends ValueSet[Int] {
+final case class IntSet(value: Set[Long]) extends ValueSet[Long] {
     override def toString =
         "{%s%s}".format(
             value.toBuffer.sorted.iterator.take(10).map(_.toString).mkString(", "),
@@ -26,13 +28,13 @@ trait ConstExpr extends Expr {
 final case class BoolConst(value: Boolean) extends ConstExpr {
     override def toString = value.toString
 }
-final case class IntConst(value: Int) extends ConstExpr {
+final case class IntConst(value: Long) extends ConstExpr {
     override def toString = value.toString
 }
 final case class FloatConst(value: Double) extends ConstExpr {
     override def toString = value.toString
 }
-final case class IntSetConst(value: ValueSet[Int]) extends ConstExpr
+final case class IntSetConst(value: ValueSet[Long]) extends ConstExpr
 final case class ArrayConst(value: List[Expr]) extends ConstExpr {
     override def toString = "[%s]".format(value.iterator.map(_.toString).mkString(", "))
 }
@@ -55,7 +57,7 @@ trait BaseType extends Type
 case object BoolType extends BaseType {
     override def toString = "bool"
 }
-final case class IntType(optionalDomain: Option[ValueSet[Int]]) extends BaseType {
+final case class IntType(optionalDomain: Option[ValueSet[Long]]) extends BaseType {
     override def toString = optionalDomain match {
         case Some(domain) => domain.toString
         case None => "int"
@@ -67,13 +69,13 @@ final case class FloatType(optionalDomain: Option[ValueSet[Double]]) extends Bas
         case None => "float"
     }
 }
-final case class IntSetType(optionalDomain: Option[ValueSet[Int]]) extends BaseType {
+final case class IntSetType(optionalDomain: Option[ValueSet[Long]]) extends BaseType {
     override def toString = optionalDomain match {
         case Some(domain) => "set of %s".format(domain.toString)
         case None => "set of int"
     }
 }
-final case class ArrayType(optionalIndexSet: Option[ValueSet[Int]], baseType: BaseType) extends Type {
+final case class ArrayType(optionalIndexSet: Option[ValueSet[Long]], baseType: BaseType) extends Type {
     override val isArrayType = true
     override def toString = optionalIndexSet match {
         case Some(indexSet) => "array [%s] of %s".format(indexSet, baseType)
@@ -155,7 +157,7 @@ final case class FlatZincAst(
                     case Some(i) =>
                         val ArrayType(Some(IntRange(n, m)), _) = decl.varType
                         val ArrayConst(elems) = decl.optionalValue.get
-                        involvedVariables(elems(i - n))
+                        involvedVariables(elems(i - safeToInt(n)))
                     case None =>
                         immutable.Set(expr)
                 }
@@ -173,7 +175,7 @@ final case class FlatZincAst(
 
     private def findIndex(expr: Expr): Option[Int] = expr match {
         case IntConst(i) =>
-            Some(i)
+            Some(safeToInt(i))
         case ArrayAccess(id, idx) if varDeclsByName.contains(id) =>
             val decl = varDeclsByName(id)
             if (decl.optionalValue.isDefined) {
@@ -181,7 +183,7 @@ final case class FlatZincAst(
                     case Some(i) =>
                         val ArrayType(Some(IntRange(n, _)), _) = decl.varType
                         val ArrayConst(elems) = decl.optionalValue.get
-                        findIndex(elems(i - n))
+                        findIndex(elems(i - safeToInt(n)))
                     case None =>
                         None
                 }
@@ -194,7 +196,7 @@ final case class FlatZincAst(
                     val decl = paramDeclsByName(id)
                     val ArrayType(Some(IntRange(n, _)), _) = decl.paramType
                     val ArrayConst(elems) = decl.value
-                    findIndex(elems(i - n))
+                    findIndex(elems(i - safeToInt(n)))
                 case None =>
                     None
             }

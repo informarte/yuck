@@ -45,7 +45,7 @@ final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
 
     private def valuesIterator(range: IntegerRange): Iterator[IntegerValue] =
         if (range.isFinite) range.valuesIterator
-        else Iterator.from(range.lb.value).map(IntegerValue.apply)
+        else Iterator.from(range.lb.toInt).map(IntegerValue.apply)
 
     private def valuesIterator(ranges: Iterable[IntegerRange]): Iterator[IntegerValue] =
         ranges.iterator.flatMap(valuesIterator)

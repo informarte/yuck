@@ -58,7 +58,7 @@ final class BinPacking
             currentLoads(i) = valueTraits.zero
         }
         for (item <- items) {
-            val i = now.value(item.bin).value
+            val i = now.value(item.bin).toInt
             if (currentLoads.contains(i)) {
                 currentLoads(i) += item.weight
             }
@@ -74,8 +74,8 @@ final class BinPacking
        loadDeltas.clear()
        for (x <- move) {
            val item = x2Item(x)
-           val j = before.value(item.bin).value
-           val k = after.value(item.bin).value
+           val j = before.value(item.bin).toInt
+           val k = after.value(item.bin).toInt
            if (effects.contains(j)) {
                loadDeltas += j -> (loadDeltas.getOrElse(j, valueTraits.zero) - item.weight)
            }
