@@ -28,7 +28,7 @@ final class IntegerRangeList
     @inline def ==(that: IntegerRangeList): Boolean = this.eq(that) || this.ranges == that.ranges
     @inline def !=(that: IntegerRangeList): Boolean = ! (this == that)
 
-    override def toString = if (isEmpty) "{}" else ranges.iterator.map(_.toString).mkString(" union ")
+    override def toString = if (isEmpty) "{}" else ranges.iterator.map(_.toString).mkString(" ∪ ")
 
     @inline override def isEmpty = ranges.isEmpty
     override lazy val size = ranges.iterator.map(_.size).foldLeft(0)(safeAdd)

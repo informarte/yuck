@@ -11,6 +11,9 @@ RUN apt-get install -y openjdk-17-jre-headless && \
     apt-get clean && \
     java -version
 
+# Tell the JVM to use UTF-8
+ENV LC_ALL=C.UTF-8
+
 # Install MiniZinc compiler
 ARG minizinc_version=2.6.3
 LABEL minizinc_version=${minizinc_version}

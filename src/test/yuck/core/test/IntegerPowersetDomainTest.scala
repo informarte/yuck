@@ -126,7 +126,7 @@ final class IntegerPowersetDomainTest extends UnitTest {
         // {0, 2}
         List(esd, sd0, sd01).foreach(s => assertNe(sd02, s))
         assertEq(sd02, sd02)
-        assertEq(sd02.toString, "P({0} union {2})")
+        assertEq(sd02.toString, "P({0} ∪ {2})")
         assert(! sd02.isEmpty)
         assertEq(sd02.size, 4)
         assert(! sd02.isComplete)

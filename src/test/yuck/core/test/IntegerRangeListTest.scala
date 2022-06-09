@@ -31,7 +31,7 @@ final class IntegerRangeListTest extends UnitTest {
         // [0, 9] \ {5}
         assert(! a.isEmpty)
         assertEq(a.size, 9)
-        assertEq(a.toString, "0..4 union 6..9")
+        assertEq(a.toString, "0..4 ∪ 6..9")
         assert(! a.contains(Five))
         assertEq(a.values.size, 9)
         assertEq(a.values.toList, List(Zero, One, Two, Three, Four, Six, Seven, Eight, Nine))
@@ -52,7 +52,7 @@ final class IntegerRangeListTest extends UnitTest {
         // [0, 9] \ {5, 7}
         assert(! b.isEmpty)
         assertEq(b.size, 8)
-        assertEq(b.toString, "0..4 union {6} union 8..9")
+        assertEq(b.toString, "0..4 ∪ {6} ∪ 8..9")
         assert(! b.contains(Seven))
         assertEq(b.values.size, 8)
         assertEq(b.values.toList, List(Zero, One, Two, Three, Four, Six, Eight, Nine))
@@ -73,7 +73,7 @@ final class IntegerRangeListTest extends UnitTest {
         // [0, 9] \ {5, 6, 7}
         assert(! c.isEmpty)
         assertEq(c.size, 7)
-        assertEq(c.toString, "0..4 union 8..9")
+        assertEq(c.toString, "0..4 ∪ 8..9")
         assert(! c.contains(Six))
         assertEq(c.values.size, 7)
         assertEq(c.values.toList, List(Zero, One, Two, Three, Four, Eight, Nine))
@@ -92,7 +92,7 @@ final class IntegerRangeListTest extends UnitTest {
         assert(c.hasGaps)
 
         // ]-inf, +inf[ \ ([0, 9] \ {5, 7})
-        assertEq(d.toString, "-inf..-1 union {5} union {7} union 10..+inf")
+        assertEq(d.toString, "-inf..-1 ∪ {5} ∪ {7} ∪ 10..+inf")
         assert(! d.isEmpty)
         assertEx(d.size)
         assert(! d.isComplete)
