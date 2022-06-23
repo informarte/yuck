@@ -722,11 +722,10 @@ final class ConstraintFactory
             val forceImplicitSolving = constraint.annotations.exists(forcesImplicitSolving)
             space.post(new Table(nextConstraintId(), maybeGoal, xs, rows, costs, forceImplicitSolving))
             List(costs)
-        case Constraint("fzn_regular", List(xs, IntConst(q), IntConst(s), flatDelta, IntConst(q0), f), _) =>
+        case Constraint("fzn_regular", List(xs, q, s, flatDelta, q0, f), _) =>
             val delta = compileIntArray(flatDelta).map(_.domain.singleValue.toInt).grouped(s.toInt).to(immutable.ArraySeq)
-            val F = compileIntSetExpr(f).domain.singleValue.set
             val costs = createBoolChannel
-            space.post(new Regular(nextConstraintId(), maybeGoal, xs, q.toInt, s.toInt, delta, q0.toInt, F, costs))
+            space.post(new Regular(nextConstraintId(), maybeGoal, xs, q.toInt, s.toInt, delta, q0.toInt, f.set, costs))
             List(costs)
         case Constraint("yuck_circuit", List(succ, IntConst(offset)), _) =>
             val costs = createBoolChannel

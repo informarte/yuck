@@ -54,7 +54,7 @@ abstract class CompilationPhase extends Runnable {
             case IntSetConst(IntRange(lb, ub)) => Some(new IntegerSetValue(IntegerRange(lb, ub)))
             case IntSetConst(IntSet(set)) => Some(new IntegerSetValue(IntegerDomain(set)))
             case FloatConst(_) => throw new UnsupportedFlatZincTypeException(FloatType(None))
-            case _ if cc.domains(a).isSingleton => Some(cc.domains(a).singleValue)
+            case _ if cc.vars(a).domain.isSingleton => Some(cc.vars(a).domain.singleValue)
             case _ => None
         }
     }
@@ -137,11 +137,20 @@ abstract class CompilationPhase extends Runnable {
         implicit final def compileBoolExpr(expr: Expr): BooleanVariable =
             compileAnyExpr(expr).asInstanceOf[BooleanVariable]
 
+        implicit final def compileConstBoolExpr(expr: Expr): BooleanValue =
+            getConst[BooleanValue](expr)
+
         implicit final def compileIntExpr(expr: Expr): IntegerVariable =
             compileAnyExpr(expr).asInstanceOf[IntegerVariable]
 
+        implicit final def compileConstIntExpr(expr: Expr): IntegerValue =
+            getConst[IntegerValue](expr)
+
         implicit final def compileIntSetExpr(expr: Expr): IntegerSetVariable =
             compileAnyExpr(expr).asInstanceOf[IntegerSetVariable]
+
+        implicit final def compileConstIntSetExpr(expr: Expr): IntegerSetValue =
+            getConst[IntegerSetValue](expr)
 
         implicit final def compileBoolArray(expr: Expr): immutable.IndexedSeq[BooleanVariable] = {
             val xs = compileAnyArray(expr)

@@ -23,9 +23,9 @@ final class CompilationContext(
     val impliedConstraints = new mutable.HashSet[yuck.flatzinc.ast.Constraint]
     val space = new Space(logger, sigint, cfg.checkIncrementalCostUpdate, cfg.checkAssignmentsToNonChannelVariables)
     val consts = new mutable.AnyRefMap[Expr, AnyVariable] // holds unnamed inline constants
+    val vars = new mutable.AnyRefMap[Expr, AnyVariable] // holds named variables and parameters
     val arrayConsts = new mutable.AnyRefMap[Expr, immutable.IndexedSeq[AnyVariable]] // holds unnamed inline arrays
-    val vars = new mutable.AnyRefMap[Expr, AnyVariable] // also holds named parameters
-    val arrays = new mutable.AnyRefMap[Expr, immutable.IndexedSeq[AnyVariable]]
+    val arrays = new mutable.AnyRefMap[Expr, immutable.IndexedSeq[AnyVariable]] // holds named arrays of variables and parameters
     val domains = new mutable.AnyRefMap[Expr, AnyDomain]
     val searchVars = new mutable.HashSet[AnyVariable]
     val definedVars = new mutable.HashSet[AnyVariable] // variables that occur in a defines_var annotation
