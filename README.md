@@ -218,12 +218,7 @@ overlap = 0
 ==========
 ```
 
-bool2costs is defined for every constraint implemented by Yuck, including all the global constraints listed above. The underlying cost models are not yet documented in detail but most of them are quite intuitive. For example:
-
-- bool2costs(x = y) = abs(value assigned to x - value assigned to y)
-- bool2costs(e1 /\ e2) = bool2costs(e1) + bool2costs(e2)
-- bool2costs(circuit(succ)) = number of nodes - length of the longest cycle in the graph spanned by succ
-- bool2costs(disjunctive(s, d)) computes how much each pair of tasks overlaps and returns the sum of these overlaps.
+bool2costs is defined for every constraint implemented by Yuck, including all the global constraints listed above. Please see the section on [cost models](#cost-models) for the technical details.
 
 To use bool2costs, you have to include `yuck.mzn`.
 
@@ -317,6 +312,92 @@ Yuck implements the `warm_start` and `warm_start_array` annotations.
 Yuck will assign the given variables the given values in the given order, all other search variables will be assigned random values. Then Yuck will start simulated annealing from a lower temperature than normal to somewhat protect the given assignment until the first reheating.
 
 Notice that Yuck will not automatically strive to minimize the changes to the given (partial) assignment. If this is a requirement, add an application-specific minimization goal, for example as part of a [goal hierarchy](#goal-hierarchies).
+
+## Cost models
+
+This section documents the cost models implemented by the [bool2costs](#bool2costs) function.
+
+Notation:
+- If x is a list or a set, then |x| denotes its size.
+- If x is a variable, then σ(x) denotes its current value.
+
+### Cost models for basic logical operations
+
+Let p and q denote Boolean MiniZinc expressions.
+
+| c | bool2costs(c) |
+|---|---|
+| p ∧ q | bool2costs(p) + bool2costs(q) |
+| p ∨ q | if bool2costs(p) = 0 or bool2costs(q) = 0 then 0<br> else (bool2costs(p) + bool2costs(q)) / 2 |
+| p xor q | if bool2costs(p) = 0 and bool2costs(q) = 0 then 1<br> else if bool2costs(p) > 0 and bool2costs(q) > 0 then (bool2costs(p) + bool2costs(q)) / 2<br> else 0 |
+| p → q | if bool2costs(p) > 0 then 0 else (bool2costs(q) + 1) / 2 |
+| p ↔ q | if bool2costs(p) = 0 and bool2costs(q) = 0 then 0<br> else if bool2costs(p) > 0 and bool2costs(q) > 0 then 0<br> else (bool2costs(p) + bool2costs(q) + 1) / 2 |
+| ¬p | if bool2costs(p) > 0 then 0 else 1 |
+
+### Cost models for basic integer operations
+
+Let x and y denote integer variables.
+
+| c | bool2costs(c) |
+|---|---|
+| x = y | abs(σ(x) - σ(y)) |
+| x ≠ y | if σ(x) ≠ σ(y) then 0 else 1 |
+| x < y | max(0, σ(x) - σ(y) + 1) |
+| x ≤ y | max(0, σ(x) - σ(y)) |
+| x > y | bool2costs(y < x) |
+| x ≥ y | bool2costs(y ≤ x) |
+
+### Cost models for basic set operations
+
+Let s and t denote set variables.
+
+| c | bool2costs(c) |
+|---|---|
+| s = t | bool2costs(s ⊆ t) + bool2costs(t ⊆ s) |
+| s ≠ t | if σ(s) ≠ σ(t) then 0 else 1 |
+| s < t | if σ(s) < σ(t) then 0 else 1 |
+| s ≤ t | if σ(s) ≤ σ(t) then 0 else 1 |
+| s > t | bool2costs(t < s) |
+| s ≥ t | bool2costs(t ≤ s) |
+| x ∈ s | if σ(s) is empty then 1 else distance of σ(x) to the nearest value in σ(s) |
+| s ⊆ t | if σ(s) \ σ(t) is finite then \|σ(s) \ σ(t)\| else 1 |
+
+### Cost models for global constraints
+
+Notice that the following table covers only those global constraints which Yuck implements directly; the cost models of the other global constraints are determined by the standard decompositions of the MiniZinc library.
+
+| c | bool2costs(c) |
+|---|---|
+| all_different([x<sub>1</sub>, ..., x<sub>n</sub>]) | n - \|{σ(x<sub>i</sub>): 1 ≤ i ≤ n}\| |
+| all_different_except_0([x<sub>1</sub>, ..., x<sub>n</sub>]) | \|[x<sub>i</sub>: 1 ≤ i ≤ n and σ(x<sub>i</sub>) ≠ 0]\| -<br> \|{σ(x<sub>i</sub>): 1 ≤ i ≤ n and σ(x<sub>i</sub>) ≠ 0}\| |
+| bin_packing(capacity, bin, weight) | bool2costs(<br>&emsp; let { array [int] of var int: load = bin_packing_load(bin, weight); }<br>&emsp; in forall(i ∈ index_set(load))(load[i]  ≤ capacity)) |
+| bin_packing_capa(capacity, bin, weight) | bool2costs(<br>&emsp; let { array [int] of var int: load = bin_packing_load(bin, weight); }<br>&emsp; in forall(i ∈ index_set(load))(load[i]  ≤ capacity[i])) |
+| bin_packing_load(load, bin, weight) | bool2costs(<br>&emsp; forall(i ∈ index_set(load))(load[i] =<br>&emsp;&emsp; sum(j ∈ index_set(bin) where bin[j] = i)(weight[j])))|
+| circuit(succ) | number of nodes - length of the longest cycle in the graph spanned by succ |
+| count_eq(x, y, c) | bool2costs(c = sum(i ∈ index_set(x))(x[i] = y)) |
+| count_neq(x, y, c) | bool2costs(c ≠ sum(i ∈ index_set(x))(x[i] = y)) |
+| count_geq(x, y, c) | bool2costs(c ≥ sum(i ∈ index_set(x))(x[i] = y)) |
+| count_gt(x, y, c) | bool2costs(c > sum(i ∈ index_set(x))(x[i] = y)) |
+| count_leq(x, y, c) | bool2costs(c ≤ sum(i ∈ index_set(x))(x[i] = y)) |
+| count_lt(x, y, c) | bool2costs(c < sum(i ∈ index_set(x))(x[i] = y)) |
+| cumulative(...) | amount of unsatisfied resource requirements (summed up over time) |
+| delivery(...) | sum of time-window violations,<br> see [Extending Yuck for Vehicle Routing](https://github.com/informarte/yuck/releases/download/20210501/Extending_Yuck_for_Vehicle_Routing.pdf) |
+| diffn([x<sub>1</sub>, ..., x<sub>n</sub>], [y<sub>1</sub>, ..., y<sub>n</sub>], [w<sub>1</sub>, ..., w<sub>n</sub>], [h<sub>1</sub>, ..., h<sub>n</sub>]) | sum of rectangle overlaps considering empty rectangles:<br> sum<sub>1 ≤ i < j ≤ n</sub> \|A(i) ∩ A(j)\|<br> where A(i) = {(σ(x<sub>i</sub>) + k, σ(y<sub>i</sub>) + l): 0 ≤ k < d(w<sub>i</sub>) and 0 ≤ l < d(h<sub>i</sub>)}<br> and d(x) = if σ(x) = 0 then 1 else σ(x) |
+| diffn_nonstrict([x<sub>1</sub>, ..., x<sub>n</sub>], [y<sub>1</sub>, ..., y<sub>n</sub>], [w<sub>1</sub>, ..., w<sub>n</sub>], [h<sub>1</sub>, ..., h<sub>n</sub>]) | sum of rectangle overlaps ignoring empty rectangles:<br> sum<sub>1 ≤ i < j ≤ n</sub> \|A(i) ∩ A(j)\|<br> where A(i) = {(σ(x<sub>i</sub>) + k, σ(y<sub>i</sub>) + l): 0 ≤ k < σ(w<sub>i</sub>) and 0 ≤ l < σ(h<sub>i</sub>)} |
+| disjunctive_strict([s<sub>1</sub>, ..., s<sub>n</sub>], [d<sub>1</sub>, ..., d<sub>n</sub>]) | sum of task overlaps considering zero-duration tasks:<br> sum<sub>1 ≤ i < j ≤ n</sub> \|A(i) ∩ A(j)\|<br> where A(i) = {σ(s<sub>i</sub>) + k: 0 ≤ k < (if σ(d<sub>i</sub>)) = 0 then 1 else σ(d<sub>i</sub>))} |
+| disjunctive([s<sub>1</sub>, ..., s<sub>n</sub>], [d<sub>1</sub>, ..., d<sub>n</sub>]) | sum of task overlaps ignoring zero-duration tasks:<br> sum<sub>1 ≤ i < j ≤ n</sub> \|A(i) ∩ A(j)\|<br> where A(i) = {σ(s<sub>i</sub>) + k: 0 ≤ k < σ(d<sub>i</sub>)} |
+| global_cardinality(x, cover, count) | bool2costs(<br>&emsp; forall(i ∈ index_set(cover))(count_eq(x, cover[i], count[i]))) |
+| global_cardinality_closed(x, cover, count) | bool2costs(<br>&emsp; forall(i ∈ index_set(x))(x[i] ∈ dom_array(cover)) ∧<br>&emsp; global_cardinality(x, cover, count)) |
+| global_cardinality_low_up(x, cover, lb, ub) | bool2costs(<br>&emsp; let { array [int] of var int: count = global_cardinality(x, cover); }<br>&emsp; in forall(i in index_set(cover))(count[i] in lb[i]..ub[i]) |
+| global_cardinality_low_up_closed(x, cover, lb, ub) | bool2costs(<br>&emsp; forall(i ∈ index_set(x))(x[i] ∈ dom_array(cover)) ∧<br>&emsp; global_cardinality_low_up(x, cover, lb, ub)) |
+| inverse([f<sub>1</sub>, ..., f<sub>n</sub>], [g<sub>1</sub>, ..., g<sub>m</sub>]) | Σ<sub>1 ≤ i ≤ n</sub> \|σ(g<sub>σ(f<sub>i</sub>)</sub>) - i\| + Σ<sub>1 ≤ j ≤ m</sub> \|σ(f<sub>σ(g<sub>j</sub>)</sub>) - j\| |
+| lex_less([x<sub>1</sub>, ..., x<sub>n</sub>], [y<sub>1</sub>, ..., y<sub>m</sub>]),<br> lex_lesseq([x<sub>1</sub>, ..., x<sub>n</sub>], [y<sub>1</sub>, ..., y<sub>m</sub>]) | if c is satisfied then 0<br> else if n > m and σ(x<sub>i</sub>) = σ(y<sub>i</sub>) for all 1 ≤ i ≤ m then 1<br> else min(n, m) - smallest index i with σ(x<sub>i</sub>) > σ(y<sub>i</sub>) |
+| maximum(y, x) | bool2costs(y = max(x)) |
+| member(x, y) | bool2costs(count_leq(x, y, 1)) |
+| minimum(y, x) | bool2costs(y = min(x)) |
+| nvalue(n, x) | bool2costs(n = nvalue(x)) |
+| regular([x<sub>1</sub>, ..., x<sub>n</sub>], Q, S, δ, q<sub>0</sub>, F) | if q<sub>n</sub> ∈ F then 0<br> else n - length l of the longest prefix of the input sequence that could be extended to an acceptable sequence where<ul><li>q<sub>i</sub> = δ(q<sub>i - 1</sub>, σ(x<sub>i</sub>)) for 1 ≤ i ≤ n</li><li>1 ≤ l ≤ n is the smallest index such that d(q<sub>l</sub>) ≤ n - l or 0 if such an index does not exist</li><li>d(q) is the minimum number of transitions necessary to reach an acceptable state from state q or n if an acceptable state is unreachable from q</li></ul> |
+| table(x, row) | min<sub>i ∈ index_set(row)</sub>(sum<sub>j ∈ index_set(x)</sub> bool2costs(x[j] = row[i][j])) |
 
 ## Future work
 
