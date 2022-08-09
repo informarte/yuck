@@ -56,8 +56,11 @@ final class CountConst
     }
 
     private def propagate2(effects: PropagationEffects): PropagationEffects = {
-        if (n.domain.isSingleton &&
-            xs.count(_.domain.contains(a)) == n.domain.singleValue.value)
+        if (valueTraits == IntegerSetValueTraits) {
+            // bail out because IntegerSetValueTraits.createDomain is not fully implemented
+            effects
+        } else if (n.domain.isSingleton &&
+                   xs.count(_.domain.contains(a)) == n.domain.singleValue.value)
         {
             val dx = valueTraits.createDomain(Set(a))
             xs.iterator.filter(_.domain.contains(a)).foldLeft(effects){case (effects, x) => effects.pruneDomain(x, dx)}

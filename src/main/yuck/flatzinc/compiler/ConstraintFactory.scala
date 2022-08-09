@@ -1124,7 +1124,7 @@ final class ConstraintFactory
                 val n = createNonNegativeIntChannel
                 space.post(new CountConst[V](nextConstraintId(), maybeGoal, xs, y.domain.singleValue, n))
                 val costs = createBoolChannel
-                space.post(comparatorFactory(nextConstraintId(), maybeGoal, n, m, costs))
+                space.post(comparatorFactory(nextConstraintId(), maybeGoal, m, n, costs))
                 List(costs)
             }
             compileConstraint(constraint, xs, List(m), functionalCase, generalCase)
@@ -1137,7 +1137,7 @@ final class ConstraintFactory
                 val n = createNonNegativeIntChannel
                 space.post(new CountVar[V](nextConstraintId(), maybeGoal, xs, y, n))
                 val costs = createBoolChannel
-                space.post(comparatorFactory(nextConstraintId(), maybeGoal, n, m, costs))
+                space.post(comparatorFactory(nextConstraintId(), maybeGoal, m, n, costs))
                 List(costs)
             }
             compileConstraint(constraint, xs :+ y, List(m), functionalCase, generalCase)
@@ -1152,7 +1152,7 @@ final class ConstraintFactory
         compileCountConstraint(
             maybeGoal,
             constraint.copy(id = "fzn_count_leq", params = constraint.params ++ List(IntConst(1))),
-            new Eq[IntegerValue](_, _, _, _, _))
+            new Le[IntegerValue](_, _, _, _, _))
 
     private def compileElementConstraint
         [V <: OrderedValue[V]]

@@ -486,6 +486,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
     def testMemberInt(): Unit = {
         val result = solveWithResult(task.copy(problemName = "member_int_test"))
+        assertEq(result.numberOfConstraints[CountConst[_]], 1)
         assertEq(result.numberOfConstraints[CountVar[_]], 1)
     }
 
@@ -500,6 +501,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
     def testMemberBool(): Unit = {
         val result = solveWithResult(task.copy(problemName = "member_bool_test"))
+        assertEq(result.numberOfConstraints[CountConst[_]], 1)
         assertEq(result.numberOfConstraints[CountVar[_]], 1)
     }
 
@@ -514,6 +516,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
     def testMemberSet(): Unit = {
         val result = solveWithResult(task.copy(problemName = "member_set_test"))
+        assertEq(result.numberOfConstraints[CountConst[_]], 1)
         assertEq(result.numberOfConstraints[CountVar[_]], 1)
     }
 
