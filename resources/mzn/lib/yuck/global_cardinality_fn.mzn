@@ -7,6 +7,6 @@ function array[int] of var int: global_cardinality(
 =
     let {
         array[index_set(cover)] of var 0..length(x): count :: is_defined_var;
-        constraint global_cardinality(x, cover, count) :: defines_vars(count);
+        constraint global_cardinality(x, cover, count) :: defines_var(count);
     }
     in count;

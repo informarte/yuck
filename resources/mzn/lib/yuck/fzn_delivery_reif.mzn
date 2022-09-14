@@ -29,6 +29,6 @@ predicate fzn_delivery_reif(
     in yuck_delivery_reif(
         StartNodes, EndNodes, succ, offset, arrivalTimes, ServiceTimes, TravelTimes, WithWaiting, totalTravelTime,
         satisfied)
-        :: defines_vars([arrivalTimes[i] | i in index_set(arrivalTimes) diff StartNodes])
+        :: defines_var([arrivalTimes[i] | i in index_set(arrivalTimes) diff StartNodes])
         :: defines_var(totalTravelTime)
         :: defines_var(satisfied);

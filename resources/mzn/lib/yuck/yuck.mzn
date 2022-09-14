@@ -7,6 +7,9 @@ function var int: bool2costs(var bool: a) :: promise_total =
     } in b;
 
 annotation defines_vars(array[$I] of var $T: x);
+annotation defines_var(array[$I] of var int: x) = defines_vars(x);
+annotation defines_var(array[$I] of var bool: x) = defines_vars(x);
+annotation defines_var(array[$I] of var set of int: x) = defines_vars(x);
 
 annotation int_min_goal(var int: x);
 annotation int_max_goal(var int: x);

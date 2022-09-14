@@ -8,6 +8,6 @@ function array[int] of var int: global_cardinality_closed(
     let {
         array[index_set(cover)] of var 0..length(x): count :: is_defined_var;
         constraint forall(i in index_set(x))(x[i] in {a | a in cover});
-        constraint global_cardinality(x, cover, count) :: defines_vars(count);
+        constraint global_cardinality(x, cover, count) :: defines_var(count);
     }
     in count;

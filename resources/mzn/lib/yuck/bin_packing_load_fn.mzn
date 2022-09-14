@@ -7,6 +7,6 @@ function array[int] of var int: bin_packing_load(
 =
     let {
         array[dom_bounds_array(bin)] of var 0..sum(weight): load :: is_defined_var;
-        constraint bin_packing_load(load, bin, weight) :: defines_vars(load);
+        constraint bin_packing_load(load, bin, weight) :: defines_var(load);
     }
     in load;
