@@ -70,6 +70,8 @@ trait YuckBuild extends ScalaModule with BuildInfo {
             ivy"org.mockito:mockito-core:3.12.4"
         )
 
+        override def testFramework = "com.novocode.junit.JUnitFramework"
+
         val jvmHeapSize = Option(System.getenv("YUCK_TEST_HEAP_SIZE")).getOrElse("2G")
         val jvmConfiguration = Seq("-Xmx%s".format(jvmHeapSize), "-XX:+AggressiveHeap") ++ basicJvmConfiguration
         override def forkArgs = jvmConfiguration
