@@ -15,6 +15,14 @@ final class IntegerValueTraitsTest extends UnitTest {
     import IntegerValueTraits.*
 
     @Test
+    def testValueNormalization(): Unit = {
+        assertEq(normalizedValue(MinusOne), MinusOne)
+        assertEq(normalizedValue(Zero), Zero)
+        assertEq(normalizedValue(One), One)
+        assertEq(normalizedValue(Two), Two)
+    }
+
+    @Test
     def testSpecialValues(): Unit = {
         assertEq(zero, Zero)
         assertEq(one, One)

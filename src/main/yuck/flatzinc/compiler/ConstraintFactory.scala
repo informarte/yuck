@@ -19,9 +19,9 @@ import yuck.util.logging.LogScope
  * In case a FlatZinc constraint gets rewritten to another FlatZinc constraint,
  * this step will be visible from the log.
  *
- * Many reified FlatZinc constraints receive special treatment but there is a
+ * Many reified constraints receive special treatment but there is a
  * final case (matching all constraint names ending with "_reif") that implements
- * reification in a generic way such that ALL FlatZinc constraints (including global
+ * reification in a generic way such that ALL constraints (including global
  * ones) can be reified.
  *
  * Potential functional dependencies (declared by defines_var annotations) are
@@ -137,6 +137,7 @@ final class ConstraintFactory
                 compileConstraint(if (cc.cfg.attachGoals) Some(new FlatZincGoal(constraint)) else None, constraint))
     }
 
+    private val Count = "yuck_count_(.*)_(.*)".r
     private val IntLin = "int_lin_(.*)".r
     private val Reif = "(.*)_reif".r
 
@@ -427,15 +428,18 @@ final class ConstraintFactory
             compileConstraint(maybeGoal, constraint.copy(params = as :: bs :: IntConst(getConst[IntegerValue](c).value) :: t))
         // -1 * x <op> c -> 1 * x <op> -c where op in {==, !=}
         case Constraint(IntLin(name), ArrayConst(List(IntConst(-1))) :: bs :: IntConst(c) :: t, _)
-        if name == "eq" || name == "ne" =>
+        if name.startsWith("eq") || name.startsWith("ne") =>
             compileConstraint(maybeGoal, constraint.copy(params = ArrayConst(List(IntConst(1))) :: bs :: IntConst(-c) :: t))
         // 1 * x <op> c -> x <op> c
         case Constraint(IntLin(name), ArrayConst(List(IntConst(1))) :: ArrayConst(bs) :: c :: t, annotations) =>
             compileConstraint(maybeGoal, Constraint("int_" + name, bs.head :: c :: t, annotations))
-        // -1 * x + 1 * y <op> 0 -> 1 * y + -1 * x <op> 0
+        // -1 * x <op> c -> -c <op> x
+        case Constraint(IntLin(name), ArrayConst(List(IntConst(-1))) :: ArrayConst(bs) :: IntConst(c) :: t, annotations) =>
+            compileConstraint(maybeGoal, Constraint("int_" + name, IntConst(-c) :: bs.head :: t, annotations))
+        // -1 * x + 1 * y <op> c -> 1 * y + -1 * x <op> c
         case Constraint(
-            IntLin(name),
-            ArrayConst(List(IntConst(-1), IntConst(1))) :: ArrayConst(List(x, y)) :: (c @ IntConst(0)) :: t, annotations) =>
+            IntLin(_),
+            ArrayConst(List(IntConst(-1), IntConst(1))) :: ArrayConst(List(x, y)) :: c :: t, _) =>
             compileConstraint(
                 maybeGoal,
                 constraint.copy(params = ArrayConst(List(IntConst(1), IntConst(-1))) :: ArrayConst(List(y, x)) :: c :: t))
@@ -444,6 +448,12 @@ final class ConstraintFactory
             IntLin(name),
             ArrayConst(List(IntConst(1), IntConst(-1))) :: ArrayConst(List(x, y)) :: IntConst(0) :: t, annotations) =>
             compileConstraint(maybeGoal, Constraint("int_" + name, x :: y :: t, annotations))
+        // 1 * x + -1 * y <= -1 -> x < y
+        case Constraint(
+            IntLin(name),
+            ArrayConst(List(IntConst(1), IntConst(-1))) :: ArrayConst(List(x, y)) :: IntConst(-1) :: t, annotations)
+        if name.startsWith("le") =>
+                compileConstraint(maybeGoal, Constraint("int_" + name.replace("le", "lt"), x :: y :: t, annotations))
         case Constraint(
             "int_lin_eq",
             List(ArrayConst(as), ArrayConst(bs), c), annotations)
@@ -668,14 +678,18 @@ final class ConstraintFactory
                 List(costs)
             }
             compileConstraint(constraint, xs, List(n), functionalCase, generalCase)
-        case Constraint("fzn_count_eq", _, _) =>
-            compileCountConstraint[IntegerValue](maybeGoal, constraint, new Eq[IntegerValue](_, _, _, _, _))
-        case Constraint("fzn_member_bool", _, _) =>
-            compileMemberConstraint[BooleanValue](maybeGoal, constraint)
-        case Constraint("fzn_member_int", _, _) =>
-            compileMemberConstraint[IntegerValue](maybeGoal, constraint)
-        case Constraint("fzn_member_set", _, _) =>
-            compileMemberConstraint[IntegerSetValue](maybeGoal, constraint)
+        case Constraint(Count(_, "bool"), _, _) =>
+            compileCountConstraint[BooleanValue](maybeGoal, constraint)
+        case Constraint(Reif(Count(_, "bool")), _, _) =>
+            compileReifiedCountConstraint[BooleanValue](maybeGoal, constraint)
+        case Constraint(Count(_, "int"), _, _) =>
+            compileCountConstraint[IntegerValue](maybeGoal, constraint)
+        case Constraint(Reif(Count(_, "int")), _, _) =>
+            compileReifiedCountConstraint[IntegerValue](maybeGoal, constraint)
+        case Constraint(Count(_, "set"), _, _) =>
+            compileCountConstraint[IntegerSetValue](maybeGoal, constraint)
+        case Constraint(Reif(Count(_, "set")), _, _) =>
+            compileReifiedCountConstraint[IntegerSetValue](maybeGoal, constraint)
         case Constraint("fzn_cumulative", List(s, d, r, b), _) =>
             val xs = compileIntArray(s)
             val ys = compileIntArray(d)
@@ -1103,56 +1117,71 @@ final class ConstraintFactory
         [V <: AnyValue]
         (maybeGoal: Option[Goal],
          constraint: yuck.flatzinc.ast.Constraint,
-         comparatorFactory: TernaryConstraintFactory[IntegerVariable, IntegerVariable, BooleanVariable])
+         maybeCosts: Option[BooleanVariable] = None)
         (implicit valueTraits: ValueTraits[V]):
         Iterable[BooleanVariable] =
     {
-        val Constraint(_, List(as, a, b), _) = constraint
-        val xs0 = compileArray[V](as)
+        val Constraint(Count(relation, _), as :: a :: b :: _, _) = constraint
         val y = compileExpr[V](a)
         // If xs(j) does not play a role (because its domain is disjoint from y.domain and hence
         // its values will never be counted), we omit xs(j) from the constraint and hence an
         // useless arc from the constraint network.
-        val xs = xs0.filter(_.domain.intersects(y.domain))
+        val xs = compileArray[V](as).filter(_.domain.intersects(y.domain))
         val m = compileIntExpr(b)
-        if (compilesToConst(a)) {
-            def functionalCase = {
+        def functionalCase = {
+            if (y.domain.isSingleton) {
                 space.post(new CountConst[V](nextConstraintId(), maybeGoal, xs, y.domain.singleValue, m))
-                Nil
-            }
-            def generalCase = {
-                val n = createNonNegativeIntChannel
-                space.post(new CountConst[V](nextConstraintId(), maybeGoal, xs, y.domain.singleValue, n))
-                val costs = createBoolChannel
-                space.post(comparatorFactory(nextConstraintId(), maybeGoal, m, n, costs))
-                List(costs)
-            }
-            compileConstraint(constraint, xs, List(m), functionalCase, generalCase)
-        } else {
-            def functionalCase = {
+            } else {
                 space.post(new CountVar[V](nextConstraintId(), maybeGoal, xs, y, m))
-                Nil
             }
-            def generalCase = {
-                val n = createNonNegativeIntChannel
+            Nil
+        }
+        def generalCase = {
+            val n = createNonNegativeIntChannel
+            if (y.domain.isSingleton) {
+                space.post(new CountConst[V](nextConstraintId(), maybeGoal, xs, y.domain.singleValue, n))
+            } else {
                 space.post(new CountVar[V](nextConstraintId(), maybeGoal, xs, y, n))
-                val costs = createBoolChannel
-                space.post(comparatorFactory(nextConstraintId(), maybeGoal, m, n, costs))
-                List(costs)
             }
-            compileConstraint(constraint, xs :+ y, List(m), functionalCase, generalCase)
+            val costs = maybeCosts.getOrElse(createBoolChannel)
+            relation match {
+                case "eq" => space.post(new Eq[IntegerValue](nextConstraintId(), maybeGoal, m, n, costs))
+                case "neq" => space.post(new Ne[IntegerValue](nextConstraintId(), maybeGoal, m, n, costs))
+                case "leq" => space.post(new Le[IntegerValue](nextConstraintId(), maybeGoal, m, n, costs))
+                case "lt" => space.post(new Lt[IntegerValue](nextConstraintId(), maybeGoal, m, n, costs))
+                case "geq" => space.post(new Le[IntegerValue](nextConstraintId(), maybeGoal, n, m, costs))
+                case "gt" => space.post(new Lt[IntegerValue](nextConstraintId(), maybeGoal, n, m, costs))
+             }
+            List(costs)
+        }
+        if (relation == "eq" && maybeCosts.isEmpty) {
+            if (y.domain.isSingleton) {
+                compileConstraint(constraint, xs, List(m), functionalCase, generalCase)
+            } else {
+                compileConstraint(constraint, xs :+ y, List(m), functionalCase, generalCase)
+            }
+        } else {
+            generalCase
         }
     }
 
-    private def compileMemberConstraint
+    private def compileReifiedCountConstraint
         [V <: AnyValue]
-        (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint)
+        (maybeGoal: Option[Goal],
+         constraint: yuck.flatzinc.ast.Constraint)
         (implicit valueTraits: ValueTraits[V]):
         Iterable[BooleanVariable] =
-        compileCountConstraint(
-            maybeGoal,
-            constraint.copy(id = "fzn_count_leq", params = constraint.params ++ List(IntConst(1))),
-            new Le[IntegerValue](_, _, _, _, _))
+    {
+        val Constraint(Reif(name), List(as, a, b, r), _) = constraint
+        def functionalCase = {
+            compileCountConstraint[V](maybeGoal, constraint.copy(id = name), Some(r))
+            Nil
+        }
+        def generalCase = {
+            compileReifiedConstraint(maybeGoal, constraint)
+        }
+        compileConstraint(constraint, getArrayElems(as).toIndexedSeq.appended(a).appended(b), r, functionalCase, generalCase)
+    }
 
     private def compileElementConstraint
         [V <: OrderedValue[V]]

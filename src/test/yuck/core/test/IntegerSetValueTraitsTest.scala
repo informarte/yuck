@@ -15,6 +15,12 @@ final class IntegerSetValueTraitsTest extends UnitTest {
     import IntegerSetValueTraits.*
 
     @Test
+    def testValueNormalization(): Unit = {
+        assertEq(normalizedValue(EmptyIntegerSetValue), EmptyIntegerSetValue)
+        assertEq(normalizedValue(CompleteIntegerSetValue), CompleteIntegerSetValue)
+    }
+
+    @Test
     def testSpecialDomains(): Unit = {
         assertEq(emptyDomain, EmptyIntegerSetDomain)
         assertEq(completeDomain, CompleteIntegerSetDomain)

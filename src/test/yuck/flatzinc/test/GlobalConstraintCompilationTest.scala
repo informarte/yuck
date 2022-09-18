@@ -142,7 +142,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testBinPackingLoadReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_reif_test"))
         assertEq(result.numberOfConstraints[BinPacking[_]], 2)
-        assertEq(result.searchVariables.size, 9)
+        assertEq(result.searchVariables.size, 6)
     }
 
     @Test
@@ -172,10 +172,286 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
-    def testCountEq(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "count_eq_test"))
-        assertEq(result.numberOfConstraints[CountConst[_]], 2)
-        assertEq(result.numberOfConstraints[CountVar[_]], 2)
+    def testCountEqBool(): Unit = {
+        testCount("count_eq_bool_test", EqRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountEqBoolReif(): Unit = {
+        testCountReif("count_eq_bool_reif_test", EqRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountFnBool(): Unit = {
+        testCountFn("count_fn_bool_test")
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountEqInt(): Unit = {
+        testCount("count_eq_int_test", EqRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountEqIntReif(): Unit = {
+        testCountReif("count_eq_int_reif_test", EqRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountFnInt(): Unit = {
+        testCountFn("count_fn_int_test")
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountEqSet(): Unit = {
+        testCount("count_eq_set_test", EqRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountEqSetReif(): Unit = {
+        testCountReif("count_eq_set_reif_test", EqRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountFnSet(): Unit = {
+        testCountFn("count_fn_set_test")
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountNeqBool(): Unit = {
+        testCount("count_neq_bool_test", NeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountNeqBoolReif(): Unit = {
+        testCountReif("count_neq_bool_reif_test", NeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountNeqInt(): Unit = {
+        testCount("count_neq_int_test", NeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountNeqIntReif(): Unit = {
+        testCountReif("count_neq_int_reif_test", NeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountNeqSet(): Unit = {
+        testCount("count_neq_set_test", NeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountNeqSetReif(): Unit = {
+        testCountReif("count_neq_set_reif_test", NeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountLeqBool(): Unit = {
+        testCount("count_leq_bool_test", LeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountLeqBoolReif(): Unit = {
+        testCountReif("count_leq_bool_reif_test", LeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountLeqInt(): Unit = {
+        testCount("count_leq_int_test", LeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountLeqIntReif(): Unit = {
+        testCountReif("count_leq_int_reif_test", LeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountLeqSet(): Unit = {
+        testCount("count_leq_set_test", LeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountLeqSetReif(): Unit = {
+        testCountReif("count_leq_set_reif_test", LeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountLtBool(): Unit = {
+        testCount("count_lt_bool_test", LtRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountLtBoolReif(): Unit = {
+        testCountReif("count_lt_bool_reif_test", LtRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountLtInt(): Unit = {
+        testCount("count_lt_int_test", LtRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountLtIntReif(): Unit = {
+        testCountReif("count_lt_int_reif_test", LtRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountLtSet(): Unit = {
+        testCount("count_lt_set_test", LtRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountLtSetReif(): Unit = {
+        testCountReif("count_lt_set_reif_test", LtRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountGeqBool(): Unit = {
+        testCount("count_geq_bool_test", LeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountGeqBoolReif(): Unit = {
+        testCountReif("count_geq_bool_reif_test", LeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountGeqInt(): Unit = {
+        testCount("count_geq_int_test", LeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountGeqIntReif(): Unit = {
+        testCountReif("count_geq_int_reif_test", LeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountGeqSet(): Unit = {
+        testCount("count_geq_set_test", LeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountGeqSetReif(): Unit = {
+        testCountReif("count_geq_set_reif_test", LeRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountGtBool(): Unit = {
+        testCount("count_gt_bool_test", LtRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountGtBoolReif(): Unit = {
+        testCountReif("count_gt_bool_reif_test", LtRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountGtInt(): Unit = {
+        testCount("count_gt_int_test", LtRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountGtIntReif(): Unit = {
+        testCountReif("count_gt_int_reif_test", LtRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountGtSet(): Unit = {
+        testCount("count_gt_set_test", LtRelation)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    def testCountGtSetReif(): Unit = {
+        testCountReif("count_gt_set_reif_test", LtRelation)
+    }
+
+    private def testCount(problemName: String, relation: OrderingRelation): Unit = {
+        // TODO Enable verification after release of MiniZinc 2.7.0!
+        val verifySolution = ! problemName.contains("set")
+        val result = solveWithResult(task.copy(problemName = problemName, verifySolution = verifySolution))
+        assertEq(result.channelVariables.filter(wasIntroducedByMiniZincCompiler).size, 0)
+        assertEq(result.space.numberOfConstraints, 6)
+        assertEq(result.numberOfConstraints[CountConst[_]], 1)
+        assertEq(result.numberOfConstraints[CountVar[_]], 1)
+        relation match {
+            case EqRelation => assertEq(result.numberOfConstraints[Contains], 1)
+                               assertEq(result.numberOfConstraints[Eq[_]], 1)
+            case NeRelation => assertEq(result.numberOfConstraints[Ne[_]], 2)
+            case LeRelation => assertEq(result.numberOfConstraints[Le[_]], 2)
+            case LtRelation => assertEq(result.numberOfConstraints[Lt[_]], 2)
+        }
+        assertEq(result.numberOfConstraints[Conjunction], 1)
+        assertEq(result.numberOfConstraints[SatisfactionGoalTracker], 1)
+    }
+
+    private def testCountReif(problemName: String, relation: OrderingRelation): Unit = {
+        // TODO Enable verification after release of MiniZinc 2.7.0!
+        val result = solveWithResult(task.copy(problemName = problemName, verifySolution = !problemName.contains("set")))
+        assertEq(result.channelVariables.filter(wasIntroducedByMiniZincCompiler).size, 0)
+        assertEq(result.space.numberOfConstraints, 7)
+        assertEq(result.numberOfConstraints[CountConst[_]], 1)
+        assertEq(result.numberOfConstraints[CountVar[_]], 1)
+        relation match {
+            case EqRelation => assertEq(result.numberOfConstraints[Eq[_]], 2)
+            case NeRelation => assertEq(result.numberOfConstraints[Ne[_]], 2)
+            case LeRelation => assertEq(result.numberOfConstraints[Le[_]], 2)
+            case LtRelation => assertEq(result.numberOfConstraints[Lt[_]], 2)
+        }
+        assertEq(result.numberOfConstraints[Or], 1)
+        assertEq(result.numberOfConstraints[Conjunction], 1)
+        assertEq(result.numberOfConstraints[SatisfactionGoalTracker], 1)
+    }
+
+    private def testCountFn(problemName: String): Unit = {
+        // TODO Enable verification after release of MiniZinc 2.7.0!
+        val verifySolution = !problemName.contains("set")
+        val result = solveWithResult(task.copy(problemName = problemName, verifySolution = verifySolution))
+        assertEq(result.channelVariables.filter(wasIntroducedByMiniZincCompiler).size, 0)
+        assertEq(result.space.numberOfConstraints, 6)
+        assertEq(result.numberOfConstraints[CountConst[_]], 1)
+        assertEq(result.numberOfConstraints[CountVar[_]], 1)
+        assertEq(result.numberOfConstraints[Contains], 2)
+        assertEq(result.numberOfConstraints[Conjunction], 1)
+        assertEq(result.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
@@ -305,7 +581,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testGlobalCardinality(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_test"))
         assertEq(result.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.searchVariables.size, 4)
+        assertEq(result.searchVariables.size, 3)
     }
 
     @Test
@@ -313,7 +589,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testGlobalCardinalityReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_reif_test"))
         assertEq(result.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.searchVariables.size, 4)
+        assertEq(result.searchVariables.size, 3)
     }
 
     @Test
@@ -484,47 +760,46 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
-    def testMemberInt(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "member_int_test"))
-        assertEq(result.numberOfConstraints[CountConst[_]], 1)
-        assertEq(result.numberOfConstraints[CountVar[_]], 1)
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
-    def testMemberIntReif(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "member_int_reif_test"))
-        assertEq(result.numberOfConstraints[CountVar[_]], 2)
-    }
-
-    @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
     def testMemberBool(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "member_bool_test"))
-        assertEq(result.numberOfConstraints[CountConst[_]], 1)
-        assertEq(result.numberOfConstraints[CountVar[_]], 1)
+        testMember("member_bool_test")
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
     def testMemberBoolReif(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "member_bool_reif_test"))
-        assertEq(result.numberOfConstraints[CountVar[_]], 2)
+        testMemberReif("member_bool_reif_test")
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
+    def testMemberInt(): Unit = {
+        testMember("member_int_test")
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
+    def testMemberIntReif(): Unit = {
+        testMemberReif("member_int_reif_test")
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
     def testMemberSet(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "member_set_test"))
-        assertEq(result.numberOfConstraints[CountConst[_]], 1)
-        assertEq(result.numberOfConstraints[CountVar[_]], 1)
+        testMember("member_set_test")
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
     def testMemberSetReif(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "member_set_reif_test"))
-        assertEq(result.numberOfConstraints[CountVar[_]], 2)
+        testMemberReif("member_set_reif_test")
+    }
+
+    private def testMember(problemName: String): Unit = {
+        testCount(problemName, LeRelation)
+    }
+
+    private def testMemberReif(problemName: String): Unit = {
+        testCountReif(problemName, LeRelation)
     }
 
     @Test

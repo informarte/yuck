@@ -9,6 +9,7 @@ import scala.collection.*
  */
 implicit object IntegerValueTraits extends IntegralValueTraits[IntegerValue] {
     override val valueType = classOf[IntegerValue]
+    override def normalizedValue(a: IntegerValue) = a
     override val zero = Zero
     override val one = One
     override val minValue = IntegerValue(Long.MinValue)

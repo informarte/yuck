@@ -16,6 +16,8 @@ final class CountConst
     extends Constraint(id)
 {
 
+    require(valueTraits.normalizedValue(a) == a)
+
     override def toString = "%s = count(%s, [%s])".format(n, a, xs.mkString(", "))
 
     override def inVariables = xs
@@ -74,7 +76,7 @@ final class CountConst
     }
 
     override def initialize(now: SearchState) = {
-        count = xs.count(x => now.value(x) == a)
+        count = xs.count(x => valueTraits.normalizedValue(now.value(x)) == a)
         effect.a = IntegerValue(count)
         effect
     }
@@ -92,9 +94,11 @@ final class CountConst
     private def computeDelta(before: SearchState, after: SearchState, move: Move): Int = {
         var delta = 0
         for (x <- move) {
-            if (before.value(x) == a && after.value(x) != a) {
+            val valueBefore = valueTraits.normalizedValue(valueTraits.safeDowncast(before.value(x)))
+            val valueAfter = valueTraits.normalizedValue(valueTraits.safeDowncast(after.value(x)))
+            if (valueBefore == a && valueAfter != a) {
                 delta -= x2n.getOrElse(x, 1)
-            } else if (before.value(x) != a && after.value(x) == a) {
+            } else if (valueBefore != a && valueAfter == a) {
                 delta += x2n.getOrElse(x, 1)
             }
         }

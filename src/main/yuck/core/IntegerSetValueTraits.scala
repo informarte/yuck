@@ -9,6 +9,7 @@ import scala.collection.*
  */
 implicit object IntegerSetValueTraits extends OrderedValueTraits[IntegerSetValue] {
     override val valueType = classOf[IntegerSetValue]
+    override def normalizedValue(a: IntegerSetValue) = a
     override val valueOrdering = IntegerSetValueOrdering
     override val orderingCostModel = IntegerSetValueOrderingCostModel
     override def createDomain(values: Set[IntegerSetValue]): IntegerSetDomain =

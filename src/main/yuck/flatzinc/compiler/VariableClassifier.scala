@@ -18,7 +18,6 @@ final class VariableClassifier
     private val declaredVars = cc.declaredVars
     private val searchVars = cc.searchVars
     private val definedVars = cc.definedVars
-    private val domains = cc.domains
 
     override def run() = {
         classifyVars()
@@ -45,16 +44,8 @@ final class VariableClassifier
             case Minimize(a, _) => searchVars -= compileAnyExpr(a)
             case Maximize(a, _) => searchVars -= compileAnyExpr(a)
         }
-        if (searchVars.isEmpty) {
-            // In case there is no search annotation, we initially consider all variables with
-            // finite domain as subject to search except for variables that occur in a "defines_var"
-            // annotation.
-            searchVars ++= declaredVars.iterator.filter(domains(_).isFinite).map(compileAnyExpr)
-            searchVars --= definedVars
-        } else {
-          // Sometimes variables, which occur in a "defines_var" annotation, are also marked as search variables.
-          searchVars --= definedVars
-        }
+        // Sometimes variables, which occur in a "defines_var" annotation, are also marked as search variables.
+        searchVars --= definedVars
         // Sometimes a variable is tagged with "is_defined_var" but there is no corresponding "defines_var"
         // annotation.
         for (varDecl <- cc.ast.varDecls) {

@@ -89,4 +89,20 @@ final class CountConstTest extends UnitTest with ConstraintTestTooling {
                 ConsultAndCommit("3", x3 << 1, n << 4)))
     }
 
+    @Test
+    def testNormalizationOfBooleanValuesInCounting(): Unit = {
+        val xs = for (i <- 1 to 3) yield new BooleanVariable(space.nextVariableId(), "x%d".format(i), CompleteBooleanDomain)
+        val Seq(x1, x2, x3) = xs
+        space.post(new CountConst(space.nextConstraintId(), null, xs, False, n))
+        runScenario(
+            TestScenario(
+                space,
+                Initialize("1", x1 << False, x2 << False2, x3 << False3, n << 3),
+                Initialize("2", x1 << True, x2 << True, x3 << True, n << 0),
+                Consult("1", x1 << False, n << 1),
+                Consult("2", x1 << False2, n << 1),
+                ConsultAndCommit("1", x1 << False2, n << 1),
+                ConsultAndCommit("2", x2 << False3, x3 << False, n << 3)))
+    }
+
 }

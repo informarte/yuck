@@ -27,7 +27,7 @@ final class CompilationContext(
     val arrayConsts = new mutable.AnyRefMap[Expr, immutable.IndexedSeq[AnyVariable]] // holds unnamed inline arrays
     val arrays = new mutable.AnyRefMap[Expr, immutable.IndexedSeq[AnyVariable]] // holds named arrays of variables and parameters
     val domains = new mutable.AnyRefMap[Expr, AnyDomain]
-    val searchVars = new mutable.HashSet[AnyVariable]
+    val searchVars = new mutable.HashSet[AnyVariable] // variables that occur in a search annotation
     val definedVars = new mutable.HashSet[AnyVariable] // variables that occur in a defines_var annotation
     val implicitlyConstrainedVars = new mutable.HashSet[AnyVariable]
     val costVars = new mutable.ArrayBuffer[BooleanVariable]

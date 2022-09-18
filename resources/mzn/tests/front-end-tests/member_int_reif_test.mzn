@@ -1,11 +1,21 @@
 include "member.mzn";
 
-array [1..10] of var 1..10: x;
-var 1..10: y;
+int: N = 10;
 
-constraint member(x, y) \/ member(x, y div 2);
+array [1..N] of var 1..N: x;
+array [1..2] of var bool: b;
+
+% should translate to CountConst and Le
+constraint b[1] = member(x, N div 2);
+
+% should translate to CountVar and Le
+var 1..N: y;
+constraint b[2] = member(x, y);
+
+constraint b[1] \/ b[2];
 
 solve satisfy;
 
 output ["x = ", show(x), "\n",
-        "y = ", show(y)];
+        "y = ", show(y), "\n",
+        "b = ", show(b)];

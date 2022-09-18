@@ -9,6 +9,7 @@ import scala.collection.*
  */
 implicit object BooleanValueTraits extends OrderedValueTraits[BooleanValue] {
     override val valueType = classOf[BooleanValue]
+    override def normalizedValue(a: BooleanValue) = if (a.truthValue) then True else False
     override val valueOrdering = BooleanValueOrdering
     override val orderingCostModel = BooleanValueOrderingCostModel
     override def createDomain(values: Set[BooleanValue]) = {

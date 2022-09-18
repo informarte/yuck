@@ -45,6 +45,9 @@ abstract class FrontEndTest extends MiniZincBasedTest {
         protected def searchVariables: Set[AnyVariable] =
             result.space.searchVariables
 
+        protected def channelVariables: Set[AnyVariable] =
+            result.space.channelVariables
+
         protected def numberOfConstraints[T <: Constraint](implicit classTag: ClassTag[T]): Int =
             result.space.numberOfConstraints(classTag.runtimeClass.isInstance)
 
@@ -60,5 +63,8 @@ abstract class FrontEndTest extends MiniZincBasedTest {
     }
 
     protected implicit def createTask(problemName: String): MiniZincTestTask = task.copy(problemName = problemName)
+
+    protected final def wasIntroducedByMiniZincCompiler(x: AnyVariable): Boolean =
+        x.name.startsWith("X_INTRODUCED")
 
 }

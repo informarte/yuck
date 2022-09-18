@@ -76,6 +76,7 @@ final class DotExporter(space: Space, dotWriter: java.io.FileWriter) extends Run
             val v = VariableVertex(x)
             variableVertices += x -> v
             network.addVertex(v)
+            constraints += space.definingConstraint(x) // include constraints with no inputs, e.g. and([])
             constraints ++= space.directlyAffectedConstraints(x)
         }
         for (constraint <- constraints) {

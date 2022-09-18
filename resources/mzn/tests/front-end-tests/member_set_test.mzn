@@ -1,10 +1,14 @@
 include "member.mzn";
 
-array [1..10] of var set of 1..10: x;
-var set of 1..10: y;
+int: N = 10;
 
-constraint member([{1}, {1}], {1});
+array [1..N] of var set of 1..N: x;
 
+% should translate to CountConst and Le
+constraint member(x, {i | i in 1..N where i mod 2 = 0});
+
+% should translate to CountVar and Le
+var set of 1..N: y;
 constraint member(x, y);
 
 solve satisfy;

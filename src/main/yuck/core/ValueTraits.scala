@@ -17,6 +17,9 @@ abstract class ValueTraits[V <: AnyValue] {
     /** Returns the type of the concrete values. */
     val valueType: Class[V]
 
+    /** Returns the normal form of the given value. */
+    def normalizedValue(a: V): V
+
     /** Creates a domain from the given value set. */
     def createDomain(values: Set[V]): Domain[V]
 

@@ -143,20 +143,11 @@ final class DomainInitializer
         for (constraint <- cc.ast.constraints) {
             constraint match {
                 case Constraint("bool_eq", List(a, b), _) =>
-                    if (! a.isConst && ! b.isConst) {
-                        propagateEquality(a, b, boolDomain(a).intersect(boolDomain(b)))
-                        impliedConstraints += constraint
-                    }
+                    propagateEqualityConstraint(constraint, boolDomain)
                 case Constraint("int_eq", List(a, b), _) =>
-                    if (! a.isConst && ! b.isConst) {
-                        propagateEquality(a, b, intDomain(a).intersect(intDomain(b)))
-                        impliedConstraints += constraint
-                    }
+                    propagateEqualityConstraint(constraint, intDomain)
                 case Constraint("set_eq", List(a, b), _) =>
-                    if (! a.isConst && ! b.isConst) {
-                        propagateEquality(a, b, intSetDomain(a).intersect(intSetDomain(b)))
-                        impliedConstraints += constraint
-                    }
+                    propagateEqualityConstraint(constraint, intSetDomain)
                 case Constraint("array_var_bool_element" | "yuck_array_bool_element", _, _) =>
                     propagateElementConstraint(constraint, boolDomain)
                 case Constraint("array_var_int_element" | "yuck_array_int_element", _, _) =>
@@ -171,6 +162,24 @@ final class DomainInitializer
                     impliedConstraints += constraint
                 case _ =>
             }
+        }
+    }
+
+    private def propagateEqualityConstraint
+        [V <: AnyValue]
+        (constraint: yuck.flatzinc.ast.Constraint, domain: Expr => Domain[V])
+        (implicit valueTraits: ValueTraits[V]):
+        Unit =
+    {
+        val List(a, b) = constraint.params
+        if (!a.isConst) {
+            val d = domain(a).intersect(domain(b))
+            if (b.isConst) {
+                propagateEquality(a, d)
+            } else {
+                propagateEquality(a, b, d)
+            }
+            impliedConstraints += constraint
         }
     }
 
@@ -214,6 +223,19 @@ final class DomainInitializer
         } else {
             f ++= e
             e.foreach(a => equalVars += a -> f)
+        }
+    }
+
+    private def propagateEquality
+        [V <: AnyValue]
+        (a: Expr, d: Domain[V])
+        (implicit valueTraits: ValueTraits[V]):
+        Unit =
+    {
+        cc.logger.log("%s = %s".format(a, d))
+        val e = equalVars(a)
+        if (domains(a) != d) {
+            e.foreach(a => reduceDomain(a, d))
         }
     }
 

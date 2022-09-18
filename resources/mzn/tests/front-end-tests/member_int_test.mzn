@@ -1,10 +1,14 @@
 include "member.mzn";
 
-array [1..10] of var 1..10: x;
-var 1..10: y;
+int: N = 10;
 
-constraint member([1, 1], 1);
+array [1..N] of var 1..N: x;
 
+% should translate to CountConst and Le
+constraint member(x, N div 2);
+
+% should translate to CountVar and Le
+var 1..N: y;
 constraint member(x, y);
 
 solve satisfy;
