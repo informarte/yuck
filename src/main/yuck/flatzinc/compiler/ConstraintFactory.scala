@@ -658,10 +658,15 @@ final class ConstraintFactory
             val costs = createBoolChannel
             space.post(new Alldistinct(nextConstraintId(), maybeGoal, xs, costs))
             List(costs)
+        case Constraint("fzn_alldifferent_except", List(as, s), _) =>
+            val xs = compileIntArray(as)
+            val costs = createBoolChannel
+            space.post(new AlldistinctExcept(nextConstraintId(), maybeGoal, xs, s.set.values.toSet, costs))
+            List(costs)
         case Constraint("fzn_alldifferent_except_0", List(as), _) =>
             val xs = compileIntArray(as)
             val costs = createBoolChannel
-            space.post(new AlldistinctExceptZero(nextConstraintId(), maybeGoal, xs, costs))
+            space.post(new AlldistinctExcept(nextConstraintId(), maybeGoal, xs, immutable.Set(Zero), costs))
             List(costs)
         case Constraint("fzn_nvalue", List(n0, as), _) =>
             val xs = compileIntArray(as)

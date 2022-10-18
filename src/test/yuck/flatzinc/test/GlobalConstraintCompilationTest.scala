@@ -59,17 +59,31 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExcept0Constraint]))
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExceptConstraint]))
     def testAlldifferentExcept0(): Unit = {
         val result = solveWithResult(task.copy(problemName = "alldifferent_except_0_test"))
-        assertEq(result.numberOfConstraints[AlldistinctExceptZero[_]], 1)
+        assertEq(result.numberOfConstraints[AlldistinctExcept[_]], 1)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExcept0Constraint]))
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExceptConstraint]))
     def testAlldifferentExcept0Reif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "alldifferent_except_0_reif_test"))
-        assertEq(result.numberOfConstraints[AlldistinctExceptZero[_]], 2)
+        assertEq(result.numberOfConstraints[AlldistinctExcept[_]], 2)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExceptConstraint]))
+    def testAlldifferentExcept(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "alldifferent_except_test"))
+        assertEq(result.numberOfConstraints[AlldistinctExcept[_]], 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExceptConstraint]))
+    def testAlldifferentExceptReif(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "alldifferent_except_reif_test"))
+        assertEq(result.numberOfConstraints[AlldistinctExcept[_]], 2)
     }
 
     @Test

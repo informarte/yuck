@@ -137,7 +137,7 @@ When used as a FlatZinc interpreter, Yuck proceeds as follows:
 
 Yuck provides dedicated solvers for the following global MiniZinc constraints and their reified counterparts:
 
-* all_different, all_different_except_0
+* all_different, all_different_except, all_different_except_0
 * bin_packing, bin_packing_capa, bin_packing_load
 * circuit
 * count_eq, count_geq, count_gt, count_leq, count_lt, count_neq
@@ -369,7 +369,8 @@ Notice that the following table covers only those global constraints which Yuck 
 | c | bool2costs(c) |
 |---|---|
 | all_different([x<sub>1</sub>, ..., x<sub>n</sub>]) | n - \|{σ(x<sub>i</sub>): 1 ≤ i ≤ n}\| |
-| all_different_except_0([x<sub>1</sub>, ..., x<sub>n</sub>]) | \|[x<sub>i</sub>: 1 ≤ i ≤ n and σ(x<sub>i</sub>) ≠ 0]\| -<br> \|{σ(x<sub>i</sub>): 1 ≤ i ≤ n and σ(x<sub>i</sub>) ≠ 0}\| |
+| all_different_except([x<sub>1</sub>, ..., x<sub>n</sub>], S) | \|[x<sub>i</sub>: 1 ≤ i ≤ n and σ(x<sub>i</sub>) ∉ S]\| -<br> \|{σ(x<sub>i</sub>): 1 ≤ i ≤ n and σ(x<sub>i</sub>) ∉ S}\| |
+| all_different_except_0(x) | bool2costs(all_different_except(x, {0}) |
 | bin_packing(capacity, bin, weight) | bool2costs(<br>&emsp; let { array [int] of var int: load = bin_packing_load(bin, weight); }<br>&emsp; in forall(i ∈ index_set(load))(load[i]  ≤ capacity)) |
 | bin_packing_capa(capacity, bin, weight) | bool2costs(<br>&emsp; let { array [int] of var int: load = bin_packing_load(bin, weight); }<br>&emsp; in forall(i ∈ index_set(load))(load[i]  ≤ capacity[i])) |
 | bin_packing_load(load, bin, weight) | bool2costs(<br>&emsp; forall(i ∈ index_set(load))(load[i] =<br>&emsp;&emsp; sum(j ∈ index_set(bin) where bin[j] = i)(weight[j])))|

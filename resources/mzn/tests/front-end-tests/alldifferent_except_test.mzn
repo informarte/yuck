@@ -1,4 +1,4 @@
-include "alldifferent_except_0.mzn";
+include "alldifferent_except.mzn";
 
 array [1..6] of var int: x;
 
@@ -11,7 +11,7 @@ constraint x[6] in 0..6;
 
 constraint x[3] = x[6];
 
-constraint alldifferent_except_0(x);
+constraint alldifferent_except(x, {0, 6});
 
 solve satisfy;
 

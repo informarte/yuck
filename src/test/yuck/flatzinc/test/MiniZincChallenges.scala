@@ -324,7 +324,7 @@ final class MiniZincChallenges extends MiniZincBasedTest {
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint], classOf[HasAlldifferentExcept0Constraint]))
+    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint], classOf[HasAlldifferentExceptConstraint]))
     def liner_sf_repositioning_tp7_0(): Unit = {
         solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "liner-sf-repositioning", instanceName = "tp7_0", maybeOptimum = Some(125988)))
     }
@@ -656,7 +656,7 @@ final class MiniZincChallenges extends MiniZincBasedTest {
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentExcept0Constraint]))
+    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentExceptConstraint]))
     def seat_moving_10_20_05(): Unit = {
         solve(task.copy(problemName = "seat-moving", instanceName = "sm-10-20-05", maybeOptimum = Some(90)))
     }

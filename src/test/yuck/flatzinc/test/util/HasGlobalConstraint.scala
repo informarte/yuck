@@ -7,7 +7,7 @@ package yuck.flatzinc.test.util
 trait HasGlobalConstraint
 
 trait HasAlldifferentConstraint extends HasGlobalConstraint
-trait HasAlldifferentExcept0Constraint extends HasGlobalConstraint
+trait HasAlldifferentExceptConstraint extends HasGlobalConstraint
 trait HasAtLeastConstraint extends HasGlobalConstraint
 trait HasAtMostConstraint extends HasGlobalConstraint
 trait HasBinPackingConstraint extends HasGlobalConstraint
