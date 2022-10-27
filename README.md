@@ -13,7 +13,7 @@
 * Yuck supports lexicographic multi-objective optimization, see [Goal hierarchies](#goal-hierarchies).
 * Yuck supports [warm starting](#warm-starting).
 * Yuck is provided under the terms of the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0).
-* Yuck ranked second among local-search solvers at the [MiniZinc Challenge 2017](http://www.minizinc.org/challenge2017/results2017.html), the [MiniZinc Challenge 2018](http://www.minizinc.org/challenge2018/results2018.html), and the [MiniZinc Challenge 2019](http://www.minizinc.org/challenge2019/results2019.html), and it won a gold medal at the [MiniZinc Challenge 2020](https://www.minizinc.org/challenge2020/results2020.html).
+* Yuck has won several silver and gold medals at the [MiniZinc Challenge](https://www.minizinc.org/challenge.html).
 
 ## Contact
 
