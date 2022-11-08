@@ -31,6 +31,7 @@ When you decided for the ZIP package, proceed as follows:
 2. Unzip the package in a suitable location.
 3. To register Yuck as a backend for the MiniZinc toolchain, define the ```MZN_SOLVER_PATH``` environment variable to point to the ```mzn``` subfolder of the Yuck distribution. (For other ways of providing a solver configuration file to the MiniZinc toolchain, see the section on [Solver Configuration Files](http://www.minizinc.org/doc-2.6.4/en/fzn-spec.html#solver-configuration-files) of *The MiniZinc Handbook*.)
 4. If you want to use Yuck on Windows with a MiniZinc version prior to 2.6.0, you need to take another step to work around a bug in MiniZinc: go to the ```mzn``` subfolder of the Yuck distribution, open the file ```yuck.msc```, find the line ```"executable": "../bin/yuck"``` and replace it with ```"executable": "../bin/yuck.bat"```.
+5. If you want to use Yuck on MacOS, you have to install the `coreutils` package with the following Homebrew command: `brew install coreutils`
 
 The Docker image contains an OpenJDK Java runtime, the MiniZinc compiler and Yuck itself; it neither contains the MiniZinc IDE nor other solvers.
 
@@ -403,7 +404,6 @@ Notice that the following table covers only those global constraints which Yuck 
 ## Future work
 
 * Implement among, subcircuit, ...
-* Reduce dependence on integration testing by adding more unit tests
 * Provide libraries with Yuck core functionality
 
 ## Contributing
@@ -419,6 +419,8 @@ To build and rebuild Yuck and its documentation, use the following targets:
 * `make compile` compiles all sources (including tests) that need compilation.
 * `make doc` creates the ScalaDoc documentation from the sources.
 * `make clean` removes all artifacts of compiling and building.
+
+Notice that compilation requires a proper Git working copy.
 
 ### Testing
 
