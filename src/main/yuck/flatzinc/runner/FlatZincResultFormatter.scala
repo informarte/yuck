@@ -25,11 +25,11 @@ final class FlatZincResultFormatter(result: Result) extends Callable[Seq[String]
                         val x = compilerResult.vars(decl.id)
                         sortedMap = sortedMap + (decl.id -> value(x).toString)
                     case Annotation(Term("output_array", List(ArrayConst(dimensions)))) =>
-                        val ArrayType(Some(IntRange(1, n)), _) = decl.varType
+                        val ArrayType(Some(IntRange(1, n)), _) = decl.varType: @unchecked
                         val a =
                             "array%dd(%s, [%s])".format(
                                 dimensions.size,
-                                (for (IntSetConst(IntRange(lb, ub)) <- dimensions) yield
+                                (for (case IntSetConst(IntRange(lb, ub)) <- dimensions) yield
                                     "%d..%d".format(lb, ub)).mkString(", "),
                                 (for (idx <- 1 to n.toInt) yield
                                     value(compilerResult.arrays(decl.id)(idx - 1)).toString).mkString(", "))

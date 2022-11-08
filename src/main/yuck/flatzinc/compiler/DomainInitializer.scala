@@ -190,10 +190,10 @@ final class DomainInitializer
         Unit =
     {
         val List(IntConst(offset), b, as, c) =
-            if (constraint.params.size == 4) constraint.params
-            else IntConst(1) :: constraint.params
+            if (constraint.params.size == 4) constraint.params: @unchecked
+            else IntConst(1) :: constraint.params: @unchecked
         if (b.isConst && ! c.isConst) {
-            val IntConst(i) = b
+            val IntConst(i) = b: @unchecked
             val a = getArrayElems(as).toIndexedSeq.apply(i.toInt - offset.toInt)
             if (! a.isConst) {
                 propagateEquality(a, c, domain(a).intersect(domain(c)))

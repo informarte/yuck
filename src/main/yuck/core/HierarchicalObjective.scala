@@ -39,7 +39,7 @@ final class HierarchicalObjective
         val lhs = lhs0.asInstanceOf[PolymorphicListValue].value
         val rhs = rhs0.asInstanceOf[PolymorphicListValue].value
         if (focusOnTopObjective) {
-            val topObjective :: subordinateObjectives = primitiveObjectives
+            val topObjective :: subordinateObjectives = primitiveObjectives: @unchecked
             if (topObjective.isSolution(lhs.head) && topObjective.isSolution(rhs.head)) {
                 compareCosts(subordinateObjectives, lhs.tail, rhs.tail)
             } else {
@@ -60,7 +60,7 @@ final class HierarchicalObjective
         }
     override def assessMove(before: SearchState, after: SearchState) = {
         if (focusOnTopObjective) {
-            val topObjective :: subordinateObjectives = primitiveObjectives
+            val topObjective :: subordinateObjectives = primitiveObjectives: @unchecked
             if (topObjective.isSolution(before) && topObjective.isSolution(after)) {
                 assessMove(subordinateObjectives, before, after)
             } else {

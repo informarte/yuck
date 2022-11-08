@@ -131,14 +131,14 @@ final case class FlatZincAst(
         case Term(id, Nil) if varDeclsByName.contains(id) =>
             val decl = varDeclsByName(id)
             if (decl.optionalValue.isDefined) {
-                val ArrayConst(elems) = decl.optionalValue.get
+                val ArrayConst(elems) = decl.optionalValue.get: @unchecked
                 elems
             } else {
-                val ArrayType(Some(IntRange(n, m)), _) = decl.varType
+                val ArrayType(Some(IntRange(n, m)), _) = decl.varType: @unchecked
                 (n to m).map(i => ArrayAccess(id, IntConst(i)))
             }
         case Term(id, Nil) if paramDeclsByName.contains(id) =>
-            val ArrayConst(elems) = paramDeclsByName(id).value
+            val ArrayConst(elems) = paramDeclsByName(id).value: @unchecked
             elems
         case _ =>
             throw new IllegalArgumentException("%s is not an array".format(expr))
@@ -155,8 +155,8 @@ final case class FlatZincAst(
             if (decl.optionalValue.isDefined) {
                 findIndex(idx) match {
                     case Some(i) =>
-                        val ArrayType(Some(IntRange(n, m)), _) = decl.varType
-                        val ArrayConst(elems) = decl.optionalValue.get
+                        val ArrayType(Some(IntRange(n, m)), _) = decl.varType: @unchecked
+                        val ArrayConst(elems) = decl.optionalValue.get: @unchecked
                         involvedVariables(elems(i - safeToInt(n)))
                     case None =>
                         immutable.Set(expr)
@@ -181,8 +181,8 @@ final case class FlatZincAst(
             if (decl.optionalValue.isDefined) {
                 findIndex(idx) match {
                     case Some(i) =>
-                        val ArrayType(Some(IntRange(n, _)), _) = decl.varType
-                        val ArrayConst(elems) = decl.optionalValue.get
+                        val ArrayType(Some(IntRange(n, _)), _) = decl.varType: @unchecked
+                        val ArrayConst(elems) = decl.optionalValue.get: @unchecked
                         findIndex(elems(i - safeToInt(n)))
                     case None =>
                         None
@@ -194,8 +194,8 @@ final case class FlatZincAst(
             findIndex(idx) match {
                 case Some(i) =>
                     val decl = paramDeclsByName(id)
-                    val ArrayType(Some(IntRange(n, _)), _) = decl.paramType
-                    val ArrayConst(elems) = decl.value
+                    val ArrayType(Some(IntRange(n, _)), _) = decl.paramType: @unchecked
+                    val ArrayConst(elems) = decl.value: @unchecked
                     findIndex(elems(i - safeToInt(n)))
                 case None =>
                     None

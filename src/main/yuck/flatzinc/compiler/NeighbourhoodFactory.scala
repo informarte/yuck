@@ -75,7 +75,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
             }
         }
         val (objectives, neighbourhoods) =
-            (for ((objective, Some(neighbourhood)) <- buf) yield (objective, neighbourhood)).unzip
+            (for (case (objective, Some(neighbourhood)) <- buf) yield (objective, neighbourhood)).unzip
         if (neighbourhoods.size < 2) {
             neighbourhoods.headOption
         } else {

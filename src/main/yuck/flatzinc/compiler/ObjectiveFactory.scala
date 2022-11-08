@@ -31,7 +31,7 @@ final class ObjectiveFactory
             case Satisfy(_) =>
                 val maybeGoalHierarchy = cc.ast.solveGoal.annotations.find(_.term.id == "goal_hierarchy")
                 if (maybeGoalHierarchy.isDefined) {
-                    val List(ArrayConst(goals)) = maybeGoalHierarchy.get.term.params
+                    val List(ArrayConst(goals)) = maybeGoalHierarchy.get.term.params: @unchecked
                     for ((goal, i) <- goals.zipWithIndex) {
                         val goalCfg =
                             cfg.copy(

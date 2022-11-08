@@ -57,7 +57,7 @@ final class Queens(val n: Int) extends IntegrationTest {
             // build local-search solver
             val randomGenerator = new JavaRandomGenerator(seed)
             val Some(neighbourhood) =
-                rowConstraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint)
+                rowConstraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint): @unchecked
             space.registerImplicitConstraint(rowConstraint)
             val solver =
                 new SimulatedAnnealing(

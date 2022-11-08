@@ -461,12 +461,12 @@ final class ConstraintFactory
                 as.iterator.zip(bs.iterator).exists{
                     case ((IntConst(a), b)) => (a == -1 || a == 1) && definesVar(constraint, b)}) =>
             val abs = as.zip(bs)
-            val (a, b) = abs.find{case ((IntConst(a), b)) => (a == -1 || a == 1) && definesVar(constraint, b)}.get
+            val (a, b) = abs.find{case (IntConst(a), b) => (a == -1 || a == 1) && definesVar(constraint, b)}.get
             a match {
                 case IntConst(1) =>
                     // b1 + a2 b2 + ... = c
                     // b1               = c - a2 b2 - ...
-                    val (as1, bs1) = (for ((IntConst(a), b1) <- abs if b1 != b) yield (IntConst(-a), b1)).unzip
+                    val (as1, bs1) = (for (case (IntConst(a), b1) <- abs if b1 != b) yield (IntConst(-a), b1)).unzip
                     compileConstraint(
                         maybeGoal,
                         Constraint("int_lin_eq", List(ArrayConst(IntConst(1) :: as1), ArrayConst(c :: bs1), b), annotations))
@@ -954,7 +954,7 @@ final class ConstraintFactory
     {
         val List(startNodes0, endNodes0, succ0, IntConst(offset), arrivalTimes0, serviceTimes0, travelTimes0,
                     BoolConst(withWaiting), totalTravelTime0) =
-            constraint.params
+            constraint.params: @unchecked
         val startNodes = compileIntSetExpr(startNodes0).domain.singleValue.set
         val endNodes = compileIntSetExpr(endNodes0).domain.singleValue.set
         val succ = compileIntArray(succ0)
@@ -1126,7 +1126,7 @@ final class ConstraintFactory
         (implicit valueTraits: ValueTraits[V]):
         Iterable[BooleanVariable] =
     {
-        val Constraint(Count(relation, _), as :: a :: b :: _, _) = constraint
+        val Constraint(Count(relation, _), as :: a :: b :: _, _) = constraint: @unchecked
         val y = compileExpr[V](a)
         // If xs(j) does not play a role (because its domain is disjoint from y.domain and hence
         // its values will never be counted), we omit xs(j) from the constraint and hence an
@@ -1177,7 +1177,7 @@ final class ConstraintFactory
         (implicit valueTraits: ValueTraits[V]):
         Iterable[BooleanVariable] =
     {
-        val Constraint(Reif(name), List(as, a, b, r), _) = constraint
+        val Constraint(Reif(name), List(as, a, b, r), _) = constraint: @unchecked
         def functionalCase = {
             compileCountConstraint[V](maybeGoal, constraint.copy(id = name), Some(r))
             Nil
@@ -1195,8 +1195,8 @@ final class ConstraintFactory
         Iterable[BooleanVariable] =
     {
         val List(IntConst(offset0), b, as, c) =
-            if (constraint.params.size == 4) constraint.params
-            else IntConst(1) :: constraint.params
+            if (constraint.params.size == 4) constraint.params: @unchecked
+            else IntConst(1) :: constraint.params: @unchecked
         val i = compileIntExpr(b)
         val xs0 = compileArray[V](as)
         val y = compileOrdExpr[V](c)
@@ -1269,7 +1269,7 @@ final class ConstraintFactory
         (maybeGoal: Option[Goal], reifiedConstraint: yuck.flatzinc.ast.Constraint):
         Iterable[BooleanVariable] =
     {
-        val Constraint(Reif(name), params, annotations) = reifiedConstraint
+        val Constraint(Reif(name), params, annotations) = reifiedConstraint: @unchecked
         val constraint = Constraint(name, params.take(params.size - 1), annotations)
         val satisfied = compileBoolExpr(params.last)
         if (compilesToConst(params.last, True)) {
