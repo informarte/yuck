@@ -15,7 +15,7 @@ final class LexLessEq
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.IndexedSeq[OrderedVariable[V]], ys: immutable.IndexedSeq[OrderedVariable[V]],
      costs: BooleanVariable)
-    (implicit val ord: Ordering[V])
+    (using val ord: Ordering[V])
     extends Constraint(id)
 {
 

@@ -150,7 +150,7 @@ final class Space(
     def createVariable
         [V <: AnyValue]
         (name: String, domain: Domain[V])
-        (implicit valueTraits: ValueTraits[V]):
+        (using valueTraits: ValueTraits[V]):
         Variable[V] =
     {
         valueTraits.createVariable(this, name, domain)

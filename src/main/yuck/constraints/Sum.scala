@@ -12,7 +12,7 @@ final class Sum
     [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      val xs: immutable.Seq[NumericalVariable[V]], y: NumericalVariable[V])
-    (implicit valueTraits: NumericalValueTraits[V])
+    (using valueTraits: NumericalValueTraits[V])
     extends Constraint(id)
 {
 

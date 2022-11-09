@@ -2,7 +2,7 @@ package yuck.core.test
 
 import org.junit.*
 
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.test.util.{EqualityTestHelper, OrderingTestHelper, UnitTest}
 
 /**
@@ -122,6 +122,12 @@ final class IntegerSetDomainTest extends UnitTest {
         for (a <- testData) {
             assertEx(a.randomSubdomain(randomGenerator), classOf[NotImplementedError])
         }
+    }
+
+    @Test
+    def testConfiguration(): Unit = {
+        import IntegerSetDomain.{given}
+        assertEq(ordering, IntegerSetDomainOrdering)
     }
 
 }

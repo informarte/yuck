@@ -34,7 +34,7 @@ final class VariableDrivenNeighbourhoodFactory
     protected override def createMinimizationNeighbourhood
         [V <: NumericalValue[V]]
         (levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         if (levelCfg.guideOptimization) createNeighbourhood(OptimizationMode.Min, levelCfg, x)
@@ -44,7 +44,7 @@ final class VariableDrivenNeighbourhoodFactory
     private def createNeighbourhood
         [V <: NumericalValue[V]]
         (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         require(mode == OptimizationMode.Min)
@@ -95,7 +95,7 @@ final class VariableDrivenNeighbourhoodFactory
     private def createHotSpotIndicators
         [V <: NumericalValue[V]]
         (x: AnyVariable)
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         Map[AnyVariable, NumericalVariable[V]] =
     {
         val zs = new mutable.AnyRefMap[AnyVariable, mutable.ArrayBuffer[AX[V]]]
@@ -142,7 +142,7 @@ final class VariableDrivenNeighbourhoodFactory
         [V <: NumericalValue[V]]
         (hotSpotIndicators: Map[AnyVariable, NumericalVariable[V]])
         (xs: Seq[AnyVariable])
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         Option[Distribution] =
     {
         val hotSpotDistribution = Distribution(xs.size)

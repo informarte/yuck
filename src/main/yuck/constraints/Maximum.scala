@@ -12,7 +12,7 @@ final class Maximum
     [V <: OrderedValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.Seq[OrderedVariable[V]], y: OrderedVariable[V])
-    (implicit valueTraits: OrderedValueTraits[V])
+    (using valueTraits: OrderedValueTraits[V])
     extends ValueFrequencyTracker[V, V](id, xs, y)
 {
     require(! xs.isEmpty)

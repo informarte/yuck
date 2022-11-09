@@ -2,7 +2,7 @@ package yuck.core.test
 
 import scala.collection.Seq
 
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.test.util.OrderingTestHelper
 import yuck.util.OrderingFromOrdered
 import yuck.util.logging.{FineLogLevel, LazyLogger}

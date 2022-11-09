@@ -2,7 +2,7 @@ package yuck.core.test
 
 import org.junit.*
 
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.test.util.UnitTest
 
 /**
@@ -110,6 +110,12 @@ final class BooleanDomainTest extends UnitTest {
         for (a <- testData2) {
             assertEx(a.randomSubdomain(randomGenerator), classOf[NotImplementedError])
         }
+    }
+
+    @Test
+    def testConfiguration(): Unit = {
+        import BooleanDomain.{given}
+        assertEq(ordering, BooleanDomainOrdering)
     }
 
 }

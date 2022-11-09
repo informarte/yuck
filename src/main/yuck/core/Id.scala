@@ -16,7 +16,7 @@ final class Id[T](val rawId: Int) extends AnyVal
  */
 object Id {
 
-    implicit def idOrdering[T]: Ordering[Id[T]] = new Ordering[Id[T]] {
+    given ordering[T]: Ordering[Id[T]] with {
         override def compare(lhs: Id[T], rhs: Id[T]) = lhs.rawId - rhs.rawId
     }
 

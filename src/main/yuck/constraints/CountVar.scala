@@ -12,7 +12,7 @@ final class CountVar
     [V <: AnyValue]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.Seq[Variable[V]], y: Variable[V], n: IntegerVariable)
-    (implicit valueTraits: ValueTraits[V])
+    (using valueTraits: ValueTraits[V])
     extends ValueFrequencyTracker[V, IntegerValue](id, xs, n)
 {
 

@@ -14,8 +14,17 @@ final class BooleanDomain
 
     override def hashCode = 3 * (3 + containsFalse.hashCode) + containsTrue.hashCode
 
-    override def compare(that: OrderedDomain[BooleanValue]) =
-        BooleanDomain.ordering.compare(this, that.asInstanceOf[BooleanDomain])
+    /** {}  < {false} < {true} < {false, true} */
+    override def compare(that: OrderedDomain[BooleanValue]) = {
+        val lhs = this
+        val rhs = that.asInstanceOf[BooleanDomain]
+        if (lhs == rhs) 0
+        else if (lhs.isEmpty) -1
+        else if (lhs.containsFalse && !lhs.containsTrue && rhs.containsTrue) -1
+        else if (!lhs.containsFalse && lhs.containsTrue && rhs.containsFalse && rhs.containsTrue) -1
+        else +1
+    }
+
     inline override def ==(that: Domain[BooleanValue]): Boolean = this == that.asInstanceOf[BooleanDomain]
     inline def ==(that: BooleanDomain): Boolean =
         this.eq(that) || (this.containsFalse == that.containsFalse && this.containsTrue == that.containsTrue)
@@ -88,19 +97,11 @@ final class BooleanDomain
  */
 object BooleanDomain {
 
+    given ordering: Ordering[OrderedDomain[BooleanValue]] = BooleanDomainOrdering
+
     private val listWithFalseAndTrue = List(False, True)
     private val listWithFalse = List(False)
     private val listWithTrue = List(True)
-
-    /** {}  < {false} < {true} < {false, true} */
-    val ordering = new Ordering[BooleanDomain] {
-        override def compare(lhs: BooleanDomain, rhs: BooleanDomain) =
-            if (lhs == rhs) 0
-            else if (lhs.isEmpty) -1
-            else if (lhs.containsFalse && ! lhs.containsTrue && rhs.containsTrue) -1
-            else if (! lhs.containsFalse && lhs.containsTrue && rhs.containsFalse && rhs.containsTrue) -1
-            else +1
-    }
 
     /**
      * Creates a Boolean decision domain.

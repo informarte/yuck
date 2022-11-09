@@ -6,7 +6,7 @@ import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
 
 import yuck.constraints.*
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.test.util.UnitTest
 
 /**
@@ -33,7 +33,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
     protected final lazy val y = baseValueTraits.createChannel(space)
     protected final lazy val z = baseValueTraits.createVariable(space, "z", nonEmptyRandomSubdomain(baseDomain))
     protected final val costs = new BooleanVariable(space.nextVariableId(), "costs", costsDomain)
-    protected def createConstraint(implicit valueTraits: NumericalValueTraits[V]): Constraint
+    protected def createConstraint(using valueTraits: NumericalValueTraits[V]): Constraint
 
     private val orderingCostModel = mock(classOf[OrderingCostModel[V]])
     private val domainPruner = mock(classOf[NumericalDomainPruner[V]])

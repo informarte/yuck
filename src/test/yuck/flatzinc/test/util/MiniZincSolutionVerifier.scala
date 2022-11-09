@@ -4,7 +4,7 @@ import java.util.concurrent.Callable
 
 import scala.collection.*
 
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.flatzinc.ast.*
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.flatzinc.runner.*

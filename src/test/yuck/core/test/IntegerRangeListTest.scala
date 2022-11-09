@@ -4,7 +4,7 @@ import org.junit.*
 
 import scala.collection.Seq
 
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.core.IntegerDomain.ensureRangeList
 import yuck.test.util.UnitTest
 

@@ -4,7 +4,7 @@ import scala.collection.*
 import scala.ref.WeakReference
 
 import yuck.constraints.*
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.flatzinc.ast.*
 import yuck.util.arm.{Sigint, scoped}
 import yuck.util.logging.LogScope
@@ -143,7 +143,7 @@ final class ConstraintFactory
 
     // In Yuck, True < False, but in FlatZinc, false < true.
     private val booleanOrdering = BooleanValueTraits.valueOrdering.reverse
-    private val booleanSequenceOrdering = createLexicographicOrderingForIterable(booleanOrdering)
+    private val booleanSequenceOrdering = lexicographicOrderingForIterable(using booleanOrdering)
 
     private def compileConstraint
         (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint):
@@ -788,7 +788,7 @@ final class ConstraintFactory
             val xs = compileBoolArray(as)
             val ys = compileBoolArray(bs)
             val costs = createBoolChannel
-            space.post(new LexLess(nextConstraintId(), maybeGoal, xs, ys, costs)(booleanOrdering))
+            space.post(new LexLess(nextConstraintId(), maybeGoal, xs, ys, costs)(using booleanOrdering))
             List(costs)
         case Constraint("fzn_lex_less_set", List(as, bs), _) =>
             val xs = compileIntSetArray(as)
@@ -806,7 +806,7 @@ final class ConstraintFactory
             val xs = compileBoolArray(as)
             val ys = compileBoolArray(bs)
             val costs = createBoolChannel
-            space.post(new LexLessEq(nextConstraintId(), maybeGoal, xs, ys, costs)(booleanOrdering))
+            space.post(new LexLessEq(nextConstraintId(), maybeGoal, xs, ys, costs)(using booleanOrdering))
             List(costs)
         case Constraint("fzn_lex_lesseq_set", List(as, bs), _) =>
             val xs = compileIntSetArray(as)
@@ -905,7 +905,7 @@ final class ConstraintFactory
          constraint: yuck.flatzinc.ast.Constraint,
          items: immutable.Seq[BinPackingItem[Load]],
          loads: immutable.Map[Int, NumericalVariable[Load]]) // bin -> load
-        (implicit loadTraits: NumericalValueTraits[Load]):
+        (using loadTraits: NumericalValueTraits[Load]):
         Iterable[BooleanVariable] =
     {
         require(items.forall(_.weight >= loadTraits.zero))
@@ -949,7 +949,7 @@ final class ConstraintFactory
         [Time <: NumericalValue[Time]]
         (maybeGoal: Option[Goal],
          constraint: yuck.flatzinc.ast.Constraint)
-        (implicit timeTraits: NumericalValueTraits[Time]):
+        (using timeTraits: NumericalValueTraits[Time]):
         Iterable[BooleanVariable] =
     {
         val List(startNodes0, endNodes0, succ0, IntConst(offset), arrivalTimes0, serviceTimes0, travelTimes0,
@@ -1048,7 +1048,7 @@ final class ConstraintFactory
         (maybeGoal: Option[Goal],
          as0: Expr, bs: Expr,
          maybeChannel: Option[NumericalVariable[V]] = None)
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         NumericalVariable[V] =
     {
         val zero = valueTraits.zero
@@ -1095,7 +1095,7 @@ final class ConstraintFactory
         (maybeGoal: Option[Goal],
          as0: Expr, bs: Expr, relation: OrderingRelation, c: Expr,
          maybeCosts: Option[BooleanVariable] = None)
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         BooleanVariable =
     {
         val zero = valueTraits.zero
@@ -1123,7 +1123,7 @@ final class ConstraintFactory
         (maybeGoal: Option[Goal],
          constraint: yuck.flatzinc.ast.Constraint,
          maybeCosts: Option[BooleanVariable] = None)
-        (implicit valueTraits: ValueTraits[V]):
+        (using valueTraits: ValueTraits[V]):
         Iterable[BooleanVariable] =
     {
         val Constraint(Count(relation, _), as :: a :: b :: _, _) = constraint: @unchecked
@@ -1174,7 +1174,7 @@ final class ConstraintFactory
         [V <: AnyValue]
         (maybeGoal: Option[Goal],
          constraint: yuck.flatzinc.ast.Constraint)
-        (implicit valueTraits: ValueTraits[V]):
+        (using valueTraits: ValueTraits[V]):
         Iterable[BooleanVariable] =
     {
         val Constraint(Reif(name), List(as, a, b, r), _) = constraint: @unchecked
@@ -1191,7 +1191,7 @@ final class ConstraintFactory
     private def compileElementConstraint
         [V <: OrderedValue[V]]
         (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint)
-        (implicit valueTraits: OrderedValueTraits[V]):
+        (using valueTraits: OrderedValueTraits[V]):
         Iterable[BooleanVariable] =
     {
         val List(IntConst(offset0), b, as, c) =
@@ -1238,7 +1238,7 @@ final class ConstraintFactory
     private def compileIfThenElseConstraint
         [V <: OrderedValue[V]]
         (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint)
-        (implicit valueTraits: OrderedValueTraits[V]):
+        (using valueTraits: OrderedValueTraits[V]):
         Iterable[BooleanVariable] =
     {
         val cs = compileBoolArray(constraint.params(0))

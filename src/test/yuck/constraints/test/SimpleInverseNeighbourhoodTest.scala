@@ -5,7 +5,7 @@ import org.junit.*
 import scala.jdk.CollectionConverters.*
 
 import yuck.constraints.{InverseFunction, SimpleInverseNeighbourhood}
-import yuck.core.*
+import yuck.core.{given, *}
 
 /**
  * @author Michael Marte

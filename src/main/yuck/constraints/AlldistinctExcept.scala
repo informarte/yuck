@@ -19,7 +19,7 @@ final class AlldistinctExcept
     [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.Seq[NumericalVariable[V]], S: immutable.Set[V], costs: BooleanVariable)
-    (implicit valueTraits: NumericalValueTraits[V])
+    (using valueTraits: NumericalValueTraits[V])
     extends ValueFrequencyTracker[V, BooleanValue](id, xs, costs)
 {
     override def toString = "alldistinctExcept([%s], {%s}, %s)".format(xs.mkString(", "), S.mkString(", "), costs)

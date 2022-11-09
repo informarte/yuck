@@ -10,7 +10,7 @@ final class MinimizationObjective
     (override val x: NumericalVariable[V],
      maybeTargetCosts: Option[V],
      override protected val maybeY: Option[NumericalVariable[V]])
-    (implicit valueTraits: NumericalValueTraits[V])
+    (using valueTraits: NumericalValueTraits[V])
     extends NumericalObjective[V]
 {
     override def toString =

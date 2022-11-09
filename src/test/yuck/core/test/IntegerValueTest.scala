@@ -2,7 +2,7 @@ package yuck.core.test
 
 import org.junit.*
 
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.test.util.UnitTest
 
 /**
@@ -135,6 +135,13 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
         assertEq((Two ^ IntegerValue(63)).value, Long.MaxValue)
         assertEx(Two ^ IntegerValue(64), classOf[ArithmeticException])
         assertEx(IntegerValue(Long.MaxValue) ^ IntegerValue(Long.MaxValue), classOf[ArithmeticException])
+    }
+
+    @Test
+    def testConfiguration(): Unit = {
+        import IntegerValue.{given}
+        assertEq(operations, IntegerValueOperations)
+        assertEq(traits, IntegerValueTraits)
     }
 
 }

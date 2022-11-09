@@ -3,7 +3,7 @@ package yuck.flatzinc.compiler
 import scala.collection.*
 import scala.language.implicitConversions
 
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.flatzinc.ast.*
 import yuck.flatzinc.parser.*
 
@@ -22,7 +22,7 @@ abstract class CompilationPhase extends Runnable {
     protected final def compilesToConst
         [V <: AnyValue]
         (a: Expr, b: V)
-        (implicit valueTraits: ValueTraits[V]): Boolean =
+        (using valueTraits: ValueTraits[V]): Boolean =
     {
         val maybeC = tryGetAnyConst(a)
         (! maybeC.isEmpty && valueTraits.safeDowncast(maybeC.get) == b)
@@ -31,7 +31,7 @@ abstract class CompilationPhase extends Runnable {
     protected final def getConst
         [V <: AnyValue]
         (a: Expr)
-        (implicit valueTraits: ValueTraits[V]): V =
+        (using valueTraits: ValueTraits[V]): V =
     {
         tryGetConst(a).get
     }
@@ -39,7 +39,7 @@ abstract class CompilationPhase extends Runnable {
     protected final def tryGetConst
         [V <: AnyValue]
         (a: Expr)
-        (implicit valueTraits: ValueTraits[V]): Option[V] =
+        (using valueTraits: ValueTraits[V]): Option[V] =
     {
         tryGetAnyConst(a).map(valueTraits.safeDowncast)
     }
@@ -177,7 +177,7 @@ abstract class CompilationPhase extends Runnable {
         implicit final def compileOrdExpr
             [V <: OrderedValue[V]]
             (expr: Expr)
-            (implicit valueTraits: OrderedValueTraits[V]):
+            (using valueTraits: OrderedValueTraits[V]):
             OrderedVariable[V] =
         {
             valueTraits.safeDowncast(compileAnyExpr(expr))
@@ -186,7 +186,7 @@ abstract class CompilationPhase extends Runnable {
         implicit final def compileOrdArray
             [V <: OrderedValue[V]]
             (expr: Expr)
-            (implicit valueTraits: OrderedValueTraits[V]):
+            (using valueTraits: OrderedValueTraits[V]):
             immutable.IndexedSeq[OrderedVariable[V]] =
         {
             val xs = compileAnyArray(expr)
@@ -201,7 +201,7 @@ abstract class CompilationPhase extends Runnable {
         implicit final def compileNumExpr
             [V <: NumericalValue[V]]
             (expr: Expr)
-            (implicit valueTraits: NumericalValueTraits[V]):
+            (using valueTraits: NumericalValueTraits[V]):
             NumericalVariable[V] =
         {
             valueTraits.safeDowncast(compileAnyExpr(expr))
@@ -210,7 +210,7 @@ abstract class CompilationPhase extends Runnable {
         implicit final def compileNumArray
             [V <: NumericalValue[V]]
             (expr: Expr)
-            (implicit valueTraits: NumericalValueTraits[V]):
+            (using valueTraits: NumericalValueTraits[V]):
             immutable.IndexedSeq[NumericalVariable[V]] =
         {
             val xs = compileAnyArray(expr)
@@ -225,7 +225,7 @@ abstract class CompilationPhase extends Runnable {
         implicit final def compileExpr
             [V <: AnyValue]
             (expr: Expr)
-            (implicit valueTraits: ValueTraits[V]):
+            (using valueTraits: ValueTraits[V]):
             Variable[V] =
         {
             valueTraits.safeDowncast(compileAnyExpr(expr))
@@ -234,7 +234,7 @@ abstract class CompilationPhase extends Runnable {
         implicit final def compileArray
             [V <: AnyValue]
             (expr: Expr)
-            (implicit valueTraits: ValueTraits[V]):
+            (using valueTraits: ValueTraits[V]):
             immutable.IndexedSeq[Variable[V]] =
         {
             val xs = compileAnyArray(expr)
@@ -256,7 +256,7 @@ abstract class CompilationPhase extends Runnable {
 
     protected final def createChannel
         [V <: AnyValue]
-        (implicit valueTraits: ValueTraits[V]):
+        (using valueTraits: ValueTraits[V]):
         Variable[V] =
     {
         valueTraits.createChannel(cc.space)
@@ -264,7 +264,7 @@ abstract class CompilationPhase extends Runnable {
 
     protected final def createOrdChannel
         [V <: OrderedValue[V]]
-        (implicit valueTraits: OrderedValueTraits[V]):
+        (using valueTraits: OrderedValueTraits[V]):
         OrderedVariable[V] =
     {
         valueTraits.createChannel(cc.space)
@@ -272,7 +272,7 @@ abstract class CompilationPhase extends Runnable {
 
     protected final def createNumChannel
         [V <: NumericalValue[V]]
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         NumericalVariable[V] =
     {
         valueTraits.createChannel(cc.space)
@@ -280,7 +280,7 @@ abstract class CompilationPhase extends Runnable {
 
     protected final def createNonNegativeChannel
         [V <: NumericalValue[V]]
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         NumericalVariable[V] =
     {
         valueTraits.createVariable(cc.space, "", valueTraits.nonNegativeDomain)
@@ -334,7 +334,7 @@ abstract class CompilationPhase extends Runnable {
     implicit protected final def xs2axs
         [V <: NumericalValue[V]]
         (xs: immutable.IndexedSeq[NumericalVariable[V]])
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         immutable.IndexedSeq[AX[V]] =
     {
         for (x <- xs) yield new AX(valueTraits.one, x)

@@ -36,7 +36,7 @@ final class ConstraintDrivenNeighbourhoodFactory
     protected override def createMinimizationNeighbourhood
         [V <: NumericalValue[V]]
         (levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         if (levelCfg.guideOptimization) createNeighbourhood(OptimizationMode.Min, levelCfg, x)
@@ -46,7 +46,7 @@ final class ConstraintDrivenNeighbourhoodFactory
     protected override def createMaximizationNeighbourhood
         [V <: NumericalValue[V]]
         (levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         if (levelCfg.guideOptimization) createNeighbourhood(OptimizationMode.Max, levelCfg, x)
@@ -56,7 +56,7 @@ final class ConstraintDrivenNeighbourhoodFactory
     private def createNeighbourhood
         [V <: NumericalValue[V]]
         (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         space.registerObjectiveVariable(x)
@@ -88,7 +88,7 @@ final class ConstraintDrivenNeighbourhoodFactory
     private def createNeighbourhood
         [V <: NumericalValue[V]]
         (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, constraint: yuck.core.Constraint)
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         (mode, constraint) match {
@@ -132,7 +132,7 @@ final class ConstraintDrivenNeighbourhoodFactory
     private def createNeighbourhood
         [V <: NumericalValue[V]]
         (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, axs0: Seq[AX[V]])
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         val axs = axs0.sortBy(_.x)
@@ -190,7 +190,7 @@ final class ConstraintDrivenNeighbourhoodFactory
     private def createHotSpotDistribution
         [V <: NumericalValue[V]]
         (mode: OptimizationMode.Value, weights: Seq[AX[V]])
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         Distribution =
     {
         val hotSpotDistribution = Distribution(weights.size)

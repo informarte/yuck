@@ -3,7 +3,7 @@ package yuck.flatzinc.compiler
 import scala.collection.*
 
 import yuck.constraints.*
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.flatzinc.FlatZincLevelConfiguration
 
 /**
@@ -179,7 +179,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
     protected def createMinimizationNeighbourhood
         [V <: NumericalValue[V]]
         (levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         createNeighbourhoodOnInvolvedSearchVariables(levelCfg, x)
@@ -188,7 +188,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
     protected def createMaximizationNeighbourhood
         [V <: NumericalValue[V]]
         (levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
-        (implicit valueTraits: NumericalValueTraits[V]):
+        (using valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
         createNeighbourhoodOnInvolvedSearchVariables(levelCfg, x)

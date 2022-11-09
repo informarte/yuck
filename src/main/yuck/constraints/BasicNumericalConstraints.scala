@@ -10,7 +10,7 @@ final class Plus
     [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: NumericalVariable[V], y: NumericalVariable[V], z: NumericalVariable[V])
-    (implicit valueTraits: NumericalValueTraits[V])
+    (using valueTraits: NumericalValueTraits[V])
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s + %s".format(z, x, y)
@@ -32,7 +32,7 @@ final class Minus
     [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: NumericalVariable[V], y: NumericalVariable[V], z: NumericalVariable[V])
-    (implicit valueTraits: NumericalValueTraits[V])
+    (using valueTraits: NumericalValueTraits[V])
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s - %s".format(z, x, y)
@@ -54,7 +54,7 @@ final class Times
     [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: NumericalVariable[V], y: NumericalVariable[V], z: NumericalVariable[V])
-    (implicit valueTraits: NumericalValueTraits[V])
+    (using valueTraits: NumericalValueTraits[V])
     extends TernaryConstraint[V, V, V](id, x, y, z)
 {
     override def toString = "%s = %s * %s".format(z, x, y)
@@ -115,7 +115,7 @@ final class Abs
     [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: NumericalVariable[V], y: NumericalVariable[V])
-    (implicit valueTraits: NumericalValueTraits[V])
+    (using valueTraits: NumericalValueTraits[V])
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "%s = abs(%s)".format(y, x)

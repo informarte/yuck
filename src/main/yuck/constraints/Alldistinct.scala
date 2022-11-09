@@ -3,7 +3,7 @@ package yuck.constraints
 import scala.collection.*
 
 import yuck.annealing.*
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 
@@ -21,7 +21,7 @@ final class Alldistinct
     [V <: AnyValue]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.IndexedSeq[Variable[V]], costs: BooleanVariable)
-    (implicit valueTraits: ValueTraits[V])
+    (using valueTraits: ValueTraits[V])
     extends ValueFrequencyTracker[V, BooleanValue](id, xs, costs)
 {
 

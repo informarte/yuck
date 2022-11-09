@@ -2,7 +2,7 @@ package yuck.constraints
 
 import scala.collection.*
 
-import yuck.core.*
+import yuck.core.{given, *}
 
 /**
  * @author Michael Marte
@@ -12,7 +12,7 @@ final class CountConst
     [V <: AnyValue]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: Seq[Variable[V]], a: V, val n: IntegerVariable)
-    (implicit valueTraits: ValueTraits[V])
+    (using valueTraits: ValueTraits[V])
     extends Constraint(id)
 {
 

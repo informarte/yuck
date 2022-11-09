@@ -2,7 +2,7 @@ package yuck.core.test
 
 import org.junit.*
 
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.test.util.UnitTest
 
 /**
@@ -73,6 +73,13 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
                 assertEq(a.compare(b).sign, a.violation.compare(b.violation).sign)
             }
         }
+    }
+
+    @Test
+    def testConfiguration(): Unit = {
+        import BooleanValue.{given}
+        assertEq(ordering, BooleanValueOrdering)
+        assertEq(traits, BooleanValueTraits)
     }
 
 }

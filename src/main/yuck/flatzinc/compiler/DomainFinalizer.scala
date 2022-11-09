@@ -3,7 +3,7 @@ package yuck.flatzinc.compiler
 import scala.collection.*
 
 import yuck.constraints.*
-import yuck.core.*
+import yuck.core.{given, *}
 
 /**
  * Enforces the domains of channel variables by adding appropriate constraints.

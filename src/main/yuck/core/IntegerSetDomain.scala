@@ -76,4 +76,7 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
  * @author Michael Marte
  */
 object IntegerSetDomain {
+
+    given ordering: Ordering[OrderedDomain[IntegerSetValue]] = IntegerSetDomainOrdering
+
 }

@@ -2,7 +2,7 @@ package yuck.core.test
 
 import scala.collection.*
 
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.core.IntegerDomain.ensureRangeList
 import yuck.util.logging.{FineLogLevel, LazyLogger}
 

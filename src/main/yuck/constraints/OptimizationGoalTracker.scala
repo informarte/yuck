@@ -17,7 +17,7 @@ final class OptimizationGoalTracker
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      mode: OptimizationMode.Value,
      axs: immutable.IndexedSeq[AX[V]], distribution: Distribution)
-    (implicit valueTraits: NumericalValueTraits[V])
+    (using valueTraits: NumericalValueTraits[V])
     extends Constraint(id)
 {
 

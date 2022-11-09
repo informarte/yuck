@@ -4,7 +4,7 @@ import org.junit.*
 
 import scala.jdk.CollectionConverters.*
 
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.test.util.*
 

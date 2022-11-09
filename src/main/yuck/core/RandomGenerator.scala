@@ -43,7 +43,7 @@ abstract class RandomGenerator {
     final def shuffle
         [T, C[T] <: Iterable[T]]
         (source: C[T])
-        (implicit bf: BuildFrom[C[T], T, C[T]]): C[T] =
+        (using bf: BuildFrom[C[T], T, C[T]]): C[T] =
     {
         val buf = new mutable.ArrayBuffer[T]
         buf.addAll(source)

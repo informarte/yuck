@@ -12,7 +12,7 @@ final class LinearCombination
     [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      val axs: immutable.Seq[AX[V]], y: NumericalVariable[V])
-    (implicit valueTraits: NumericalValueTraits[V])
+    (using valueTraits: NumericalValueTraits[V])
     extends Constraint(id)
 {
 

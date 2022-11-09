@@ -9,7 +9,7 @@ import scala.annotation.tailrec
  */
 abstract class NumericalObjective
     [V <: NumericalValue[V]]
-    (implicit valueTraits: NumericalValueTraits[V])
+    (using valueTraits: NumericalValueTraits[V])
     extends PrimitiveObjective
 {
 

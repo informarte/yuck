@@ -6,7 +6,7 @@ import org.junit.experimental.categories.*
 import scala.language.implicitConversions
 
 import yuck.constraints.{Alldistinct, ElementConst, ElementVar, IfThenElse}
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.flatzinc.compiler.{Bool2Int1, FlatZincCompilerResult, VariableWithInfiniteDomainException}
 import yuck.flatzinc.test.util.*
 import yuck.test.util.ParallelTestRunner

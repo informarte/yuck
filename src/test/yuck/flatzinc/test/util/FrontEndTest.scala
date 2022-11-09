@@ -5,7 +5,7 @@ import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 import yuck.annealing.AnnealingResult
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 
@@ -48,7 +48,7 @@ abstract class FrontEndTest extends MiniZincBasedTest {
         protected def channelVariables: Set[AnyVariable] =
             result.space.channelVariables
 
-        protected def numberOfConstraints[T <: Constraint](implicit classTag: ClassTag[T]): Int =
+        protected def numberOfConstraints[T <: Constraint](using classTag: ClassTag[T]): Int =
             result.space.numberOfConstraints(classTag.runtimeClass.isInstance)
 
         protected def assignment: SearchState =

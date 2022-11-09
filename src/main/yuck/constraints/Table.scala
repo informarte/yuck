@@ -22,7 +22,7 @@ final class Table
      private var rows: immutable.IndexedSeq[immutable.IndexedSeq[V]],
      costs: BooleanVariable,
      forceImplicitSolving: Boolean = false)
-    (implicit valueTraits: OrderedValueTraits[V])
+    (using valueTraits: OrderedValueTraits[V])
     extends Constraint(id)
 {
 

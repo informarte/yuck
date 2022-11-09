@@ -5,7 +5,7 @@ import org.junit.*
 import scala.collection.*
 import scala.jdk.CollectionConverters.*
 
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.test.util.UnitTest
 
 /**

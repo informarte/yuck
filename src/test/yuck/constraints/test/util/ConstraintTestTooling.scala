@@ -2,7 +2,7 @@ package yuck.constraints.test.util
 
 import org.junit.Assert
 
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.test.util.YuckAssert
 import yuck.util.logging.LazyLogger
 
@@ -211,7 +211,7 @@ trait ConstraintTestTooling extends YuckAssert {
 
     extension [V <: AnyValue](x: Variable[V]) {
         def <<(dx: Domain[V]): DomainReduction[V] = DomainReduction(x, dx)
-        def <<(values: Iterable[V])(implicit valueTraits: ValueTraits[V]): DomainReduction[V] =
+        def <<(values: Iterable[V])(using valueTraits: ValueTraits[V]): DomainReduction[V] =
             DomainReduction(x, valueTraits.createDomain(values.toSet))
         def <<(a: V): MoveEffect[V] = ImmutableMoveEffect(x, a)
     }

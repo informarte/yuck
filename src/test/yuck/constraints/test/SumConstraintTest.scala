@@ -5,7 +5,7 @@ import org.junit.*
 import scala.jdk.CollectionConverters.*
 
 import yuck.constraints.*
-import yuck.core.*
+import yuck.core.{given, *}
 
 /**
  * @author Michael Marte
@@ -26,8 +26,8 @@ final class SumConstraintTest
             One,
             new IntegerVariable(
                 space.nextVariableId(), "x%d".format(i), baseDomain.randomSubdomain(randomGenerator)))
-    override protected def createConstraint(implicit valueTraits: NumericalValueTraits[IntegerValue]) =
-        new SumConstraint(space.nextConstraintId(), null, axs.map(_.x), y, relation, z, costs)(valueTraits)
+    override protected def createConstraint(using valueTraits: NumericalValueTraits[IntegerValue]) =
+        new SumConstraint(space.nextConstraintId(), null, axs.map(_.x), y, relation, z, costs)(using valueTraits)
 }
 
 /**

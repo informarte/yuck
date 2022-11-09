@@ -6,7 +6,7 @@ import org.jgrapht.nio.{Attribute, AttributeType, DefaultAttribute}
 
 import scala.collection.mutable
 
-import yuck.core.*
+import yuck.core.{given, *}
 
 /**
  * @author Michael Marte

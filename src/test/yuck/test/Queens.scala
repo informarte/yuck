@@ -6,7 +6,7 @@ import scala.jdk.CollectionConverters.*
 
 import yuck.annealing.*
 import yuck.constraints.*
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.test.util.{DefaultNumberOfThreads, IntegrationTest}
 
 /**

@@ -3,7 +3,7 @@ package yuck.constraints
 import scala.annotation.tailrec
 import scala.collection.*
 
-import yuck.core.*
+import yuck.core.{given, *}
 
 /**
  * @author Michael Marte
@@ -16,7 +16,7 @@ final class IfThenElse
     [V <: AnyValue]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      cs: immutable.IndexedSeq[BooleanVariable], xs: immutable.IndexedSeq[Variable[V]], y: Variable[V])
-    (implicit valueTraits: ValueTraits[V])
+    (using valueTraits: ValueTraits[V])
     extends Constraint(id)
 {
 

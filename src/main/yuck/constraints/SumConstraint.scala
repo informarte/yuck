@@ -19,7 +19,7 @@ final class SumConstraint
      override protected val relation: OrderingRelation,
      override protected val z: NumericalVariable[V],
      override protected val costs: BooleanVariable)
-    (implicit override protected val valueTraits: NumericalValueTraits[V])
+    (using override protected val valueTraits: NumericalValueTraits[V])
     extends LinearConstraintLike[V](id)
 {
 

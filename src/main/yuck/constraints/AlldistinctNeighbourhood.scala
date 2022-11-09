@@ -16,7 +16,7 @@ final class AlldistinctNeighbourhood
      xs: immutable.IndexedSeq[Variable[V]],
      randomGenerator: RandomGenerator,
      moveSizeDistribution: Distribution)
-    (implicit valueTraits: ValueTraits[V])
+    (using valueTraits: ValueTraits[V])
     extends Neighbourhood
 {
 

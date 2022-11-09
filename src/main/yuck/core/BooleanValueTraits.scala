@@ -7,7 +7,7 @@ import scala.collection.*
  *
  * @author Michael Marte
  */
-implicit object BooleanValueTraits extends OrderedValueTraits[BooleanValue] {
+object BooleanValueTraits extends OrderedValueTraits[BooleanValue] {
     override val valueType = classOf[BooleanValue]
     override def normalizedValue(a: BooleanValue) = if (a.truthValue) then True else False
     override val valueOrdering = BooleanValueOrdering

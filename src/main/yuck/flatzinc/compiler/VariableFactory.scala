@@ -1,6 +1,6 @@
 package yuck.flatzinc.compiler
 
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.flatzinc.ast.*
 
 /**
@@ -100,7 +100,7 @@ final class VariableFactory
     private def createVariable
         [V <: OrderedValue[V]]
         (key: Expr)
-        (implicit valueTraits: OrderedValueTraits[V]):
+        (using valueTraits: OrderedValueTraits[V]):
         OrderedVariable[V] =
     {
         def factory(key: Expr) =

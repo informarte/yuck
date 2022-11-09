@@ -5,7 +5,7 @@ import org.junit.*
 import scala.jdk.CollectionConverters.*
 
 import yuck.constraints.*
-import yuck.core.*
+import yuck.core.{given, *}
 
 /**
  * @author Michael Marte
@@ -26,8 +26,8 @@ final class LinearConstraintTest
             baseDomain.randomValue(randomGenerator),
             new IntegerVariable(
                 space.nextVariableId(), "x%d".format(i), baseDomain.randomSubdomain(randomGenerator)))
-    override protected def createConstraint(implicit valueTraits: NumericalValueTraits[IntegerValue]) =
-        new LinearConstraint(space.nextConstraintId(), null, axs, y, relation, z, costs)(valueTraits)
+    override protected def createConstraint(using valueTraits: NumericalValueTraits[IntegerValue]) =
+        new LinearConstraint(space.nextConstraintId(), null, axs, y, relation, z, costs)(using valueTraits)
 }
 
 /**

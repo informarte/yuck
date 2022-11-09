@@ -3,7 +3,7 @@ package yuck.constraints.test
 import org.junit.*
 
 import yuck.constraints.*
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.test.util.UnitTest
 
 /**

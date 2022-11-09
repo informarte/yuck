@@ -4,7 +4,7 @@ import org.junit.*
 
 import scala.collection.*
 
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.test.util.UnitTest
 
 /**
@@ -97,6 +97,12 @@ final class IntegerDomainTest extends UnitTest {
                 check2b(intView.toVector: _*)
             }
         }
+    }
+
+    @Test
+    def testConfiguration(): Unit = {
+        import IntegerDomain.{given}
+        assertEq(ordering, IntegerDomainOrdering)
     }
 
 }

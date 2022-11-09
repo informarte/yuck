@@ -4,7 +4,7 @@ import scala.collection.*
 import scala.ref.WeakReference
 import scala.reflect.ClassTag
 
-import yuck.core.*
+import yuck.core.{given, *}
 
 /**
  * Helps with solving single-depot vehicle-routing problems with time windows.
@@ -41,12 +41,12 @@ final class Delivery
      withWaiting: Boolean,
      totalTravelTime: NumericalVariable[Time],
      costs: BooleanVariable)
-    (implicit timeTraits: NumericalValueTraits[Time])
+    (using timeTraits: NumericalValueTraits[Time])
     extends Constraint(id)
 {
 
     private val timeOps = timeTraits.numericalOperations
-    private implicit val timeClassTag: ClassTag[Time] = ClassTag[Time](timeTraits.valueType)
+    private given timeClassTag: ClassTag[Time] = ClassTag[Time](timeTraits.valueType)
 
     private val nodes = IntegerRange(offset, offset + succ.size - 1)
     require(! startNodes.isEmpty)

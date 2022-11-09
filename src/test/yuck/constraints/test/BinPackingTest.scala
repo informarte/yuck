@@ -6,7 +6,7 @@ import scala.collection.immutable.TreeMap
 
 import yuck.constraints.*
 import yuck.constraints.test.util.ConstraintTestTooling
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.test.util.UnitTest
 
 /**

@@ -33,19 +33,19 @@ trait YuckAssert {
         assert("%s (testee) == %s".format(a, b), a != b)
     }
 
-    protected def assertLe[T](a: T, b: T)(implicit ord: Ordering[T]): Unit = {
+    protected def assertLe[T](a: T, b: T)(using ord: Ordering[T]): Unit = {
         assert("%s (testee) > %s".format(a, b), ord.compare(a, b) <= 0)
     }
 
-    protected def assertLt[T](a: T, b: T)(implicit ord: Ordering[T]): Unit = {
+    protected def assertLt[T](a: T, b: T)(using ord: Ordering[T]): Unit = {
         assert("%s (testee) >= %s".format(a, b), ord.compare(a, b) < 0)
     }
 
-    protected def assertGe[T](a: T, b: T)(implicit ord: Ordering[T]): Unit = {
+    protected def assertGe[T](a: T, b: T)(using ord: Ordering[T]): Unit = {
         assert("%s (testee) < %s".format(a, b), ord.compare(a, b) >= 0)
     }
 
-    protected def assertGt[T](a: T, b: T)(implicit ord: Ordering[T]): Unit = {
+    protected def assertGt[T](a: T, b: T)(using ord: Ordering[T]): Unit = {
         assert("%s (testee) <= %s".format(a, b), ord.compare(a, b) > 0)
     }
 

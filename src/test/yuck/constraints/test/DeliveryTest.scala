@@ -8,7 +8,7 @@ import scala.ref.WeakReference
 
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.{Circuit, Delivery}
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.test.util.UnitTest
 
 /**

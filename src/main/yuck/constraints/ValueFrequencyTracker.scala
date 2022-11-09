@@ -16,7 +16,7 @@ abstract class ValueFrequencyTracker
     [V <: AnyValue, Result <: AnyValue]
     (id: Id[Constraint],
      protected val xs: immutable.Seq[Variable[V]], protected val y: Variable[Result])
-    (implicit protected val valueTraits: ValueTraits[V])
+    (using protected val valueTraits: ValueTraits[V])
     extends Constraint(id)
 {
 

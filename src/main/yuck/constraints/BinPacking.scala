@@ -29,7 +29,7 @@ final class BinPacking
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      items: immutable.Seq[BinPackingItem[Load]],
      loads: immutable.Map[Int, Variable[Load]]) // bin -> load
-    (implicit valueTraits: NumericalValueTraits[Load])
+    (using valueTraits: NumericalValueTraits[Load])
     extends Constraint(id)
 {
 

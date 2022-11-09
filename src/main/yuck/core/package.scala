@@ -1,7 +1,6 @@
 package yuck
 
 import scala.collection.immutable
-import scala.language.implicitConversions
 
 /**
  * @author Michael Marte
@@ -82,26 +81,24 @@ package object core {
 
     val CompleteIntegerSetDomain = new IntegerPowersetDomain(CompleteIntegerRange)
 
-    implicit def createLexicographicOrderingForIterator[T](implicit ord: Ordering[T]): Ordering[Iterator[T]] =
-        new Ordering[Iterator[T]] {
-            override def compare(i: Iterator[T], j: Iterator[T]) = {
-                var result = 0
-                while (result == 0 && i.hasNext && j.hasNext) {
-                    result = ord.compare(i.next(), j.next())
-                }
-                if (result == 0) {
-                    result = Ordering.Boolean.compare(i.hasNext, j.hasNext)
-                }
-                result
+    given lexicographicOrderingForIterator[T](using ord: Ordering[T]): Ordering[Iterator[T]] with {
+        override def compare(i: Iterator[T], j: Iterator[T]) = {
+            var result = 0
+            while (result == 0 && i.hasNext && j.hasNext) {
+                result = ord.compare(i.next(), j.next())
             }
+            if (result == 0) {
+                result = Ordering.Boolean.compare(i.hasNext, j.hasNext)
+            }
+            result
         }
+    }
 
-    implicit def createLexicographicOrderingForIterable[T](implicit ord: Ordering[T]): Ordering[Iterable[T]] =
-        new Ordering[Iterable[T]] {
-            val iteratorOrd = createLexicographicOrderingForIterator(ord)
-            override def compare(u: Iterable[T], v: Iterable[T]) =
-                iteratorOrd.compare(u.iterator, v.iterator)
-        }
+    given lexicographicOrderingForIterable[T](using ord: Ordering[T]): Ordering[Iterable[T]] with {
+        val iteratorOrd = lexicographicOrderingForIterator(using ord)
+        override def compare(u: Iterable[T], v: Iterable[T]) =
+            iteratorOrd.compare(u.iterator, v.iterator)
+    }
 
     val DefaultSeed = 0x0a23d679a633c596L
 

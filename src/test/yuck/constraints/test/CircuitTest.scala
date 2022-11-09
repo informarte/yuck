@@ -7,7 +7,7 @@ import scala.jdk.CollectionConverters.*
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.constraints.{Circuit, CircuitNeighbourhood, CircuitTracker}
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.test.util.UnitTest
 
 /**

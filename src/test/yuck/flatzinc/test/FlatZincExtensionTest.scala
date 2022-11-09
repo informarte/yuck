@@ -6,7 +6,7 @@ import org.junit.experimental.categories.*
 import scala.language.implicitConversions
 
 import yuck.constraints.*
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.flatzinc.test.util.*
 import yuck.test.util.ParallelTestRunner
 

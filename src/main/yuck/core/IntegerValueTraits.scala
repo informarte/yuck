@@ -7,7 +7,7 @@ import scala.collection.*
  *
  * @author Michael Marte
  */
-implicit object IntegerValueTraits extends IntegralValueTraits[IntegerValue] {
+object IntegerValueTraits extends IntegralValueTraits[IntegerValue] {
     override val valueType = classOf[IntegerValue]
     override def normalizedValue(a: IntegerValue) = a
     override val zero = Zero

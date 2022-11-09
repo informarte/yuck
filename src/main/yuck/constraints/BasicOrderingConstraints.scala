@@ -10,7 +10,7 @@ final class Eq
     [V <: OrderedValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: OrderedVariable[V], y: OrderedVariable[V], z: BooleanVariable)
-    (implicit valueTraits: OrderedValueTraits[V])
+    (using valueTraits: OrderedValueTraits[V])
     extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[OrderedDomain[V], OrderedDomain[V]]
 {
@@ -34,7 +34,7 @@ final class Ne
     [V <: OrderedValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: OrderedVariable[V], y: OrderedVariable[V], z: BooleanVariable)
-    (implicit valueTraits: OrderedValueTraits[V])
+    (using valueTraits: OrderedValueTraits[V])
     extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[OrderedDomain[V], OrderedDomain[V]]
 {
@@ -58,7 +58,7 @@ final class Lt
     [V <: OrderedValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: OrderedVariable[V], y: OrderedVariable[V], z: BooleanVariable)
-    (implicit valueTraits: OrderedValueTraits[V])
+    (using valueTraits: OrderedValueTraits[V])
     extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[OrderedDomain[V], OrderedDomain[V]]
 {
@@ -84,7 +84,7 @@ final class Le
     [V <: OrderedValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: OrderedVariable[V], y: OrderedVariable[V], z: BooleanVariable)
-    (implicit valueTraits: OrderedValueTraits[V])
+    (using valueTraits: OrderedValueTraits[V])
     extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[OrderedDomain[V], OrderedDomain[V]]
 {
@@ -110,7 +110,7 @@ final class Min
     [V <: OrderedValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: OrderedVariable[V], y: OrderedVariable[V], z: OrderedVariable[V])
-    (implicit valueTraits: OrderedValueTraits[V])
+    (using valueTraits: OrderedValueTraits[V])
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = min(%s, %s)".format(z, x, y)
@@ -130,7 +130,7 @@ final class Max
     [V <: OrderedValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: OrderedVariable[V], y: OrderedVariable[V], z: OrderedVariable[V])
-    (implicit valueTraits: OrderedValueTraits[V])
+    (using valueTraits: OrderedValueTraits[V])
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = max(%s, %s)".format(z, x, y)

@@ -2,8 +2,7 @@ package yuck.flatzinc.compiler
 
 import scala.collection.*
 
-import yuck.core
-import yuck.core.*
+import yuck.core.{given, *}
 import yuck.core.IntegerDomain.ensureRangeList
 import yuck.flatzinc.ast.*
 
@@ -168,7 +167,7 @@ final class DomainInitializer
     private def propagateEqualityConstraint
         [V <: AnyValue]
         (constraint: yuck.flatzinc.ast.Constraint, domain: Expr => Domain[V])
-        (implicit valueTraits: ValueTraits[V]):
+        (using valueTraits: ValueTraits[V]):
         Unit =
     {
         val List(a, b) = constraint.params
@@ -186,7 +185,7 @@ final class DomainInitializer
     private def propagateElementConstraint
         [V <: AnyValue]
         (constraint: yuck.flatzinc.ast.Constraint, domain: Expr => Domain[V])
-        (implicit valueTraits: ValueTraits[V]):
+        (using valueTraits: ValueTraits[V]):
         Unit =
     {
         val List(IntConst(offset), b, as, c) =
@@ -205,7 +204,7 @@ final class DomainInitializer
     private def propagateEquality
         [V <: AnyValue]
         (a: Expr, b: Expr, d: Domain[V])
-        (implicit valueTraits: ValueTraits[V]):
+        (using valueTraits: ValueTraits[V]):
         Unit =
     {
         cc.logger.log("%s = %s".format(a, b))
@@ -229,7 +228,7 @@ final class DomainInitializer
     private def propagateEquality
         [V <: AnyValue]
         (a: Expr, d: Domain[V])
-        (implicit valueTraits: ValueTraits[V]):
+        (using valueTraits: ValueTraits[V]):
         Unit =
     {
         cc.logger.log("%s = %s".format(a, d))
@@ -242,7 +241,7 @@ final class DomainInitializer
     private def reduceDomain
         [V <: AnyValue]
         (a: Expr, d: Domain[V])
-        (implicit valueTraits: ValueTraits[V]):
+        (using valueTraits: ValueTraits[V]):
         Unit =
     {
         if (d.isEmpty) {
