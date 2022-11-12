@@ -41,9 +41,11 @@ final class FlatZincParserTest extends UnitTest {
         expectSuccess(expr, "-1", IntConst(-1))
         expectFailure(expr, "++1")
         expectFailure(expr, "+-1")
-        // fails on Java 6
         expectSuccess(expr, "+1", IntConst(1))
-        expectFailure(expr, "3486784401")
+        expectFailure(expr, "-9223372036854775809")
+        expectSuccess(expr, Long.MinValue.toString(), IntConst(Long.MinValue))
+        expectSuccess(expr, Long.MaxValue.toString(), IntConst(Long.MaxValue))
+        expectFailure(expr, "9223372036854775808")
     }
 
     @Test

@@ -21,9 +21,9 @@ object FlatZincParser extends RegexParsers {
         regex(new Regex("(\\+|-)?[0-9]+")) ^? (
             new PartialFunction[String, IntConst]() {
                 override def isDefinedAt(s: String) =
-                    Exception.catching[Int](classOf[NumberFormatException]).opt{s.toInt}.isDefined
+                    Exception.catching[Long](classOf[NumberFormatException]).opt{s.toLong}.isDefined
                 override def apply(s: String) =
-                    IntConst(s.toInt)
+                    IntConst(s.toLong)
             },
             s => String.format("Invalid integer literal %s", s))
     lazy val float_const_with_fractional_part: Parser[String] =
