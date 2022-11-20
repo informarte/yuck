@@ -20,11 +20,11 @@ abstract class PropagationEffects {
     def rescheduleStep: Boolean
 
     /** Prunes the domain of the given variable and records the event. */
-    def pruneDomain[V <: AnyValue](x: Variable[V], dx: Domain[V]): PropagationEffects
+    def pruneDomain[V <: Value[V]](x: Variable[V], dx: Domain[V]): PropagationEffects
 
     /** Prunes the domains of the given variables and records the events. */
     def pruneDomains
-        [Value1 <: AnyValue, Value2 <: AnyValue]
+        [Value1 <: Value[Value1], Value2 <: Value[Value2]]
         (x: Variable[Value1], dx: Domain[Value1], y: Variable[Value2], dy: Domain[Value2]):
         PropagationEffects =
     {
@@ -33,7 +33,7 @@ abstract class PropagationEffects {
 
     /** Prunes the domains of the given variables and records the events. */
     def pruneDomains
-        [Value1 <: AnyValue, Value2 <: AnyValue, Value3 <: AnyValue]
+        [Value1 <: Value[Value1], Value2 <: Value[Value2], Value3 <: Value[Value3]]
         (x: Variable[Value1], dx: Domain[Value1], y: Variable[Value2], dy: Domain[Value2], z: Variable[Value3], dz: Domain[Value3]):
         PropagationEffects =
     {
@@ -42,7 +42,7 @@ abstract class PropagationEffects {
 
     /** Prunes the domains of the given variables and records the events. */
     def pruneDomains
-        [V <: AnyValue]
+        [V <: Value[V]]
         (xds: Iterator[(Variable[V], Domain[V])]):
         PropagationEffects =
     {
@@ -51,7 +51,7 @@ abstract class PropagationEffects {
 
     /** Prunes the domains of the given variables and records the events. */
     def pruneDomains
-        [V <: AnyValue]
+        [V <: Value[V]]
         (xds: Iterable[(Variable[V], Domain[V])]):
         PropagationEffects =
     {
@@ -68,7 +68,7 @@ abstract class PropagationEffects {
 case object NoPropagationOccurred extends PropagationEffects {
     override val affectedVariables = Nil
     override def rescheduleStep = false
-    override def pruneDomain[V <: AnyValue](x: Variable[V], dx: Domain[V]) = {
+    override def pruneDomain[V <: Value[V]](x: Variable[V], dx: Domain[V]) = {
         val pruned = x.pruneDomain(dx)
         if (pruned) {
             val xs = new mutable.HashSet[AnyVariable]
@@ -91,7 +91,7 @@ final case class ReschedulePropagationStep
 {
     require(! affectedVariables.isEmpty)
     override def rescheduleStep = true
-    override def pruneDomain[V <: AnyValue](x: Variable[V], dx: Domain[V]) = {
+    override def pruneDomain[V <: Value[V]](x: Variable[V], dx: Domain[V]) = {
         val pruned = x.pruneDomain(dx)
         if (pruned) {
             affectedVariables += x

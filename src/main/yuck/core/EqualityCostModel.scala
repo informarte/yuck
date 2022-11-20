@@ -5,7 +5,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-abstract class EqualityCostModel[V <: AnyValue] {
+abstract class EqualityCostModel[V <: Value[V]] {
 
     /** Basis for implementing equality constraints. */
     def eqViolation(lhs: V, rhs: V): Long = if (lhs == rhs) 0 else 1

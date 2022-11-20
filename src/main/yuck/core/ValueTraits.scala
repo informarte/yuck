@@ -12,7 +12,7 @@ import scala.collection.*
  *
  * @author Michael Marte
  */
-abstract class ValueTraits[V <: AnyValue] {
+abstract class ValueTraits[V <: Value[V]] {
 
     /** Returns the type of the concrete values. */
     val valueType: Class[V]

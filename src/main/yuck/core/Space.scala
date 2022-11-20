@@ -148,7 +148,7 @@ final class Space(
 
     /** Convenience method for creating variables. */
     def createVariable
-        [V <: AnyValue]
+        [V <: Value[V]]
         (name: String, domain: Domain[V])
         (using valueTraits: ValueTraits[V]):
         Variable[V] =
@@ -190,7 +190,7 @@ final class Space(
         outputVariables.isEmpty || outputVariables.contains(x)
 
     /** Assigns the given value to the given variable. */
-    def setValue[V <: AnyValue](x: Variable[V], a: V): Space = {
+    def setValue[V <: Value[V]](x: Variable[V], a: V): Space = {
         if (checkAssignmentsToNonChannelVariables && (isProblemParameter(x) || isSearchVariable(x))) {
             require(
                 x.domain.contains(a),

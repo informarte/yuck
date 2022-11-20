@@ -20,7 +20,7 @@ abstract class CompilationPhase extends Runnable {
         a.isConst || cc.domains(a).isSingleton
 
     protected final def compilesToConst
-        [V <: AnyValue]
+        [V <: Value[V]]
         (a: Expr, b: V)
         (using valueTraits: ValueTraits[V]): Boolean =
     {
@@ -29,7 +29,7 @@ abstract class CompilationPhase extends Runnable {
     }
 
     protected final def getConst
-        [V <: AnyValue]
+        [V <: Value[V]]
         (a: Expr)
         (using valueTraits: ValueTraits[V]): V =
     {
@@ -37,7 +37,7 @@ abstract class CompilationPhase extends Runnable {
     }
 
     protected final def tryGetConst
-        [V <: AnyValue]
+        [V <: Value[V]]
         (a: Expr)
         (using valueTraits: ValueTraits[V]): Option[V] =
     {
@@ -223,7 +223,7 @@ abstract class CompilationPhase extends Runnable {
     protected object HighPriorityImplicits extends MediumPriorityImplicits {
 
         implicit final def compileExpr
-            [V <: AnyValue]
+            [V <: Value[V]]
             (expr: Expr)
             (using valueTraits: ValueTraits[V]):
             Variable[V] =
@@ -232,7 +232,7 @@ abstract class CompilationPhase extends Runnable {
         }
 
         implicit final def compileArray
-            [V <: AnyValue]
+            [V <: Value[V]]
             (expr: Expr)
             (using valueTraits: ValueTraits[V]):
             immutable.IndexedSeq[Variable[V]] =
@@ -255,7 +255,7 @@ abstract class CompilationPhase extends Runnable {
         else IntegerSetValueTraits.createVariable(cc.space, a.toString, new SingletonIntegerSetDomain(a))
 
     protected final def createChannel
-        [V <: AnyValue]
+        [V <: Value[V]]
         ()
         (using valueTraits: ValueTraits[V]):
         Variable[V] =
@@ -299,7 +299,7 @@ abstract class CompilationPhase extends Runnable {
     }
     protected final def createIntSetChannel(): IntegerSetVariable = IntegerSetValueTraits.createChannel(cc.space)
 
-    protected abstract class CompilationHelper[V <: AnyValue, Variable <: yuck.core.Variable[V]] {
+    protected abstract class CompilationHelper[V <: Value[V], Variable <: yuck.core.Variable[V]] {
         def compileExpr(expr: Expr): Variable
         def compileArray(expr: Expr): immutable.IndexedSeq[Variable]
         def createChannel(): Variable

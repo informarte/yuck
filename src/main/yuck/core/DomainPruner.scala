@@ -5,7 +5,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-abstract class DomainPruner[V <: AnyValue] {
+abstract class DomainPruner[V <: Value[V]] {
 
     protected val valueTraits: ValueTraits[V]
 

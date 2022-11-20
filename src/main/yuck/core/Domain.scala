@@ -5,7 +5,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-abstract class Domain[V <: AnyValue] extends AnyDomain {
+abstract class Domain[V <: Value[V]] extends AnyDomain {
 
     override def equals(that: Any) = that match {
         case rhs: Domain[_] =>

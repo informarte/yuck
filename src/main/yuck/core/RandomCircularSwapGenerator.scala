@@ -27,7 +27,7 @@ import scala.collection.*
  * @author Michael Marte
  */
 final class RandomCircularSwapGenerator
-    [V <: AnyValue]
+    [V <: Value[V]]
     (space: Space,
      xs: immutable.IndexedSeq[Variable[V]],
      randomGenerator: RandomGenerator,

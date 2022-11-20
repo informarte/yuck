@@ -9,7 +9,7 @@ import yuck.core.*
  *
  */
 final class TableNeighbourhood
-    [V <: AnyValue]
+    [V <: Value[V]]
     (space: Space,
      xs: immutable.IndexedSeq[Variable[V]],
      rows: immutable.IndexedSeq[immutable.IndexedSeq[V]],

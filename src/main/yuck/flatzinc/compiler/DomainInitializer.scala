@@ -160,7 +160,7 @@ final class DomainInitializer
     }
 
     private def propagateEqualityConstraint
-        [V <: AnyValue]
+        [V <: Value[V]]
         (constraint: yuck.flatzinc.ast.Constraint, domain: Expr => Domain[V])
         (using valueTraits: ValueTraits[V]):
         Unit =
@@ -178,7 +178,7 @@ final class DomainInitializer
     }
 
     private def propagateElementConstraint
-        [V <: AnyValue]
+        [V <: Value[V]]
         (constraint: yuck.flatzinc.ast.Constraint, domain: Expr => Domain[V])
         (using valueTraits: ValueTraits[V]):
         Unit =
@@ -197,7 +197,7 @@ final class DomainInitializer
     }
 
     private def propagateEquality
-        [V <: AnyValue]
+        [V <: Value[V]]
         (a: Expr, b: Expr, d: Domain[V])
         (using valueTraits: ValueTraits[V]):
         Unit =
@@ -221,7 +221,7 @@ final class DomainInitializer
     }
 
     private def propagateEquality
-        [V <: AnyValue]
+        [V <: Value[V]]
         (a: Expr, d: Domain[V])
         (using valueTraits: ValueTraits[V]):
         Unit =
@@ -234,7 +234,7 @@ final class DomainInitializer
     }
 
     private def reduceDomain
-        [V <: AnyValue]
+        [V <: Value[V]]
         (a: Expr, d: Domain[V])
         (using valueTraits: ValueTraits[V]):
         Unit =

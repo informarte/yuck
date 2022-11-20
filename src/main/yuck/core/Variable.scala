@@ -6,7 +6,7 @@ package yuck.core
  * @author Michael Marte
  */
 abstract class Variable
-    [V <: AnyValue]
+    [V <: Value[V]]
     (id: Id[AnyVariable], name: String)
     extends AnyVariable(id, name)
 {

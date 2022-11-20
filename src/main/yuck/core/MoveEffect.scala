@@ -4,7 +4,7 @@ package yuck.core
  * @author Michael Marte
  *
  */
-abstract class MoveEffect[V <: AnyValue] extends AnyMoveEffect {
+abstract class MoveEffect[V <: Value[V]] extends AnyMoveEffect {
     override def x: Variable[V]
     override def a: V
     final override def affect(space: Space) = space.setValue(x, a)
@@ -15,7 +15,7 @@ abstract class MoveEffect[V <: AnyValue] extends AnyMoveEffect {
  *
  */
 final class ImmutableMoveEffect
-    [V <: AnyValue]
+    [V <: Value[V]]
     (override val x: Variable[V], override val a: V)
     extends MoveEffect[V]
 {
@@ -27,7 +27,7 @@ final class ImmutableMoveEffect
  *
  */
 final class ReusableMoveEffectWithFixedVariable
-    [V <: AnyValue]
+    [V <: Value[V]]
     (override val x: Variable[V])
     extends MoveEffect[V]
 {
@@ -44,7 +44,7 @@ final class ReusableMoveEffectWithFixedVariable
  *
  */
 final class ReusableMoveEffect
-    [V <: AnyValue]
+    [V <: Value[V]]
     extends MoveEffect[V]
 {
     private var _x: Variable[V] = _

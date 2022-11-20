@@ -50,7 +50,7 @@ class WarmStartAnnotationParser
         }
     }
 
-    private def setValue[V <: AnyValue](x: Variable[V], y: Variable[V]): Unit = {
+    private def setValue[V <: Value[V]](x: Variable[V], y: Variable[V]): Unit = {
         if (cc.space.isSearchVariable(x)) {
             val a = y.domain.singleValue
             if (x.domain.contains(a)) {

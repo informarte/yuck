@@ -10,7 +10,7 @@ import yuck.util.logging.{FineLogLevel, LazyLogger}
  * @author Michael Marte
  *
  */
-abstract class DomainTestHelper[V <: AnyValue] extends YuckAssert {
+abstract class DomainTestHelper[V <: Value[V]] extends YuckAssert {
 
     protected val logger: LazyLogger
 

@@ -12,7 +12,7 @@ import yuck.util.logging.LazyLogger
  *
  */
 final class NeighbourhoodTestHelper
-    [V <: AnyValue]
+    [V <: Value[V]]
     (logger: LazyLogger,
      xs: IndexedSeq[Variable[V]],
      moveSizeDistribution: Distribution,

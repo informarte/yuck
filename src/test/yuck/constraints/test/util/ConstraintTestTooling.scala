@@ -39,7 +39,7 @@ trait ConstraintTestTooling extends YuckAssert {
     }
 
     protected final class DomainReduction
-        [V <: AnyValue]
+        [V <: Value[V]]
         (override val x: Variable[V], override val dx: Domain[V])
         extends AnyDomainReduction
     {
@@ -209,7 +209,7 @@ trait ConstraintTestTooling extends YuckAssert {
             ConsultAndCommit(comment, effects.take(effects.size - 1), List(effects.last))
     }
 
-    extension [V <: AnyValue](x: Variable[V]) {
+    extension [V <: Value[V]](x: Variable[V]) {
         def <<(dx: Domain[V]): DomainReduction[V] = DomainReduction(x, dx)
         def <<(values: Iterable[V])(using valueTraits: ValueTraits[V]): DomainReduction[V] =
             DomainReduction(x, valueTraits.createDomain(values.toSet))

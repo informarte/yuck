@@ -7,7 +7,7 @@ import yuck.core.*
  *
  */
 abstract class TernaryConstraint
-    [In1 <: AnyValue, In2 <: AnyValue, Out <: AnyValue]
+    [In1 <: Value[In1], In2 <: Value[In2], Out <: Value[Out]]
     (id: Id[Constraint],
      protected val x: Variable[In1], protected val y: Variable[In2], protected val z: Variable[Out])
     extends Constraint(id)

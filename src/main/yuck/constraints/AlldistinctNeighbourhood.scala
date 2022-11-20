@@ -11,7 +11,7 @@ import yuck.core.*
  * @author Michael Marte
  */
 final class AlldistinctNeighbourhood
-    [V <: AnyValue]
+    [V <: Value[V]]
     (space: Space,
      xs: immutable.IndexedSeq[Variable[V]],
      randomGenerator: RandomGenerator,

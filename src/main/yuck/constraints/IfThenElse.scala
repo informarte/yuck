@@ -13,7 +13,7 @@ import yuck.core.{given, *}
  * Ignores the value of the last element of cs and assumes it to be true.
  */
 final class IfThenElse
-    [V <: AnyValue]
+    [V <: Value[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      cs: immutable.IndexedSeq[BooleanVariable], xs: immutable.IndexedSeq[Variable[V]], y: Variable[V])
     (using valueTraits: ValueTraits[V])

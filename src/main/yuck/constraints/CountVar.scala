@@ -9,7 +9,7 @@ import yuck.core.*
  *
  */
 final class CountVar
-    [V <: AnyValue]
+    [V <: Value[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.Seq[Variable[V]], y: Variable[V], n: IntegerVariable)
     (using valueTraits: ValueTraits[V])

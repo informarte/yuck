@@ -7,7 +7,7 @@ import yuck.core.*
  *
  */
 final class Eq
-    [V <: AnyValue]
+    [V <: Value[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: Variable[V], y: Variable[V], z: BooleanVariable)
     (using valueTraits: ValueTraits[V])
@@ -31,7 +31,7 @@ final class Eq
  *
  */
 final class Ne
-    [V <: AnyValue]
+    [V <: Value[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: Variable[V], y: Variable[V], z: BooleanVariable)
     (using valueTraits: ValueTraits[V])

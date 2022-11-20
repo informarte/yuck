@@ -18,7 +18,7 @@ import yuck.util.logging.LazyLogger
  * @author Michael Marte
  */
 final class Alldistinct
-    [V <: AnyValue]
+    [V <: Value[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: immutable.IndexedSeq[Variable[V]], costs: BooleanVariable)
     (using valueTraits: ValueTraits[V])

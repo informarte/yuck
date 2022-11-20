@@ -13,7 +13,7 @@ import yuck.core.*
  * @author Michael Marte
  */
 abstract class ValueFrequencyTracker
-    [V <: AnyValue, Result <: AnyValue]
+    [V <: Value[V], Result <: Value[Result]]
     (id: Id[Constraint],
      protected val xs: immutable.Seq[Variable[V]], protected val y: Variable[Result])
     (using protected val valueTraits: ValueTraits[V])

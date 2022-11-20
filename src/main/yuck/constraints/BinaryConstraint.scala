@@ -7,7 +7,7 @@ import yuck.core.*
  *
  */
 abstract class BinaryConstraint
-    [In <: AnyValue, Out <: AnyValue]
+    [In <: Value[In], Out <: Value[Out]]
     (id: Id[Constraint],
      protected val x: Variable[In], protected val y: Variable[Out])
     extends Constraint(id)

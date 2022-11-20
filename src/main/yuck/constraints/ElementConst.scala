@@ -15,7 +15,7 @@ import yuck.core.{given, *}
  *
  */
 final class ElementConst
-    [V <: AnyValue]
+    [V <: Value[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      as: immutable.IndexedSeq[V], i: IntegerVariable, y: Variable[V], offset: Int)
     (using valueTraits: ValueTraits[V])

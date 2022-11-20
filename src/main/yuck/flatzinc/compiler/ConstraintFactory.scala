@@ -687,8 +687,8 @@ final class ConstraintFactory
     }
 
     private def compileBinaryConstraint1
-        [InValue <: AnyValue, InVariable <: Variable[InValue],
-         OutValue <: AnyValue, OutVariable <: Variable[OutValue]]
+        [InValue <: Value[InValue], InVariable <: Variable[InValue],
+         OutValue <: Value[OutValue], OutVariable <: Variable[OutValue]]
         (constraintFactory: (Id[yuck.core.Constraint], Option[Goal], InVariable, OutVariable) => yuck.core.Constraint,
          maybeGoal: Option[Goal],
          constraint: yuck.flatzinc.ast.Constraint)
@@ -716,8 +716,8 @@ final class ConstraintFactory
     }
 
     private def compileBinaryConstraint2
-        [InValue <: AnyValue, InVariable <: Variable[InValue],
-         OutValue <: AnyValue, OutVariable <: Variable[OutValue]]
+        [InValue <: Value[InValue], InVariable <: Variable[InValue],
+         OutValue <: Value[OutValue], OutVariable <: Variable[OutValue]]
         (constraintFactory:
             (Id[yuck.core.Constraint], Option[Goal], immutable.IndexedSeq[InVariable], OutVariable) => yuck.core.Constraint,
          maybeGoal: Option[Goal],
@@ -746,9 +746,9 @@ final class ConstraintFactory
     }
 
     private def compileTernaryConstraint
-        [In1Value <: AnyValue, In1Variable <: Variable[In1Value],
-         In2Value <: AnyValue, In2Variable <: Variable[In2Value],
-         OutValue <: AnyValue, OutVariable <: Variable[OutValue]]
+        [In1Value <: Value[In1Value], In1Variable <: Variable[In1Value],
+         In2Value <: Value[In2Value], In2Variable <: Variable[In2Value],
+         OutValue <: Value[OutValue], OutVariable <: Variable[OutValue]]
         (constraintFactory:
             (Id[yuck.core.Constraint], Option[Goal], In1Variable, In2Variable, OutVariable) => yuck.core.Constraint,
          maybeGoal: Option[Goal],
@@ -1006,7 +1006,7 @@ final class ConstraintFactory
     }
 
     private def compileCountConstraint
-        [V <: AnyValue]
+        [V <: Value[V]]
         (maybeGoal: Option[Goal],
          constraint: yuck.flatzinc.ast.Constraint,
          maybeCosts: Option[BooleanVariable] = None)
@@ -1054,7 +1054,7 @@ final class ConstraintFactory
     }
 
     private def compileReifiedCountConstraint
-        [V <: AnyValue]
+        [V <: Value[V]]
         (maybeGoal: Option[Goal],
          constraint: yuck.flatzinc.ast.Constraint)
         (using valueTraits: ValueTraits[V]):

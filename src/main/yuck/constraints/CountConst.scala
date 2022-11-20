@@ -9,7 +9,7 @@ import yuck.core.{given, *}
  *
  */
 final class CountConst
-    [V <: AnyValue]
+    [V <: Value[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      xs: Seq[Variable[V]], a: V, val n: IntegerVariable)
     (using valueTraits: ValueTraits[V])
