@@ -19,10 +19,10 @@ abstract class OrderedValueTraits[V <: OrderedValue[V]] extends ValueTraits[V] {
     override def safeDowncast(d: AnyDomain): OrderedDomain[V]
     override def safeDowncast(x: AnyVariable): OrderedVariable[V]
 
-    /** A total ordering on V. */
+    /** The standard total ordering on V. */
     val valueOrdering: Ordering[V]
 
-    /** A total ordering on OrderedDomain[V]. */
+    /** The standard total ordering on OrderedDomain[V]. */
     val domainOrdering: Ordering[OrderedDomain[V]]
 
     /** Creates a domain from the given bounds. */

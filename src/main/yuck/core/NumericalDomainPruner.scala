@@ -1,7 +1,7 @@
 package yuck.core
 
 /**
- * NumericalDomain[V] pruner interface for use by generic constraints.
+ * Domain pruner interface for use by generic constraints.
  *
  * @author Michael Marte
  */

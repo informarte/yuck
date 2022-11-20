@@ -21,19 +21,19 @@ abstract class NumericalValueTraits[V <: NumericalValue[V]] extends OrderedValue
     /** Integrates Yuck values with the Scala library. */
     val numericalOperations: Numeric[V]
 
-    /** Returns the additive identity. */
+    /** The additive identity. */
     val zero: V
 
-    /** Returns the multiplicative identity. */
+    /** The multiplicative identity. */
     val one: V
 
-    /** Returns the smallest representable value. */
+    /** The smallest representable value. */
     val minValue: V
 
-    /** Returns the greatest representable value. */
+    /** The greatest representable value. */
     val maxValue: V
 
-    /** Returns the domain that contains all non-negative values. */
+    /** The domain that contains all non-negative values. */
     val nonNegativeDomain: NumericalDomain[V]
 
 }

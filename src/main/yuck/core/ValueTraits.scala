@@ -14,25 +14,25 @@ import scala.collection.*
  */
 abstract class ValueTraits[V <: Value[V]] {
 
-    /** Returns the type of the concrete values. */
+    /** The type of the concrete values. */
     val valueType: Class[V]
 
-    /** Returns the normal form of the given value. */
+    /** Computes the normal form of the given value. */
     def normalizedValue(a: V): V
 
     /** Creates a domain from the given value set. */
     def createDomain(values: Set[V]): Domain[V]
 
-    /** Returns the empty domain over V. */
+    /** The empty domain over V. */
     val emptyDomain: Domain[V]
 
-    /** Returns the largest domain over V. */
+    /** The largest domain over V. */
     val completeDomain: Domain[V]
 
-    /** Returns a cost model for use by generic constraints. */
+    /** The standard cost model for generic constraints over V. */
     val costModel: EqualityCostModel[V]
 
-    /** Returns a domain pruner for use by generic constraints. */
+    /** The standard domain pruner for generic constraints over V. */
     val domainPruner: DomainPruner[V]
 
     /** Creates a variable over the given domain in the given space. */
