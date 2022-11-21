@@ -7,12 +7,12 @@ import yuck.test.util.UnitTest
 
 final class FlatZincAstTest extends UnitTest {
 
-    private val a = ParamDecl("a", ArrayType(Some(IntRange(0, 1)), IntType(None)), ArrayConst(List(IntConst(2), IntConst(3))))
+    private val a = ParamDecl("a", ArrayType(Some(IntRange(0, 1)), IntType(None)), ArrayConst(Vector(IntConst(2), IntConst(3))))
     private val c = ParamDecl("c", IntType(None), IntConst(2))
     private val x = VarDecl("x", IntType(None), Some(IntConst(0)), Nil)
     private val u = VarDecl("u", ArrayType(Some(IntRange(3, 4)), IntType(None)), None, Nil)
-    private val v = VarDecl("v", ArrayType(Some(IntRange(1, 4)), IntType(None)), Some(ArrayConst(List(IntConst(0), Term(c.id, Nil), Term(x.id, Nil), ArrayAccess(u.id, IntConst(3))))), Nil)
-    private val w = VarDecl("w", ArrayType(Some(IntRange(0, 2)), IntType(None)), Some(ArrayConst(List(ArrayAccess(v.id, Term(c.id, Nil)), ArrayAccess(v.id, ArrayAccess(a.id, IntConst(0))), ArrayAccess(v.id, ArrayAccess(a.id, IntConst(1)))))), Nil)
+    private val v = VarDecl("v", ArrayType(Some(IntRange(1, 4)), IntType(None)), Some(ArrayConst(Vector(IntConst(0), Term(c.id, Nil), Term(x.id, Nil), ArrayAccess(u.id, IntConst(3))))), Nil)
+    private val w = VarDecl("w", ArrayType(Some(IntRange(0, 2)), IntType(None)), Some(ArrayConst(Vector(ArrayAccess(v.id, Term(c.id, Nil)), ArrayAccess(v.id, ArrayAccess(a.id, IntConst(0))), ArrayAccess(v.id, ArrayAccess(a.id, IntConst(1)))))), Nil)
 
     private val ast =
         FlatZincAst(
@@ -28,7 +28,7 @@ final class FlatZincAstTest extends UnitTest {
     @Test
     def testGetArrayElems(): Unit = {
         assertEq(
-            ast.getArrayElems(ArrayConst(List(BoolConst(true), BoolConst(false)))).toList,
+            ast.getArrayElems(ArrayConst(Vector(BoolConst(true), BoolConst(false)))).toList,
             List(BoolConst(true), BoolConst(false)))
         assertEq(
             ast.getArrayElems(Term(a.id, Nil)).toList,
@@ -59,7 +59,7 @@ final class FlatZincAstTest extends UnitTest {
             ast.involvedVariables(IntSetConst(IntRange(1, 10))),
             Set())
         assertEq(
-            ast.involvedVariables(ArrayConst(List(IntConst(0), Term(x.id, Nil)))),
+            ast.involvedVariables(ArrayConst(Vector(IntConst(0), Term(x.id, Nil)))),
             Set(Term(x.id, Nil)))
 
         assertEq(

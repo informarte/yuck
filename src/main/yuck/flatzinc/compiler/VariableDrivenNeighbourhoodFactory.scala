@@ -49,20 +49,20 @@ final class VariableDrivenNeighbourhoodFactory
     {
         require(mode == OptimizationMode.Min)
         val hotSpotIndicators =
-            logger.withTimedLogScope("Creating hot-spot indicators for %s".format(x)) {
+            cc.logger.withTimedLogScope("Creating hot-spot indicators for %s".format(x)) {
                 createHotSpotIndicators(x)
             }
         val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
-        val remainingVariables = hotSpotIndicators.keys.toSet -- implicitlyConstrainedVars
+        val remainingVariables = hotSpotIndicators.keys.toSet -- cc.implicitlyConstrainedVars
         if (! remainingVariables.isEmpty) {
             val xs = remainingVariables.toBuffer.sorted.toIndexedSeq
             for (x <- xs if ! x.domain.isFinite) {
                 throw new VariableWithInfiniteDomainException(x)
             }
-            logger.logg("Adding a neighbourhood over %s".format(xs))
+            cc.logger.logg("Adding a neighbourhood over %s".format(xs))
             neighbourhoods +=
                 new RandomReassignmentGenerator(
-                    space, xs, randomGenerator, cfg.moveSizeDistribution,
+                    cc.space, xs, randomGenerator, cc.cfg.moveSizeDistribution,
                     createHotSpotDistribution(hotSpotIndicators)(xs), levelCfg.maybeFairVariableChoiceRate)
         }
         if (neighbourhoods.size < 2) {
@@ -99,26 +99,26 @@ final class VariableDrivenNeighbourhoodFactory
         Map[AnyVariable, NumericalVariable[V]] =
     {
         val zs = new mutable.AnyRefMap[AnyVariable, mutable.ArrayBuffer[AX[V]]]
-        if (space.isSearchVariable(x)) {
+        if (cc.space.isSearchVariable(x)) {
             zs += x -> new mutable.ArrayBuffer[AX[V]]
         }
-        else if (space.isChannelVariable(x)) {
-            for (y <- space.involvedSearchVariables(x)) {
+        else if (cc.space.isChannelVariable(x)) {
+            for (y <- cc.space.involvedSearchVariables(x)) {
                 zs += y -> new mutable.ArrayBuffer[AX[V]]
             }
-            val constraint: yuck.core.Constraint = space.definingConstraint(x)
+            val constraint: yuck.core.Constraint = cc.space.definingConstraint(x)
             constraint match {
                 case lc: LinearCombination[V @ unchecked] =>
                     for (ax <- lc.axs
                          if ax.a >= valueTraits.zero && ax.x.domain.maybeLb.exists(_ >= valueTraits.zero))
                     {
-                        for (y <- space.involvedSearchVariables(ax.x)) {
+                        for (y <- cc.space.involvedSearchVariables(ax.x)) {
                             zs(y) += ax
                         }
                     }
                 case sum: Sum[V @ unchecked] =>
                     for (x <- sum.xs if x.domain.maybeLb.exists(_ >= valueTraits.zero)) {
-                        for (y <- space.involvedSearchVariables(x)) {
+                        for (y <- cc.space.involvedSearchVariables(x)) {
                             zs(y) += new AX(valueTraits.one, x)
                         }
                     }
@@ -127,12 +127,12 @@ final class VariableDrivenNeighbourhoodFactory
         }
         val s = new mutable.AnyRefMap[AnyVariable, NumericalVariable[V]]
         for (x <- zs.keys) {
-            s += x -> createNonNegativeChannel[V]
+            s += x -> createNonNegativeChannel[V]()
             val zl = AX.normalize(zs(x))
             if (zl.forall(ax => ax.a == valueTraits.one)) {
-               space.post(new Sum(nextConstraintId(), null, zl.iterator.map(ax => ax.x).toIndexedSeq, s(x)))
+               cc.space.post(new Sum(nextConstraintId(), null, zl.iterator.map(ax => ax.x).toIndexedSeq, s(x)))
             } else {
-               space.post(new LinearCombination(nextConstraintId(), null, zl.toIndexedSeq, s(x)))
+               cc.space.post(new LinearCombination(nextConstraintId(), null, zl.toIndexedSeq, s(x)))
             }
         }
         s
@@ -147,7 +147,7 @@ final class VariableDrivenNeighbourhoodFactory
     {
         val hotSpotDistribution = Distribution(xs.size)
         val weightedIndicators = xs.iterator.map(x => new AX(valueTraits.one, hotSpotIndicators(x))).toIndexedSeq
-        space.post(new OptimizationGoalTracker(nextConstraintId(), null, OptimizationMode.Min, weightedIndicators, hotSpotDistribution))
+        cc.space.post(new OptimizationGoalTracker(nextConstraintId(), null, OptimizationMode.Min, weightedIndicators, hotSpotDistribution))
         Some(hotSpotDistribution)
     }
 

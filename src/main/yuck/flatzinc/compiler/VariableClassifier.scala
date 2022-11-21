@@ -15,10 +15,6 @@ final class VariableClassifier
     extends CompilationPhase
 {
 
-    private val declaredVars = cc.declaredVars
-    private val searchVars = cc.searchVars
-    private val definedVars = cc.definedVars
-
     override def run() = {
         classifyVars()
     }
@@ -27,8 +23,8 @@ final class VariableClassifier
         for (constraint <- cc.ast.constraints) {
             for (annotation <- constraint.annotations) {
                 annotation match {
-                    case Annotation(Term("defines_var", List(a))) => definedVars += compileAnyExpr(a)
-                    case Annotation(Term("defines_vars", List(a))) => definedVars ++= compileAnyArray(a)
+                    case Annotation(Term("defines_var", Seq(a))) => cc.definedVars += compileAnyExpr(a)
+                    case Annotation(Term("defines_vars", Seq(a))) => cc.definedVars ++= compileAnyArray(a)
                     case _ =>
                 }
             }
@@ -41,11 +37,11 @@ final class VariableClassifier
         // by a function.
         cc.ast.solveGoal match {
             case Satisfy(_) =>
-            case Minimize(a, _) => searchVars -= compileAnyExpr(a)
-            case Maximize(a, _) => searchVars -= compileAnyExpr(a)
+            case Minimize(a, _) => cc.searchVars -= compileAnyExpr(a)
+            case Maximize(a, _) => cc.searchVars -= compileAnyExpr(a)
         }
         // Sometimes variables, which occur in a "defines_var" annotation, are also marked as search variables.
-        searchVars --= definedVars
+        cc.searchVars --= cc.definedVars
         // Sometimes a variable is tagged with "is_defined_var" but there is no corresponding "defines_var"
         // annotation.
         for (varDecl <- cc.ast.varDecls) {
@@ -53,9 +49,9 @@ final class VariableClassifier
                 annotation match {
                     case Annotation(Term("is_defined_var", Nil)) =>
                         if (varDecl.varType.isArrayType) {
-                            searchVars --= compileAnyArray(Term(varDecl.id, Nil))
+                            cc.searchVars --= compileAnyArray(Term(varDecl.id, Nil))
                         } else {
-                            searchVars -= compileAnyExpr(Term(varDecl.id, Nil))
+                            cc.searchVars -= compileAnyExpr(Term(varDecl.id, Nil))
                         }
                     case _ =>
                 }
@@ -67,8 +63,8 @@ final class VariableClassifier
         annotation match {
             case Term(search, ArrayConst(elems) :: _)
             if List("bool_search", "int_search", "set_search").contains(search) =>
-                for (elem <- elems if declaredVars.contains(elem)) {
-                    searchVars += compileAnyExpr(elem)
+                for (elem <- elems if cc.declaredVars.contains(elem)) {
+                    cc.searchVars += compileAnyExpr(elem)
                 }
             case Term(search, Term(id, Nil) :: _)
             if List("bool_search", "int_search", "set_search").contains(search) =>
@@ -76,7 +72,7 @@ final class VariableClassifier
                     cc.ast.varDeclsByName(id).varType match {
                         case ArrayType(Some(IntRange(1, n)), _) =>
                             for (idx <- 1 to n.toInt) {
-                                searchVars += compileAnyExpr(ArrayAccess(id, IntConst(idx)))
+                                cc.searchVars += compileAnyExpr(ArrayAccess(id, IntConst(idx)))
                             }
                     }
                 } else {

@@ -35,14 +35,14 @@ final class DomainFinalizer
         if (intChannels.size > 32) {
             // When there are many integer channels, we enforce their domains using a single InDomain constraint.
             // This way we speed up neighbourhood generation and reduce the overhead of goal tracking.
-            val costs = createBoolChannel
+            val costs = createBoolChannel()
             cc.space.post(new InDomain(nextConstraintId(), null, intChannels.to(immutable.ArraySeq), costs))
             cc.costVars += costs
         } else {
             // InDomain comes with more overhead than Contains and, when there are only a few integer channels,
             // a set of Contains constraints is faster than a single InDomain constraint.
             for (x <- intChannels) {
-                val costs = createBoolChannel
+                val costs = createBoolChannel()
                 cc.space.post(new Contains(nextConstraintId(), null, x, x.domain, costs))
                 cc.costVars += costs
             }
@@ -56,7 +56,7 @@ final class DomainFinalizer
                 if (dx.singleValue.truthValue) {
                     cc.costVars += x
                 } else {
-                    val costs = createBoolChannel
+                    val costs = createBoolChannel()
                     cc.space.post(new Not(nextConstraintId(), null, x, costs))
                     cc.costVars += costs
                 }
@@ -88,7 +88,7 @@ final class DomainFinalizer
         val dx = x.domain
         if (dx.isBounded) {
             if (cc.space.isChannelVariable(x)) {
-                val costs = createBoolChannel
+                val costs = createBoolChannel()
                 dx match {
                     case dx: IntegerPowersetDomain =>
                         cc.space.post(new Subset(nextConstraintId(), null, x, dx.base, costs))

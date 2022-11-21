@@ -19,9 +19,6 @@ final class Presolver
     extends CompilationPhase
 {
 
-    private val space = cc.space
-    private val costVars = cc.costVars
-
     override def run() = {
         reduceDomains()
     }
@@ -29,12 +26,12 @@ final class Presolver
     private def reduceDomains(): Unit ={
 
         // require that all constraints hold
-        for (x <- costVars) {
+        for (x <- cc.costVars) {
             x.pruneDomain(TrueDomain)
         }
 
         // propagate constraints
-        space.propagate()
+        cc.space.propagate()
 
     }
 

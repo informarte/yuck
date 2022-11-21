@@ -17,12 +17,6 @@ final class ObjectiveFactory
     extends CompilationPhase
 {
 
-    private val cfg = cc.cfg
-    private val logger = cc.logger
-    private val space = cc.space
-    private val implicitlyConstrainedVars = cc.implicitlyConstrainedVars
-    private val costVars = cc.costVars
-
     import HighPriorityImplicits.*
 
     override def run() = {
@@ -34,107 +28,107 @@ final class ObjectiveFactory
                     val List(ArrayConst(goals)) = maybeGoalHierarchy.get.term.params: @unchecked
                     for ((goal, i) <- goals.zipWithIndex) {
                         val goalCfg =
-                            cfg.copy(
-                                useProgressiveTightening = cfg.useProgressiveTightening && goals.size < 2,
-                                maybeTargetObjectiveValue = if (i == 0) cfg.maybeTargetObjectiveValue else None)
+                            cc.cfg.copy(
+                                useProgressiveTightening = cc.cfg.useProgressiveTightening && goals.size < 2,
+                                maybeTargetObjectiveValue = if (i == 0) cc.cfg.maybeTargetObjectiveValue else None)
                         goal match {
-                            case Term("sat_goal", List(a)) =>
-                                objectives.append(createSatisfactionObjective(compileBoolExpr(a), goalCfg))
-                            case Term("int_min_goal", List(a)) =>
-                                objectives.append(createMinimizationObjective(a, goalCfg))
-                            case Term("int_max_goal", List(a)) =>
-                                objectives.append(createMaximizationObjective(a, goalCfg))
+                            case Term("sat_goal", Seq(a)) =>
+                                objectives.append(createSatisfactionObjective(goalCfg, compileBoolExpr(a)))
+                            case Term("int_min_goal", Seq(a)) =>
+                                objectives.append(createMinimizationObjective(goalCfg, a))
+                            case Term("int_max_goal", Seq(a)) =>
+                                objectives.append(createMaximizationObjective(goalCfg, a))
                             case _ => ???
                         }
                     }
                 }
             case Minimize(a, _) =>
-                objectives.append(createMinimizationObjective(a, cfg))
+                objectives.append(createMinimizationObjective(cc.cfg, a))
             case Maximize(a, _) =>
-                objectives.append(createMaximizationObjective(a, cfg))
+                objectives.append(createMaximizationObjective(cc.cfg, a))
         }
-        objectives.prepend(createSatisfactionObjective(costVars, cfg))
+        objectives.prepend(createSatisfactionObjective(cc.cfg, cc.costVars))
         cc.objective =
             if (objectives.size == 1) objectives.head
-            else new HierarchicalObjective(objectives.toList, cfg.focusOnTopObjective, cfg.stopOnFirstSolution)
+            else new HierarchicalObjective(objectives.toList, cc.cfg.focusOnTopObjective, cc.cfg.stopOnFirstSolution)
     }
 
     private def createSatisfactionObjective
-        (costVars: Seq[BooleanVariable], cfg: FlatZincSolverConfiguration):
+        (cfg: FlatZincSolverConfiguration, costVars: Seq[BooleanVariable]):
         SatisfactionObjective =
     {
-        val costVar = createBoolChannel
-        space.post(new Conjunction(nextConstraintId(), null, costVars.toIndexedSeq, costVar))
-        createSatisfactionObjective(costVar, cfg)
+        val costVar = createBoolChannel()
+        cc.space.post(new Conjunction(nextConstraintId(), null, costVars.toIndexedSeq, costVar))
+        createSatisfactionObjective(cfg, costVar)
     }
 
     private def createSatisfactionObjective
-        (costVar: BooleanVariable, cfg: FlatZincSolverConfiguration):
+        (cfg: FlatZincSolverConfiguration, costVar: BooleanVariable):
         SatisfactionObjective =
     {
-        space.registerObjectiveVariable(costVar)
+        cc.space.registerObjectiveVariable(costVar)
         new SatisfactionObjective(costVar)
     }
 
     private def createMinimizationObjective
-        (x: IntegerVariable, cfg: FlatZincSolverConfiguration):
+        (cfg: FlatZincSolverConfiguration, x: IntegerVariable):
         MinimizationObjective[IntegerValue] =
     {
         val dx = x.domain
         val maybeY =
-            if (space.isDanglingVariable(x)) {
+            if (cc.space.isDanglingVariable(x)) {
                 val lb =
                     dx.maybeLb.getOrElse(
                         cfg.maybeTargetObjectiveValue.map(IntegerValue.apply).getOrElse(
                             IntegerValueTraits.minValue))
-                logger.log("Objective variable %s is dangling, assigning %s to it".format(x, lb))
-                space.setValue(x, lb)
+                cc.logger.log("Objective variable %s is dangling, assigning %s to it".format(x, lb))
+                cc.space.setValue(x, lb)
                 None
             }
             else if (cfg.useProgressiveTightening && dx.maybeUb.isDefined) {
-                logger.log("Objective variable %s has upper bound, setting up for progressive tightening".format(x))
-                val y = new IntegerVariable(space.nextVariableId(), "_YUCK_UB", IntegerRange(dx.lb + One, dx.ub + One))
-                space.setValue(y, dx.ub + One)
-                implicitlyConstrainedVars += y
-                val costs = createBoolChannel
-                costVars += costs
-                space.post(new Lt(nextConstraintId(), null, x, y, costs))
+                cc.logger.log("Objective variable %s has upper bound, setting up for progressive tightening".format(x))
+                val y = new IntegerVariable(cc.space.nextVariableId(), "_YUCK_UB", IntegerRange(dx.lb + One, dx.ub + One))
+                cc.space.setValue(y, dx.ub + One)
+                cc.implicitlyConstrainedVars += y
+                val costs = createBoolChannel()
+                cc.costVars += costs
+                cc.space.post(new Lt(nextConstraintId(), null, x, y, costs))
                 Some(y)
             } else {
                 None
             }
-        space.registerObjectiveVariable(x)
+        cc.space.registerObjectiveVariable(x)
         new MinimizationObjective[IntegerValue](x, cfg.maybeTargetObjectiveValue.map(IntegerValue.apply), maybeY)
     }
 
     private def createMaximizationObjective
-        (x: IntegerVariable, cfg: FlatZincSolverConfiguration):
+        (cfg: FlatZincSolverConfiguration, x: IntegerVariable):
         MaximizationObjective[IntegerValue] =
     {
         val dx = x.domain
         val maybeY =
-            if (space.isDanglingVariable(x)) {
+            if (cc.space.isDanglingVariable(x)) {
                 val ub =
                     dx.maybeUb.getOrElse(
                         cfg.maybeTargetObjectiveValue.map(IntegerValue.apply).getOrElse(
                             IntegerValueTraits.maxValue))
-                logger.log("Objective variable %s is dangling, assigning %s to it".format(x, ub))
-                space.setValue(x, ub)
+                cc.logger.log("Objective variable %s is dangling, assigning %s to it".format(x, ub))
+                cc.space.setValue(x, ub)
                 None
             }
             else if (cfg.useProgressiveTightening && dx.maybeLb.isDefined) {
-                logger.log("Objective variable %s has lower bound, setting up for progressive tightening".format(x))
-                val y = new IntegerVariable(space.nextVariableId(), "_YUCK_LB", IntegerRange(dx.lb - One, dx.ub - One))
-                space.setValue(y, dx.lb - One)
-                implicitlyConstrainedVars += y
-                val costs = createBoolChannel
-                costVars += costs
-                space.post(new Lt(nextConstraintId(), null, y, x, costs))
+                cc.logger.log("Objective variable %s has lower bound, setting up for progressive tightening".format(x))
+                val y = new IntegerVariable(cc.space.nextVariableId(), "_YUCK_LB", IntegerRange(dx.lb - One, dx.ub - One))
+                cc.space.setValue(y, dx.lb - One)
+                cc.implicitlyConstrainedVars += y
+                val costs = createBoolChannel()
+                cc.costVars += costs
+                cc.space.post(new Lt(nextConstraintId(), null, y, x, costs))
                 Some(y)
             } else {
                 None
             }
-        space.registerObjectiveVariable(x)
+        cc.space.registerObjectiveVariable(x)
         new MaximizationObjective[IntegerValue](x, cfg.maybeTargetObjectiveValue.map(IntegerValue.apply), maybeY)
     }
 

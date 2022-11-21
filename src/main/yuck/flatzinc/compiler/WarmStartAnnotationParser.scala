@@ -24,7 +24,7 @@ class WarmStartAnnotationParser
 
     private def parseTerm(term: Term): Unit = {
         term match {
-            case Term("warm_start", List(varArray, valArray)) =>
+            case Term("warm_start", Seq(varArray, valArray)) =>
                 val xs = compileAnyArray(varArray)
                 val ys = compileAnyArray(valArray)
                 require(xs.size == ys.size)
@@ -35,9 +35,9 @@ class WarmStartAnnotationParser
                         case (x: IntegerSetVariable, y: IntegerSetVariable) => setValue(x, y)
                     }
                 }
-            case Term("warm_start_array", List(ArrayConst(array))) =>
+            case Term("warm_start_array", Seq(ArrayConst(array))) =>
                 array.foreach(parseExpr)
-            case Term("seq_search", List(ArrayConst(array))) =>
+            case Term("seq_search", Seq(ArrayConst(array))) =>
                 array.foreach(parseExpr)
             case _ =>
         }

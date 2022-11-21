@@ -59,7 +59,7 @@ object FlatZincParser extends RegexParsers {
         int_range ^^ (r => IntSetConst(r)) |
         int_set ^^ (s => IntSetConst(s))
     lazy val array_const: Parser[ArrayConst] =
-        "[" ~> repsep(expr, ",") <~ "]" ^^ ArrayConst.apply
+        "[" ~> repsep(expr, ",") <~ "]" ^^ (elems => ArrayConst(elems.toIndexedSeq))
     lazy val array_access: Parser[ArrayAccess] =
         identifier ~ ("[" ~> expr <~ "]") ^^ {
             case id ~ idx => ArrayAccess(id, idx)

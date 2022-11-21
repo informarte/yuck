@@ -19,7 +19,25 @@ final class NumberOfDistinctValuesTest extends UnitTest with ConstraintTestTooli
     private val baseDomain = IntegerRange(1, 2)
     private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
     private val Seq(x1, x2, x3) = xs
-    private val n = new IntegerVariable(space.nextVariableId(), "n", NonNegativeIntegerRange)
+    private val n = new IntegerVariable(space.nextVariableId(), "n", CompleteIntegerRange)
+
+    @Test
+    def testPropagation(): Unit = {
+        space.post(new NumberOfDistinctValues(space.nextConstraintId(), null, xs, n))
+        runScenario(
+            TestScenario(
+                space,
+                Propagate("root-node propagation", Nil, List(n << IntegerRange(1, 3)))))
+    }
+
+    @Test
+    def testPropagationWithEmptyXs(): Unit = {
+        space.post(new NumberOfDistinctValues[IntegerValue](space.nextConstraintId(), null, Seq(), n))
+        runScenario(
+            TestScenario(
+                space,
+                Propagate("root-node propagation", Nil, List(n << IntegerRange(0, 0)))))
+    }
 
     private def testCounting(xs: Seq[IntegerVariable]): Unit = {
         space.post(new NumberOfDistinctValues(space.nextConstraintId(), null, xs, n))

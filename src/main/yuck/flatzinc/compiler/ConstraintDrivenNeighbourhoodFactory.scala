@@ -59,10 +59,10 @@ final class ConstraintDrivenNeighbourhoodFactory
         (using valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
-        space.registerObjectiveVariable(x)
-        if (space.isProblemParameter(x)) {
+        cc.space.registerObjectiveVariable(x)
+        if (cc.space.isProblemParameter(x)) {
             None
-        } else if (space.isDanglingVariable(x)) {
+        } else if (cc.space.isDanglingVariable(x)) {
             mode match {
                 case OptimizationMode.Min =>
                     // assign minimum value
@@ -72,12 +72,12 @@ final class ConstraintDrivenNeighbourhoodFactory
                     super.createMaximizationNeighbourhood(levelCfg, x)
             }
         }
-        else if (space.isSearchVariable(x)) {
+        else if (cc.space.isSearchVariable(x)) {
             // x is unconstrained, so no need to add a generator for minimizing x.
             None
         }
-        else if (space.isChannelVariable(x)) {
-            createNeighbourhood(mode, levelCfg, space.definingConstraint(x))
+        else if (cc.space.isChannelVariable(x)) {
+            createNeighbourhood(mode, levelCfg, cc.space.definingConstraint(x))
         }
         else {
             // The thing that should not be.
@@ -93,23 +93,23 @@ final class ConstraintDrivenNeighbourhoodFactory
     {
         (mode, constraint) match {
             case (OptimizationMode.Min, lc: LinearCombination[V @ unchecked])
-            if (lc.axs.forall(ax => if (ax.a < valueTraits.zero) ax.x.domain.hasUb else ax.x.domain.hasLb)) =>
+            if lc.axs.forall(ax => if (ax.a < valueTraits.zero) ax.x.domain.hasUb else ax.x.domain.hasLb) =>
                 createNeighbourhood(mode, levelCfg, lc.axs)
             case (OptimizationMode.Max, lc: LinearCombination[V @ unchecked])
-            if (lc.axs.forall(ax => if (ax.a < valueTraits.zero) ax.x.domain.hasLb else ax.x.domain.hasUb)) =>
+            if lc.axs.forall(ax => if (ax.a < valueTraits.zero) ax.x.domain.hasLb else ax.x.domain.hasUb) =>
                 createNeighbourhood(mode, levelCfg, lc.axs)
             case (OptimizationMode.Min, sum: Sum[V @ unchecked])
-            if (sum.xs.forall(x => x.domain.hasLb)) =>
+            if sum.xs.forall(x => x.domain.hasLb) =>
                 createNeighbourhood(mode, levelCfg, sum.xs.map(new AX(valueTraits.one, _)))
             case (OptimizationMode.Max, sum: Sum[V @ unchecked])
-            if (sum.xs.forall(x => x.domain.hasUb)) =>
+            if sum.xs.forall(x => x.domain.hasUb) =>
                 createNeighbourhood(mode, levelCfg, sum.xs.map(new AX(valueTraits.one, _)))
             case _ =>
                 val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
-                val xs0 = space.involvedSearchVariables(constraint)
+                val xs0 = cc.space.involvedSearchVariables(constraint)
                 neighbourhoods ++=
                     neighbourhoodsFromImplicitConstraints.iterator.filter(_.searchVariables.intersect(xs0).nonEmpty)
-                val xs = xs0.diff(implicitlyConstrainedVars).toBuffer.sorted.toIndexedSeq
+                val xs = xs0.diff(cc.implicitlyConstrainedVars).toBuffer.sorted.toIndexedSeq
                 if (xs.isEmpty) {
                     // Either there are no variables or they are all managed by neighbourhoods from implicit constraints.
                     None
@@ -117,9 +117,9 @@ final class ConstraintDrivenNeighbourhoodFactory
                     for (x <- xs if ! x.domain.isFinite) {
                         throw new VariableWithInfiniteDomainException(x)
                     }
-                    logger.logg("%s contributes a neighbourhood over %s".format(constraint, xs))
+                    cc.logger.logg("%s contributes a neighbourhood over %s".format(constraint, xs))
                         neighbourhoods +=
-                            new RandomReassignmentGenerator(space, xs, randomGenerator, cfg.moveSizeDistribution, None, None)
+                            new RandomReassignmentGenerator(cc.space, xs, randomGenerator, cc.cfg.moveSizeDistribution, None, None)
                     if (neighbourhoods.size < 2) {
                         neighbourhoods.headOption
                     } else {
@@ -136,10 +136,10 @@ final class ConstraintDrivenNeighbourhoodFactory
         Option[Neighbourhood] =
     {
         val axs = axs0.sortBy(_.x)
-        if (axs.forall(ax => space.isProblemParameter(ax.x) ||
-            (space.isSearchVariable(ax.x) && ! implicitlyConstrainedVars.contains(ax.x))))
+        if (axs.forall(ax => cc.space.isProblemParameter(ax.x) ||
+            (cc.space.isSearchVariable(ax.x) && ! cc.implicitlyConstrainedVars.contains(ax.x))))
         {
-            val weights = axs.filter(ax => space.isSearchVariable(ax.x))
+            val weights = axs.filter(ax => cc.space.isSearchVariable(ax.x))
             if (weights.isEmpty) {
                 None
             } else {
@@ -147,10 +147,10 @@ final class ConstraintDrivenNeighbourhoodFactory
                 for (x <- xs if ! x.domain.isFinite) {
                     throw new VariableWithInfiniteDomainException(x)
                 }
-                logger.logg("Adding a neighbourhood over %s".format(xs))
+                cc.logger.logg("Adding a neighbourhood over %s".format(xs))
                 val hotSpotDistribution = createHotSpotDistribution(mode, weights)
                 Some(new RandomReassignmentGenerator(
-                    space, xs, randomGenerator, cfg.moveSizeDistribution, Some(hotSpotDistribution), None))
+                    cc.space, xs, randomGenerator, cc.cfg.moveSizeDistribution, Some(hotSpotDistribution), None))
             }
         } else {
             val weightedNeighbourhoods = new mutable.ArrayBuffer[(AX[V], Neighbourhood)]
@@ -159,15 +159,15 @@ final class ConstraintDrivenNeighbourhoodFactory
                     throw new FlatZincCompilerInterruptedException
                 }
                 val maybeNeighbourhood = {
-                    if (space.isChannelVariable(ax.x)) {
-                        createNeighbourhood(mode, levelCfg, space.definingConstraint(ax.x))
-                    } else if (space.isProblemParameter(ax.x)) {
+                    if (cc.space.isChannelVariable(ax.x)) {
+                        createNeighbourhood(mode, levelCfg, cc.space.definingConstraint(ax.x))
+                    } else if (cc.space.isProblemParameter(ax.x)) {
                         None
-                    } else if (implicitlyConstrainedVars.contains(ax.x)) {
+                    } else if (cc.implicitlyConstrainedVars.contains(ax.x)) {
                         neighbourhoodsFromImplicitConstraints.find(_.searchVariables.contains(ax.x))
                     } else {
-                        logger.logg("Adding a neighbourhood over %s".format(ax.x))
-                        Some(new SimpleRandomReassignmentGenerator(space, Vector(ax.x), randomGenerator))
+                        cc.logger.logg("Adding a neighbourhood over %s".format(ax.x))
+                        Some(new SimpleRandomReassignmentGenerator(cc.space, Vector(ax.x), randomGenerator))
                     }
                 }
                 if (maybeNeighbourhood.isDefined) {
@@ -194,7 +194,7 @@ final class ConstraintDrivenNeighbourhoodFactory
         Distribution =
     {
         val hotSpotDistribution = Distribution(weights.size)
-        space.post(new OptimizationGoalTracker(nextConstraintId(), null, mode, weights.toIndexedSeq, hotSpotDistribution))
+        cc.space.post(new OptimizationGoalTracker(nextConstraintId(), null, mode, weights.toIndexedSeq, hotSpotDistribution))
         hotSpotDistribution
     }
 
@@ -204,11 +204,11 @@ final class ConstraintDrivenNeighbourhoodFactory
         val rate = (levelCfg.maybeFairVariableChoiceRate.getOrElse(Probability(0)).value * 100).toInt
         if (rate == 0) neighbourhood0
         else {
-            val xs = (neighbourhood0.searchVariables.diff(implicitlyConstrainedVars)).toBuffer.sorted.toIndexedSeq
+            val xs = neighbourhood0.searchVariables.diff(cc.implicitlyConstrainedVars).toBuffer.sorted.toIndexedSeq
             if (xs.isEmpty) neighbourhood0
             else {
                 val neighbourhood1 =
-                    new RandomReassignmentGenerator(space, xs, randomGenerator, cfg.moveSizeDistribution, None, None)
+                    new RandomReassignmentGenerator(cc.space, xs, randomGenerator, cc.cfg.moveSizeDistribution, None, None)
                 val distribution = Distribution(0, List(100 - rate, rate))
                 new NeighbourhoodCollection(Vector(neighbourhood0, neighbourhood1), randomGenerator, Some(distribution), None)
             }

@@ -84,7 +84,7 @@ final class FlatZincCompiler
     }
 
     private def assignValuesToDanglingVariables(cc: CompilationContext): Unit = {
-        for ((key, x) <- cc.vars
+        for (x <- cc.vars.values
              if cc.space.isDanglingVariable(x) && ! cc.space.searchState.hasValue(x))
         {
             if (! x.domain.isFinite) {

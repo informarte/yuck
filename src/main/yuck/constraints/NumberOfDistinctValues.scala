@@ -18,4 +18,6 @@ class NumberOfDistinctValues
     override def toString = "%s = numberOfDistinctValues([%s])".format(n, xs.mkString(", "))
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
         IntegerValue(valueRegistry.size)
+    override def propagate() =
+        NoPropagationOccurred.pruneDomain(n, IntegerRange(if (xs.isEmpty) 0 else 1, xs.size))
 }
