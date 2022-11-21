@@ -11,7 +11,7 @@ object IntegerSetValueTraits extends OrderedValueTraits[IntegerSetValue] {
     override val valueType = classOf[IntegerSetValue]
     override def normalizedValue(a: IntegerSetValue) = a
     override val valueOrdering = IntegerSetValueOrdering
-    override val orderingCostModel = IntegerSetValueOrderingCostModel
+    override val costModel = IntegerSetValueOrderingCostModel
     override def createDomain(values: Set[IntegerSetValue]): IntegerSetDomain =
         if (values.isEmpty) EmptyIntegerSetDomain else ???
     override def createDomain(lb: IntegerSetValue, ub: IntegerSetValue): IntegerSetDomain =

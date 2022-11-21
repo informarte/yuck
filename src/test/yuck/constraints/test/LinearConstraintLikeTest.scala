@@ -35,12 +35,12 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
     protected final val costs = new BooleanVariable(space.nextVariableId(), "costs", costsDomain)
     protected def createConstraint(using valueTraits: NumericalValueTraits[V]): Constraint
 
-    private val orderingCostModel = mock(classOf[OrderingCostModel[V]])
+    private val costModel = mock(classOf[OrderingCostModel[V]])
     private val domainPruner = mock(classOf[NumericalDomainPruner[V]])
     private implicit val valueTraits: NumericalValueTraits[V] = mock(classOf[NumericalValueTraits[V]])
 
     private def setupValueTraits(): Unit = {
-        when(valueTraits.orderingCostModel).thenReturn(orderingCostModel)
+        when(valueTraits.costModel).thenReturn(costModel)
         when(valueTraits.domainPruner).thenReturn(domainPruner)
         when(valueTraits.zero).thenReturn(baseValueTraits.zero)
         when(valueTraits.one).thenReturn(baseValueTraits.one)
@@ -143,10 +143,10 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
             val b = now.value(z)
             val c = randomGenerator.nextInt(maxViolation).toLong
             relation match {
-                case EqRelation => when(orderingCostModel.eqViolation(a, b)).thenReturn(c)
-                case NeRelation => when(orderingCostModel.neViolation(a, b)).thenReturn(c)
-                case LtRelation => when(orderingCostModel.ltViolation(a, b)).thenReturn(c)
-                case LeRelation => when(orderingCostModel.leViolation(a, b)).thenReturn(c)
+                case EqRelation => when(costModel.eqViolation(a, b)).thenReturn(c)
+                case NeRelation => when(costModel.neViolation(a, b)).thenReturn(c)
+                case LtRelation => when(costModel.ltViolation(a, b)).thenReturn(c)
+                case LeRelation => when(costModel.leViolation(a, b)).thenReturn(c)
             }
             space.initialize()
             assertEq(now.value(costs).violation, c)
@@ -160,10 +160,10 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
             val b = move.value(z)
             val c = randomGenerator.nextInt(maxViolation).toLong
             relation match {
-                case EqRelation => when(orderingCostModel.eqViolation(a, b)).thenReturn(c)
-                case NeRelation => when(orderingCostModel.neViolation(a, b)).thenReturn(c)
-                case LtRelation => when(orderingCostModel.ltViolation(a, b)).thenReturn(c)
-                case LeRelation => when(orderingCostModel.leViolation(a, b)).thenReturn(c)
+                case EqRelation => when(costModel.eqViolation(a, b)).thenReturn(c)
+                case NeRelation => when(costModel.neViolation(a, b)).thenReturn(c)
+                case LtRelation => when(costModel.ltViolation(a, b)).thenReturn(c)
+                case LeRelation => when(costModel.leViolation(a, b)).thenReturn(c)
             }
             val after = space.consult(move)
             assertEq(after.value(costs).violation, c)
@@ -173,10 +173,10 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
             assertEq(now.value(costs).violation, c)
         }
         relation match {
-            case EqRelation => verify(orderingCostModel, times(3)).eqViolation(any[V], any[V])
-            case NeRelation => verify(orderingCostModel, times(3)).neViolation(any[V], any[V])
-            case LtRelation => verify(orderingCostModel, times(3)).ltViolation(any[V], any[V])
-            case LeRelation => verify(orderingCostModel, times(3)).leViolation(any[V], any[V])
+            case EqRelation => verify(costModel, times(3)).eqViolation(any[V], any[V])
+            case NeRelation => verify(costModel, times(3)).neViolation(any[V], any[V])
+            case LtRelation => verify(costModel, times(3)).ltViolation(any[V], any[V])
+            case LeRelation => verify(costModel, times(3)).leViolation(any[V], any[V])
         }
     }
 

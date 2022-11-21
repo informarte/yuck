@@ -66,10 +66,10 @@ final class Table
 
     private val effect = costs.reuseableEffect
 
-    private val orderingCostModel = valueTraits.orderingCostModel
+    private val costModel = valueTraits.costModel
 
     inline private def computeDistance(a: V, b: V): Long =
-        orderingCostModel.eqViolation(a, b)
+        costModel.eqViolation(a, b)
 
     override def propagate() = {
         if (costs.domain == TrueDomain) {

@@ -29,6 +29,9 @@ abstract class ValueTraits[V <: AnyValue] {
     /** Returns the largest domain over V. */
     val completeDomain: Domain[V]
 
+    /** Returns a cost model for use by generic constraints. */
+    val costModel: EqualityCostModel[V]
+
     /** Returns a domain pruner for use by generic constraints. */
     val domainPruner: DomainPruner[V]
 

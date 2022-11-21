@@ -11,7 +11,7 @@ object BooleanValueTraits extends OrderedValueTraits[BooleanValue] {
     override val valueType = classOf[BooleanValue]
     override def normalizedValue(a: BooleanValue) = if (a.truthValue) then True else False
     override val valueOrdering = BooleanValueOrdering
-    override val orderingCostModel = BooleanValueOrderingCostModel
+    override val costModel = BooleanValueOrderingCostModel
     override def createDomain(values: Set[BooleanValue]) = {
         require(! values.exists(_.violation >= 2))
         BooleanDomain(values.contains(False), values.contains(True))

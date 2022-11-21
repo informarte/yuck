@@ -83,7 +83,7 @@ final class IntegerValueTraitsTest extends UnitTest {
         assertEq(valueType, classOf[IntegerValue])
         assertEq(valueOrdering, IntegerValueOperations)
         assertEq(numericalOperations, IntegerValueOperations)
-        assertEq(orderingCostModel, IntegerValueOrderingCostModel)
+        assertEq(costModel, IntegerValueOrderingCostModel)
         assertEq(domainOrdering, IntegerDomainOrdering)
         assertEq(domainPruner, IntegerDomainPruner)
     }
