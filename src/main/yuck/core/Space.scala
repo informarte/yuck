@@ -5,9 +5,10 @@ import org.jgrapht.traverse.{BreadthFirstIterator, TopologicalOrderIterator}
 
 import scala.collection.*
 import scala.jdk.CollectionConverters.*
-
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
+
+import scala.reflect.ClassTag
 
 /**
  * This class is used for building and managing a constraint network,
@@ -365,9 +366,13 @@ final class Space(
     /** Returns the number of constraints that were posted. */
     def numberOfConstraints: Int = constraints.size
 
-    /** Returns the number of constraints that were posted and satisfy the given predicate. */
+    /** Returns the number of posted constraints which satisfy the given predicate. */
     def numberOfConstraints(p: Constraint => Boolean): Int =
         constraints.count(p)
+
+    /** Returns the number of posted constraints of the given type. */
+    def numberOfConstraints[T <: Constraint](using classTag: ClassTag[T]): Int =
+        numberOfConstraints(classTag.runtimeClass.isInstance)
 
     /**
      * Registers the given constraint as implicit.

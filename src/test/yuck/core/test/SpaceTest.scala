@@ -36,6 +36,7 @@ final class SpaceTest extends UnitTest {
         assertEx(space.post(f))
         assertEq(space.numberOfConstraints, 3)
         assertEq(space.numberOfConstraints(_.isInstanceOf[DummyConstraint]), 3)
+        assertEq(space.numberOfConstraints[DummyConstraint], 3)
         assertEq(space.numberOfConstraints(_ => false), 0)
         space.checkConsistency()
 

@@ -1,6 +1,6 @@
 include "count_eq.mzn";
 
-array [0..1] of var int: x;
+array [1..2] of var int: x;
 
 constraint count_eq(x, 5, 1);
 

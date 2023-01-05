@@ -28,7 +28,7 @@ abstract class FrontEndTest extends MiniZincBasedTest {
     extension (result: Result) {
 
         protected def neighbourhood: Neighbourhood =
-            result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult].maybeNeighbourhood.get
+            compilerResult.maybeNeighbourhood.get
 
         protected def violation: BooleanValue =
             result.costsOfBestProposal match {
@@ -42,29 +42,30 @@ abstract class FrontEndTest extends MiniZincBasedTest {
         protected def quality: AnyValue =
             result.quality(1)
 
-        protected def searchVariables: Set[AnyVariable] =
-            result.space.searchVariables
-
-        protected def channelVariables: Set[AnyVariable] =
-            result.space.channelVariables
-
-        protected def numberOfConstraints[T <: Constraint](using classTag: ClassTag[T]): Int =
-            result.space.numberOfConstraints(classTag.runtimeClass.isInstance)
-
         protected def assignment: SearchState =
             result.space.searchState
 
         protected def warmStartWasPerformed: Boolean =
-            result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult].performWarmStart
+            compilerResult.performWarmStart
 
         protected def searchWasPerformed: Boolean =
             ! result.asInstanceOf[AnnealingResult].roundLogs.isEmpty
 
+        protected def compilerResult: FlatZincCompilerResult =
+            result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
+
     }
 
-    protected implicit def createTask(problemName: String): MiniZincTestTask = task.copy(problemName = problemName)
+    protected implicit def createTask(problemName: String): MiniZincTestTask =
+        task.copy(problemName = problemName)
 
     protected final def wasIntroducedByMiniZincCompiler(x: AnyVariable): Boolean =
         x.name.startsWith("X_INTRODUCED")
+
+    protected final def wasIntroducedByYuck(x: AnyVariable): Boolean =
+        x.name.isEmpty
+
+    protected final def isUserDefined(x: AnyVariable): Boolean =
+        ! wasIntroducedByMiniZincCompiler(x) && ! wasIntroducedByYuck(x)
 
 }

@@ -30,7 +30,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testAlldifferentInt(): Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test"))
-        assertEq(result.numberOfConstraints[Alldistinct[_]], 1)
+        assertEq(result.space.numberOfConstraints[Alldistinct[_]], 1)
         assert(result.neighbourhood.isInstanceOf[AlldistinctNeighbourhood[_]])
     }
 
@@ -38,7 +38,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testAlldifferentIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "alldifferent_int_reif_test"))
-        assertEq(result.numberOfConstraints[Alldistinct[_]], 2)
+        assertEq(result.space.numberOfConstraints[Alldistinct[_]], 2)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -46,7 +46,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testAlldifferentSet(): Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_set_test"))
-        assertEq(result.numberOfConstraints[Alldistinct[_]], 1)
+        assertEq(result.space.numberOfConstraints[Alldistinct[_]], 1)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -54,7 +54,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testAlldifferentSetReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "alldifferent_set_reif_test"))
-        assertEq(result.numberOfConstraints[Alldistinct[_]], 2)
+        assertEq(result.space.numberOfConstraints[Alldistinct[_]], 2)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -62,116 +62,211 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExceptConstraint]))
     def testAlldifferentExcept0(): Unit = {
         val result = solveWithResult(task.copy(problemName = "alldifferent_except_0_test"))
-        assertEq(result.numberOfConstraints[AlldistinctExcept[_]], 1)
+        assertEq(result.space.numberOfConstraints[AlldistinctExcept[_]], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExceptConstraint]))
     def testAlldifferentExcept0Reif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "alldifferent_except_0_reif_test"))
-        assertEq(result.numberOfConstraints[AlldistinctExcept[_]], 2)
+        assertEq(result.space.numberOfConstraints[AlldistinctExcept[_]], 2)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExceptConstraint]))
     def testAlldifferentExcept(): Unit = {
         val result = solveWithResult(task.copy(problemName = "alldifferent_except_test"))
-        assertEq(result.numberOfConstraints[AlldistinctExcept[_]], 1)
+        assertEq(result.space.numberOfConstraints[AlldistinctExcept[_]], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExceptConstraint]))
     def testAlldifferentExceptReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "alldifferent_except_reif_test"))
-        assertEq(result.numberOfConstraints[AlldistinctExcept[_]], 2)
+        assertEq(result.space.numberOfConstraints[AlldistinctExcept[_]], 2)
     }
+
+    // We test the bin_packing constraints very thoroughly because the Yuck bindings,
+    // their interplay with the MiniZinc standard library, and the FlatZinc compiler are
+    // all quite complex.
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPacking(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_test"))
-        assertEq(result.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.searchVariables.size, 6)
+        assertEq(result.space.searchVariables.size, 6)
+        assertEq(result.space.channelVariables.size, 7)
+        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 3)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
+        assertEq(result.space.numberOfConstraints, 6)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[Contains], 3)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_reif_test"))
-        assertEq(result.numberOfConstraints[BinPacking[_]], 2)
-        assertEq(result.searchVariables.size, 6)
+        assertEq(result.space.searchVariables.size, 6)
+        assertEq(result.space.channelVariables.size, 12)
+        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 7)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
+        assertEq(result.space.numberOfConstraints, 11)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Bool2Costs2], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 2)
+        assertEq(result.space.numberOfConstraints[Contains], 3)
+        assertEq(result.space.numberOfConstraints[Le[_]], 3)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingCapa(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_capa_test"))
-        assertEq(result.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.searchVariables.size, 6)
+        assertEq(result.space.searchVariables.size, 6)
+        assertEq(result.space.channelVariables.size, 7)
+        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 3)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
+        assertEq(result.space.numberOfConstraints, 6)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[Contains], 3)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingCapaReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_capa_reif_test"))
-        // minizinc eliminates one of the bin_packing_load constraints :-)
-        assertEq(result.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.searchVariables.size, 6)
+        assertEq(result.space.searchVariables.size, 6)
+        assertEq(result.space.channelVariables.size, 12)
+        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 7)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
+        assertEq(result.space.numberOfConstraints, 11)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Bool2Costs2], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 2)
+        assertEq(result.space.numberOfConstraints[Contains], 3)
+        assertEq(result.space.numberOfConstraints[Le[_]], 3)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    def testBinPackingLoad(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "bin_packing_load_test"))
+        assertEq(result.space.searchVariables.size, 6)
+        assertEq(result.space.channelVariables.size, 7)
+        assertEq(result.space.channelVariables.count(isUserDefined), 3)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
+        assertEq(result.space.numberOfConstraints, 6)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[Contains], 3)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingLoadWithUnboundedLoads(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_unbounded_loads"))
-        assertEq(result.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.searchVariables.size, 6)
+        assertEq(result.space.searchVariables.size, 6)
+        assertEq(result.space.channelVariables.size, 4)
+        assertEq(result.space.channelVariables.count(isUserDefined), 3)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 1)
+        assertEq(result.space.numberOfConstraints, 2)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingLoadWithEqualLoads(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_equal_loads"))
-        assertEq(result.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.searchVariables.size, 6)
+        assertEq(result.space.searchVariables.size, 6)
+        assertEq(result.space.channelVariables.size, 7)
+        assertEq(result.space.channelVariables.count(isUserDefined), 1)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 6)
+        assertEq(result.space.numberOfConstraints, 6)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[Contains], 1)
+        assertEq(result.space.numberOfConstraints[Eq[_]], 2)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingLoadWithSharedLoads(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_shared_loads"))
-        assertEq(result.numberOfConstraints[BinPacking[_]], 2)
-        assertEq(result.searchVariables.size, 6)
+        assertEq(result.space.searchVariables.size, 6)
+        assertEq(result.space.channelVariables.size, 13)
+        assertEq(result.space.channelVariables.count(isUserDefined), 3)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 10)
+        assertEq(result.space.numberOfConstraints, 10)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 2)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[Contains], 3)
+        assertEq(result.space.numberOfConstraints[Eq[_]], 3)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingLoadWithEqualBins(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_equal_bins"))
-        assertEq(result.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.searchVariables.size, 5)
+        assertEq(result.space.searchVariables.size, 5)
+        assertEq(result.space.channelVariables.size, 7)
+        assertEq(result.space.channelVariables.count(isUserDefined), 3)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
+        assertEq(result.space.numberOfConstraints, 6)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[Contains], 3)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingLoadReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_reif_test"))
-        assertEq(result.numberOfConstraints[BinPacking[_]], 2)
-        assertEq(result.searchVariables.size, 6)
+        assertEq(result.space.searchVariables.size, 6)
+        assertEq(result.space.channelVariables.size, 9)
+        assertEq(result.space.channelVariables.count(isUserDefined), 3)
+        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 1)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
+        assertEq(result.space.numberOfConstraints, 8)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Bool2Costs2], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 2)
+        assertEq(result.space.numberOfConstraints[Contains], 3)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingLoadFn(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_fn_test"))
-        assertEq(result.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.searchVariables.size, 6)
+        assertEq(result.space.searchVariables.size, 6)
+        assertEq(result.space.channelVariables.size, 7)
+        assertEq(result.space.channelVariables.count(isUserDefined), 1)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 6)
+        assertEq(result.space.numberOfConstraints, 6)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[Contains], 1)
+        assertEq(result.space.numberOfConstraints[Eq[_]], 2)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint]))
     def testCircuit(): Unit = {
         val result = solveWithResult(task.copy(problemName = "circuit_test"))
-        assertEq(result.numberOfConstraints[Circuit], 1)
+        assertEq(result.space.numberOfConstraints[Circuit], 1)
         assert(result.neighbourhood.isInstanceOf[CircuitNeighbourhood])
     }
 
@@ -180,7 +275,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testCircuitReif(): Unit = {
         // Gecode does not provide a decomposition for circuit_reif, so we cannot verify the solution.
         val result = solveWithResult(task.copy(problemName = "circuit_reif_test", verifySolution = false))
-        assertEq(result.numberOfConstraints[Circuit], 2)
+        assertEq(result.space.numberOfConstraints[Circuit], 2)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -422,73 +517,73 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         // TODO Enable verification after release of MiniZinc 2.7.0!
         val verifySolution = ! problemName.contains("set")
         val result = solveWithResult(task.copy(problemName = problemName, verifySolution = verifySolution))
-        assertEq(result.channelVariables.filter(wasIntroducedByMiniZincCompiler).size, 0)
+        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 0)
         assertEq(result.space.numberOfConstraints, 6)
-        assertEq(result.numberOfConstraints[CountConst[_]], 1)
-        assertEq(result.numberOfConstraints[CountVar[_]], 1)
+        assertEq(result.space.numberOfConstraints[CountConst[_]], 1)
+        assertEq(result.space.numberOfConstraints[CountVar[_]], 1)
         relation match {
-            case EqRelation => assertEq(result.numberOfConstraints[Contains], 1)
-                               assertEq(result.numberOfConstraints[Eq[_]], 1)
-            case NeRelation => assertEq(result.numberOfConstraints[Ne[_]], 2)
-            case LeRelation => assertEq(result.numberOfConstraints[Le[_]], 2)
-            case LtRelation => assertEq(result.numberOfConstraints[Lt[_]], 2)
+            case EqRelation => assertEq(result.space.numberOfConstraints[Contains], 1)
+                               assertEq(result.space.numberOfConstraints[Eq[_]], 1)
+            case NeRelation => assertEq(result.space.numberOfConstraints[Ne[_]], 2)
+            case LeRelation => assertEq(result.space.numberOfConstraints[Le[_]], 2)
+            case LtRelation => assertEq(result.space.numberOfConstraints[Lt[_]], 2)
         }
-        assertEq(result.numberOfConstraints[Conjunction], 1)
-        assertEq(result.numberOfConstraints[SatisfactionGoalTracker], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     private def testCountReif(problemName: String, relation: OrderingRelation): Unit = {
         // TODO Enable verification after release of MiniZinc 2.7.0!
         val result = solveWithResult(task.copy(problemName = problemName, verifySolution = !problemName.contains("set")))
-        assertEq(result.channelVariables.filter(wasIntroducedByMiniZincCompiler).size, 0)
+        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 0)
         assertEq(result.space.numberOfConstraints, 7)
-        assertEq(result.numberOfConstraints[CountConst[_]], 1)
-        assertEq(result.numberOfConstraints[CountVar[_]], 1)
+        assertEq(result.space.numberOfConstraints[CountConst[_]], 1)
+        assertEq(result.space.numberOfConstraints[CountVar[_]], 1)
         relation match {
-            case EqRelation => assertEq(result.numberOfConstraints[Eq[_]], 2)
-            case NeRelation => assertEq(result.numberOfConstraints[Ne[_]], 2)
-            case LeRelation => assertEq(result.numberOfConstraints[Le[_]], 2)
-            case LtRelation => assertEq(result.numberOfConstraints[Lt[_]], 2)
+            case EqRelation => assertEq(result.space.numberOfConstraints[Eq[_]], 2)
+            case NeRelation => assertEq(result.space.numberOfConstraints[Ne[_]], 2)
+            case LeRelation => assertEq(result.space.numberOfConstraints[Le[_]], 2)
+            case LtRelation => assertEq(result.space.numberOfConstraints[Lt[_]], 2)
         }
-        assertEq(result.numberOfConstraints[Or], 1)
-        assertEq(result.numberOfConstraints[Conjunction], 1)
-        assertEq(result.numberOfConstraints[SatisfactionGoalTracker], 1)
+        assertEq(result.space.numberOfConstraints[Or], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     private def testCountFn(problemName: String): Unit = {
         // TODO Enable verification after release of MiniZinc 2.7.0!
         val verifySolution = !problemName.contains("set")
         val result = solveWithResult(task.copy(problemName = problemName, verifySolution = verifySolution))
-        assertEq(result.channelVariables.filter(wasIntroducedByMiniZincCompiler).size, 0)
+        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 0)
         assertEq(result.space.numberOfConstraints, 6)
-        assertEq(result.numberOfConstraints[CountConst[_]], 1)
-        assertEq(result.numberOfConstraints[CountVar[_]], 1)
-        assertEq(result.numberOfConstraints[Contains], 2)
-        assertEq(result.numberOfConstraints[Conjunction], 1)
-        assertEq(result.numberOfConstraints[SatisfactionGoalTracker], 1)
+        assertEq(result.space.numberOfConstraints[CountConst[_]], 1)
+        assertEq(result.space.numberOfConstraints[CountVar[_]], 1)
+        assertEq(result.space.numberOfConstraints[Contains], 2)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCumulativeConstraint]))
     def testCumulative(): Unit = {
         val result = solveWithResult(task.copy(problemName = "cumulative_test"))
-        assertEq(result.numberOfConstraints[Cumulative], 1)
+        assertEq(result.space.numberOfConstraints[Cumulative], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCumulativeConstraint]))
     def testCumulativeReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "cumulative_reif_test"))
-        assertEq(result.numberOfConstraints[Cumulative], 2)
+        assertEq(result.space.numberOfConstraints[Cumulative], 2)
     }
 
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
     def testDeliveryWithWaiting(): Unit = {
         val result = solveWithResult(task.copy(problemName = "delivery_test_with_waiting", maybeOptimum = Some(378)))
-        assertEq(result.numberOfConstraints[Circuit], 1)
-        assertEq(result.numberOfConstraints[Delivery[_]], 1)
-        assertEq(result.numberOfConstraints[Eq[_]], 0)
+        assertEq(result.space.numberOfConstraints[Circuit], 1)
+        assertEq(result.space.numberOfConstraints[Delivery[_]], 1)
+        assertEq(result.space.numberOfConstraints[Eq[_]], 0)
         assert(result.neighbourhood.isInstanceOf[CircuitNeighbourhood])
         assertEq(result.quality.asInstanceOf[IntegerValue].value, 378)
     }
@@ -497,9 +592,9 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
     def testDeliveryWithoutWaiting(): Unit = {
         val result = solveWithResult(task.copy(problemName = "delivery_test_without_waiting", dataAssignments = Map(("MaxKToMinKRatio", "1")), maybeOptimum = Some(669), maybeTargetObjectiveValue = Some(700)))
-        assertEq(result.numberOfConstraints[Circuit], 1)
-        assertEq(result.numberOfConstraints[Delivery[_]], 2)
-        assertEq(result.numberOfConstraints[Eq[_]], 0)
+        assertEq(result.space.numberOfConstraints[Circuit], 1)
+        assertEq(result.space.numberOfConstraints[Delivery[_]], 2)
+        assertEq(result.space.numberOfConstraints[Eq[_]], 0)
         assert(result.neighbourhood.isInstanceOf[CircuitNeighbourhood])
         assertLe(result.quality.asInstanceOf[IntegerValue].value, 700L)
     }
@@ -508,9 +603,9 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
     def testDeliveryReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "delivery_reif_test"))
-        assertEq(result.numberOfConstraints[Circuit], 1)
-        assertEq(result.numberOfConstraints[Delivery[_]], 1)
-        assertEq(result.numberOfConstraints[Eq[_]], 0)
+        assertEq(result.space.numberOfConstraints[Circuit], 1)
+        assertEq(result.space.numberOfConstraints[Delivery[_]], 1)
+        assertEq(result.space.numberOfConstraints[Eq[_]], 0)
         assert(result.neighbourhood.isInstanceOf[CircuitNeighbourhood])
     }
 
@@ -518,9 +613,9 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
     def testDeliveriesWithEqualArrivalTimes(): Unit = {
         val result = solveWithResult(task.copy(problemName = "delivery_test_with_equal_arrival_times", dataAssignments = Map(("MaxKToMinKRatio", "1"))))
-        assertEq(result.numberOfConstraints[Circuit], 1)
-        assertEq(result.numberOfConstraints[Delivery[_]], 2)
-        assertEq(result.numberOfConstraints[Eq[_]], 1)
+        assertEq(result.space.numberOfConstraints[Circuit], 1)
+        assertEq(result.space.numberOfConstraints[Delivery[_]], 2)
+        assertEq(result.space.numberOfConstraints[Eq[_]], 1)
         assert(result.neighbourhood.isInstanceOf[CircuitNeighbourhood])
     }
 
@@ -528,9 +623,9 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
     def testDeliveriesWithSharedArrivalTimes(): Unit = {
         val result = solveWithResult(task.copy(problemName = "delivery_test_with_shared_arrival_times"))
-        assertEq(result.numberOfConstraints[Circuit], 1)
-        assertEq(result.numberOfConstraints[Delivery[_]], 2)
-        assertEq(result.numberOfConstraints[Eq[_]], 23)
+        assertEq(result.space.numberOfConstraints[Circuit], 1)
+        assertEq(result.space.numberOfConstraints[Delivery[_]], 2)
+        assertEq(result.space.numberOfConstraints[Eq[_]], 23)
         assert(result.neighbourhood.isInstanceOf[CircuitNeighbourhood])
     }
 
@@ -538,111 +633,165 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
     def testDiffnNonstrict(): Unit = {
         val result = solveWithResult(task.copy(problemName = "diffn_nonstrict_test"))
-        assertEq(result.numberOfConstraints[Disjoint2], 1)
+        assertEq(result.space.numberOfConstraints[Disjoint2], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
     def testDiffnNonstrictReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "diffn_nonstrict_reif_test"))
-        assertEq(result.numberOfConstraints[Disjoint2], 1)
+        assertEq(result.space.numberOfConstraints[Disjoint2], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
     def testDiffnStrict(): Unit = {
         val result = solveWithResult(task.copy(problemName = "diffn_strict_test"))
-        assertEq(result.numberOfConstraints[Disjoint2], 1)
+        assertEq(result.space.numberOfConstraints[Disjoint2], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
     def testDiffnStrictReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "diffn_strict_reif_test"))
-        assertEq(result.numberOfConstraints[Disjoint2], 1)
+        assertEq(result.space.numberOfConstraints[Disjoint2], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDisjunctiveConstraint]))
     def testDisjunctiveNonstrict(): Unit = {
         val result = solveWithResult(task.copy(problemName = "disjunctive_nonstrict_test"))
-        assertEq(result.numberOfConstraints[Disjoint2], 1)
+        assertEq(result.space.numberOfConstraints[Disjoint2], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDisjunctiveConstraint]))
     def testDisjunctiveNonstrictReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "disjunctive_nonstrict_reif_test"))
-        assertEq(result.numberOfConstraints[Disjoint2], 1)
+        assertEq(result.space.numberOfConstraints[Disjoint2], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDisjunctiveConstraint]))
     def testDisjunctiveStrict(): Unit = {
         val result = solveWithResult(task.copy(problemName = "disjunctive_strict_test"))
-        assertEq(result.numberOfConstraints[Disjoint2], 1)
+        assertEq(result.space.numberOfConstraints[Disjoint2], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDisjunctiveConstraint]))
     def testDisjunctiveStrictReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "disjunctive_strict_reif_test"))
-        assertEq(result.numberOfConstraints[Disjoint2], 1)
+        assertEq(result.space.numberOfConstraints[Disjoint2], 1)
     }
+
+    // We test global_cardinality constraints very thoroughly because both the interplay of
+    // the Yuck bindings with the MiniZinc standard library and the FlatZinc compiler
+    // (mapping to bin_packing) are quite complex.
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
     def testGlobalCardinality(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_test"))
-        assertEq(result.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.searchVariables.size, 3)
+        assertEq(result.space.searchVariables.size, 3)
+        assertEq(result.space.channelVariables.size, 9)
+        assertEq(result.space.channelVariables.count(isUserDefined), 1)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 8)
+        assertEq(result.space.numberOfConstraints, 7)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[Contains], 1)
+        assertEq(result.space.numberOfConstraints[Eq[_]], 3)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
     def testGlobalCardinalityReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_reif_test"))
-        assertEq(result.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.searchVariables.size, 3)
+        assertEq(result.space.searchVariables.size, 3)
+        assertEq(result.space.channelVariables.size, 11)
+        assertEq(result.space.channelVariables.count(isUserDefined), 1)
+        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 1)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 9)
+        assertEq(result.space.numberOfConstraints, 9)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Bool2Costs2], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 2)
+        assertEq(result.space.numberOfConstraints[Contains], 1)
+        assertEq(result.space.numberOfConstraints[Eq[_]], 3)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
     def testGlobalCardinalityFn(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_fn_test"))
-        assertEq(result.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.searchVariables.size, 3)
+        assertEq(result.space.searchVariables.size, 3)
+        assertEq(result.space.channelVariables.size, 9)
+        assertEq(result.space.channelVariables.count(isUserDefined), 1)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 8)
+        assertEq(result.space.numberOfConstraints, 7)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[Contains], 1)
+        assertEq(result.space.numberOfConstraints[Eq[_]], 3)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
     def testGlobalCardinalityClosedFn(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_closed_fn_test"))
-        assertEq(result.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.searchVariables.size, 3)
+        assertEq(result.space.searchVariables.size, 3)
+        assertEq(result.space.channelVariables.size, 9)
+        assertEq(result.space.channelVariables.count(isUserDefined), 1)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 8)
+        assertEq(result.space.numberOfConstraints, 7)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[Contains], 1)
+        assertEq(result.space.numberOfConstraints[Eq[_]], 3)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
     def testGlobalCardinalityLowUp(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_low_up_test"))
-        assertEq(result.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.searchVariables.size, 3)
+        assertEq(result.space.searchVariables.size, 3)
+        assertEq(result.space.channelVariables.size, 7)
+        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 2)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
+        assertEq(result.space.numberOfConstraints, 6)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[Contains], 2)
+        assertEq(result.space.numberOfConstraints[Eq[_]], 1)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
     def testGlobalCardinalityLowUpReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_low_up_reif_test"))
-        assertEq(result.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.searchVariables.size, 3)
+        assertEq(result.space.searchVariables.size, 3)
+        assertEq(result.space.channelVariables.size, 12)
+        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 7)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
+        assertEq(result.space.numberOfConstraints, 11)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Bool2Costs2], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 2)
+        assertEq(result.space.numberOfConstraints[Contains], 6)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverse(): Unit = {
         val result = solveWithResult(task.copy(problemName = "inverse_test"))
-        assertEq(result.numberOfConstraints[Inverse], 1)
+        assertEq(result.space.numberOfConstraints[Inverse], 1)
         assert(result.neighbourhood.isInstanceOf[GeneralInverseNeighbourhood])
     }
 
@@ -656,14 +805,14 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
                 task.copy(
                     problemName = "inverse_test_with_unbounded_search_variables",
                     solverConfiguration = task.solverConfiguration.copy(runPresolver = false)))
-        assertEq(result.numberOfConstraints[Inverse], 1)
+        assertEq(result.space.numberOfConstraints[Inverse], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseDecomposition(): Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_decomposition_test"))
-        assertEq(result.numberOfConstraints[Inverse], 2)
+        assertEq(result.space.numberOfConstraints[Inverse], 2)
         assert(result.neighbourhood.isInstanceOf[NeighbourhoodCollection])
         assert(result.neighbourhood.asInstanceOf[NeighbourhoodCollection].children.forall(_.isInstanceOf[SimpleInverseNeighbourhood]))
     }
@@ -672,7 +821,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "inverse_reif_test"))
-        assertEq(result.numberOfConstraints[Inverse], 2)
+        assertEq(result.space.numberOfConstraints[Inverse], 2)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -680,84 +829,84 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
     def testLexLessBool(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_bool_test"))
-        assertEq(result.numberOfConstraints[LexLess[_]], 1)
+        assertEq(result.space.numberOfConstraints[LexLess[_]], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
     def testLexLessBoolReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_bool_reif_test"))
-        assertEq(result.numberOfConstraints[LexLess[_]], 2)
+        assertEq(result.space.numberOfConstraints[LexLess[_]], 2)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
     def testLexLessEqBool(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_bool_test"))
-        assertEq(result.numberOfConstraints[LexLessEq[_]], 1)
+        assertEq(result.space.numberOfConstraints[LexLessEq[_]], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
     def testLexLessEqBoolReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_bool_reif_test"))
-        assertEq(result.numberOfConstraints[LexLessEq[_]], 2)
+        assertEq(result.space.numberOfConstraints[LexLessEq[_]], 2)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
     def testLexLessInt(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_int_test"))
-        assertEq(result.numberOfConstraints[LexLess[_]], 1)
+        assertEq(result.space.numberOfConstraints[LexLess[_]], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
     def testLexLessIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_int_reif_test"))
-        assertEq(result.numberOfConstraints[LexLess[_]], 2)
+        assertEq(result.space.numberOfConstraints[LexLess[_]], 2)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
     def testLexLessEqInt(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_int_test"))
-        assertEq(result.numberOfConstraints[LexLessEq[_]], 1)
+        assertEq(result.space.numberOfConstraints[LexLessEq[_]], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
     def testLexLessEqIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_int_reif_test"))
-        assertEq(result.numberOfConstraints[LexLessEq[_]], 2)
+        assertEq(result.space.numberOfConstraints[LexLessEq[_]], 2)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
     def testLexLessSet(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_set_test"))
-        assertEq(result.numberOfConstraints[LexLess[_]], 1)
+        assertEq(result.space.numberOfConstraints[LexLess[_]], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
     def testLexLessSetReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_set_reif_test"))
-        assertEq(result.numberOfConstraints[LexLess[_]], 2)
+        assertEq(result.space.numberOfConstraints[LexLess[_]], 2)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
     def testLexLessEqSet(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_set_test"))
-        assertEq(result.numberOfConstraints[LexLessEq[_]], 1)
+        assertEq(result.space.numberOfConstraints[LexLessEq[_]], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
     def testLexLessEqSetReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_set_reif_test"))
-        assertEq(result.numberOfConstraints[LexLessEq[_]], 2)
+        assertEq(result.space.numberOfConstraints[LexLessEq[_]], 2)
     }
 
     @Test
@@ -820,21 +969,21 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[MaximizationProblem], classOf[HasNValueConstraint]))
     def testNValue(): Unit = {
         val result = solveWithResult(task.copy(problemName = "nvalue_test"))
-        assertEq(result.numberOfConstraints[NumberOfDistinctValues[_]], 1)
+        assertEq(result.space.numberOfConstraints[NumberOfDistinctValues[_]], 1)
     }
 
     @Test
     @Category(Array(classOf[MaximizationProblem], classOf[HasNValueConstraint]))
     def testNValueReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "nvalue_reif_test"))
-        assertEq(result.numberOfConstraints[NumberOfDistinctValues[_]], 2)
+        assertEq(result.space.numberOfConstraints[NumberOfDistinctValues[_]], 2)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasRegularConstraint]))
     def testRegular(): Unit = {
         val result = solveWithResult(task.copy(problemName = "regular_test"))
-        assertEq(result.numberOfConstraints[Regular], 1)
+        assertEq(result.space.numberOfConstraints[Regular], 1)
     }
 
     @Test
@@ -842,14 +991,14 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testRegularReif(): Unit = {
         // Gecode does not provide a decomposition for regular_reif, so we cannot verify the solution.
         val result = solveWithResult(task.copy(problemName = "regular_reif_test", verifySolution = false))
-        assertEq(result.numberOfConstraints[Regular], 1)
+        assertEq(result.space.numberOfConstraints[Regular], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
     def testTableBool(): Unit = {
         val result = solveWithResult(task.copy(problemName = "table_bool_test"))
-        assertEq(result.numberOfConstraints[Table[_]], 1)
+        assertEq(result.space.numberOfConstraints[Table[_]], 1)
         assert(result.neighbourhood.isInstanceOf[TableNeighbourhood[_]])
     }
 
@@ -857,7 +1006,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
     def testTableBoolReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "table_bool_reif_test"))
-        assertEq(result.numberOfConstraints[Table[_]], 1)
+        assertEq(result.space.numberOfConstraints[Table[_]], 1)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -865,7 +1014,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
     def testTableInt(): Unit = {
         val result = solveWithResult(task.copy(problemName = "table_int_test"))
-        assertEq(result.numberOfConstraints[Table[_]], 1)
+        assertEq(result.space.numberOfConstraints[Table[_]], 1)
         assert(result.neighbourhood.isInstanceOf[TableNeighbourhood[_]])
     }
 
@@ -873,7 +1022,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
     def testTableIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "table_int_reif_test"))
-        assertEq(result.numberOfConstraints[Table[_]], 1)
+        assertEq(result.space.numberOfConstraints[Table[_]], 1)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 

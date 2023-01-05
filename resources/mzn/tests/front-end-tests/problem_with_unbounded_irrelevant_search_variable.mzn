@@ -1,8 +1,9 @@
 var int: x;
 var bool: r :: is_defined_var;
 
-constraint int_eq_reif(x, 5, r) :: defines_var(r);
+constraint r <-> x = 5;
 
 solve satisfy;
 
-output ["x = ", show(x)];
+output ["x = ", show(x), "\n",
+        "r = ", show(r)];
