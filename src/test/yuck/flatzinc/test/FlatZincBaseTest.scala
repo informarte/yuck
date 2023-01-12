@@ -345,4 +345,16 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(l(3).domain.asInstanceOf[SingletonIntegerSetDomain].base, IntegerDomain(1, 2, 3, 7, 8, 9))
     }
 
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testProblemWithDuplicateCostVariable(): Unit = {
+        val result = solveWithResult(task.copy(sourceFormat = FlatZinc, problemName = "problem_with_duplicate_cost_variable"))
+        assertEq(result.space.searchVariables, Set())
+        assertEq(result.space.problemParameters.size, 1)
+        assertEq(result.space.channelVariables.size, 1)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 1)
+        assertEq(result.space.numberOfConstraints, 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+    }
+
 }

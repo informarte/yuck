@@ -1,0 +1,6 @@
+var bool: x;
+
+constraint array_bool_or([x], true);
+constraint array_bool_or([x], true);
+
+solve satisfy;

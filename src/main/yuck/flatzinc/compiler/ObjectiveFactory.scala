@@ -54,7 +54,7 @@ final class ObjectiveFactory
     }
 
     private def createSatisfactionObjective
-        (cfg: FlatZincSolverConfiguration, costVars: Seq[BooleanVariable]):
+        (cfg: FlatZincSolverConfiguration, costVars: Set[BooleanVariable]):
         SatisfactionObjective =
     {
         val costVar = createBoolChannel()

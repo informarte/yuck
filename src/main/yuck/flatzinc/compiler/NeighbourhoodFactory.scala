@@ -88,7 +88,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
                 require(cc.space.definingConstraint(x).isInstanceOf[Conjunction])
                 cc.space.definingConstraint(x).inVariables.iterator
                     .map(cc.space.maybeDefiningConstraint(_)).filter(_.isDefined).map(_.get)
-                    .filter(_.isCandidateForImplicitSolving(cc.space)).toBuffer.sorted
+                    .filter(_.isCandidateForImplicitSolving(cc.space)).toBuffer.sorted.toIndexedSeq
             } else {
                 Nil
             }
@@ -127,7 +127,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
             val maybeCostVars =
                 if (levelCfg.isTopLevel) Some(cc.costVars)
                 else if (cc.space.maybeDefiningConstraint(x).exists(_.isInstanceOf[Conjunction]))
-                    Some(cc.space.definingConstraint(x).asInstanceOf[Conjunction].xs)
+                    Some(cc.space.definingConstraint(x).asInstanceOf[Conjunction].xs.toSet)
                 else None
             neighbourhoods +=
                 new RandomReassignmentGenerator(
@@ -145,7 +145,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
         }
     }
 
-    private def createHotSpotDistribution1(searchVars: Seq[AnyVariable], costVars: Seq[BooleanVariable]): Distribution = {
+    private def createHotSpotDistribution1(searchVars: Seq[AnyVariable], costVars: Set[BooleanVariable]): Distribution = {
         val searchVarIndex = searchVars.iterator.zipWithIndex.toMap
         val hotSpotDistribution = Distribution(searchVars.size)
         def involvedSearchVars(x: AnyVariable) =
