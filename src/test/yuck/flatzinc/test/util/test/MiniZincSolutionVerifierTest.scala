@@ -13,7 +13,7 @@ import yuck.flatzinc.test.util.*
  *
  */
 @runner.RunWith(classOf[runners.Parameterized])
-class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean) extends MiniZincBasedTest {
+class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean) extends ZincBasedTest {
 
     protected override val logToConsole = false
 
@@ -30,13 +30,13 @@ class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean) extends MiniZincB
     @Test
     def testVerification(): Unit = {
         val task =
-            MiniZincTestTask(
+            ZincTestTask(
                 directoryLayout = MiniZincExamplesLayout,
                 suitePath = "resources/mzn/tests/test-util-tests",
                 problemName = "verification-test",
                 solverConfiguration = FlatZincSolverConfiguration(restartLimit = 0, pruneConstraintNetwork = false),
                 maybeRuntimeLimitInSeconds = Some(10),
-                assertWhenUnsolved = true,
+                throwWhenUnsolved = true,
                 reusePreviousTestResult = false)
         if (simulateBadSolver) {
             assertEx(solve(task), classOf[SolutionNotVerifiedException])

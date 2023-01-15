@@ -17,7 +17,7 @@ import yuck.test.util.ParallelParameterizedTestRunner
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[ParallelParameterizedTestRunner])
-final class DumasBenchmark(task: MiniZincTestTask) extends MiniZincBasedTest {
+final class DumasBenchmark(task: ZincTestTask) extends ZincBasedTest {
 
     @Test
     def solve(): Unit = {
@@ -70,7 +70,7 @@ object DumasBenchmark extends VrpTestTaskFactory {
         .map{case (instanceName, value) => ("Dumas/" + instanceName, ObjectiveValue(value, true))}
 
     // keep models aligned
-    private def verifyAgainstCpModel(task: MiniZincTestTask) = task.copy(verificationModelName = "tsptw_cp")
+    private def verifyAgainstCpModel(task: ZincTestTask) = task.copy(verificationModelName = "tsptw_cp")
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")
     def parameters = tasks.map(amendKnownBestResult).map(verifyAgainstCpModel).map(Array(_)).asJava

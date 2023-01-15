@@ -1,6 +1,6 @@
 package yuck.flatzinc.test.vrp
 
-import yuck.flatzinc.test.util.{MiniZincTestTask, MiniZincTestTaskFactory}
+import yuck.flatzinc.test.util.{ZincTestTask, MiniZincTestTaskFactory}
 
 /**
  * @author Michael Marte
@@ -14,7 +14,7 @@ abstract class VrpTestTaskFactory extends MiniZincTestTaskFactory {
 
     protected val Results: Map[String, ObjectiveValue]
 
-    protected def amendKnownBestResult(task: MiniZincTestTask) = {
+    protected def amendKnownBestResult(task: ZincTestTask) = {
         val maybeObjectiveValue = Results.get(task.instanceName)
         if (maybeObjectiveValue.isDefined) {
             val objectiveValue = maybeObjectiveValue.get

@@ -15,7 +15,7 @@ import yuck.flatzinc.test.util.*
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
-final class MiniZincBenchmarks(task: MiniZincTestTask) extends MiniZincBasedTest {
+final class MiniZincBenchmarks(task: ZincTestTask) extends ZincBasedTest {
 
     @Test
     def solve(): Unit = {

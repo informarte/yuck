@@ -17,7 +17,7 @@ import yuck.test.util.ParallelParameterizedTestRunner
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[ParallelParameterizedTestRunner])
-final class UchoaBenchmark(task: MiniZincTestTask) extends MiniZincBasedTest {
+final class UchoaBenchmark(task: ZincTestTask) extends ZincBasedTest {
 
     @Test
     def solve(): Unit = {
@@ -76,7 +76,7 @@ object UchoaBenchmark extends VrpTestTaskFactory {
         .map{case (instanceName, (value, isOptimal)) => ("Uchoa/X/" + instanceName, ObjectiveValue(value, isOptimal))}
 
     // keep models aligned
-    private def verifyAgainstCpModel(task: MiniZincTestTask) = task.copy(verificationModelName = "cvrp_cp")
+    private def verifyAgainstCpModel(task: ZincTestTask) = task.copy(verificationModelName = "cvrp_cp")
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")
     def parameters = tasks.map(amendKnownBestResult).map(verifyAgainstCpModel).map(Array(_)).asJava

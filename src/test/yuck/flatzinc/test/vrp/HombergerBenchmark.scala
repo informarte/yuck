@@ -17,7 +17,7 @@ import yuck.test.util.ParallelParameterizedTestRunner
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[ParallelParameterizedTestRunner])
-final class HombergerBenchmark(task: MiniZincTestTask) extends MiniZincBasedTest {
+final class HombergerBenchmark(task: ZincTestTask) extends ZincBasedTest {
 
     @Test
     def solve(): Unit = {
@@ -141,7 +141,7 @@ object HombergerBenchmark extends VrpTestTaskFactory {
         .map{case (instanceName, value) => ("Homberger/" + instanceName, ObjectiveValue(value, false))}
 
     // keep models aligned
-    private def verifyAgainstCpModel(task: MiniZincTestTask) = task.copy(verificationModelName = "cvrptw_cp")
+    private def verifyAgainstCpModel(task: ZincTestTask) = task.copy(verificationModelName = "cvrptw_cp")
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")
     def parameters = tasks.map(amendKnownBestResult).map(verifyAgainstCpModel).map(Array(_)).asJava

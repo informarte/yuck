@@ -21,7 +21,7 @@ import yuck.util.logging.{FineLogLevel, ManagedLogHandler}
  * @author Michael Marte
  *
  */
-class MiniZincBasedTest extends IntegrationTest {
+class ZincBasedTest extends IntegrationTest {
 
     private abstract class JsNode {
         def value: JsValue
@@ -53,13 +53,13 @@ class MiniZincBasedTest extends IntegrationTest {
     private val envNode = new JsSection
     private val resultNode = new JsSection
 
-    protected def solveWithResult(task: MiniZincTestTask): Result = {
+    protected def solveWithResult(task: ZincTestTask): Result = {
         solve(task.copy(reusePreviousTestResult = false)).get
     }
 
     // Asserts when something went wrong.
     // Returns None when task.reusePreviousTestResult is true and the instance was already processed.
-    protected def solve(task: MiniZincTestTask): Option[Result] = {
+    protected def solve(task: ZincTestTask): Option[Result] = {
         logger.setThresholdLogLevel(task.logLevel)
         jsonRoot += "env" -> envNode
         logOsEnv()
@@ -70,42 +70,29 @@ class MiniZincBasedTest extends IntegrationTest {
         val problemName = task.problemName
         val modelName = if (task.modelName.isEmpty) problemName else task.modelName
         val instanceName = if (task.instanceName.isEmpty) modelName else task.instanceName
-        val (modelFilePath, dataFilePath, outputDirectoryPath) = task.directoryLayout match {
+        val outputDirectoryPath = task.directoryLayout match {
             case MiniZincExamplesLayout =>
-                ("%s/%s.mzn".format(suitePath, problemName),
-                 "",
-                 "tmp/%s/%s".format(suiteName, problemName))
+                "tmp/%s/%s".format (suiteName, problemName)
             case StandardMiniZincBenchmarksLayout =>
-                ("%s/%s/%s.mzn".format(suitePath, problemName, modelName),
-                 {
-                     val dznFilePath = "%s/%s/%s.dzn".format(suitePath, problemName, instanceName)
-                     val jsonFilePath = "%s/%s/%s.json".format(suitePath, problemName, instanceName)
-                     if (new java.io.File(dznFilePath).exists()) dznFilePath else jsonFilePath
-                 },
-                 "tmp/%s/%s/%s/%s".format(suiteName, problemName, modelName, instanceName))
+                "tmp/%s/%s/%s/%s".format(suiteName, problemName, modelName, instanceName)
             case NonStandardMiniZincBenchmarksLayout =>
-                ("%s/%s/%s.mzn".format(suitePath, problemName, instanceName),
-                 "",
-                 "tmp/%s/%s/%s".format(suiteName, problemName, instanceName))
+                "tmp/%s/%s/%s".format(suiteName, problemName, instanceName)
         }
         new java.io.File(outputDirectoryPath).mkdirs
-        val fznFilePath = "%s/problem.fzn".format(outputDirectoryPath)
         val logFilePath = "%s/yuck.log".format(outputDirectoryPath)
-        val jsonFilePath = "%s/yuck.json".format(outputDirectoryPath)
-        val dotFilePath = "%s/yuck.dot".format(outputDirectoryPath)
-        if (task.reusePreviousTestResult && new java.io.File(jsonFilePath).exists() && ! task.assertWhenUnsolved) {
+        val summaryFilePath = "%s/yuck.json".format(outputDirectoryPath)
+        if (task.reusePreviousTestResult && new java.io.File(summaryFilePath).exists() && ! task.throwWhenUnsolved) {
             None
         } else {
             jsonRoot += "result" -> resultNode
             val logFileHandler = new java.util.logging.FileHandler(logFilePath)
             logFileHandler.setFormatter(formatter)
             scoped(new ManagedLogHandler(nativeLogger, logFileHandler)) {
-                logger.log("Processing %s".format(modelFilePath))
                 logger.log("Logging into %s".format(logFilePath))
                 try {
                     val result = solve(
                         task.copy(suiteName = suiteName, modelName = modelName, instanceName = instanceName),
-                        modelFilePath, dataFilePath, fznFilePath, jsonFilePath, dotFilePath)
+                        outputDirectoryPath)
                     Some(result)
                 }
                 catch {
@@ -115,7 +102,7 @@ class MiniZincBasedTest extends IntegrationTest {
                 }
                 finally {
                     val jsonDoc = jsonRoot.value
-                    val jsonWriter = new java.io.FileWriter(jsonFilePath)
+                    val jsonWriter = new java.io.FileWriter(summaryFilePath)
                     jsonWriter.write(jsonDoc.prettyPrint)
                     jsonWriter.close()
                 }
@@ -126,31 +113,12 @@ class MiniZincBasedTest extends IntegrationTest {
     // hook for testing verification
     protected def onSolved(result: Result): Unit = {}
 
-    private def solve
-        (task: MiniZincTestTask,
-         mznFilePath: String, dznFilePath: String, fznFilePath: String, jsonFilePath: String, dotFilePath: String):
-        Result =
-    {
-        val mzn2fznCommand = mutable.ArrayBuffer(
-            "minizinc",
-            "-v",
-            "-c",
-            "--solver", "org.minizinc.mzn-fzn",
-            "-I", "resources/mzn/lib/yuck",
-            "--no-output-ozn", "--output-fzn-to-file", fznFilePath)
-        for ((key, value) <- task.dataAssignments) {
-            mzn2fznCommand ++= List("-D", "%s=%s".format(key, value))
+    private def solve(task: ZincTestTask, outputDirectoryPath: String): Result = {
+        val fznFilePath = task.sourceFormat match {
+            case FlatZinc => "%s/%s.fzn".format (task.suitePath, task.problemName)
+            case MiniZinc => flatten(task, outputDirectoryPath)
         }
-        mzn2fznCommand += mznFilePath
-        if (! dznFilePath.isEmpty) mzn2fznCommand += dznFilePath
-        val outputLines =
-            logger.withTimedLogScope("Flattening MiniZinc model") {
-                logger.withRootLogLevel(FineLogLevel) {
-                    new ProcessRunner(logger, mzn2fznCommand).call()
-                }
-            }
-        logMiniZincVersion(outputLines.head)
-        val md5Sum = computeMd5Sum(fznFilePath)
+        logger.log("Processing %s".format(fznFilePath))
         val cfg =
             task.solverConfiguration.copy(
                 restartLimit =
@@ -176,6 +144,7 @@ class MiniZincBasedTest extends IntegrationTest {
                             new FlatZincFileParser(fznFilePath, logger).call()
                         }
                     logTask(task, ast)
+                    val md5Sum = computeMd5Sum(fznFilePath)
                     logFlatZincModelStatistics(ast, md5Sum)
                     logger.withTimedLogScope("Solving problem") {
                         scoped(monitor) {
@@ -202,13 +171,14 @@ class MiniZincBasedTest extends IntegrationTest {
         logSolverStatistics(monitor)
         if (task.createDotFile) {
             logger.withTimedLogScope("Exporting constraint network to a DOT file") {
+                val dotFilePath = "%s/yuck.dot".format(outputDirectoryPath)
                 val dotWriter = new java.io.FileWriter(dotFilePath)
                 new DotExporter(result.space, dotWriter).run()
             }
         }
         if (result.isSolution) {
             onSolved(result)
-            if (task.verifySolution) {
+            if (task.sourceFormat == MiniZinc && task.verifySolution) {
                 logger.withTimedLogScope("Verifying solution") {
                     logger.withRootLogLevel(FineLogLevel) {
                         val verifier = new MiniZincSolutionVerifier(task, result, logger)
@@ -221,12 +191,49 @@ class MiniZincBasedTest extends IntegrationTest {
         } else {
             assert(
                 "No solution found, quality of best proposal was %s".format(result.costsOfBestProposal),
-                ! task.assertWhenUnsolved)
+                ! task.throwWhenUnsolved)
         }
-        if (! task.keepFlatZincFile) {
+        if (task.sourceFormat == MiniZinc && ! task.keepFlatZincFile) {
             new java.io.File(fznFilePath).delete()
         }
         result
+    }
+
+    private def flatten(task: ZincTestTask, outputDirectoryPath: String): String = {
+        require(task.sourceFormat == MiniZinc)
+        val fznFilePath = "%s/problem.fzn".format(outputDirectoryPath)
+        val (mznFilePath, dataFilePath) = task.directoryLayout match {
+            case MiniZincExamplesLayout =>
+                ("%s/%s.mzn".format(task.suitePath, task.problemName), "")
+            case StandardMiniZincBenchmarksLayout =>
+                ("%s/%s/%s.mzn".format(task.suitePath, task.problemName, task.modelName), {
+                    val dznFilePath = "%s/%s/%s.dzn".format(task.suitePath, task.problemName, task.instanceName)
+                    val jsonFilePath = "%s/%s/%s.json".format(task.suitePath, task.problemName, task.instanceName)
+                    if (new java.io.File(dznFilePath).exists()) dznFilePath else jsonFilePath
+                })
+            case NonStandardMiniZincBenchmarksLayout =>
+                ("%s/%s/%s.mzn".format(task.suitePath, task.problemName, task.instanceName), "")
+        }
+        val mzn2fznCommand = mutable.ArrayBuffer(
+            "minizinc",
+            "-v",
+            "-c",
+            "--solver", "org.minizinc.mzn-fzn",
+            "-I", "resources/mzn/lib/yuck",
+            "--no-output-ozn", "--output-fzn-to-file", fznFilePath)
+        for ((key, value) <- task.dataAssignments) {
+            mzn2fznCommand ++= List("-D", "%s=%s".format(key, value))
+        }
+        mzn2fznCommand += mznFilePath
+        if (!dataFilePath.isEmpty) mzn2fznCommand += dataFilePath
+        val outputLines =
+            logger.withTimedLogScope("Flattening MiniZinc model") {
+                logger.withRootLogLevel(FineLogLevel) {
+                    new ProcessRunner(logger, mzn2fznCommand).call()
+                }
+            }
+        logMiniZincVersion(outputLines.head)
+        fznFilePath
     }
 
     private def computeMd5Sum(filePath: String): String = {
@@ -238,7 +245,7 @@ class MiniZincBasedTest extends IntegrationTest {
         new BigInteger(1, md.digest).toString(16)
     }
 
-    private def logTask(task: MiniZincTestTask, ast: FlatZincAst): Unit = {
+    private def logTask(task: ZincTestTask, ast: FlatZincAst): Unit = {
         val problemType =
             ast.solveGoal match {
                 case Satisfy(_) => "SAT"
@@ -450,7 +457,7 @@ class MiniZincBasedTest extends IntegrationTest {
         }
     }
 
-    private def handleException(task: MiniZincTestTask, error: Throwable) = {
+    private def handleException(task: ZincTestTask, error: Throwable) = {
         def createErrorNode = {
             val node = new JsSection
             node += "type" -> JsString(error.getClass.getName)
@@ -484,7 +491,7 @@ class MiniZincBasedTest extends IntegrationTest {
                 addWarningNode()
                 nativeLogger.warning(error.getMessage)
                 nativeLogger.info(FlatZincNoSolutionFoundIndicator)
-                assert(error.getMessage, ! task.assertWhenUnsolved)
+                assert(error.getMessage, ! task.throwWhenUnsolved)
             case _: Throwable =>
                 addErrorNode()
                 nativeLogger.log(java.util.logging.Level.SEVERE, "", error)

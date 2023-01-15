@@ -13,15 +13,15 @@ import yuck.flatzinc.compiler.FlatZincCompilerResult
  * @author Michael Marte
  *
  */
-abstract class FrontEndTest extends MiniZincBasedTest {
+abstract class FrontEndTest extends ZincBasedTest {
 
     protected val task =
-        MiniZincTestTask(
+        ZincTestTask(
             directoryLayout = MiniZincExamplesLayout,
             suitePath = "resources/mzn/tests/front-end-tests",
             solverConfiguration = FlatZincSolverConfiguration(restartLimit = 0, pruneConstraintNetwork = false),
             maybeRuntimeLimitInSeconds = Some(10),
-            assertWhenUnsolved = true,
+            throwWhenUnsolved = true,
             reusePreviousTestResult = false,
             createDotFile = true)
 
@@ -56,7 +56,7 @@ abstract class FrontEndTest extends MiniZincBasedTest {
 
     }
 
-    protected implicit def createTask(problemName: String): MiniZincTestTask =
+    protected implicit def createTask(problemName: String): ZincTestTask =
         task.copy(problemName = problemName)
 
     protected final def wasIntroducedByMiniZincCompiler(x: AnyVariable): Boolean =

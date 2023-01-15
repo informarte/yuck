@@ -18,20 +18,20 @@ import yuck.flatzinc.test.util.*
  * @author Michael Marte
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class MiniZincExamples extends MiniZincBasedTest {
+final class MiniZincExamples extends ZincBasedTest {
 
     override protected val logToConsole = false
 
     private val task =
-        MiniZincTestTask(
+        ZincTestTask(
             directoryLayout = MiniZincExamplesLayout,
             suitePath = "resources/mzn/tests/minizinc-examples",
             maybeRuntimeLimitInSeconds = Some(10),
-            assertWhenUnsolved = true,
+            throwWhenUnsolved = true,
             reusePreviousTestResult = false,
             createDotFile = true)
 
-    private implicit def createTask(problemName: String): MiniZincTestTask = task.copy(problemName = problemName)
+    private implicit def createTask(problemName: String): ZincTestTask = task.copy(problemName = problemName)
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))

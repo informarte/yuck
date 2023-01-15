@@ -25,10 +25,10 @@ import yuck.flatzinc.test.util.*
  * @author Michael Marte
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class MiniZincChallenges extends MiniZincBasedTest {
+final class MiniZincChallenges extends ZincBasedTest {
 
     private val task =
-        MiniZincTestTask(
+        ZincTestTask(
             directoryLayout = StandardMiniZincBenchmarksLayout,
             suitePath = "resources/mzn/tests/minizinc-benchmarks",
             suiteName = "minizinc-challenges",

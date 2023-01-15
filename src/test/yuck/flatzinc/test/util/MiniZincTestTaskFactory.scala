@@ -35,12 +35,12 @@ abstract class MiniZincTestTaskFactory {
 
     protected def instanceFilter(file: File): Boolean = file.getName.endsWith(".dzn") || file.getName.endsWith(".json")
 
-    protected def tasks: List[MiniZincTestTask] = {
+    protected def tasks: List[ZincTestTask] = {
         val randomGenerator = new JavaRandomGenerator
         val suiteDir = new File(SuitePath)
         assert(suiteDir.exists)
         val problems = suiteDir.listFiles.filter(_.isDirectory).filter(problemFilter).sorted
-        val buf = new mutable.ArrayBuffer[MiniZincTestTask]
+        val buf = new mutable.ArrayBuffer[ZincTestTask]
         for (problem <- problems) {
             val modelFiles = listFiles(problem, modelFilter).sorted
             val dataFiles = listFiles(problem, instanceFilter).sorted
@@ -49,7 +49,7 @@ abstract class MiniZincTestTaskFactory {
                     randomGenerator.shuffle(modelFiles).take(MaybeInstancesPerProblem.getOrElse(modelFiles.size)).sorted
                 for (modelFile <- modelFileSelection) {
                     buf +=
-                        MiniZincTestTask(
+                        ZincTestTask(
                             directoryLayout = NonStandardMiniZincBenchmarksLayout,
                             suitePath = SuitePath,
                             problemName = problem.getName,
@@ -61,7 +61,7 @@ abstract class MiniZincTestTaskFactory {
                 for (modelFile <- modelFiles) {
                     for (dataFile <- dataFileSelection) {
                         buf +=
-                            MiniZincTestTask(
+                            ZincTestTask(
                                 directoryLayout = StandardMiniZincBenchmarksLayout,
                                 suitePath = SuitePath,
                                 problemName = problem.getName,

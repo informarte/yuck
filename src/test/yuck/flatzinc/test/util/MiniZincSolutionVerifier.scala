@@ -16,7 +16,7 @@ import yuck.util.logging.LazyLogger
  *
  */
 class MiniZincSolutionVerifier(
-    task: MiniZincTestTask, result: Result, logger: LazyLogger)
+                                  task: ZincTestTask, result: Result, logger: LazyLogger)
     extends Callable[Boolean]
 {
 
