@@ -13,6 +13,6 @@ predicate yuck_count_gt_set(array [int] of var set of int: x, var set of int: y,
 predicate fzn_count_gt(array [int] of var set of int: x, var set of int: y, var int: c) =
     yuck_count_gt_set(x, y, c);
 
-% TODO Remove me after release of MiniZinc 2.7.0!
+% The MiniZinc library does not support set counting.
 predicate count_gt(array [int] of var set of int: x, var set of int: y, var int: c) =
     fzn_count_gt(x, y, c);
