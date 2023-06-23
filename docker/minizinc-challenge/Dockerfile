@@ -1,4 +1,4 @@
-FROM minizinc/mznc2022:latest
+FROM minizinc/mznc2023:latest
 
 LABEL maintainer="informarte@freenet.de"
 LABEL description="Yuck is a local-search constraint solver with FlatZinc interface"
