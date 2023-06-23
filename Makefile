@@ -10,6 +10,8 @@ front-end-tests: yuck.flatzinc.test.FrontEndTestSuite
 
 minizinc-examples: yuck.flatzinc.test.TractableMiniZincExamples
 
+minizinc-challenge-intake-tests: yuck.flatzinc.test.MiniZincChallengeIntakeTests
+
 minizinc-challenges: ci-tests
 	./scripts/test-runner.py --mode ONE_JVM_PER_TEST_METHOD --archive yuck.flatzinc.test.MiniZincChallenges
 

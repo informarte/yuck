@@ -11,5 +11,6 @@ import org.junit.*
 @runners.Suite.SuiteClasses(
     Array(
         classOf[MiniZincExamples],
+        classOf[MiniZincChallengeIntakeTests],
         classOf[MiniZincChallenges]))
 class MiniZincTestSuites
