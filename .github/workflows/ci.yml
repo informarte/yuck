@@ -1,0 +1,33 @@
+name: CI
+
+on: [push]
+
+env:
+  ACTIONS_RUNNER_DEBUG: true
+  ACTIONS_STEP_DEBUG: true
+  MINIZINC_VERSION: 2.7.6
+
+jobs:
+  ci:
+    runs-on: ubuntu-20.04
+    steps:
+      - run: sudo apt install libegl1
+      - uses: actions/checkout@v3
+      - run: wget https://github.com/MiniZinc/MiniZincIDE/releases/download/$MINIZINC_VERSION/MiniZincIDE-$MINIZINC_VERSION-bundle-linux-x86_64.tgz
+      - run: tar xzf MiniZincIDE-$MINIZINC_VERSION-bundle-linux-x86_64.tgz
+      - run: ldd ./MiniZincIDE-$MINIZINC_VERSION-bundle-linux-x86_64/bin/minizinc
+      - run: ldd ./MiniZincIDE-$MINIZINC_VERSION-bundle-linux-x86_64/bin/fzn-gecode
+      - run: ldd ./MiniZincIDE-$MINIZINC_VERSION-bundle-linux-x86_64/bin/fzn-chuffed
+      - run: ./MiniZincIDE-$MINIZINC_VERSION-bundle-linux-x86_64/bin/minizinc --version
+      - run: echo "$PWD/MiniZincIDE-$MINIZINC_VERSION-bundle-linux-x86_64/bin" >> $GITHUB_PATH
+      - run: minizinc --version
+      - run: fzn-gecode -help
+      - run: fzn-chuffed --help
+      - run: make ci-tests
+      - run: tar cf logs.tar tmp/ --transform=s/^tmp/logs/
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: artifacts
+          path: logs.tar
