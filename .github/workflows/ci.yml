@@ -11,5 +11,7 @@ jobs:
       - run: ldd ./MiniZincIDE-2.7.6-bundle-linux-x86_64/bin/minizinc
       - run: ./MiniZincIDE-2.7.6-bundle-linux-x86_64/bin/minizinc --version
       - run: echo "$PWD/MiniZincIDE-2.7.6-bundle-linux-x86_64/bin" >> $GITHUB_PATH
+      - run: echo $PATH
+      - run: minizinc --version
       - uses: actions/checkout@v3
       - run: make ci-tests
