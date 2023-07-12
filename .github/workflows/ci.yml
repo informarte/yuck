@@ -5,6 +5,11 @@ on: [push]
 jobs:
   ci:
     runs-on: ubuntu-latest
+    env:
+      PATH: PATH=$PWD/MiniZincIDE-2.7.6-bundle-linux-x86_64/bin:$PATH
+      LD_LIBRARY_PATH: $PWD/MiniZincIDE-2.7.6-bundle-linux-x86_64/lib:$LD_LIBRARY_PATH
     steps:
+      - run: wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.7.6/MiniZincIDE-2.7.6-bundle-linux-x86_64.tgz
+      - run: tar xzf MiniZincIDE-2.7.6-bundle-linux-x86_64.tgz
       - uses: actions/checkout@v3
       - run: make ci-tests
