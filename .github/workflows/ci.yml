@@ -10,5 +10,6 @@ jobs:
       - run: tar xzf MiniZincIDE-2.7.6-bundle-linux-x86_64.tgz
       - run: ldd ./MiniZincIDE-2.7.6-bundle-linux-x86_64/bin/minizinc
       - run: ./MiniZincIDE-2.7.6-bundle-linux-x86_64/bin/minizinc --version
+      - run: echo "$PWD/MiniZincIDE-2.7.6-bundle-linux-x86_64/bin" >> $GITHUB_PATH
       - uses: actions/checkout@v3
-      - run: PATH=$PWD/MiniZincIDE-2.7.6-bundle-linux-x86_64/bin:$PATH LD_LIBRARY_PATH=$PWD/MiniZincIDE-2.7.6-bundle-linux-x86_64/lib:$LD_LIBRARY_PATH make ci-tests
+      - run: make ci-tests
