@@ -63,7 +63,7 @@ final case class ZincTestTask(
     maybeOptimum: Option[Long] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
     maybeHighScore: Option[Long] = None, // best ever recorded objective value
     maybeTargetObjectiveValue: Option[Long] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
-    logLevel: yuck.util.logging.LogLevel = yuck.util.logging.InfoLogLevel,
+    logLevel: yuck.util.logging.LogLevel = yuck.util.logging.FineLogLevel,
     throwWhenUnsolved: Boolean = false,
     reusePreviousTestResult: Boolean = true,
     verificationFrequency: VerificationFrequency = VerifyOnlyLastSolution,
