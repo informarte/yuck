@@ -1,6 +1,6 @@
 # Yuck
 
-[![Build Status](https://www.travis-ci.org/informarte/yuck.svg?branch=master)](https://www.travis-ci.org/informarte/yuck)
+![Build Status](https://github.com/informarte/yuck/actions/workflows/ci.yml/badge.svg)
 
 ## Yuck in a nutshell
 
