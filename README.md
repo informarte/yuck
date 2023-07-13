@@ -1,6 +1,6 @@
 # Yuck
 
-![Build Status](https://github.com/informarte/yuck/actions/workflows/ci.yml/badge.svg)
+[![Build Status](https://github.com/informarte/yuck/actions/workflows/ci.yml/badge.svg)](https://github.com/informarte/yuck/actions)
 
 ## Yuck in a nutshell
 
