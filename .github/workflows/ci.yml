@@ -10,6 +10,8 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+      - run: pwd
       - run: wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.7.6/MiniZincIDE-2.7.6-bundle-linux-x86_64.tgz
       - run: tar xzf MiniZincIDE-2.7.6-bundle-linux-x86_64.tgz
       - run: ldd ./MiniZincIDE-2.7.6-bundle-linux-x86_64/bin/minizinc
@@ -17,8 +19,6 @@ jobs:
       - run: echo "$PWD/MiniZincIDE-2.7.6-bundle-linux-x86_64/bin" >> $GITHUB_PATH
       - run: echo $PATH
       - run: minizinc --version
-      - run: pwd
-      - uses: actions/checkout@v3
       - run: pwd
       - run: make ci-tests
       - name: Upload artifacts
