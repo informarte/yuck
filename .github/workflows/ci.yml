@@ -1,4 +1,4 @@
-name: ci
+name: CI
 
 on: [push]
 
@@ -26,7 +26,7 @@ jobs:
       - run: fzn-chuffed --help
       - run: pwd
       - run: make ci-tests
-      - run: tar cf logs.tar tmp/
+      - run: tar cf logs.tar tmp/ --transform=s/^tmp/logs/
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         if: always()
