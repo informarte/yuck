@@ -17,16 +17,19 @@ jobs:
       - run: tar xzf MiniZincIDE-2.7.6-bundle-linux-x86_64.tgz
       - run: ldd ./MiniZincIDE-2.7.6-bundle-linux-x86_64/bin/minizinc
       - run: ldd ./MiniZincIDE-2.7.6-bundle-linux-x86_64/bin/fzn-gecode
+      - run: ldd ./MiniZincIDE-2.7.6-bundle-linux-x86_64/bin/fzn-chuffed
       - run: ./MiniZincIDE-2.7.6-bundle-linux-x86_64/bin/minizinc --version
       - run: echo "$PWD/MiniZincIDE-2.7.6-bundle-linux-x86_64/bin" >> $GITHUB_PATH
       - run: echo $PATH
       - run: minizinc --version
       - run: fzn-gecode -help
+      - run: fzn-chuffed --help
       - run: pwd
       - run: make ci-tests
+      - run: tar cf logs.tar tmp/
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         if: always()
         with:
           name: artifacts
-          path: tmp/
+          path: logs.tar
