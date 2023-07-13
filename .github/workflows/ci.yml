@@ -17,10 +17,13 @@ jobs:
       - run: echo "$PWD/MiniZincIDE-2.7.6-bundle-linux-x86_64/bin" >> $GITHUB_PATH
       - run: echo $PATH
       - run: minizinc --version
+      - run: pwd
       - uses: actions/checkout@v3
+      - run: pwd
       - run: make ci-tests
-      - name: Upload log files
+      - name: Upload artifacts
         uses: actions/upload-artifact@v3
+        if: always()
         with:
-          name: ci-logs
+          name: artifacts
           path: tmp/
