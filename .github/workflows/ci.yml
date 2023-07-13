@@ -10,6 +10,7 @@ jobs:
   ci:
     runs-on: ubuntu-20.04
     steps:
+      - run: sudo apt install libegl1
       - uses: actions/checkout@v3
       - run: pwd
       - run: wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.7.6/MiniZincIDE-2.7.6-bundle-linux-x86_64.tgz
