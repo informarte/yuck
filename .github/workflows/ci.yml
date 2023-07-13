@@ -15,10 +15,12 @@ jobs:
       - run: wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.7.6/MiniZincIDE-2.7.6-bundle-linux-x86_64.tgz
       - run: tar xzf MiniZincIDE-2.7.6-bundle-linux-x86_64.tgz
       - run: ldd ./MiniZincIDE-2.7.6-bundle-linux-x86_64/bin/minizinc
+      - run: ldd ./MiniZincIDE-2.7.6-bundle-linux-x86_64/bin/fzn-gecode
       - run: ./MiniZincIDE-2.7.6-bundle-linux-x86_64/bin/minizinc --version
       - run: echo "$PWD/MiniZincIDE-2.7.6-bundle-linux-x86_64/bin" >> $GITHUB_PATH
       - run: echo $PATH
       - run: minizinc --version
+      - run: fzn-gecode -help
       - run: pwd
       - run: make ci-tests
       - name: Upload artifacts
