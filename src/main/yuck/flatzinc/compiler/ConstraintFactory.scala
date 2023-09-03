@@ -210,7 +210,7 @@ final class ConstraintFactory
         case Constraint("array_bool_and", Seq(as, b), _) =>
             val as1 = ArrayConst(getArrayElems(as).filter(a => ! compilesToConst(a, True)))
             val as2 = if (as1.value.isEmpty) ArrayConst(Vector(BoolConst(true))) else as1
-            val xs = compileBoolArray(as2)
+            val xs = compileBoolArray(as2).toSet.toIndexedSeq
             val y = compileBoolExpr(b)
             def post(y: BooleanVariable): BooleanVariable = {
                 if (xs.size == 2) {
@@ -238,7 +238,7 @@ final class ConstraintFactory
         case Constraint("array_bool_or", Seq(as, b), _) =>
             val as1 = ArrayConst(getArrayElems(as).filter(a => ! compilesToConst(a, False)))
             val as2 = if (as1.value.isEmpty) ArrayConst(Vector(BoolConst(false))) else as1
-            val xs = compileBoolArray(as2)
+            val xs = compileBoolArray(as2).toSet.toIndexedSeq
             val y = compileBoolExpr(b)
             def post(y: BooleanVariable): BooleanVariable = {
                 if (xs.size == 2) {

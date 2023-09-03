@@ -1,0 +1,6 @@
+var bool: x;
+var bool: y;
+
+constraint array_bool_and([x, y, x], true);
+
+solve satisfy;

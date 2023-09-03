@@ -20,6 +20,34 @@ final class FlatZincBaseTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
+    def testArrayBoolAndWithDuplicateVariable(): Unit = {
+        val result = solveWithResult(task.copy(sourceFormat = FlatZinc, problemName = "array_bool_and_test_with_duplicate_variable", solverConfiguration = task.solverConfiguration.copy(runPresolver = false)))
+        assertEq(result.space.searchVariables.map(_.name), Set("x", "y"))
+        assert(result.space.problemParameters.isEmpty)
+        assertEq(result.space.channelVariables.size, 2)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 2)
+        assertEq(result.space.numberOfConstraints, 3)
+        assertEq(result.space.numberOfConstraints[And], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testArrayBoolOrWithDuplicateVariable(): Unit = {
+        val result = solveWithResult(task.copy(sourceFormat = FlatZinc, problemName = "array_bool_or_test_with_duplicate_variable", solverConfiguration = task.solverConfiguration.copy(runPresolver = false)))
+        assertEq(result.space.searchVariables.map(_.name), Set("x", "y"))
+        assert(result.space.problemParameters.isEmpty)
+        assertEq(result.space.channelVariables.size, 2)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 2)
+        assertEq(result.space.numberOfConstraints, 3)
+        assertEq(result.space.numberOfConstraints[Or], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
     def testVarArrayAccess(): Unit = {
         val result = solveWithResult(task.copy(problemName = "var_array_access"))
         assertEq(result.space.numberOfConstraints[ElementVar[_]], 3)
