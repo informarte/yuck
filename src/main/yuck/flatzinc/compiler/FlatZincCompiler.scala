@@ -13,7 +13,7 @@ import yuck.util.logging.LazyLogger
  *
  * There are a lot of constraints on the execution order of the stages,
  * see doc/design/compiler/compiler-stage-ordering.mzn.
- * (The problem has 3 solutions one of which is implemented here.)
+ * (The problem has 5 solutions one of which is implemented here.)
  *
  * @author Michael Marte
 */

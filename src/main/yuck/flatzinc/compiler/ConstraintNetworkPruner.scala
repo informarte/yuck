@@ -1,10 +1,14 @@
 package yuck.flatzinc.compiler
 
-import yuck.core.RandomGenerator
+import scala.collection.mutable
+import scala.collection.Set
+
+import yuck.constraints.{OptimizationGoalTracker, SatisfactionGoalTracker}
+import yuck.core.{AnyVariable, Constraint}
 import yuck.flatzinc.ast.{Annotation, Term}
 
 /**
- * Removes useless constraints from the constraint network.
+ * Retracts useless constraints from the constraint network.
  *
  * The implementation assumes that objective variables have already been registered.
  *
@@ -15,25 +19,48 @@ final class ConstraintNetworkPruner
     extends CompilationPhase
 {
 
-    private def registerOutputVariables(): Unit = {
+    import HighPriorityImplicits.*
+
+    private def findOutputVariables: Set[AnyVariable] = {
+        val result = new mutable.HashSet[AnyVariable]
         for (decl <- cc.ast.varDecls) {
             for (annotation <- decl.annotations) {
                 annotation match {
                     case Annotation(Term("output_var", _)) =>
-                        cc.space.registerOutputVariable(compileAnyExpr(Term(decl.id, Nil)))
+                        result.add(compileAnyExpr(Term(decl.id, Nil)))
                     case Annotation(Term("output_array", _)) =>
                         for (x <- compileAnyArray(Term(decl.id, Nil))) {
-                            cc.space.registerOutputVariable(x)
+                            result.add(x)
                         }
                     case _ =>
                 }
             }
         }
+        result
+    }
+
+    private def findObjectiveVariables: Set[AnyVariable] =
+        cc.space.channelVariables.filter(cc.space.isObjectiveVariable(_))
+
+    private def isUseless(isImportant: AnyVariable => Boolean, constraint: Constraint): Boolean = {
+        constraint match {
+            case _: LevelWeightMaintainer => false
+            case _: OptimizationGoalTracker[_] => false
+            case _: SatisfactionGoalTracker => false
+            case _ =>
+                constraint.outVariables.forall(x =>
+                    ! isImportant(x) &&
+                    cc.space.directlyAffectedConstraints(x).isEmpty)
+        }
     }
 
     override def run() = {
-        registerOutputVariables()
-        cc.space.removeUselessConstraints()
+        val importantVars = new mutable.HashSet[AnyVariable]
+        importantVars
+            .addAll(cc.costVars)
+            .addAll(findOutputVariables)
+            .addAll(findObjectiveVariables)
+        cc.space.retractUselessConstraints(isUseless(importantVars.contains, _))
     }
 
 }

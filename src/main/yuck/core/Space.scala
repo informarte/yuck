@@ -177,18 +177,6 @@ final class Space(
     inline def isObjectiveVariable(x: AnyVariable): Boolean =
         objectiveVariables.contains(x)
 
-    private val outputVariables = new mutable.HashSet[AnyVariable]
-
-    /** Registers the given variable as output variable. */
-    def registerOutputVariable(x: AnyVariable): Space = {
-        outputVariables += x
-        this
-    }
-
-    /** Returns true iff the given variable is an output variable. */
-    inline def isOutputVariable(x: AnyVariable): Boolean =
-        outputVariables.contains(x)
-
     /** Assigns the given value to the given variable. */
     def setValue[V <: Value[V]](x: Variable[V], a: V): Space = {
         if (checkAssignmentsToNonChannelVariables && (isProblemParameter(x) || isSearchVariable(x))) {
@@ -362,6 +350,33 @@ final class Space(
         this
     }
 
+    /**
+     * Retracts the given constraint.
+     *
+     * Throws if the given constraint feeds into another constraint.
+     */
+    def retract(constraint: Constraint): Space = {
+        logger.loggg("Retracting %s".format(constraint))
+        require(
+            constraint.outVariables.forall(x => directlyAffectedConstraints(x).isEmpty),
+            "%s feeds into another constraint".format(constraint))
+        for (x <- constraint.inVariables.toSet) {
+            deregisterInflow(x, constraint)
+        }
+        for (x <- constraint.outVariables) {
+            deregisterOutflow(x)
+        }
+        removeFromFlowModel(constraint)
+        constraints -= constraint
+        if (isImplicitConstraint(constraint)) {
+            implicitConstraints -= constraint
+            inVariablesOfImplicitConstraints --= constraint.inVariables
+        }
+        objectiveVariables --= constraint.outVariables
+        constraintOrder = null
+        this
+    }
+
     /** Returns the number of constraints that were posted. */
     def numberOfConstraints: Int = constraints.size
 
@@ -408,38 +423,15 @@ final class Space(
     /** Returns the number of constraints that were posted and later registered as implicit. */
     def numberOfImplicitConstraints: Int = implicitConstraints.size
 
-    /**
-     * This method finds and removes useless constraints.
-     *
-     * A constraint is considered useful if one of its output variables is an objective or output variable
-     * or input to another constraint.
-     */
-    def removeUselessConstraints(): Space = {
+    /** Finds and retracts useless constraints. */
+    def retractUselessConstraints(isUseless: Constraint => Boolean): Space = {
         val uselessConstraints = new mutable.HashSet[Constraint]
         while {
             uselessConstraints.clear()
-            for (constraint <- constraints) {
-                if (! isImplicitConstraint(constraint) &&
-                    constraint.outVariables.forall(
-                        x => ! isOutputVariable(x) && ! isObjectiveVariable(x) && directlyAffectedConstraints(x).isEmpty))
-                {
-                    uselessConstraints += constraint
-                }
-            }
-            for (constraint <- uselessConstraints) {
-                logger.log("Removing useless constraint %s".format(constraint))
-                for (x <- constraint.inVariables.toSet) {
-                    deregisterInflow(x, constraint)
-                }
-                for (x <- constraint.outVariables) {
-                    deregisterOutflow(x)
-                }
-                removeFromFlowModel(constraint)
-                constraints -= constraint
-            }
-            (! uselessConstraints.isEmpty)
+            constraints.view.filter(isUseless).foreach(uselessConstraints.add)
+            uselessConstraints.foreach(retract)
+            !uselessConstraints.isEmpty
         } do ()
-        constraintOrder = null
         this
     }
 

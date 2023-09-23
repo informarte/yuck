@@ -45,8 +45,5 @@ constraint ObjectiveFactory < ConstraintNetworkPruner;
 /* NeighbourhoodFactory departs from the objective produced by ObjectiveFactory */
 constraint ObjectiveFactory < NeighbourhoodFactory;
 
-/* Keep the hot-spot trackers produced by NeighbourhoodFactory */
-constraint ConstraintNetworkPruner < NeighbourhoodFactory;
-
 /* Domains must not shrink after identification of implicit constraints */
 constraint Presolver < NeighbourhoodFactory;
