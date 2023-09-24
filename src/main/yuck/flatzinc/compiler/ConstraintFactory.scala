@@ -120,6 +120,7 @@ final class ConstraintFactory
             .iterator
             .flatMap(constraint =>
                 compileConstraint(if (cc.cfg.attachGoals) Some(new FlatZincGoal(constraint)) else None, constraint))
+        optimizeIntDomainEnforcement()
     }
 
     private val Count = "yuck_count_(.*)_(.*)".r
@@ -159,7 +160,7 @@ final class ConstraintFactory
         case Constraint("bool2int", Seq(a, b), _) =>
             def functionalCase = {
                 cc.space.post(new Bool2Int1(nextConstraintId(), maybeGoal, a, b))
-                Nil
+                enforceIntDomain(b)
             }
             def generalCase = {
                 val costs = createBoolChannel()
@@ -170,7 +171,7 @@ final class ConstraintFactory
         case Constraint("bool2costs", Seq(a, b), _) =>
             def functionalCase = {
                 cc.space.post(new Bool2Costs1(nextConstraintId(), maybeGoal, a, b))
-                Nil
+                enforceIntDomain(b)
             }
             def generalCase = {
                 val costs = createBoolChannel()
@@ -181,7 +182,7 @@ final class ConstraintFactory
         case Constraint("bool_not", Seq(a, b), _) =>
             def functionalCase = {
                 cc.space.post(new Not(nextConstraintId(), maybeGoal, a, b))
-                Nil
+                enforceBoolDomain(b)
             }
             def generalCase = {
                 val costs = createBoolChannel()
@@ -222,7 +223,7 @@ final class ConstraintFactory
             }
             def functionalCase = {
                 post(y)
-                Nil
+                enforceBoolDomain(y)
             }
             def generalCase = {
                 val costs = if (xs.size == 1) xs(0) else post(createBoolChannel())
@@ -250,7 +251,7 @@ final class ConstraintFactory
             }
             def functionalCase = {
                 post(y)
-                Nil
+                enforceBoolDomain(y)
             }
             def generalCase = {
                 val costs = if (xs.size == 1) xs(0) else post(createBoolChannel())
@@ -395,7 +396,7 @@ final class ConstraintFactory
         case Constraint("int_lin_eq", Seq(as, bs, c), _) =>
             def functionalCase = {
                 compileLinearCombination[IntegerValue](maybeGoal, as, bs, Some(c))
-                Nil
+                enforceIntDomain(c)
             }
             def generalCase = {
                 List(compileLinearConstraint[IntegerValue](maybeGoal, as, bs, EqRelation, c))
@@ -404,7 +405,7 @@ final class ConstraintFactory
         case Constraint("int_lin_eq_reif", Seq(as, bs, c, r), _) =>
             def functionalCase = {
                 compileLinearConstraint[IntegerValue](maybeGoal, as, bs, EqRelation, c, Some(r))
-                Nil
+                enforceBoolDomain(r)
             }
             def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
@@ -415,7 +416,7 @@ final class ConstraintFactory
         case Constraint("int_lin_ne_reif", Seq(as, bs, c, r), _) =>
             def functionalCase = {
                 compileLinearConstraint[IntegerValue](maybeGoal, as, bs, NeRelation, c, Some(r))
-                Nil
+                enforceBoolDomain(r)
             }
             def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
@@ -426,7 +427,7 @@ final class ConstraintFactory
         case Constraint("int_lin_le_reif", Seq(as, bs, c, r), _) =>
             def functionalCase = {
                 compileLinearConstraint[IntegerValue](maybeGoal, as, bs, LeRelation, c, Some(r))
-                Nil
+                enforceBoolDomain(r)
             }
             def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
@@ -477,7 +478,7 @@ final class ConstraintFactory
         case Constraint("set_in_reif", Seq(a, b, r), _) =>
             def functionalCase = {
                 cc.space.post(new Contains(nextConstraintId(), maybeGoal, a, b, r))
-                Nil
+                enforceBoolDomain(r)
             }
             def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
@@ -490,7 +491,7 @@ final class ConstraintFactory
         case Constraint("set_subset_reif", Seq(a, b, r), _) =>
             def functionalCase = {
                 cc.space.post(new Subset(nextConstraintId(), maybeGoal, a, b, r))
-                Nil
+                enforceBoolDomain(r)
             }
             def generalCase = {
                 compileReifiedConstraint(maybeGoal, constraint)
@@ -678,7 +679,7 @@ final class ConstraintFactory
         val Constraint(Reif(name), Seq(_, _, r), _) = constraint: @unchecked
         def functionalCase = {
             compileOrderingConstraint[V](maybeGoal, constraint.copy(id = name, constraint.params.take(2)), relation, Some(r))
-            Nil
+            enforceBoolDomain(r)
         }
         def generalCase = {
             compileReifiedConstraint(maybeGoal, constraint)
@@ -703,7 +704,7 @@ final class ConstraintFactory
         val y = outHelper.compileExpr(b)
         def functionalCase = {
             cc.space.post(constraintFactory(nextConstraintId(), maybeGoal, x, y))
-            Nil
+            enforceDomain(y)
         }
         def generalCase = {
             val channel = outHelper.createChannel()
@@ -733,7 +734,7 @@ final class ConstraintFactory
         val y = outHelper.compileExpr(b)
         def functionalCase = {
             cc.space.post(constraintFactory(nextConstraintId(), maybeGoal, xs, y))
-            Nil
+            enforceDomain(y)
         }
         def generalCase = {
             val channel = outHelper.createChannel()
@@ -766,7 +767,7 @@ final class ConstraintFactory
         val z = outHelper.compileExpr(c)
         def functionalCase = {
             cc.space.post(constraintFactory(nextConstraintId(), maybeGoal, x, y, z))
-            Nil
+            enforceDomain(z)
         }
         def generalCase = {
             val channel = outHelper.createChannel()
@@ -809,7 +810,7 @@ final class ConstraintFactory
         val bins = items1.map(_.bin)
         def functionalCase = {
             cc.space.post(new BinPacking[Load](nextConstraintId(), maybeGoal, items1, loads))
-            Nil
+            loads.values.flatMap(enforceDomain)
         }
         def generalCase = {
             val loads1: immutable.Map[Int, NumericalVariable[Load]] = {
@@ -823,11 +824,15 @@ final class ConstraintFactory
             }
             cc.space.post(new BinPacking[Load](nextConstraintId(), maybeGoal, items1, loads1))
             val deltas: Iterable[BooleanVariable] =
-                for ((bin, load) <- loads if load != loads1(bin)) yield {
-                    val delta = createBoolChannel()
-                    cc.space.post(new Eq[Load](nextConstraintId(), maybeGoal, load, loads1(bin), delta))
-                    delta
-                }
+                loads.flatMap((bin, load) =>
+                    if (load == loads1(bin))  {
+                        enforceDomain(load)
+                    } else {
+                        val delta = createBoolChannel()
+                        cc.space.post(new Eq[Load](nextConstraintId(), maybeGoal, load, loads1(bin), delta))
+                        List(delta)
+                    }
+                )
             deltas
         }
         compileConstraint(constraint, loads.values, functionalCase, generalCase)
@@ -916,13 +921,17 @@ final class ConstraintFactory
                     startNodes, endNodes, succ, safeToInt(offset), arrivalTimes1, serviceTimes, travelTimes,
                     withWaiting, totalTravelTime1, costs))
             val pairs = (arrivalTimes :+ totalTravelTime).zip(arrivalTimes1 :+ totalTravelTime1)
-            val deltas =
-                for ((x, x1) <- pairs if x != x1) yield {
-                    val delta = createBoolChannel()
-                    cc.space.post(new Eq[Time](nextConstraintId(), maybeGoal, x, x1, delta))
-                    delta
-                }
-            deltas.view :+ costs
+            val deltas: Iterable[BooleanVariable] =
+                pairs.flatMap((x, x1) =>
+                    if (x == x1) {
+                        enforceDomain(x)
+                    } else {
+                        val delta = createBoolChannel()
+                        cc.space.post(new Eq[Time](nextConstraintId(), maybeGoal, x, x1, delta))
+                        List(delta)
+                    }
+                )
+            deltas.view.concat(List(costs))
         }
         compileConstraint(
             constraint,
@@ -1026,7 +1035,7 @@ final class ConstraintFactory
             } else {
                 cc.space.post(new CountVar[V](nextConstraintId(), maybeGoal, xs, y, m))
             }
-            Nil
+            enforceIntDomain(m)
         }
         def generalCase = {
             val n = createNonNegativeIntChannel()
@@ -1063,7 +1072,7 @@ final class ConstraintFactory
         val Constraint(Reif(name), Seq(_, _, _, r), _) = constraint: @unchecked
         def functionalCase = {
             compileCountConstraint[V](maybeGoal, constraint.copy(id = name, constraint.params.take(3)), Some(r))
-            Nil
+            enforceBoolDomain(r)
         }
         def generalCase = {
             compileReifiedConstraint(maybeGoal, constraint)
@@ -1107,7 +1116,7 @@ final class ConstraintFactory
         }
         def functionalCase = {
             post(y)
-            Nil
+            enforceDomain(y)
         }
         def generalCase = {
             val channel = post(createOrdChannel[V]())
@@ -1137,7 +1146,7 @@ final class ConstraintFactory
         }
         def functionalCase = {
             post(y)
-            Nil
+            enforceDomain(y)
         }
         def generalCase = {
             val channel = post(createOrdChannel[V]())
@@ -1161,7 +1170,7 @@ final class ConstraintFactory
         } else if (cc.impliedConstraints.contains(constraint)) {
             def functionalCase = {
                 cc.space.post(new Conjunction(nextConstraintId(), maybeGoal, Nil, satisfied))
-                Nil
+                enforceBoolDomain(satisfied)
             }
             def generalCase = {
                 List(satisfied)
@@ -1171,7 +1180,7 @@ final class ConstraintFactory
             val costs0 = compileConstraint(maybeGoal, constraint).toIndexedSeq
             def functionalCase = {
                 cc.space.post(new Conjunction(nextConstraintId(), maybeGoal, costs0, satisfied))
-                Nil
+                enforceBoolDomain(satisfied)
             }
             def generalCase = {
                 val costs = createBoolChannel()
@@ -1185,6 +1194,101 @@ final class ConstraintFactory
                 List(costs)
             }
             compileConstraint(reifiedConstraint, List(satisfied), functionalCase, generalCase)
+        }
+    }
+
+    private object DomainEnforcementGoal extends Goal("Domain enforcement")
+
+    private def enforceDomain(x: AnyVariable): List[BooleanVariable] = {
+        x match {
+            case x: BooleanVariable => enforceBoolDomain(x)
+            case x: IntegerVariable => enforceIntDomain(x)
+            case x: IntegerSetVariable => enforceIntSetDomain(x)
+        }
+    }
+
+    private def enforceBoolDomain(x: BooleanVariable): List[BooleanVariable] = {
+        val dx = x.domain
+        if (dx.isSingleton) {
+            if (cc.space.isChannelVariable(x)) {
+                if (dx.singleValue.truthValue) {
+                    List(x)
+                } else {
+                    val costs = createBoolChannel()
+                    cc.space.post(new Not(nextConstraintId(), Some(DomainEnforcementGoal), x, costs))
+                    List(costs)
+                }
+            } else {
+                cc.space.setValue(x, dx.singleValue)
+                Nil
+            }
+        } else {
+            Nil
+        }
+    }
+
+    private def enforceIntDomain(x: IntegerVariable): List[BooleanVariable] = {
+        val dx = x.domain
+        if (dx.isBounded) {
+            if (cc.space.isChannelVariable(x)) {
+                val costs = createBoolChannel()
+                cc.space.post(new Contains(nextConstraintId(), Some(DomainEnforcementGoal), x, x.domain, costs))
+                List(costs)
+            } else if (dx.isSingleton) {
+                cc.space.setValue(x, dx.singleValue)
+                Nil
+            } else {
+                Nil
+            }
+        } else {
+            Nil
+        }
+    }
+
+    private def enforceIntSetDomain(x: IntegerSetVariable): List[BooleanVariable] = {
+        val dx = x.domain
+        if (dx.isBounded) {
+            if (cc.space.isChannelVariable(x)) {
+                val costs = createBoolChannel()
+                dx match {
+                    case dx: IntegerPowersetDomain =>
+                        cc.space.post(new Subset(nextConstraintId(), Some(DomainEnforcementGoal), x, dx.base, costs))
+                    case dx: SingletonIntegerSetDomain =>
+                        cc.space.post(new Eq(nextConstraintId(), Some(DomainEnforcementGoal), x, dx.base, costs))
+                }
+                List(costs)
+            } else if (dx.isSingleton) {
+                cc.space.setValue(x, dx.singleValue)
+                Nil
+            } else {
+                Nil
+            }
+        } else {
+            Nil
+        }
+    }
+
+    private def optimizeIntDomainEnforcement(): Unit = {
+        val intDomainEnforcementConstraints =
+            cc.costVars.iterator
+                .map(cc.space.maybeDefiningConstraint(_))
+                .filter(_.isDefined)
+                .map(_.get)
+                .filter(_.isInstanceOf[Contains])
+                .filter(_.maybeGoal == Some(DomainEnforcementGoal))
+                .to(immutable.ArraySeq)
+        if (intDomainEnforcementConstraints.size > 32) {
+            // When there are many integer channels, we enforce their domains using a single InDomain constraint.
+            // This way we speed up neighbourhood generation and reduce the overhead of goal tracking.
+            intDomainEnforcementConstraints.foreach(cc.space.retract)
+            cc.costVars --= intDomainEnforcementConstraints.iterator.map(_.outVariables.head.asInstanceOf[BooleanVariable])
+            val xs = intDomainEnforcementConstraints.map(_.inVariables.head.asInstanceOf[IntegerVariable])
+            val costs = createBoolChannel()
+            cc.space.post(new InDomain(nextConstraintId(), Some(DomainEnforcementGoal), xs, costs))
+            cc.costVars += costs
+        } else {
+            // InDomain comes with more overhead than Contains and, when there are only a few integer channels,
+            // a set of Contains constraints is faster than a single InDomain constraint.
         }
     }
 

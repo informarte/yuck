@@ -41,7 +41,10 @@ def createDb(cursor):
         'quality INT, '\
         'md5sum TEXT, '\
         'number_of_variables INT CONSTRAINT result_number_of_variables_constraint CHECK (number_of_variables >= 0), '\
+        'number_of_search_variables INT CONSTRAINT result_number_of_search_variables_constraint CHECK (number_of_search_variables >= 0), '\
+        'number_of_channel_variables INT CONSTRAINT result_number_of_channel_variables_constraint CHECK (number_of_channel_variables >= 0), '\
         'number_of_constraints INT CONSTRAINT result_number_of_constraints_constraint CHECK (number_of_constraints >= 0), '\
+        'number_of_implicit_constraints INT CONSTRAINT result_number_of_implicit_constraints_constraint CHECK (number_of_implicit_constraints >= 0), '\
         'area DOUBLE CONSTRAINT result_area_constraint CHECK (area >= 0), '\
         'solving_time_in_seconds DOUBLE CONSTRAINT result_solving_time_in_seconds_constraint CHECK (solving_time_in_seconds >= 0), '\
         'runtime_to_best_solution_in_seconds DOUBLE CONSTRAINT result_runtime_to_best_solution_in_seconds_constraint CHECK (runtime_in_seconds >= 0), '\
@@ -66,7 +69,7 @@ def importResults(args, file, cursor):
         print("No model statistics (FlatZinc compiler error?)")
     else:
         cursor.execute(
-            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             (args.run,
              solver['name'] if solver else None,
              solver['version'] if solver else None,
@@ -82,7 +85,10 @@ def importResults(args, file, cursor):
              result.get('quality') if result else None,
              flatZincModelStatistics.get('md5sum') if flatZincModelStatistics else None,
              yuckModelStatistics['number-of-search-variables'] + yuckModelStatistics['number-of-channel-variables'] if yuckModelStatistics else None,
+             yuckModelStatistics['number-of-search-variables'] if yuckModelStatistics else None,
+             yuckModelStatistics['number-of-channel-variables'] if yuckModelStatistics else None,
              yuckModelStatistics['number-of-constraints'] if yuckModelStatistics else None,
+             yuckModelStatistics['number-of-implicit-constraints'] if yuckModelStatistics else None,
              solverStatistics.get('area') if solverStatistics else None,
              solverStatistics.get('solving-time-in-seconds') if solverStatistics else None,
              solverStatistics.get('runtime-to-best-solution-in-seconds') if solverStatistics else None,
