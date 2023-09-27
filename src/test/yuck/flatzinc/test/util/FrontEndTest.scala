@@ -63,7 +63,7 @@ abstract class FrontEndTest extends ZincBasedTest {
         x.name.startsWith("X_INTRODUCED")
 
     protected final def wasIntroducedByYuck(x: AnyVariable): Boolean =
-        x.name.isEmpty
+        x.name.isEmpty || x.name == "_YUCK_LB" || x.name == "_YUCK_UB"
 
     protected final def isUserDefined(x: AnyVariable): Boolean =
         ! wasIntroducedByMiniZincCompiler(x) && ! wasIntroducedByYuck(x)

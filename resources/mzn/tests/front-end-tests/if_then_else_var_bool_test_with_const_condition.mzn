@@ -1,16 +1,16 @@
 var bool: c = true;
-var bool: d;
-var bool: e;
-var bool: x = if c then d else e endif;
-var bool: y = if not c then d else e endif;
+var bool: u;
+var bool: v;
+var bool: x = if c then u else v endif;
+var bool: y = if not c then u else v endif;
 
-constraint x = not y;
+constraint x != y;
 
 solve satisfy;
 
 output [
     "c = ", show(c), "\n",
-    "d = ", show(d), "\n",
-    "e = ", show(e), "\n",
+    "u = ", show(u), "\n",
+    "v = ", show(v), "\n",
     "x = ", show(x), "\n",
     "y = ", show(y)];

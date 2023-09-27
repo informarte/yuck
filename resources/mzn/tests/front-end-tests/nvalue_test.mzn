@@ -3,7 +3,7 @@
 include "nvalue.mzn";
 
 array [1..3] of var int: x;
-var 1..2: n;
+var 0..3: n;
 
 constraint x[1] in 1..2;
 constraint x[2] in 2..4;

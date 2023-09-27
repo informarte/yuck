@@ -4,9 +4,11 @@ import org.junit.*
 import org.junit.experimental.categories.*
 
 import scala.language.implicitConversions
+import scala.reflect.ClassTag
+
 import yuck.constraints.*
 import yuck.core.{given, *}
-import yuck.flatzinc.compiler.Bool2Costs2
+import yuck.flatzinc.compiler.{Bool2Costs2, LevelWeightMaintainer}
 import yuck.flatzinc.test.util.*
 import yuck.test.util.ParallelTestRunner
 
@@ -109,16 +111,10 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testBinPackingReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_reif_test"))
         assertEq(result.space.searchVariables.size, 6)
-        assertEq(result.space.channelVariables.size, 12)
+        assertEq(result.space.channelVariables.size, 9)
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 7)
-        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
-        assertEq(result.space.numberOfConstraints, 11)
-        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.space.numberOfConstraints[Bool2Costs2], 1)
-        assertEq(result.space.numberOfConstraints[Conjunction], 2)
-        assertEq(result.space.numberOfConstraints[Contains], 3)
-        assertEq(result.space.numberOfConstraints[Le[_]], 3)
-        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 2)
+        checkBinPackingReifConstraintNetwork[Le[_]](result)
     }
 
     @Test
@@ -141,16 +137,10 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testBinPackingCapaReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_capa_reif_test"))
         assertEq(result.space.searchVariables.size, 6)
-        assertEq(result.space.channelVariables.size, 12)
+        assertEq(result.space.channelVariables.size, 9)
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 7)
-        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
-        assertEq(result.space.numberOfConstraints, 11)
-        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.space.numberOfConstraints[Bool2Costs2], 1)
-        assertEq(result.space.numberOfConstraints[Conjunction], 2)
-        assertEq(result.space.numberOfConstraints[Contains], 3)
-        assertEq(result.space.numberOfConstraints[Le[_]], 3)
-        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 2)
+        checkBinPackingReifConstraintNetwork[Le[_]](result)
     }
 
     @Test
@@ -179,6 +169,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.numberOfConstraints, 2)
         assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints(constraint => constraint.isInstanceOf[Conjunction] && constraint.inVariables.isEmpty), 1)
     }
 
     @Test
@@ -186,13 +177,12 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testBinPackingLoadWithEqualLoads(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_equal_loads"))
         assertEq(result.space.searchVariables.size, 6)
-        assertEq(result.space.channelVariables.size, 7)
+        assertEq(result.space.channelVariables.size, 6)
         assertEq(result.space.channelVariables.count(isUserDefined), 1)
-        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 6)
-        assertEq(result.space.numberOfConstraints, 6)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
+        assertEq(result.space.numberOfConstraints, 5)
         assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[Contains], 1)
         assertEq(result.space.numberOfConstraints[Eq[_]], 2)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
@@ -237,12 +227,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(isUserDefined), 3)
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 1)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
-        assertEq(result.space.numberOfConstraints, 8)
-        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.space.numberOfConstraints[Bool2Costs2], 1)
-        assertEq(result.space.numberOfConstraints[Conjunction], 2)
-        assertEq(result.space.numberOfConstraints[Contains], 3)
-        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
+        checkBinPackingReifConstraintNetwork[Contains](result)
     }
 
     @Test
@@ -250,14 +235,37 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testBinPackingLoadFn(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_fn_test"))
         assertEq(result.space.searchVariables.size, 6)
-        assertEq(result.space.channelVariables.size, 7)
+        assertEq(result.space.channelVariables.size, 6)
         assertEq(result.space.channelVariables.count(isUserDefined), 1)
-        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 6)
-        assertEq(result.space.numberOfConstraints, 6)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
+        assertEq(result.space.numberOfConstraints, 5)
         assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[Contains], 1)
         assertEq(result.space.numberOfConstraints[Eq[_]], 2)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
+    }
+
+    private def checkBinPackingReifConstraintNetwork[T <: Constraint](result: Result)(using classTag: ClassTag[T]): Unit = {
+        assertEq(result.space.numberOfConstraints, 8)
+        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
+        assertEq(result.space.numberOfConstraints[Bool2Costs2], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 2)
+        assertEq(
+            result.space.numberOfConstraints(constraint =>
+                constraint.isInstanceOf[Conjunction] &&
+                    constraint.inVariables.size == 3 &&
+                    constraint.inVariables.forall(x => classTag.runtimeClass.isInstance(result.space.definingConstraint(x))) &&
+                    constraint.outVariables.size == 1 &&
+                    result.space.directlyAffectedConstraints(constraint.outVariables.head).forall(_.isInstanceOf[Bool2Costs2])),
+            1)
+        assertEq(
+            result.space.numberOfConstraints(constraint =>
+                constraint.isInstanceOf[Conjunction] &&
+                    constraint.inVariables.size == 1 &&
+                    result.space.definingConstraint(constraint.inVariables.head).isInstanceOf[Bool2Costs2] &&
+                    constraint.outVariables.toSeq == result.objective.objectiveVariables),
+            1)
+        assertEq(result.space.numberOfConstraints(classTag.runtimeClass.isInstance), 3)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
@@ -515,7 +523,17 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     private def testCount(problemName: String, relation: OrderingRelation, inverseRelation: Boolean = false): Unit = {
         // The MiniZinc library does not support set counting.
         val result = solveWithResult(task.copy(problemName = problemName, verificationFrequency = NoVerification))
-        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 0)
+        assertEq(result.space.channelVariables.size, 5)
+        if (relation == EqRelation) {
+            assertEq(result.space.searchVariables.size, 11)
+            assertEq(result.space.searchVariables.map(_.name).filterNot(_.startsWith("x")), Set("y"))
+            assertEq(result.space.channelVariables.filter(isUserDefined).map(_.name), Set("c"))
+            assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
+        } else {
+            assertEq(result.space.searchVariables.size, 12)
+            assertEq(result.space.searchVariables.map(_.name).filterNot(_.startsWith("x")), Set("c", "y"))
+            assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
+        }
         assertEq(result.space.numberOfConstraints, 6)
         assertEq(result.space.numberOfConstraints[CountConst[_]], 1)
         assertEq(result.space.numberOfConstraints[CountVar[_]], 1)
@@ -546,7 +564,11 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     private def testCountReif(problemName: String, relation: OrderingRelation, inverseRelation: Boolean = false): Unit = {
         // The MiniZinc library does not support set counting.
         val result = solveWithResult(task.copy(problemName = problemName, verificationFrequency = NoVerification))
-        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 0)
+        assertEq(result.space.searchVariables.size, 12)
+        assertEq(result.space.searchVariables.map(_.name).filterNot(_.startsWith("x")), Set("c[2]", "y[2]"))
+        assertEq(result.space.channelVariables.size, 6)
+        assertEq(result.space.channelVariables.filter(isUserDefined).map(_.name), Set("b[1]", "b[2]"))
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
         assertEq(result.space.numberOfConstraints, 7)
         assertEq(result.space.numberOfConstraints[CountConst[_]], 1)
         assertEq(result.space.numberOfConstraints[CountVar[_]], 1)
@@ -586,17 +608,18 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         // The MiniZinc library does not support set counting.
         val result = solveWithResult(task.copy(problemName = problemName, verificationFrequency = NoVerification))
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 0)
-        assertEq(result.space.numberOfConstraints, 6)
-        assertEq(result.space.numberOfConstraints[CountConst[_]], 1)
-        assertEq(result.space.numberOfConstraints[CountVar[_]], 1)
+        assertEq(result.space.numberOfConstraints, 9)
+        assertEq(result.space.numberOfConstraints[CountConst[_]], 2)
+        assertEq(result.space.numberOfConstraints[CountVar[_]], 2)
         assertEq(result.space.numberOfConstraints[Contains], 2)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
+        assertEq(result.space.numberOfConstraints[SumConstraint[_]], 1)
         val xs = result.compilerResult.arrays("x")
         val ys = result.compilerResult.arrays("y")
         val cs = result.compilerResult.arrays("c")
-        assertEq(ys.size, 2)
-        assertEq(cs.size, 2)
+        assertEq(ys.size, 4)
+        assertEq(cs.size, 4)
         val as = xs.map(result.assignment.value)
         val bs = ys.map(result.assignment.value)
         val ns = bs.map(b => as.count(_ == b))
@@ -736,13 +759,12 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testGlobalCardinality(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_test"))
         assertEq(result.space.searchVariables.size, 3)
-        assertEq(result.space.channelVariables.size, 9)
+        assertEq(result.space.channelVariables.size, 8)
         assertEq(result.space.channelVariables.count(isUserDefined), 1)
-        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 8)
-        assertEq(result.space.numberOfConstraints, 7)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 7)
+        assertEq(result.space.numberOfConstraints, 6)
         assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[Contains], 1)
         assertEq(result.space.numberOfConstraints[Eq[_]], 3)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
@@ -752,17 +774,11 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testGlobalCardinalityReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_reif_test"))
         assertEq(result.space.searchVariables.size, 3)
-        assertEq(result.space.channelVariables.size, 11)
+        assertEq(result.space.channelVariables.size, 10)
         assertEq(result.space.channelVariables.count(isUserDefined), 1)
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 1)
-        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 9)
-        assertEq(result.space.numberOfConstraints, 9)
-        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.space.numberOfConstraints[Bool2Costs2], 1)
-        assertEq(result.space.numberOfConstraints[Conjunction], 2)
-        assertEq(result.space.numberOfConstraints[Contains], 1)
-        assertEq(result.space.numberOfConstraints[Eq[_]], 3)
-        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 8)
+        checkBinPackingReifConstraintNetwork[Eq[_]](result)
     }
 
     @Test
@@ -770,13 +786,12 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testGlobalCardinalityFn(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_fn_test"))
         assertEq(result.space.searchVariables.size, 3)
-        assertEq(result.space.channelVariables.size, 9)
+        assertEq(result.space.channelVariables.size, 8)
         assertEq(result.space.channelVariables.count(isUserDefined), 1)
-        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 8)
-        assertEq(result.space.numberOfConstraints, 7)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 7)
+        assertEq(result.space.numberOfConstraints, 6)
         assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[Contains], 1)
         assertEq(result.space.numberOfConstraints[Eq[_]], 3)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
@@ -786,13 +801,12 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testGlobalCardinalityClosedFn(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_closed_fn_test"))
         assertEq(result.space.searchVariables.size, 3)
-        assertEq(result.space.channelVariables.size, 9)
+        assertEq(result.space.channelVariables.size, 8)
         assertEq(result.space.channelVariables.count(isUserDefined), 1)
-        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 8)
-        assertEq(result.space.numberOfConstraints, 7)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 7)
+        assertEq(result.space.numberOfConstraints, 6)
         assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[Contains], 1)
         assertEq(result.space.numberOfConstraints[Eq[_]], 3)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
@@ -818,15 +832,10 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testGlobalCardinalityLowUpReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_low_up_reif_test"))
         assertEq(result.space.searchVariables.size, 3)
-        assertEq(result.space.channelVariables.size, 12)
+        assertEq(result.space.channelVariables.size, 9)
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 7)
-        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
-        assertEq(result.space.numberOfConstraints, 11)
-        assertEq(result.space.numberOfConstraints[BinPacking[_]], 1)
-        assertEq(result.space.numberOfConstraints[Bool2Costs2], 1)
-        assertEq(result.space.numberOfConstraints[Conjunction], 2)
-        assertEq(result.space.numberOfConstraints[Contains], 6)
-        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 2)
+        checkBinPackingReifConstraintNetwork[Contains](result)
     }
 
     @Test
@@ -1026,14 +1035,61 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[MaximizationProblem], classOf[HasNValueConstraint]))
     def testNValue(): Unit = {
         val result = solveWithResult(task.copy(problemName = "nvalue_test"))
+        assertEq(result.space.searchVariables.filterNot(wasIntroducedByYuck).map(_.name), Set("x[1]", "x[2]", "x[3]"))
+        assertEq(result.space.channelVariables.size, 3)
+        assertEq(result.space.channelVariables.filter(isUserDefined).map(_.name), Set("n"))
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 2)
+        assertEq(result.space.numberOfConstraints, 5)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[LevelWeightMaintainer], 1)
+        assertEq(result.space.numberOfConstraints[Lt[_]], 1)
         assertEq(result.space.numberOfConstraints[NumberOfDistinctValues[_]], 1)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test
     @Category(Array(classOf[MaximizationProblem], classOf[HasNValueConstraint]))
     def testNValueReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "nvalue_reif_test"))
+        assertEq(
+            result.space.searchVariables.filterNot(wasIntroducedByYuck).map(_.name),
+            Set("x[1]", "x[2]", "x[3]"))
+        assertEq(result.space.channelVariables.size, 8)
+        assertEq(result.space.channelVariables.filter(isUserDefined).map(_.name), Set("n"))
+        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 2)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
+        assertEq(result.space.numberOfConstraints, 10)
+        assertEq(result.space.numberOfConstraints[Conjunction], 3)
+        assertEq(result.space.numberOfConstraints[Eq[_]], 1)
+        assertEq(result.space.numberOfConstraints[LevelWeightMaintainer], 1)
+        assertEq(result.space.numberOfConstraints[Lt[_]], 1)
         assertEq(result.space.numberOfConstraints[NumberOfDistinctValues[_]], 2)
+        assertEq(result.space.numberOfConstraints[Or], 1)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
+    }
+
+    @Test
+    @Category(Array(classOf[MaximizationProblem], classOf[HasNValueConstraint]))
+    def testNValueFn(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "nvalue_fn_test"))
+        assertEq(
+            result.space.searchVariables.filterNot(wasIntroducedByYuck).map(_.name),
+            Set("x[1]", "x[2]", "x[3]", "y[1]", "y[2]", "y[3]"))
+        assertEq(result.space.channelVariables.size, 6)
+        assertEq(result.space.channelVariables.filter(isUserDefined).map(_.name), Set("m", "n"))
+        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 1)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 3)
+        assertEq(result.space.numberOfConstraints, 8)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(
+            result.space.numberOfConstraints(
+                constraint => constraint.isInstanceOf[Contains] && constraint.inVariables.count(_.name == "m") == 1),
+            1)
+        assertEq(result.space.numberOfConstraints[LevelWeightMaintainer], 1)
+        assertEq(result.space.numberOfConstraints[Lt[_]], 1)
+        assertEq(result.space.numberOfConstraints[NumberOfDistinctValues[_]], 2)
+        assertEq(result.space.numberOfConstraints[Plus[_]], 1)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     @Test

@@ -16,7 +16,7 @@ import yuck.flatzinc.FlatZincLevelConfiguration
  * The default implementation for satisfaction goals creates a
  * [[yuck.core.RandomReassignmentGenerator RandomReassignmentGenerator]] instance
  * with a focus on search variables that are involved in constraint violations.
- * (The guidance is provided by an instance of [[yuck.constraints.SatisfactionGoalTracker
+ * (The guidance is provided by an instance of [[SatisfactionGoalTracker
  * SatisfactionGoalTracker]]).
  * This behaviour can be customized by overloading createSatisfactionNeighbourhood.
  *

@@ -29,12 +29,7 @@ final class DotExporter(space: Space, dotWriter: java.io.FileWriter) extends Run
         v match {
             case VariableVertex(x) =>
                 attrMap.put("label", new DefaultAttribute(x.toString.take(MaxLabelLength), AttributeType.STRING))
-                val typeInfo = x match {
-                    case _: BooleanVariable => "bool"
-                    case _: IntegerVariable => "int"
-                    case _: IntegerSetVariable => "set of int"
-                }
-                val tooltip = "%s: %s = %s".format(x, typeInfo, space.searchState.value(x))
+                val tooltip = "%s: %s = %s".format(x, x.domain, space.searchState.value(x))
                 attrMap.put("tooltip", new DefaultAttribute(tooltip.take(MaxTooltipLength), AttributeType.STRING))
                 val maybeColor =
                     if (space.isSearchVariable(x)) Some(red)

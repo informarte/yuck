@@ -4,7 +4,7 @@ var 1..10: v;
 var int: x = if c then u else v endif;
 var int: y = if not c then u else v endif;
 
-constraint x < y;
+constraint x != y;
 
 solve satisfy;
 

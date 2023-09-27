@@ -22,6 +22,8 @@ final class ElementVar
     extends Constraint(id)
 {
 
+    require(! xs.isEmpty)
+
     override def toString = "%s = element(%s, [%s], %d)".format(y, i, xs.mkString(", "), offset)
 
     override def inVariables = xs.view :+ i

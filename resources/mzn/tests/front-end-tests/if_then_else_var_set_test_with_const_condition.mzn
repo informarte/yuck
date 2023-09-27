@@ -4,7 +4,7 @@ var set of 1..10: v;
 var set of int: x = if c then u else v endif;
 var set of int: y = if not c then u else v endif;
 
-constraint x subset y;
+constraint x != y;
 
 solve satisfy;
 

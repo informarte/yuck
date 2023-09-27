@@ -22,6 +22,8 @@ final class ElementConst
     extends Constraint(id)
 {
 
+    require(! as.isEmpty)
+
     override def toString = "%s = element(%s, [%s], %d)".format(y, i, as.mkString(", "), offset)
 
     override def inVariables = List(i)

@@ -11,7 +11,7 @@ import yuck.core.{given, *}
 final class CountConst
     [V <: Value[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: Seq[Variable[V]], a: V, val n: IntegerVariable)
+     xs: Seq[Variable[V]], a: V, n: IntegerVariable)
     (using valueTraits: ValueTraits[V])
     extends Constraint(id)
 {
@@ -39,22 +39,9 @@ final class CountConst
     private val effect = n.reuseableEffect
 
     private def propagate1(effects: PropagationEffects): PropagationEffects = {
-        var lb = 0
-        var ub = 0
-        for (x <- xs) {
-            val dx = x.domain
-            if (dx.isSingleton) {
-                if (dx.singleValue == a) {
-                    lb += 1
-                    ub += 1
-                }
-            } else {
-                if (dx.contains(a)) {
-                    ub += 1
-                }
-            }
-        }
-        effects.pruneDomain(n, IntegerRange(lb, ub))
+        val minCount = xs.count(x => x.domain.isSingleton && x.domain.contains(a))
+        val maxCount = xs.count(_.domain.contains(a))
+        effects.pruneDomain(n, IntegerRange(minCount, maxCount))
     }
 
     private def propagate2(effects: PropagationEffects): PropagationEffects = {

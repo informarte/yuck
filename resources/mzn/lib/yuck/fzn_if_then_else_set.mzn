@@ -1,6 +1,6 @@
-predicate yuck_if_then_else_set(array[int] of var bool: c, array[int] of var set of int: x, var set of int: y);
+predicate yuck_if_then_else_set(array[int] of var bool: c, array[int] of set of int: x, var set of int: y);
 
-predicate fzn_if_then_else_set(array[int] of var bool: c, array[int] of var set of int: x, var set of int: y) =
+predicate fzn_if_then_else_set(array[int] of var bool: c, array[int] of set of int: x, var set of int: y) =
     let {
         int: l = min(index_set(c));
         int: u = max(index_set(c))
