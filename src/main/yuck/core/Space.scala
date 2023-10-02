@@ -162,12 +162,11 @@ final class Space(
     /**
      * Registers the given variable as objective variable.
      *
-     * There is no need to register objective variables but registering them will
-     * speed up consultation.
+     * You need to register all variables for which you want to observe effects
+     * due to consultation.
      *
-     * Important: When you decide to register objective variables, you have to
-     * register all of them, otherwise the result of consultation will not provide the
-     * effects on the variables that were not registered.
+     * Notice that registering other variables will do no harm except for slowing down
+     * consultation.
      */
     def registerObjectiveVariable(x: AnyVariable): Space = {
         objectiveVariables += x
@@ -176,7 +175,7 @@ final class Space(
 
     /** Returns true iff the given variable is an objective variable. */
     inline def isObjectiveVariable(x: AnyVariable): Boolean =
-        objectiveVariables.isEmpty || objectiveVariables.contains(x)
+        objectiveVariables.contains(x)
 
     private val outputVariables = new mutable.HashSet[AnyVariable]
 
@@ -188,7 +187,7 @@ final class Space(
 
     /** Returns true iff the given variable is an output variable. */
     inline def isOutputVariable(x: AnyVariable): Boolean =
-        outputVariables.isEmpty || outputVariables.contains(x)
+        outputVariables.contains(x)
 
     /** Assigns the given value to the given variable. */
     def setValue[V <: Value[V]](x: Variable[V], a: V): Space = {

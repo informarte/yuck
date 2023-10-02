@@ -53,6 +53,7 @@ final class Queens(val n: Int) extends IntegrationTest {
                     null,
                     List(rowConflicts, diagonalConflicts1, diagonalConflicts2),
                     conflicts))
+            space.registerObjectiveVariable(conflicts)
 
             // build local-search solver
             val randomGenerator = new JavaRandomGenerator(seed)

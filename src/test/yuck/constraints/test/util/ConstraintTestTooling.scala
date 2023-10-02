@@ -25,6 +25,8 @@ trait ConstraintTestTooling extends YuckAssert {
     protected final case class TestScenario(space: Space, steps: TestStep*)
 
     protected def runScenario(scenario: TestScenario): Unit = {
+        scenario.space.searchVariables.foreach(scenario.space.registerObjectiveVariable)
+        scenario.space.channelVariables.foreach(scenario.space.registerObjectiveVariable)
         for (step <- scenario.steps) {
             step.run(scenario.space)
         }

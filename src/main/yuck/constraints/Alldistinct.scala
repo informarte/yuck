@@ -91,6 +91,7 @@ final class Alldistinct
                 val result = logger.withTimedLogScope("Solving %s".format(this)) {
                     val subcosts = new BooleanVariable(subspace.nextVariableId(), "", CompleteBooleanDomain)
                     subspace.post(new Alldistinct(subspace.nextConstraintId(), maybeGoal, subxs, subcosts))
+                    subspace.registerObjectiveVariable(subcosts)
                     val initializer = new RandomInitializer(subspace, randomGenerator.nextGen())
                     initializer.run()
                     val n = subspace.searchVariables.size * 4
@@ -130,4 +131,3 @@ final class Alldistinct
     }
 
 }
-

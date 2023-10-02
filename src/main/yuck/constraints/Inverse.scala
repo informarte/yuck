@@ -256,6 +256,7 @@ final class Inverse
                     val result = logger.withTimedLogScope("Solving %s".format(this)) {
                         val subcosts = new BooleanVariable(subspace.nextVariableId(), "", CompleteBooleanDomain)
                         subspace.post(new Inverse(subspace.nextConstraintId(), maybeGoal, subf, subg, subcosts))
+                        subspace.registerObjectiveVariable(subcosts)
                         val initializer = new RandomInitializer(subspace, randomGenerator.nextGen())
                         initializer.run()
                         val n = subspace.searchVariables.size * 4

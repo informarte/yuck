@@ -33,6 +33,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
     protected final lazy val y = baseValueTraits.createChannel(space)
     protected final lazy val z = baseValueTraits.createVariable(space, "z", nonEmptyRandomSubdomain(baseDomain))
     protected final val costs = new BooleanVariable(space.nextVariableId(), "costs", costsDomain)
+    space.registerObjectiveVariable(costs)
     protected def createConstraint(using valueTraits: NumericalValueTraits[V]): Constraint
 
     private val costModel = mock(classOf[OrderingCostModel[V]])
@@ -135,8 +136,10 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
         for (ax <- axs) {
             val x = ax.x
             space.setValue(x, x.domain.randomValue(randomGenerator))
+            space.registerObjectiveVariable(x)
         }
         space.setValue(z, z.domain.randomValue(randomGenerator))
+        space.registerObjectiveVariable(z)
         val now = space.searchState
         if (true) {
             val a = axs.map(ax => ax.a * now.value(ax.x)).sum(baseValueTraits.numericalOperations)

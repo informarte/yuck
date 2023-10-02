@@ -101,7 +101,10 @@ final class HierarchicalObjectiveTest extends UnitTest {
         val mainObjective = new SatisfactionObjective(costs)
         val subordinateObjective = new MinimizationObjective(y, None, None)
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
-        space.post(new Le(space.nextConstraintId(), null, x, y, costs))
+        space
+            .post(new Le(space.nextConstraintId(), null, x, y, costs))
+            .registerObjectiveVariable(y)
+            .registerObjectiveVariable(costs)
         for (a <- x.domain.values) {
             space.setValue(x, a).setValue(y, y.domain.ub).initialize()
             objective.findActualObjectiveValue(space)
@@ -146,9 +149,13 @@ final class HierarchicalObjectiveTest extends UnitTest {
     def testSearchForActualObjectiveValueWhenMaximizing(): Unit = {
         val costs = new BooleanVariable(space.nextVariableId(), "costs", TrueDomain)
         val mainObjective = new SatisfactionObjective(costs)
+        space.registerObjectiveVariable(costs).registerObjectiveVariable(y)
         val subordinateObjective = new MaximizationObjective(y, None, None)
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
-        space.post(new Le(space.nextConstraintId(), null, y, x, costs))
+        space
+            .post(new Le(space.nextConstraintId(), null, y, x, costs))
+            .registerObjectiveVariable(costs)
+            .registerObjectiveVariable(y)
         for (a <- x.domain.values) {
             space.setValue(x, a).setValue(y, y.domain.lb).initialize()
             objective.findActualObjectiveValue(space)

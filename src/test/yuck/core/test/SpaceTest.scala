@@ -293,6 +293,8 @@ final class SpaceTest extends UnitTest {
                 xs += sum
                 val spy = new Spy(space.nextConstraintId(), qs, sum)
                 space.post(spy)
+                xs.foreach(space.registerObjectiveVariable)
+                space.registerObjectiveVariable(sum)
                 spies += spy
                 j += 1
             }

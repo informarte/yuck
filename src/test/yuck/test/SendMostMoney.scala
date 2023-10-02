@@ -76,6 +76,7 @@ final class SendMostMoney extends IntegrationTest {
             space.post(new Eq(space.nextConstraintId(), null, lhs, rhs, delta))
             val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
             space.post(new Conjunction(space.nextConstraintId(), null, List(numberOfMissingValues, delta), costs))
+            space.registerObjectiveVariable(costs)
             assertEq(space.searchVariables, vars)
 
             // propagate constraints

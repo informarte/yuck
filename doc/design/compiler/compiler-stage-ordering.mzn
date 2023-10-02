@@ -39,11 +39,7 @@ constraint DomainFinalizer < ObjectiveFactory;
 /* Avoid additional domain-checking constraints due to bounds computed by Presolver */
 constraint DomainFinalizer < Presolver;
 
-/*
-ObjectiveFactory generates and registers the objective variables
-(If no objective variable was registered, Space considers all variables as objective variables,
-and networking pruning will not work.)
-*/
+/* ObjectiveFactory generates and registers the objective variables */
 constraint ObjectiveFactory < ConstraintNetworkPruner;
 
 /* NeighbourhoodFactory departs from the objective produced by ObjectiveFactory */
