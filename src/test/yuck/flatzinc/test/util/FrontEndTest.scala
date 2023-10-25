@@ -19,7 +19,7 @@ abstract class FrontEndTest extends ZincBasedTest {
         ZincTestTask(
             directoryLayout = MiniZincExamplesLayout,
             suitePath = "resources/mzn/tests/front-end-tests",
-            solverConfiguration = FlatZincSolverConfiguration(attachGoals = true, restartLimit = 0, pruneConstraintNetwork = false),
+            solverConfiguration = FlatZincSolverConfiguration(attachGoals = true, restartLimit = 0),
             maybeRuntimeLimitInSeconds = Some(10),
             throwWhenUnsolved = true,
             reusePreviousTestResult = false,

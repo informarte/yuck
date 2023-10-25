@@ -32,9 +32,9 @@ final class Space(
 {
 
     private val constraints = new mutable.HashSet[Constraint] // maintained by post and removeUselessConstraints
-    private val implicitConstraints = new mutable.HashSet[Constraint] // maintained by markAsImplicit
+    private val implicitConstraints = new mutable.HashSet[Constraint] // maintained by registerImplicitConstraint
     private val inVariables = new mutable.HashSet[AnyVariable] // maintained by post
-    private val inVariablesOfImplicitConstraints = new mutable.HashSet[AnyVariable] // maintained by markAsImplicit
+    private val inVariablesOfImplicitConstraints = new mutable.HashSet[AnyVariable] // maintained by registerImplicitConstraint
     private val outVariables = new mutable.HashSet[AnyVariable] // maintained by post
 
     // The inflow model allows to find out which constraints are affected by changing
@@ -350,6 +350,9 @@ final class Space(
         this
     }
 
+    /** Counts how often retract was called. */
+    var numberOfRetractions = 0
+
     /**
      * Retracts the given constraint.
      *
@@ -374,6 +377,7 @@ final class Space(
         }
         objectiveVariables --= constraint.outVariables
         constraintOrder = null
+        numberOfRetractions += 1
         this
     }
 

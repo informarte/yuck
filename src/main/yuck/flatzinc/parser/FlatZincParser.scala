@@ -107,8 +107,8 @@ object FlatZincParser extends RegexParsers {
     lazy val pred_param_type: Parser[Type] =
         param_type | var_type
     lazy val pred_param: Parser[PredParam] =
-        (pred_param_type <~ ":") ~ identifier ^^ {
-            case paramType ~ id => PredParam(id, paramType)
+        (pred_param_type <~ ":") ~ identifier ~ (annotation*) ^^ {
+            case paramType ~ id ~ annotations => PredParam(id, paramType, annotations)
         }
     lazy val pred_decl: Parser[PredDecl] =
         "predicate" ~> identifier ~ ("(" ~> repsep(pred_param, ",") <~ ")") <~ ";" ^^ {

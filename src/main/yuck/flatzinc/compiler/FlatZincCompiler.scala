@@ -41,12 +41,12 @@ final class FlatZincCompiler
         randomGenerator.nextGen()
         randomGenerator.nextGen()
         run(new ObjectiveFactory(cc))
-        if (cfg.pruneConstraintNetwork) {
-            run(new ConstraintNetworkPruner(cc))
-        }
         randomGenerator.nextGen()
         if (cfg.runPresolver) {
             run(new Presolver(cc))
+        }
+        if (cfg.pruneConstraintNetwork) {
+            run(new ConstraintNetworkPruner(cc))
         }
         run(new ConstraintDrivenNeighbourhoodFactory(cc, randomGenerator.nextGen(), sigint))
         run(new WarmStartAnnotationParser(cc))

@@ -4,8 +4,8 @@
 
 predicate symmetry_breaking_constraint(var bool: b) = true;
 
-predicate redundant_constraint(var bool: b) = true;
-
+predicate redundant_constraint(var bool: b :: promise_ctx_monotone);
+predicate redundant_constraint_reif(var bool: b :: promise_ctx_monotone, var bool: c) = c = true;
 
 predicate yuck_array_bool_element(int: offset, var int: i, array [int] of var bool: x, var bool: y);
 predicate yuck_array_int_element(int: offset, var int: i, array [int] of var int: x, var int: y);

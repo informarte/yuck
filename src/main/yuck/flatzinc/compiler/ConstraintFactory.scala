@@ -722,6 +722,9 @@ final class ConstraintFactory
             val costs = createBoolChannel()
             cc.space.post(new LexLessEq[IntegerSetValue](nextConstraintId(), maybeGoal, as, bs, costs))
             List(costs)
+        case Constraint("redundant_constraint", Seq(b), _) =>
+            cc.costVarsFromRedundantConstraints += b
+            Nil
         case Constraint(Reif(_), _, _) =>
             compileReifiedConstraint(maybeGoal, constraint)
     }

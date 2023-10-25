@@ -192,9 +192,11 @@ final class SpaceTest extends UnitTest {
         assertEx(space.retract(c))
         space.retract(d)
         assertEq(space.numberOfConstraints, 1)
+        assertEq(space.numberOfRetractions, 1)
         List(x, y, z, v).forall(! space.isObjectiveVariable(_))
         space.retract(c)
         assertEq(space.numberOfConstraints, 0)
+        assertEq(space.numberOfRetractions, 2)
         assert(! space.isImplicitConstraint(c))
         assertEq(space.numberOfImplicitConstraints, 0)
         assert(space.searchVariables.isEmpty)
@@ -229,6 +231,7 @@ final class SpaceTest extends UnitTest {
         assertEq(space.numberOfConstraints(_.id == f.id), 0)
         assertEq(space.numberOfConstraints(_.id == g.id), 0)
         assertEq(space.numberOfConstraints(_.id == h.id), 1)
+        assertEq(space.numberOfRetractions, 3)
     }
 
     // A spy constraint maintains the sum of its input variables and,

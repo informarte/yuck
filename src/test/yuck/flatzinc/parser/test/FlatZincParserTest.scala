@@ -133,7 +133,7 @@ final class FlatZincParserTest extends UnitTest {
         expectSuccess(
             pred_decl,
             "predicate all_different_int(array [int] of var int: x);",
-            PredDecl("all_different_int", List(PredParam("x", ArrayType(None, IntType(None))))))
+            PredDecl("all_different_int", List(PredParam("x", ArrayType(None, IntType(None)), Nil))))
     }
 
     @Test

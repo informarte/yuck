@@ -474,4 +474,96 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
     }
 
+    // Checks that the redundant alldifferent constraint is removed after propagation.
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testRedundantAlldifferent(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "redundant_alldifferent_test"))
+        assertEq(result.space.searchVariables.map(_.name), Set("x[1]", "x[2]", "x[3]"))
+        assertEq(result.space.channelVariables.size, 4)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
+        assertEq(result.space.numberOfConstraints, 5)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[Ne[_]], 3)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
+        assertEq(result.space.numberOfPropagations, 9)
+        assertEq(result.space.numberOfRetractions, 2)
+        assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
+    }
+
+    // Checks that the reified redundant alldifferent constraints are ignored.
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testReifiedRedundantAlldifferent(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "reified_redundant_alldifferent_test"))
+        assertEq(result.space.searchVariables.size, 6)
+        assertEq(result.space.searchVariables.filter(isUserDefined).map(_.name), Set("x[1]", "x[2]", "x[3]", "y[1]", "y[2]", "y[3]"))
+        assertEq(result.space.channelVariables.size, 10)
+        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 8)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 2)
+        assertEq(result.space.numberOfConstraints, 11)
+        assertEq(result.space.numberOfConstraints[Conjunction], 3)
+        assertEq(result.space.numberOfConstraints[Ne[_]], 6)
+        assertEq(result.space.numberOfConstraints[Or], 1)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
+        assertEq(result.space.numberOfPropagations, 11)
+        assertEq(result.space.numberOfRetractions, 0)
+        assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
+    }
+
+    // Checks that the redundant bin_packing constraint is removed after propagation.
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testRedundantBinPacking(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "redundant_bin_packing_test"))
+        assertEq(result.space.searchVariables.map(_.name), Set("bin[1]", "bin[2]", "bin[3]", "bin[4]", "bin[5]", "bin[6]"))
+        assertEq(result.space.channelVariables.size, 40)
+        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 36)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
+        assertEq(result.space.numberOfConstraints, 41)
+        assertEq(result.space.numberOfConstraints[Bool2Int1], 18)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[Eq[_]], 18)
+        assertEq(result.space.numberOfConstraints[LinearConstraint[_]], 3)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
+        assertEq(result.space.numberOfPropagations, 54)
+        assertEq(result.space.numberOfRetractions, 5)
+    }
+
+    // Checks that redundant constraints with free variables compile.
+    // Checks that the redundant implications do not introduce additional search variables
+    // via half-reified clauses.
+    // Checks that the redundant implications are removed after propagation.
+    // Requires --no-half-reifications to succeed.
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testRedundantImplicationsWithFreeVariables(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "redundant_implications_with_free_variables_test"))
+        assertEq(result.space.searchVariables.map(_.name), Set("x[1]", "x[2]", "x[3]"))
+        assertEq(result.space.channelVariables.size, 2)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 2)
+        assertEq(result.space.numberOfConstraints, 2)
+        assertEq(result.space.numberOfConstraints[Alldistinct[_]], 1)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfPropagations, 41)
+        assertEq(result.space.numberOfRetractions, 19)
+    }
+
+    // Checks that the inner implication does not introduce an additional search variable
+    // via a half-reified clause.
+    // Requires --no-half-reifications to succeed.
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testNestedImplications(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "nested_implications_test"))
+        assertEq(result.space.searchVariables.map(_.name), Set("c", "d", "x"))
+        assertEq(result.space.channelVariables.size, 7)
+        assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 3)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
+        assertEq(result.space.numberOfConstraints, 8)
+        assertEq(result.space.numberOfConstraints[Conjunction], 2)
+        assertEq(result.space.numberOfConstraints[Le[_]], 5)
+        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
+    }
+
 }

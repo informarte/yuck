@@ -191,6 +191,7 @@ class ZincBasedTest extends IntegrationTest {
             "minizinc",
             "-v",
             "-c",
+            "--no-half-reifications",
             "--solver", "org.minizinc.mzn-fzn",
             "-I", "resources/mzn/lib/yuck",
             "--no-output-ozn", "--output-fzn-to-file", fznFilePath)

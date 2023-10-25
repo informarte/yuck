@@ -83,7 +83,7 @@ final case class ArrayType(optionalIndexSet: Option[ValueSet[Long]], baseType: B
     }
 }
 
-final case class PredParam(id: String, paramType: Type) {}
+final case class PredParam(id: String, paramType: Type, annotations: LinearSeq[Annotation]) {}
 final case class PredDecl(id: String, params: LinearSeq[PredParam]) {}
 final case class ParamDecl(id: String, paramType: Type, value: Expr)
 final case class VarDecl(id: String, varType: Type, optionalValue: Option[Expr], annotations: LinearSeq[Annotation]) {

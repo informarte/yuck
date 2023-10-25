@@ -126,7 +126,7 @@ final class MiniZincChallenges extends ZincBasedTest {
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint], classOf[HasCumulativeConstraint], classOf[HasDecreasingConstraint], classOf[HasDiffnConstraint], classOf[HasMaximumConstraint], classOf[HasMinimumConstraint], classOf[HasTableConstraint]))
+    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint], classOf[HasCumulativeConstraint], classOf[HasDiffnConstraint], classOf[HasMaximumConstraint], classOf[HasMinimumConstraint], classOf[HasTableConstraint]))
     def code_generator_mips_gcc_cfgbuild_control_flow_insn_p(): Unit = {
         solve(task.copy(problemName = "code-generator", modelName = "unison", instanceName = "mips_gcc.cfgbuild.control_flow_insn_p", maybeMaximumNumberOfThreads = Some(1), maybeOptimum = Some(274663947)))
     }
@@ -205,13 +205,13 @@ final class MiniZincChallenges extends ZincBasedTest {
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint], classOf[HasInverseConstraint], classOf[HasMemberConstraint], classOf[HasRegularConstraint]))
+    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint], classOf[HasCumulativeConstraint], classOf[HasInverseConstraint], classOf[HasMemberConstraint], classOf[HasRegularConstraint]))
     def elitserien_handball1(): Unit = {
         solve(task.copy(problemName = "elitserien", modelName = "handball", instanceName = "handball1", maybeOptimum = Some(2)))
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem]))
+    @Category(Array(classOf[MinimizationProblem], classOf[HasGlobalCardinalityConstraint]))
     def evm_super_compilation_isolated_block_6_0_input(): Unit = {
         solve(task.copy(problemName = "evm-super-compilation", modelName = "evmopt-generic", instanceName = "isolated_block_6_0_input", maybeOptimum = Some(13)))
     }
@@ -224,8 +224,8 @@ final class MiniZincChallenges extends ZincBasedTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
-    def fillomino_5x5_1(): Unit = {
-        solve(task.copy(problemName = "fillomino", instanceName = "5x5_1"))
+    def fillomino_07(): Unit = {
+        solve(task.copy(problemName = "fillomino", instanceName = "07"))
     }
 
     @Test
@@ -374,7 +374,7 @@ final class MiniZincChallenges extends ZincBasedTest {
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem]))
+    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint]))
     def ma_path_finding_ins_g16_p10_a10(): Unit = {
         solve(task.copy(problemName = "ma-path-finding", modelName = "mapf", instanceName = "ins_g16_p10_a10", maybeOptimum = Some(112), maybeMaximumNumberOfThreads = Some(1)))
     }
@@ -428,7 +428,7 @@ final class MiniZincChallenges extends ZincBasedTest {
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem]))
+    @Category(Array(classOf[MinimizationProblem], classOf[HasCumulativeConstraint]))
     def mspsp_hard_08(): Unit = {
         solve(task.copy(problemName = "mspsp", instanceName = "hard_08", maybeOptimum = Some(31)))
     }
@@ -725,7 +725,7 @@ final class MiniZincChallenges extends ZincBasedTest {
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentExceptConstraint]))
+    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint], classOf[HasAlldifferentExceptConstraint]))
     def seat_moving_10_20_05(): Unit = {
         solve(task.copy(problemName = "seat-moving", instanceName = "sm-10-20-05", maybeOptimum = Some(90)))
     }

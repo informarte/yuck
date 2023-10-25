@@ -29,6 +29,9 @@ final class Presolver
         for (x <- cc.costVars) {
             x.pruneDomain(TrueDomain)
         }
+        for (x <- cc.costVarsFromRedundantConstraints) {
+            x.pruneDomain(TrueDomain)
+        }
 
         // propagate constraints
         cc.space.propagate()
