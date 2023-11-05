@@ -58,7 +58,7 @@ final class ObjectiveFactory
         SatisfactionObjective =
     {
         val costVar = createBoolChannel()
-        cc.space.post(new Conjunction(nextConstraintId(), null, costVars.toIndexedSeq, costVar))
+        cc.space.post(new Conjunction(nextConstraintId(), None, costVars.toIndexedSeq, costVar))
         createSatisfactionObjective(cfg, costVar)
     }
 
@@ -92,7 +92,7 @@ final class ObjectiveFactory
                 cc.implicitlyConstrainedVars += y
                 val costs = createBoolChannel()
                 cc.costVars += costs
-                cc.space.post(new Lt(nextConstraintId(), null, x, y, costs))
+                cc.space.post(new Lt(nextConstraintId(), None, x, y, costs))
                 Some(y)
             } else {
                 None
@@ -123,7 +123,7 @@ final class ObjectiveFactory
                 cc.implicitlyConstrainedVars += y
                 val costs = createBoolChannel()
                 cc.costVars += costs
-                cc.space.post(new Lt(nextConstraintId(), null, y, x, costs))
+                cc.space.post(new Lt(nextConstraintId(), None, y, x, costs))
                 Some(y)
             } else {
                 None
