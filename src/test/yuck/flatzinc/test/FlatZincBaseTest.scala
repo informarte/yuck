@@ -22,6 +22,12 @@ final class FlatZincBaseTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
+    def testParametersInArrays(): Unit = {
+        val result = solveWithResult(task.copy(sourceFormat = FlatZinc, problemName = "parameters_in_arrays_test"))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
     def testArrayBoolAndWithDuplicateVariable(): Unit = {
         val result = solveWithResult(task.copy(sourceFormat = FlatZinc, problemName = "array_bool_and_test_with_duplicate_variable", solverConfiguration = task.solverConfiguration.copy(runPresolver = false)))
         assertEq(result.space.searchVariables.map(_.name), Set("x", "y"))

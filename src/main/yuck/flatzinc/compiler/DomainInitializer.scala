@@ -7,9 +7,9 @@ import yuck.core.IntegerDomain.ensureRangeList
 import yuck.flatzinc.ast.*
 
 /**
- * Builds a map from variable declarations to domains.
+ * Builds a map from parameter and variable declarations to domains.
  *
- * Assign variables to equivalence classes by considering optional assignments and equality constraints.
+ * Assigns declarations to equivalence classes by considering optional assignments and equality constraints.
  *
  * @author Michael Marte
  */
@@ -39,57 +39,68 @@ final class DomainInitializer
     }
 
     private def initializeDomains(): Unit = {
+        // TODO VariableFactory uses foreach
+        for (decl <- cc.ast.paramDecls) {
+            initializeDomains(decl)
+        }
         for (decl <- cc.ast.varDecls) {
-            decl.varType match {
-                case ArrayType(Some(IntRange(1, n)), baseType) =>
-                    val domain = createDomain(baseType)
-                    for (idx <- 1 to n.toInt) {
-                        val a = ArrayAccess(decl.id, IntConst(idx))
-                        cc.declaredVars += a
-                        cc.domains += a -> domain
-                        val set = new mutable.TreeSet[Expr]()(ProblemVariablesFirstOrdering)
-                        set += a
-                        cc.equalVars += a -> set
-                    }
-                case _ =>
-                    val domain = createDomain(decl.varType)
-                    val a = Term(decl.id, Nil)
+            initializeDomains(decl)
+        }
+    }
+
+    private def initializeDomains(decl: PlaceholderDecl): Unit = {
+        decl.valueType match {
+            case ArrayType(Some(IntRange(1, n)), baseType) =>
+                val domain = createDomain(baseType)
+                for (idx <- 1 to n.toInt) {
+                    val a = ArrayAccess(decl.id, IntConst(idx))
                     cc.declaredVars += a
                     cc.domains += a -> domain
                     val set = new mutable.TreeSet[Expr]()(ProblemVariablesFirstOrdering)
                     set += a
                     cc.equalVars += a -> set
-            }
+                }
+            case _ =>
+                val domain = createDomain(decl.valueType)
+                val a = Term(decl.id, Nil)
+                cc.declaredVars += a
+                cc.domains += a -> domain
+                val set = new mutable.TreeSet[Expr]()(ProblemVariablesFirstOrdering)
+                set += a
+                cc.equalVars += a -> set
         }
     }
 
     private def propagateAssignments(): Unit = {
-        for (decl <- cc.ast.varDecls) {
-            decl.varType match {
-                case ArrayType(Some(IntRange(1, n)), _) =>
-                    decl.optionalValue match {
-                        case Some(Term(rhsId, Nil)) =>
-                            val lhsId = decl.id
-                            for (idx <- 1 to n.toInt) {
-                                val a = ArrayAccess(lhsId, IntConst(idx))
-                                val b = ArrayAccess(rhsId, IntConst(idx))
-                                propagateAssignment(a, b)
-                            }
-                        case Some(ArrayConst(elems)) =>
-                            assert(elems.size == n)
-                            for ((idx, b) <- (1 to n.toInt).zip(elems)) {
-                                val a = ArrayAccess(decl.id, IntConst(idx))
-                                propagateAssignment(a, b)
-                            }
-                        case _ =>
-                    }
-                case _ =>
-                    if (decl.optionalValue.isDefined) {
-                        val a = Term(decl.id, Nil)
-                        val b = decl.optionalValue.get
-                        propagateAssignment(a, b)
-                    }
-            }
+        cc.ast.paramDecls.foreach(propagateAssignments)
+        cc.ast.varDecls.foreach(propagateAssignments)
+    }
+
+    private def propagateAssignments(decl: PlaceholderDecl): Unit = {
+        decl.valueType match {
+            case ArrayType(Some(IntRange(1, n)), _) =>
+                decl.optionalValue match {
+                    case Some(Term(rhsId, Nil)) =>
+                        val lhsId = decl.id
+                        for (idx <- 1 to n.toInt) {
+                            val a = ArrayAccess(lhsId, IntConst(idx))
+                            val b = ArrayAccess(rhsId, IntConst(idx))
+                            propagateAssignment(a, b)
+                        }
+                    case Some(ArrayConst(elems)) =>
+                        assert(elems.size == n)
+                        for ((idx, b) <- (1 to n.toInt).zip(elems)) {
+                            val a = ArrayAccess(decl.id, IntConst(idx))
+                            propagateAssignment(a, b)
+                        }
+                    case _ =>
+                }
+            case _ =>
+                if (decl.optionalValue.isDefined) {
+                    val a = Term(decl.id, Nil)
+                    val b = decl.optionalValue.get
+                    propagateAssignment(a, b)
+                }
         }
     }
 
@@ -251,8 +262,8 @@ final class DomainInitializer
         case IntConst(_) => IntType(None)
         case IntSetConst(_) => IntSetType(None)
         case FloatConst(_) => FloatType(None)
-        case Term(id, Nil) => cc.ast.varDeclsByName(id).varType
-        case ArrayAccess(id, _) => cc.ast.varDeclsByName(id).varType.asInstanceOf[ArrayType].baseType
+        case Term(id, Nil) => cc.ast.paramDeclsByName.getOrElse(id, cc.ast.varDeclsByName(id)).valueType
+        case ArrayAccess(id, _) => cc.ast.paramDeclsByName.getOrElse(id, cc.ast.varDeclsByName(id)).valueType.asInstanceOf[ArrayType].baseType
     }
 
     private def checkTypeCompatibility(t: Type, u: Type) = (t, u) match {

@@ -48,7 +48,7 @@ final class VariableClassifier
             for (annotation <- varDecl.annotations) {
                 annotation match {
                     case Annotation(Term("is_defined_var", Nil)) =>
-                        if (varDecl.varType.isArrayType) {
+                        if (varDecl.valueType.isArrayType) {
                             cc.searchVars --= compileAnyArray(Term(varDecl.id, Nil))
                         } else {
                             cc.searchVars -= compileAnyExpr(Term(varDecl.id, Nil))
@@ -69,7 +69,7 @@ final class VariableClassifier
             case Term(search, Term(id, Nil) :: _)
             if List("bool_search", "int_search", "set_search").contains(search) =>
                 if (cc.ast.varDeclsByName.contains(id)) {
-                    cc.ast.varDeclsByName(id).varType match {
+                    cc.ast.varDeclsByName(id).valueType match {
                         case ArrayType(Some(IntRange(1, n)), _) =>
                             for (idx <- 1 to n.toInt) {
                                 cc.searchVars += compileAnyExpr(ArrayAccess(id, IntConst(idx)))

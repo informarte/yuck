@@ -4,9 +4,9 @@ import yuck.core.{given, *}
 import yuck.flatzinc.ast.*
 
 /**
- * Generates Yuck variables from FlatZinc variable definitions.
+ * Generates Yuck variables from FlatZinc parameter and variable declarations.
  *
- * For each class of FlatZinc variables that, in earlier phases, were identified to
+ * For each class of FlatZinc parameters and variables that, in earlier phases, were identified to
  * be equivalent, a representative is chosen and only for this representative a Yuck
  * variable is introduced.
  *
@@ -20,42 +20,16 @@ final class VariableFactory
 {
 
     override def run() = {
-        cc.ast.paramDecls.foreach(createParameter)
-        cc.ast.varDecls.foreach(createVariable)
+        cc.ast.paramDecls.iterator.filterNot(_.valueType.isArrayType).foreach(createVariable)
+        cc.ast.paramDecls.iterator.filter(_.valueType.isArrayType).foreach(createVariable)
+        cc.ast.varDecls.iterator.filterNot(_.valueType.isArrayType).foreach(createVariable)
+        cc.ast.varDecls.iterator.filter(_.valueType.isArrayType).foreach(createVariable)
     }
 
     import HighPriorityImplicits.*
 
-    private def createParameter(decl: ParamDecl): Unit = {
-        decl.paramType match {
-            case BoolType =>
-                val x = compileExpr[BooleanValue](decl.value)
-                cc.vars += Term(decl.id, Nil) -> x
-            case IntType(_) =>
-                val x = compileExpr[IntegerValue](decl.value)
-                cc.vars += Term(decl.id, Nil) -> x
-            case IntSetType(_) =>
-                val x = compileExpr[IntegerSetValue](decl.value)
-                cc.vars += Term(decl.id, Nil) -> x
-            case ArrayType(Some(IntRange(1, n)), BoolType) =>
-                val array = compileArray[BooleanValue](decl.value)
-                assert(array.size == n)
-                cc.arrays += Term(decl.id, Nil) -> array
-            case ArrayType(Some(IntRange(1, n)), IntType(_)) =>
-                val array = compileArray[IntegerValue](decl.value)
-                assert(array.size == n)
-                cc.arrays += Term(decl.id, Nil) -> array
-            case ArrayType(Some(IntRange(1, n)), IntSetType(_)) =>
-                val array = compileArray[IntegerSetValue](decl.value)
-                assert(array.size == n)
-                cc.arrays += Term(decl.id, Nil) -> array
-            case other =>
-                throw new UnsupportedFlatZincTypeException(other)
-        }
-    }
-
-    private def createVariable(decl: VarDecl): Unit = {
-        decl.varType match {
+    private def createVariable(decl: PlaceholderDecl): Unit = {
+        decl.valueType match {
             case BoolType =>
                 createVariable[BooleanValue](Term(decl.id, Nil))
             case IntType(_) =>

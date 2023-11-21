@@ -1,0 +1,7 @@
+array [1..2] of bool: u = [X_INTRODUCED_0_, true];
+bool: X_INTRODUCED_0_ = true;
+array [1..2] of bool: v = [false, X_INTRODUCED_0_];
+array [1..3] of var bool: w:: output_array([1..3]) = [X_INTRODUCED_0_,true,X_INTRODUCED_1_];
+var bool: X_INTRODUCED_1_;
+array [1..3] of var bool: x:: output_array([1..3]) = [X_INTRODUCED_0_,false,X_INTRODUCED_1_];
+solve satisfy;

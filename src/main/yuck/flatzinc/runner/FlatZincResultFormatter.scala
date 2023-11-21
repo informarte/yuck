@@ -25,7 +25,7 @@ final class FlatZincResultFormatter(result: Result) extends Callable[Seq[String]
                         val x = compilerResult.vars(decl.id)
                         sortedMap = sortedMap + (decl.id -> value(x).toString)
                     case Annotation(Term("output_array", List(ArrayConst(dimensions)))) =>
-                        val ArrayType(Some(IntRange(1, n)), _) = decl.varType: @unchecked
+                        val ArrayType(Some(IntRange(1, n)), _) = decl.valueType: @unchecked
                         val a =
                             "array%dd(%s, [%s])".format(
                                 dimensions.size,
