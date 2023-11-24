@@ -85,10 +85,8 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
         val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
         val candidatesForImplicitSolving =
             if (cc.cfg.useImplicitSolving && levelCfg.isTopLevel) {
-                require(cc.space.definingConstraint(x).isInstanceOf[Conjunction])
-                cc.space.definingConstraint(x).inVariables.iterator
-                    .map(cc.space.maybeDefiningConstraint(_)).filter(_.isDefined).map(_.get)
-                    .filter(_.isCandidateForImplicitSolving(cc.space)).toBuffer.sorted.toIndexedSeq
+                cc.costVarsFromRedundantConstraints.iterator.concat(Iterator.single(x))
+                    .flatMap(findCandidatesForImplicitSolving).toBuffer.sorted.toIndexedSeq
             } else {
                 Nil
             }
@@ -142,6 +140,22 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
                 neighbourhoods.toIndexedSeq, randomGenerator,
                 if (levelCfg.guideOptimization) Some(createHotSpotDistribution2(neighbourhoods)) else None,
                 if (levelCfg.guideOptimization) levelCfg.maybeFairVariableChoiceRate else None))
+        }
+    }
+
+    private def findCandidatesForImplicitSolving(x: BooleanVariable): Iterator[Constraint] = {
+        val maybeConstraint = cc.space.maybeDefiningConstraint(x)
+        if (maybeConstraint.isDefined) {
+            val constraint = maybeConstraint.get
+            if (constraint.isInstanceOf[Conjunction] || constraint.isInstanceOf[And]) {
+                constraint.inVariables.iterator.flatMap(y => findCandidatesForImplicitSolving(y.asInstanceOf[BooleanVariable]))
+            } else if (constraint.isCandidateForImplicitSolving(cc.space)) {
+                Iterator.single(constraint)
+            } else {
+                Iterator.empty
+            }
+        } else {
+            Iterator.empty
         }
     }
 

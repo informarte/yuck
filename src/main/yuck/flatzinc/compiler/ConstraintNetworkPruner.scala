@@ -48,6 +48,7 @@ final class ConstraintNetworkPruner
             case _: OptimizationGoalTracker[_] => false
             case _: SatisfactionGoalTracker => false
             case _ =>
+                ! cc.space.isImplicitConstraint(constraint) &&
                 constraint.outVariables.forall(x =>
                     ! isImportant(x) &&
                     cc.space.directlyAffectedConstraints(x).isEmpty)

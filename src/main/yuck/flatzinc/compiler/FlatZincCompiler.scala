@@ -45,10 +45,10 @@ final class FlatZincCompiler
         if (cfg.runPresolver) {
             run(new Presolver(cc))
         }
+        run(new ConstraintDrivenNeighbourhoodFactory(cc, randomGenerator.nextGen(), sigint))
         if (cfg.pruneConstraintNetwork) {
             run(new ConstraintNetworkPruner(cc))
         }
-        run(new ConstraintDrivenNeighbourhoodFactory(cc, randomGenerator.nextGen(), sigint))
         run(new WarmStartAnnotationParser(cc))
 
         checkSearchVariableDomains(cc)

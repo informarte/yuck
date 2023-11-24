@@ -480,15 +480,15 @@ final class FlatZincBaseTest extends FrontEndTest {
     def testRedundantAlldifferent(): Unit = {
         val result = solveWithResult(task.copy(problemName = "redundant_alldifferent_test"))
         assertEq(result.space.searchVariables.map(_.name), Set("x[1]", "x[2]", "x[3]"))
-        assertEq(result.space.channelVariables.size, 4)
-        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
+        assertEq(result.space.channelVariables.size, 5)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
         assertEq(result.space.numberOfConstraints, 5)
+        assertEq(result.space.numberOfConstraints[Alldistinct[_]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[Ne[_]], 3)
-        assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
         assertEq(result.space.numberOfPropagations, 9)
-        assertEq(result.space.numberOfRetractions, 2)
-        assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
+        assertEq(result.space.numberOfRetractions, 1)
+        assert(result.neighbourhood.isInstanceOf[AlldistinctNeighbourhood[_]])
     }
 
     // Checks that the reified redundant alldifferent constraints are ignored.

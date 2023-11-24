@@ -1,3 +1,4 @@
+
 # Yuck
 
 ## Yuck in a nutshell
@@ -125,8 +126,8 @@ When used as a FlatZinc interpreter, Yuck proceeds as follows:
 
 * It eliminates variables by exploiting equality constraints.
 * It identifies and exploits functional dependencies to reduce the number of decision variables.
-* It prunes the constraint network by removing useless constraints.
 * It prunes the search space by performing a limited amount of constraint propagation.
+* It prunes the constraint network by removing useless constraints.
 * It uses an annealing schedule that interleaves adaptive cooling with geometric reheating.
 * In move generation, it concentrates on variables that are involved in constraint violations.
 * It uses restarting to increase robustness: When a solver terminates without having reached its objective, it gets replaced by a new one starting out from another random assignment.
