@@ -23,6 +23,7 @@ abstract class FrontEndTest extends ZincBasedTest {
             maybeRuntimeLimitInSeconds = Some(10),
             throwWhenUnsolved = true,
             reusePreviousTestResult = false,
+            miniZincCompilerRenamesVariables = false,
             createDotFile = true)
 
     extension (result: Result) {

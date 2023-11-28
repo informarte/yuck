@@ -38,8 +38,9 @@ case object NonStandardMiniZincBenchmarksLayout extends TestDataDirectoryLayout
  *
  */
 sealed abstract class VerificationTool
-case object Gecode extends VerificationTool
 case object Chuffed extends VerificationTool
+case object Gecode extends VerificationTool
+case object OrTools extends VerificationTool
 
 /**
  * @author Michael Marte
@@ -63,13 +64,13 @@ final case class ZincTestTask(
     maybeOptimum: Option[Long] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
     maybeHighScore: Option[Long] = None, // best ever recorded objective value
     maybeTargetObjectiveValue: Option[Long] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
-    logLevel: yuck.util.logging.LogLevel = yuck.util.logging.InfoLogLevel,
+    logLevel: yuck.util.logging.LogLevel = yuck.util.logging.FineLogLevel,
     throwWhenUnsolved: Boolean = false,
     reusePreviousTestResult: Boolean = true,
     verificationFrequency: VerificationFrequency = VerifyOnlyLastSolution,
     verificationModelName: String = "",
     verificationTool: VerificationTool = Gecode,
-    miniZincCompilerRenamesVariables: Boolean = false,
+    miniZincCompilerRenamesVariables: Boolean = true,
     keepFlatZincFile: Boolean = true,
     createDotFile: Boolean = false)
 {

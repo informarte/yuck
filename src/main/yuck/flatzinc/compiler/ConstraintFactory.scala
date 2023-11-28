@@ -542,7 +542,7 @@ final class ConstraintFactory
         case Constraint("fzn_nvalue", _, _) =>
             compileBinaryConstraint2[IntegerValue, IntegerVariable, IntegerValue, IntegerVariable](
                 new NumberOfDistinctValues[IntegerValue](_, _, _, _),
-                (xs, y) => if IntegerRange(0, xs.size).isSubsetOf(y.domain) then Nil else enforceIntDomain(y),
+                (xs, y) => if IntegerRange(if xs.isEmpty then 0 else 1, xs.size).isSubsetOf(y.domain) then Nil else enforceIntDomain(y),
                 maybeGoal,
                 constraint)
         case Constraint(Count(_, "bool"), _, _) =>
