@@ -128,8 +128,9 @@ class MiniZincSolutionVerifier(
         }
         solutionWriter.close()
         val solver = task.verificationTool match {
-            case Gecode => "gecode"
-            case Chuffed => "chuffed"
+            case Chuffed => "org.chuffed.chuffed"
+            case Gecode => "org.gecode.gecode"
+            case OrTools => "com.google.ortools.sat"
         }
         val miniZincCommand = mutable.ArrayBuffer(
             "minizinc",

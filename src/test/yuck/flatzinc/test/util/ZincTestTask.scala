@@ -38,8 +38,9 @@ case object NonStandardMiniZincBenchmarksLayout extends TestDataDirectoryLayout
  *
  */
 sealed abstract class VerificationTool
-case object Gecode extends VerificationTool
 case object Chuffed extends VerificationTool
+case object Gecode extends VerificationTool
+case object OrTools extends VerificationTool
 
 /**
  * @author Michael Marte

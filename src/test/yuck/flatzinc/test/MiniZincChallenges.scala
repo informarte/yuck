@@ -32,7 +32,8 @@ final class MiniZincChallenges extends ZincBasedTest {
             directoryLayout = StandardMiniZincBenchmarksLayout,
             suitePath = "resources/mzn/tests/minizinc-benchmarks",
             suiteName = "minizinc-challenges",
-            maybeRuntimeLimitInSeconds = Some(150))
+            maybeRuntimeLimitInSeconds = Some(150),
+            miniZincCompilerRenamesVariables = true)
 
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasDiffnConstraint]))

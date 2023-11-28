@@ -841,7 +841,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverse(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "inverse_test"))
+        val result = solveWithResult(task.copy(problemName = "inverse_test", miniZincCompilerRenamesVariables = true))
         assertEq(result.space.numberOfConstraints[Inverse], 1)
         assert(result.neighbourhood.isInstanceOf[GeneralInverseNeighbourhood])
     }
@@ -855,7 +855,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
             solveWithResult(
                 task.copy(
                     problemName = "inverse_with_unbounded_search_variables_test",
-                    solverConfiguration = task.solverConfiguration.copy(runPresolver = false)))
+                    solverConfiguration = task.solverConfiguration.copy(runPresolver = false),
+                    miniZincCompilerRenamesVariables = true))
         assertEq(result.space.numberOfConstraints[Inverse], 1)
     }
 
@@ -871,7 +872,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseReif(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "inverse_reif_test"))
+        val result = solveWithResult(task.copy(problemName = "inverse_reif_test", miniZincCompilerRenamesVariables = true))
         assertEq(result.space.numberOfConstraints[Inverse], 2)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
