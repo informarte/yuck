@@ -38,7 +38,7 @@ final class ConstraintFactory
     private def definedVars(annotation: Annotation): Seq[AnyVariable] =
         annotation.term match {
             case Term("defines_var", Seq(a)) => List(compileAnyExpr(a))
-            case Term("defines_vars", Seq(a)) => compileAnyArray(a)
+            case Term("yuck_defines_bool_vars" | "yuck_defines_int_vars" | "yuck_defines_set_vars", Seq(a)) => compileAnyArray(a)
             case _ => Nil
         }
 
@@ -647,21 +647,21 @@ final class ConstraintFactory
             val costs = createBoolChannel()
             cc.space.post(new Disjoint2(nextConstraintId(), maybeGoal, rects.to(immutable.ArraySeq), strict, costs))
             List(costs)
-        case Constraint("fzn_table_bool", Seq(as, flatTable), _) =>
+        case Constraint("yuck_table_bool", Seq(as, flatTable), _) =>
             val xs = compileBoolArray(as)
             val rows = compileBoolArray(flatTable).map(_.domain.singleValue).grouped(xs.size).to(immutable.ArraySeq)
             val costs = createBoolChannel()
             val forceImplicitSolving = constraint.annotations.exists(forcesImplicitSolving)
             cc.space.post(new Table(nextConstraintId(), maybeGoal, xs, rows, costs, forceImplicitSolving))
             List(costs)
-        case Constraint("fzn_table_int", Seq(as, flatTable), _) =>
+        case Constraint("yuck_table_int", Seq(as, flatTable), _) =>
             val xs = compileIntArray(as)
             val rows = compileIntArray(flatTable).map(_.domain.singleValue).grouped(xs.size).to(immutable.ArraySeq)
             val costs = createBoolChannel()
             val forceImplicitSolving = constraint.annotations.exists(forcesImplicitSolving)
             cc.space.post(new Table(nextConstraintId(), maybeGoal, xs, rows, costs, forceImplicitSolving))
             List(costs)
-        case Constraint("fzn_regular", Seq(xs, q, s, flatDelta, q0, f), _) =>
+        case Constraint("yuck_regular", Seq(xs, q, s, flatDelta, q0, f), _) =>
             val delta = compileIntArray(flatDelta).map(_.domain.singleValue.toInt).grouped(s.toInt).to(immutable.ArraySeq)
             val costs = createBoolChannel()
             cc.space.post(new Regular(nextConstraintId(), maybeGoal, xs, q.toInt, s.toInt, delta, q0.toInt, f.set, costs))

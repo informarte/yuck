@@ -24,7 +24,8 @@ final class VariableClassifier
             for (annotation <- constraint.annotations) {
                 annotation match {
                     case Annotation(Term("defines_var", Seq(a))) => cc.definedVars += compileAnyExpr(a)
-                    case Annotation(Term("defines_vars", Seq(a))) => cc.definedVars ++= compileAnyArray(a)
+                    case Annotation(Term("yuck_defines_bool_vars" | "yuck_defines_int_vars" | "yuck_defines_set_vars", Seq(a))) =>
+                        cc.definedVars ++= compileAnyArray(a)
                     case _ =>
                 }
             }
