@@ -17,13 +17,13 @@ final class FlatZincResultFormatter(result: Result) extends Callable[Seq[String]
     private val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
 
     override def call() = {
-        var sortedMap = new immutable.TreeMap[String, String]() // id -> value
+        var sortedMap = new mutable.TreeMap[String, String]() // id -> value
         for (decl <- compilerResult.ast.varDecls) {
             for (annotation <- decl.annotations) {
                 annotation match {
                     case Annotation(Term("output_var", Nil)) =>
                         val x = compilerResult.vars(decl.id)
-                        sortedMap = sortedMap + (decl.id -> value(x).toString)
+                        sortedMap += (decl.id -> value(x).toString)
                     case Annotation(Term("output_array", List(ArrayConst(dimensions)))) =>
                         val ArrayType(Some(IntRange(1, n)), _) = decl.valueType: @unchecked
                         val a =
@@ -33,7 +33,7 @@ final class FlatZincResultFormatter(result: Result) extends Callable[Seq[String]
                                     "%d..%d".format(lb, ub)).mkString(", "),
                                 (for (idx <- 1 to n.toInt) yield
                                     value(compilerResult.arrays(decl.id)(idx - 1)).toString).mkString(", "))
-                        sortedMap = sortedMap + (decl.id -> a)
+                        sortedMap += (decl.id -> a)
                     case _ =>
                 }
             }

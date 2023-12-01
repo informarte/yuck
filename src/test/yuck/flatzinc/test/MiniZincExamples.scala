@@ -289,7 +289,8 @@ final class MiniZincExamples extends ZincBasedTest {
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
     def testTenpenki4(): Unit = {
-        solve("tenpenki_4")
+        val result = solveWithResult(task.copy(problemName = "tenpenki_4"))
+        assertEq(result.space.searchVariables, Set())
     }
 
     @Test

@@ -3,6 +3,7 @@ package yuck.flatzinc.test.util
 import java.util.concurrent.Callable
 
 import scala.collection.*
+import scala.jdk.CollectionConverters.*
 
 import yuck.core.{*, given}
 import yuck.flatzinc.ast.*
@@ -45,7 +46,8 @@ class MiniZincSolutionVerifier(
         logger.log("Found %d expectation files in %s".format(expectationFiles.size, searchPath))
         val actualLines = new FlatZincResultFormatter(result).call()
         val witnessFile = expectationFiles.find(expectationFile => {
-            val expectedLines = scala.io.Source.fromFile(expectationFile).mkString.linesIterator.toList
+            val fileReader = new java.io.BufferedReader(new java.io.FileReader(expectationFile))
+            val expectedLines = fileReader.lines.iterator.asScala.toList
             actualLines.zip(expectedLines).forall {case (a, b) => a == b}
         })
         val verified = witnessFile.isDefined
@@ -57,14 +59,24 @@ class MiniZincSolutionVerifier(
         verified
     }
 
-    // Creates a solution file that includes the MiniZinc model and that contains the assignments to output
+    // Creates a solution.mzn file that includes the MiniZinc model and contains the assignments to output
     // variables in terms of equality constraints.
-    // Then runs the NICTA MiniZinc tool chain in the tmp dir with the problem dir on the include path.
-    // (minizinc will find the included .mzn files there.)
+    // (The assignments are obtained by piping Yuck's solution through minizinc --ozn-file problem.ozn.
+    // This is necessary because the MiniZinc compiler sometimes renames decision variables.)
+    // Then runs the MiniZinc tool chain in the tmp dir with the problem dir on the include path.
     // If the solution is ok, Gecode will print the solution followed by the solution separator
     // "----------" to stdout (this behaviour complies to the FlatZinc spec), so we check for this string.
     // To check our objective value, we compare it to the one computed by Gecode.
     // The solution files are not deleted to allow for manual re-checking.
+    //
+    // Notice that the MiniZinc compiler accepts assignments to decision variables in data files
+    // and allows for several data files on the command line. So it seems that we could just
+    // dump the assignments to a solution.dzn file and compile it together with the model and
+    // the instance data. However, the MiniZinc compiler forbids multiple assignments to the
+    // same variable, even if they are identical. This restriction is of concern when the model
+    // or the instance data contain an assignment to a decision variable (like array [1..9] of
+    // var -100..100: x = [6, 7, _, 8, _, 9, _, 8, 6], for example) and cannot be worked around
+    // by equality constraints because data files must not contain constraints.
     private def consultMiniZinc: Boolean = {
         val suitePath = task.suitePath
         val suiteName = if (task.suiteName.isEmpty) new java.io.File(suitePath).getName else task.suiteName
@@ -92,27 +104,34 @@ class MiniZincSolutionVerifier(
                  "tmp/%s/%s/%s".format(suiteName, problemName, instanceName))
         }
         new java.io.File(outputDirectoryPath).mkdirs
-        val solutionFilePath = "%s/solution-%s.mzn".format(outputDirectoryPath, Thread.currentThread.getName)
+        val solutionFilePath =
+            if task.verificationFrequency == VerifyEverySolution
+            then "%s/solution-%s.mzn".format(outputDirectoryPath, Thread.currentThread.getName)
+            else "%s/solution.mzn".format(outputDirectoryPath)
         val solutionWriter = new java.io.FileWriter(solutionFilePath, false /* do not append */)
         val solutionFormatter = new FlatZincResultFormatter(result)
-        val solution = solutionFormatter.call()
-        assert(checkIndicators(solution))
-        for (assignment <- solution.iterator.takeWhile(_ != FlatZincSolutionSeparator)) {
+        val solution =
+            if task.miniZincCompilerRenamesVariables
+            then undoVariableRenamings("%s/problem.ozn".format(outputDirectoryPath), solutionFormatter.call())
+            else solutionFormatter.call()
+        assert(checkDelimiters(solution), "Issue with delimiters")
+        val assignments = solution.takeWhile(_ != FlatZincSolutionSeparator)
+        for (assignment <- assignments) {
             solutionWriter.write("constraint %s\n".format(assignment))
         }
         // We include the MiniZinc model in the end because a few of them don't have a semicolon
         // after the last line.
         if (task.verificationModelName.isEmpty) {
-            solutionWriter.write("include \"%s\";".format(modelFileName))
+            solutionWriter.write("include \"%s\";\n".format(modelFileName))
         } else {
-            solutionWriter.write("include \"%s.mzn\";".format(task.verificationModelName))
+            solutionWriter.write("include \"%s.mzn\";\n".format(task.verificationModelName))
         }
         solutionWriter.close()
         val solver = task.verificationTool match {
             case Gecode => "gecode"
             case Chuffed => "chuffed"
         }
-        val minizincCommand = mutable.ArrayBuffer(
+        val miniZincCommand = mutable.ArrayBuffer(
             "minizinc",
             "-v",
             // Tell minizinc where to find the MiniZinc model.
@@ -129,18 +148,21 @@ class MiniZincSolutionVerifier(
             // Verification should never take longer than solving.
             "--time-limit", (task.maybeRuntimeLimitInSeconds.getOrElse(DefaultRuntimeLimitInSeconds) * 1000L).toString)
         for ((key, value) <- task.dataAssignments) {
-            minizincCommand ++= List("-D", "%s=%s".format(key, value))
+            miniZincCommand ++= List("-D", "%s=%s".format(key, value))
         }
-        minizincCommand += solutionFilePath
-        if (! dataFileName.isEmpty) minizincCommand += "%s/%s".format(includePath, dataFileName)
-        val outputLines = new ProcessRunner(logger, minizincCommand).call()
+        miniZincCommand += solutionFilePath
+        if (! dataFileName.isEmpty) {
+            miniZincCommand += "%s/%s".format(includePath, dataFileName)
+        }
+        val outputLines = new ProcessRunner(logger, miniZincCommand).call()
+        assert(! outputLines.contains(FlatZincNoSolutionFoundIndicator), "Solution seems to be underspecified")
         val verified =
             ! outputLines.contains(FlatZincInconsistentProblemIndicator) &&
             checkObjective(outputLines)
         verified
     }
 
-    private def checkIndicators(outputLines: Seq[String]): Boolean = {
+    private def checkDelimiters(outputLines: Seq[String]): Boolean = {
         val separatorIndex = outputLines.indexOf(FlatZincSolutionSeparator)
         val bestSolutionFoundIndicatorIndex = outputLines.indexOf(FlatZincBestSolutionFoundIndicator)
         if (result.objective.isInstanceOf[HierarchicalObjective]) {
@@ -191,6 +213,36 @@ class MiniZincSolutionVerifier(
                 false
             }
         }
+    }
+
+    def undoVariableRenamings(oznFilePath: String, solution: Seq[String]): Seq[String] = {
+        val commandLine = List("minizinc", "--ozn-file", oznFilePath)
+        val processBuilder = new java.lang.ProcessBuilder(commandLine.asJava)
+        processBuilder.redirectErrorStream(true) // merge stderr into stdout
+        logger.withLogScope(processBuilder.command.asScala.mkString(" ")) {
+            val process = processBuilder.start()
+            val stdin = new java.io.PrintStream(process.getOutputStream)
+            solution.foreach(line => stdin.println(line))
+            stdin.flush()
+            stdin.close()
+            val stdoutReader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream))
+            val outputLines = stdoutReader.lines.iterator.asScala.toList
+            outputLines.foreach(logger.log(_))
+            val exitCode = process.waitFor()
+            assert(exitCode == 0, "Process failed with exit code %d".format(exitCode))
+            val (separators, assignments) =
+                outputLines.partition(line => line == FlatZincSolutionSeparator || line == FlatZincBestSolutionFoundIndicator)
+            val result =
+                assignments
+                    .mkString // eliminate newlines from assignments (in case 2-dim arrays are pretty printed)
+                    .replaceAll("\\s\\s*", " ") // remove superfluous whitespace
+                    .split(";") // split at end of assignments
+                    .filterNot(_.isEmpty) // remove empty line (in case there is no assignment)
+                    .map(_.concat(";")) // put the semicolons back
+                    .appendedAll(separators) // finally re-append the separators
+            result
+        }
+
     }
 
 }

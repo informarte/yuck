@@ -175,6 +175,7 @@ class ZincBasedTest extends IntegrationTest {
     private def flatten(task: ZincTestTask, outputDirectoryPath: String): String = {
         require(task.sourceFormat == MiniZinc)
         val fznFilePath = "%s/problem.fzn".format(outputDirectoryPath)
+        val oznFilePath = "%s/problem.ozn".format(outputDirectoryPath)
         val (mznFilePath, dataFilePath) = task.directoryLayout match {
             case MiniZincExamplesLayout =>
                 ("%s/%s.mzn".format(task.suitePath, task.problemName), "")
@@ -187,23 +188,32 @@ class ZincBasedTest extends IntegrationTest {
             case NonStandardMiniZincBenchmarksLayout =>
                 ("%s/%s/%s.mzn".format(task.suitePath, task.problemName, task.instanceName), "")
         }
-        val mzn2fznCommand = mutable.ArrayBuffer(
+        val miniZincCommand = mutable.ArrayBuffer(
             "minizinc",
             "-v",
             "-c",
             "--no-half-reifications",
             "--solver", "org.minizinc.mzn-fzn",
             "-I", "resources/mzn/lib/yuck",
-            "--no-output-ozn", "--output-fzn-to-file", fznFilePath)
-        for ((key, value) <- task.dataAssignments) {
-            mzn2fznCommand ++= List("-D", "%s=%s".format(key, value))
+            "--output-fzn-to-file", fznFilePath)
+        if (task.miniZincCompilerRenamesVariables) {
+            miniZincCommand ++= List(
+                "--output-mode", "dzn",
+                "--output-ozn-to-file", oznFilePath)
+        } else {
+            miniZincCommand += "--no-output-ozn"
         }
-        mzn2fznCommand += mznFilePath
-        if (!dataFilePath.isEmpty) mzn2fznCommand += dataFilePath
+        for ((key, value) <- task.dataAssignments) {
+            miniZincCommand ++= List("-D", "%s=%s".format(key, value))
+        }
+        miniZincCommand += mznFilePath
+        if (! dataFilePath.isEmpty) {
+            miniZincCommand += dataFilePath
+        }
         val outputLines =
             logger.withTimedLogScope("Flattening MiniZinc model") {
                 logger.withRootLogLevel(FineLogLevel) {
-                    new ProcessRunner(logger, mzn2fznCommand).call()
+                    new ProcessRunner(logger, miniZincCommand).call()
                 }
             }
         logMiniZincVersion(outputLines.head)

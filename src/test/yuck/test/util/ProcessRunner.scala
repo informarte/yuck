@@ -19,8 +19,8 @@ class ProcessRunner(logger: LazyLogger, commandLine: Seq[String]) extends Callab
         val command = processBuilder.command.asScala
         logger.withLogScope(command.iterator.mkString(" ")) {
             val process = processBuilder.start()
-            val stdout = scala.io.Source.fromInputStream(process.getInputStream)
-            val outputLines = stdout.getLines().toSeq
+            val stdoutReader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream))
+            val outputLines = stdoutReader.lines.iterator.asScala.toList
             outputLines.foreach(logger.log(_))
             val exitCode = process.waitFor()
             assert(exitCode == 0, "Process failed with exit code %d".format(exitCode))

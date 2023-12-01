@@ -69,6 +69,7 @@ final case class ZincTestTask(
     verificationFrequency: VerificationFrequency = VerifyOnlyLastSolution,
     verificationModelName: String = "",
     verificationTool: VerificationTool = Gecode,
+    miniZincCompilerRenamesVariables: Boolean = false,
     keepFlatZincFile: Boolean = true,
     createDotFile: Boolean = false)
 {
