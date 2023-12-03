@@ -42,6 +42,7 @@ def createDb(cursor):
         'md5sum TEXT, '\
         'number_of_variables INT CONSTRAINT result_number_of_variables_constraint CHECK (number_of_variables >= 0), '\
         'number_of_search_variables INT CONSTRAINT result_number_of_search_variables_constraint CHECK (number_of_search_variables >= 0), '\
+        'number_of_implicitly_constrained_search_variables INT CONSTRAINT result_number_of_implicitly_constrained_search_variables_constraint CHECK (number_of_implicitly_constrained_search_variables >= 0), '\
         'number_of_channel_variables INT CONSTRAINT result_number_of_channel_variables_constraint CHECK (number_of_channel_variables >= 0), '\
         'number_of_constraints INT CONSTRAINT result_number_of_constraints_constraint CHECK (number_of_constraints >= 0), '\
         'number_of_implicit_constraints INT CONSTRAINT result_number_of_implicit_constraints_constraint CHECK (number_of_implicit_constraints >= 0), '\
@@ -69,7 +70,7 @@ def importResults(args, file, cursor):
         print("No model statistics (FlatZinc compiler error?)")
     else:
         cursor.execute(
-            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             (args.run,
              solver['name'] if solver else None,
              solver['version'] if solver else None,
@@ -86,6 +87,7 @@ def importResults(args, file, cursor):
              flatZincModelStatistics.get('md5sum') if flatZincModelStatistics else None,
              yuckModelStatistics['number-of-search-variables'] + yuckModelStatistics['number-of-channel-variables'] if yuckModelStatistics else None,
              yuckModelStatistics['number-of-search-variables'] if yuckModelStatistics else None,
+             yuckModelStatistics['number-of-implicitly-constrained-search-variables'] if yuckModelStatistics else None,
              yuckModelStatistics['number-of-channel-variables'] if yuckModelStatistics else None,
              yuckModelStatistics['number-of-constraints'] if yuckModelStatistics else None,
              yuckModelStatistics['number-of-implicit-constraints'] if yuckModelStatistics else None,

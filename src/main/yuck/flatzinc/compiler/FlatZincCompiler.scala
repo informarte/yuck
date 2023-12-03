@@ -101,15 +101,17 @@ final class FlatZincCompiler
 
     private def logYuckModelStatistics(cc: CompilationContext) = {
         lazy val searchVariables = cc.space.searchVariables
-        logger.logg("Search variables: %s".format(searchVariables))
+        logger.logg("Search variables: %s".format(searchVariables.toList.sorted.mkString(", ")))
         logger.log("%d search variables".format(searchVariables.size))
         lazy val searchVariablesCoveredByNeighbourhood =
             cc.maybeNeighbourhood.map(_.searchVariables).getOrElse(Set[AnyVariable]())
-        logger.logg("Search variables covered by neighbourhood: %s".format(searchVariablesCoveredByNeighbourhood))
+        logger.logg("Search variables covered by neighbourhood: %s".format(searchVariablesCoveredByNeighbourhood.toList.sorted.mkString(", ")))
         logger.log("%d search variables covered by neighbourhood".format(searchVariablesCoveredByNeighbourhood.size))
+        logger.logg("Implicitly constrained search variables: %s".format(cc.space.implicitlyConstrainedSearchVariables.toList.sorted.mkString(", ")))
+        logger.log("%d implicitly constrained search variables".format(cc.space.implicitlyConstrainedSearchVariables.size))
         logger.log("%d channel variables".format(cc.space.channelVariables.size))
         lazy val danglingVariables = cc.vars.valuesIterator.filter(cc.space.isDanglingVariable).toSet
-        logger.logg("Dangling variables: %s".format(danglingVariables))
+        logger.logg("Dangling variables: %s".format(danglingVariables.toList.sorted.mkString(", ")))
         logger.log("%d dangling variables".format(danglingVariables.size))
         logger.log("%d constraints".format(cc.space.numberOfConstraints))
         logger.log("%d implicit constraints".format(cc.space.numberOfImplicitConstraints))

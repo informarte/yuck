@@ -367,6 +367,8 @@ class ZincBasedTest extends IntegrationTest {
         jsonRoot +=
             "yuck-model-statistics" -> JsSection(
                 "number-of-search-variables" -> JsNumber(space.searchVariables.size),
+                "number-of-implicitly-constrained-search-variables" ->
+                    JsNumber(space.implicitlyConstrainedSearchVariables.size),
                 "number-of-channel-variables" -> JsNumber(space.channelVariables.size),
                 // dangling variables are not readily available
                 "number-of-constraints" -> JsNumber(space.numberOfConstraints),
