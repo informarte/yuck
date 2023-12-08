@@ -67,7 +67,7 @@ final class Disjunction
             sum = safeAdd(sum, a)
             if (a == 0) trueCount += 1
         }
-        effect.a = if (trueCount > 0) True else BooleanValue(sum / n)
+        effect.a = if (trueCount > 0) True else if (n == 0) False else BooleanValue(sum / n)
         effect
     }
 

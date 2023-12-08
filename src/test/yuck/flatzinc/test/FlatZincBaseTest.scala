@@ -487,13 +487,13 @@ final class FlatZincBaseTest extends FrontEndTest {
         val result = solveWithResult(task.copy(problemName = "redundant_alldifferent_test"))
         assertEq(result.space.searchVariables.map(_.name), Set("x[1]", "x[2]", "x[3]"))
         assertEq(result.space.channelVariables.size, 5)
-        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
         assertEq(result.space.numberOfConstraints, 5)
         assertEq(result.space.numberOfConstraints[Alldistinct[_]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[Ne[_]], 3)
-        assertEq(result.space.numberOfPropagations, 9)
-        assertEq(result.space.numberOfRetractions, 1)
+        assertEq(result.space.numberOfPropagations, 6)
+        assertEq(result.space.numberOfRetractions, 0)
         assert(result.neighbourhood.isInstanceOf[AlldistinctNeighbourhood[_]])
     }
 
@@ -551,8 +551,8 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.numberOfConstraints, 2)
         assertEq(result.space.numberOfConstraints[Alldistinct[_]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfPropagations, 41)
-        assertEq(result.space.numberOfRetractions, 19)
+        assertEq(result.space.numberOfPropagations, 23)
+        assertEq(result.space.numberOfRetractions, 13)
     }
 
     // Checks that the inner implication does not introduce an additional search variable
@@ -563,11 +563,11 @@ final class FlatZincBaseTest extends FrontEndTest {
     def testNestedImplications(): Unit = {
         val result = solveWithResult(task.copy(problemName = "nested_implications_test"))
         assertEq(result.space.searchVariables.map(_.name), Set("c", "d", "x"))
-        assertEq(result.space.channelVariables.size, 7)
+        assertEq(result.space.channelVariables.size, 6)
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 3)
-        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
-        assertEq(result.space.numberOfConstraints, 8)
-        assertEq(result.space.numberOfConstraints[Conjunction], 2)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 3)
+        assertEq(result.space.numberOfConstraints, 7)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[Le[_]], 5)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
