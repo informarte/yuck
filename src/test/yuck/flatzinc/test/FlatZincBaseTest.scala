@@ -23,13 +23,13 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testParametersInArrays(): Unit = {
-        val result = solveWithResult(task.copy(sourceFormat = FlatZinc, problemName = "parameters_in_arrays_test"))
+        solve(task.copy(sourceFormat = FlatZinc, problemName = "parameters_in_arrays_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testArrayBoolAndWithDuplicateVariable(): Unit = {
-        val result = solveWithResult(task.copy(sourceFormat = FlatZinc, problemName = "array_bool_and_test_with_duplicate_variable", solverConfiguration = task.solverConfiguration.copy(runPresolver = false)))
+        val result = solveWithResult(task.copy(sourceFormat = FlatZinc, problemName = "array_bool_and_with_duplicate_variable_test", solverConfiguration = task.solverConfiguration.copy(runPresolver = false)))
         assertEq(result.space.searchVariables.map(_.name), Set("x", "y"))
         assert(result.space.problemParameters.isEmpty)
         assertEq(result.space.channelVariables.size, 2)
@@ -43,7 +43,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testArrayBoolOrWithDuplicateVariable(): Unit = {
-        val result = solveWithResult(task.copy(sourceFormat = FlatZinc, problemName = "array_bool_or_test_with_duplicate_variable", solverConfiguration = task.solverConfiguration.copy(runPresolver = false)))
+        val result = solveWithResult(task.copy(sourceFormat = FlatZinc, problemName = "array_bool_or_with_duplicate_variable_test", solverConfiguration = task.solverConfiguration.copy(runPresolver = false)))
         assertEq(result.space.searchVariables.map(_.name), Set("x", "y"))
         assert(result.space.problemParameters.isEmpty)
         assertEq(result.space.channelVariables.size, 2)
@@ -57,21 +57,21 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testVarArrayAccess(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "var_array_access"))
+        val result = solveWithResult(task.copy(problemName = "var_array_access_test"))
         assertEq(result.space.numberOfConstraints[ElementVar[_]], 3)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testConstArrayAccess(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "const_array_access"))
+        val result = solveWithResult(task.copy(problemName = "const_array_access_test"))
         assertEq(result.space.numberOfConstraints[ElementConst[_]], 3)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testArrayAccessWhereResultMustEqualIndex(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "array_access_where_result_must_equal_index"))
+        val result = solveWithResult(task.copy(problemName = "array_access_where_result_must_equal_index_test"))
         assertEq(result.space.numberOfConstraints[ElementVar[_]], 1)
         assertEq(result.space.numberOfConstraints[Eq[_]], 1)
     }
@@ -79,13 +79,13 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testArrayAccessWhereIndexIsChannelVariable(): Unit = {
-        solve(task.copy(problemName = "array_access_where_index_is_channel_variable"))
+        solve(task.copy(problemName = "array_access_with_index_channel_test"))
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testArrayAccessWithConstrainedIndexVariables(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "array_access_with_constrained_index_variables"))
+        val result = solveWithResult(task.copy(problemName = "array_access_with_constrained_index_variables_test"))
         assertEq(result.space.searchVariables.size, 12)
         assert(! result.space.searchVariables.exists(_.name == "x[5]"))
     }
@@ -99,13 +99,13 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testIfThenElseBoolWithConstCondition(): Unit = {
-        testIfThenElseWithConstCondition("if_then_else_bool_test_with_const_condition")
+        testIfThenElseWithConstCondition("if_then_else_bool_with_const_condition_test")
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testIfThenElseBoolWithEqualAlternatives(): Unit = {
-        testIfThenElseWithEqualAlternatives("if_then_else_bool_test_with_equal_alternatives")
+        testIfThenElseWithEqualAlternatives("if_then_else_bool_with_equal_alternatives_test")
     }
 
     @Test
@@ -117,7 +117,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testIfThenElseVarBoolWithConstCondition(): Unit = {
-        testIfThenElseVarWithConstCondition("if_then_else_var_bool_test_with_const_condition")
+        testIfThenElseVarWithConstCondition("if_then_else_var_bool_with_const_condition_test")
     }
 
     @Test
@@ -144,13 +144,13 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testIfThenElseIntWithConstCondition(): Unit = {
-        testIfThenElseWithConstCondition("if_then_else_int_test_with_const_condition")
+        testIfThenElseWithConstCondition("if_then_else_int_with_const_condition_test")
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testIfThenElseIntWithEqualAlternatives(): Unit = {
-        testIfThenElseWithEqualAlternatives("if_then_else_int_test_with_equal_alternatives")
+        testIfThenElseWithEqualAlternatives("if_then_else_int_with_equal_alternatives_test")
     }
 
     @Test
@@ -162,7 +162,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testIfThenElseVarIntWithConstCondition(): Unit = {
-        testIfThenElseVarWithConstCondition("if_then_else_var_int_test_with_const_condition")
+        testIfThenElseVarWithConstCondition("if_then_else_var_int_with_const_condition_test")
     }
 
     @Test
@@ -174,13 +174,13 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testIfThenElseSetWithConstCondition(): Unit = {
-        testIfThenElseWithConstCondition("if_then_else_set_test_with_const_condition")
+        testIfThenElseWithConstCondition("if_then_else_set_with_const_condition_test")
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testIfThenElseSetWithEqualAlternatives(): Unit = {
-        testIfThenElseWithEqualAlternatives("if_then_else_set_test_with_equal_alternatives")
+        testIfThenElseWithEqualAlternatives("if_then_else_set_with_equal_alternatives_test")
     }
 
     @Test
@@ -192,7 +192,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testIfThenElseVarSetWithConstCondition(): Unit = {
-        testIfThenElseVarWithConstCondition("if_then_else_var_set_test_with_const_condition")
+        testIfThenElseVarWithConstCondition("if_then_else_var_set_with_const_condition_test")
     }
 
     private def testIfThenElse(problemName: String): Unit = {
@@ -317,14 +317,14 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def testMinimizationOfSumWithNegativeAddends(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "minimization_of_sum_with_negative_addends"))
+        val result = solveWithResult(task.copy(problemName = "minimization_of_sum_with_negative_addends_test"))
         assertEq(result.quality, Zero)
     }
 
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def testMinimizationProblemWithBoundedDanglingObjectiveVariable(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "minimization_problem_with_bounded_dangling_objective_variable"))
+        val result = solveWithResult(task.copy(problemName = "minimization_with_bounded_dangling_objective_variable_test"))
         val x = result.objective.objectiveVariables(1).asInstanceOf[IntegerVariable]
         assert(result.space.isDanglingVariable(x))
         assertEq(result.assignment.value(x), IntegerValue(-1000))
@@ -334,7 +334,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Category(Array(classOf[MinimizationProblem]))
     def testMinimizationProblemWithUnboundedDanglingObjectiveVariable(): Unit = {
         // We cannot verify the solution because Gecode does not support 64 bit integers.
-        val result = solveWithResult(task.copy(problemName = "minimization_problem_with_unbounded_dangling_objective_variable", verificationFrequency = NoVerification))
+        val result = solveWithResult(task.copy(problemName = "minimization_with_unbounded_dangling_objective_variable_test", verificationFrequency = NoVerification))
         val x = result.objective.objectiveVariables(1).asInstanceOf[IntegerVariable]
         assert(result.space.isDanglingVariable(x))
         assertEq(result.assignment.value(x), IntegerValueTraits.minValue)
@@ -343,7 +343,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint]))
     def testMinimizationProblemWithImplicitlyConstrainedObjectiveVariable(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "minimization_problem_with_implicitly_constrained_objective_variable"))
+        val result = solveWithResult(task.copy(problemName = "minimization_with_implicitly_constrained_objective_variable_test"))
         val x = result.objective.objectiveVariables(1).asInstanceOf[IntegerVariable]
         assert(result.space.isImplicitlyConstrainedSearchVariable(x))
         assertEq(result.assignment.value(x), One)
@@ -352,7 +352,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[MaximizationProblem]))
     def testMaximizationProblemWithBoundedDanglingObjectiveVariable(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "maximization_problem_with_bounded_dangling_objective_variable"))
+        val result = solveWithResult(task.copy(problemName = "maximization_with_bounded_dangling_objective_variable_test"))
         val x = result.objective.objectiveVariables(1).asInstanceOf[IntegerVariable]
         assert(result.space.isDanglingVariable(x))
         assertEq(result.assignment.value(x), IntegerValue(1000))
@@ -362,7 +362,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Category(Array(classOf[MaximizationProblem]))
     def testMaximizationProblemWithUnboundedDanglingObjectiveVariable(): Unit = {
         // We cannot verify the solution because Gecode does not support 64 bit integers.
-        val result = solveWithResult(task.copy(problemName = "maximization_problem_with_unbounded_dangling_objective_variable", verificationFrequency = NoVerification))
+        val result = solveWithResult(task.copy(problemName = "maximization_with_unbounded_dangling_objective_variable_test", verificationFrequency = NoVerification))
         val x = result.objective.objectiveVariables(1).asInstanceOf[IntegerVariable]
         assert(result.space.isDanglingVariable(x))
         assertEq(result.assignment.value(x), IntegerValueTraits.maxValue)
@@ -371,7 +371,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[MaximizationProblem], classOf[HasAlldifferentConstraint]))
     def testMaximizationProblemWithImplicitlyConstrainedObjectiveVariable(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "maximization_problem_with_implicitly_constrained_objective_variable"))
+        val result = solveWithResult(task.copy(problemName = "maximization_with_implicitly_constrained_objective_variable_test"))
         val x = result.objective.objectiveVariables(1).asInstanceOf[IntegerVariable]
         assert(result.space.isImplicitlyConstrainedSearchVariable(x))
         assertEq(result.assignment.value(x), IntegerValue(512))
@@ -380,7 +380,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testProblemWithBoundedDanglingVariable(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "problem_with_bounded_dangling_variable"))
+        val result = solveWithResult(task.copy(problemName = "bounded_dangling_variable_test"))
         val x = result.compilerResult.arrays("x")
         assertEq(x.size, 4)
         assertEq(result.space.searchVariables, Set(x(0), x(1)))
@@ -397,14 +397,14 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testProblemWithUnboundedDanglingVariable(): Unit = {
         assertEx(
-            solve(task.copy(problemName = "problem_with_unbounded_dangling_variable")),
+            solve(task.copy(problemName = "unbounded_dangling_variable_test")),
             classOf[VariableWithInfiniteDomainException])
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testProblemWithBoundedIrrelevantSearchVariable(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "problem_with_bounded_irrelevant_search_variable"))
+        val result = solveWithResult(task.copy(problemName = "bounded_irrelevant_search_variable_test"))
         assertEq(result.space.searchVariables.map(_.name), Set("x"))
         assertEq(result.space.channelVariables.filter(isUserDefined).map(_.name), Set("r"))
         assertEq(result.space.numberOfConstraints, 2)
@@ -416,7 +416,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testProblemWithUnboundedIrrelevantSearchVariable(): Unit = {
         assertEx(
-            solve(task.copy(problemName = "problem_with_unbounded_irrelevant_search_variable")),
+            solve(task.copy(problemName = "unbounded_irrelevant_search_variable_test")),
             classOf[VariableWithInfiniteDomainException])
     }
 
@@ -424,7 +424,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testProblemWithUnboundedRelevantSearchVariable(): Unit = {
         assertEx(
-            solve(task.copy(problemName = "problem_with_unbounded_relevant_search_variable")),
+            solve(task.copy(problemName = "unbounded_relevant_search_variable_test")),
             classOf[VariableWithInfiniteDomainException])
     }
 
@@ -471,7 +471,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testProblemWithDuplicateCostVariable(): Unit = {
-        val result = solveWithResult(task.copy(sourceFormat = FlatZinc, problemName = "problem_with_duplicate_cost_variable"))
+        val result = solveWithResult(task.copy(sourceFormat = FlatZinc, problemName = "duplicate_cost_variable_test"))
         assertEq(result.space.searchVariables, Set())
         assertEq(result.space.problemParameters.size, 1)
         assertEq(result.space.channelVariables.size, 1)

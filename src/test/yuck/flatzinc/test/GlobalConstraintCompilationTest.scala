@@ -161,7 +161,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingLoadWithUnboundedLoads(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_unbounded_loads"))
+        val result = solveWithResult(task.copy(problemName = "bin_packing_load_with_unbounded_loads_test"))
         assertEq(result.space.searchVariables.size, 6)
         assertEq(result.space.channelVariables.size, 4)
         assertEq(result.space.channelVariables.count(isUserDefined), 3)
@@ -175,7 +175,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingLoadWithEqualLoads(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_equal_loads"))
+        val result = solveWithResult(task.copy(problemName = "bin_packing_load_with_equal_loads_test"))
         assertEq(result.space.searchVariables.size, 6)
         assertEq(result.space.channelVariables.size, 6)
         assertEq(result.space.channelVariables.count(isUserDefined), 1)
@@ -190,7 +190,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingLoadWithSharedLoads(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_shared_loads"))
+        val result = solveWithResult(task.copy(problemName = "bin_packing_load_with_shared_loads_test"))
         assertEq(result.space.searchVariables.size, 6)
         assertEq(result.space.channelVariables.size, 13)
         assertEq(result.space.channelVariables.count(isUserDefined), 3)
@@ -206,7 +206,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
     def testBinPackingLoadWithEqualBins(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "bin_packing_load_test_with_equal_bins"))
+        val result = solveWithResult(task.copy(problemName = "bin_packing_load_with_equal_bins_test"))
         assertEq(result.space.searchVariables.size, 5)
         assertEq(result.space.channelVariables.size, 7)
         assertEq(result.space.channelVariables.count(isUserDefined), 3)
@@ -645,7 +645,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
     def testDeliveryWithWaiting(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "delivery_test_with_waiting", maybeOptimum = Some(378)))
+        val result = solveWithResult(task.copy(problemName = "delivery_with_waiting_test", maybeOptimum = Some(378)))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
         assertEq(result.space.numberOfConstraints[Delivery[_]], 1)
         assertEq(result.space.numberOfConstraints[Eq[_]], 0)
@@ -656,7 +656,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
     def testDeliveryWithoutWaiting(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "delivery_test_without_waiting", dataAssignments = Map(("MaxKToMinKRatio", "1")), maybeOptimum = Some(669), maybeTargetObjectiveValue = Some(700)))
+        val result = solveWithResult(task.copy(problemName = "delivery_without_waiting_test", dataAssignments = Map(("MaxKToMinKRatio", "1")), maybeOptimum = Some(669), maybeTargetObjectiveValue = Some(700)))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
         assertEq(result.space.numberOfConstraints[Delivery[_]], 2)
         assertEq(result.space.numberOfConstraints[Eq[_]], 0)
@@ -677,7 +677,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
     def testDeliveriesWithEqualArrivalTimes(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "delivery_test_with_equal_arrival_times", dataAssignments = Map(("MaxKToMinKRatio", "1"))))
+        val result = solveWithResult(task.copy(problemName = "delivery_with_equal_arrival_times_test", dataAssignments = Map(("MaxKToMinKRatio", "1"))))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
         assertEq(result.space.numberOfConstraints[Delivery[_]], 2)
         assertEq(result.space.numberOfConstraints[Eq[_]], 1)
@@ -687,7 +687,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
     def testDeliveriesWithSharedArrivalTimes(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "delivery_test_with_shared_arrival_times"))
+        val result = solveWithResult(task.copy(problemName = "delivery_with_shared_arrival_times_test"))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
         assertEq(result.space.numberOfConstraints[Delivery[_]], 2)
         assertEq(result.space.numberOfConstraints[Eq[_]], 23)
@@ -854,7 +854,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         val result =
             solveWithResult(
                 task.copy(
-                    problemName = "inverse_test_with_unbounded_search_variables",
+                    problemName = "inverse_with_unbounded_search_variables_test",
                     solverConfiguration = task.solverConfiguration.copy(runPresolver = false)))
         assertEq(result.space.numberOfConstraints[Inverse], 1)
     }

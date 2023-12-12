@@ -70,7 +70,7 @@ final class FlatZincExtensionTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testWarmStartFromSolution(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "warm_start_test_from_solution"))
+        val result = solveWithResult(task.copy(problemName = "warm_start_from_solution_test"))
         assert(result.isSolution)
         assert(result.warmStartWasPerformed)
         assertEq(
@@ -82,7 +82,7 @@ final class FlatZincExtensionTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testWarmStartFromPartialSolution(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "warm_start_test_from_partial_solution"))
+        val result = solveWithResult(task.copy(problemName = "warm_start_from_partial_solution_test"))
         assert(result.isSolution)
         assert(result.warmStartWasPerformed)
         assert(result.searchWasPerformed)
@@ -91,7 +91,7 @@ final class FlatZincExtensionTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testWarmStartFromInvalidSolution(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "warm_start_test_from_invalid_solution"))
+        val result = solveWithResult(task.copy(problemName = "warm_start_from_invalid_solution_test"))
         assert(result.isSolution)
         assert(result.warmStartWasPerformed)
         assert(result.searchWasPerformed)
