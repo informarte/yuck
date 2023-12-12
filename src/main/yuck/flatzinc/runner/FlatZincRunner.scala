@@ -153,7 +153,6 @@ object FlatZincRunner extends YuckLogging {
             logger.log("Git branch: %s".format(BuildInfo.gitBranch))
             logger.log("Git commit data: %s".format(BuildInfo.gitCommitDate))
             logger.log("Git commit hash: %s".format(BuildInfo.gitCommitHash))
-            logger.log("Build type: %s".format(BuildInfo.buildType))
         }
     }
 

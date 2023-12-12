@@ -21,28 +21,31 @@ minizinc-benchmarks: ci-tests
 yuck.test.% yuck.flatzinc.test.%:
 	./scripts/test-runner.py $@
 
-.PHONY: stage zip doc clean render-readme
+.PHONY: bsp idea-project-files compile run stage zip doc clean render-readme
+
+bsp:
+	./mill mill.bsp.BSP/install
 
 idea-project-files:
-	./mill mill.scalalib.GenIdea/idea
+	./mill mill.idea.GenIdea/idea
 
 compile:
-	./mill yuck.dev.test.compile
+	./mill yuck.test.compile
 
 run:
-	./mill yuck.dev.run
+	./mill yuck.run
 
 stage:
-	./mill yuck.dev.launcher
+	./mill yuck.launcher
 
 deb:
-	./mill yuck.dev.debianPackage
+	./mill yuck.debianPackage
 
 zip:
-	./mill yuck.dev.universalPackage
+	./mill yuck.universalPackage
 
 doc:
-	./mill yuck.dev.docJar
+	./mill yuck.docJar
 
 clean:
 	./mill clean

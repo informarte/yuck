@@ -321,7 +321,6 @@ class ZincBasedTest extends IntegrationTest {
                 "branch" -> JsString(BuildInfo.gitBranch),
                 "commit-date" -> JsString(BuildInfo.gitCommitDate),
                 "commit-hash" -> JsString(BuildInfo.gitCommitHash),
-                "build-type" -> JsString(BuildInfo.buildType),
                 "version" -> JsString(BuildInfo.version))
     }
 

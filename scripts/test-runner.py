@@ -26,12 +26,12 @@ def main():
     testClass = args.testClasses[0]
     exitCode = 0
     if args.mode == 'SINGLE_JVM':
-        result = subprocess.run(['./mill', 'yuck.dev.test.run', testClass])
+        result = subprocess.run(['./mill', 'yuck.test.run', testClass])
         exitCode = result.returncode
         os.sync()
     else:
         result = subprocess.run(
-            ['./mill', 'yuck.dev.test.run', '--list-test-methods', 'true', testClass],
+            ['./mill', 'yuck.test.run', '--list-test-methods', 'true', testClass],
             capture_output = True, text = True)
         exitCode = result.returncode
         if exitCode == 0:
@@ -40,7 +40,7 @@ def main():
                 testMethods = testMethods[:args.take]
             for testMethod in testMethods:
                 print(testMethod)
-                result = subprocess.run(['./mill', 'yuck.dev.test.run', testMethod])
+                result = subprocess.run(['./mill', 'yuck.test.run', testMethod])
                 if result.returncode != 0:
                     exitCode = result.returncode
                 os.sync()

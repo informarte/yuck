@@ -1,34 +1,28 @@
 // build.sc
 
 import mill._
-import mill.define.Sources
-import scalalib._
+import mill.scalalib._
 import $ivy.`com.lihaoyi::mill-contrib-buildinfo:$MILL_VERSION`
 import mill.contrib.buildinfo.BuildInfo
 
-trait YuckBuild extends ScalaModule with BuildInfo {
+object yuck extends ScalaModule with BuildInfo {
 
-    val buildType: String
-
-    def git(args: String*) = os.proc("git" :: args.toList).call().out.lines.head
+    def git(args: String*) = os.proc("git" :: args.toList).call().out.lines().head
     def gitCommitHash = T.input {git("rev-parse", "HEAD")}
     def gitCommitDate = T {git("log", "-1", "--pretty=format:%cd", "--date=format:%Y%m%d")}
     def gitBranch = T {git("rev-parse", "--abbrev-ref", "HEAD")}
     def shortVersion = T {gitCommitDate()}
     def longVersion = T {
-        "%s-%s-%s-%s".format(gitCommitDate(), gitBranch().replaceAll("/", "-"), gitCommitHash().take(8), buildType)}
+        "%s-%s-%s".format(gitCommitDate(), gitBranch().replaceAll("/", "-"), gitCommitHash().take(8))}
     def version = T {if (gitBranch() == "master") shortVersion() else longVersion()}
 
-    override def buildInfoPackageName = Some("yuck")
-    override def buildInfoMembers: T[Map[String, String]] = T {
-        Map(
-            "buildType" -> buildType,
-            "gitBranch" -> gitBranch(),
-            "gitCommitDate" -> gitCommitDate(),
-            "gitCommitHash" -> gitCommitHash(),
-            "version" -> version()
-        )
-    }
+    override def buildInfoPackageName = "yuck"
+    override def buildInfoMembers = Seq(
+        BuildInfo.Value("gitBranch", gitBranch()),
+        BuildInfo.Value("gitCommitDate", gitCommitDate()),
+        BuildInfo.Value("gitCommitHash", gitCommitHash()),
+        BuildInfo.Value("version", version()))
+    override def buildInfoStaticCompiled = true
 
     override def scalaVersion = "3.3.1"
     override def millSourcePath = os.pwd
@@ -54,7 +48,7 @@ trait YuckBuild extends ScalaModule with BuildInfo {
     def fullClasspath = T {(localClasspath() ++ upstreamAssemblyClasspath()).map(_.path)}
     def fullClasspathAsString = T {fullClasspath().mkString(":")}
 
-    object test extends Tests {
+    object test extends ScalaTests {
 
         override def millSourcePath = os.pwd
         override def sources = T.sources {millSourcePath / "src" / "test"}
@@ -62,7 +56,7 @@ trait YuckBuild extends ScalaModule with BuildInfo {
 
         override def ivyDeps = Agg(
             ivy"junit:junit:4.13.2",
-            ivy"io.spray::spray-json:1.3.6".withDottyCompat(scalaVersion()),
+            ivy"io.spray::spray-json:1.3.6".withDottyCompat(test.this.scalaVersion()),
             ivy"org.jgrapht:jgrapht-io:1.4.0",
             ivy"org.mockito:mockito-core:3.12.4"
         )
@@ -161,19 +155,6 @@ trait YuckBuild extends ScalaModule with BuildInfo {
         perms.add(PosixFilePermission.OWNER_EXECUTE)
         perms.add(PosixFilePermission.OTHERS_EXECUTE)
         Files.setPosixFilePermissions(path.toNIO, perms)
-    }
-
-}
-
-object yuck extends Module {
-
-    object dev extends YuckBuild {
-        override val buildType = "dev"
-    }
-
-    object prod extends YuckBuild {
-        override val buildType = "prod"
-        override val skipIdea = true
     }
 
 }

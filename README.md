@@ -413,8 +413,6 @@ Notice that the following table covers only those global constraints which Yuck 
 
 The Yuck build is based on [mill](https://com-lihaoyi.github.io/mill/mill/Intro_to_Mill.html). (There is no need to download mill when you run it with `./mill` from inside the Yuck root directory.) Morever, there is a Makefile with convenience targets most of which map to mill targets.
 
-Run `make idea-project-files` to create project files for IntelliJ IDEA. Then, in IntelliJ IDEA, just import the Yuck root directory.
-
 ### Building
 
 To build and rebuild Yuck and its documentation, use the following targets:
