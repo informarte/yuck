@@ -30,7 +30,7 @@ trait YuckBuild extends ScalaModule with BuildInfo {
         )
     }
 
-    override def scalaVersion = "3.3.0"
+    override def scalaVersion = "3.3.1"
     override def millSourcePath = os.pwd
     override def sources = T.sources {millSourcePath / "src" / "main"}
     override def resources = T.sources()
