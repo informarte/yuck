@@ -45,18 +45,17 @@ final class Circuit
         Option[Neighbourhood] =
     {
         if (isCandidateForImplicitSolving(space) && extraCfg.maxNumberOfGreedyHeuristicRuns > 0) {
-            logger.withTimedLogScope("Trying to solve %s".format(this)) {
-                solve(
-                    extraCfg.maxNumberOfGreedyHeuristicRuns - 1,
-                    logger.withTimedLogScope("Trying deterministic greedy heuristic") {
-                        greedyHeuristic(space, randomGenerator, FirstFailStrategy, logger)
-                    },
-                    () => logger.withTimedLogScope("Trying randomized greedy heuristic") {
-                        greedyHeuristic(space, randomGenerator, RandomizedStrategy, logger)
-                    },
-                    sigint
-                )
-            }
+            solve(
+                extraCfg.maxNumberOfGreedyHeuristicRuns - 1,
+                logger.withTimedLogScope("Trying deterministic greedy heuristic") {
+                    greedyHeuristic(space, randomGenerator, FirstFailStrategy, logger)
+                },
+                () => logger.withTimedLogScope("Trying randomized greedy heuristic") {
+                    greedyHeuristic(space, randomGenerator, RandomizedStrategy, logger)
+                },
+                logger,
+                sigint
+            )
         } else {
             None
         }
@@ -73,14 +72,16 @@ final class Circuit
 
     @tailrec
     private def solve
-        (n: Int, result: HeuristicResult, heuristic: () => HeuristicResult, sigint: Sigint):
+        (n: Int, result: HeuristicResult, heuristic: () => HeuristicResult, logger: LazyLogger, sigint: Sigint):
         Option[Neighbourhood] =
         if (n == 0) None
         else result match {
             case UnsatisfiableInstance => None
             case HeuristicFailed =>
-                if (sigint.isSet) None
-                else solve(n - 1, heuristic(), heuristic, sigint)
+                if (sigint.isSet) {
+                    logger.log("Interrupted")
+                    None
+                } else solve(n - 1, heuristic(), heuristic, logger, sigint)
             case HeuristicSucceeded(neighbourhood) => Some(neighbourhood)
         }
 

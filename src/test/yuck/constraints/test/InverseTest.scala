@@ -203,8 +203,6 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
     }
 
     private def assertNoNeighbourhood(f: InverseFunction, g: InverseFunction, isCandidate: Boolean = false): Unit = {
-        require(f.xs.forall(_.domain.isFinite))
-        require(g.xs.forall(_.domain.isFinite))
         val constraint = new Inverse(space.nextConstraintId(), null, f, g, costs)
         assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
         assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint), None)
@@ -222,6 +220,7 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
         xs.foreach(_.pruneDomain(g.indexDomain))
         ys.foreach(_.pruneDomain(f.indexDomain))
         x1.pruneDomain(IntegerDomain(List(gOffset)))
+        y3.pruneDomain(IntegerDomain(List(fOffset + xs.size - 1)))
         assertNeighbourhood(f, g, classOf[GeneralInverseNeighbourhood])
     }
 
@@ -247,6 +246,36 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
         import yuck.constraints.Plus
         space.post(new Plus(space.nextConstraintId(), null, x1, x2, y1))
         assertNoNeighbourhood(f, g)
+    }
+
+    @Test
+    def testHandlingOfInfiniteDomainsInNeighbourhoodGeneration1(): Unit = {
+        xs.foreach(_.pruneDomain(g.indexDomain))
+        assertNoNeighbourhood(f, g)
+    }
+
+    @Test
+    def testHandlingOfInfiniteDomainsInNeighbourhoodGeneration2(): Unit = {
+        ys.foreach(_.pruneDomain(f.indexDomain))
+        assertNoNeighbourhood(f, g)
+    }
+
+    @Test
+    def testHandlingOfInvalidIndicesInNeighbourhoodGeneration1(): Unit = {
+        if (f.offset != g.offset) {
+            xs.foreach(_.pruneDomain(f.indexDomain))
+            ys.foreach(_.pruneDomain(f.indexDomain))
+            assertNoNeighbourhood(f, g)
+        }
+    }
+
+    @Test
+    def testHandlingOfInvalidIndicesInNeighbourhoodGeneration2(): Unit = {
+        if (f.offset != g.offset) {
+            xs.foreach(_.pruneDomain(g.indexDomain))
+            ys.foreach(_.pruneDomain(g.indexDomain))
+            assertNoNeighbourhood(f, g)
+        }
     }
 
 }

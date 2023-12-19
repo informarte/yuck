@@ -1,8 +1,11 @@
 package yuck.constraints
 
-import scala.collection.*
+import org.jgrapht.alg.matching.HopcroftKarpMaximumCardinalityBipartiteMatching
+import org.jgrapht.graph.DefaultUndirectedGraph
 
-import yuck.annealing.*
+import scala.collection.*
+import scala.jdk.CollectionConverters.*
+
 import yuck.core.{given, *}
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
@@ -51,7 +54,7 @@ final class Alldistinct
         valueTraits == IntegerValueTraits &&
         xs.size > 1 &&
         xs.toSet.size == xs.size &&
-        xs.forall(! space.isChannelVariable(_)) &&
+        ! xs.exists(space.isChannelVariable) &&
         xs.forall(_.domain.isFinite) &&
         xs.forall(x => ! as.exists(a => x.domain.contains(a))) &&
         ys.size == as.size
@@ -67,63 +70,44 @@ final class Alldistinct
         Option[Neighbourhood] =
     {
         if (isCandidateForImplicitSolving(space)) {
-            val xs = this.xs.filter(! _.domain.isSingleton)
-            if (xs.forall(_.domain == xs.head.domain)) {
-                // all variables have the same domain
-                if (xs.head.domain.size >= xs.size) {
-                    // the number of values equals the number of variables or
-                    // there are more values than variables
-                    val domain = xs.head.domain
-                    for ((x, a) <- xs.iterator.zip(randomGenerator.shuffle(domain.values).iterator)) {
-                        space.setValue(x, a)
-                    }
-                    space.setValue(costs, True)
-                    Some(new AlldistinctNeighbourhood(space, xs, randomGenerator, moveSizeDistribution))
-                } else {
-                    // unsatisfiable
-                    None
+            abstract class Vertex
+            case class VariableVertex(x: Variable[V]) extends Vertex
+            case class ValueVertex(a: V) extends Vertex
+            case class Edge(x: Variable[V], a: V)
+            val graph = new DefaultUndirectedGraph[Vertex, Edge](classOf[Edge])
+            val as = xs.foldLeft(valueTraits.emptyDomain){case (u, x) => u.union(x.domain)}.values
+            val variableVertices = xs.iterator.map(x => (x, VariableVertex(x))).toMap
+            val valueVertices = as.iterator.map(a => (a, ValueVertex(a))).toMap
+            logger.withTimedLogScope("Building graph") {
+                for (v <- variableVertices.values) {
+                    graph.addVertex(v)
                 }
+                for (v <- valueVertices.values) {
+                    graph.addVertex(v)
+                }
+                for (x <- xs) {
+                    for (a <- x.domain.values) {
+                        graph.addEdge(variableVertices(x), valueVertices(a), Edge(x, a))
+                    }
+                }
+                logger.log("Added %d nodes and %d edges".format(graph.vertexSet.size, graph.edgeSet.size))
+            }
+            val matching = logger.withTimedLogScope("Computing matching") {
+                val matchingAlgo = new HopcroftKarpMaximumCardinalityBipartiteMatching(
+                    graph,
+                    variableVertices.values.toSet.asJava,
+                    valueVertices.values.toSet.asJava)
+                matchingAlgo.getMatching
+            }
+            if (matching.getEdges.size < xs.size) {
+                logger.log("Unsatisfiable")
+                None
             } else {
-                // general case
-                val subspace =
-                    new Space(logger, sigint, extraCfg.checkIncrementalCostUpdate, extraCfg.checkAssignmentsToNonChannelVariables)
-                val subxs = xs.map(x => valueTraits.createVariable(subspace, x.name, x.domain))
-                val result = logger.withTimedLogScope("Solving %s".format(this)) {
-                    val subcosts = new BooleanVariable(subspace.nextVariableId(), "", CompleteBooleanDomain)
-                    subspace.post(new Alldistinct(subspace.nextConstraintId(), maybeGoal, subxs, subcosts))
-                    subspace.registerObjectiveVariable(subcosts)
-                    val initializer = new RandomInitializer(subspace, randomGenerator.nextGen())
-                    initializer.run()
-                    val n = subspace.searchVariables.size * 4
-                    val scheduleFactory = new StandardAnnealingScheduleFactory(n, randomGenerator.nextGen())
-                    val schedule = scheduleFactory.createSlowSchedule
-                    schedule.start(DefaultStartTemperature, 0)
-                    val solver =
-                        new SimulatedAnnealing(
-                            "AlldistinctSolver",
-                            subspace,
-                            schedule,
-                            new RandomReassignmentGenerator(
-                                subspace, subspace.searchVariables.toIndexedSeq, randomGenerator.nextGen(),
-                                DefaultMoveSizeDistribution, maybeHotSpotDistribution = None,
-                                maybeFairVariableChoiceRate = None),
-                            randomGenerator.nextGen(),
-                            new SatisfactionObjective(subcosts),
-                            maybeRoundLimit = Some(1000),
-                            Some(new StandardAnnealingMonitor(logger)),
-                            maybeUserData = None,
-                            sigint)
-                    solver.call()
+                for (Edge(x, a) <- matching.getEdges.asScala) {
+                    space.setValue(x, a)
                 }
-                if (result.isSolution) {
-                    for ((x, subx) <- xs.iterator.zip(subxs.iterator)) {
-                        space.setValue(x, subspace.searchState.value(subx))
-                    }
-                    space.setValue(costs, True)
-                    Some(new AlldistinctNeighbourhood(space, xs, randomGenerator, moveSizeDistribution))
-                } else {
-                    None
-                }
+                space.setValue(costs, True)
+                Some(new AlldistinctNeighbourhood(space, xs.filter(! _.domain.isSingleton), randomGenerator, moveSizeDistribution))
             }
         } else {
             None

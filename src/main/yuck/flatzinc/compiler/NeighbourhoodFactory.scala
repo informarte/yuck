@@ -99,7 +99,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
         for (constraint <- randomGenerator.shuffle(candidatesForImplicitSolving).sortBy(constraintRanking)) {
             val xs = constraint.inVariables.toSet
             if ((xs & cc.implicitlyConstrainedVars).isEmpty) {
-                val maybeNeighbourhood =
+                val maybeNeighbourhood = cc.logger.withTimedLogScope("Solving %s".format(constraint)) {
                     constraint.createNeighbourhood(
                         cc.space, randomGenerator, cc.cfg.moveSizeDistribution, cc.logger, cc.sigint,
                         ExtraNeighbourhoodFactoryConfiguration(
@@ -107,6 +107,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
                             maybeFairVariableChoiceRate = levelCfg.maybeFairVariableChoiceRate,
                             checkIncrementalCostUpdate = cc.cfg.checkIncrementalCostUpdate,
                             checkAssignmentsToNonChannelVariables = cc.cfg.checkAssignmentsToNonChannelVariables))
+                }
                 if (maybeNeighbourhood.isDefined) {
                     cc.implicitlyConstrainedVars ++= xs
                     cc.space.registerImplicitConstraint(constraint)
@@ -117,7 +118,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
             }
         }
         val xs = cc.space.involvedSearchVariables(x).diff(cc.implicitlyConstrainedVars).toBuffer.sorted.toIndexedSeq
-        if (! xs.isEmpty) {
+        if (! xs.isEmpty && ! cc.sigint.isSet) {
             for (x <- xs if ! x.domain.isFinite) {
                 throw new VariableWithInfiniteDomainException(x)
             }

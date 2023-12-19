@@ -5,6 +5,7 @@ import org.jgrapht.traverse.{BreadthFirstIterator, TopologicalOrderIterator}
 
 import scala.collection.*
 import scala.jdk.CollectionConverters.*
+
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 

@@ -1,8 +1,11 @@
 package yuck.constraints
 
-import scala.collection.*
+import org.jgrapht.alg.matching.HopcroftKarpMaximumCardinalityBipartiteMatching
+import org.jgrapht.graph.DefaultUndirectedGraph
 
-import yuck.annealing.*
+import scala.collection.*
+import scala.jdk.CollectionConverters.*
+
 import yuck.core.*
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
@@ -219,7 +222,9 @@ final class Inverse
         f.isSuitableForImplicitSolving(space) &&
         g.isSuitableForImplicitSolving(space) &&
         f.xs.size == g.xs.size &&
-        (f.xs.exists(! _.domain.isSingleton) || g.xs.exists(! _.domain.isSingleton))
+        (f.xs.exists(! _.domain.isSingleton) || g.xs.exists(! _.domain.isSingleton)) &&
+        f.xs.forall(x => x.domain.isSubsetOf(g.indexDomain)) &&
+        g.xs.forall(x => x.domain.isSubsetOf(f.indexDomain))
 
     override def createNeighbourhood(
         space: Space,
@@ -249,48 +254,41 @@ final class Inverse
                          g.xs.forall(x => x.domain.isSubsetOf(f.indexDomain)))
                 {
                     // general case
-                    val subspace =
-                        new Space(logger, sigint, extraCfg.checkIncrementalCostUpdate, extraCfg.checkAssignmentsToNonChannelVariables)
-                    val subf = new InverseFunction(f.xs.map(x => new IntegerVariable(subspace.nextVariableId(), x.name, x.domain)), f.offset)
-                    val subg = new InverseFunction(g.xs.map(y => new IntegerVariable(subspace.nextVariableId(), y.name, y.domain)), g.offset)
-                    val result = logger.withTimedLogScope("Solving %s".format(this)) {
-                        val subcosts = new BooleanVariable(subspace.nextVariableId(), "", CompleteBooleanDomain)
-                        subspace.post(new Inverse(subspace.nextConstraintId(), maybeGoal, subf, subg, subcosts))
-                        subspace.registerObjectiveVariable(subcosts)
-                        val initializer = new RandomInitializer(subspace, randomGenerator.nextGen())
-                        initializer.run()
-                        val n = subspace.searchVariables.size * 4
-                        val scheduleFactory = new StandardAnnealingScheduleFactory(n, randomGenerator.nextGen())
-                        val schedule = scheduleFactory.createSlowSchedule
-                        schedule.start(DefaultStartTemperature, 0)
-                        val solver =
-                            new SimulatedAnnealing(
-                                "InverseSolver",
-                                subspace,
-                                schedule,
-                                new RandomReassignmentGenerator(
-                                    subspace, subspace.searchVariables.toIndexedSeq, randomGenerator.nextGen(),
-                                    DefaultMoveSizeDistribution, maybeHotSpotDistribution = None,
-                                    maybeFairVariableChoiceRate = None),
-                                randomGenerator.nextGen(),
-                                new SatisfactionObjective(subcosts),
-                                maybeRoundLimit = Some(1000),
-                                Some(new StandardAnnealingMonitor(logger)),
-                                maybeUserData = None,
-                                sigint)
-                        solver.call()
-                    }
-                    if (result.isSolution) {
-                        for ((x, subx) <- f.xs.iterator.zip(subf.xs.iterator)) {
-                            space.setValue(x, subspace.searchState.value(subx))
+                    case class Edge(x: IntegerVariable, j: IntegerValue, y: IntegerVariable, i: IntegerValue)
+                    val graph = new DefaultUndirectedGraph[IntegerVariable, Edge](classOf[Edge])
+                    logger.withTimedLogScope("Building graph") {
+                        for (x <- f.xs) {
+                            graph.addVertex(x)
                         }
-                        for ((y, suby) <- g.xs.iterator.zip(subg.xs.iterator)) {
-                            space.setValue(y, subspace.searchState.value(suby))
+                        for (x <- g.xs) {
+                            graph.addVertex(x)
+                        }
+                        for (i <- f.indexDomain.values) {
+                            val x = f.xs(i.toInt - f.offset)
+                            for (j <- x.domain.values) {
+                                val y = g.xs(j.toInt - g.offset)
+                                if (y.domain.contains(i)) {
+                                    graph.addEdge(x, y, Edge(x, j, y, i))
+                                }
+                            }
+                        }
+                        logger.log("Added %d nodes and %d edges".format(graph.vertexSet.size, graph.edgeSet.size))
+                    }
+                    val matching = logger.withTimedLogScope("Computing matching") {
+                        val matchingAlgo = new HopcroftKarpMaximumCardinalityBipartiteMatching(
+                            graph, f.xs.toSet.asJava, g.xs.toSet.asJava)
+                        matchingAlgo.getMatching
+                    }
+                    if (matching.getEdges.size < f.xs.size) {
+                        logger.log("Unsatisfiable")
+                        None
+                    } else {
+                        for (Edge(x, a, y, b) <- matching.getEdges.asScala) {
+                            space.setValue(x, a)
+                            space.setValue(y, b)
                         }
                         space.setValue(costs, True)
                         Some(new GeneralInverseNeighbourhood(space, f, g, randomGenerator))
-                    } else {
-                        None
                     }
                 } else {
                     None
