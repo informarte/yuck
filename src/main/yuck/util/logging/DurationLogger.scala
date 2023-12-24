@@ -1,5 +1,7 @@
 package yuck.util.logging
 
+import java.time.Duration
+
 import yuck.util.DurationFormatter
 import yuck.util.arm.{ManagedResource, StopWatch}
 
@@ -21,5 +23,7 @@ final class DurationLogger(logger: LazyLogger, operationName: String) extends Ma
         stopWatch.close()
         logger.log("%s took %s".format(operationName, DurationFormatter.format(stopWatch.duration)))
     }
+
+    def duration: Duration = stopWatch.duration
 
 }

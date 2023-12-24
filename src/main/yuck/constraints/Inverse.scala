@@ -274,7 +274,7 @@ final class Inverse
                         }
                         logger.log("Added %d nodes and %d edges".format(graph.vertexSet.size, graph.edgeSet.size))
                     }
-                    val matching = logger.withTimedLogScope("Computing matching") {
+                    val (matching, _) = logger.withTimedLogScope("Computing matching") {
                         val matchingAlgo = new HopcroftKarpMaximumCardinalityBipartiteMatching(
                             graph, f.xs.toSet.asJava, g.xs.toSet.asJava)
                         matchingAlgo.getMatching

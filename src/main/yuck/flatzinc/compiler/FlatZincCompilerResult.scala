@@ -1,5 +1,7 @@
 package yuck.flatzinc.compiler
 
+import java.time.Duration
+
 import scala.collection.*
 
 import yuck.core.*
@@ -16,5 +18,6 @@ final class FlatZincCompilerResult(
     val arrays: immutable.Map[String, immutable.IndexedSeq[AnyVariable]],
     val objective: AnyObjective,
     val maybeNeighbourhood: Option[Neighbourhood],
-    val performWarmStart: Boolean
+    val performWarmStart: Boolean,
+    val runtime: Duration
 )

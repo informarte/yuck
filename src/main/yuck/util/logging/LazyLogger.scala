@@ -1,5 +1,6 @@
 package yuck.util.logging
 
+import java.time.Duration
 import java.util.ArrayDeque
 import java.util.concurrent.locks.ReentrantLock
 import java.util.logging.{Level, Logger}
@@ -142,13 +143,15 @@ final class LazyLogger(logger: Logger) {
     def withTimedLogScope
         [Result]
         (operationName: String)
-        (operation: => Result): Result =
+        (operation: => Result): (Result, Duration) =
     {
-        scoped(new DurationLogger(this, operationName)) {
+        val durationLogger = new DurationLogger(this, operationName)
+        val result = scoped(durationLogger) {
             scoped(new LogScope(this)) {
                 operation
             }
         }
+        (result, durationLogger.duration)
     }
 
     /**

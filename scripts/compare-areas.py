@@ -26,7 +26,7 @@ import common
 
 def computeAreaRatios(cursor, args):
     runs = [args.referenceRun] + args.runs
-    query = 'SELECT run, problem, model, instance, problem_type, area, runtime_in_seconds FROM result WHERE run IN (%s) AND solved = 1' % ','.join('?' for run in runs)
+    query = 'SELECT run, problem, model, instance, problem_type, area, search_runtime_in_seconds FROM result WHERE run IN (%s) AND solved = 1' % ','.join('?' for run in runs)
     tasks = set()
     data = {}
     problemPattern = re.compile(args.problemFilter)

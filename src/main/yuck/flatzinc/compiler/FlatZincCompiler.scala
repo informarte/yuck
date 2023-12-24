@@ -28,6 +28,25 @@ final class FlatZincCompiler
 
     override def call() = {
 
+        val (cc, runtime) = logger.withTimedLogScope("Compiling problem") {
+            compile()
+        }
+
+        logger.criticalSection {
+            logger.withLogScope("Yuck model statistics") {
+                logYuckModelStatistics(cc)
+            }
+        }
+
+        val vars = (for ((key, x) <- cc.vars) yield key.toString -> x).toMap
+        val arrays = (for ((key, array) <- cc.arrays) yield key.toString -> array).toMap
+        new FlatZincCompilerResult(
+            cc.ast, cc.space, vars, arrays, cc.objective, cc.maybeNeighbourhood, ! cc.warmStartAssignment.isEmpty, runtime)
+
+    }
+
+    private def compile(): CompilationContext = {
+
         val cc = new CompilationContext(ast, cfg, logger, sigint)
 
         randomGenerator.nextGen()
@@ -54,17 +73,7 @@ final class FlatZincCompiler
         checkSearchVariableDomains(cc)
         assignValuesToDanglingVariables(cc)
 
-        logger.criticalSection {
-            logger.withLogScope("Yuck model statistics") {
-                logYuckModelStatistics(cc)
-            }
-        }
-
-        val vars = (for ((key, x) <- cc.vars) yield key.toString -> x).toMap
-        val arrays = (for ((key, array) <- cc.arrays) yield key.toString -> array).toMap
-        new FlatZincCompilerResult(
-            cc.ast, cc.space, vars, arrays, cc.objective, cc.maybeNeighbourhood, ! cc.warmStartAssignment.isEmpty)
-
+        cc
     }
 
     // Use the optional root log level to focus on a particular compilation phase.

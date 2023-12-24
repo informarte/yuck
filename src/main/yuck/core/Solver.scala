@@ -143,7 +143,7 @@ final class OnDemandGeneratedSolver(
         if (sigint.isSet) {
             throw new SolverInterruptedException
         } else {
-            val result =
+            val (result, _) =
                 logger.withTimedLogScope("Running solver") {
                     solver.call()
                 }

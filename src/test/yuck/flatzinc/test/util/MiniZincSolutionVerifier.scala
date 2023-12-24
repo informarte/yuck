@@ -24,8 +24,8 @@ class MiniZincSolutionVerifier(
     private val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
 
     override def call() =
-        logger.withTimedLogScope("Checking expectations")(checkExpectations) ||
-        logger.withTimedLogScope("Consulting MiniZinc")(consultMiniZinc)
+        logger.withTimedLogScope("Checking expectations")(checkExpectations)._1 ||
+        logger.withTimedLogScope("Consulting MiniZinc")(consultMiniZinc)._1
 
     // We compare the solution to the expectations provided by the MiniZinc distribution.
     // Note that some problems have many solutions and only a few are provided in terms of expectations.

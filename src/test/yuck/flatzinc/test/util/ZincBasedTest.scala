@@ -1,13 +1,14 @@
 package yuck.flatzinc.test.util
 
+import java.time.Duration
+
 import scala.annotation.tailrec
 import scala.collection.*
 import scala.language.implicitConversions
 
 import spray.json.*
-
 import yuck.BuildInfo
-import yuck.core.{given, *}
+import yuck.core.{*, given}
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.*
 import yuck.flatzinc.compiler.{FlatZincCompilerResult, UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
@@ -119,14 +120,15 @@ class ZincBasedTest extends IntegrationTest {
         val cfg = createSolverConfiguration(task)
         logSolverConfiguration(cfg)
         val monitor = createTestMonitor(task)
-        val result =
+        val (result, _) =
             scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set()})) {
                 maybeTimeboxed(cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
-                    val ast =
+                    val (ast, parserRuntime) =
                         logger.withTimedLogScope("Parsing FlatZinc file") {
                             new FlatZincFileParser(fznFilePath, logger).call()
                         }
                     logTask(task, ast)
+                    logParserStatistics(parserRuntime)
                     val md5Sum = computeMd5Sum(fznFilePath)
                     logFlatZincModelStatistics(ast, md5Sum)
                     logger.withTimedLogScope("Solving problem") {
@@ -144,7 +146,7 @@ class ZincBasedTest extends IntegrationTest {
         logYuckModelStatistics(result.space)
         logResult(result)
         logQualityStepFunction(monitor)
-        logSolverStatistics(monitor)
+        logSearchStatistics(monitor)
         if (task.createDotFile) {
             logger.withTimedLogScope("Exporting constraint network to a DOT file") {
                 val dotFilePath = "%s/yuck.dot".format(outputDirectoryPath)
@@ -210,7 +212,7 @@ class ZincBasedTest extends IntegrationTest {
         if (! dataFilePath.isEmpty) {
             miniZincCommand += dataFilePath
         }
-        val outputLines =
+        val (outputLines, _) =
             logger.withTimedLogScope("Flattening MiniZinc model") {
                 logger.withRootLogLevel(FineLogLevel) {
                     new ProcessRunner(logger, miniZincCommand).call()
@@ -388,6 +390,7 @@ class ZincBasedTest extends IntegrationTest {
 
     private def logResult(result: Result): Unit = {
         val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
+        logCompilerStatistics(compilerResult)
         val objectiveVariables = compilerResult.objective.objectiveVariables
         resultNode += "solved" -> JsBoolean(result.isSolution)
         if (! result.isSolution) {
@@ -416,7 +419,23 @@ class ZincBasedTest extends IntegrationTest {
         }
     }
 
-    private def logSolverStatistics(monitor: ZincTestMonitor): Unit = {
+    private def logParserStatistics(runtime: Duration): Unit = {
+        val statsNode =
+            JsSection(
+                "runtime-in-seconds" -> JsNumber(runtime.toMillis / 1000.0)
+            )
+        jsonRoot += "parser-statistics" -> statsNode
+    }
+
+    private def logCompilerStatistics(compilerResult: FlatZincCompilerResult): Unit = {
+        val statsNode =
+            JsSection(
+                "runtime-in-seconds" -> JsNumber(compilerResult.runtime.toMillis / 1000.0)
+            )
+        jsonRoot += "compiler-statistics" -> statsNode
+    }
+
+    private def logSearchStatistics(monitor: ZincTestMonitor): Unit = {
         val statsNode =
             if (monitor.wasSearchRequired) {
                 JsSection(
@@ -430,8 +449,8 @@ class ZincBasedTest extends IntegrationTest {
             } else {
                 JsSection()
             }
-        if (monitor.maybeSolvingTimeInSeconds.isDefined) {
-            statsNode += "solving-time-in-seconds" -> JsNumber(monitor.maybeSolvingTimeInSeconds.get)
+        if (monitor.maybeRuntimeToFirstSolutionInSeconds.isDefined) {
+            statsNode += "runtime-to-first-solution-in-seconds" -> JsNumber(monitor.maybeRuntimeToFirstSolutionInSeconds.get)
         }
         if (monitor.maybeRuntimeToBestSolutionInSeconds.isDefined) {
             statsNode += "runtime-to-best-solution-in-seconds" -> JsNumber(monitor.maybeRuntimeToBestSolutionInSeconds.get)
@@ -440,7 +459,7 @@ class ZincBasedTest extends IntegrationTest {
         if (monitor.maybeArea.isDefined) {
             statsNode += "area" -> JsNumber(monitor.maybeArea.get)
         }
-        jsonRoot += "solver-statistics" -> statsNode
+        jsonRoot += "search-statistics" -> statsNode
     }
 
     private def logViolatedConstraints(result: Result): Unit = {

@@ -22,7 +22,7 @@ class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAn
     final case class QualityImprovement(runtimeInMillis: Long, quality: NumericalValue[_])
 
     private var timeStampInMillis: Long = 0
-    private var maybeSolvingTimeInMillis: Option[Long] = None
+    private var maybeRuntimeToFirstSolutionInMillis: Option[Long] = None
     private var maybeRuntimeToBestSolutionInMillis: Option[Long] = None
     private var runtimeInMillis: Long = 0
     private var maybeTrackArea: Option[Boolean] = None
@@ -98,8 +98,8 @@ class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAn
     private def keepRecords(): Unit = {
         val now = System.currentTimeMillis
         runtimeInMillis += now - timeStampInMillis
-        if (! maybeSolvingTimeInMillis.isDefined) {
-            maybeSolvingTimeInMillis = Some(runtimeInMillis)
+        if (! maybeRuntimeToFirstSolutionInMillis.isDefined) {
+            maybeRuntimeToFirstSolutionInMillis = Some(runtimeInMillis)
         }
         maybeRuntimeToBestSolutionInMillis = Some(runtimeInMillis)
         val problemHasNumericalObjective =
@@ -140,7 +140,7 @@ class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAn
     }
 
     // Runtime from opening this resource until the first solution was found.
-    def maybeSolvingTimeInSeconds: Option[Double] = maybeSolvingTimeInMillis.map(_ / 1000.0)
+    def maybeRuntimeToFirstSolutionInSeconds: Option[Double] = maybeRuntimeToFirstSolutionInMillis.map(_ / 1000.0)
 
     // Runtime from opening this resource until the best solution was found.
     def maybeRuntimeToBestSolutionInSeconds: Option[Double] = maybeRuntimeToBestSolutionInMillis.map(_ / 1000.0)

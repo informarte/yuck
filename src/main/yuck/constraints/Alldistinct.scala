@@ -92,7 +92,7 @@ final class Alldistinct
                 }
                 logger.log("Added %d nodes and %d edges".format(graph.vertexSet.size, graph.edgeSet.size))
             }
-            val matching = logger.withTimedLogScope("Computing matching") {
+            val (matching, _) = logger.withTimedLogScope("Computing matching") {
                 val matchingAlgo = new HopcroftKarpMaximumCardinalityBipartiteMatching(
                     graph,
                     variableVertices.values.toSet.asJava,

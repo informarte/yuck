@@ -48,7 +48,7 @@ final class VariableDrivenNeighbourhoodFactory
         Option[Neighbourhood] =
     {
         require(mode == OptimizationMode.Min)
-        val hotSpotIndicators =
+        val (hotSpotIndicators, _) =
             cc.logger.withTimedLogScope("Creating hot-spot indicators for %s".format(x)) {
                 createHotSpotIndicators(x)
             }

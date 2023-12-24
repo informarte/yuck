@@ -49,10 +49,10 @@ final class Circuit
                 extraCfg.maxNumberOfGreedyHeuristicRuns - 1,
                 logger.withTimedLogScope("Trying deterministic greedy heuristic") {
                     greedyHeuristic(space, randomGenerator, FirstFailStrategy, logger)
-                },
+                }._1,
                 () => logger.withTimedLogScope("Trying randomized greedy heuristic") {
                     greedyHeuristic(space, randomGenerator, RandomizedStrategy, logger)
-                },
+                }._1,
                 logger,
                 sigint
             )

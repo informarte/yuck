@@ -14,9 +14,18 @@ import sys
 
 import common
 
+runtimeColumns = {
+    'parser': 'parser_runtime_in_seconds',
+    'compiler': 'compiler_runtime_in_seconds',
+    'search': 'search_runtime_in_seconds'
+}
+
 def computeSpeedups(cursor, args):
     runs = [args.referenceRun] + args.runs
-    query = 'SELECT run, problem, model, instance, moves_per_second, runtime_in_seconds FROM result WHERE run IN (%s)' % ','.join('?' for run in runs)
+    query = \
+        'SELECT run, problem, model, instance, moves_per_second, {} FROM result WHERE run IN ({})'.format(
+            runtimeColumns[args.component],
+            ','.join('?' for run in runs))
     tasks = set()
     data = {}
     problemPattern = re.compile(args.problemFilter)
@@ -49,7 +58,7 @@ def computeSpeedups(cursor, args):
     }
 
 def plotDiagrams(args, results):
-    title = 'Speedups (wrt. {})'.format(args.referenceRun)
+    title = 'Speedups ({}, wrt. {})'.format(args.component, args.referenceRun)
     filters = \
         ([args.problemFilter] if args.problemFilter else []) + \
         ([args.modelFilter] if args.modelFilter else []) + \
@@ -68,6 +77,7 @@ def main():
         description = 'Computes speedups for a given set of Yuck integration test runs',
         formatter_class = argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--db', '--database', dest = 'database', default = 'results.db', help = 'Define results database')
+    parser.add_argument('--component', choices = ['parser', 'compiler', 'search'], default = 'search', help = 'Define the component of interest')
     parser.add_argument('-p', '--plot', dest = 'plotDiagrams', action = 'store_true', help = 'Plot diagrams')
     parser.add_argument('--problem-filter', dest = 'problemFilter', default = '', help = 'Consider only problems that match the given regexp')
     parser.add_argument('--model-filter', dest = 'modelFilter', default = '', help = 'Consider only models that match the given regexp')

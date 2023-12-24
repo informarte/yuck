@@ -99,7 +99,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
         for (constraint <- randomGenerator.shuffle(candidatesForImplicitSolving).sortBy(constraintRanking)) {
             val xs = constraint.inVariables.toSet
             if ((xs & cc.implicitlyConstrainedVars).isEmpty) {
-                val maybeNeighbourhood = cc.logger.withTimedLogScope("Solving %s".format(constraint)) {
+                val (maybeNeighbourhood, _) = cc.logger.withTimedLogScope("Solving %s".format(constraint)) {
                     constraint.createNeighbourhood(
                         cc.space, randomGenerator, cc.cfg.moveSizeDistribution, cc.logger, cc.sigint,
                         ExtraNeighbourhoodFactoryConfiguration(

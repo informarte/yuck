@@ -171,7 +171,7 @@ object FlatZincRunner extends YuckLogging {
 
     private def trySolve(cl: CommandLine, sigint: SettableSigint): Unit = {
         logger.log("Processing %s".format(cl.fznFilePath))
-        val ast =
+        val (ast, _) =
             logger.withTimedLogScope("Parsing FlatZinc file") {
                 new FlatZincFileParser(cl.fznFilePath, logger).call()
             }
