@@ -62,7 +62,7 @@ trait YuckBuild extends ScalaModule with BuildInfo {
 
         override def ivyDeps = Agg(
             ivy"junit:junit:4.13.2",
-            ivy"io.spray::spray-json:1.3.5".withDottyCompat(scalaVersion()),
+            ivy"io.spray::spray-json:1.3.6".withDottyCompat(scalaVersion()),
             ivy"org.jgrapht:jgrapht-io:1.4.0",
             ivy"org.mockito:mockito-core:3.12.4"
         )
