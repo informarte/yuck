@@ -41,7 +41,8 @@ trait YuckBuild extends ScalaModule with BuildInfo {
         ivy"com.conversantmedia:rtree:1.0.5",
         ivy"com.github.scopt::scopt:4.0.1",
         ivy"org.jgrapht:jgrapht-core:1.4.0",
-        ivy"org.scala-lang.modules::scala-parser-combinators:2.1.0"
+        ivy"org.jgrapht:jgrapht-core:1.5.2",
+        ivy"org.scala-lang.modules::scala-parser-combinators:2.3.0"
     )
 
     val basicJvmConfiguration = Seq("-Djava.lang.Integer.IntegerCache.high=10000", "-XX:+UseParallelGC")
