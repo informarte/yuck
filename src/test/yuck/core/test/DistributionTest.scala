@@ -7,6 +7,7 @@ import scala.jdk.CollectionConverters.*
 
 import yuck.core.{given, *}
 import yuck.test.util.UnitTest
+import yuck.util.arm.scoped
 
 /**
  * @author Michael Marte
@@ -78,22 +79,53 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
     }
 
     @Test
-    def testRandomIndexGeneration(): Unit = {
+    def testRandomIndexGeneration1(): Unit = {
         val n = 3
         val d = createDistribution(n)
-        for (i <- 0 to 2) {
+        for (i <- 0 until n) {
             d.setFrequency(i, i)
         }
         val randomGenerator = new JavaRandomGenerator
-        val e = createDistribution(n)
+        val result = Array.ofDim[Int](n)
         val sampleSize = 1000
         for (i <- 0 until sampleSize) {
-            e.addFrequencyDelta(d.nextIndex(randomGenerator), 1)
+            result(d.nextIndex(randomGenerator)) += 1
         }
-        assertEq(e.frequency(0), 0L)
-        assertGt(e.frequency(1), 300L)
-        assertGt(e.frequency(2), 600L)
-        assertEq(e.volume, 1000L)
+        assertEq(result(0), 0)
+        assertGt(result(1), 300)
+        assertGt(result(2), 600)
+        assertEq(result.sum, sampleSize)
+    }
+
+    @Test
+    def testRandomIndexGeneration2(): Unit = {
+        val n = 3
+        val d = createDistribution(n)
+        for (i <- 0 until n) {
+            d.setFrequency(i, i)
+        }
+        val randomGenerator = new JavaRandomGenerator
+        val result = Array.ofDim[Int](n, n)
+        val frequencyRestorer = new FrequencyRestorer(n)
+        val sampleSize = 1000
+        for (i <- 0 until sampleSize) {
+            scoped(frequencyRestorer) {
+                val choices = d.nextIndices(randomGenerator, n, frequencyRestorer).toArray
+                assertEq(choices.size, n - 1)
+                assertEq(d.volume, 0)
+                for (i <- 0 until choices.size) {
+                    result(choices(i))(i) += 1
+                }
+            }
+            for (i <- 0 until n) {
+                assertEq(d.frequency(i), i)
+            }
+        }
+        assertEq(result(0).sum, 0)
+        assertGt(result(1)(1), 600)
+        assertEq(result(1).sum, sampleSize)
+        assertGt(result(2)(0), 600)
+        assertEq(result(2).sum, sampleSize)
     }
 
     @Test

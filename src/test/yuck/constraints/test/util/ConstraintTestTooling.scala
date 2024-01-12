@@ -160,10 +160,9 @@ trait ConstraintTestTooling extends YuckAssert {
     }
 
     /**
-     * Performs the given variable assignments, calls space.consult, and checks whether the expected
-     * assignments have happened.
+     * Calls space.consult on the given move and checks the result for the expected effects.
      *
-     * Also checks that only the expected assignments have happened.
+     * Also checks that there are no other effects than the expected ones.
      */
     protected final case class Consult
         (comment: String, preconditions: Seq[AnyMoveEffect], postconditions: Seq[AnyMoveEffect])
@@ -183,8 +182,8 @@ trait ConstraintTestTooling extends YuckAssert {
     }
 
     /**
-     * Performs the given variables assignment, calls space.consultAndCommit, checks whether the expected
-     * assignments have happened, and rolls back all changes.
+     * Calls space.consultAndCommit on the given move and checks whether the expected
+     * assignments have happened.
      *
      * Also checks that only the expected assignments have happened.
      */

@@ -1,5 +1,7 @@
 package yuck.core
 
+import yuck.util.arm.scoped
+
 import scala.collection.*
 
 /**
@@ -52,10 +54,10 @@ final class RandomCircularSwapGenerator
     require(moveSizeDistribution.volume > 0)
 
     private val uniformDistribution = Distribution(0, Vector.fill(n)(1))
-    private val s = moveSizeDistribution.size
-    private val effects = Vector.fill(s)(new ReusableMoveEffect[V])
-    private val swaps = Vector.tabulate(s)(i => effects.take(i + 1))
-    private val frequencyRestorers = Vector.fill(s)(new FrequencyRestorer)
+    private val effects = Vector.fill(moveSizeDistribution.size)(new ReusableMoveEffect[V])
+    private val swaps = Vector.tabulate(moveSizeDistribution.size)(i => effects.take(i + 1))
+    private val frequencyRestorer = new FrequencyRestorer(moveSizeDistribution.size - 2)
+
     private def fillEffect(effect: ReusableMoveEffect[V], x: Variable[V]): Unit = {
         effect.x = x
         effect.a = space.searchState.value(x)
@@ -104,27 +106,12 @@ final class RandomCircularSwapGenerator
                     fillEffect(swap(2), xs(k))
                 }
             }
-            swapValues(swap)
-        } else {
-            var i = 0
-            while (i < m) {
-                val j = priorityDistribution.nextIndex(randomGenerator)
-                fillEffect(swap(i), xs(j))
-                if (i < m - 1) {
-                    frequencyRestorers(i).store(j, priorityDistribution.frequency(j))
-                    priorityDistribution.setFrequency(j, 0)
-                }
-                i += 1
-            }
-            swapValues(swap)
-            if (m > 1) {
-                var i = 0
-                while (i < m - 1) {
-                    frequencyRestorers(i).restore(priorityDistribution)
-                    i += 1
-                }
-            }
+        } else scoped(frequencyRestorer) {
+            priorityDistribution.nextIndices(randomGenerator, m, frequencyRestorer).zipWithIndex.foreach(
+                (j, i) => fillEffect(swap(i), xs(j))
+            )
         }
+        swapValues(swap)
         new ChangeValues(space.nextMoveId(), swap)
     }
 

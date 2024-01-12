@@ -99,7 +99,7 @@ final class Cumulative
     private var rTree: SpatialSearch[RTreeEntry] = null
     private var rTreeTransaction: RTreeTransaction[RTreeEntry] = null
 
-    private val x2is =
+    private val x2is: immutable.Map[AnyVariable, immutable.IndexedSeq[Int]] =
         (0 until n)
         .iterator
         .flatMap(i => variablesIterator(i).map((_, i)))

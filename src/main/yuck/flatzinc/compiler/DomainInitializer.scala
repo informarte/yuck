@@ -39,13 +39,8 @@ final class DomainInitializer
     }
 
     private def initializeDomains(): Unit = {
-        // TODO VariableFactory uses foreach
-        for (decl <- cc.ast.paramDecls) {
-            initializeDomains(decl)
-        }
-        for (decl <- cc.ast.varDecls) {
-            initializeDomains(decl)
-        }
+        cc.ast.paramDecls.foreach(initializeDomains)
+        cc.ast.varDecls.foreach(initializeDomains)
     }
 
     private def initializeDomains(decl: PlaceholderDecl): Unit = {

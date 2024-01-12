@@ -145,6 +145,7 @@ Yuck provides dedicated solvers for the following global MiniZinc constraints an
 * diffn, diffn_nonstrict
 * disjunctive, disjunctive_strict
 * global_cardinality, global_cardinality_closed, global_cardinality_low_up, global_cardinality_low_up_closed
+* increasing, strictly_increasing
 * inverse
 * lex_less, lex_lesseq
 * maximum
@@ -159,6 +160,7 @@ Yuck provides dedicated neighbourhoods for the following global MiniZinc constra
 * all_different
 * circuit
 * inverse
+* increasing, strictly_increasing
 * table: By default, only table constraints with not more than three columns are eligible for implicit solving. To disable this limitation for a particular table constraint, include `yuck.mzn` and annotate the constraint with `implicit`.
 
 ## MiniZinc extensions
@@ -391,6 +393,7 @@ Notice that the following table covers only those global constraints which Yuck 
 | global_cardinality_closed(x, cover, count) | bool2costs(<br>&emsp; forall(i ∈ index_set(x))(x[i] ∈ dom_array(cover)) ∧<br>&emsp; global_cardinality(x, cover, count)) |
 | global_cardinality_low_up(x, cover, lb, ub) | bool2costs(<br>&emsp; let { array [int] of var int: count = global_cardinality(x, cover); }<br>&emsp; in forall(i in index_set(cover))(count[i] in lb[i]..ub[i]) |
 | global_cardinality_low_up_closed(x, cover, lb, ub) | bool2costs(<br>&emsp; forall(i ∈ index_set(x))(x[i] ∈ dom_array(cover)) ∧<br>&emsp; global_cardinality_low_up(x, cover, lb, ub)) |
+| increasing(x) | bool2costs(forall(i in index_set(x) diff {min(index_set(x))})(x[i-1] ≤ x[i])) |
 | inverse([f<sub>1</sub>, ..., f<sub>n</sub>], [g<sub>1</sub>, ..., g<sub>m</sub>]) | Σ<sub>1 ≤ i ≤ n</sub> \|σ(g<sub>σ(f<sub>i</sub>)</sub>) - i\| + Σ<sub>1 ≤ j ≤ m</sub> \|σ(f<sub>σ(g<sub>j</sub>)</sub>) - j\| |
 | lex_less([x<sub>1</sub>, ..., x<sub>n</sub>], [y<sub>1</sub>, ..., y<sub>m</sub>]),<br> lex_lesseq([x<sub>1</sub>, ..., x<sub>n</sub>], [y<sub>1</sub>, ..., y<sub>m</sub>]) | if c is satisfied then 0<br> else if n > m and σ(x<sub>i</sub>) = σ(y<sub>i</sub>) for all 1 ≤ i ≤ m then 1<br> else min(n, m) - smallest index i with σ(x<sub>i</sub>) > σ(y<sub>i</sub>) |
 | maximum(y, x) | bool2costs(y = max(x)) |
@@ -398,6 +401,7 @@ Notice that the following table covers only those global constraints which Yuck 
 | minimum(y, x) | bool2costs(y = min(x)) |
 | nvalue(n, x) | bool2costs(n = nvalue(x)) |
 | regular([x<sub>1</sub>, ..., x<sub>n</sub>], Q, S, δ, q<sub>0</sub>, F) | if q<sub>n</sub> ∈ F then 0<br> else n - length l of the longest prefix of the input sequence that could be extended to an acceptable sequence where<ul><li>q<sub>i</sub> = δ(q<sub>i - 1</sub>, σ(x<sub>i</sub>)) for 1 ≤ i ≤ n</li><li>1 ≤ l ≤ n is the smallest index such that d(q<sub>l</sub>) ≤ n - l or 0 if such an index does not exist</li><li>d(q) is the minimum number of transitions necessary to reach an acceptable state from state q or n if an acceptable state is unreachable from q</li></ul> |
+| strictly_increasing(x) | bool2costs(forall(i in index_set(x) diff {min(index_set(x))})(x[i-1] < x[i])) |
 | table(x, row) | min<sub>i ∈ index_set(row)</sub>(sum<sub>j ∈ index_set(x)</sub> bool2costs(x[j] = row[i][j])) |
 
 ## Future work
@@ -464,6 +468,6 @@ In addition, the following rules apply:
 
 ## References
 
-[BMFP15] G. Björdal, J.-N. Monette, P. Flener, and J. Pearson. A Constraint-Based Local Search Backend for MiniZinc. Constraints, 20(3):325-345, 2015. 
+[BMFP15] G. Björdal, J.-N. Monette, P. Flener, and J. Pearson. A Constraint-Based Local Search Backend for MiniZinc. Constraints, 20(3):325-345, 2015.
 
 [HM05] P. V. Hentenryck and L. Michel. Constraint-Based Local Search. MIT Press, 2005.

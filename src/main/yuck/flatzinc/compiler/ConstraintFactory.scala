@@ -539,6 +539,14 @@ final class ConstraintFactory
             val costs = maybeCosts.getOrElse(createBoolChannel())
             cc.space.post(new AlldistinctExcept(nextConstraintId(), maybeGoal, as, immutable.Set(Zero), costs))
             List(costs)
+        case Constraint("fzn_increasing_bool", Seq(as), _) =>
+            val costs = maybeCosts.getOrElse(createBoolChannel())
+            cc.space.post(new BooleanIncreasing(nextConstraintId(), maybeGoal, as, costs))
+            List(costs)
+        case Constraint("yuck_increasing_int", Seq(as, BoolConst(strict)), _) =>
+            val costs = maybeCosts.getOrElse(createBoolChannel())
+            cc.space.post(new IntegerIncreasing(nextConstraintId(), maybeGoal, as, strict, costs))
+            List(costs)
         case Constraint("fzn_nvalue", _, _) =>
             compileBinaryConstraint2[IntegerValue, IntegerVariable, IntegerValue, IntegerVariable](
                 new NumberOfDistinctValues[IntegerValue](_, _, _, _),

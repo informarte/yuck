@@ -43,7 +43,7 @@ abstract class Disjoint
     private var futureCosts = 0L
     protected def computeOverlap(e1: RTreeEntry, e2: RTreeEntry): Long
 
-    private val x2is =
+    private val x2is: immutable.Map[AnyVariable, immutable.IndexedSeq[Int]] =
         (0 until n)
         .iterator
         .flatMap(i => variablesIterator(i).map((_, i)))

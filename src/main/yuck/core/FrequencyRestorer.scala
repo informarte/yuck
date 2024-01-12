@@ -1,25 +1,38 @@
 package yuck.core
 
+import scala.collection.*
+
+import yuck.util.arm.ManagedResource
+
 /**
- * Helper class to memorize a change to a distribution and to undo the change at a later point.
+ * Managed resource to memorize changes to distributions to be undone upon closing.
  *
  * @author Michael Marte
  */
-final class FrequencyRestorer {
+final class FrequencyRestorer(capacity: Int) extends ManagedResource {
 
-    private var i = -1
-    private var f = 0L
+    private final val distributions = new mutable.ArrayBuffer[Distribution](capacity)
+    private final val indices = new mutable.ArrayBuffer[Int](capacity)
+    private final val frequencies = new mutable.ArrayBuffer[Long](capacity)
 
-    inline def store(i: Int, f: Long): Unit = {
-        this.i = i
-        this.f = f
+    override def open() = {}
+
+    override def close() = {
+        var i = 0
+        val n = indices.size
+        while (i < n) {
+            distributions(i).setFrequency(indices(i), frequencies(i))
+            i += 1
+        }
+        distributions.clear()
+        indices.clear()
+        frequencies.clear()
     }
 
-    inline def restore(distribution: Distribution): Unit = {
-        if (i > -1) {
-            distribution.setFrequency(i, f)
-            i = -1
-        }
+    inline def memorize(distribution: Distribution, i: Int): Unit = {
+        distributions += distribution
+        indices += i
+        frequencies += distribution.frequency(i)
     }
 
 }

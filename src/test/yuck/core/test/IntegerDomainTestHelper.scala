@@ -7,7 +7,6 @@ import yuck.core.IntegerDomain.ensureRangeList
 import yuck.util.logging.{FineLogLevel, LazyLogger}
 
 /**
-
  * @author Michael Marte
  *
  */

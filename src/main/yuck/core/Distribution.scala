@@ -1,5 +1,7 @@
 package yuck.core
 
+import scala.collection.AbstractIterator
+
 /**
  * Provides an interface for working with discrete distributions.
  *
@@ -58,8 +60,29 @@ abstract class Distribution {
     }
 
     /** Randomly chooses an index according to the current distribution. */
-    def nextIndex(randomGenerator: RandomGenerator): Int =
+    final def nextIndex(randomGenerator: RandomGenerator): Int =
         inverseCdf(randomGenerator.nextLong(volume))
+
+    /**
+     * Randomly chooses n indices according to the current distribution such that each index is chosen at most once.
+     * To this end, it modifies the distribution, and it is the caller's duty to roll back the changes by closing the
+     * given [[yuck.core.FrequencyRestorer]].
+     */
+    final def nextIndices(randomGenerator: RandomGenerator, n: Int, frequencyRestorer: FrequencyRestorer): Iterator[Int] =
+        new AbstractIterator[Int] {
+            var m = 0
+            override def hasNext =  m < n && volume > 0
+            override def next() = {
+                require(hasNext)
+                val i = nextIndex(randomGenerator)
+                m += 1
+                if (m < n) {
+                    frequencyRestorer.memorize(Distribution.this, i)
+                    setFrequency(i, 0)
+                }
+                i
+            }
+        }
 
     override def toString =
         "[%s]".format((0 until size).iterator.map(i => frequency(i)).mkString(", "))
@@ -89,13 +112,13 @@ object Distribution {
      * frequency can be addressed with the given base index.
      */
     def apply(indexBase: Int, frequencies: Seq[Int]): Distribution = {
-        val d = apply(indexBase + frequencies.size)
+        val result = apply(indexBase + frequencies.size)
         var i = indexBase
         for (f <- frequencies) {
-            d.setFrequency(i, f)
+            result.setFrequency(i, f)
             i += 1
         }
-        d
+        result
     }
 
 }

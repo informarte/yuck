@@ -1,5 +1,7 @@
 package yuck.core
 
+import yuck.util.arm.scoped
+
 import scala.collection.*
 
 /**
@@ -45,8 +47,8 @@ final class RandomReassignmentGenerator
 
     private val uniformDistribution = Distribution(0, Vector.fill(n)(1))
     private val effects = new mutable.ArrayBuffer[AnyMoveEffect](n)
-    private val s = moveSizeDistribution.size
-    private val frequencyRestorers = Vector.fill(s)(new FrequencyRestorer)
+    private val frequencyRestorer= new FrequencyRestorer(moveSizeDistribution.size - 2)
+
     private def addEffect(x: AnyVariable): Unit = {
         effects += x.nextRandomMoveEffect(space, randomGenerator)
     }
@@ -63,7 +65,6 @@ final class RandomReassignmentGenerator
         val priorityDistribution = if (useUniformDistribution) uniformDistribution else maybeHotSpotDistribution.get
         val m = min(moveSizeDistribution.nextIndex(randomGenerator), priorityDistribution.numberOfAlternatives)
         assert(m > 0)
-        var i = 0
         effects.clear()
         if (useUniformDistribution && m < 4) {
             val i = randomGenerator.nextInt(n)
@@ -82,23 +83,8 @@ final class RandomReassignmentGenerator
                     addEffect(xs(k))
                 }
             }
-        } else {
-            while (i < m && priorityDistribution.volume > 0) {
-                val j = priorityDistribution.nextIndex(randomGenerator)
-                addEffect(xs(j))
-                if (i < m - 1) {
-                    frequencyRestorers(i).store(j, priorityDistribution.frequency(j))
-                    priorityDistribution.setFrequency(j, 0)
-                }
-                i += 1
-            }
-            if (m > 1) {
-                i = 0
-                while (i < m - 1) {
-                    frequencyRestorers(i).restore(priorityDistribution)
-                    i += 1
-                }
-            }
+        } else scoped(frequencyRestorer) {
+            priorityDistribution.nextIndices(randomGenerator, m, frequencyRestorer).foreach(i => addEffect(xs(i)))
         }
         val result = new ChangeAnyValues(space.nextMoveId(), effects)
         result

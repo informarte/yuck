@@ -74,6 +74,8 @@ abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
      * Returns true if this constraint is a candidate for implicit solving
      * with respect to the given space.
      *
+     * The implementation can assume that this constraint has been posted.
+     *
      * The default implementation returns false.
      */
     def isCandidateForImplicitSolving(space: Space): Boolean = false

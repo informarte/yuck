@@ -10,7 +10,7 @@ import yuck.core.{given, *}
 import yuck.util.logging.LazyLogger
 
 /**
- * Implements the ''all_different_int'' constraint as specified by MiniZinc.
+ * Implements the ''all_different_int/set'' constraints as specified by MiniZinc.
  *
  * Given a set X of variables, the constraint maintains the set A = {s(x): x in X} of values
  * assigned to the variables and provides |X| - |A| as measure of constraint violation.

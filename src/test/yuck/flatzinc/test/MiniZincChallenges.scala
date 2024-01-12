@@ -495,8 +495,8 @@ final class MiniZincChallenges extends ZincBasedTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint], classOf[HasIncreasingConstraint]))
-    def oocsp_racks_030_mii8(): Unit = {
-        solve(task.copy(problemName = "oocsp_racks", instanceName = "oocsp_racks_030_mii8"))
+    def oocsp_racks_030_ea4_cc(): Unit = {
+        solve(task.copy(problemName = "oocsp_racks", instanceName = "oocsp_racks_030_ea4_cc"))
     }
 
     @Test

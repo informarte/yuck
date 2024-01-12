@@ -32,12 +32,12 @@ final class Disjoint2Rect
 final class Disjoint2
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      rects: immutable.IndexedSeq[Disjoint2Rect],
-     isStrict: Boolean,
+     strict: Boolean,
      costs: BooleanVariable)
     extends Disjoint(id, rects.size, costs)
 {
 
-    override def toString = "disjoint2([%s], %s)".format(rects.mkString(", "), costs)
+    override def toString = "disjoint2([%s], %s, %s)".format(rects.mkString(", "), strict, costs)
 
     override protected def variablesIterator(i: Int) =
         new Iterator[IntegerVariable] {
@@ -94,8 +94,8 @@ final class Disjoint2
         val h = searchState.value(r1.h).value
         val hasZeroWidth = w == 0
         val hasZeroHeight = h == 0
-        val x2 = safeAdd(x1, if (hasZeroWidth && isStrict) 1 else max(w, 0))
-        val y2 = safeAdd(y1, if (hasZeroHeight && isStrict) 1 else max(h, 0))
+        val x2 = safeAdd(x1, if (hasZeroWidth && strict) 1 else max(w, 0))
+        val y2 = safeAdd(y1, if (hasZeroHeight && strict) 1 else max(h, 0))
         val r2 = new Rect2d(x1.toDouble, y1.toDouble, x2.toDouble, y2.toDouble)
         val entry = new RTreeEntry(i, hasZeroWidth, hasZeroHeight, r2)
         entry
@@ -119,7 +119,7 @@ final class Disjoint2
         val xOverlap = max(0, min(r1x2, r2x2) - max(r1x1, r2x1))
         val yOverlap = max(0, min(r1y2, r2y2) - max(r1y1, r2y1))
         val overlap: Long = safeMul(xOverlap.toLong, yOverlap.toLong)
-        if (isStrict &&
+        if (strict &&
             overlap > 0 &&
             ((e1.hasZeroWidth && (r1x1 == r2x1 || r1x1 == r2x2)) ||
              (e2.hasZeroWidth && (r2x1 == r1x1 || r2x1 == r1x2)) ||

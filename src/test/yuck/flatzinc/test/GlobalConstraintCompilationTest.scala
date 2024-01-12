@@ -839,6 +839,54 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasIncreasingConstraint]))
+    def testIncreasingNonstrictBool(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "increasing_nonstrict_bool_test"))
+        assertEq(result.space.numberOfConstraints[Increasing[_, _]], 1)
+        assert(result.neighbourhood.isInstanceOf[BooleanIncreasingNeighbourhood])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasIncreasingConstraint]))
+    def testIncreasingNonstrictBoolReif(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "increasing_nonstrict_bool_reif_test"))
+        assertEq(result.space.numberOfConstraints[Increasing[_, _]], 2)
+        assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasIncreasingConstraint]))
+    def testIncreasingNonstrictInt(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "increasing_nonstrict_int_test"))
+        assertEq(result.space.numberOfConstraints[Increasing[_, _]], 1)
+        assert(result.neighbourhood.isInstanceOf[IntegerIncreasingNeighbourhood])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasIncreasingConstraint]))
+    def testIncreasingNonstrictIntReif(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "increasing_nonstrict_int_reif_test"))
+        assertEq(result.space.numberOfConstraints[Increasing[_, _]], 2)
+        assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasIncreasingConstraint]))
+    def testIncreasingStrictInt(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "increasing_strict_int_test"))
+        assertEq(result.space.numberOfConstraints[Increasing[_, _]], 1)
+        assert(result.neighbourhood.isInstanceOf[IntegerIncreasingNeighbourhood])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasIncreasingConstraint]))
+    def testIncreasingStrictIntReif(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "increasing_strict_int_reif_test"))
+        assertEq(result.space.numberOfConstraints[Increasing[_, _]], 2)
+        assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
+    }
+
+    @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverse(): Unit = {
         val result = solveWithResult(task.copy(problemName = "inverse_test", miniZincCompilerRenamesVariables = true))

@@ -91,7 +91,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
                 Nil
             }
         val constraintHardness: Map[Class[_ <: Constraint], Int] = Map(
-            (classOf[Circuit], 3), (classOf[Inverse], 3),
+            (classOf[BooleanIncreasing], 3), (classOf[Circuit], 3), (classOf[IntegerIncreasing], 3), (classOf[Inverse], 3),
             (classOf[Alldistinct[_]], 2),
             (classOf[Table[_]], 1))
         def constraintRanking(constraint: Constraint): Int =
@@ -161,8 +161,9 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
     private def createHotSpotDistribution1(searchVars: Seq[AnyVariable], costVars: Set[BooleanVariable]): Distribution = {
         val searchVarIndex = searchVars.iterator.zipWithIndex.toMap
         val hotSpotDistribution = Distribution(searchVars.size)
+        val searchVarSet = searchVars.toSet
         def involvedSearchVars(x: AnyVariable) =
-            cc.space.involvedSearchVariables(x).diff(cc.implicitlyConstrainedVars).iterator.map(searchVarIndex).toVector
+            cc.space.involvedSearchVariables(x).intersect(searchVarSet).iterator.map(searchVarIndex).toVector
         val involvementMatrix = costVars.iterator.map(x => (x, involvedSearchVars(x))).filter(_._2.nonEmpty).toMap
         cc.space.post(new SatisfactionGoalTracker(cc.space.nextConstraintId(), None, involvementMatrix, hotSpotDistribution))
         hotSpotDistribution

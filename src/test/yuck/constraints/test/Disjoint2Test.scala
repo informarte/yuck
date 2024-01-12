@@ -31,7 +31,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
         val rects = (1 to 2).map(createRect)
         val Seq(r1, r2) = rects
         val constraint = new Disjoint2(space.nextConstraintId(), null, rects, false, costs)
-        assertEq(constraint.toString, "disjoint2([(x1, y1, w1, h1), (x2, y2, w2, h2)], costs)")
+        assertEq(constraint.toString, "disjoint2([(x1, y1, w1, h1), (x2, y2, w2, h2)], false, costs)")
         assertEq(constraint.inVariables.size, 8)
         assertEq(constraint.inVariables.toSet, Set(r1.x, r1.y, r1.w, r1.h, r2.x, r2.y, r2.w, r2.h))
         assertEq(constraint.outVariables.size, 1)
@@ -113,6 +113,24 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
+    def testHandlingOfNegativeWidthAndHeight(): Unit = {
+        val rects = (1 to 3).map(createRect)
+        val Seq(r1, r2, r3) = rects
+        space.post(new Disjoint2(space.nextConstraintId(), null, rects, false, costs))
+        runScenario(
+            TestScenario(
+                space,
+                Initialize(
+                    "initial conflict: r1 and r2 are identical and covered by r0",
+                    r1.x << 0, r1.y << 0, r1.w << 3, r1.h << 3,
+                    r2.x << 0, r2.y << 0, r2.w << 1, r2.h << 1,
+                    r3.x << 0, r3.y << 0, r3.w << 1, r3.h << 1,
+                    costs << False3),
+                ConsultAndCommit("reduce conflict by setting the width of r2 to -1", r2.w << -1, costs << False),
+                ConsultAndCommit("resolve conflict by setting the height of r3 to -1", r3.h << -1, costs << True)))
+    }
+
+    @Test
     def testHandlingOfSharedVariables(): Unit = {
         val r1 = createRect(1)
         val r2 =
@@ -151,23 +169,6 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
                     costs << False4),
                 Consult("reduce height and width of r2 to 1", r2.w << 1, r2.h << 1, costs << False),
                 Consult("move r1 to fully overlap r2", r1.x << 2, r1.y << 3, costs << BooleanValue(16))))
-    }
-
-    @Test
-    def testNonStrictSemantics(): Unit = {
-        val rects = (1 to 2).map(createRect)
-        val Seq(r1, r2) = rects
-        space.post(new Disjoint2(space.nextConstraintId(), null, rects, false, costs))
-        runScenario(
-            TestScenario(
-                space,
-                Initialize(
-                    "initial conflict: r2 overlaps with r1",
-                    r1.x << 0, r1.y << 1, r1.w << 4, r1.h << 4,
-                    r2.x << 2, r2.y << 3, r2.w << 4, r2.h << 4,
-                    costs << False4),
-                ConsultAndCommit("reduce width of r2 to 0", r2.w << 0, costs << True),
-                ConsultAndCommit("restore width of r2", r2.w << 4, costs << False4)))
     }
 
     @Test
@@ -241,24 +242,6 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
                     r1.x << 0, r1.y << 0,
                     costs << True),
                 ConsultAndCommit("undoing changes to r2 and r4 creates conflicts", r2.h << 1, r3.w << 1, costs << False7)))
-    }
-
-    @Test
-    def testHandlingOfNegativeWidthAndHeight(): Unit = {
-        val rects = (1 to 3).map(createRect)
-        val Seq(r1, r2, r3) = rects
-        space.post(new Disjoint2(space.nextConstraintId(), null, rects, true, costs))
-        runScenario(
-            TestScenario(
-                space,
-                Initialize(
-                    "initial conflict: r1 and r2 are identical and covered by r0",
-                    r1.x << 0, r1.y << 0, r1.w << 3, r1.h << 3,
-                    r2.x << 0, r2.y << 0, r2.w << 1, r2.h << 1,
-                    r3.x << 0, r3.y << 0, r3.w << 1, r3.h << 1,
-                    costs << False3),
-                ConsultAndCommit("reduce conflict by setting the width of r2 to -1", r2.w << -1, costs << False),
-                ConsultAndCommit("resolve conflict by setting the height of r3 to -1", r3.h << -1, costs << True)))
     }
 
 }
