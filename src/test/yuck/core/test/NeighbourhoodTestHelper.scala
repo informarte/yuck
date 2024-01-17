@@ -45,7 +45,7 @@ final class NeighbourhoodTestHelper
         for (i <- 1 to sampleSize) {
             val move = neighbourhood.nextMove
             result.moveSizeFrequencies(move.size) += 1
-            val ys = move.involvedVariablesIterator.map(valueTraits.safeDowncast).toBuffer
+            val ys = move.involvedVariablesIterator.map(valueTraits.safeDowncast).toVector
             assertEq(ys.size, ys.toSet.size)
             assert(ys.forall(xs.contains))
             for (y <- ys) {

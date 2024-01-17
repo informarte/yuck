@@ -117,11 +117,15 @@ final class ConstraintDrivenNeighbourhoodFactory
                     }
                     cc.logger.logg("%s contributes a neighbourhood over %s".format(constraint, xs))
                         neighbourhoods +=
-                            new RandomReassignmentGenerator(cc.space, xs, randomGenerator, cc.cfg.moveSizeDistribution, None, None)
+                            new RandomReassignmentGenerator(
+                                cc.space, xs, randomGenerator, cc.cfg.moveSizeDistribution, None, None)
                     if (neighbourhoods.size < 2) {
                         neighbourhoods.headOption
                     } else {
-                        Some(new NeighbourhoodCollection(neighbourhoods.toVector, randomGenerator, None, None))
+                        Some(new NeighbourhoodCollection(
+                            cc.space,
+                            neighbourhoods.toVector, randomGenerator,
+                            maybeSelectionSizeDistribution(neighbourhoods), None, None))
                     }
                 }
         }
@@ -179,9 +183,12 @@ final class ConstraintDrivenNeighbourhoodFactory
                     val (weights, neighbourhoods) = weightedNeighbourhoods.unzip
                     val hotSpotDistribution = createHotSpotDistribution(mode, weights)
                     Some(new NeighbourhoodCollection(
-                        neighbourhoods.toVector, randomGenerator, Some(hotSpotDistribution), None))
+                        cc.space,
+                        neighbourhoods.toVector, randomGenerator,
+                        maybeSelectionSizeDistribution(neighbourhoods),
+                        Some(hotSpotDistribution), levelCfg.maybeFairVariableChoiceRate))
                 }
-            maybeNeighbourhood.map(considerFairVariableChoiceRate(_, levelCfg))
+            maybeNeighbourhood
         }
     }
 
@@ -194,23 +201,6 @@ final class ConstraintDrivenNeighbourhoodFactory
         val hotSpotDistribution = Distribution(weights.size)
         cc.space.post(new OptimizationGoalTracker(nextConstraintId(), None, mode, weights.toVector, hotSpotDistribution))
         hotSpotDistribution
-    }
-
-    private def considerFairVariableChoiceRate
-        (neighbourhood0: Neighbourhood, levelCfg: FlatZincLevelConfiguration): Neighbourhood =
-    {
-        val rate = (levelCfg.maybeFairVariableChoiceRate.getOrElse(Probability(0)).value * 100).toInt
-        if (rate == 0) neighbourhood0
-        else {
-            val xs = neighbourhood0.searchVariables.diff(cc.implicitlyConstrainedVars).toBuffer.sorted.toVector
-            if (xs.isEmpty) neighbourhood0
-            else {
-                val neighbourhood1 =
-                    new RandomReassignmentGenerator(cc.space, xs, randomGenerator, cc.cfg.moveSizeDistribution, None, None)
-                val distribution = Distribution(0, List(100 - rate, rate))
-                new NeighbourhoodCollection(Vector(neighbourhood0, neighbourhood1), randomGenerator, Some(distribution), None)
-            }
-        }
     }
 
 }

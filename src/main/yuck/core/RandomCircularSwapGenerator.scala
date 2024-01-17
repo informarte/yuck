@@ -81,8 +81,8 @@ final class RandomCircularSwapGenerator
     override def nextMove = {
         val useUniformDistribution =
             maybeHotSpotDistribution.isEmpty ||
-            maybeHotSpotDistribution.get.volume == 0 ||
-            (maybeFairVariableChoiceRate.isDefined && randomGenerator.nextDecision(maybeFairVariableChoiceRate.get))
+                maybeHotSpotDistribution.get.volume == 0 ||
+                (maybeFairVariableChoiceRate.isDefined && randomGenerator.nextDecision(maybeFairVariableChoiceRate.get))
         val priorityDistribution = if (useUniformDistribution) uniformDistribution else maybeHotSpotDistribution.get
         val m =
             min(max(2, min(moveSizeDistribution.nextIndex(randomGenerator), n)),

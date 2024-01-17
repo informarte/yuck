@@ -34,9 +34,11 @@ class NeighbourhoodCollectionTest
                 new SimpleRandomReassignmentGenerator(space, Vector(xs(i)), randomGenerator)
         val neighbourhood =
             new NeighbourhoodCollection(
-                neighbourhoods, randomGenerator, maybeHotSpotDistribution, maybeFairChoiceRate)
+                space, neighbourhoods, randomGenerator,
+                Some(moveSizeDistribution), maybeHotSpotDistribution, maybeFairChoiceRate)
         val result = helper.measure(neighbourhood)
-        helper.checkVariableFrequencies(result, 0.1, 0.1)
+        helper.checkMoveSizeFrequencies(result, 0.1, 0)
+        helper.checkVariableFrequencies(result, 0.2, 0)
     }
 
     @Test
@@ -62,7 +64,8 @@ class NeighbourhoodCollectionTest
                 new CommitChecker(new SimpleRandomReassignmentGenerator(space, Vector(xs(i)), randomGenerator))
         val neighbourhood =
             new NeighbourhoodCollection(
-                neighbourhoods, randomGenerator, maybeHotSpotDistribution, maybeFairChoiceRate)
+                space, neighbourhoods, randomGenerator,
+                Some(moveSizeDistribution), maybeHotSpotDistribution, maybeFairChoiceRate)
         val numberOfTrials = 1000
         for (i <- 0 until numberOfTrials) {
             val move = neighbourhood.nextMove
@@ -81,6 +84,7 @@ class NeighbourhoodCollectionTest
  */
 object NeighbourhoodCollectionTest extends NeighbourhoodTestGenerator {
 
-    override protected val moveSizeDistributions = List(List(100)).map(Distribution(1, _))
+    override protected val moveSizeDistributions =
+        List(List(100), List(90, 10), List(50, 35, 15), List(50, 25, 15, 10)).map(Distribution(1, _))
 
 }

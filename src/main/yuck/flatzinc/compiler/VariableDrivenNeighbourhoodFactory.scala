@@ -66,7 +66,10 @@ final class VariableDrivenNeighbourhoodFactory
         if (neighbourhoods.size < 2) {
             neighbourhoods.headOption
         } else {
-            Some(new NeighbourhoodCollection(neighbourhoods.toVector, randomGenerator, None, None))
+            Some(new NeighbourhoodCollection(
+                cc.space,
+                neighbourhoods.toVector, randomGenerator,
+                maybeSelectionSizeDistribution(neighbourhoods), None, None))
         }
     }
 

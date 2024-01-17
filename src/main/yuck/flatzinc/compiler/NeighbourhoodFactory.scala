@@ -2,6 +2,7 @@ package yuck.flatzinc.compiler
 
 import scala.collection.*
 
+import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.*
 import yuck.core.{given, *}
 import yuck.flatzinc.FlatZincLevelConfiguration
@@ -136,7 +137,9 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
             neighbourhoods.headOption
         } else {
             Some(new NeighbourhoodCollection(
+                cc.space,
                 neighbourhoods.toVector, randomGenerator,
+                maybeSelectionSizeDistribution(neighbourhoods),
                 if (levelCfg.guideOptimization) Some(createHotSpotDistribution2(neighbourhoods)) else None,
                 if (levelCfg.guideOptimization) levelCfg.maybeFairVariableChoiceRate else None))
         }
@@ -227,7 +230,17 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
         require(objectives.size == neighbourhoods.size)
         val hotSpotDistribution = new ArrayBackedDistribution(objectives.size)
         cc.space.post(new LevelWeightMaintainer(nextConstraintId(), objectives, hotSpotDistribution))
-        new NeighbourhoodCollection(neighbourhoods, randomGenerator, Some(hotSpotDistribution), None)
+        new NeighbourhoodCollection(cc.space, neighbourhoods, randomGenerator, None, Some(hotSpotDistribution), None)
+    }
+
+    protected def maybeSelectionSizeDistribution(neighbourhoods: Iterable[Neighbourhood]): Option[Distribution] = {
+        val searchVariables =
+            neighbourhoods.foldLeft(mutable.HashSet.empty) {
+                case (xs, neighbourhood) => xs.addAll(neighbourhood.searchVariables)
+            }
+        val neighbourhoodsAreDisjoint =
+            searchVariables.size == neighbourhoods.iterator.map(_.searchVariables.size).sum
+        if neighbourhoodsAreDisjoint then Some(cc.cfg.moveSizeDistribution) else None
     }
 
 }

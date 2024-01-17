@@ -113,10 +113,8 @@ object Distribution {
      */
     def apply(indexBase: Int, frequencies: Seq[Int]): Distribution = {
         val result = apply(indexBase + frequencies.size)
-        var i = indexBase
-        for (f <- frequencies) {
-            result.setFrequency(i, f)
-            i += 1
+        for ((f, i) <- frequencies.view.zipWithIndex) {
+            result.setFrequency(indexBase + i, f)
         }
         result
     }
