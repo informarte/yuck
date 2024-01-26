@@ -55,7 +55,7 @@ final class VariableDrivenNeighbourhoodFactory
         val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
         val remainingVariables = hotSpotIndicators.keys.toSet -- cc.implicitlyConstrainedVars
         if (! remainingVariables.isEmpty) {
-            val xs = remainingVariables.toBuffer.sorted.toIndexedSeq
+            val xs = remainingVariables.toBuffer.sorted.toVector
             for (x <- xs if ! x.domain.isFinite) {
                 throw new VariableWithInfiniteDomainException(x)
             }
@@ -68,7 +68,7 @@ final class VariableDrivenNeighbourhoodFactory
         if (neighbourhoods.size < 2) {
             neighbourhoods.headOption
         } else {
-            Some(new NeighbourhoodCollection(neighbourhoods.toIndexedSeq, randomGenerator, None, None))
+            Some(new NeighbourhoodCollection(neighbourhoods.toVector, randomGenerator, None, None))
         }
     }
 
@@ -130,9 +130,9 @@ final class VariableDrivenNeighbourhoodFactory
             s += x -> createNonNegativeChannel[V]()
             val zl = AX.normalize(zs(x))
             if (zl.forall(ax => ax.a == valueTraits.one)) {
-               cc.space.post(new Sum(nextConstraintId(), None, zl.iterator.map(ax => ax.x).toIndexedSeq, s(x)))
+               cc.space.post(new Sum(nextConstraintId(), None, zl.iterator.map(ax => ax.x).toVector, s(x)))
             } else {
-               cc.space.post(new LinearCombination(nextConstraintId(), None, zl.toIndexedSeq, s(x)))
+               cc.space.post(new LinearCombination(nextConstraintId(), None, zl.toVector, s(x)))
             }
         }
         s
@@ -146,7 +146,7 @@ final class VariableDrivenNeighbourhoodFactory
         Option[Distribution] =
     {
         val hotSpotDistribution = Distribution(xs.size)
-        val weightedIndicators = xs.iterator.map(x => new AX(valueTraits.one, hotSpotIndicators(x))).toIndexedSeq
+        val weightedIndicators = xs.iterator.map(x => new AX(valueTraits.one, hotSpotIndicators(x))).toVector
         cc.space.post(new OptimizationGoalTracker(nextConstraintId(), None, OptimizationMode.Min, weightedIndicators, hotSpotDistribution))
         Some(hotSpotDistribution)
     }

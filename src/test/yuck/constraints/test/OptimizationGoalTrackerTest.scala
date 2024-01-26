@@ -23,7 +23,7 @@ class OptimizationGoalTrackerTest extends UnitTest {
         val dy = IntegerRange(IntegerValue(0), IntegerValue(100))
         val x = new IntegerVariable(space.nextVariableId(), "x", dx)
         val y = new IntegerVariable(space.nextVariableId(), "y", dy)
-        val axs = immutable.IndexedSeq(new AX(Three, x), new AX(IntegerValue(-2), y))
+        val axs = Vector(new AX(Three, x), new AX(IntegerValue(-2), y))
         val c = new OptimizationGoalTracker(space.nextConstraintId(), null, OptimizationMode.Min, axs, d)
         space
             .post(c)
@@ -75,7 +75,7 @@ class OptimizationGoalTrackerTest extends UnitTest {
         val dy = IntegerRange(IntegerValue(-10), IntegerValue(50))
         val x = new IntegerVariable(space.nextVariableId(), "x", dx)
         val y = new IntegerVariable(space.nextVariableId(), "y", dy)
-        val axs = immutable.IndexedSeq(new AX(Three, x), new AX(IntegerValue(-2), y))
+        val axs = Vector(new AX(Three, x), new AX(IntegerValue(-2), y))
         val c = new OptimizationGoalTracker(space.nextConstraintId(), null, OptimizationMode.Max, axs, d)
         space
             .post(c)

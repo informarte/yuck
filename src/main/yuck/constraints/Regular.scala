@@ -74,7 +74,7 @@ final class Regular
                 for (j <- 0 until Q)
                     if (d(i)(k) < Int.MaxValue && d(k)(j) < Int.MaxValue && d(i)(j) > d(i)(k) + d(k)(j))
                         d(i)(j) = d(i)(k) + d(k)(j)
-        for (i <- 0 until Q) yield F.valuesIterator.map(f => d(i)(f.toInt - 1)).min
+        Vector.tabulate(Q)(i => F.valuesIterator.map(f => d(i)(f.toInt - 1)).min)
     }
 
     override def toString =
@@ -98,7 +98,7 @@ final class Regular
                     buf += i
                     map
             }
-            .map{case (x, buf) => (x, buf.toIndexedSeq)}
+            .map{case (x, buf) => (x, buf.toVector)}
             .toMap
         } else {
             null
@@ -116,7 +116,7 @@ final class Regular
     private val effect = costs.reuseableEffect
 
     override def initialize(now: SearchState) = {
-        currentStates = immutable.IndexedSeq[Int]() ++ (0 until n).map(i => 0)
+        currentStates = Vector.fill(n)(0)
         var i = 0
         var q = q0
         while (i < n && q > 0) {

@@ -241,7 +241,7 @@ object IntegerDomain {
     def apply(ranges: Iterable[IntegerRange]): IntegerDomain = {
         if (ranges.isEmpty) EmptyIntegerRange
         else if (ranges.size == 1) ranges.head
-        else new IntegerRangeList(ranges.toIndexedSeq)
+        else new IntegerRangeList(ranges.toVector)
     }
 
     /**

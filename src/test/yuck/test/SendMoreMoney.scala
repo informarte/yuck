@@ -54,7 +54,7 @@ final class SendMoreMoney extends IntegrationTest {
             val numberOfMissingValues =
                 new BooleanVariable(space.nextVariableId(), "numberOfMissingValues", CompleteBooleanDomain)
             space.post(
-                new Alldistinct(space.nextConstraintId(), null, vars.toIndexedSeq, numberOfMissingValues))
+                new Alldistinct(space.nextConstraintId(), null, vars.toVector, numberOfMissingValues))
             val LHS = List((1000, S), (100, E), (10, N), (1, D), (1000, M), (100, O), (10, R), (1, E))
             val RHS = List((10000, M), (1000, O), (100, N), (10, E), (1, Y))
             val lhs = new IntegerVariable(space.nextVariableId(), "lhs", CompleteIntegerRange)
@@ -108,7 +108,7 @@ final class SendMoreMoney extends IntegrationTest {
                     "SA",
                     space,
                     createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen()),
-                    new SimpleRandomReassignmentGenerator(space, space.searchVariables.toIndexedSeq, randomGenerator.nextGen()),
+                    new SimpleRandomReassignmentGenerator(space, space.searchVariables.toVector, randomGenerator.nextGen()),
                     randomGenerator.nextGen(),
                     new SatisfactionObjective(costs),
                     None,

@@ -124,7 +124,7 @@ abstract class CompilationPhase extends Runnable {
         case Term(_, Nil) =>
             cc.arrays(expr)
         case ArrayConst(elems) =>
-            val array = elems.iterator.map(elem => compileAnyExpr(elem)).to(immutable.ArraySeq)
+            val array = elems.iterator.map(elem => compileAnyExpr(elem)).toVector
             cc.arrayConsts += expr -> array
             array
     }

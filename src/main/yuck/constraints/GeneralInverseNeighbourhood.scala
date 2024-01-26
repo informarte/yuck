@@ -19,8 +19,9 @@ final class GeneralInverseNeighbourhood
 
     private val effects = Vector.fill(4){new ReusableMoveEffect[IntegerValue]}
     private val candidates1 =
-        f.xs.indices
+        f.xs.indices.iterator
         .filter(i => f.xs(i).domain.size > 1 && g.xs(rawValue(f.xs(i)) - g.offset).domain.size > 1)
+        .toVector
 
     override def nextMove = {
         if (candidates1.isEmpty) {
@@ -50,7 +51,7 @@ final class GeneralInverseNeighbourhood
                         x1.domain.contains(a2) && x2.domain.contains(a1) &&
                         y1.domain.contains(b2) && y2.domain.contains(b1)
                     })
-                .toIndexedSeq
+                .toVector
             if (candidates2.isEmpty) {
                 new ChangeValues[IntegerValue](space.nextMoveId(), Nil)
             } else {

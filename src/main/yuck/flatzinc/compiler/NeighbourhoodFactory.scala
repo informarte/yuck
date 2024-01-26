@@ -74,7 +74,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
         if (neighbourhoods.size < 2) {
             neighbourhoods.headOption
         } else {
-            Some(stackNeighbourhoods(objectives.toIndexedSeq, neighbourhoods.toIndexedSeq))
+            Some(stackNeighbourhoods(objectives.toVector, neighbourhoods.toVector))
         }
     }
 
@@ -117,7 +117,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
                 }
             }
         }
-        val xs = cc.space.involvedSearchVariables(x).diff(cc.implicitlyConstrainedVars).toBuffer.sorted.toIndexedSeq
+        val xs = cc.space.involvedSearchVariables(x).diff(cc.implicitlyConstrainedVars).toBuffer.sorted.toVector
         if (! xs.isEmpty && ! cc.sigint.isSet) {
             for (x <- xs if ! x.domain.isFinite) {
                 throw new VariableWithInfiniteDomainException(x)
@@ -138,7 +138,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
             neighbourhoods.headOption
         } else {
             Some(new NeighbourhoodCollection(
-                neighbourhoods.toIndexedSeq, randomGenerator,
+                neighbourhoods.toVector, randomGenerator,
                 if (levelCfg.guideOptimization) Some(createHotSpotDistribution2(neighbourhoods)) else None,
                 if (levelCfg.guideOptimization) levelCfg.maybeFairVariableChoiceRate else None))
         }
@@ -164,7 +164,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
         val searchVarIndex = searchVars.iterator.zipWithIndex.toMap
         val hotSpotDistribution = Distribution(searchVars.size)
         def involvedSearchVars(x: AnyVariable) =
-            cc.space.involvedSearchVariables(x).diff(cc.implicitlyConstrainedVars).iterator.map(searchVarIndex).toIndexedSeq
+            cc.space.involvedSearchVariables(x).diff(cc.implicitlyConstrainedVars).iterator.map(searchVarIndex).toVector
         val involvementMatrix = costVars.iterator.map(x => (x, involvedSearchVars(x))).filter(_._2.nonEmpty).toMap
         cc.space.post(new SatisfactionGoalTracker(cc.space.nextConstraintId(), None, involvementMatrix, hotSpotDistribution))
         hotSpotDistribution
@@ -179,7 +179,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
                 val ys = neighbourhood.searchVariables.toSet
                 xs.exists(ys.contains)
             }
-            neighbourhoods.iterator.filter(isInvolved).map(neighbourhoodIndex).toIndexedSeq
+            neighbourhoods.iterator.filter(isInvolved).map(neighbourhoodIndex).toVector
         }
         val involvementMatrix = cc.costVars.iterator.map(x => (x, involvedNeighbourhoods(x))).filter(_._2.nonEmpty).toMap
         cc.space.post(new SatisfactionGoalTracker(cc.space.nextConstraintId(), None, involvementMatrix, hotSpotDistribution))
@@ -215,7 +215,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
         } else {
             cc.logger.logg("Adding a neighbourhood over %s".format(xs))
             Some(new RandomReassignmentGenerator(
-                cc.space, xs.toBuffer.sorted.toIndexedSeq, randomGenerator, cc.cfg.moveSizeDistribution, None, None))
+                cc.space, xs.toBuffer.sorted.toVector, randomGenerator, cc.cfg.moveSizeDistribution, None, None))
         }
     }
 

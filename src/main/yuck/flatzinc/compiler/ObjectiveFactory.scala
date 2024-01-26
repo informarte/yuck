@@ -58,7 +58,7 @@ final class ObjectiveFactory
         SatisfactionObjective =
     {
         val costVar = createBoolChannel()
-        cc.space.post(new Conjunction(nextConstraintId(), None, costVars.toIndexedSeq, costVar))
+        cc.space.post(new Conjunction(nextConstraintId(), None, costVars.toVector, costVar))
         createSatisfactionObjective(cfg, costVar)
     }
 
