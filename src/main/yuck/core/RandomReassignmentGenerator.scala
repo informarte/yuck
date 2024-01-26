@@ -43,12 +43,10 @@ final class RandomReassignmentGenerator
     require(moveSizeDistribution.frequency(0) == 0)
     require(moveSizeDistribution.volume > 0)
 
-    private val uniformDistribution = Distribution(n)
-    (0 until n).foreach(i => uniformDistribution.setFrequency(i, 1))
-    require(uniformDistribution.volume > 0)
-    private val s = moveSizeDistribution.size
+    private val uniformDistribution = Distribution(0, Vector.fill(n)(1))
     private val effects = new mutable.ArrayBuffer[AnyMoveEffect](n)
-    private val frequencyRestorers = for (i <- 1 until s) yield new FrequencyRestorer
+    private val s = moveSizeDistribution.size
+    private val frequencyRestorers = Vector.fill(s)(new FrequencyRestorer)
     private def addEffect(x: AnyVariable): Unit = {
         effects += x.nextRandomMoveEffect(space, randomGenerator)
     }

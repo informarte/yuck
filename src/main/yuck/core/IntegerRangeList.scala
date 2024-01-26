@@ -194,7 +194,7 @@ final class IntegerRangeList
 
     override def mirrored: IntegerRangeList =
         if (isEmpty) this
-        else new IntegerRangeList(ranges.reverseIterator.map(_.mirrored).toIndexedSeq)
+        else new IntegerRangeList(ranges.reverseIterator.map(_.mirrored).toVector)
 
     private def cannotIntersect(that: IntegerRangeList): Boolean =
         this.isEmpty ||
@@ -263,7 +263,7 @@ object IntegerRangeList {
      */
     def apply(range: IntegerRange) =
         if (range.isEmpty) EmptyIntegerRangeList
-        else new IntegerRangeList(immutable.IndexedSeq(range))
+        else new IntegerRangeList(Vector(range))
 
     /**
      * Creates an IntegerRangeList instance from the given boundaries.
@@ -272,7 +272,7 @@ object IntegerRangeList {
      */
     def apply(a: IntegerValue, b: IntegerValue) =
         if (a.ne(null) && b.ne(null) && b < a) EmptyIntegerRangeList
-        else new IntegerRangeList(immutable.IndexedSeq(IntegerRange(a, b)))
+        else new IntegerRangeList(Vector(IntegerRange(a, b)))
 
     // In the following methods we prefer indices and tail recursion over iterators and loops
     // to avoid the overhead of creating ranges and iterators.

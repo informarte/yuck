@@ -567,9 +567,9 @@ final class ConstraintFactory
             assert(xs.size == ws.size)
             val y = compileConstant(Zero)
             val h = compileConstant(One)
-            val rects = for (i <- xs.indices) yield new Disjoint2Rect(xs(i), y, ws(i), h)
+            val rects = Vector.tabulate(xs.size)(i => new Disjoint2Rect(xs(i), y, ws(i), h))
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.space.post(new Disjoint2(nextConstraintId(), maybeGoal, rects.to(immutable.ArraySeq), strict, costs))
+            cc.space.post(new Disjoint2(nextConstraintId(), maybeGoal, rects, strict, costs))
             List(costs)
         case Constraint("yuck_diffn", Seq(x, y, w, h, BoolConst(strict)), _) =>
             val xs = compileIntArray(x)
@@ -579,26 +579,26 @@ final class ConstraintFactory
             assert(xs.size == ys.size)
             assert(xs.size == ws.size)
             assert(xs.size == hs.size)
-            val rects = for (i <- xs.indices) yield new Disjoint2Rect(xs(i), ys(i), ws(i), hs(i))
+            val rects = Vector.tabulate(xs.size)(i => new Disjoint2Rect(xs(i), ys(i), ws(i), hs(i)))
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.space.post(new Disjoint2(nextConstraintId(), maybeGoal, rects.to(immutable.ArraySeq), strict, costs))
+            cc.space.post(new Disjoint2(nextConstraintId(), maybeGoal, rects, strict, costs))
             List(costs)
         case Constraint("yuck_table_bool", Seq(as, flatTable), _) =>
             val xs = compileBoolArray(as)
-            val rows = compileBoolArray(flatTable).map(_.domain.singleValue).grouped(xs.size).to(immutable.ArraySeq)
+            val rows = compileBoolArray(flatTable).map(_.domain.singleValue).grouped(xs.size).toVector
             val costs = maybeCosts.getOrElse(createBoolChannel())
             val forceImplicitSolving = constraint.annotations.exists(forcesImplicitSolving)
             cc.space.post(new Table(nextConstraintId(), maybeGoal, xs, rows, costs, forceImplicitSolving))
             List(costs)
         case Constraint("yuck_table_int", Seq(as, flatTable), _) =>
             val xs = compileIntArray(as)
-            val rows = compileIntArray(flatTable).map(_.domain.singleValue).grouped(xs.size).to(immutable.ArraySeq)
+            val rows = compileIntArray(flatTable).map(_.domain.singleValue).grouped(xs.size).toVector
             val costs = maybeCosts.getOrElse(createBoolChannel())
             val forceImplicitSolving = constraint.annotations.exists(forcesImplicitSolving)
             cc.space.post(new Table(nextConstraintId(), maybeGoal, xs, rows, costs, forceImplicitSolving))
             List(costs)
         case Constraint("yuck_regular", Seq(xs, q, s, flatDelta, q0, f), _) =>
-            val delta = compileIntArray(flatDelta).map(_.domain.singleValue.toInt).grouped(s.toInt).to(immutable.ArraySeq)
+            val delta = compileIntArray(flatDelta).map(_.domain.singleValue.toInt).grouped(s.toInt).toVector
             val costs = maybeCosts.getOrElse(createBoolChannel())
             cc.space.post(new Regular(nextConstraintId(), maybeGoal, xs, q.toInt, s.toInt, delta, q0.toInt, f.set, costs))
             List(costs)
@@ -622,7 +622,7 @@ final class ConstraintFactory
             val itemGenerator =
                 for ((bin, weight) <- bins.iterator.zip(weights.iterator)) yield
                     new BinPackingItem(bin, weight)
-            val items = itemGenerator.toIndexedSeq
+            val items = itemGenerator.toVector
             val loads1 = compileIntArray(loads0)
             val loads = (minLoadIndex until minLoadIndex + loads1.size).iterator.zip(loads1.iterator).toMap
             compileBinPackingConstraint(maybeGoal, constraint, items, loads)
@@ -812,7 +812,7 @@ final class ConstraintFactory
             .iterator
             .filter{case (_, weight) => weight > loadTraits.zero}
             .map{case (bin, weight) => new BinPackingItem(bin, weight)}
-            .toIndexedSeq
+            .toVector
         val bins = items1.map(_.bin)
         val maxLoad = items.map(_.weight).sum(loadTraits.numericalOperations)
         val trivialLoadDomain = loadTraits.createDomain(loadTraits.zero, maxLoad)
@@ -868,7 +868,7 @@ final class ConstraintFactory
             if (serviceTimes1.isEmpty) _ => timeTraits.zero else i => serviceTimes1(i)
         val travelTimes1 =
             compileNumArray[Time](travelTimes0).map(_.domain.singleValue).grouped(arrivalTimes.size)
-                 .to(immutable.ArraySeq)
+                 .toVector
         require(travelTimes1.isEmpty || (travelTimes1.size == nodes.size && travelTimes1.forall(_.size == nodes.size)))
         val travelTimesAreSymmetric =
             travelTimes1.isEmpty ||
@@ -876,7 +876,7 @@ final class ConstraintFactory
                 i => Range(i + 1, nodes.size).forall(j => travelTimes1(i)(j) == travelTimes1(j)(i)))
         val travelTimes2 =
             if (! travelTimes1.isEmpty && travelTimesAreSymmetric)
-                (for (i <- 0 until nodes.size) yield travelTimes1(i).drop(i)).to(immutable.ArraySeq)
+                Vector.tabulate(nodes.size)(i => travelTimes1(i).drop(i))
             else travelTimes1
         val travelTimes: (Int, Int) => Time =
             if (travelTimes2.isEmpty) (_, _) => timeTraits.zero
@@ -907,7 +907,7 @@ final class ConstraintFactory
             val arrivalTimes1: immutable.IndexedSeq[NumericalVariable[Time]] = {
                 val definableVars = this.definedVars(constraint)
                 val definedVars = new mutable.HashSet[NumericalVariable[Time]]
-                for (i <- nodes.values.toIndexedSeq) yield {
+                nodes.valuesIterator.map(i =>
                     val arrivalTime = arrivalTimes(safeToInt(safeSub(i.value, offset)))
                     if (startNodes.contains(i)) {
                         arrivalTime
@@ -919,7 +919,7 @@ final class ConstraintFactory
                         arrivalTime
                     }
                     else timeTraits.createVariable(cc.space, "", arrivalTime.domain)
-                }
+                ).toVector
             }
             val totalTravelTime1: NumericalVariable[Time] =
                 if (isViableConstraint(succ, totalTravelTime)) totalTravelTime
@@ -985,11 +985,11 @@ final class ConstraintFactory
                         val List(AX(_, x), AX(_, y)) = axs
                         cc.space.post(new Plus(nextConstraintId(), maybeGoal, x, y, channel))
                     } else {
-                        val xs = axs.iterator.map(_.x).toIndexedSeq
+                        val xs = axs.iterator.map(_.x).toVector
                         cc.space.post(new Sum(nextConstraintId(), maybeGoal, xs , channel))
                     }
                 } else {
-                   cc.space.post(new LinearCombination(nextConstraintId(), maybeGoal, axs.toIndexedSeq, channel))
+                   cc.space.post(new LinearCombination(nextConstraintId(), maybeGoal, axs.toVector, channel))
                 }
                 channel
         }
@@ -1016,9 +1016,9 @@ final class ConstraintFactory
         val z = compileNumExpr[V](c)
         val costs = maybeCosts.getOrElse(createBoolChannel())
         if (axs.forall(_.a == valueTraits.one)) {
-            cc.space.post(new SumConstraint(nextConstraintId(), maybeGoal, axs.map(_.x).to(immutable.ArraySeq), y, relation, z, costs))
+            cc.space.post(new SumConstraint(nextConstraintId(), maybeGoal, axs.map(_.x).toVector, y, relation, z, costs))
         } else {
-            cc.space.post(new LinearConstraint(nextConstraintId(), maybeGoal, axs.to(immutable.ArraySeq), y, relation, z, costs))
+            cc.space.post(new LinearConstraint(nextConstraintId(), maybeGoal, axs.toVector, y, relation, z, costs))
         }
         costs
     }
@@ -1098,7 +1098,7 @@ final class ConstraintFactory
         val xs1 = xs0.drop(max(0, i.domain.lb.toInt - indexRange0.lb.toInt)).take(indexRange.size)
         val xs =
             (for (j <- indexRange.values) yield xs1((if (i.domain.contains(j)) j else i.domain.lb).toInt - offset))
-                .toIndexedSeq
+                .toVector
         def post(y: OrderedVariable[V]): OrderedVariable[V] = {
             if (xs.forall(_.domain.isSingleton)) {
                 val as = xs.map(_.domain.singleValue)
@@ -1172,14 +1172,14 @@ final class ConstraintFactory
             compileConstraint(reifiedConstraint, List(satisfied), functionalCase, generalCase)
         } else {
             def functionalCase = {
-                val costs0 = compileConstraint(maybeGoal, constraint, Some(satisfied)).toIndexedSeq
+                val costs0 = compileConstraint(maybeGoal, constraint, Some(satisfied)).toVector
                 if (costs0.size != 1 || costs0.head != satisfied) {
                     postConjunction(maybeGoal, costs0, Some(satisfied))
                 }
                 enforceBoolDomain(satisfied)
             }
             def generalCase = {
-                val costs0 = compileConstraint(maybeGoal, constraint, None).toIndexedSeq
+                val costs0 = compileConstraint(maybeGoal, constraint, None).toVector
                 val costs = createBoolChannel()
                 if (costs0.size == 1) {
                     cc.space.post(new Eq(nextConstraintId(), maybeGoal, costs0.head, satisfied, costs))
@@ -1197,7 +1197,7 @@ final class ConstraintFactory
         (maybeGoal: Option[Goal], xs0: Seq[BooleanVariable], maybeY: Option[BooleanVariable] = None):
         BooleanVariable =
     {
-        val xs = xs0.iterator.filterNot(_.domain == FalseDomain).toSet.to(immutable.ArraySeq)
+        val xs = xs0.iterator.filterNot(_.domain == FalseDomain).toSet.toVector
         if (xs.size == 1 && maybeY.isEmpty) {
             xs(0)
         } else {
@@ -1215,7 +1215,7 @@ final class ConstraintFactory
         (maybeGoal: Option[Goal], xs0: Seq[BooleanVariable], maybeY: Option[BooleanVariable] = None):
         BooleanVariable =
     {
-        val xs = xs0.iterator.filterNot(_.domain == TrueDomain).toSet.to(immutable.ArraySeq)
+        val xs = xs0.iterator.filterNot(_.domain == TrueDomain).toSet.toVector
         if (xs.size == 1 && maybeY.isEmpty) {
             xs(0)
         } else {
@@ -1308,7 +1308,7 @@ final class ConstraintFactory
                 .map(_.get)
                 .filter(_.isInstanceOf[Contains])
                 .filter(_.maybeGoal == Some(DomainEnforcementGoal))
-                .to(immutable.ArraySeq)
+                .toVector
         if (intDomainEnforcementConstraints.size > 32) {
             // When there are many integer channels, we enforce their domains using a single InDomain constraint.
             // This way we speed up neighbourhood generation and reduce the overhead of goal tracking.

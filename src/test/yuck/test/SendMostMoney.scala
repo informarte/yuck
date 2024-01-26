@@ -109,7 +109,7 @@ final class SendMostMoney extends IntegrationTest {
                     solverName,
                     space,
                     createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen()),
-                    new SimpleRandomReassignmentGenerator(space, space.searchVariables.toIndexedSeq, randomGenerator.nextGen()),
+                    new SimpleRandomReassignmentGenerator(space, space.searchVariables.toVector, randomGenerator.nextGen()),
                     randomGenerator.nextGen(),
                     new HierarchicalObjective(
                         List(new SatisfactionObjective(costs),

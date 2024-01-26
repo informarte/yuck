@@ -109,7 +109,7 @@ final class Cumulative
                 buf += i
                 map
         }
-        .map{case (x, buf) => (x, buf.toIndexedSeq)}
+        .map{case (x, buf) => (x, buf.toVector)}
         .toMap
 
     private val effect = costs.reuseableEffect

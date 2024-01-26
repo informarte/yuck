@@ -82,8 +82,8 @@ final class Inverse
 
     private def propagate(effects: PropagationEffects, f: InverseFunction, g: InverseFunction): PropagationEffects = {
         effects
-            .pruneDomains(for (x <- f.xs) yield (x, g.indexDomain))
-            .pruneDomains(for (x <- g.xs) yield (x, f.indexDomain))
+            .pruneDomains(for (x <- f.xs.iterator) yield (x, g.indexDomain))
+            .pruneDomains(for (x <- g.xs.iterator) yield (x, f.indexDomain))
             .pruneDomains(
                 for (i <- f.indexRange.iterator;
                      x = f.xs(i - f.offset);
@@ -339,15 +339,15 @@ final class Inverse
             fPartitionByDomain.keysIterator.foldLeft[IntegerDomain](EmptyIntegerRange){union}.size ==
                 fPartitionByDomain.keysIterator.map(_.size).sum
         if (isDecomposable) {
-            for (domain <- fPartitionByDomain.keysIterator.toList) yield {
+            fPartitionByDomain.keysIterator.map(domain => {
                 val offset = domain.lb.toInt
                 val costs = new BooleanVariable(space.nextVariableId(), "", CompleteBooleanDomain)
                 new Inverse(
                     space.nextConstraintId(), maybeGoal,
-                    new InverseFunction(fPartitionByDomain(domain).toIndexedSeq, offset),
-                    new InverseFunction(gPartitionByDomain(domain).toIndexedSeq, offset),
+                    new InverseFunction(fPartitionByDomain(domain).toVector, offset),
+                    new InverseFunction(gPartitionByDomain(domain).toVector, offset),
                     costs)
-            }
+            }).toList
         } else {
             List(this)
         }

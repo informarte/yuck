@@ -1,5 +1,7 @@
 package yuck.flatzinc.compiler
 
+import scala.collection.*
+
 import yuck.core.{given, *}
 import yuck.flatzinc.ast.*
 
@@ -21,9 +23,9 @@ final class VariableFactory
 
     override def run() = {
         cc.ast.paramDecls.iterator.filterNot(_.valueType.isArrayType).foreach(createVariable)
-        cc.ast.paramDecls.iterator.filter(_.valueType.isArrayType).foreach(createVariable)
+        cc.ast.paramDecls.iterator.filter(_.valueType.isArrayType).foreach(createVariables)
         cc.ast.varDecls.iterator.filterNot(_.valueType.isArrayType).foreach(createVariable)
-        cc.ast.varDecls.iterator.filter(_.valueType.isArrayType).foreach(createVariable)
+        cc.ast.varDecls.iterator.filter(_.valueType.isArrayType).foreach(createVariables)
     }
 
     import HighPriorityImplicits.*
@@ -36,27 +38,19 @@ final class VariableFactory
                 createVariable[IntegerValue](Term(decl.id, Nil))
             case IntSetType(_) =>
                 createVariable[IntegerSetValue](Term(decl.id, Nil))
+            case other =>
+                throw new UnsupportedFlatZincTypeException(other)
+        }
+    }
+
+    private def createVariables(decl: PlaceholderDecl): Unit = {
+        decl.valueType match {
             case ArrayType(Some(IntRange(1, n)), BoolType) =>
-                val array =
-                    for (idx <- 1 to n.toInt) yield {
-                        val key = ArrayAccess(decl.id, IntConst(idx))
-                        createVariable[BooleanValue](key)
-                    }
-                cc.arrays += Term(decl.id, Nil) -> array
+                cc.arrays += Term(decl.id, Nil) -> createArray[BooleanValue](decl, n.toInt)
             case ArrayType(Some(IntRange(1, n)), IntType(_)) =>
-                val array =
-                    for (idx <- 1 to n.toInt) yield {
-                        val key = ArrayAccess(decl.id, IntConst(idx))
-                        createVariable[IntegerValue](key)
-                    }
-                cc.arrays += Term(decl.id, Nil) -> array
+                cc.arrays += Term(decl.id, Nil) -> createArray[IntegerValue](decl, n.toInt)
             case ArrayType(Some(IntRange(1, n)), IntSetType(_)) =>
-                val array =
-                    for (idx <- 1 to n.toInt) yield {
-                        val key = ArrayAccess(decl.id, IntConst(idx))
-                        createVariable[IntegerSetValue](key)
-                    }
-                cc.arrays += Term(decl.id, Nil) -> array
+                cc.arrays += Term(decl.id, Nil) -> createArray[IntegerSetValue](decl, n.toInt)
             case other =>
                 throw new UnsupportedFlatZincTypeException(other)
         }
@@ -87,6 +81,15 @@ final class VariableFactory
             cc.vars += key -> x
             x
         }
+    }
+
+    private def createArray
+        [V <: Value[V]]
+        (decl: PlaceholderDecl, n: Int)
+        (using valueTraits: ValueTraits[V]):
+        immutable.IndexedSeq[Variable[V]] =
+    {
+        Vector.tabulate(n)(idx => createVariable(ArrayAccess(decl.id, IntConst(idx + 1))))
     }
 
 }

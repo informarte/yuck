@@ -435,7 +435,7 @@ final class SpaceTest extends UnitTest {
             // generate and perform m moves
             val neighbourhood =
                 new RandomReassignmentGenerator(
-                    space, space.searchVariables.toIndexedSeq, randomGenerator, moveSizeDistribution, None, None)
+                    space, space.searchVariables.toVector, randomGenerator, moveSizeDistribution, None, None)
             for (i <- 1 to m) {
                 // generate move and consult space
                 val move = neighbourhood.nextMove

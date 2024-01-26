@@ -51,12 +51,11 @@ final class RandomCircularSwapGenerator
     require(moveSizeDistribution.frequency(0) == 0)
     require(moveSizeDistribution.volume > 0)
 
-    private val uniformDistribution = Distribution(n)
-    (0 until n).foreach(i => uniformDistribution.setFrequency(i, 1))
+    private val uniformDistribution = Distribution(0, Vector.fill(n)(1))
     private val s = moveSizeDistribution.size
-    private val effects = for (i <- 1 until s) yield new ReusableMoveEffect[V]
-    private val swaps = for (n <- 1 until s) yield effects.take(n)
-    private val frequencyRestorers = for (i <- 1 until s) yield new FrequencyRestorer
+    private val effects = Vector.fill(s)(new ReusableMoveEffect[V])
+    private val swaps = Vector.tabulate(s)(i => effects.take(i + 1))
+    private val frequencyRestorers = Vector.fill(s)(new FrequencyRestorer)
     private def fillEffect(effect: ReusableMoveEffect[V], x: Variable[V]): Unit = {
         effect.x = x
         effect.a = space.searchState.value(x)

@@ -58,7 +58,7 @@ final class Table
                     buf += i
                     map
             }
-            .map{case (x, buf) => (x, buf.toIndexedSeq)}
+            .map{case (x, buf) => (x, buf.toVector)}
             .toMap
         } else {
             null

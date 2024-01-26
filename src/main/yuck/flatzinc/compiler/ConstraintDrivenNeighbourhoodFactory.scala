@@ -109,7 +109,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                 val xs0 = cc.space.involvedSearchVariables(constraint)
                 neighbourhoods ++=
                     neighbourhoodsFromImplicitConstraints.iterator.filter(_.searchVariables.intersect(xs0).nonEmpty)
-                val xs = xs0.diff(cc.implicitlyConstrainedVars).toBuffer.sorted.toIndexedSeq
+                val xs = xs0.diff(cc.implicitlyConstrainedVars).toBuffer.sorted.toVector
                 if (xs.isEmpty) {
                     // Either there are no variables or they are all managed by neighbourhoods from implicit constraints.
                     None
@@ -123,7 +123,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                     if (neighbourhoods.size < 2) {
                         neighbourhoods.headOption
                     } else {
-                        Some(new NeighbourhoodCollection(neighbourhoods.toIndexedSeq, randomGenerator, None, None))
+                        Some(new NeighbourhoodCollection(neighbourhoods.toVector, randomGenerator, None, None))
                     }
                 }
         }
@@ -143,7 +143,7 @@ final class ConstraintDrivenNeighbourhoodFactory
             if (weights.isEmpty) {
                 None
             } else {
-                val xs = weights.map(_.x).toIndexedSeq
+                val xs = weights.map(_.x).toVector
                 for (x <- xs if ! x.domain.isFinite) {
                     throw new VariableWithInfiniteDomainException(x)
                 }
@@ -181,7 +181,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                     val (weights, neighbourhoods) = weightedNeighbourhoods.unzip
                     val hotSpotDistribution = createHotSpotDistribution(mode, weights)
                     Some(new NeighbourhoodCollection(
-                        neighbourhoods.toIndexedSeq, randomGenerator, Some(hotSpotDistribution), None))
+                        neighbourhoods.toVector, randomGenerator, Some(hotSpotDistribution), None))
                 }
             maybeNeighbourhood.map(considerFairVariableChoiceRate(_, levelCfg))
         }
@@ -194,7 +194,7 @@ final class ConstraintDrivenNeighbourhoodFactory
         Distribution =
     {
         val hotSpotDistribution = Distribution(weights.size)
-        cc.space.post(new OptimizationGoalTracker(nextConstraintId(), None, mode, weights.toIndexedSeq, hotSpotDistribution))
+        cc.space.post(new OptimizationGoalTracker(nextConstraintId(), None, mode, weights.toVector, hotSpotDistribution))
         hotSpotDistribution
     }
 
@@ -204,7 +204,7 @@ final class ConstraintDrivenNeighbourhoodFactory
         val rate = (levelCfg.maybeFairVariableChoiceRate.getOrElse(Probability(0)).value * 100).toInt
         if (rate == 0) neighbourhood0
         else {
-            val xs = neighbourhood0.searchVariables.diff(cc.implicitlyConstrainedVars).toBuffer.sorted.toIndexedSeq
+            val xs = neighbourhood0.searchVariables.diff(cc.implicitlyConstrainedVars).toBuffer.sorted.toVector
             if (xs.isEmpty) neighbourhood0
             else {
                 val neighbourhood1 =
