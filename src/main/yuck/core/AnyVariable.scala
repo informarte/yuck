@@ -37,7 +37,7 @@ abstract class AnyVariable
       *
       * Throws when the variable has no value assigned.
       */
-    def hasValidValue(space: Space): Boolean
+    def hasValidValue(searchState: SearchState): Boolean
 
     /**
       * Returns an effect for assigning the variable a random value.

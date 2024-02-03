@@ -6,7 +6,7 @@ import scala.ref.WeakReference
 import yuck.constraints.*
 import yuck.core.{given, *}
 import yuck.flatzinc.ast.*
-import yuck.util.arm.{Sigint, scoped}
+import yuck.util.arm.scoped
 import yuck.util.logging.LogScope
 
 /**
@@ -29,7 +29,7 @@ import yuck.util.logging.LogScope
  * @author Michael Marte
  */
 final class ConstraintFactory
-    (override protected val cc: CompilationContext, sigint: Sigint)
+    (override protected val cc: CompilationContext)
     extends CompilationPhase
 {
 
@@ -140,7 +140,7 @@ final class ConstraintFactory
         (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint, maybeCosts: Option[BooleanVariable] = None):
         Iterable[BooleanVariable] =
     {
-        if (sigint.isSet) {
+        if (cc.sigint.isSet) {
             throw new FlatZincCompilerInterruptedException
         }
         if (cc.impliedConstraints.contains(constraint)) {
@@ -525,11 +525,11 @@ final class ConstraintFactory
                 constraint)
         case Constraint("fzn_all_different_int", Seq(as), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.space.post(new Alldistinct[IntegerValue](nextConstraintId(), maybeGoal, as, costs))
+            cc.space.post(new Alldistinct[IntegerValue](nextConstraintId(), maybeGoal, as, costs, cc.logger))
             List(costs)
         case Constraint("fzn_all_different_set", Seq(as), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.space.post(new Alldistinct[IntegerSetValue](nextConstraintId(), maybeGoal, as, costs))
+            cc.space.post(new Alldistinct[IntegerSetValue](nextConstraintId(), maybeGoal, as, costs, cc.logger))
             List(costs)
         case Constraint("fzn_alldifferent_except", Seq(as, s), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
@@ -604,13 +604,13 @@ final class ConstraintFactory
             List(costs)
         case Constraint("yuck_circuit", Seq(succ, IntConst(offset)), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.space.post(new Circuit(nextConstraintId(), maybeGoal, succ, safeToInt(offset), costs))
+            cc.space.post(new Circuit(nextConstraintId(), maybeGoal, succ, safeToInt(offset), costs, cc.logger, cc.sigint))
             List(costs)
         case Constraint("yuck_delivery", _, _) =>
             compileDeliveryConstraint[IntegerValue](maybeGoal, constraint)
         case Constraint("yuck_inverse", Seq(f, IntConst(fOffset), g, IntConst(gOffset)), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            val constraint = new Inverse(nextConstraintId(), maybeGoal, new InverseFunction(f, safeToInt(fOffset)), new InverseFunction(g, safeToInt(gOffset)), costs)
+            val constraint = new Inverse(nextConstraintId(), maybeGoal, new InverseFunction(f, safeToInt(fOffset)), new InverseFunction(g, safeToInt(gOffset)), costs, cc.logger)
             val constraints = constraint.decompose(cc.space)
             constraints.foreach(cc.space.post)
             constraints.view.flatMap(_.outVariables).map(_.asInstanceOf[BooleanVariable])

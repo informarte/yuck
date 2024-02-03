@@ -20,7 +20,7 @@ final class SimpleInverseNeighbourhood
     require(g.xs.forall(x => x.domain == f.indexDomain))
 
     private val n = f.xs.size
-    private val effects = Vector.fill(4){new ReusableMoveEffect[IntegerValue]}
+    private val effects = Vector.fill(4)(new ReusableMoveEffect[IntegerValue])
 
     override def nextMove = {
         val i1 = randomGenerator.nextInt(n)

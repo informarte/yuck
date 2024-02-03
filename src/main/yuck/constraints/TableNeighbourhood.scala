@@ -20,7 +20,7 @@ final class TableNeighbourhood
     require(xs.size == xs.toSet.size)
     require(xs.forall(! space.isChannelVariable(_)))
     require(xs.forall(_.domain.isFinite))
-    require(xs.forall(_.hasValidValue(space)))
+    require(xs.forall(_.hasValidValue(space.searchState)))
     require(rows.size > 1)
     require(rows.forall(_.size == xs.size))
 

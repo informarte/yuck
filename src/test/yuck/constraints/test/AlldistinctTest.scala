@@ -25,7 +25,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new Alldistinct(space.nextConstraintId(), null, xs, costs)
+        val constraint = new Alldistinct(space.nextConstraintId(), null, xs, costs, logger)
         assertEq(constraint.toString, "alldistinct([x1, x2, x3], costs)")
         assertEq(constraint.inVariables.size, 3)
         assertEq(constraint.inVariables.toSet, xs.toSet)
@@ -35,7 +35,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testPropagation(): Unit = {
-        space.post(new Alldistinct(space.nextConstraintId(), null, xs, costs))
+        space.post(new Alldistinct(space.nextConstraintId(), null, xs, costs, logger))
         runScenario(
             TestScenario(
                 space,
@@ -50,7 +50,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfDuplicateVariablesInPropagation(): Unit = {
-        space.post(new Alldistinct(space.nextConstraintId(), null, Vector(x1, x2, x2), costs))
+        space.post(new Alldistinct(space.nextConstraintId(), null, Vector(x1, x2, x2), costs, logger))
         runScenario(
             TestScenario(
                 space,
@@ -63,7 +63,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testCostComputation(): Unit = {
-        space.post(new Alldistinct(space.nextConstraintId(), null, xs, costs))
+        space.post(new Alldistinct(space.nextConstraintId(), null, xs, costs, logger))
         runScenario(
             TestScenario(
                 space,
@@ -78,7 +78,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfDuplicateVariablesInCostComputation(): Unit = {
-        space.post(new Alldistinct(space.nextConstraintId(), null, Vector(x1, x2, x2), costs))
+        space.post(new Alldistinct(space.nextConstraintId(), null, Vector(x1, x2, x2), costs, logger))
         runScenario(
             TestScenario(
                 space,
@@ -90,25 +90,9 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
                 ConsultAndCommit("cause a conflict", x2 << 2, costs << False2)))
     }
 
-    private def assertNeighbourhood(xs: IndexedSeq[IntegerVariable]): Unit = {
-        val constraint = new Alldistinct(space.nextConstraintId(), null, xs, costs)
-        space.post(constraint)
-        assert(constraint.isCandidateForImplicitSolving(space))
-        val neighbourhood =
-            constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
-        assertEq(neighbourhood.getClass, classOf[AlldistinctNeighbourhood[IntegerValue]])
-        val now = space.searchState
-        assert(xs.forall(x => x.domain.contains(now.value(x))))
-        assertEq(xs.map(now.value(_)).toSet.size, xs.size)
-        assertEq(now.value(costs), True)
-        assertEq(neighbourhood.searchVariables, xs.filterNot(_.domain.isSingleton).toSet)
-    }
-
-    private def assertNoNeighbourhood(xs: IndexedSeq[IntegerVariable], isCandidate: Boolean = false): Unit = {
-        val constraint = new Alldistinct(space.nextConstraintId(), null, xs, costs)
-        space.post(constraint)
-        assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
-        assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint), None)
+    @Test
+    def testNeighbourhoodGeneration(): Unit = {
+        assertNeighbourhood(xs)
     }
 
     @Test
@@ -158,6 +142,26 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
         x2.pruneDomain(x2.domain.diff(ZeroToZeroIntegerRange))
         x3.pruneDomain(x3.domain.diff(ZeroToZeroIntegerRange))
         assertNeighbourhood(xs)
+    }
+
+    private def assertNeighbourhood(xs: IndexedSeq[IntegerVariable]): Unit = {
+        val constraint = new Alldistinct(space.nextConstraintId(), null, xs, costs, logger)
+        space.post(constraint)
+        assert(constraint.isCandidateForImplicitSolving(space))
+        val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution).get
+        assertEq(neighbourhood.getClass, classOf[AlldistinctNeighbourhood[IntegerValue]])
+        val now = space.searchState
+        assert(xs.forall(x => x.domain.contains(now.value(x))))
+        assertEq(xs.map(now.value(_)).toSet.size, xs.size)
+        assertEq(now.value(costs), True)
+        assertEq(neighbourhood.searchVariables, xs.filterNot(_.domain.isSingleton).toSet)
+    }
+
+    private def assertNoNeighbourhood(xs: IndexedSeq[IntegerVariable], isCandidate: Boolean = false): Unit = {
+        val constraint = new Alldistinct(space.nextConstraintId(), null, xs, costs, logger)
+        space.post(constraint)
+        assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
+        assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution), None)
     }
 
 }

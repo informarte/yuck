@@ -20,7 +20,8 @@ import yuck.util.logging.LazyLogger
  */
 final class Circuit
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     succ: immutable.IndexedSeq[IntegerVariable], offset: Int, costs: BooleanVariable)
+     succ: immutable.IndexedSeq[IntegerVariable], offset: Int, costs: BooleanVariable,
+     logger: LazyLogger, sigint: Sigint)
     extends CircuitTracker(id, succ, offset, costs)
 {
 
@@ -39,22 +40,19 @@ final class Circuit
         space: Space,
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
-        logger: LazyLogger,
-        sigint: Sigint,
-        extraCfg: ExtraNeighbourhoodFactoryConfiguration):
+        createHotSpotDistribution: Seq[AnyVariable] => Option[Distribution] = _ => None,
+        maybeFairVariableChoiceRate: Option[Probability] = None):
         Option[Neighbourhood] =
     {
-        if (isCandidateForImplicitSolving(space) && extraCfg.maxNumberOfGreedyHeuristicRuns > 0) {
+        if (isCandidateForImplicitSolving(space) && Circuit.MaxNumberOfGreedyHeuristicRuns > 0) {
             solve(
-                extraCfg.maxNumberOfGreedyHeuristicRuns - 1,
+                Circuit.MaxNumberOfGreedyHeuristicRuns - 1,
                 logger.withTimedLogScope("Trying deterministic greedy heuristic") {
-                    greedyHeuristic(space, randomGenerator, FirstFailStrategy, logger)
+                    greedyHeuristic(space, randomGenerator, FirstFailStrategy)
                 }._1,
                 () => logger.withTimedLogScope("Trying randomized greedy heuristic") {
-                    greedyHeuristic(space, randomGenerator, RandomizedStrategy, logger)
-                }._1,
-                logger,
-                sigint
+                    greedyHeuristic(space, randomGenerator, RandomizedStrategy)
+                }._1
             )
         } else {
             None
@@ -72,7 +70,7 @@ final class Circuit
 
     @tailrec
     private def solve
-        (n: Int, result: HeuristicResult, heuristic: () => HeuristicResult, logger: LazyLogger, sigint: Sigint):
+        (n: Int, result: HeuristicResult, heuristic: () => HeuristicResult):
         Option[Neighbourhood] =
         if (n == 0) None
         else result match {
@@ -81,12 +79,12 @@ final class Circuit
                 if (sigint.isSet) {
                     logger.log("Interrupted")
                     None
-                } else solve(n - 1, heuristic(), heuristic, logger, sigint)
+                } else solve(n - 1, heuristic(), heuristic)
             case HeuristicSucceeded(neighbourhood) => Some(neighbourhood)
         }
 
     private def greedyHeuristic(
-        space: Space, randomGenerator: RandomGenerator, strategy: GreedyStrategy, logger: LazyLogger):
+        space: Space, randomGenerator: RandomGenerator, strategy: GreedyStrategy):
         HeuristicResult =
     {
         val n = succ.size
@@ -192,6 +190,8 @@ final class Circuit
  * @author Michael Marte
  */
 object Circuit {
+
+    private val MaxNumberOfGreedyHeuristicRuns = 100
 
     def isHamiltonianCircuit(succ: IndexedSeq[IntegerVariable], offset: Int, searchState: SearchState): Boolean = {
         val cycles = CircuitTracker.findCycles(succ, offset, searchState)

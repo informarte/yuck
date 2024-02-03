@@ -101,12 +101,10 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
             if ((xs & cc.implicitlyConstrainedVars).isEmpty) {
                 val (maybeNeighbourhood, _) = cc.logger.withTimedLogScope("Solving %s".format(constraint)) {
                     constraint.createNeighbourhood(
-                        cc.space, randomGenerator, cc.cfg.moveSizeDistribution, cc.logger, cc.sigint,
-                        ExtraNeighbourhoodFactoryConfiguration(
-                            createHotSpotDistribution = xs => Some(createHotSpotDistribution1(xs, cc.costVars)),
-                            maybeFairVariableChoiceRate = levelCfg.maybeFairVariableChoiceRate,
-                            checkIncrementalCostUpdate = cc.cfg.checkIncrementalCostUpdate,
-                            checkAssignmentsToNonChannelVariables = cc.cfg.checkAssignmentsToNonChannelVariables))
+                        cc.space, randomGenerator,
+                        cc.cfg.moveSizeDistribution,
+                        createHotSpotDistribution = xs => Some(createHotSpotDistribution1(xs, cc.costVars)),
+                        maybeFairVariableChoiceRate = levelCfg.maybeFairVariableChoiceRate)
                 }
                 if (maybeNeighbourhood.isDefined) {
                     cc.implicitlyConstrainedVars ++= xs

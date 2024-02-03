@@ -71,8 +71,8 @@ abstract class Variable
         }
     }
 
-    final override def hasValidValue(space: Space) =
-        domain.contains(space.searchState.value(this))
+    final override def hasValidValue(searchState: SearchState) =
+        domain.contains(searchState.value(this))
 
     val reuseableEffect = new ReusableMoveEffectWithFixedVariable[V](this)
 

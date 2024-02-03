@@ -56,7 +56,7 @@ final class FlatZincCompiler
         randomGenerator.nextGen()
         run(new VariableClassifier(cc))
         randomGenerator.nextGen()
-        run(new ConstraintFactory(cc, sigint))
+        run(new ConstraintFactory(cc))
         randomGenerator.nextGen()
         randomGenerator.nextGen()
         run(new ObjectiveFactory(cc))
@@ -64,7 +64,7 @@ final class FlatZincCompiler
         if (cfg.runPresolver) {
             run(new Presolver(cc))
         }
-        run(new ConstraintDrivenNeighbourhoodFactory(cc, randomGenerator.nextGen(), sigint))
+        run(new ConstraintDrivenNeighbourhoodFactory(cc, randomGenerator.nextGen()))
         if (cfg.pruneConstraintNetwork) {
             run(new ConstraintNetworkPruner(cc))
         }

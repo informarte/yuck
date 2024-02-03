@@ -17,7 +17,7 @@ final class GeneralInverseNeighbourhood
     require(f.xs.forall(x => x.domain.isSubsetOf(g.indexDomain)))
     require(g.xs.forall(x => x.domain.isSubsetOf(f.indexDomain)))
 
-    private val effects = Vector.fill(4){new ReusableMoveEffect[IntegerValue]}
+    private val effects = Vector.fill(4)(new ReusableMoveEffect[IntegerValue])
     private val candidates1 =
         f.xs.indices.iterator
         .filter(i => f.xs(i).domain.size > 1 && g.xs(rawValue(f.xs(i)) - g.offset).domain.size > 1)

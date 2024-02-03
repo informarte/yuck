@@ -7,7 +7,6 @@ import scala.collection.*
 import scala.jdk.CollectionConverters.*
 
 import yuck.core.*
-import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 
 /**
@@ -55,7 +54,8 @@ final class Inverse
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      f: InverseFunction,
      g: InverseFunction,
-     costs: BooleanVariable)
+     costs: BooleanVariable,
+     logger: LazyLogger)
     extends Constraint(id)
 {
 
@@ -230,9 +230,8 @@ final class Inverse
         space: Space,
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
-        logger: LazyLogger,
-        sigint: Sigint,
-        extraCfg: ExtraNeighbourhoodFactoryConfiguration):
+        createHotSpotDistribution: Seq[AnyVariable] => Option[Distribution],
+        maybeFairVariableChoiceRate: Option[Probability]):
         Option[Neighbourhood] =
     {
         if (isCandidateForImplicitSolving(space)) {
@@ -346,7 +345,8 @@ final class Inverse
                     space.nextConstraintId(), maybeGoal,
                     new InverseFunction(fPartitionByDomain(domain).toVector, offset),
                     new InverseFunction(gPartitionByDomain(domain).toVector, offset),
-                    costs)
+                    costs,
+                    logger)
             }).toList
         } else {
             List(this)

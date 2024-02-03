@@ -21,8 +21,8 @@ abstract class InverseNeighbourhood
     require(g.isSuitableForImplicitSolving(space))
     require(f.xs.forall(x => x.domain.isSubsetOf(g.indexDomain)))
     require(g.xs.forall(x => x.domain.isSubsetOf(f.indexDomain)))
-    require(f.xs.forall(_.hasValidValue(space)))
-    require(g.xs.forall(_.hasValidValue(space)))
+    require(f.xs.forall(_.hasValidValue(space.searchState)))
+    require(g.xs.forall(_.hasValidValue(space.searchState)))
     require(f.indexRange.forall(i => rawValue(g.xs(rawValue(f.xs(i - f.offset)) - g.offset)) == i))
 
     final override def searchVariables = (f.xs.iterator ++ g.xs.iterator).filterNot(_.domain.isSingleton).toSet
@@ -30,4 +30,3 @@ abstract class InverseNeighbourhood
     final override def children = Nil
 
 }
-

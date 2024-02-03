@@ -43,7 +43,7 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
         succ(i).pruneDomain(Range.inclusive(j, j))
     }
     private val circuitCosts = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
-    private val circuit = new Circuit(space.nextConstraintId(), null, succ, offset, circuitCosts)
+    private val circuit = new Circuit(space.nextConstraintId(), null, succ, offset, circuitCosts, logger, sigint)
     private val serviceTimes = nodes.map(_ => IntegerValue(randomGenerator.nextInt(numberOfCities)))
     private val travelTimes = nodes.map(_ => nodes.map(_ => IntegerValue(randomGenerator.nextInt(numberOfCities) + 1)))
     private val timeRange = IntegerRange(0, nodes.map(i => nodes.map(j => travelTimes(i)(j).value).max).sum)
@@ -69,7 +69,7 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
 
     private def createNeighbourhood() = {
         space.post(circuit).registerImplicitConstraint(circuit).post(delivery)
-        circuit.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
+        circuit.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution).get
     }
 
     private def checkArrivalTimes(searchState: SearchState): Unit = {

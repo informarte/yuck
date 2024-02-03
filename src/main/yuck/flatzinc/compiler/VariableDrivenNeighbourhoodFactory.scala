@@ -6,7 +6,6 @@ import yuck.constraints.{LinearCombination, OptimizationGoalTracker, Sum}
 import yuck.core.*
 import yuck.flatzinc.FlatZincLevelConfiguration
 import yuck.flatzinc.ast.IntConst
-import yuck.util.arm.Sigint
 
 /**
  * Generates focused neighbourhoods for satisfaction and minimization goals.
@@ -26,12 +25,11 @@ import yuck.util.arm.Sigint
  */
 final class VariableDrivenNeighbourhoodFactory
     (override protected val cc: CompilationContext,
-     override protected val randomGenerator: RandomGenerator,
-     sigint: Sigint)
+     override protected val randomGenerator: RandomGenerator)
     extends NeighbourhoodFactory
 {
 
-    protected override def createMinimizationNeighbourhood
+    override protected def createMinimizationNeighbourhood
         [V <: NumericalValue[V]]
         (levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
         (using valueTraits: NumericalValueTraits[V]):

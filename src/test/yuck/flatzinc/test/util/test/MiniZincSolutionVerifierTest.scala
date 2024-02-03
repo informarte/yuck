@@ -34,9 +34,9 @@ class MiniZincSolutionVerifierTestMonitor(task: ZincTestTask, logger: LazyLogger
 @runner.RunWith(classOf[runners.Parameterized])
 class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean, verificationFrequency: VerificationFrequency) extends ZincBasedTest {
 
-    protected override val logToConsole = false
+    override protected val logToConsole = false
 
-    protected override def createTestMonitor(task: ZincTestTask): ZincTestMonitor = {
+    override protected def createTestMonitor(task: ZincTestTask): ZincTestMonitor = {
         if (simulateBadSolver) new MiniZincSolutionVerifierTestMonitor(task, logger)
         else super.createTestMonitor(task)
     }

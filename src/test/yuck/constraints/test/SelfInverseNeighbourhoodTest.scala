@@ -11,18 +11,16 @@ import yuck.core.{given, *}
  * @author Michael Marte
  *
  */
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 final class SelfInverseNeighbourhoodTest(fOffset: Int) extends InverseNeighbourhoodTest {
 
-    @Test
-    def testMoveGeneration(): Unit = {
-        val domainSize = 10
-        val fDomain = IntegerRange(fOffset, fOffset + domainSize - 1)
-        val xs = for (i <- 1 to domainSize) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), fDomain)
-        val f = new InverseFunction(xs, fOffset)
-        testMoveGeneration(f, f, 1000, classOf[SelfInverseNeighbourhood])
-    }
+    private val domainSize = 10
+    private val fDomain = IntegerRange(fOffset, fOffset + domainSize - 1)
+    private val xs = for (i <- 1 to domainSize) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), fDomain)
+    override protected val f = new InverseFunction(xs, fOffset)
+    override protected val g = f
+
+    override protected val expectedNeighbourhoodClass = classOf[SelfInverseNeighbourhood]
 
 }
 

@@ -119,36 +119,6 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
                 ConsultAndCommit("select third row", x2 << 3, costs << True)))
     }
 
-    private def assertNeighbourhood
-        (xs: IndexedSeq[IntegerVariable],
-         rows: IndexedSeq[IndexedSeq[IntegerValue]]):
-         Unit =
-    {
-        val constraint = new Table(space.nextConstraintId(), null, xs, rows, costs)
-        space.post(constraint)
-        assert(constraint.isCandidateForImplicitSolving(space))
-        val neighbourhood =
-            constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
-        assertEq(neighbourhood.getClass, classOf[TableNeighbourhood[IntegerValue]])
-        val now = space.searchState
-        assert(xs.forall(x => x.domain.contains(now.value(x))))
-        assert(rows.contains(xs.map(now.value(_))))
-        assertEq(now.value(costs), True)
-        assertEq(neighbourhood.searchVariables, xs.filterNot(_.domain.isSingleton).toSet)
-    }
-
-    private def assertNoNeighbourhood
-        (xs: IndexedSeq[IntegerVariable],
-         rows: IndexedSeq[IndexedSeq[IntegerValue]],
-         isCandidate: Boolean = false):
-        Unit =
-    {
-        val constraint = new Table(space.nextConstraintId(), null, xs, rows, costs)
-        space.post(constraint)
-        assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
-        assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint), None)
-    }
-
     @Test
     def testNeighbourhoodGeneration(): Unit = {
         assertNeighbourhood(xs, createTable(3)(0, 0, 0, 1, 2, 3))
@@ -170,6 +140,35 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
     def testHandlingOfFixedColumnsInNeighbourhoodGeneration(): Unit = {
         x1.pruneDomain(IntegerDomain(1))
         assertNeighbourhood(xs, createTable(3)(0, 0, 0, 1, 2, 3, 1, 3, 4))
+    }
+
+    private def assertNeighbourhood
+        (xs: IndexedSeq[IntegerVariable],
+         rows: IndexedSeq[IndexedSeq[IntegerValue]]):
+        Unit =
+    {
+        val constraint = new Table(space.nextConstraintId(), null, xs, rows, costs)
+        space.post(constraint)
+        assert(constraint.isCandidateForImplicitSolving(space))
+        val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution).get
+        assertEq(neighbourhood.getClass, classOf[TableNeighbourhood[IntegerValue]])
+        val now = space.searchState
+        assert(xs.forall(_.hasValidValue(now)))
+        assert(rows.contains(xs.map(now.value(_))))
+        assertEq(now.value(costs), True)
+        assertEq(neighbourhood.searchVariables, xs.filterNot(_.domain.isSingleton).toSet)
+    }
+
+    private def assertNoNeighbourhood
+        (xs: IndexedSeq[IntegerVariable],
+         rows: IndexedSeq[IndexedSeq[IntegerValue]],
+         isCandidate: Boolean = false):
+        Unit =
+    {
+        val constraint = new Table(space.nextConstraintId(), null, xs, rows, costs)
+        space.post(constraint)
+        assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
+        assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution), None)
     }
 
 }

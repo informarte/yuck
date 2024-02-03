@@ -5,7 +5,6 @@ import scala.collection.*
 import yuck.constraints.{LinearCombination, OptimizationGoalTracker, Sum}
 import yuck.core.*
 import yuck.flatzinc.FlatZincLevelConfiguration
-import yuck.util.arm.Sigint
 
 /**
  * Generates focused neighbourhoods for all types of goals.
@@ -28,12 +27,11 @@ import yuck.util.arm.Sigint
  */
 final class ConstraintDrivenNeighbourhoodFactory
     (override protected val cc: CompilationContext,
-     override protected val randomGenerator: RandomGenerator,
-     sigint: Sigint)
+     override protected val randomGenerator: RandomGenerator)
     extends NeighbourhoodFactory
 {
 
-    protected override def createMinimizationNeighbourhood
+    override protected def createMinimizationNeighbourhood
         [V <: NumericalValue[V]]
         (levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
         (using valueTraits: NumericalValueTraits[V]):
@@ -43,7 +41,7 @@ final class ConstraintDrivenNeighbourhoodFactory
         else super.createMinimizationNeighbourhood(levelCfg, x)
     }
 
-    protected override def createMaximizationNeighbourhood
+    override protected def createMaximizationNeighbourhood
         [V <: NumericalValue[V]]
         (levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
         (using valueTraits: NumericalValueTraits[V]):
@@ -155,7 +153,7 @@ final class ConstraintDrivenNeighbourhoodFactory
         } else {
             val weightedNeighbourhoods = new mutable.ArrayBuffer[(AX[V], Neighbourhood)]
             for (ax <- axs) {
-                if (sigint.isSet) {
+                if (cc.sigint.isSet) {
                     throw new FlatZincCompilerInterruptedException
                 }
                 val maybeNeighbourhood = {

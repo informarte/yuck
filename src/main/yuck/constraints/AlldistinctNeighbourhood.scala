@@ -27,7 +27,7 @@ final class AlldistinctNeighbourhood
     require(xs.toSet.size == n)
     require(xs.forall(space.isSearchVariable))
     require(xs.forall(_.domain.isFinite))
-    require(xs.forall(_.hasValidValue(space)))
+    require(xs.forall(_.hasValidValue(space.searchState)))
     require(xs.map(value).toSet.size == n)
 
     require(moveSizeDistribution.frequency(0) == 0)
@@ -39,7 +39,7 @@ final class AlldistinctNeighbourhood
     private val effects = Vector.fill(3)(new ReusableMoveEffect[V])
     private val swaps = Vector.tabulate(3)(i => effects.take(i + 1))
     private def succeed(n: Int): Move = new ChangeValues[V](space.nextMoveId(), swaps(n - 1))
-    private def fail: Move = new ChangeValues[V](space.nextMoveId(), Nil)
+    private def fail(): Move = new ChangeValues[V](space.nextMoveId(), Nil)
 
     @tailrec
     private def nextMove(m: Int): Move = {
@@ -192,7 +192,7 @@ final class AlldistinctNeighbourhood
             } else if (swappingInValuesIsPossible) {
                 nextMove(1)
             } else {
-                fail
+                fail()
             }
         } else {
             val candidates =

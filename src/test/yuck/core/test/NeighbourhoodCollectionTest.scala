@@ -81,6 +81,6 @@ class NeighbourhoodCollectionTest
  */
 object NeighbourhoodCollectionTest extends NeighbourhoodTestGenerator {
 
-    protected override val moveSizeDistributions = List(List(100)).map(Distribution(1, _))
+    override protected val moveSizeDistributions = List(List(100)).map(Distribution(1, _))
 
 }

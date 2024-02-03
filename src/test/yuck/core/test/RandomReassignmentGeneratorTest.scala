@@ -45,7 +45,7 @@ final class RandomReassignmentGeneratorTest
  */
 object RandomReassignmentGeneratorTest extends NeighbourhoodTestGenerator {
 
-    protected override val moveSizeDistributions =
+    override protected val moveSizeDistributions =
         List(List(100), List(90, 10), List(50, 35, 15), List(50, 25, 15, 10)).map(Distribution(1, _))
 
 }

@@ -1,49 +1,28 @@
 package yuck.constraints.test
 
-import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.{Inverse, InverseFunction, InverseNeighbourhood}
 import yuck.core.{given, *}
-import yuck.test.util.UnitTest
 
 /**
  * @author Michael Marte
  *
  */
-abstract class InverseNeighbourhoodTest extends UnitTest {
+abstract class InverseNeighbourhoodTest extends SpecialNeighbourhoodTest {
 
-    protected val randomGenerator = new JavaRandomGenerator
-    protected val space = new Space(logger, sigint)
+    protected val f: InverseFunction
+    protected val g: InverseFunction
 
-    protected def testMoveGeneration
-        (f: InverseFunction, g: InverseFunction,
-         sampleSize: Int,
-         expectedNeighbourhoodClass: Class[_ <: InverseNeighbourhood]):
-        Unit =
-    {
-        f.xs.foreach(space.registerObjectiveVariable)
-        g.xs.foreach(space.registerObjectiveVariable)
-        val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
-        space.registerObjectiveVariable(costs)
-        val constraint = new Inverse(space.nextConstraintId(), null, f, g, costs)
-        space.post(constraint)
-        val neighbourhood =
-            constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
-        assertEq(neighbourhood.getClass, expectedNeighbourhoodClass)
-        val now = space.searchState
-        assert(Inverse.areInverseFunctionsOfEachOther(f, g, now))
-        assertEq(now.value(costs), True)
-        space.initialize()
-        for (i <- 1 to sampleSize) {
-            val move = neighbourhood.nextMove
-            val after = space.consult(move)
-            assert(f.xs.exists(x => now.value(x) != after.value(x)))
-            assert(g.xs.exists(x => now.value(x) != after.value(x)))
-            assert(Inverse.areInverseFunctionsOfEachOther(f, g, after))
-            if (randomGenerator.nextDecision()) {
-                space.commit(move)
-                neighbourhood.commit(move)
-            }
-        }
+    final override protected def createConstraint() = {
+        new Inverse(space.nextConstraintId(), null, f, g, costs, logger)
+    }
+
+    override protected val expectedNeighbourhoodClass: Class[_ <: InverseNeighbourhood]
+
+    final override protected def checkSearchState(searchState: SearchState) = {
+        assert(f.xs.forall(_.hasValidValue(searchState)))
+        assert(g.xs.forall(_.hasValidValue(searchState)))
+        assert(Inverse.areInverseFunctionsOfEachOther(f, g, searchState))
+        assertEq(searchState.value(costs), True)
     }
 
 }

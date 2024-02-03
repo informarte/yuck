@@ -7,7 +7,6 @@ import scala.collection.*
 import scala.jdk.CollectionConverters.*
 
 import yuck.core.{given, *}
-import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 
 /**
@@ -23,7 +22,8 @@ import yuck.util.logging.LazyLogger
 final class Alldistinct
     [V <: Value[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.IndexedSeq[Variable[V]], costs: BooleanVariable)
+     xs: immutable.IndexedSeq[Variable[V]], costs: BooleanVariable,
+     logger: LazyLogger)
     (using valueTraits: ValueTraits[V])
     extends ValueFrequencyTracker[V, BooleanValue](id, xs, costs)
 {
@@ -64,9 +64,8 @@ final class Alldistinct
         space: Space,
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
-        logger: LazyLogger,
-        sigint: Sigint,
-        extraCfg: ExtraNeighbourhoodFactoryConfiguration):
+        createHotSpotDistribution: Seq[AnyVariable] => Option[Distribution],
+        maybeFairVariableChoiceRate: Option[Probability]):
         Option[Neighbourhood] =
     {
         if (isCandidateForImplicitSolving(space)) {

@@ -3,8 +3,6 @@ package yuck.constraints
 import scala.collection.*
 
 import yuck.core.*
-import yuck.util.arm.Sigint
-import yuck.util.logging.LazyLogger
 
 /**
  * Given variables x[1], ..., x[n] and an m-by-n value matrix, the constraint
@@ -169,9 +167,8 @@ final class Table
         space: Space,
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
-        logger: LazyLogger,
-        sigint: Sigint,
-        extraCfg: ExtraNeighbourhoodFactoryConfiguration):
+        createHotSpotDistribution: Seq[AnyVariable] => Option[Distribution],
+        maybeFairVariableChoiceRate: Option[Probability]):
         Option[Neighbourhood] =
     {
         if (isCandidateForImplicitSolving(space)) {

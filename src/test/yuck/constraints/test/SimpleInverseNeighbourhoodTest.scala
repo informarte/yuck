@@ -11,21 +11,20 @@ import yuck.core.{given, *}
  * @author Michael Marte
  *
  */
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 final class SimpleInverseNeighbourhoodTest(fOffset: Int, gOffset: Int) extends InverseNeighbourhoodTest {
 
-    @Test
-    def testMoveGeneration(): Unit = {
-        val domainSize = 100
-        val fDomain = IntegerRange(gOffset, gOffset + domainSize - 1)
-        val gDomain = IntegerRange(fOffset, fOffset + domainSize - 1)
-        val xs = for (i <- 1 to domainSize) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), fDomain)
-        val ys = for (i <- 1 to domainSize) yield new IntegerVariable(space.nextVariableId(), "y%d".format(i), gDomain)
-        val f = new InverseFunction(xs, fOffset)
-        val g = new InverseFunction(ys, gOffset)
-        testMoveGeneration(f, g, 100, classOf[SimpleInverseNeighbourhood])
-    }
+    private val domainSize = 100
+
+    private val fDomain = IntegerRange(gOffset, gOffset + domainSize - 1)
+    private val xs = for (i <- 1 to domainSize) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), fDomain)
+    override protected val f = new InverseFunction(xs, fOffset)
+
+    private val gDomain = IntegerRange(fOffset, fOffset + domainSize - 1)
+    private val ys = for (i <- 1 to domainSize) yield new IntegerVariable(space.nextVariableId(), "y%d".format(i), gDomain)
+    override protected val g = new InverseFunction(ys, gOffset)
+
+    override protected val expectedNeighbourhoodClass = classOf[SimpleInverseNeighbourhood]
 
 }
 

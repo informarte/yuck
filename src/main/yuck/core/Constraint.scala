@@ -2,21 +2,6 @@ package yuck.core
 
 import scala.collection.*
 
-import yuck.util.arm.Sigint
-import yuck.util.logging.LazyLogger
-
-/**
- * Provides additional configuration to Constraint#createNeighbourhood.
- *
- * @author Michael Marte
- */
-final case class ExtraNeighbourhoodFactoryConfiguration(
-    createHotSpotDistribution: Seq[AnyVariable] => Option[Distribution] = _ => None,
-    maybeFairVariableChoiceRate: Option[Probability] = None,
-    checkIncrementalCostUpdate: Boolean = false,
-    checkAssignmentsToNonChannelVariables: Boolean = false,
-    maxNumberOfGreedyHeuristicRuns: Int = 100)
-
 /**
  * Provides the constraint interface for local search.
  *
@@ -109,10 +94,9 @@ abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
     def createNeighbourhood(
         space: Space,
         randomGenerator: RandomGenerator,
-        moveSizeDistribution: Distribution,
-        logger: LazyLogger,
-        sigint: Sigint,
-        extraCfg: ExtraNeighbourhoodFactoryConfiguration = ExtraNeighbourhoodFactoryConfiguration()):
+        moveSizeDistribution: Distribution = Distribution(1, List(1)),
+        createHotSpotDistribution: Seq[AnyVariable] => Option[Distribution] = _ => None,
+        maybeFairVariableChoiceRate: Option[Probability] = None):
         Option[Neighbourhood] =
         None
 

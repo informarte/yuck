@@ -3,7 +3,6 @@ package yuck.flatzinc.compiler
 import scala.collection.*
 
 import yuck.core.*
-import yuck.util.arm.Sigint
 
 /**
  * Reduces variable domains by propagating constraints.

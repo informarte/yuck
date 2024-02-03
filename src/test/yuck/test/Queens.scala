@@ -40,12 +40,12 @@ final class Queens(val n: Int) extends IntegrationTest {
                 space.post(new Plus(space.nextConstraintId(), null, rows(col), iVar, rowsPlusI(col)))
             }
             val rowConflicts = new BooleanVariable(space.nextVariableId(), "rowConflicts", CompleteBooleanDomain)
-            val rowConstraint = new Alldistinct(space.nextConstraintId(), null, rows.toVector, rowConflicts)
+            val rowConstraint = new Alldistinct(space.nextConstraintId(), null, rows.toVector, rowConflicts, logger)
             space.post(rowConstraint)
             val diagonalConflicts1 = new BooleanVariable(space.nextVariableId(), "diagonalConflicts1", CompleteBooleanDomain)
-            space.post(new Alldistinct(space.nextConstraintId(), null, rowsMinusI.toVector, diagonalConflicts1))
+            space.post(new Alldistinct(space.nextConstraintId(), null, rowsMinusI.toVector, diagonalConflicts1, logger))
             val diagonalConflicts2 = new BooleanVariable(space.nextVariableId(), "diagonalConflicts2", CompleteBooleanDomain)
-            space.post(new Alldistinct(space.nextConstraintId(), null, rowsPlusI.toVector, diagonalConflicts2))
+            space.post(new Alldistinct(space.nextConstraintId(), null, rowsPlusI.toVector, diagonalConflicts2, logger))
             val conflicts = new BooleanVariable(space.nextVariableId(), "conflicts", CompleteBooleanDomain)
             space.post(
                 new Conjunction(
@@ -58,7 +58,7 @@ final class Queens(val n: Int) extends IntegrationTest {
             // build local-search solver
             val randomGenerator = new JavaRandomGenerator(seed)
             val Some(neighbourhood) =
-                rowConstraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint): @unchecked
+                rowConstraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution): @unchecked
             space.registerImplicitConstraint(rowConstraint)
             val solver =
                 new SimulatedAnnealing(

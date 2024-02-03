@@ -19,7 +19,7 @@ final class SelfInverseNeighbourhood
     require(n % 2 == 0)
     require(f.xs.forall(x => x.domain == f.indexDomain))
 
-    private val effects = Vector.fill(4){new ReusableMoveEffect[IntegerValue]}
+    private val effects = Vector.fill(4)(new ReusableMoveEffect[IntegerValue])
 
     override def nextMove = {
         val i1 = randomGenerator.nextInt(n)

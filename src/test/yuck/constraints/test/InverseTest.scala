@@ -33,7 +33,7 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new Inverse(space.nextConstraintId(), null, f, g, costs)
+        val constraint = new Inverse(space.nextConstraintId(), null, f, g, costs, logger)
         assertEq(constraint.toString, "inverse([x1, x2, x3], %d, [y1, y2, y3], %d, costs)".format(fOffset, gOffset))
         assertEq(constraint.inVariables.size, 6)
         assertEq(constraint.inVariables.toSet, xs.toSet.union(ys.toSet))
@@ -43,7 +43,7 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 
     @Test
     def testPropagation(): Unit = {
-        space.post(new Inverse(space.nextConstraintId(), null, f, g, costs))
+        space.post(new Inverse(space.nextConstraintId(), null, f, g, costs, logger))
         runScenario(
             TestScenario(
                 space,
@@ -73,7 +73,7 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
     def testHandlingOfDuplicateVariablesInPropagation(): Unit = {
         val f = new InverseFunction(Vector(x1, x1, x3), fOffset)
         val g = new InverseFunction(Vector(y1, y3, y3), gOffset)
-        space.post(new Inverse(space.nextConstraintId(), null, f, g, costs))
+        space.post(new Inverse(space.nextConstraintId(), null, f, g, costs, logger))
         runScenario(
             TestScenario(
                 space,
@@ -93,7 +93,7 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 
     @Test
     def testCostComputation(): Unit = {
-        space.post(new Inverse(space.nextConstraintId(), null, f, g, costs))
+        space.post(new Inverse(space.nextConstraintId(), null, f, g, costs, logger))
         runScenario(
             TestScenario(
                 space,
@@ -146,7 +146,7 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
     def testHandlingOfDuplicateVariablesInCostComputation(): Unit = {
         val f = new InverseFunction(Vector(x1, x1, x3), fOffset)
         val g = new InverseFunction(Vector(y1, y3, y3), gOffset)
-        space.post(new Inverse(space.nextConstraintId(), null, f, g, costs))
+        space.post(new Inverse(space.nextConstraintId(), null, f, g, costs, logger))
         runScenario(
             TestScenario(
                 space,
@@ -183,29 +183,6 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
         space.setValue(y1, IntegerValue(fOffset)).setValue(x3, IntegerValue(gOffset + 1))
         assert(! Inverse.areInverseFunctionsOfEachOther(f, g, now))
         assert(! Inverse.areInverseFunctionsOfEachOther(g, f, now))
-    }
-
-    private def assertNeighbourhood
-        (f: InverseFunction, g: InverseFunction, expectedNeighbourhoodClass: Class[_ <: InverseNeighbourhood]): Unit =
-    {
-        require(f.xs.forall(_.domain.isFinite))
-        require(g.xs.forall(_.domain.isFinite))
-        val constraint = new Inverse(space.nextConstraintId(), null, f, g, costs)
-        assert(constraint.isCandidateForImplicitSolving(space))
-        val neighbourhood =
-            constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint).get
-        assertEq(neighbourhood.getClass, expectedNeighbourhoodClass)
-        assert(f.xs.forall(x => x.domain.contains(now.value(x))))
-        assert(g.xs.forall(x => x.domain.contains(now.value(x))))
-        assert(Inverse.areInverseFunctionsOfEachOther(f, g, now))
-        assertEq(now.value(costs), True)
-        assertEq(neighbourhood.searchVariables, f.xs.view.concat(g.xs).filterNot(_.domain.isSingleton).toSet)
-    }
-
-    private def assertNoNeighbourhood(f: InverseFunction, g: InverseFunction, isCandidate: Boolean = false): Unit = {
-        val constraint = new Inverse(space.nextConstraintId(), null, f, g, costs)
-        assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
-        assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution, logger, sigint), None)
     }
 
     @Test
@@ -276,6 +253,28 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
             ys.foreach(_.pruneDomain(g.indexDomain))
             assertNoNeighbourhood(f, g)
         }
+    }
+
+    private def assertNeighbourhood
+        (f: InverseFunction, g: InverseFunction, expectedNeighbourhoodClass: Class[_ <: InverseNeighbourhood]): Unit =
+    {
+        require(f.xs.forall(_.domain.isFinite))
+        require(g.xs.forall(_.domain.isFinite))
+        val constraint = new Inverse(space.nextConstraintId(), null, f, g, costs, logger)
+        assert(constraint.isCandidateForImplicitSolving(space))
+        val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution).get
+        assertEq(neighbourhood.getClass, expectedNeighbourhoodClass)
+        assert(f.xs.forall(x => x.domain.contains(now.value(x))))
+        assert(g.xs.forall(x => x.domain.contains(now.value(x))))
+        assert(Inverse.areInverseFunctionsOfEachOther(f, g, now))
+        assertEq(now.value(costs), True)
+        assertEq(neighbourhood.searchVariables, f.xs.view.concat(g.xs).filterNot(_.domain.isSingleton).toSet)
+    }
+
+    private def assertNoNeighbourhood(f: InverseFunction, g: InverseFunction, isCandidate: Boolean = false): Unit = {
+        val constraint = new Inverse(space.nextConstraintId(), null, f, g, costs, logger)
+        assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
+        assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution), None)
     }
 
 }

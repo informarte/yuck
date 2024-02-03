@@ -78,7 +78,7 @@ final class Disjoint2
 
     override protected type RTreeEntry = Disjoint2Entry
 
-    protected override val rectBuilder =
+    override protected val rectBuilder =
         new RectBuilder[RTreeEntry] {
             override def getBBox(entry: RTreeEntry) =
                 entry.bbox
@@ -86,7 +86,7 @@ final class Disjoint2
                 new Rect2d(p1.getCoord(0), p1.getCoord(1), p2.getCoord(0), p2.getCoord(1))
         }
 
-    protected override def createRTreeEntry(i: Int, searchState: SearchState) = {
+    override protected def createRTreeEntry(i: Int, searchState: SearchState) = {
         val r1 = rects(i)
         val x1 = searchState.value(r1.x).value
         val y1 = searchState.value(r1.y).value
@@ -101,7 +101,7 @@ final class Disjoint2
         entry
     }
 
-    protected override def computeOverlap(e1: Disjoint2Entry, e2: Disjoint2Entry) = {
+    override protected def computeOverlap(e1: Disjoint2Entry, e2: Disjoint2Entry) = {
         val r1 = e1.bbox
         val r2 = e2.bbox
         val min1 = r1.getMin.asInstanceOf[Point2d]
