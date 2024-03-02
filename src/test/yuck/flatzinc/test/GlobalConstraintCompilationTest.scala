@@ -1142,10 +1142,12 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasRegularConstraint]))
+    @Category(Array(classOf[MaximizationProblem], classOf[HasRegularConstraint]))
     def testRegular(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "regular_test"))
+        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "regular_test", maybeOptimum = Some(12)))
         assertEq(result.space.numberOfConstraints[Regular], 1)
+        assert(result.neighbourhood.isInstanceOf[RegularNeighbourhood])
+        assertEq(result.quality, IntegerValue(12))
     }
 
     @Test
@@ -1154,6 +1156,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         // Gecode does not provide a decomposition for regular_reif, so we cannot verify the solution.
         val result = solveWithResult(task.copy(problemName = "regular_reif_test", verificationFrequency = NoVerification))
         assertEq(result.space.numberOfConstraints[Regular], 1)
+        assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
     @Test

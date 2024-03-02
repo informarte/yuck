@@ -161,6 +161,7 @@ Yuck provides dedicated neighbourhoods for the following global MiniZinc constra
 * circuit
 * inverse
 * increasing, strictly_increasing
+* regular
 * table: By default, only table constraints with not more than three columns are eligible for implicit solving. To disable this limitation for a particular table constraint, include `yuck.mzn` and annotate the constraint with `implicit`.
 
 ## MiniZinc extensions

@@ -44,23 +44,11 @@ final class Table
     protected var futureDistances: Array[Long] = null // for each row
 
     private val x2i: immutable.Map[AnyVariable, Int] =
-        if (hasDuplicateVariables) null else xs.iterator.zipWithIndex.toMap
+        if hasDuplicateVariables then null else xs.view.zipWithIndex.toMap
     private val x2is: immutable.Map[AnyVariable, immutable.IndexedSeq[Int]] =
-        if (hasDuplicateVariables) {
-            xs
-            .iterator
-            .zipWithIndex
-            .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
-                case (map, (x, i)) =>
-                    val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])
-                    buf += i
-                    map
-            }
-            .map{case (x, buf) => (x, buf.toVector)}
-            .toMap
-        } else {
-            null
-        }
+        if hasDuplicateVariables
+        then xs.view.zipWithIndex.groupBy(_._1).view.mapValues(_.map(_._2).toVector).toMap
+        else null
 
     private val effect = costs.reuseableEffect
 

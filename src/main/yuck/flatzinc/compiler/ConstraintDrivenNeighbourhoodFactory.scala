@@ -115,7 +115,7 @@ final class ConstraintDrivenNeighbourhoodFactory
                     for (x <- xs if ! x.domain.isFinite) {
                         throw new VariableWithInfiniteDomainException(x)
                     }
-                    cc.logger.logg("%s contributes a neighbourhood over %s".format(constraint, xs))
+                    cc.logger.log("%s contributes a neighbourhood over %s".format(constraint, xs))
                         neighbourhoods +=
                             new RandomReassignmentGenerator(
                                 cc.space, xs, randomGenerator, cc.cfg.moveSizeDistribution, None, None)

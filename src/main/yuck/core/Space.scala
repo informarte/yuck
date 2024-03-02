@@ -327,7 +327,7 @@ final class Space(
      * Throws a CyclicConstraintNetworkException when adding the constraint would create a cycle in the network.
      */
     def post(constraint: Constraint): Space = {
-        logger.loggg("Adding %s".format(constraint))
+        logger.log("Adding %s".format(constraint))
         require(constraintOrder.eq(null), "Space has already been initialized")
         require(
             ! constraint.outVariables.exists(outVariables.contains),
@@ -360,7 +360,7 @@ final class Space(
      * Throws if the given constraint feeds into another constraint.
      */
     def retract(constraint: Constraint): Space = {
-        logger.loggg("Retracting %s".format(constraint))
+        logger.log("Retracting %s".format(constraint))
         require(
             constraint.outVariables.forall(x => directlyAffectedConstraints(x).isEmpty),
             "%s feeds into another constraint".format(constraint))
@@ -401,7 +401,7 @@ final class Space(
      * Throws when the constraint has not yet been posted or cannot be registered as implicit.
      */
     def registerImplicitConstraint(constraint: Constraint): Space = {
-        logger.loggg("Registering %s as implicit".format(constraint))
+        logger.log("Registering %s as implicit".format(constraint))
         require(
             constraints.contains(constraint),
             "%s cannot be registered as implicit because it has not yet been posted".format(constraint))

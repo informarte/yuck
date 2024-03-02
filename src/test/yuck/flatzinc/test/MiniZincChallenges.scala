@@ -280,7 +280,7 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Test
     @Category(Array(classOf[MaximizationProblem], classOf[HasGlobalCardinalityConstraint], classOf[HasRegularConstraint]))
     def generalized_peacable_queens_n25_q4(): Unit = {
-        solve(task.copy(problemName = "generalized-peacable-queens", modelName = "peaceable_queens", instanceName = "n25_q4"))
+        solve(task.copy(problemName = "generalized-peacable-queens", modelName = "peaceable_queens", instanceName = "n25_q4", maybeHighScore = Some(29)))
     }
 
     @Test

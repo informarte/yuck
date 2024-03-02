@@ -44,6 +44,7 @@ import yuck.constraints.test.util.test.ConstraintTestToolingTest
         classOf[NumberOfDistinctValuesTest],
         classOf[OptimizationGoalTrackerTest],
         classOf[RegularTest],
+        classOf[RegularNeighbourhoodTest],
         classOf[SatisfactionGoalTrackerTest],
         classOf[SelfInverseNeighbourhoodTest],
         classOf[SimpleInverseNeighbourhoodTest],

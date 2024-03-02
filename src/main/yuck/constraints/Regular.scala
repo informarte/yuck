@@ -3,6 +3,7 @@ package yuck.constraints
 import scala.collection.*
 
 import yuck.core.*
+import yuck.util.logging.LazyLogger
 
 /**
  * Implements the ''regular'' constraint as specified by MiniZinc.
@@ -19,61 +20,47 @@ import yuck.core.*
  * We guarantee that d' = 0 iff the sequence is acceptable.
  * To compute d', we look for the latest state u from which an accepting state could presumably be reached.
  *
- * Presumably, d = d' under the following conditions:
- *  - The domains of the xs(i) allow for the transitions required to reach an accepting state from u.
- *  - Once in an accepting state, the DFA can stay in that state or oscillate between accepting states.
- *
- * @param xs Sequence of input variables (may contain channel and duplicate variables)
- * @param Q Number of states
- * @param S Number of inputs
- * @param delta State transition function 1..Q x 1..S -> 0..Q (0 is failed state)
- * @param q0 Start state in 1..Q
- * @param F Accepting states (subset of 1..Q)
- *
  * @author Michael Marte
  */
 final class Regular
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.IndexedSeq[IntegerVariable],
-     Q: Int,
-     S: Int,
-     delta: immutable.IndexedSeq[immutable.IndexedSeq[Int]],
-     q0: Int,
-     F: IntegerDomain,
-     costs: BooleanVariable)
+     dfa: RegularDfa,
+     costs: BooleanVariable,
+     logger: LazyLogger)
     extends Constraint(id)
 {
 
-    require(Q > 0)
-    require(S > 0)
-    require(delta.size == Q)
-    require(delta.forall(_.size == S))
-    require(delta.forall(_.forall(q => q >= 0 && q <= Q)))
-    require(q0 >= 1 && q0 <= Q)
-    require(F.isSubsetOf(IntegerRange(1, Q)))
+    import RegularGraph.*
+
+    inline private def xs = dfa.xs
+    inline private def Q = dfa.Q
+    inline private def S = dfa.S
+    inline private def delta = dfa.delta
+    inline private def q0 = dfa.q0
+    inline private def F = dfa.F
 
     private val n = xs.size
     private val hasDuplicateVariables = xs.toSet.size < n
 
-    private val distancesToAcceptingState: immutable.IndexedSeq[Int] = {
+    private val (distancesToAcceptingState: immutable.IndexedSeq[Int], _) = logger.withTimedLogScope("Computing distances") {
         // We use the Floyd-Warshall algorithm to compute, for each q in Q, the minimum number of
         // transitions that are required to reach an accepting state from q.
-        // (This solution has O(Q^3) complexity, so it does not really scale, but the Scala priority
-        // queues do not support a proper Dijkstra implementation.)
         val d = Array.ofDim[Int](Q, Q)
         for (u <- 0 until Q)
             for (v <- 0 until Q)
                 d(u)(v) = if (u == v) 0 else Int.MaxValue
         for (u <- 0 until Q)
-            for (i <- 0 until S) {
-                val v = delta(u)(i) - 1
+            for (a <- 0 until S) {
+                val v = delta(u)(a) - 1
                 if (v > -1 /* ignore failed state */ && u != v) d(u)(v) = 1
             }
-        for (k <- 0 until Q)
-            for (i <- 0 until Q)
-                for (j <- 0 until Q)
-                    if (d(i)(k) < Int.MaxValue && d(k)(j) < Int.MaxValue && d(i)(j) > d(i)(k) + d(k)(j))
-                        d(i)(j) = d(i)(k) + d(k)(j)
+        for (w <- 0 until Q)
+            for (u <- 0 until Q)
+                for (v <- 0 until Q)
+                    if (d(u)(w) < Int.MaxValue && d(w)(v) < Int.MaxValue) {
+                        val duwv = d(u)(w) + d(w)(v)
+                        if (d(u)(v) > duwv) d(u)(v) = duwv
+                    }
         Vector.tabulate(Q)(i => F.valuesIterator.map(f => d(i)(f.toInt - 1)).min)
     }
 
@@ -86,23 +73,11 @@ final class Regular
     override def outVariables = List(costs)
 
     private val x2i: immutable.Map[AnyVariable, Int] =
-        if (hasDuplicateVariables) null else xs.iterator.zipWithIndex.toMap[AnyVariable, Int]
+        if hasDuplicateVariables then null else xs.view.zipWithIndex.toMap
     private val x2is: immutable.Map[AnyVariable, immutable.IndexedSeq[Int]] =
-        if (hasDuplicateVariables) {
-            xs
-            .iterator
-            .zipWithIndex
-            .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
-                case (map, (x, i)) =>
-                    val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])
-                    buf += i
-                    map
-            }
-            .map{case (x, buf) => (x, buf.toVector)}
-            .toMap
-        } else {
-            null
-        }
+        if hasDuplicateVariables
+        then xs.view.zipWithIndex.groupBy(_._1).view.mapValues(_.map(_._2).toVector).toMap
+        else null
 
     private var currentCosts = 0
     private var currentStates: immutable.IndexedSeq[Int] = null
@@ -203,6 +178,42 @@ final class Regular
         assert(q == 0 || i == n - 1)
         // We avoid the search by relying on distance checking in initialize and consult.
         if (q == 0) n - i else 0
+    }
+
+    override def isCandidateForImplicitSolving(space: Space) =
+        xs.exists(space.isSearchVariable) &&
+        ! xs.exists(space.isChannelVariable) &&
+        xs.forall(_.domain.isFinite) &&
+        ! hasDuplicateVariables
+
+    override def createNeighbourhood(
+        space: Space,
+        randomGenerator: RandomGenerator,
+        moveSizeDistribution: Distribution,
+        createHotSpotDistribution: Seq[AnyVariable] => Option[Distribution],
+        maybeFairVariableChoiceRate: Option[Probability]) =
+    {
+        if (isCandidateForImplicitSolving(space)) {
+            val (graph, _) = logger.withTimedLogScope("Building graph") {
+                val graph = new RegularGraph(dfa)
+                logger.log(String.format("Graph has %d nodes and %d edges", graph.numberOfNodes, graph.numberOfEdges))
+                graph
+            }
+            graph.computeShortestPath(_ => 0).map(path =>
+                assert(path.length == n + 1) // source is excluded, sink is included
+                for (case Assignment(_, x, d, _) <- path) {
+                    space.setValue(x, d.randomValue(randomGenerator))
+                }
+                space.setValue(costs, True)
+                val initialPath = path.toVector
+                new RegularNeighbourhood(
+                    space, xs, randomGenerator,
+                    moveSizeDistribution, createHotSpotDistribution(xs), maybeFairVariableChoiceRate,
+                    graph, initialPath)
+            )
+        } else {
+            None
+        }
     }
 
 }

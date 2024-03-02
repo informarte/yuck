@@ -144,10 +144,10 @@ final class ConstraintFactory
             throw new FlatZincCompilerInterruptedException
         }
         if (cc.impliedConstraints.contains(constraint)) {
-            cc.logger.logg("Skipping %s".format(constraint))
+            cc.logger.log("Skipping %s".format(constraint))
             Nil
         } else {
-            cc.logger.logg("Compiling %s".format(constraint))
+            cc.logger.log("Compiling %s".format(constraint))
             scoped(new LogScope(cc.logger)) {
                 // toList enforces constraint generation in this log scope
                 compileNonImplicitConstraint(maybeGoal, constraint, maybeCosts).toList
@@ -608,7 +608,8 @@ final class ConstraintFactory
         case Constraint("yuck_regular", Seq(xs, q, s, flatDelta, q0, f), _) =>
             val delta = compileIntArray(flatDelta).map(_.domain.singleValue.toInt).grouped(s.toInt).toVector
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.space.post(new Regular(nextConstraintId(), maybeGoal, xs, q.toInt, s.toInt, delta, q0.toInt, f.set, costs))
+            val dfa = new RegularDfa(xs, q.toInt, s.toInt, delta, q0.toInt, f.set)
+            cc.space.post(new Regular(nextConstraintId(), maybeGoal, dfa, costs, cc.logger))
             List(costs)
         case Constraint("yuck_circuit", Seq(succ, IntConst(offset)), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
