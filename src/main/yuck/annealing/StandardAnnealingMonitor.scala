@@ -19,7 +19,7 @@ class StandardAnnealingMonitor(logger: LazyLogger) extends AnnealingMonitor with
     private val solverState = new ThreadLocal[ThreadState] {
         override def initialValue = ThreadIsIdle
     }
-    protected var costsOfBestProposal: Costs = null
+    private var costsOfBestProposal: Costs = null
 
     override def open() = {
     }

@@ -1,9 +1,9 @@
 package yuck.flatzinc.test.util
 
 import scala.collection.mutable
-
 import yuck.annealing.{AnnealingResult, StandardAnnealingMonitor}
-import yuck.core.{NumericalValue, PolymorphicListValue, Result}
+import yuck.core.{NumericalObjective, *}
+import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.util.logging.{FineLogLevel, LazyLogger}
 import yuck.util.DescriptiveStatistics.*
 
@@ -19,18 +19,27 @@ import yuck.util.DescriptiveStatistics.*
  */
 class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAnnealingMonitor(logger) {
 
-    final case class QualityImprovement(runtimeInMillis: Long, quality: NumericalValue[_])
+    case class QualityImprovement(runtimeInMillis: Long, quality: NumericalValue[_])
 
     private var timeStampInMillis: Long = 0
     private var maybeRuntimeToFirstSolutionInMillis: Option[Long] = None
     private var maybeRuntimeToBestSolutionInMillis: Option[Long] = None
     private var runtimeInMillis: Long = 0
-    private var maybeTrackArea: Option[Boolean] = None
-    private var maybePreviousQuality: Option[NumericalValue[_]] = None
+
+    private var costsOfBestProposal: Costs = null
+
+    private enum AreaTrackingState {
+        case AreaTrackingNotStarted, TrackingArea, AreaTrackingAborted, AreaTrackingFinished
+    }
+    import AreaTrackingState.*
+    private var areaTrackingState = AreaTrackingNotStarted
     private var area: Double = 0.0
     private val qualityStepFunction = new mutable.ArrayBuffer[QualityImprovement]
 
-    private def quality: NumericalValue[_] =
+    private def maybePreviousQuality: Option[NumericalValue[_]] =
+        if qualityStepFunction.isEmpty then None else Some(qualityStepFunction.last.quality)
+
+    private def currentQuality: NumericalValue[_] =
         costsOfBestProposal.asInstanceOf[PolymorphicListValue].value(1).asInstanceOf[NumericalValue[_]]
 
     private class SolverStatistics(
@@ -60,8 +69,11 @@ class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAn
     override def close() = {
         super.close()
         val now = System.currentTimeMillis
-        if (maybeTrackArea.getOrElse(false)) {
-            area += maybePreviousQuality.getOrElse(quality).toDouble * ((now - timeStampInMillis) / 1000.0)
+        if (areaTrackingState == TrackingArea) {
+            area += maybePreviousQuality.get.toDouble * ((now - timeStampInMillis) / 1000.0)
+            logger.logg("Area updated to %.2f".format(area))
+            areaTrackingState = AreaTrackingFinished
+            logger.logg("Area tracking finished")
         }
         runtimeInMillis += now - timeStampInMillis
     }
@@ -85,7 +97,12 @@ class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAn
         synchronized {
             super.onBetterProposal(result)
             if (result.isSolution) {
-                keepRecords()
+                if (costsOfBestProposal.eq(null) ||
+                    result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestProposal))
+                {
+                    costsOfBestProposal = result.costsOfBestProposal
+                    keepRecords(result)
+                }
             }
         }
         if (result.isSolution && task.sourceFormat == MiniZinc && task.verificationFrequency == VerifyEverySolution) {
@@ -95,35 +112,43 @@ class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAn
         }
     }
 
-    private def keepRecords(): Unit = {
+    private def keepRecords(result: Result): Unit = {
         val now = System.currentTimeMillis
         runtimeInMillis += now - timeStampInMillis
-        if (! maybeRuntimeToFirstSolutionInMillis.isDefined) {
+        if (maybeRuntimeToFirstSolutionInMillis.isEmpty) {
             maybeRuntimeToFirstSolutionInMillis = Some(runtimeInMillis)
         }
         maybeRuntimeToBestSolutionInMillis = Some(runtimeInMillis)
-        val problemHasNumericalObjective =
-            costsOfBestProposal match {
-                case value: PolymorphicListValue =>
-                    value.value.size == 2 && value.value(1).isInstanceOf[NumericalValue[_]]
-                case _ => false
+        val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
+        val maybeOptimizationMode = compilerResult.objective match {
+            case hierarchicalObjective: HierarchicalObjective => hierarchicalObjective.primitiveObjectives(1) match {
+                case numericalObjective: NumericalObjective[_] => Some(numericalObjective.optimizationMode)
+                case _ => None
             }
-        if (problemHasNumericalObjective) {
-            val quality = this.quality
-            if (qualityStepFunction.isEmpty || qualityStepFunction.last.quality != quality) {
-                if (maybeTrackArea.isEmpty) {
-                    maybeTrackArea = Some(true)
-                }
-                if (maybeTrackArea.get) {
-                    if (quality.toDouble < 0) {
-                        maybeTrackArea = Some(false)
-                    } else {
-                        area += maybePreviousQuality.getOrElse(quality).toDouble * ((now - timeStampInMillis) / 1000.0)
-                        maybePreviousQuality = Some(quality)
+            case _ => None
+        }
+        if (maybeOptimizationMode.isDefined) {
+            if (areaTrackingState == AreaTrackingNotStarted) {
+                areaTrackingState = TrackingArea
+                logger.logg("Area tracking started")
+            }
+            if (areaTrackingState == TrackingArea) {
+                if (currentQuality.toDouble < 0) {
+                    areaTrackingState = AreaTrackingAborted
+                    logger.logg("Area tracking aborted due to negative objective value")
+                } else {
+                    maybeOptimizationMode.get match {
+                        case OptimizationMode.Min =>
+                            area += maybePreviousQuality.getOrElse(currentQuality).toDouble * ((now - timeStampInMillis) / 1000.0)
+                        case OptimizationMode.Max =>
+                            if (maybePreviousQuality.isDefined) {
+                                area += maybePreviousQuality.get.toDouble * ((now - timeStampInMillis) / 1000.0)
+                            }
                     }
+                    logger.logg("Area updated to %.2f".format(area))
                 }
-                qualityStepFunction += QualityImprovement(runtimeInMillis, quality)
             }
+            qualityStepFunction += QualityImprovement(runtimeInMillis, currentQuality)
         }
         timeStampInMillis = now
     }
@@ -150,10 +175,12 @@ class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAn
 
     // Integral of the quality step function over the runtime horizon.
     // Only available when no negative objective values were encountered during optimization.
-    def maybeArea: Option[Double] = if (maybeTrackArea.getOrElse(false)) Some(area) else None
+    def maybeArea: Option[Double] = if areaTrackingState == AreaTrackingFinished then Some(area) else None
 
+    // Quality step function over the runtime horizon.
+    // Only available when no negative objective values were encountered during optimization.
     def maybeQualityStepFunction: Option[Seq[QualityImprovement]] =
-        if (qualityStepFunction.isEmpty) None else Some(qualityStepFunction.toSeq)
+        if areaTrackingState == AreaTrackingFinished then Some(qualityStepFunction.toSeq) else None
 
     // Returns true iff search was required to achieve the objective.
     def wasSearchRequired: Boolean = ! solverStatistics.isEmpty

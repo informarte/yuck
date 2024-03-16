@@ -4,7 +4,8 @@ package yuck.core
  * @author Michael Marte
  *
  */
-object OptimizationMode extends Enumeration {
-    val Min = Value("Minimization")
-    val Max = Value("Maximization")
+enum OptimizationMode(name: String) {
+    case Min extends OptimizationMode("Minimization")
+    case Max extends OptimizationMode("Maximization")
+    override def toString = name
 }

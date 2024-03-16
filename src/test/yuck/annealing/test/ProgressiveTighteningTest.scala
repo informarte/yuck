@@ -16,8 +16,8 @@ import yuck.test.util.IntegrationTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 final class ProgressiveTighteningTest
-    (mainObjectiveType: OptimizationMode.Value,
-     subordinateObjectiveType: OptimizationMode.Value)
+    (mainObjectiveType: OptimizationMode,
+     subordinateObjectiveType: OptimizationMode)
     extends IntegrationTest
 {
 

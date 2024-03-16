@@ -53,7 +53,7 @@ final class ConstraintDrivenNeighbourhoodFactory
 
     private def createNeighbourhood
         [V <: NumericalValue[V]]
-        (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
+        (mode: OptimizationMode, levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
         (using valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
@@ -85,7 +85,7 @@ final class ConstraintDrivenNeighbourhoodFactory
 
     private def createNeighbourhood
         [V <: NumericalValue[V]]
-        (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, constraint: yuck.core.Constraint)
+        (mode: OptimizationMode, levelCfg: FlatZincLevelConfiguration, constraint: yuck.core.Constraint)
         (using valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
@@ -133,7 +133,7 @@ final class ConstraintDrivenNeighbourhoodFactory
 
     private def createNeighbourhood
         [V <: NumericalValue[V]]
-        (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, axs0: Seq[AX[V]])
+        (mode: OptimizationMode, levelCfg: FlatZincLevelConfiguration, axs0: Seq[AX[V]])
         (using valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
@@ -194,7 +194,7 @@ final class ConstraintDrivenNeighbourhoodFactory
 
     private def createHotSpotDistribution
         [V <: NumericalValue[V]]
-        (mode: OptimizationMode.Value, weights: Seq[AX[V]])
+        (mode: OptimizationMode, weights: Seq[AX[V]])
         (using valueTraits: NumericalValueTraits[V]):
         Distribution =
     {

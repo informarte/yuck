@@ -36,6 +36,6 @@ abstract class PrimitiveObjective extends AnyObjective {
     }
 
     /** Returns the kind of optimization performed by this objective. */
-    val optimizationMode: OptimizationMode.Value
+    val optimizationMode: OptimizationMode
 
 }

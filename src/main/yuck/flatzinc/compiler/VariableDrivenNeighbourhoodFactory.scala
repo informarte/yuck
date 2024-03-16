@@ -41,7 +41,7 @@ final class VariableDrivenNeighbourhoodFactory
 
     private def createNeighbourhood
         [V <: NumericalValue[V]]
-        (mode: OptimizationMode.Value, levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
+        (mode: OptimizationMode, levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
         (using valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
