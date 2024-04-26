@@ -20,6 +20,7 @@ final case class FlatZincLevelConfiguration(
  *
  */
 final case class FlatZincSolverConfiguration(
+    maybeName: Option[String] = None,
     attachGoals: Boolean = false,
     seed: Long = DefaultSeed,
     restartLimit: Int = DefaultRestartLimit,

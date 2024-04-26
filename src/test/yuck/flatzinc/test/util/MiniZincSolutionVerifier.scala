@@ -83,7 +83,7 @@ class MiniZincSolutionVerifier(
         val problemName = task.problemName
         val modelName = if (task.modelName.isEmpty) problemName else task.modelName
         val instanceName = task.instanceName
-        val (includePath, modelFileName, dataFileName, outputDirectoryPath) = task.directoryLayout match {
+        val (includePath, modelFileName, dataFileName, outputDirectoryPath0) = task.directoryLayout match {
             case MiniZincExamplesLayout =>
                 ("%s".format(suitePath),
                  "%s.mzn".format(problemName),
@@ -103,6 +103,9 @@ class MiniZincSolutionVerifier(
                  "",
                  "tmp/%s/%s/%s".format(suiteName, problemName, instanceName))
         }
+        val outputDirectoryPath = task.solverConfiguration.maybeName
+            .map(name => "%s/%s".format(outputDirectoryPath0, name))
+            .getOrElse(outputDirectoryPath0)
         new java.io.File(outputDirectoryPath).mkdirs
         val solutionFilePath =
             if task.verificationFrequency == VerifyEverySolution

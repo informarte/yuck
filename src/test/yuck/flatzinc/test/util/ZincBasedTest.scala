@@ -71,7 +71,7 @@ class ZincBasedTest extends IntegrationTest {
         val problemName = task.problemName
         val modelName = if (task.modelName.isEmpty) problemName else task.modelName
         val instanceName = if (task.instanceName.isEmpty) modelName else task.instanceName
-        val outputDirectoryPath = task.directoryLayout match {
+        val outputDirectoryPath0 = task.directoryLayout match {
             case MiniZincExamplesLayout =>
                 "tmp/%s/%s".format (suiteName, problemName)
             case StandardMiniZincBenchmarksLayout =>
@@ -79,6 +79,9 @@ class ZincBasedTest extends IntegrationTest {
             case NonStandardMiniZincBenchmarksLayout =>
                 "tmp/%s/%s/%s".format(suiteName, problemName, instanceName)
         }
+        val outputDirectoryPath = task.solverConfiguration.maybeName
+            .map(name => "%s/%s".format(outputDirectoryPath0, name))
+            .getOrElse(outputDirectoryPath0)
         new java.io.File(outputDirectoryPath).mkdirs
         val logFilePath = "%s/yuck.log".format(outputDirectoryPath)
         val summaryFilePath = "%s/yuck.json".format(outputDirectoryPath)

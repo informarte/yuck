@@ -24,15 +24,27 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     private val taskWithImplicitSolving =
         task.copy(
             solverConfiguration =
-                task.solverConfiguration.copy(
-                    maybeRoundLimit = Some(1)))
+                task.solverConfiguration.copy(maybeName = Some("with-implicit-solving")))
+
+    private val taskWithoutImplicitSolving =
+        task.copy(
+            solverConfiguration =
+                task.solverConfiguration.copy(maybeName = Some("without-implicit-solving"), useImplicitSolving = false))
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
-    def testAlldifferentInt(): Unit = {
+    def testAlldifferentIntWithImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test"))
         assertEq(result.space.numberOfConstraints[Alldistinct[_]], 1)
         assert(result.neighbourhood.isInstanceOf[AlldistinctNeighbourhood[_]])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    def testAlldifferentIntWithoutImplicitSolving(): Unit = {
+        val result = solveWithResult(taskWithoutImplicitSolving.copy(problemName = "alldifferent_int_test"))
+        assertEq(result.space.numberOfConstraints[Alldistinct[_]], 1)
+        assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
     @Test
@@ -46,7 +58,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testAlldifferentSet(): Unit = {
-        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_set_test"))
+        val result = solveWithResult(task.copy(problemName = "alldifferent_set_test"))
         assertEq(result.space.numberOfConstraints[Alldistinct[_]], 1)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
@@ -271,10 +283,18 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint]))
-    def testCircuit(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "circuit_test"))
+    def testCircuitWithImplicitSolving(): Unit = {
+        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "circuit_test"))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
         assert(result.neighbourhood.isInstanceOf[CircuitNeighbourhood])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint]))
+    def testCircuitWithoutImplicitSolving(): Unit = {
+        val result = solveWithResult(taskWithoutImplicitSolving.copy(problemName = "circuit_test"))
+        assertEq(result.space.numberOfConstraints[Circuit], 1)
+        assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
     @Test
@@ -911,7 +931,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
     def testInverseDecomposition(): Unit = {
-        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "inverse_decomposition_test"))
+        val result = solveWithResult(task.copy(problemName = "inverse_decomposition_test"))
         assertEq(result.space.numberOfConstraints[Inverse], 2)
         assert(result.neighbourhood.isInstanceOf[NeighbourhoodCollection])
         assert(result.neighbourhood.asInstanceOf[NeighbourhoodCollection].children.forall(_.isInstanceOf[SimpleInverseNeighbourhood]))
@@ -1143,10 +1163,20 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[MaximizationProblem], classOf[HasRegularConstraint]))
-    def testRegular(): Unit = {
+    def testRegularWithImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "regular_test", maybeOptimum = Some(12)))
         assertEq(result.space.numberOfConstraints[Regular], 1)
         assert(result.neighbourhood.isInstanceOf[RegularNeighbourhood])
+        assertEq(result.quality, IntegerValue(12))
+    }
+
+    @Test
+    @Category(Array(classOf[MaximizationProblem], classOf[HasRegularConstraint]))
+    def testRegularWithoutImplicitSolving(): Unit = {
+        val result = solveWithResult(taskWithoutImplicitSolving.copy(problemName = "regular_test", maybeOptimum = Some(12)))
+        assertEq(result.space.numberOfConstraints[Regular], 1)
+        assert(result.neighbourhood.isInstanceOf[NeighbourhoodCollection])
+        assert(result.neighbourhood.children.head.isInstanceOf[RandomReassignmentGenerator])
         assertEq(result.quality, IntegerValue(12))
     }
 
@@ -1161,10 +1191,18 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
-    def testTableBool(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "table_bool_test"))
+    def testTableBoolWithImplicitSolving(): Unit = {
+        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "table_bool_test"))
         assertEq(result.space.numberOfConstraints[Table[_]], 1)
         assert(result.neighbourhood.isInstanceOf[TableNeighbourhood[_]])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
+    def testTableBoolWithoutImplicitSolving(): Unit = {
+        val result = solveWithResult(taskWithoutImplicitSolving.copy(problemName = "table_bool_test"))
+        assertEq(result.space.numberOfConstraints[Table[_]], 1)
+        assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
     @Test
@@ -1177,10 +1215,18 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
-    def testTableInt(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "table_int_test"))
+    def testTableIntWithImplicitSolving(): Unit = {
+        val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "table_int_test"))
         assertEq(result.space.numberOfConstraints[Table[_]], 1)
         assert(result.neighbourhood.isInstanceOf[TableNeighbourhood[_]])
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
+    def testTableIntWithoutImplicitSolving(): Unit = {
+        val result = solveWithResult(taskWithoutImplicitSolving.copy(problemName = "table_int_test"))
+        assertEq(result.space.numberOfConstraints[Table[_]], 1)
+        assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
     @Test
