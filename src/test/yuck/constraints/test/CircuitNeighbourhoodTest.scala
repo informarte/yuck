@@ -14,10 +14,11 @@ import yuck.core.{given, *}
 @runner.RunWith(classOf[runners.Parameterized])
 final class CircuitNeighbourhoodTest(offset: Int) extends SpecialNeighbourhoodTest {
 
-    private val numberOfNodes = 10
-    private val baseDomain = IntegerRange(offset, offset + numberOfNodes - 1)
+    private val NumberOfNodes = 10
+
+    private val baseDomain = IntegerRange(offset, offset + NumberOfNodes - 1)
     private val succ =
-        for (i <- 1 to numberOfNodes) yield
+        for (i <- 1 to NumberOfNodes) yield
             new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain.randomSubdomain(randomGenerator))
 
     override protected def createConstraint() = {

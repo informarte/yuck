@@ -18,8 +18,8 @@ import yuck.core.JavaRandomGenerator
  */
 abstract class MiniZincTestTaskFactory {
 
-    protected val SuitePath: String
-    protected val MaybeInstancesPerProblem: Option[Int] = None
+    protected val suitePath: String
+    protected val maybeInstancesPerProblem: Option[Int] = None
 
     private def listFiles(base: File, fileFilter: File => Boolean, recursive: Boolean = true): Seq[File] = {
         val files = base.listFiles.toSeq
@@ -37,7 +37,7 @@ abstract class MiniZincTestTaskFactory {
 
     protected def tasks: List[ZincTestTask] = {
         val randomGenerator = new JavaRandomGenerator
-        val suiteDir = new File(SuitePath)
+        val suiteDir = new File(suitePath)
         assert(suiteDir.exists)
         val problems = suiteDir.listFiles.filter(_.isDirectory).filter(problemFilter).sorted
         val buf = new mutable.ArrayBuffer[ZincTestTask]
@@ -46,24 +46,24 @@ abstract class MiniZincTestTaskFactory {
             val dataFiles = listFiles(problem, instanceFilter).sorted
             if (dataFiles.isEmpty) {
                 val modelFileSelection =
-                    randomGenerator.shuffle(modelFiles).take(MaybeInstancesPerProblem.getOrElse(modelFiles.size)).sorted
+                    randomGenerator.shuffle(modelFiles).take(maybeInstancesPerProblem.getOrElse(modelFiles.size)).sorted
                 for (modelFile <- modelFileSelection) {
                     buf +=
                         ZincTestTask(
                             directoryLayout = NonStandardMiniZincBenchmarksLayout,
-                            suitePath = SuitePath,
+                            suitePath = suitePath,
                             problemName = problem.getName,
                             instanceName = modelFile.getPath.replace(problem.getPath + "/", "").replace(".mzn", "").replace(".json", ""))
                 }
             } else {
                 val dataFileSelection =
-                    randomGenerator.shuffle(dataFiles).take(MaybeInstancesPerProblem.getOrElse(dataFiles.size)).sorted
+                    randomGenerator.shuffle(dataFiles).take(maybeInstancesPerProblem.getOrElse(dataFiles.size)).sorted
                 for (modelFile <- modelFiles) {
                     for (dataFile <- dataFileSelection) {
                         buf +=
                             ZincTestTask(
                                 directoryLayout = StandardMiniZincBenchmarksLayout,
-                                suitePath = SuitePath,
+                                suitePath = suitePath,
                                 problemName = problem.getName,
                                 modelName = modelFile.getPath.replace(problem.getPath + "/", "").replace(".mzn", ""),
                                 instanceName = dataFile.getPath.replace(problem.getPath + "/", "").replace(".dzn", "").replace(".json", ""))

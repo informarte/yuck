@@ -3,6 +3,7 @@ package yuck.core.test
 import org.junit.*
 
 import yuck.core.{given, *}
+import yuck.test.*
 import yuck.test.util.UnitTest
 
 /**

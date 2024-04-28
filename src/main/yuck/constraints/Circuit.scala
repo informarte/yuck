@@ -25,6 +25,10 @@ final class Circuit
     extends CircuitTracker(id, succ, offset, costs)
 {
 
+    import Circuit.*
+
+    inline private val MaxNumberOfGreedyHeuristicRuns = 100
+
     override def toString = "circuit([%s], %d, %s)".format(succ.mkString(", "), offset, costs)
 
     override protected def computeCosts(cycleLengths: Iterable[Int]) =
@@ -44,9 +48,9 @@ final class Circuit
         maybeFairVariableChoiceRate: Option[Probability] = None):
         Option[Neighbourhood] =
     {
-        if (isCandidateForImplicitSolving(space) && Circuit.MaxNumberOfGreedyHeuristicRuns > 0) {
+        if (isCandidateForImplicitSolving(space) && MaxNumberOfGreedyHeuristicRuns > 0) {
             solve(
-                Circuit.MaxNumberOfGreedyHeuristicRuns - 1,
+                MaxNumberOfGreedyHeuristicRuns - 1,
                 logger.withTimedLogScope("Trying deterministic greedy heuristic") {
                     greedyHeuristic(space, randomGenerator, FirstFailStrategy)
                 }._1,
@@ -58,15 +62,6 @@ final class Circuit
             None
         }
     }
-
-    private trait GreedyStrategy
-    private case object FirstFailStrategy extends GreedyStrategy
-    private case object RandomizedStrategy extends GreedyStrategy
-
-    private trait HeuristicResult
-    private case object UnsatisfiableInstance extends HeuristicResult
-    private case object HeuristicFailed extends HeuristicResult
-    private case class HeuristicSucceeded(neighbourhood: Neighbourhood) extends HeuristicResult
 
     @tailrec
     private def solve
@@ -191,7 +186,14 @@ final class Circuit
  */
 object Circuit {
 
-    private val MaxNumberOfGreedyHeuristicRuns = 100
+    private trait GreedyStrategy
+    private case object FirstFailStrategy extends GreedyStrategy
+    private case object RandomizedStrategy extends GreedyStrategy
+
+    private trait HeuristicResult
+    private case object UnsatisfiableInstance extends HeuristicResult
+    private case object HeuristicFailed extends HeuristicResult
+    private case class HeuristicSucceeded(neighbourhood: Neighbourhood) extends HeuristicResult
 
     def isHamiltonianCircuit(succ: IndexedSeq[IntegerVariable], offset: Int, searchState: SearchState): Boolean = {
         val cycles = CircuitTracker.findCycles(succ, offset, searchState)

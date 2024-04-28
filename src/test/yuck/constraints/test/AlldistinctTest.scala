@@ -6,6 +6,7 @@ import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.constraints.{Alldistinct, AlldistinctNeighbourhood}
 import yuck.core.{given, *}
+import yuck.test.*
 import yuck.test.util.UnitTest
 
 /**
@@ -18,8 +19,7 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
     private val randomGenerator = new JavaRandomGenerator
     private val space = new Space(logger, sigint)
 
-    private val baseDomain = IntegerRange(0, 9)
-    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
+    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(0, 9))
     private val Seq(x1, x2, x3) = xs
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
@@ -44,8 +44,8 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
                 Propagate("root-node propagation", List(costs << TrueDomain), Nil),
                 Propagate(
                     "fix x1",
-                    List(x1 << ZeroToZeroIntegerRange),
-                    List(x2, x3).map(x => x << x.domain.diff(ZeroToZeroIntegerRange)))))
+                    List(x1 << IntegerRange(0, 0)),
+                    List(x2, x3).map(x => x << x.domain.diff(IntegerRange(0, 0))))))
     }
 
     @Test
@@ -57,8 +57,8 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
                 Propagate("root-node propagation", List(costs << TrueDomain), Nil),
                 Propagate(
                     "fix value of duplicate variable x2",
-                    List(x2 << ZeroToZeroIntegerRange),
-                    List(x1 << x1.domain.diff(ZeroToZeroIntegerRange)))))
+                    List(x2 << IntegerRange(0, 0)),
+                    List(x1 << x1.domain.diff(IntegerRange(0, 0))))))
     }
 
     @Test
@@ -132,15 +132,15 @@ final class AlldistinctTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfFixedAssignmentsInNeighbourhoodGeneration1(): Unit = {
-        x1.pruneDomain(ZeroToZeroIntegerRange)
+        x1.pruneDomain(IntegerRange(0, 0))
         space.setValue(x1, Zero)
         assertNoNeighbourhood(xs)
     }
 
     @Test
     def testHandlingOfFixedAssignmentsInNeighbourhoodGeneration2(): Unit = {
-        x2.pruneDomain(x2.domain.diff(ZeroToZeroIntegerRange))
-        x3.pruneDomain(x3.domain.diff(ZeroToZeroIntegerRange))
+        x2.pruneDomain(x2.domain.diff(IntegerRange(0, 0)))
+        x3.pruneDomain(x3.domain.diff(IntegerRange(0, 0)))
         assertNeighbourhood(xs)
     }
 

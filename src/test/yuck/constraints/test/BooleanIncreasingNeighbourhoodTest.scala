@@ -9,8 +9,9 @@ import yuck.core.{given, *}
  */
 final class BooleanIncreasingNeighbourhoodTest extends SpecialNeighbourhoodTest {
 
-    private val numberOfVariables = 100
-    private val xs = for (i <- 0 until numberOfVariables) yield {
+    private val NumberOfVariables = 100
+
+    private val xs = for (i <- 0 until NumberOfVariables) yield {
         new BooleanVariable(space.nextVariableId(), "x%d".format(i + 1), CompleteBooleanDomain)
     }
 

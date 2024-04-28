@@ -29,9 +29,10 @@ final class TableBenchmarks(task: ZincTestTask) extends ZincBasedTest {
  */
 object TableBenchmarks extends MiniZincTestTaskFactory {
 
-    override protected val SuitePath = "resources/mzn/tests/minizinc-benchmarks"
-    override protected val MaybeInstancesPerProblem = None
-    override protected def problemFilter(file: File): Boolean =
+    override protected val suitePath = "resources/mzn/tests/minizinc-benchmarks"
+    override protected val maybeInstancesPerProblem = None
+
+    override protected def problemFilter(file: File) =
         List("black-hole", "code-generator", "groupsplitter", "is", "opt-cryptanalysis", "proteindesign12", "spot5")
             .contains(file.getName)
 

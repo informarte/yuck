@@ -25,7 +25,7 @@ final class Queens(val n: Int) extends IntegrationTest {
 
             // define problem
             val space = new Space(logger, sigint)
-            val d = IntegerRange(Zero, new IntegerValue(n - 1))
+            val d = IntegerRange(0, n - 1)
             val rows = new Array[IntegerVariable](n)
             val rowsMinusI = new Array[IntegerVariable](n)
             val rowsPlusI = new Array[IntegerVariable](n)

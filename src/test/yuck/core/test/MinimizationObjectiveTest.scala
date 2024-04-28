@@ -3,6 +3,7 @@ package yuck.core.test
 import org.junit.*
 
 import yuck.core.{given, *}
+import yuck.test.*
 import yuck.test.util.UnitTest
 
 /**
@@ -12,24 +13,26 @@ import yuck.test.util.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class MinimizationObjectiveTest extends UnitTest {
 
+    private val BaseDomain = IntegerRange(0, 9)
+
     private val space = new Space(logger, sigint)
     private val now = space.searchState
-    private val baseDomain = IntegerRange(Zero, Nine)
-    private val x = new IntegerVariable(space.nextVariableId(), "x", baseDomain)
-    private val y = new IntegerVariable(space.nextVariableId(), "y", baseDomain)
-    private val objective = new MinimizationObjective(x, Some(baseDomain.lb + One), Some(y))
+
+    private val x = new IntegerVariable(space.nextVariableId(), "x", BaseDomain)
+    private val y = new IntegerVariable(space.nextVariableId(), "y", BaseDomain)
+    private val objective = new MinimizationObjective(x, Some(BaseDomain.lb + One), Some(y))
 
     @Test
     def testBasics(): Unit = {
         assertEq(objective.optimizationMode, OptimizationMode.Min)
-        assertEq(objective.targetCosts, baseDomain.lb + One)
+        assertEq(objective.targetCosts, BaseDomain.lb + One)
         assertEq(objective.primitiveObjectives, Seq(objective))
         assertEq(objective.objectiveVariables, Seq(x))
         for (a <- x.domain.values) {
             space.setValue(x, a)
             assertEq(objective.costs(now), a)
-            val isSolution = a <= baseDomain.lb + One
-            val isOptimal = a == baseDomain.lb
+            val isSolution = a <= BaseDomain.lb + One
+            val isOptimal = a == BaseDomain.lb
             assertEq(objective.isSolution(a), isSolution)
             assertEq(objective.isSolution(now), isSolution)
             assertEq(objective.isGoodEnough(a), isSolution)
@@ -73,8 +76,8 @@ final class MinimizationObjectiveTest extends UnitTest {
             space.setValue(x, a)
             objective.findActualObjectiveValue(space)
             assertEq(now.value(x), x.domain.lb)
-            assertEq(x.domain, baseDomain)
-            assertEq(y.domain, baseDomain)
+            assertEq(x.domain, BaseDomain)
+            assertEq(y.domain, BaseDomain)
         }
     }
 
@@ -89,10 +92,10 @@ final class MinimizationObjectiveTest extends UnitTest {
             val tightenedVariables = objective.tighten(space)
             assertEq(now.value(x), a)
             assertEq(now.value(y), a)
-            assertEq(x.domain, baseDomain)
-            assertEq(y.domain, IntegerRange(baseDomain.lb, a))
-            assertEq(tightenedVariables.isEmpty, y.domain == baseDomain)
-            y.relaxDomain(baseDomain)
+            assertEq(x.domain, BaseDomain)
+            assertEq(y.domain, IntegerRange(BaseDomain.lb, a))
+            assertEq(tightenedVariables.isEmpty, y.domain == BaseDomain)
+            y.relaxDomain(BaseDomain)
         }
     }
 

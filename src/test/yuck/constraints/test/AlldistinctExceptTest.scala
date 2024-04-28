@@ -5,6 +5,7 @@ import org.junit.*
 import yuck.constraints.AlldistinctExcept
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.{given, *}
+import yuck.test.*
 import yuck.test.util.UnitTest
 
 /**
@@ -16,8 +17,7 @@ final class AlldistinctExceptTest extends UnitTest with ConstraintTestTooling {
 
     private val space = new Space(logger, sigint)
 
-    private val baseDomain = IntegerRange(0, 9)
-    private val xs = for (i <- 1 to 4) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
+    private val xs = for (i <- 1 to 4) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(0, 9))
     private val Seq(x1, x2, x3, x4) = xs
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 

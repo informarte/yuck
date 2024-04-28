@@ -30,8 +30,8 @@ final class MiniZincBenchmarks(task: ZincTestTask) extends ZincBasedTest {
  */
 object MiniZincBenchmarks extends MiniZincTestTaskFactory {
 
-    override protected val SuitePath = "resources/mzn/tests/minizinc-benchmarks"
-    override protected val MaybeInstancesPerProblem = Some(5)
+    override protected val suitePath = "resources/mzn/tests/minizinc-benchmarks"
+    override protected val maybeInstancesPerProblem = Some(5)
 
     private val incompleteModels =
         List(

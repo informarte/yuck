@@ -18,8 +18,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
     private val randomGenerator = new JavaRandomGenerator
     private val space = new Space(logger, sigint)
 
-    private val baseDomain = IntegerRange(0, 9)
-    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
+    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(0, 9))
     private val Seq(x1, x2, x3) = xs
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 

@@ -5,6 +5,7 @@ import org.junit.*
 import scala.collection.*
 
 import yuck.core.{given, *}
+import yuck.test.*
 import yuck.test.util.UnitTest
 
 /**
@@ -14,14 +15,14 @@ import yuck.test.util.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerDomainTest extends UnitTest {
 
+    private val BaseRange = IntegerRange(-5, 5)
+
     private val randomGenerator = new JavaRandomGenerator
     private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
-    private val baseRange = IntegerRange(IntegerValue(-5), Five)
 
     @Test
     def testEquality(): Unit = {
-        val sampleSize = 16
-        val testData = helper.createTestData(baseRange, sampleSize).distinct
+        val testData = helper.createTestData(BaseRange, 16).distinct
         helper.testEquality(testData)
         for (d <- testData) {
             for (e <- testData) {
@@ -37,15 +38,13 @@ final class IntegerDomainTest extends UnitTest {
 
     @Test
     def testOrdering(): Unit = {
-        val sampleSize = 16
-        val testData = helper.createTestData(baseRange, sampleSize)
+        val testData = helper.createTestData(BaseRange, 16)
         helper.testOrdering(testData)
     }
 
     @Test
     def testOperations(): Unit = {
-        val sampleSize = 8
-        val testData = helper.createTestData(baseRange, sampleSize)
+        val testData = helper.createTestData(BaseRange, 8)
         helper.testBinaryOperations(testData)
     }
 
@@ -67,10 +66,10 @@ final class IntegerDomainTest extends UnitTest {
     def testConstructionFromValueSets(): Unit = {
         val testData = List(
             List(List()) -> EmptyIntegerRange,
-            List(List(Zero), List(Zero, Zero)) -> ZeroToZeroIntegerRange,
-            List(List(Zero, One), List(One, Zero)) -> ZeroToOneIntegerRange,
+            List(List(Zero), List(Zero, Zero)) -> IntegerRange(0, 0),
+            List(List(Zero, One), List(One, Zero)) -> IntegerRange(0, 1),
             List(List(Zero, One, Three, Four), List(Three, Zero, Four, One, One)) ->
-                IntegerRangeList(Vector(ZeroToOneIntegerRange, IntegerRange(Three, Four))))
+                IntegerRangeList(Vector(IntegerRange(0, 1), IntegerRange(3, 4))))
         for ((inputs, expectation) <- testData) {
             for (input <- inputs) {
                 def check(result: IntegerDomain) = {

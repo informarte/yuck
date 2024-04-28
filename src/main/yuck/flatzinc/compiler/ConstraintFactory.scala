@@ -33,6 +33,8 @@ final class ConstraintFactory
     extends CompilationPhase
 {
 
+    import ConstraintFactory.*
+
     private def definedVars(annotation: Annotation): Seq[AnyVariable] =
         annotation.term match {
             case Term("defines_var", Seq(a)) => List(compileAnyExpr(a))
@@ -123,14 +125,6 @@ final class ConstraintFactory
         optimizeIntDomainEnforcement()
     }
 
-    private val Count = "yuck_count_(.*)_(.*)".r
-    private val IntLin = "int_lin_(.*)".r
-    private val Reif = "(.*)_reif".r
-
-    // In Yuck, True < False, but in FlatZinc, false < true.
-    private val booleanOrdering = BooleanValueTraits.valueOrdering.reverse
-    private val booleanSequenceOrdering = lexicographicOrderingForIterable(using booleanOrdering)
-
     // maybeCosts may contain the cost variable the caller would like to be used.
     // compileConstraint is free to ignore the given cost variable.
     // If compileConstraint considers the cost variable, it must return a singleton sequence containing the variable.
@@ -170,7 +164,7 @@ final class ConstraintFactory
             val y = compileIntExpr(b)
             def functionalCase = {
                 cc.space.post(new Bool2Int1(nextConstraintId(), maybeGoal, x, y))
-                if ZeroToOneIntegerRange.diff(y.domain).isEmpty
+                if IntegerRange(0, 1).diff(y.domain).isEmpty
                 then Nil
                 else enforceIntDomain(y)
             }
@@ -649,7 +643,7 @@ final class ConstraintFactory
             List(costs)
         case Constraint("fzn_lex_less_bool", Seq(as, bs), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.space.post(new LexLess[BooleanValue](nextConstraintId(), maybeGoal, as, bs, costs)(using booleanOrdering))
+            cc.space.post(new LexLess[BooleanValue](nextConstraintId(), maybeGoal, as, bs, costs)(using FlatZincBooleanValueOrdering))
             List(costs)
         case Constraint("fzn_lex_less_set", Seq(as, bs), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
@@ -661,7 +655,7 @@ final class ConstraintFactory
             List(costs)
         case Constraint("fzn_lex_lesseq_bool", Seq(as, bs), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.space.post(new LexLessEq[BooleanValue](nextConstraintId(), maybeGoal, as, bs, costs)(using booleanOrdering))
+            cc.space.post(new LexLessEq[BooleanValue](nextConstraintId(), maybeGoal, as, bs, costs)(using FlatZincBooleanValueOrdering))
             List(costs)
         case Constraint("fzn_lex_lesseq_set", Seq(as, bs), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
@@ -1331,5 +1325,21 @@ final class ConstraintFactory
             // a set of Contains constraints is faster than a single InDomain constraint.
         }
     }
+
+}
+
+/**
+ * Companion object to ConstraintFactory.
+ *
+ * @author Michael Marte
+ */
+object ConstraintFactory {
+
+    private val Count = "yuck_count_(.*)_(.*)".r
+    private val IntLin = "int_lin_(.*)".r
+    private val Reif = "(.*)_reif".r
+
+    // In Yuck, True < False, but in FlatZinc, false < true.
+    private val FlatZincBooleanValueOrdering = BooleanValueOrdering.reverse
 
 }

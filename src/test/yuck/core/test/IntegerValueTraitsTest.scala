@@ -3,6 +3,7 @@ package yuck.core.test
 import org.junit.*
 
 import yuck.core.{given, *}
+import yuck.test.*
 import yuck.test.util.UnitTest
 
 /**
@@ -39,8 +40,8 @@ final class IntegerValueTraitsTest extends UnitTest {
     @Test
     def testDomainFactories(): Unit = {
         assertEq(createDomain(Set()), EmptyIntegerRange)
-        assertEq(createDomain(Set(Zero)), ZeroToZeroIntegerRange)
-        assertEq(createDomain(Set(Zero, One)), ZeroToOneIntegerRange)
+        assertEq(createDomain(Set(Zero)), IntegerRange(0, 0))
+        assertEq(createDomain(Set(Zero, One)), IntegerRange(0, 1))
         assert(createDomain(Zero, One).isInstanceOf[IntegerRange])
         assertEq(createDomain(null, null), CompleteIntegerRange)
         assertEq(createDomain(One, Zero), EmptyIntegerRange)

@@ -17,10 +17,11 @@ import yuck.test.util.UnitTest
 @runner.RunWith(classOf[runners.Parameterized])
 final class ElementVarTest(offset: Int) extends UnitTest with ConstraintTestTooling {
 
+    private val BaseDomain = IntegerRange(0, 9)
+
     private val space = new Space(logger, sigint)
 
-    private val baseDomain = IntegerRange(0, 9)
-    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
+    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), BaseDomain)
     private val Seq(x1, x2, x3) = xs
     private val indexRange = IntegerRange(offset, offset + 2)
     private val i = new IntegerVariable(space.nextVariableId(), "i", CompleteIntegerRange)
@@ -42,7 +43,7 @@ final class ElementVarTest(offset: Int) extends UnitTest with ConstraintTestTool
         runScenario(
             TestScenario(
                 space,
-                Propagate("root-node propagation", Nil, List(i << indexRange, y << baseDomain)),
+                Propagate("root-node propagation", Nil, List(i << indexRange, y << BaseDomain)),
                 Propagate("reduce domains of x1, x2, and x3", List(x1 << (0, 3), x2 << (3, 6), x3 << (6, 9)), Nil),
                 PropagateAndRollback("reduce domains of x1 and x3", List(x1 << (1, 2), x3 << (7, 8)), List(y << (1, 8))),
                 PropagateAndRollback(

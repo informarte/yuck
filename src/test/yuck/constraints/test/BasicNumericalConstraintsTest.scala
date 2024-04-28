@@ -6,6 +6,7 @@ import scala.collection.*
 
 import yuck.constraints.*
 import yuck.core.{given, *}
+import yuck.test.*
 import yuck.test.util.UnitTest
 
 /**
@@ -18,7 +19,7 @@ final class BasicNumericalConstraintsTest extends UnitTest {
     @Test
     def testPlus(): Unit = {
         val space = new Space(logger, sigint)
-        val d = IntegerRange(Zero, Nine)
+        val d = IntegerRange(0, 9)
         val s = new IntegerVariable(space.nextVariableId(), "s", d)
         val t = new IntegerVariable(space.nextVariableId(), "t", d)
         val u = new IntegerVariable(space.nextVariableId(), "u", d)

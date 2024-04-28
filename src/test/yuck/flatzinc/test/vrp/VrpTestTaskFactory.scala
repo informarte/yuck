@@ -8,7 +8,7 @@ import yuck.flatzinc.test.util.{ZincTestTask, MiniZincTestTaskFactory}
  */
 abstract class VrpTestTaskFactory extends MiniZincTestTaskFactory {
 
-    override protected val SuitePath = "resources/mzn/tests/minizinc-benchmarks"
+    override protected val suitePath = "resources/mzn/tests/minizinc-benchmarks"
 
     protected final case class ObjectiveValue(value: Int, isOptimal: Boolean = false)
 

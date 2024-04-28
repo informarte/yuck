@@ -6,6 +6,7 @@ import scala.collection.*
 
 import yuck.constraints.*
 import yuck.core.{given, *}
+import yuck.test.*
 import yuck.test.util.UnitTest
 
 /**
@@ -19,8 +20,8 @@ class OptimizationGoalTrackerTest extends UnitTest {
     def testMinimizationMode(): Unit = {
         val d = new ArrayBackedDistribution(2)
         val space = new Space(logger, sigint)
-        val dx = IntegerRange(IntegerValue(-10), IntegerValue(50))
-        val dy = IntegerRange(IntegerValue(0), IntegerValue(100))
+        val dx = IntegerRange(-10, 50)
+        val dy = IntegerRange(0, 100)
         val x = new IntegerVariable(space.nextVariableId(), "x", dx)
         val y = new IntegerVariable(space.nextVariableId(), "y", dy)
         val axs = Vector(new AX(Three, x), new AX(IntegerValue(-2), y))
@@ -71,8 +72,8 @@ class OptimizationGoalTrackerTest extends UnitTest {
     def testMaximizationMode(): Unit = {
         val d = new ArrayBackedDistribution(2)
         val space = new Space(logger, sigint)
-        val dx = IntegerRange(IntegerValue(0), IntegerValue(100))
-        val dy = IntegerRange(IntegerValue(-10), IntegerValue(50))
+        val dx = IntegerRange(0, 100)
+        val dy = IntegerRange(-10, 50)
         val x = new IntegerVariable(space.nextVariableId(), "x", dx)
         val y = new IntegerVariable(space.nextVariableId(), "y", dy)
         val axs = Vector(new AX(Three, x), new AX(IntegerValue(-2), y))

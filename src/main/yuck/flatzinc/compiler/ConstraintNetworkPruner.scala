@@ -19,8 +19,6 @@ final class ConstraintNetworkPruner
     extends CompilationPhase
 {
 
-    import HighPriorityImplicits.*
-
     private def findOutputVariables: Set[AnyVariable] = {
         val result = new mutable.HashSet[AnyVariable]
         for (decl <- cc.ast.varDecls) {

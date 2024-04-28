@@ -6,6 +6,7 @@ import scala.jdk.CollectionConverters.*
 
 import yuck.annealing.*
 import yuck.core.{given, *}
+import yuck.test.*
 import yuck.test.util.IntegrationTest
 
 
@@ -20,6 +21,11 @@ final class ProgressiveTighteningTest
      subordinateObjectiveType: OptimizationMode)
     extends IntegrationTest
 {
+
+    private val BaseDomain = IntegerRange(0, 9)
+
+    private val space = new Space(logger, sigint)
+    private val randomGenerator = new JavaRandomGenerator
 
     private final class TighteningCounter(val y: AnyVariable) extends StandardAnnealingMonitor(logger) {
         var n = 0
@@ -37,10 +43,8 @@ final class ProgressiveTighteningTest
     // - a monitor that counts the number of tightening events
     @Test
     def testProgressiveTightening(): Unit = {
-        val space = new Space(logger, sigint)
-        val baseDomain = IntegerRange(Zero, Nine)
-        val x = new IntegerVariable(space.nextVariableId(), "x", baseDomain)
-        val y = new IntegerVariable(space.nextVariableId(), "y", baseDomain)
+        val x = new IntegerVariable(space.nextVariableId(), "x", BaseDomain)
+        val y = new IntegerVariable(space.nextVariableId(), "y", BaseDomain)
         space.post(new DummyConstraint(space.nextConstraintId(), List(x, y), Nil))
         val mainObjective = mainObjectiveType match {
             case OptimizationMode.Min =>
@@ -50,7 +54,7 @@ final class ProgressiveTighteningTest
                 space.setValue(x, Zero)
                 new MaximizationObjective(x, Some(Nine), None)
         }
-        val z = new IntegerVariable(space.nextVariableId(), "z", baseDomain)
+        val z = new IntegerVariable(space.nextVariableId(), "z", BaseDomain)
         space.post(new DummyConstraint(space.nextConstraintId(), List(y, z), Nil))
         val subordinateObjective = subordinateObjectiveType match {
             case OptimizationMode.Min =>
@@ -62,7 +66,6 @@ final class ProgressiveTighteningTest
                 space.setValue(z, Zero)
                 new MaximizationObjective(y, Some(Nine), Some(z))
         }
-        val randomGenerator = new JavaRandomGenerator
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
         val tighteningCounter = new TighteningCounter(z)
         val solver =

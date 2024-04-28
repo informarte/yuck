@@ -8,6 +8,7 @@ import yuck.constraints.*
 import yuck.core.{*, given}
 import yuck.flatzinc.compiler.Bool2Costs1
 import yuck.flatzinc.test.util.*
+import yuck.test.*
 import yuck.test.util.ParallelTestRunner
 
 /**

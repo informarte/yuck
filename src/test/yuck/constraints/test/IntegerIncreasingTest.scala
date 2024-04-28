@@ -8,6 +8,7 @@ import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.constraints.{IntegerIncreasing, IntegerIncreasingNeighbourhood}
 import yuck.core.{*, given}
+import yuck.test.*
 import yuck.test.util.UnitTest
 
 /**
@@ -21,8 +22,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
     private val randomGenerator = new JavaRandomGenerator
     private val space = new Space(logger, sigint)
 
-    private val baseDomain = IntegerRange(1, 4)
-    private val xs = for (i <- 1 to 4) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
+    private val xs = for (i <- 1 to 4) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(1, 4))
     private val Seq(x1, x2, x3, x4) = xs
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
@@ -210,7 +210,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
 
     @Test
     def testHandlingOfFixedAssignmentsInNeighbourhoodGeneration1(): Unit = {
-        x1.pruneDomain(OneToOneIntegerRange)
+        x1.pruneDomain(IntegerRange(1, 1))
         assertNeighbourhood(xs)
     }
 

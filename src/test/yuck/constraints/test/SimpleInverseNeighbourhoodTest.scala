@@ -14,14 +14,14 @@ import yuck.core.{given, *}
 @runner.RunWith(classOf[runners.Parameterized])
 final class SimpleInverseNeighbourhoodTest(fOffset: Int, gOffset: Int) extends InverseNeighbourhoodTest {
 
-    private val domainSize = 100
+    private val DomainSize = 100
 
-    private val fDomain = IntegerRange(gOffset, gOffset + domainSize - 1)
-    private val xs = for (i <- 1 to domainSize) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), fDomain)
+    private val fDomain = IntegerRange(gOffset, gOffset + DomainSize - 1)
+    private val xs = for (i <- 1 to DomainSize) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), fDomain)
     override protected val f = new InverseFunction(xs, fOffset)
 
-    private val gDomain = IntegerRange(fOffset, fOffset + domainSize - 1)
-    private val ys = for (i <- 1 to domainSize) yield new IntegerVariable(space.nextVariableId(), "y%d".format(i), gDomain)
+    private val gDomain = IntegerRange(fOffset, fOffset + DomainSize - 1)
+    private val ys = for (i <- 1 to DomainSize) yield new IntegerVariable(space.nextVariableId(), "y%d".format(i), gDomain)
     override protected val g = new InverseFunction(ys, gOffset)
 
     override protected val expectedNeighbourhoodClass = classOf[SimpleInverseNeighbourhood]

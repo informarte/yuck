@@ -5,6 +5,7 @@ import org.junit.*
 import scala.collection.*
 
 import yuck.core.{given, *}
+import yuck.test.*
 import yuck.test.util.UnitTest
 
 /**
@@ -25,7 +26,7 @@ final class SpaceTest extends UnitTest {
          */
         val space = new Space(logger, sigint)
         def domain(name: Char) =
-            if (List('u', 'v').contains(name)) ZeroToZeroIntegerRange else CompleteIntegerRange
+            if (List('u', 'v').contains(name)) IntegerRange(0, 0) else CompleteIntegerRange
         val vars @ IndexedSeq(s, t, u, v, w, x, y, z) =
             for (name <- 's' to 'z') yield space.createVariable(name.toString, domain(name))
         val c = new DummyConstraint(space.nextConstraintId(), List(s, t), List(u))
@@ -305,7 +306,7 @@ final class SpaceTest extends UnitTest {
 
         val k = 4 // number of variables per layer
         val l = 8 // number of layers
-        val dx = IntegerRange(One, IntegerValue(k * l))
+        val dx = IntegerRange(1, k * l)
 
         val space = new Space(logger, sigint)
         val spies = new mutable.ArrayBuffer[Spy]
@@ -522,13 +523,13 @@ final class SpaceTest extends UnitTest {
         u.pruneDomain(NonNegativeIntegerRange)
         v.pruneDomain(NonNegativeIntegerRange)
         w.pruneDomain(NonNegativeIntegerRange)
-        x.pruneDomain(ZeroToOneIntegerRange)
+        x.pruneDomain(IntegerRange(0, 1))
         space.propagate()
         assertGt(d.numberOfPropagations, 0)
         assertEq(u.domain, NonNegativeIntegerRange) // domain of u was restored
         assertEq(v.domain, NonNegativeIntegerRange) // domain of v was restored
         assertEq(w.domain, NonNegativeIntegerRange) // domain of w was restored
-        assertEq(y.domain, IntegerRange(Zero, Two)) // domain of y was pruned via domains of u and v
+        assertEq(y.domain, IntegerRange(0, 2)) // domain of y was pruned via domains of u and v
 
         // check that implicit constraints are never initialized and consulted
         space.setValue(u, Zero).setValue(v, Zero).setValue(w, Zero).setValue(x, Zero).initialize()

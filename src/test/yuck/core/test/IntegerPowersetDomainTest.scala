@@ -14,12 +14,13 @@ import yuck.test.util.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerPowersetDomainTest extends UnitTest {
 
+    private val BaseRange = IntegerRange(-5, 5)
+
     private val randomGenerator = new JavaRandomGenerator
     private val helper = new IntegerSetDomainTestHelper(randomGenerator, logger)
-    private val baseRange = IntegerRange(IntegerValue(-5), Five)
 
     private def createTestData(sampleSize: Int): Seq[IntegerPowersetDomain] =
-        helper.createTestData(baseRange, sampleSize)
+        helper.createTestData(BaseRange, sampleSize)
             .filter(_.isInstanceOf[IntegerPowersetDomain])
             .map(_.asInstanceOf[IntegerPowersetDomain])
 
@@ -30,11 +31,11 @@ final class IntegerPowersetDomainTest extends UnitTest {
         // base domains
         val ebd  = EmptyIntegerRange
         val ubd  = CompleteIntegerRange
-        val bd0  = IntegerRange(Zero, Zero)
-        val bd1  = IntegerRange(One, One)
-        val bd2  = IntegerRange(Two, Two)
-        val bd01 = IntegerRange(Zero, One)
-        val bd02 = IntegerDomain(Set(Zero, Two))
+        val bd0  = IntegerRange(0, 0)
+        val bd1  = IntegerRange(1, 1)
+        val bd2  = IntegerRange(2, 2)
+        val bd01 = IntegerRange(0, 1)
+        val bd02 = IntegerDomain(Set(0, 2))
 
         // set domains
         val esd = new IntegerPowersetDomain(ebd)
@@ -180,8 +181,7 @@ final class IntegerPowersetDomainTest extends UnitTest {
 
     @Test
     def testEquality(): Unit = {
-        val sampleSize = 16
-        val testData = createTestData(sampleSize).distinct
+        val testData = createTestData(16).distinct
         helper.testEquality(testData)
         for (d <- testData) {
             val e = IntegerPowersetDomain(d.base)
@@ -197,8 +197,7 @@ final class IntegerPowersetDomainTest extends UnitTest {
 
     @Test
     def testOrdering(): Unit = {
-        val sampleSize = 8
-        val testData = createTestData(sampleSize)
+        val testData = createTestData(8)
         helper.testOrdering(testData)
     }
 

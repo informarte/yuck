@@ -31,18 +31,18 @@ abstract class DomainTestHelper[V <: Value[V]] extends YuckAssert {
 
     // Checks that values are chosen uniformly from the given domain.
     def testUniformityOfDistribution(randomGenerator: RandomGenerator, d: Domain[V]): Unit = {
-        val sampleSize = 100000
-        val maxError = 0.05
+        val SampleSize = 100000
+        val MaxError = 0.05
         def checkDistribution(f: Map[V, Int]): Unit = {
             for (a <- d.values) {
                 import scala.math.Ordering.Double.TotalOrdering
-                assertGt(f.getOrElse(a, 0).toDouble, sampleSize / d.size * (1 - maxError))
-                assertLt(f.getOrElse(a, 0).toDouble, sampleSize / d.size * (1 + maxError))
+                assertGt(f.getOrElse(a, 0).toDouble, SampleSize / d.size * (1 - MaxError))
+                assertLt(f.getOrElse(a, 0).toDouble, SampleSize / d.size * (1 + MaxError))
             }
         }
         val f1 = new mutable.AnyRefMap[V, Int]
         val f2 = new mutable.AnyRefMap[V, Int]
-        for (i <- 1 to sampleSize) {
+        for (i <- 1 to SampleSize) {
             val a = d.randomValue(randomGenerator)
             assert(d.contains(a))
             f1.put(a, f1.getOrElse(a, 0) + 1)

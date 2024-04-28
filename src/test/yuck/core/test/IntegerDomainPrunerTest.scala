@@ -5,6 +5,7 @@ import org.junit.*
 import scala.annotation.tailrec
 
 import yuck.core.{given, *}
+import yuck.test.*
 import yuck.test.util.UnitTest
 
 /**
@@ -305,8 +306,8 @@ class IntegerDomainPrunerTest extends UnitTest {
 
         // scalar 0
         checkPruning(
-             (List((Zero, OneToOneIntegerRange)), ZeroToZeroIntegerRange),
-             (List((Zero, OneToOneIntegerRange)), ZeroToZeroIntegerRange))
+             (List((Zero, IntegerRange(1, 1))), IntegerRange(0, 0)),
+             (List((Zero, IntegerRange(1, 1))), IntegerRange(0, 0)))
 
         // empty domains
         checkPruning((lhs2, EmptyIntegerRange), (lhs2.map((a, _) => (a, EmptyIntegerRange)), EmptyIntegerRange))
@@ -316,8 +317,8 @@ class IntegerDomainPrunerTest extends UnitTest {
 
         // integer overflow handling
         checkPruning(
-            (List((2, IntegerRange(Long.MaxValue, Long.MaxValue))), ZeroToOneIntegerRange),
-            (List((2, IntegerRange(Long.MaxValue, Long.MaxValue))), ZeroToOneIntegerRange))
+            (List((2, IntegerRange(Long.MaxValue, Long.MaxValue))), IntegerRange(0, 1)),
+            (List((2, IntegerRange(Long.MaxValue, Long.MaxValue))), IntegerRange(0, 1)))
 
     }
 

@@ -10,8 +10,7 @@ import yuck.core.{*, given}
  */
 final class RegularNeighbourhoodTest extends SpecialNeighbourhoodTest {
 
-    private val baseDomain = IntegerRange(1, 3)
-    private val xs = for (i <- 1 to 10) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
+    private val xs = for (i <- 1 to 10) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(1, 3))
     private val Seq(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) = xs
     private val Q = 6
     private val S = 3

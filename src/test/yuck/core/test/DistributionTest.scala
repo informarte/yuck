@@ -19,20 +19,20 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
 
     @Test
     def testBasics(): Unit = {
-        val n = 256
-        val d = createDistribution(n)
+        val N = 256
+        val d = createDistribution(N)
         var m = 0
         var volume = 0
         assertEq(d.volume, 0)
         assertEq(d.numberOfAlternatives, 0)
-        for (i <- 0 until n) {
+        for (i <- 0 until N) {
             val delta = i % 8
             volume += delta
             if (delta > 0) m += 1
             d.addFrequencyDelta(i, delta)
             assertEq(d.frequency(i), delta)
             assertEq(d.cdf(i), volume)
-            assertEq(d.cdf(n - 1), volume)
+            assertEq(d.cdf(N - 1), volume)
             assertEq(d.volume, volume)
             assertEq(d.numberOfAlternatives, m)
             if (volume > 0) {
@@ -40,20 +40,20 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
                 assertEq(d.inverseCdf(volume - 1), if (delta == 0) i - 1 else i)
             }
         }
-        for (i <- 0 until n - 1) {
+        for (i <- 0 until N - 1) {
             val delta = i % 8
             volume -= delta
             if (delta > 0) m -= 1
             d.setFrequency(i, 0)
             assertEq(d.frequency(i), 0)
             assertEq(d.cdf(i), 0)
-            assertEq(d.cdf(n - 1), volume)
+            assertEq(d.cdf(N - 1), volume)
             assertEq(d.volume, volume)
             assertEq(d.numberOfAlternatives, m)
             if (volume > 0) {
                 assertEq(d.probability(i).value, d.frequency(i).toDouble / volume.toDouble)
                 assertEq(d.inverseCdf(0), if ((i + 1) % 8 == 0) i + 2 else i + 1)
-                assertEq(d.inverseCdf(volume - 1), n - 1)
+                assertEq(d.inverseCdf(volume - 1), N - 1)
             }
         }
         assertGt(d.volume, 0L)
@@ -64,74 +64,74 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
 
     @Test
     def testExceptionalCases(): Unit = {
-        val n = 1
-        val d = createDistribution(n)
+        val N = 1
+        val d = createDistribution(N)
         assertEx(d.setFrequency(-1, 0), classOf[ArrayIndexOutOfBoundsException])
-        assertEx(d.setFrequency(n, 0), classOf[ArrayIndexOutOfBoundsException])
+        assertEx(d.setFrequency(N, 0), classOf[ArrayIndexOutOfBoundsException])
         assertEx(d.addFrequencyDelta(-1, 0), classOf[ArrayIndexOutOfBoundsException])
-        assertEx(d.addFrequencyDelta(n, 0), classOf[ArrayIndexOutOfBoundsException])
+        assertEx(d.addFrequencyDelta(N, 0), classOf[ArrayIndexOutOfBoundsException])
         assertEx(d.frequency(-1), classOf[ArrayIndexOutOfBoundsException])
-        assertEx(d.frequency(n), classOf[ArrayIndexOutOfBoundsException])
+        assertEx(d.frequency(N), classOf[ArrayIndexOutOfBoundsException])
         assertEx(d.cdf(-1), classOf[ArrayIndexOutOfBoundsException])
-        assertEx(d.cdf(n), classOf[ArrayIndexOutOfBoundsException])
+        assertEx(d.cdf(N), classOf[ArrayIndexOutOfBoundsException])
         assertEx(d.inverseCdf(-1))
         assertEx(d.inverseCdf(d.volume))
     }
 
     @Test
     def testRandomIndexGeneration1(): Unit = {
-        val n = 3
-        val d = createDistribution(n)
-        for (i <- 0 until n) {
+        val N = 3
+        val d = createDistribution(N)
+        for (i <- 0 until N) {
             d.setFrequency(i, i)
         }
         val randomGenerator = new JavaRandomGenerator
-        val result = Array.ofDim[Int](n)
-        val sampleSize = 1000
-        for (i <- 0 until sampleSize) {
+        val result = Array.ofDim[Int](N)
+        val SampleSize = 1000
+        for (i <- 0 until SampleSize) {
             result(d.nextIndex(randomGenerator)) += 1
         }
         assertEq(result(0), 0)
         assertGt(result(1), 300)
         assertGt(result(2), 600)
-        assertEq(result.sum, sampleSize)
+        assertEq(result.sum, SampleSize)
     }
 
     @Test
     def testRandomIndexGeneration2(): Unit = {
-        val n = 3
-        val d = createDistribution(n)
-        for (i <- 0 until n) {
+        val N = 3
+        val d = createDistribution(N)
+        for (i <- 0 until N) {
             d.setFrequency(i, i)
         }
         val randomGenerator = new JavaRandomGenerator
-        val result = Array.ofDim[Int](n, n)
-        val frequencyRestorer = new FrequencyRestorer(n)
-        val sampleSize = 1000
-        for (i <- 0 until sampleSize) {
+        val result = Array.ofDim[Int](N, N)
+        val frequencyRestorer = new FrequencyRestorer(N)
+        val SampleSize = 1000
+        for (i <- 0 until SampleSize) {
             scoped(frequencyRestorer) {
-                val choices = d.nextIndices(randomGenerator, n, frequencyRestorer).toArray
-                assertEq(choices.size, n - 1)
+                val choices = d.nextIndices(randomGenerator, N, frequencyRestorer).toArray
+                assertEq(choices.size, N - 1)
                 assertEq(d.volume, 0)
                 for (i <- 0 until choices.size) {
                     result(choices(i))(i) += 1
                 }
             }
-            for (i <- 0 until n) {
+            for (i <- 0 until N) {
                 assertEq(d.frequency(i), i)
             }
         }
         assertEq(result(0).sum, 0)
         assertGt(result(1)(1), 600)
-        assertEq(result(1).sum, sampleSize)
+        assertEq(result(1).sum, SampleSize)
         assertGt(result(2)(0), 600)
-        assertEq(result(2).sum, sampleSize)
+        assertEq(result(2).sum, SampleSize)
     }
 
     @Test
     def testOverflowChecking(): Unit = {
-        val n = 2
-        val d = createDistribution(n)
+        val N = 2
+        val d = createDistribution(N)
         d.setFrequency(0, Long.MaxValue)
         assertEx(d.setFrequency(1, 1L), classOf[ArithmeticException])
     }

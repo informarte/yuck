@@ -19,17 +19,16 @@ import yuck.test.util.UnitTest
 @runner.RunWith(classOf[runners.Parameterized])
 final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boolean) extends UnitTest {
 
+    private val NumberOfCities = 15
+    private val NumberOfVehicles = 3
+
     private val randomGenerator = new JavaRandomGenerator
     private val space = new Space(logger, sigint)
     private val now = space.searchState
 
-    private val numberOfCities = 15
-    private val n = numberOfCities
-    private val numberOfVehicles = 3
-    private val k = numberOfVehicles
-    private val cityNodes = Range.inclusive(0, n - 1)
-    private val startNodes = Range.inclusive(n, n + k - 1)
-    private val endNodes = Range.inclusive(n + k, n + 2 * k - 1)
+    private val cityNodes = Range.inclusive(0, NumberOfCities - 1)
+    private val startNodes = Range.inclusive(NumberOfCities, NumberOfCities + NumberOfVehicles - 1)
+    private val endNodes = Range.inclusive(NumberOfCities + NumberOfVehicles, NumberOfCities + 2 * NumberOfVehicles - 1)
     private val nodes = Range.inclusive(cityNodes.start, endNodes.end)
     private implicit def zeroBasedScalaRangeToOffsetBasedIntegerRange(range: Range): IntegerRange = {
         require(range.step == 1)
@@ -44,8 +43,8 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
     }
     private val circuitCosts = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
     private val circuit = new Circuit(space.nextConstraintId(), null, succ, offset, circuitCosts, logger, sigint)
-    private val serviceTimes = nodes.map(_ => IntegerValue(randomGenerator.nextInt(numberOfCities)))
-    private val travelTimes = nodes.map(_ => nodes.map(_ => IntegerValue(randomGenerator.nextInt(numberOfCities) + 1)))
+    private val serviceTimes = nodes.map(_ => IntegerValue(randomGenerator.nextInt(NumberOfCities)))
+    private val travelTimes = nodes.map(_ => nodes.map(_ => IntegerValue(randomGenerator.nextInt(NumberOfCities) + 1)))
     private val timeRange = IntegerRange(0, nodes.map(i => nodes.map(j => travelTimes(i)(j).value).max).sum)
     private val arrivalTimes =
         for (i <- nodes) yield
@@ -118,8 +117,8 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
     @Test
     def testInitialize(): Unit = {
         val neighbourhood = createNeighbourhood()
-        val sampleSize = 1000
-        for (i <- 1 to sampleSize) {
+        val SampleSize = 1000
+        for (i <- 1 to SampleSize) {
             space.initialize()
             checkArrivalTimes(now)
             checkTotalTravelTime(now)
@@ -136,8 +135,8 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
     def testConsultAndCommit(): Unit = {
         val neighbourhood = createNeighbourhood()
         space.initialize()
-        val sampleSize = 1000
-        for (i <- 1 to sampleSize) {
+        val SampleSize = 1000
+        for (i <- 1 to SampleSize) {
             checkArrivalTimes(now)
             checkTotalTravelTime(now)
             checkCosts(now)

@@ -51,15 +51,6 @@ package object core {
     val MinusOne = IntegerValue(-1)
     val Zero = IntegerValue(0)
     val One = IntegerValue(1)
-    val Two = IntegerValue(2)
-    val Three = IntegerValue(3)
-    val Four = IntegerValue(4)
-    val Five = IntegerValue(5)
-    val Six = IntegerValue(6)
-    val Seven = IntegerValue(7)
-    val Eight = IntegerValue(8)
-    val Nine = IntegerValue(9)
-    val Ten = IntegerValue(10)
 
     val EmptyIntegerRange = new IntegerRange(One, Zero)
     val CompleteIntegerRange = new IntegerRange(null, null)
@@ -67,9 +58,6 @@ package object core {
     val NonNegativeIntegerRange = new IntegerRange(Zero, null)
     val PositiveIntegerRange = new IntegerRange(One, null)
     val NonPositiveIntegerRange = new IntegerRange(null, Zero)
-    val ZeroToZeroIntegerRange = new IntegerRange(Zero, Zero)
-    val OneToOneIntegerRange = new IntegerRange(One, One)
-    val ZeroToOneIntegerRange = new IntegerRange(Zero, One)
 
     val EmptyIntegerRangeList = new IntegerRangeList(immutable.IndexedSeq[IntegerRange]())
 

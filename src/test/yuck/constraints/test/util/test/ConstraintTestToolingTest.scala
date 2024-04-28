@@ -4,6 +4,7 @@ import org.junit.*
 
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.{given, *}
+import yuck.test.*
 import yuck.test.util.UnitTest
 
 /**
@@ -84,10 +85,10 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
                 Propagate(
                     "x >= 0 and y <= 0 -> d(x) = d(y) = {0}",
                     List(x << NonNegativeIntegerRange, y << NonPositiveIntegerRange),
-                    List(x << ZeroToZeroIntegerRange, y << ZeroToZeroIntegerRange)))
+                    List(x << IntegerRange(0, 0), y << IntegerRange(0, 0))))
         runScenario(scenario)
-        assertEq(x.domain, ZeroToZeroIntegerRange)
-        assertEq(y.domain, ZeroToZeroIntegerRange)
+        assertEq(x.domain, IntegerRange(0, 0))
+        assertEq(y.domain, IntegerRange(0, 0))
         checkState1()
     }
 
@@ -100,7 +101,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
                 Propagate(
                     "x >= 0 and y <= 0 -> d(x) = {0} and d(y) = {0, 1}",
                     List(x << NonNegativeIntegerRange, y << NonPositiveIntegerRange),
-                    List(x << ZeroToZeroIntegerRange, y << ZeroToOneIntegerRange)))
+                    List(x << IntegerRange(0, 0), y << IntegerRange(0, 1))))
         assertEx(runScenario(scenario), classOf[AssertionError])
         checkState1()
     }
@@ -113,7 +114,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
                 space,
                 Propagate(
                     "x = 0 and y <= 0",
-                    List(x << ZeroToZeroIntegerRange, y << NonPositiveIntegerRange),
+                    List(x << IntegerRange(0, 0), y << NonPositiveIntegerRange),
                     Nil))
         assertEx(runScenario(scenario), classOf[AssertionError])
         checkState1()
@@ -128,7 +129,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
                 PropagateAndRollback(
                     "x >= 0 and y <= 0 -> d(x) = d(y) = {0}",
                     List(x << NonNegativeIntegerRange, y << NonPositiveIntegerRange),
-                    List(x << ZeroToZeroIntegerRange, y << ZeroToZeroIntegerRange)))
+                    List(x << IntegerRange(0, 0), y << IntegerRange(0, 0))))
         runScenario(scenario)
         assertEq(x.domain, CompleteIntegerRange)
         assertEq(y.domain, CompleteIntegerRange)
@@ -144,7 +145,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
                 PropagateAndRollback(
                     "x >= 0 and y <= 0 -> d(x) = {0} and d(y) = {0, 1}",
                     List(x << NonNegativeIntegerRange, y << NonPositiveIntegerRange),
-                    List(x << ZeroToZeroIntegerRange, y << ZeroToOneIntegerRange)))
+                    List(x << IntegerRange(0, 0), y << IntegerRange(0, 1))))
         assertEx(runScenario(scenario), classOf[AssertionError])
         checkState1()
     }
@@ -157,7 +158,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
                 space,
                 PropagateAndRollback(
                     "x = 0 and y <= 0",
-                    List(x << ZeroToZeroIntegerRange, y << NonPositiveIntegerRange),
+                    List(x << IntegerRange(0, 0), y << NonPositiveIntegerRange),
                     Nil))
         assertEx(runScenario(scenario), classOf[AssertionError])
         checkState1()

@@ -5,6 +5,7 @@ import org.junit.*
 import yuck.constraints.*
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.{given, *}
+import yuck.test.*
 import yuck.test.util.UnitTest
 
 /**
@@ -16,8 +17,7 @@ final class LinearCombinationTest extends UnitTest with ConstraintTestTooling {
 
     private val space = new Space(logger, sigint)
 
-    private val baseDomain = IntegerRange(0, 9)
-    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
+    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(0, 9))
     private val Seq(x1, x2, x3) = xs
     private val y = new IntegerVariable(space.nextVariableId(), "y", CompleteIntegerRange)
     private val axs = List(AX(Two, x1), AX(Zero, x2), AX(One, x3))

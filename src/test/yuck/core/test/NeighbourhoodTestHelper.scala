@@ -37,12 +37,12 @@ final class NeighbourhoodTestHelper
         val variableFrequencies = new mutable.HashMap[Variable[V], Int] ++ xs.map(_ -> 0)
     }
 
-    private val sampleSize = 10000
+    private val SampleSize = 10000
 
     def measure(neighbourhood: Neighbourhood): MeasurementResult = {
         require(neighbourhood.searchVariables == xs.toSet)
         val result = new MeasurementResult
-        for (i <- 1 to sampleSize) {
+        for (i <- 1 to SampleSize) {
             val move = neighbourhood.nextMove
             result.moveSizeFrequencies(move.size) += 1
             val ys = move.involvedVariablesIterator.map(valueTraits.safeDowncast).toVector
@@ -61,7 +61,7 @@ final class NeighbourhoodTestHelper
         // from the frequency stipulated by moveSizeDistribution.
         def checkMoveSizeFrequency(n: Int): Boolean = {
             val observation = result.moveSizeFrequencies(n).toDouble
-            val expectation = sampleSize * moveSizeDistribution.probability(n).value
+            val expectation = SampleSize * moveSizeDistribution.probability(n).value
             val ok = observation >= expectation * (1 - tolerance) && observation <= expectation * (1 + tolerance)
             if (! ok) {
                 logger.log("moveSizeFrequencies = %s".format(result.moveSizeFrequencies.toVector))

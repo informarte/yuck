@@ -9,6 +9,7 @@ import yuck.core.{*, given}
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.test.util.*
 import yuck.util.logging.LazyLogger
+import yuck.test.*
 
 /**
  * @author Michael Marte

@@ -40,8 +40,8 @@ final class SendMostMoney extends IntegrationTest {
 
             // define problem
             val space = new Space(logger, sigint)
-            val d = IntegerRange(Zero, Nine)
-            val d1 = IntegerRange(One, Nine)
+            val d = IntegerRange(0, 9)
+            val d1 = IntegerRange(1, 9)
             val S = new IntegerVariable(space.nextVariableId(), "S", d1)
             val E = new IntegerVariable(space.nextVariableId(), "E", d)
             val N = new IntegerVariable(space.nextVariableId(), "N", d)
@@ -87,14 +87,14 @@ final class SendMostMoney extends IntegrationTest {
                 assertEq(delta.domain, TrueDomain)
                 assertEq(numberOfMissingValues.domain, TrueDomain)
                 assertEq(S.domain.singleValue, Nine)
-                assertEq(E.domain, IntegerRange(Two, Seven))
-                assertEq(N.domain, IntegerRange(Three, Eight))
-                assertEq(D.domain, IntegerRange(Two, Eight))
+                assertEq(E.domain, IntegerRange(2, 7))
+                assertEq(N.domain, IntegerRange(3, 8))
+                assertEq(D.domain, IntegerRange(2, 8))
                 assertEq(M.domain.singleValue, One)
                 assertEq(O.domain.singleValue, Zero)
                 assertEq(T.domain, D.domain)
                 assertEq(Y.domain, D.domain)
-                assertEq(lhs.domain, IntegerRange(IntegerValue(10324), IntegerValue(10878)))
+                assertEq(lhs.domain, IntegerRange(10324, 10878))
             }
 
             // build local-search solver
@@ -128,7 +128,7 @@ final class SendMostMoney extends IntegrationTest {
     def sendMostMoney(): Unit = {
         val randomGenerator = new JavaRandomGenerator(29071972)
         val solvers =
-            (1 to DefaultRestartLimit).toList.map(
+            (1 to DefaultRestartLimit).map(
                 i => new OnDemandGeneratedSolver(new SendMostMoneyGenerator(i, randomGenerator.nextInt()), logger, sigint))
         val solver = new ParallelSolver(solvers, DefaultNumberOfThreads, "SendMostMoney", logger, sigint)
         val result = solver.call()

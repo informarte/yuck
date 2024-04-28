@@ -76,29 +76,30 @@ object IntegerValue {
 
     inline def max(a: IntegerValue, b: IntegerValue): IntegerValue = if (a > b) a else b
 
-    private val lb = -10000
-    private val ub = 10000
-    private val valueRange = Range(lb, ub, 1)
-    private val valueCache = valueRange.iterator.map(new IntegerValue(_)).toArray
+    private val Lb = -10000
+    private val Ub = 10000
+    private val ValueRange = Range(Lb, Ub, 1)
+
+    private val valueCache = ValueRange.iterator.map(new IntegerValue(_)).toArray
 
     /**
      * Returns an IntegerValue instance for the given integer.
      *
-     * Values in valueRange are used as index into an array of prefabricated
+     * Values in ValueRange are used as index into an array of prefabricated
      * IntegerValue instances, so the operation is cheap for them.
      * For other values, a new IntegerValue instance is created.
      */
     def apply(a: Int): IntegerValue =
-       if (lb <= a && a < ub) valueCache(a - lb) else new IntegerValue(a.toLong)
+       if (Lb <= a && a < Ub) valueCache(a - Lb) else new IntegerValue(a.toLong)
 
     /**
      * Returns an IntegerValue instance for the given integer.
      *
-     * Values in valueRange are used as index into an array of prefabricated
+     * Values in ValueRange are used as index into an array of prefabricated
      * IntegerValue instances, so the operation is cheap for them.
      * For other values, a new IntegerValue instance is created.
      */
     def apply(a: Long): IntegerValue =
-       if (lb <= a && a < ub) valueCache(a.toInt - lb) else new IntegerValue(a)
+       if (Lb <= a && a < Ub) valueCache(a.toInt - Lb) else new IntegerValue(a)
 
 }

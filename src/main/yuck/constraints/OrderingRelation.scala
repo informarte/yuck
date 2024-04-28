@@ -21,4 +21,3 @@ case object LtRelation extends OrderingRelation {
 case object LeRelation extends OrderingRelation {
     override def toString = "=<"
 }
-

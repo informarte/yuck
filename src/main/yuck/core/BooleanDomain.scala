@@ -42,9 +42,9 @@ final class BooleanDomain
     override def hull: BooleanDomain = this
 
     override def values =
-        if (containsFalse && containsTrue) BooleanDomain.listWithFalseAndTrue
-        else if (containsFalse) BooleanDomain.listWithFalse
-        else if (containsTrue) BooleanDomain.listWithTrue
+        if (containsFalse && containsTrue) BooleanDomain.ListWithFalseAndTrue
+        else if (containsFalse) BooleanDomain.ListWithFalse
+        else if (containsTrue) BooleanDomain.ListWithTrue
         else Nil
 
     override def singleValue = {
@@ -99,9 +99,9 @@ object BooleanDomain {
 
     given ordering: Ordering[OrderedDomain[BooleanValue]] = BooleanDomainOrdering
 
-    private val listWithFalseAndTrue = List(False, True)
-    private val listWithFalse = List(False)
-    private val listWithTrue = List(True)
+    private val ListWithFalseAndTrue = List(False, True)
+    private val ListWithFalse = List(False)
+    private val ListWithTrue = List(True)
 
     /**
      * Creates a Boolean decision domain.

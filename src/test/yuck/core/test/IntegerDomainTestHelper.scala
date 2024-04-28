@@ -5,6 +5,7 @@ import scala.collection.*
 import yuck.core.{given, *}
 import yuck.core.IntegerDomain.ensureRangeList
 import yuck.util.logging.{FineLogLevel, LazyLogger}
+import yuck.test.*
 
 /**
  * @author Michael Marte
@@ -205,8 +206,8 @@ final class IntegerDomainTestHelper
              (CompleteIntegerRange, NonNegativeIntegerRange) -> NegativeIntegerRange,
              (CompleteIntegerRange, PositiveIntegerRange) -> NonPositiveIntegerRange,
              (CompleteIntegerRange, NonPositiveIntegerRange) -> PositiveIntegerRange,
-             (NonNegativeIntegerRange, PositiveIntegerRange) -> IntegerRange(Zero, Zero),
-             (NonPositiveIntegerRange, NegativeIntegerRange) -> IntegerRange(Zero, Zero),
+             (NonNegativeIntegerRange, PositiveIntegerRange) -> IntegerRange(0, 0),
+             (NonPositiveIntegerRange, NegativeIntegerRange) -> IntegerRange(0, 0),
              (NonNegativeIntegerRange, NonPositiveIntegerRange) -> PositiveIntegerRange,
              (NonPositiveIntegerRange, NonNegativeIntegerRange) -> NegativeIntegerRange)
 
@@ -710,7 +711,7 @@ final class IntegerDomainTestHelper
  */
 object IntegerDomainTestHelper {
 
-    val SpecialInfiniteRanges = List(
+    private val SpecialInfiniteRanges = List(
         CompleteIntegerRange,
         NegativeIntegerRange, NonNegativeIntegerRange,
         PositiveIntegerRange, NonPositiveIntegerRange)

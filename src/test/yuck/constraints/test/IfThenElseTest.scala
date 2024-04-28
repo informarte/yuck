@@ -5,6 +5,7 @@ import org.junit.*
 import yuck.constraints.IfThenElse
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.{given, *}
+import yuck.test.*
 import yuck.test.util.UnitTest
 
 /**
@@ -41,17 +42,17 @@ final class IfThenElseTest extends UnitTest with ConstraintTestTooling {
                 PropagateAndRollback("no restrictions, so no propagation", Nil, Nil),
                 PropagateAndRollback(
                     "propagate the union of the x[i] domains to y",
-                    List(x1 << PositiveIntegerRange, x2 << ZeroToZeroIntegerRange, x3 << PositiveIntegerRange),
+                    List(x1 << PositiveIntegerRange, x2 << IntegerRange(0, 0), x3 << PositiveIntegerRange),
                     List(c1 << CompleteBooleanDomain, c2 << CompleteBooleanDomain,
                          c3 << CompleteBooleanDomain,
-                         x1 << PositiveIntegerRange, x2 << ZeroToZeroIntegerRange, x3 << PositiveIntegerRange,
+                         x1 << PositiveIntegerRange, x2 << IntegerRange(0, 0), x3 << PositiveIntegerRange,
                          y << NonNegativeIntegerRange)),
                 PropagateAndRollback(
                     "if c1 = true, y = x1",
                     List(c1 << TrueDomain, x1 << NonPositiveIntegerRange, y << NonNegativeIntegerRange),
                     List(c2 << CompleteBooleanDomain, c3 << CompleteBooleanDomain,
-                         x1 << ZeroToZeroIntegerRange, x2 << CompleteIntegerRange, x3 << CompleteIntegerRange,
-                         y << ZeroToZeroIntegerRange)),
+                         x1 << IntegerRange(0, 0), x2 << CompleteIntegerRange, x3 << CompleteIntegerRange,
+                         y << IntegerRange(0, 0))),
                 PropagateAndRollback(
                     "if c1 = false, d(x1) plays no role",
                     List(c1 << FalseDomain,
@@ -71,8 +72,8 @@ final class IfThenElseTest extends UnitTest with ConstraintTestTooling {
                     List(c1 << FalseDomain, c2 << FalseDomain, c3 << TrueDomain,
                          x1 << PositiveIntegerRange, x2 << PositiveIntegerRange, x3 << NonPositiveIntegerRange,
                          y << NonNegativeIntegerRange),
-                    List(x1 << PositiveIntegerRange, x2 << PositiveIntegerRange, x3 << ZeroToZeroIntegerRange,
-                         y << ZeroToZeroIntegerRange)),
+                    List(x1 << PositiveIntegerRange, x2 << PositiveIntegerRange, x3 << IntegerRange(0, 0),
+                         y << IntegerRange(0, 0))),
                 PropagateAndRollback(
                     "if d(x1) and d(y) are disjoint, c1 = false",
                     List(x1 << PositiveIntegerRange, y << NegativeIntegerRange),
@@ -84,22 +85,22 @@ final class IfThenElseTest extends UnitTest with ConstraintTestTooling {
                     List(x1 << NonNegativeIntegerRange, x2 << PositiveIntegerRange, x3 << PositiveIntegerRange,
                          y << NonPositiveIntegerRange),
                     List(c1 << TrueDomain, c2 << CompleteBooleanDomain, c3 << CompleteBooleanDomain,
-                         x1 << ZeroToZeroIntegerRange, x2 << PositiveIntegerRange, x3 << PositiveIntegerRange,
-                         y << ZeroToZeroIntegerRange)),
+                         x1 << IntegerRange(0, 0), x2 << PositiveIntegerRange, x3 << PositiveIntegerRange,
+                         y << IntegerRange(0, 0))),
                 PropagateAndRollback(
                     "if both d(x1) and d(x3) are disjoint from d(y), c1 = false, c2 = true and y = x2",
                     List(x1 << PositiveIntegerRange, x2 << NonNegativeIntegerRange, x3 << PositiveIntegerRange,
                          y << NonPositiveIntegerRange),
                     List(c1 << FalseDomain, c2 << TrueDomain, c3 << CompleteBooleanDomain,
-                         x1 << PositiveIntegerRange, x2 << ZeroToZeroIntegerRange, x3 << PositiveIntegerRange,
-                         y << ZeroToZeroIntegerRange)),
+                         x1 << PositiveIntegerRange, x2 << IntegerRange(0, 0), x3 << PositiveIntegerRange,
+                         y << IntegerRange(0, 0))),
                 PropagateAndRollback(
                     "if both d(x1) and d(x2) are disjoint from d(y), c1 = false, c2 = false, c3 = true and y = x3",
                     List(x1 << PositiveIntegerRange, x2 << PositiveIntegerRange, x3 << NonNegativeIntegerRange,
                          y << NonPositiveIntegerRange),
                     List(c1 << FalseDomain, c2 << FalseDomain, c3 << TrueDomain,
-                         x1 << PositiveIntegerRange, x2 << PositiveIntegerRange, x3 << ZeroToZeroIntegerRange,
-                         y << ZeroToZeroIntegerRange)),
+                         x1 << PositiveIntegerRange, x2 << PositiveIntegerRange, x3 << IntegerRange(0, 0),
+                         y << IntegerRange(0, 0))),
                 PropagateAndRollback(
                     "if all d(x[i]) are disjoint from d[y], then there is no solution",
                     List(x1 << PositiveIntegerRange, x2 << PositiveIntegerRange, x3 << PositiveIntegerRange,

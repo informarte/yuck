@@ -16,8 +16,7 @@ final class NumberOfDistinctValuesTest extends UnitTest with ConstraintTestTooli
 
     private val space = new Space(logger, sigint)
 
-    private val baseDomain = IntegerRange(1, 2)
-    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
+    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(1, 2))
     private val Seq(x1, x2, x3) = xs
     private val n = new IntegerVariable(space.nextVariableId(), "n", CompleteIntegerRange)
 

@@ -22,7 +22,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
     protected val randomGenerator = new JavaRandomGenerator
 
     private def nonEmptyRandomSubdomain(d: NumericalDomain[V]): NumericalDomain[V] =
-        LazyList.continually(d).map(_.randomSubdomain(randomGenerator)).dropWhile(_.isEmpty).head
+        Iterator.continually(d).map(_.randomSubdomain(randomGenerator)).dropWhile(_.isEmpty).next()
 
     protected val space = new Space(logger, sigint)
 

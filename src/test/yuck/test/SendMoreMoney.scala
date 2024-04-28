@@ -40,8 +40,8 @@ final class SendMoreMoney extends IntegrationTest {
 
             // define problem
             val space = new Space(logger, sigint)
-            val d = IntegerRange(Zero, Nine)
-            val d1 = IntegerRange(One, Nine)
+            val d = IntegerRange(0, 9)
+            val d1 = IntegerRange(1, 9)
             val S = new IntegerVariable(space.nextVariableId(), "S", d1)
             val E = new IntegerVariable(space.nextVariableId(), "E", d)
             val N = new IntegerVariable(space.nextVariableId(), "N", d)
@@ -86,14 +86,14 @@ final class SendMoreMoney extends IntegrationTest {
                 assertEq(delta.domain, TrueDomain)
                 assertEq(numberOfMissingValues.domain, TrueDomain)
                 assertEq(S.domain.singleValue, Nine)
-                assertEq(E.domain, IntegerRange(Two, Eight))
+                assertEq(E.domain, IntegerRange(2, 8))
                 assertEq(N.domain, E.domain)
                 assertEq(D.domain, E.domain)
                 assertEq(M.domain.singleValue, One)
                 assertEq(O.domain.singleValue, Zero)
                 assertEq(R.domain, E.domain)
                 assertEq(Y.domain, E.domain)
-                assertEq(lhs.domain, IntegerRange(IntegerValue(10244), IntegerValue(10888)))
+                assertEq(lhs.domain, IntegerRange(10244, 10888))
             }
 
             // build local-search solver
@@ -125,7 +125,7 @@ final class SendMoreMoney extends IntegrationTest {
     def sendMoreMoney(): Unit = {
         val randomGenerator = new JavaRandomGenerator(29071972)
         val solvers =
-            (1 to DefaultRestartLimit).toList.map(
+            (1 to DefaultRestartLimit).map(
                 i => new OnDemandGeneratedSolver(new SendMoreMoneyGenerator(i, randomGenerator.nextInt()), logger, sigint))
         val solver = new ParallelSolver(solvers, DefaultNumberOfThreads, "SendMoreMoney", logger, sigint)
         val result = solver.call()

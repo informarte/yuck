@@ -14,9 +14,10 @@ import yuck.test.util.UnitTest
 @FixMethodOrder(org.junit.runners.MethodSorters.NAME_ASCENDING)
 final class SixtyFourBitSetTest extends UnitTest {
 
+    private val BaseRange = SixtyFourBitSet.ValueRange
+
     private val randomGenerator = new JavaRandomGenerator
     private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
-    private val baseRange = SixtyFourBitSet.ValueRange
 
     @Test
     def testRepresentation(): Unit = {
@@ -26,8 +27,7 @@ final class SixtyFourBitSetTest extends UnitTest {
 
     @Test
     def testEquality(): Unit = {
-        val sampleSize = 32
-        val testData = helper.createBitSets(sampleSize)
+        val testData = helper.createBitSets(32)
         helper.testEquality(testData)
         for (d <- testData) {
             for (e <- List(SixtyFourBitSet(d.set), IntegerDomain(d.values))) {
@@ -44,34 +44,31 @@ final class SixtyFourBitSetTest extends UnitTest {
 
     @Test
     def testOrdering(): Unit = {
-        val sampleSize = 32
-        val testData = helper.createBitSets(sampleSize)
+        val testData = helper.createBitSets(32)
         helper.testOrdering(testData)
     }
 
     @Test
     def testOperations(): Unit = {
-        val sampleSize = 16
-        val testDomains = helper.createBitSets(sampleSize)
-        val testValues = IntegerRange(baseRange.lb - One, baseRange.ub + One).values.toSeq
+        val testDomains = helper.createBitSets(16)
+        val testValues = IntegerRange(BaseRange.lb - One, BaseRange.ub + One).values.toSeq
         helper.testUnaryOperations(testDomains, testValues)
         helper.testBinaryOperations(testDomains)
         for (d <- testDomains) {
             assert(d.intersect(d).isInstanceOf[SixtyFourBitSet])
-            assert(d.intersect(baseRange).isInstanceOf[SixtyFourBitSet])
-            assert(baseRange.intersect(d).isInstanceOf[SixtyFourBitSet])
+            assert(d.intersect(BaseRange).isInstanceOf[SixtyFourBitSet])
+            assert(BaseRange.intersect(d).isInstanceOf[SixtyFourBitSet])
             assert(d.union(d).isInstanceOf[SixtyFourBitSet])
-            assert(d.union(baseRange).isInstanceOf[SixtyFourBitSet])
-            assert(baseRange.union(d).isInstanceOf[SixtyFourBitSet])
+            assert(d.union(BaseRange).isInstanceOf[SixtyFourBitSet])
+            assert(BaseRange.union(d).isInstanceOf[SixtyFourBitSet])
             assert(d.diff(d).isInstanceOf[SixtyFourBitSet])
-            assert(d.diff(baseRange).isInstanceOf[SixtyFourBitSet])
+            assert(d.diff(BaseRange).isInstanceOf[SixtyFourBitSet])
         }
     }
 
     @Test
     def testRandomSubdomainCreation(): Unit = {
-        val sampleSize = 16
-        val testData = helper.createBitSets(sampleSize)
+        val testData = helper.createBitSets(16)
         helper.testRandomSubrangeCreation(testData)
         helper.testRandomSubdomainCreation(testData)
     }

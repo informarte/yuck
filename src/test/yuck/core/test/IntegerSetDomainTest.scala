@@ -3,6 +3,7 @@ package yuck.core.test
 import org.junit.*
 
 import yuck.core.{given, *}
+import yuck.test.*
 import yuck.test.util.{EqualityTestHelper, OrderingTestHelper, UnitTest}
 
 /**
@@ -19,15 +20,15 @@ final class IntegerSetDomainTest extends UnitTest {
     //   with different results.
     // * Test that set operations return instances of OrderedDomain[IntegerSetValue].
 
+    private val BaseRange = IntegerRange(-5, 5)
+
     private val randomGenerator = new JavaRandomGenerator
     private val helper = new IntegerSetDomainTestHelper(randomGenerator, logger)
-    private val baseRange = IntegerRange(IntegerValue(-5), Five)
 
     @Test
     def testEquality(): Unit = {
         assertEq(new SingletonIntegerSetDomain(EmptyIntegerRange), new IntegerPowersetDomain(EmptyIntegerRange))
-        val sampleSize = 16
-        val testData = helper.createTestData(baseRange, sampleSize).distinct
+        val testData = helper.createTestData(BaseRange, 16).distinct
         helper.testEquality(testData)
         for (d <- testData) {
             for (e <- testData) {
@@ -40,8 +41,7 @@ final class IntegerSetDomainTest extends UnitTest {
     // so we test the ordering only once and here.
     @Test
     def testOrdering(): Unit = {
-        val sampleSize = 8
-        val testData = helper.createTestData(baseRange, sampleSize)
+        val testData = helper.createTestData(BaseRange, 8)
         helper.testOrdering(testData)
     }
 
@@ -81,11 +81,11 @@ final class IntegerSetDomainTest extends UnitTest {
         assertEq(EmptyIntegerSetDomain.intersect(CompleteIntegerSetDomain), EmptyIntegerSetDomain)
         assertEq(CompleteIntegerSetDomain.intersect(EmptyIntegerSetDomain), EmptyIntegerSetDomain)
         assertEq(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].intersect(new SingletonIntegerSetDomain(EmptyIntegerRange)), new SingletonIntegerSetDomain(EmptyIntegerRange))
-        assertEq(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].intersect(new SingletonIntegerSetDomain(ZeroToOneIntegerRange)), EmptyIntegerSetDomain)
+        assertEq(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].intersect(new SingletonIntegerSetDomain(IntegerRange(0, 1))), EmptyIntegerSetDomain)
         assertEq(new SingletonIntegerSetDomain(EmptyIntegerRange).intersect(CompleteIntegerSetDomain), new SingletonIntegerSetDomain(EmptyIntegerRange))
         assertEq(new SingletonIntegerSetDomain(NegativeIntegerRange).intersect(new IntegerPowersetDomain(PositiveIntegerRange)), EmptyIntegerSetDomain)
         assertEq(CompleteIntegerSetDomain.asInstanceOf[IntegerSetDomain].intersect(new IntegerPowersetDomain(EmptyIntegerRange)), new IntegerPowersetDomain(EmptyIntegerRange))
-        assertEq(new IntegerPowersetDomain(NonPositiveIntegerRange).asInstanceOf[IntegerSetDomain].intersect(new IntegerPowersetDomain(NonNegativeIntegerRange)), new IntegerPowersetDomain(ZeroToZeroIntegerRange))
+        assertEq(new IntegerPowersetDomain(NonPositiveIntegerRange).asInstanceOf[IntegerSetDomain].intersect(new IntegerPowersetDomain(NonNegativeIntegerRange)), new IntegerPowersetDomain(IntegerRange(0, 0)))
         assertEq(CompleteIntegerSetDomain.intersect(new SingletonIntegerSetDomain(EmptyIntegerRange)), new SingletonIntegerSetDomain(EmptyIntegerRange))
         assertEq(new IntegerPowersetDomain(NegativeIntegerRange).intersect(new SingletonIntegerSetDomain(PositiveIntegerRange)), EmptyIntegerSetDomain)
         assertEq(CompleteIntegerSetDomain.asInstanceOf[IntegerSetDomain].intersect(CompleteIntegerSetDomain), CompleteIntegerSetDomain)
@@ -120,8 +120,7 @@ final class IntegerSetDomainTest extends UnitTest {
 
     @Test
     def testRandomSubdomainCreation(): Unit = {
-        val sampleSize = 8
-        val testData = helper.createTestData(baseRange, sampleSize)
+        val testData = helper.createTestData(BaseRange, 8)
         for (a <- testData) {
             assertEx(a.randomSubdomain(randomGenerator), classOf[NotImplementedError])
         }

@@ -14,15 +14,7 @@ import yuck.core.{given, *}
  */
 final class DotExporter(space: Space, dotWriter: java.io.FileWriter) extends Runnable {
 
-    private trait Vertex
-    private case class VariableVertex(x: AnyVariable) extends Vertex
-    private case class ConstraintVertex(constraint: Constraint) extends Vertex
-
-    private val red = new DefaultAttribute("red", AttributeType.STRING)
-    private val blue = new DefaultAttribute("blue", AttributeType.STRING)
-    private val green = new DefaultAttribute("green", AttributeType.STRING)
-    private val MaxLabelLength = 32
-    private val MaxTooltipLength = 1024
+    import DotExporter.*
 
     private def vertexAttributes(v: Vertex): java.util.Map[String, Attribute] = {
         val attrMap = new java.util.HashMap[String, Attribute]
@@ -32,8 +24,8 @@ final class DotExporter(space: Space, dotWriter: java.io.FileWriter) extends Run
                 val tooltip = "%s: %s = %s".format(x, x.domain, space.searchState.value(x))
                 attrMap.put("tooltip", new DefaultAttribute(tooltip.take(MaxTooltipLength), AttributeType.STRING))
                 val maybeColor =
-                    if (space.isSearchVariable(x)) Some(red)
-                    else if (space.isProblemParameter(x)) Some(blue)
+                    if (space.isSearchVariable(x)) Some(Red)
+                    else if (space.isProblemParameter(x)) Some(Blue)
                     else None
                 if (maybeColor.isDefined) {
                     attrMap.put("fontcolor", maybeColor.get)
@@ -46,7 +38,7 @@ final class DotExporter(space: Space, dotWriter: java.io.FileWriter) extends Run
                     else constraint.toString
                 attrMap.put("tooltip", new DefaultAttribute(tooltip.take(MaxTooltipLength), AttributeType.STRING))
                 val maybeColor =
-                    if (space.isImplicitConstraint(constraint)) Some(green)
+                    if (space.isImplicitConstraint(constraint)) Some(Green)
                     else None
                 if (maybeColor.isDefined) {
                     attrMap.put("fontcolor", maybeColor.get)
@@ -92,5 +84,24 @@ final class DotExporter(space: Space, dotWriter: java.io.FileWriter) extends Run
         exporter.setVertexAttributeProvider(vertexAttributes)
         exporter.exportGraph(network, dotWriter)
     }
+
+}
+
+/**
+ * @author Michael Marte
+ *
+ */
+object DotExporter {
+
+    private trait Vertex
+    private case class VariableVertex(x: AnyVariable) extends Vertex
+    private case class ConstraintVertex(constraint: Constraint) extends Vertex
+
+    private val Red = new DefaultAttribute("red", AttributeType.STRING)
+    private val Blue = new DefaultAttribute("blue", AttributeType.STRING)
+    private val Green = new DefaultAttribute("green", AttributeType.STRING)
+
+    private val MaxLabelLength = 32
+    private val MaxTooltipLength = 1024
 
 }

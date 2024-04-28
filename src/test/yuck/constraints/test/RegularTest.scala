@@ -6,6 +6,7 @@ import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.*
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.{*, given}
+import yuck.test.*
 import yuck.test.util.UnitTest
 
 /**
@@ -137,7 +138,7 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfFixedAssignmentsInNeighbourhoodGeneration(): Unit = {
-        x1.pruneDomain(OneToOneIntegerRange)
+        x1.pruneDomain(IntegerRange(1, 1))
         space.setValue(x1, One)
         assertNeighbourhood(xs)
     }

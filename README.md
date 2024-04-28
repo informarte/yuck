@@ -456,14 +456,19 @@ There are various ways to run a development version of Yuck:
 Yuck code should follow the [Scala Style
 Guide](http://docs.scala-lang.org/style/) with two exceptions:
 
-  * Indentation should be four instead of two spaces.
-  * Method calls should always be chained with the dot operator, so don't use infix notation.
+* Indentation should be four instead of two spaces.
+* Method calls should always be chained with the dot operator, so don't use infix notation.
 
 In addition, the following rules apply:
 
-  * Lines should not be much longer than 120 characters.
-  * Don't give a result type when overriding a definition.
-  * Use `eq` and `ne` to compare to `null` because many classes have `==` and `!=` implementations which do not check for `null`.
+* Lines should not be much longer than 120 characters.
+* Don't give a result type when overriding a definition.
+* Use `eq` and `ne` to compare to `null` because many classes have `==` and `!=` implementations which do not check for `null`.
+* Constants can be defined *anywhere as appropriate* using upper camel case.
+  However, in order to avoid impacting performance and memory consumption, the following rules apply in production code:
+    * Constant objects should live in package or companion objects.
+    * Other constants should be inlined when defined on class level.
+* Scala 3 givens and values defined in terms of parameters are not to be considered as constants.
 
 ## References
 

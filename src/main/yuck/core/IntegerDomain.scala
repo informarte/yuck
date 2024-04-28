@@ -19,8 +19,8 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
             (if (isEmpty || ub.eq(null)) 0 else ub.hashCode))
 
     final override def compare(that: OrderedDomain[IntegerValue]) = (this, that) match {
-        case (lhs: IntegerRange, rhs: IntegerRange) => rangeOrdering.compare(lhs, rhs)
-        case _ => rangeListOrdering.compare(ensureRangeList(this), ensureRangeList(that))
+        case (lhs: IntegerRange, rhs: IntegerRange) => RangeOrdering.compare(lhs, rhs)
+        case _ => RangeListOrdering.compare(ensureRangeList(this), ensureRangeList(that))
     }
 
     final override def ==(that: Domain[IntegerValue]) = (this, that) match {
@@ -214,11 +214,11 @@ object IntegerDomain {
     // An intuitive ordering on integer ranges with A.isSubsetOf(B) -> A < B.
     // If neither A.isSubsetOf(B) nor B.isSubsetOf(A), then A < B <-> (lb(A), ub(A)) < (lb(B), ub(B)).
     // Yes, this is total ordering, I proved it on paper.
-    private val rangeOrdering = Ordering.fromLessThan(rangeLessThan)
+    private val RangeOrdering = Ordering.fromLessThan(rangeLessThan)
 
     // The lexicographic ordering on the underlying range lists.
-    private val rangeListOrdering = new Ordering[IntegerRangeList] {
-        val ordering = lexicographicOrderingForIterable(using rangeOrdering)
+    private val RangeListOrdering = new Ordering[IntegerRangeList] {
+        val ordering = lexicographicOrderingForIterable(using RangeOrdering)
         override def compare(lhs: IntegerRangeList, rhs: IntegerRangeList) =
             ordering.compare(lhs.ranges, rhs.ranges)
     }

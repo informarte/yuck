@@ -14,8 +14,7 @@ final class SimpleRandomReassignmentGeneratorTest extends UnitTest {
 
     private val randomGenerator = new JavaRandomGenerator
     private val numberOfVariables = 10
-    private val domains =
-        for (i <- 0 until numberOfVariables) yield IntegerRange(Zero, IntegerValue(numberOfVariables - 1))
+    private val domains = for (i <- 0 until numberOfVariables) yield IntegerRange(0, numberOfVariables - 1)
     private val (space, xs) = NeighbourhoodTestHelper.createSpace(logger, sigint, randomGenerator, domains)
     private val helper = new NeighbourhoodTestHelper(logger, xs, Distribution(1, List(100)), None, None)
 

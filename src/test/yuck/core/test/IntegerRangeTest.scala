@@ -5,6 +5,7 @@ import org.junit.*
 import scala.collection.*
 
 import yuck.core.{given, *}
+import yuck.test.*
 import yuck.test.util.UnitTest
 
 /**
@@ -14,9 +15,10 @@ import yuck.test.util.UnitTest
 @FixMethodOrder(org.junit.runners.MethodSorters.NAME_ASCENDING)
 final class IntegerRangeTest extends UnitTest {
 
+    private val BaseRange = IntegerRange(-5, 5)
+
     private val randomGenerator = new JavaRandomGenerator
     private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
-    private val baseRange = IntegerRange(IntegerValue(-5), Five)
 
     @Test
     def testRepresentation(): Unit = {
@@ -25,8 +27,7 @@ final class IntegerRangeTest extends UnitTest {
 
     @Test
     def testEquality(): Unit = {
-        val sampleSize = 32
-        val testData = helper.createRanges(baseRange, sampleSize)
+        val testData = helper.createRanges(BaseRange, 32)
         helper.testEquality(testData)
         for (d <- testData) {
             for (e <- List(IntegerRange(d.lb, d.ub), IntegerRangeList(d))) {
@@ -43,24 +44,21 @@ final class IntegerRangeTest extends UnitTest {
 
     @Test
     def testOrdering(): Unit = {
-        val sampleSize = 32
-        val testData = helper.createRanges(baseRange, sampleSize)
+        val testData = helper.createRanges(BaseRange, 32)
         helper.testOrdering(testData)
     }
 
     @Test
     def testOperations(): Unit = {
-        val sampleSize = 16
-        val testDomains = helper.createRanges(baseRange, sampleSize)
-        val testValues = IntegerRange(baseRange.lb - One, baseRange.ub + One).values.toSeq
+        val testDomains = helper.createRanges(BaseRange, 16)
+        val testValues = IntegerRange(BaseRange.lb - One, BaseRange.ub + One).values.toSeq
         helper.testUnaryOperations(testDomains, testValues)
         helper.testBinaryOperations(testDomains)
     }
 
     @Test
     def testRandomSubdomainCreation(): Unit = {
-        val sampleSize = 16
-        val testData = helper.createRanges(baseRange, sampleSize)
+        val testData = helper.createRanges(BaseRange, 16)
         helper.testRandomSubrangeCreation(testData)
         helper.testRandomSubdomainCreation(testData)
     }
@@ -92,11 +90,9 @@ final class IntegerRangeTest extends UnitTest {
     def testConstruction(): Unit = {
         assert(IntegerRange(null, null).eq(CompleteIntegerRange))
         assert(IntegerRange(One, Zero).eq(EmptyIntegerRange))
-        assert(IntegerRange(Zero, One).isInstanceOf[IntegerRange])
-        assertEq(IntegerRange(Zero, One), ZeroToOneIntegerRange)
         assert(IntegerRange(1, 0).eq(EmptyIntegerRange))
         assert(IntegerRange(0, 1).isInstanceOf[IntegerRange])
-        assertEq(IntegerRange(0, 1), ZeroToOneIntegerRange)
+        assertEq(IntegerRange(0, 1), IntegerRange(Zero, One))
     }
 
 }

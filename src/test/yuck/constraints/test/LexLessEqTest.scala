@@ -14,12 +14,13 @@ import yuck.test.util.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class LexLessEqTest extends UnitTest with ConstraintTestTooling {
 
+    private val BaseDomain = IntegerRange(0, 1)
+
     private val space = new Space(logger, sigint)
 
-    private val baseDomain = CompleteIntegerRange
-    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
+    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), BaseDomain)
     private val Seq(x1, x2, x3) = xs
-    private val ys = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "y%d".format(i), baseDomain)
+    private val ys = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "y%d".format(i), BaseDomain)
     private val Seq(y1, y2, y3) = ys
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
