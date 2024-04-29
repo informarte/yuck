@@ -35,7 +35,7 @@ class ZincBasedTest extends IntegrationTest {
     private class JsSection extends JsNode {
         private val fields = new mutable.HashMap[String, JsNode]
         override def value =
-            JsObject(fields.iterator.map{case (name, node) => (name, node.value)}.to(immutable.TreeMap))
+            JsObject(fields.iterator.map((name, node) => (name, node.value)).to(immutable.TreeMap))
         def +=(field: (String, JsNode)): JsSection = {
             fields += field
             this

@@ -48,7 +48,7 @@ class MiniZincSolutionVerifier(
         val witnessFile = expectationFiles.find(expectationFile => {
             val fileReader = new java.io.BufferedReader(new java.io.FileReader(expectationFile))
             val expectedLines = fileReader.lines.iterator.asScala.toList
-            actualLines.zip(expectedLines).forall {case (a, b) => a == b}
+            actualLines.zip(expectedLines).forall((a, b) => a == b)
         })
         val verified = witnessFile.isDefined
         if (verified) {

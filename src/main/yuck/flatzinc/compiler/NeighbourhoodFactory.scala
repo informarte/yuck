@@ -235,12 +235,8 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
     }
 
     protected def maybeSelectionSizeDistribution(neighbourhoods: Iterable[Neighbourhood]): Option[Distribution] = {
-        val searchVariables =
-            neighbourhoods.foldLeft(mutable.HashSet.empty) {
-                case (xs, neighbourhood) => xs.addAll(neighbourhood.searchVariables)
-            }
-        val neighbourhoodsAreDisjoint =
-            searchVariables.size == neighbourhoods.iterator.map(_.searchVariables.size).sum
+        val searchVariables = neighbourhoods.iterator.flatMap(_.searchVariables).toSet
+        val neighbourhoodsAreDisjoint = searchVariables.size == neighbourhoods.iterator.map(_.searchVariables.size).sum
         if neighbourhoodsAreDisjoint then Some(cc.cfg.moveSizeDistribution) else None
     }
 

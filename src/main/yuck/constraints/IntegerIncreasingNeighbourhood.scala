@@ -67,9 +67,9 @@ final class IntegerIncreasingNeighbourhood
             if m == 1
             then augmentMove(move, after, priorityDistribution.nextIndex(randomGenerator))
             else scoped(frequencyRestorer) {
-                priorityDistribution.nextIndices(randomGenerator, m, frequencyRestorer).foldLeft(move) {
-                    case (move, i) => if move.size >= m then move else augmentMove(move, after, i)
-                }
+                priorityDistribution
+                    .nextIndices(randomGenerator, m, frequencyRestorer)
+                    .foldLeft(move)((move, i) => if move.size >= m then move else augmentMove(move, after, i))
             }
         result
     }

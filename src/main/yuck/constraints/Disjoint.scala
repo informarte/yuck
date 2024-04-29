@@ -45,16 +45,12 @@ abstract class Disjoint
 
     private val x2is: immutable.Map[AnyVariable, immutable.IndexedSeq[Int]] =
         (0 until n)
-        .iterator
-        .flatMap(i => variablesIterator(i).map((_, i)))
-        .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
-            case (map, (x, i)) =>
-                val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])
-                buf += i
-                map
-        }
-        .map{case (x, buf) => (x, buf.toVector)}
-        .toMap
+            .view
+            .flatMap(i => variablesIterator(i).map((_, i)))
+            .groupBy(_._1)
+            .view
+            .mapValues(_.map(_._2).toVector)
+            .toMap
 
     private val effect = costs.reuseableEffect
 

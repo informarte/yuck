@@ -312,17 +312,8 @@ final class Inverse
 
     // Sometimes inverse constraints are decomposable (see elitserien, for example).
     def decompose(space: Space): Seq[Inverse] = {
-        type Partition = mutable.ArrayBuffer[IntegerVariable]
-        type PartitionByDomain = mutable.AnyRefMap[IntegerDomain, Partition]
-        def partitionByDomain(xs: Iterable[IntegerVariable]): PartitionByDomain =
-            xs.foldLeft(new PartitionByDomain()) {
-                (map, x) => {
-                    val dx = x.domain
-                    map += dx -> (map.getOrElse(dx, new Partition()) += x)
-                }
-            }
-        lazy val fPartitionByDomain = partitionByDomain(f.xs)
-        lazy val gPartitionByDomain = partitionByDomain(g.xs)
+        lazy val fPartitionByDomain = f.xs.groupBy(_.domain)
+        lazy val gPartitionByDomain = g.xs.groupBy(_.domain)
         def domainLt(lhs: IntegerDomain, rhs: IntegerDomain) =
             lhs.lb < rhs.lb || (lhs.lb == rhs.lb && lhs.ub < rhs.ub)
         def union(lhs: IntegerDomain, rhs: IntegerDomain) = lhs.union(rhs)

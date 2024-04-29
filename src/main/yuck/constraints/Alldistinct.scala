@@ -74,7 +74,7 @@ final class Alldistinct
             case class ValueVertex(a: V) extends Vertex
             case class Edge(x: Variable[V], a: V)
             val graph = new DefaultUndirectedGraph[Vertex, Edge](classOf[Edge])
-            val as = xs.foldLeft(valueTraits.emptyDomain){case (u, x) => u.union(x.domain)}.values
+            val as = xs.foldLeft(valueTraits.emptyDomain)((u, x) => u.union(x.domain)).values
             val variableVertices = xs.iterator.map(x => (x, VariableVertex(x))).toMap
             val valueVertices = as.iterator.map(a => (a, ValueVertex(a))).toMap
             logger.withTimedLogScope("Building graph") {

@@ -35,7 +35,7 @@ final class IfThenElse
         // identify impossible cases
         def identifyImpossibleCase(i: Int): BooleanDomain =
             if (xs(i).domain.intersects(y.domain)) cs(i).domain else cs(i).domain.intersect(FalseDomain)
-        val cds = (0 until n).view.map(identifyImpossibleCase).toBuffer
+        val cds = (0 until n).iterator.map(identifyImpossibleCase).toBuffer
         // make sure we have a default case
         @tailrec
         def findDefaultCase(i: Int): Int =
@@ -77,8 +77,10 @@ final class IfThenElse
             // constructive disjunction: propagate the union of the x[j] domains, j > i, to y
             effects.pruneDomain(
                 y,
-                (i until n).view.filter(i => cs(i).domain != FalseDomain)
-                    .foldLeft(valueTraits.emptyDomain){case (u, i) => u.union(xs(i).domain)})
+                (i until n)
+                    .iterator
+                    .filter(i => cs(i).domain != FalseDomain)
+                    .foldLeft(valueTraits.emptyDomain)((u, i) => u.union(xs(i).domain)))
         }
     }
 

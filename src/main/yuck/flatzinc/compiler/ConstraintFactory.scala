@@ -815,13 +815,12 @@ final class ConstraintFactory
         require(items.forall(_.weight >= loadTraits.zero))
         val items1: immutable.IndexedSeq[BinPackingItem[Load]] =
             items
-            .foldLeft(immutable.Map.empty[IntegerVariable, Load]){
-                case (map, item) => map.updated(item.bin, map.getOrElse(item.bin, loadTraits.zero) + item.weight)
-            }
-            .iterator
-            .filter{case (_, weight) => weight > loadTraits.zero}
-            .map{case (bin, weight) => new BinPackingItem(bin, weight)}
-            .toVector
+                .groupBy(_.bin)
+                .view
+                .mapValues(_.foldLeft(loadTraits.zero)((load, item) => load + item.weight))
+                .filter((_, weight) => weight > loadTraits.zero)
+                .map((bin, weight) => new BinPackingItem(bin, weight))
+                .toVector
         val bins = items1.map(_.bin)
         val maxLoad = items.map(_.weight).sum(loadTraits.numericalOperations)
         val trivialLoadDomain = loadTraits.createDomain(loadTraits.zero, maxLoad)

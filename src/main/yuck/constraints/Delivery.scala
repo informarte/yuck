@@ -56,8 +56,9 @@ final class Delivery
     require(endNodes.isSubsetOf(nodes))
     require(endNodes.values.forall(i => succ(i.toInt - offset).domain.isSingleton))
     require(
-        endNodes.values.foldLeft(IntegerValueTraits.emptyDomain){
-            case (acc, i) => acc.union(succ(i.toInt - offset).domain)} == startNodes)
+        endNodes.values
+            .foldLeft(IntegerValueTraits.emptyDomain)((acc, i) => acc.union(succ(i.toInt - offset).domain)) ==
+            startNodes)
     require(succ.forall(_.domain.isSubsetOf(nodes)))
     require(arrivalTimes.size == nodes.size)
     require(arrivalTimes.toSet.size == arrivalTimes.size)

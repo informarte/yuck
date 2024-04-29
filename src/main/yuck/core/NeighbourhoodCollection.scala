@@ -40,12 +40,8 @@ final class NeighbourhoodCollection(
         val distribution = maybeSelectionSizeDistribution.get
         require(distribution.frequency(0) == 0)
         require(distribution.numberOfAlternatives >= 1)
-        val searchVariables =
-            neighbourhoods.foldLeft(mutable.HashSet.empty) {
-                case (xs, neighbourhood) => xs.addAll(neighbourhood.searchVariables)
-            }
-        val neighbourhoodsAreDisjoint =
-            searchVariables.size == neighbourhoods.iterator.map(_.searchVariables.size).sum
+        val searchVariables = neighbourhoods.iterator.flatMap(_.searchVariables).toSet
+        val neighbourhoodsAreDisjoint = searchVariables.size == neighbourhoods.iterator.map(_.searchVariables.size).sum
         require(neighbourhoodsAreDisjoint)
     }
 

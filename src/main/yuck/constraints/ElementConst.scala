@@ -47,7 +47,8 @@ final class ElementConst
                 i.domain.intersect(IntegerRange(offset, safeDec(safeAdd(as.size, offset))))
             val dy1 =
                 y.domain.intersect(
-                    di1.valuesIterator.foldLeft(valueTraits.emptyDomain){case (u, i) => u.union(valueTraits.createDomain(Set(as(i.toInt - offset))))})
+                    di1.valuesIterator
+                        .foldLeft(valueTraits.emptyDomain)((u, i) => u.union(valueTraits.createDomain(Set(as(i.toInt - offset))))))
             val di2 =
                 IntegerDomain(
                     di1.valuesIterator.filter(i => dy1.contains(as(i.toInt - offset))).toSet)

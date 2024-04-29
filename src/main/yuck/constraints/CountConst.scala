@@ -23,17 +23,8 @@ final class CountConst
     override def inVariables = xs
     override def outVariables = List(n)
 
-    private val x2n =
-        xs
-        .iterator
-        .foldLeft(new mutable.HashMap[AnyVariable, Int]) {
-            case (map, x) =>
-                map.updateWith(x)(maybeN => Some(maybeN.getOrElse(0) + 1))
-                map
-        }
-        .iterator
-        .filter{case (_, n) => n > 1}
-        .toMap
+    private val x2n: immutable.Map[AnyVariable, Int] =
+        xs.groupBy(identity).view.mapValues(_.size).filter((_, n) => n > 1).toMap
 
     private var count = 0
     private val effect = n.reuseableEffect
@@ -52,7 +43,7 @@ final class CountConst
                    xs.count(_.domain.contains(a)) == n.domain.singleValue.value)
         {
             val dx = valueTraits.createDomain(Set(a))
-            xs.iterator.filter(_.domain.contains(a)).foldLeft(effects){case (effects, x) => effects.pruneDomain(x, dx)}
+            xs.iterator.filter(_.domain.contains(a)).foldLeft(effects)((effects, x) => effects.pruneDomain(x, dx))
         } else {
             effects
         }

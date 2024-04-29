@@ -26,8 +26,8 @@ final class RegularNeighbourhoodTest extends SpecialNeighbourhoodTest {
 
     override protected def checkSearchState(searchState: SearchState) = {
         assert(xs.forall(_.hasValidValue(searchState)))
-        assert(F.contains(IntegerValue(xs.foldLeft(q0)((q, x) =>
-            if q == 0 then 0 else delta(q - 1)(searchState.value(x).value.toInt - 1)))))
+        val finalState = xs.foldLeft(q0)((q, x) => if q == 0 then 0 else delta(q - 1)(searchState.value(x).toInt - 1))
+        assert(F.contains(IntegerValue(finalState)))
         assertEq(searchState.value(costs), True)
     }
 

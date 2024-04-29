@@ -33,24 +33,13 @@ abstract class Increasing
     // x2is maps each input variable to the constraints the variable is involved in.
     // (Constraint i constrains xs(i) and xs(i + 1).)
     private val x2is: immutable.Map[AnyVariable, immutable.IndexedSeq[Int]] =
-        xs
-        .iterator
-        .zipWithIndex
-        .foldLeft(new mutable.HashMap[AnyVariable, mutable.Buffer[Int]]) {
-            case (map, (x, i)) =>
-                val buf = map.getOrElseUpdate(x, new mutable.ArrayBuffer[Int])
-                if (i == 0) {
-                    buf += i
-                } else if (i == n - 1) {
-                    buf += i - 1
-                } else {
-                    buf += i - 1
-                    buf += i
-                }
-                map
-        }
-        .map{case (x, buf) => (x, buf.toVector)}
-        .toMap
+        xs.view
+            .zipWithIndex
+            .map((x, i) => (x, if i == 0 then Seq(i) else if i == n - 1 then Seq(i - 1) else Seq(i - 1, i)))
+            .groupBy(_._1)
+            .view
+            .mapValues(_.flatMap(_._2.iterator).toVector)
+            .toMap
 
     private var currentCosts = 0L
     private var futureCosts = 0L

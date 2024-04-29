@@ -110,7 +110,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         // <-> sum a_i * x_i <= b & sum  a_i * x_i >=  b
         // <-> sum a_i * x_i <= b & sum -a_i * x_i <= -b
         val (lhs1, rhs1) = linLeRule(lhs0, rhs0)
-        val (lhs2, rhs2) = linLeRule(lhs0.map{case (a, d) => (a.negated, d)}, rhs0.hull.mirrored)
+        val (lhs2, rhs2) = linLeRule(lhs0.map((a, d) => (a.negated, d)), rhs0.hull.mirrored)
         val lhs3 = for ((d, e) <- lhs1.iterator.zip(lhs2.iterator)) yield d.intersect(e)
         val rhs3 = rhs1.intersect(rhs2.mirrored)
         (lhs3, rhs3)
@@ -136,9 +136,9 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         (lhs0: Iterable[(IntegerValue, NumericalDomain[IntegerValue])], rhs0: NumericalDomain[IntegerValue]):
         (Iterator[IntegerDomain], IntegerDomain) =
     {
-        if (rhs0.isEmpty || lhs0.exists{case (_, d) => d.isEmpty}) {
+        if (rhs0.isEmpty || lhs0.exists((_, d) => d.isEmpty)) {
             (for (_ <- lhs0.iterator) yield EmptyIntegerRange, EmptyIntegerRange)
-        } else if (lhs0.forall{case (a, d) => if (a.value >= 0) d.hasLb else d.hasUb}) {
+        } else if (lhs0.forall((a, d) => if (a.value >= 0) d.hasLb else d.hasUb)) {
             val lhs1 =
                 if (rhs0.hasUb) {
                     lazy val posTerm = lhs0.foldLeft(0L){case (sum, (a, d)) => safeAdd(sum, if (a.value >= 0) safeMul(a.value, d.lb.value) else 0)}

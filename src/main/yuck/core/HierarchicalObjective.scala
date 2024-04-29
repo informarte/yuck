@@ -32,7 +32,7 @@ final class HierarchicalObjective
         isSolution(searchState) && (firstSolutionIsGoodEnough || super.isGoodEnough(searchState))
     override def isOptimal(costs: Costs) =
         primitiveObjectives.iterator.zip(costs.asInstanceOf[PolymorphicListValue].value)
-            .forall{case (objective, costs) => objective.isOptimal(costs)}
+            .forall((objective, costs) => objective.isOptimal(costs))
     override def isOptimal(searchState: SearchState) =
         primitiveObjectives.forall(_.isOptimal(searchState))
     override def compareCosts(lhs0: Costs, rhs0: Costs) = {
