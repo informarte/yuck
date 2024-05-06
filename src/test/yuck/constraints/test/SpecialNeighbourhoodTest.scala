@@ -23,7 +23,7 @@ abstract class SpecialNeighbourhoodTest extends UnitTest {
 
     protected val propagate = false
 
-    protected val expectedNeighbourhoodClass: Class[_ <: Neighbourhood]
+    protected val expectedNeighbourhoodClass: Class[? <: Neighbourhood]
 
     protected def checkSearchState(searchState: SearchState): Unit
 

@@ -20,7 +20,7 @@ final class AlldistinctNeighbourhoodTest extends SpecialNeighbourhoodTest {
         new Alldistinct(space.nextConstraintId(), null, xs, costs, logger)
     }
 
-    override protected val expectedNeighbourhoodClass = classOf[AlldistinctNeighbourhood[_]]
+    override protected val expectedNeighbourhoodClass = classOf[AlldistinctNeighbourhood[?]]
 
     override protected def checkSearchState(searchState: SearchState) = {
         assert(xs.forall(_.hasValidValue(searchState)))

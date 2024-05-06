@@ -10,7 +10,7 @@ package yuck.core
 abstract class AnyDomain {
 
     /** Returns the type of the domain's elements. */
-    def valueType: Class[_]
+    def valueType: Class[?]
 
     /** Returns the domain's cardinality. */
     def size: Int
@@ -32,14 +32,14 @@ abstract class AnyDomain {
      *
      * Throws when the domain is infinite.
      */
-    def values: Iterable[_ <: AnyValue]
+    def values: Iterable[? <: AnyValue]
 
     /**
       * Returns all values of the domain.
       *
       * Throws when the domain is infinite.
       */
-    def valuesIterator: Iterator[_ <: AnyValue]
+    def valuesIterator: Iterator[? <: AnyValue]
 
     /** Returns the domain's value when the domain is singleton and throws otherwise. */
     def singleValue: AnyValue

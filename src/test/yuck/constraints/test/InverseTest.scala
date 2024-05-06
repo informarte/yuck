@@ -257,7 +257,7 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
     }
 
     private def assertNeighbourhood
-        (f: InverseFunction, g: InverseFunction, expectedNeighbourhoodClass: Class[_ <: InverseNeighbourhood]): Unit =
+        (f: InverseFunction, g: InverseFunction, expectedNeighbourhoodClass: Class[? <: InverseNeighbourhood]): Unit =
     {
         require(f.xs.forall(_.domain.isFinite))
         require(g.xs.forall(_.domain.isFinite))

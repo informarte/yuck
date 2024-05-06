@@ -6,6 +6,6 @@ import org.junit.runners.Parameterized
  * @author Michael Marte
  *
  */
-class ParallelParameterizedTestRunner(val klass: Class[_]) extends Parameterized(klass) {
+class ParallelParameterizedTestRunner(val klass: Class[?]) extends Parameterized(klass) {
     setScheduler(new ParallelTestScheduler)
 }

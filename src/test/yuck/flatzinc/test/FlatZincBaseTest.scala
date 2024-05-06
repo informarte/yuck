@@ -58,22 +58,22 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testVarArrayAccess(): Unit = {
         val result = solveWithResult(task.copy(problemName = "var_array_access_test"))
-        assertEq(result.space.numberOfConstraints[ElementVar[_]], 3)
+        assertEq(result.space.numberOfConstraints[ElementVar[?]], 3)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testConstArrayAccess(): Unit = {
         val result = solveWithResult(task.copy(problemName = "const_array_access_test"))
-        assertEq(result.space.numberOfConstraints[ElementConst[_]], 3)
+        assertEq(result.space.numberOfConstraints[ElementConst[?]], 3)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testArrayAccessWhereResultMustEqualIndex(): Unit = {
         val result = solveWithResult(task.copy(problemName = "array_access_where_result_must_equal_index_test"))
-        assertEq(result.space.numberOfConstraints[ElementVar[_]], 1)
-        assertEq(result.space.numberOfConstraints[Eq[_]], 1)
+        assertEq(result.space.numberOfConstraints[ElementVar[?]], 1)
+        assertEq(result.space.numberOfConstraints[Eq[?]], 1)
     }
 
     @Test
@@ -136,7 +136,7 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 2)
         assertEq(result.space.numberOfConstraints, 4)
         assertEq(result.space.numberOfConstraints[Bool2Int1], 1)
-        assertEq(result.space.numberOfConstraints[LinearConstraint[_]], 1)
+        assertEq(result.space.numberOfConstraints[LinearConstraint[?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
@@ -204,8 +204,8 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 2)
         assertEq(result.space.numberOfConstraints, 6)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[IfThenElse[_]], 2)
-        assertEq(result.space.numberOfConstraints[Ne[_]], 1)
+        assertEq(result.space.numberOfConstraints[IfThenElse[?]], 2)
+        assertEq(result.space.numberOfConstraints[Ne[?]], 1)
         assertEq(result.space.numberOfConstraints[Not], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
@@ -238,8 +238,8 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), if booleanCase then 2 else 3)
         assertEq(result.space.numberOfConstraints, if booleanCase then 6 else 7)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[IfThenElse[_]], 2)
-        assertEq(result.space.numberOfConstraints[Ne[_]], 1)
+        assertEq(result.space.numberOfConstraints[IfThenElse[?]], 2)
+        assertEq(result.space.numberOfConstraints[Ne[?]], 1)
         assertEq(result.space.numberOfConstraints[Not], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
         valueTraits match {
@@ -258,7 +258,7 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 2)
         assertEq(result.space.numberOfConstraints, 3)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[Ne[_]], 1)
+        assertEq(result.space.numberOfConstraints[Ne[?]], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
@@ -296,7 +296,7 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.numberOfConstraints, 10)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[LevelWeightMaintainer], 1)
-        assertEq(result.space.numberOfConstraints[Plus[_]], 1)
+        assertEq(result.space.numberOfConstraints[Plus[?]], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
         assertEq(result.space.numberOfConstraints[SetCardinality], 2)
         assertEq(
@@ -389,7 +389,7 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.numberOfConstraints, 4)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[Contains], 1)
-        assertEq(result.space.numberOfConstraints[Plus[_]], 1)
+        assertEq(result.space.numberOfConstraints[Plus[?]], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
@@ -409,7 +409,7 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.channelVariables.filter(isUserDefined).map(_.name), Set("r"))
         assertEq(result.space.numberOfConstraints, 2)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[Eq[_]], 1)
+        assertEq(result.space.numberOfConstraints[Eq[?]], 1)
     }
 
     @Test
@@ -489,12 +489,12 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.channelVariables.size, 5)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
         assertEq(result.space.numberOfConstraints, 5)
-        assertEq(result.space.numberOfConstraints[Alldistinct[_]], 1)
+        assertEq(result.space.numberOfConstraints[Alldistinct[?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[Ne[_]], 3)
+        assertEq(result.space.numberOfConstraints[Ne[?]], 3)
         assertEq(result.space.numberOfPropagations, 6)
         assertEq(result.space.numberOfRetractions, 0)
-        assert(result.neighbourhood.isInstanceOf[AlldistinctNeighbourhood[_]])
+        assert(result.neighbourhood.isInstanceOf[AlldistinctNeighbourhood[?]])
     }
 
     // Checks that the reified redundant alldifferent constraints are ignored.
@@ -509,7 +509,7 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 2)
         assertEq(result.space.numberOfConstraints, 11)
         assertEq(result.space.numberOfConstraints[Conjunction], 3)
-        assertEq(result.space.numberOfConstraints[Ne[_]], 6)
+        assertEq(result.space.numberOfConstraints[Ne[?]], 6)
         assertEq(result.space.numberOfConstraints[Or], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
         assertEq(result.space.numberOfPropagations, 11)
@@ -529,8 +529,8 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.numberOfConstraints, 41)
         assertEq(result.space.numberOfConstraints[Bool2Int1], 18)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[Eq[_]], 18)
-        assertEq(result.space.numberOfConstraints[LinearConstraint[_]], 3)
+        assertEq(result.space.numberOfConstraints[Eq[?]], 18)
+        assertEq(result.space.numberOfConstraints[LinearConstraint[?]], 3)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
         assertEq(result.space.numberOfPropagations, 54)
         assertEq(result.space.numberOfRetractions, 5)
@@ -549,7 +549,7 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.channelVariables.size, 2)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 2)
         assertEq(result.space.numberOfConstraints, 2)
-        assertEq(result.space.numberOfConstraints[Alldistinct[_]], 1)
+        assertEq(result.space.numberOfConstraints[Alldistinct[?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfPropagations, 23)
         assertEq(result.space.numberOfRetractions, 13)
@@ -568,7 +568,7 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 3)
         assertEq(result.space.numberOfConstraints, 7)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[Le[_]], 5)
+        assertEq(result.space.numberOfConstraints[Le[?]], 5)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 

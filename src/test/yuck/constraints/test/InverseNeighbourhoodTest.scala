@@ -16,7 +16,7 @@ abstract class InverseNeighbourhoodTest extends SpecialNeighbourhoodTest {
         new Inverse(space.nextConstraintId(), null, f, g, costs, logger)
     }
 
-    override protected val expectedNeighbourhoodClass: Class[_ <: InverseNeighbourhood]
+    override protected val expectedNeighbourhoodClass: Class[? <: InverseNeighbourhood]
 
     final override protected def checkSearchState(searchState: SearchState) = {
         assert(f.xs.forall(_.hasValidValue(searchState)))

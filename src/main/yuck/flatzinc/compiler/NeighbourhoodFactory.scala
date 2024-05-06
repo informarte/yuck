@@ -91,11 +91,11 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
             } else {
                 Nil
             }
-        val constraintHardness: Map[Class[_ <: Constraint], Int] = Map(
+        val constraintHardness: Map[Class[? <: Constraint], Int] = Map(
             (classOf[BooleanIncreasing], 3), (classOf[Circuit], 3), (classOf[IntegerIncreasing], 3), (classOf[Inverse], 3),
             (classOf[Regular], 3),
-            (classOf[Alldistinct[_]], 2),
-            (classOf[Table[_]], 1))
+            (classOf[Alldistinct[?]], 2),
+            (classOf[Table[?]], 1))
         def constraintRanking(constraint: Constraint): Int =
             -(constraintHardness(constraint.getClass) * constraint.inVariables.size)
         for (constraint <- randomGenerator.shuffle(candidatesForImplicitSolving).sortBy(constraintRanking)) {

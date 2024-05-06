@@ -19,7 +19,7 @@ import yuck.util.DescriptiveStatistics.*
  */
 class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAnnealingMonitor(logger) {
 
-    case class QualityImprovement(runtimeInMillis: Long, quality: NumericalValue[_])
+    case class QualityImprovement(runtimeInMillis: Long, quality: NumericalValue[?])
 
     private var timeStampInMillis: Long = 0
     private var maybeRuntimeToFirstSolutionInMillis: Option[Long] = None
@@ -36,11 +36,11 @@ class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAn
     private var area: Double = 0.0
     private val qualityStepFunction = new mutable.ArrayBuffer[QualityImprovement]
 
-    private def maybePreviousQuality: Option[NumericalValue[_]] =
+    private def maybePreviousQuality: Option[NumericalValue[?]] =
         if qualityStepFunction.isEmpty then None else Some(qualityStepFunction.last.quality)
 
-    private def currentQuality: NumericalValue[_] =
-        costsOfBestProposal.asInstanceOf[PolymorphicListValue].value(1).asInstanceOf[NumericalValue[_]]
+    private def currentQuality: NumericalValue[?] =
+        costsOfBestProposal.asInstanceOf[PolymorphicListValue].value(1).asInstanceOf[NumericalValue[?]]
 
     private class SolverStatistics(
         val runtimeInSeconds: Double, val movesPerSecond: Double,

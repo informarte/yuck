@@ -31,7 +31,7 @@ final class ReusableMoveEffectWithFixedVariable
     (override val x: Variable[V])
     extends MoveEffect[V]
 {
-    private var _a: V = _
+    private var _a: V = scala.compiletime.uninitialized
     inline override def a = _a
     inline def a_=(a: V): Unit = {
         _a = a
@@ -47,8 +47,8 @@ final class ReusableMoveEffect
     [V <: Value[V]]
     extends MoveEffect[V]
 {
-    private var _x: Variable[V] = _
-    private var _a: V = _
+    private var _x: Variable[V] = scala.compiletime.uninitialized
+    private var _a: V = scala.compiletime.uninitialized
     inline override def x = _x
     inline def x_=(x: Variable[V]): Unit = {
         _x = x

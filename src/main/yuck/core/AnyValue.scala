@@ -8,6 +8,6 @@ package yuck.core
 abstract class AnyValue {
 
     /** Returns the type of the concrete value. */
-    inline final def valueType: Class[_ <: AnyValue] = getClass
+    inline final def valueType: Class[? <: AnyValue] = getClass
 
 }

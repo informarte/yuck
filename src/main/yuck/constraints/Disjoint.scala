@@ -29,7 +29,7 @@ abstract class Disjoint
     final override def inVariables = (0 until n).view.flatMap(variablesIterator)
     final override def outVariables = List(costs)
 
-    protected type BBox <: HyperRect[_]
+    protected type BBox <: HyperRect[?]
     protected trait HasBBox {
         def bbox: BBox
     }

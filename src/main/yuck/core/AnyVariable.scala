@@ -30,7 +30,7 @@ abstract class AnyVariable
     def createDomainRestorer: () => Unit
 
     /** Returns the type of the elements of the variable's domain. */
-    inline final def valueType: Class[_] = domain.valueType
+    inline final def valueType: Class[?] = domain.valueType
 
     /**
       * Returns true iff the value assigned to the variable is contained in the variable's domain.

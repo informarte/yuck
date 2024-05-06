@@ -59,7 +59,7 @@ trait YuckAssert {
         assertEx(operation, classOf[NotImplementedError])
     }
 
-    protected def assertEx(operation: => Unit, expectedExceptionType: Class[_ <: Throwable]): Unit = {
+    protected def assertEx(operation: => Unit, expectedExceptionType: Class[? <: Throwable]): Unit = {
         var failed = true
         try {
             operation
@@ -77,12 +77,12 @@ trait YuckAssert {
     }
 
     @tailrec
-    private def findExceptionType(throwable: Throwable, expectedExceptionType: Class[_ <: Throwable]): Boolean =
+    private def findExceptionType(throwable: Throwable, expectedExceptionType: Class[? <: Throwable]): Boolean =
         findExceptionType(throwable.getClass, expectedExceptionType) ||
             (throwable.getCause != null && findExceptionType(throwable.getCause, expectedExceptionType))
 
     @tailrec
-    private def findExceptionType(throwableType: Class[_], expectedExceptionType: Class[_ <: Throwable]): Boolean =
+    private def findExceptionType(throwableType: Class[?], expectedExceptionType: Class[? <: Throwable]): Boolean =
         throwableType == expectedExceptionType ||
             (throwableType.getSuperclass != null &&
                 findExceptionType(throwableType.getSuperclass, expectedExceptionType))
