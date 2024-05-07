@@ -35,7 +35,7 @@ object yuck extends ScalaModule with BuildInfo {
         ivy"com.conversantmedia:rtree:1.0.5",
         ivy"com.github.scopt::scopt:4.1.0",
         ivy"org.jgrapht:jgrapht-core:1.4.0",
-        ivy"org.scala-lang.modules::scala-parser-combinators:2.3.0"
+        ivy"org.scala-lang.modules::scala-parser-combinators:2.4.0"
     )
 
     val basicJvmConfiguration = Seq("-Djava.lang.Integer.IntegerCache.high=10000", "-XX:+UseParallelGC")
