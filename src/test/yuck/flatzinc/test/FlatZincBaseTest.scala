@@ -10,6 +10,8 @@ import yuck.constraints.*
 import yuck.core.{*, given}
 import yuck.flatzinc.compiler.{Bool2Int1, LevelWeightMaintainer, VariableWithInfiniteDomainException}
 import yuck.flatzinc.test.util.*
+import yuck.flatzinc.test.util.SourceFormat.*
+import yuck.flatzinc.test.util.VerificationFrequency.*
 import yuck.test.util.ParallelTestRunner
 
 /**

@@ -14,9 +14,13 @@ import yuck.flatzinc.ast.*
 import yuck.flatzinc.compiler.{FlatZincCompilerResult, UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
 import yuck.flatzinc.parser.*
 import yuck.flatzinc.runner.*
+import yuck.flatzinc.test.util.SourceFormat.*
+import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
+import yuck.flatzinc.test.util.VerificationFrequency.*
 import yuck.test.util.{IntegrationTest, ProcessRunner}
 import yuck.util.arm.*
-import yuck.util.logging.{FineLogLevel, ManagedLogHandler}
+import yuck.util.logging.ManagedLogHandler
+import yuck.util.logging.LogLevel.*
 
 /**
  * @author Michael Marte
@@ -162,7 +166,7 @@ class ZincBasedTest extends IntegrationTest {
                 verifySolution(task, result)
             }
         } else {
-            logger.withRootLogLevel(yuck.util.logging.FinerLogLevel) {
+            logger.withRootLogLevel(FinerLogLevel) {
                 logger.withLogScope("Violated constraints") {
                     logViolatedConstraints(result)
                 }

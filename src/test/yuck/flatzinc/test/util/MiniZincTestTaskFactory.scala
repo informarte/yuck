@@ -5,6 +5,7 @@ import java.io.File
 import scala.collection.{Seq, mutable}
 
 import yuck.core.JavaRandomGenerator
+import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 
 /**
  * Generates test tasks from a given test suite.

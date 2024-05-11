@@ -15,6 +15,7 @@ import yuck.flatzinc.compiler.{UnsupportedFlatZincTypeException, VariableWithInf
 import yuck.flatzinc.parser.*
 import yuck.util.arm.*
 import yuck.util.logging.YuckLogging
+import yuck.util.logging.LogLevel.InfoLogLevel
 
 /**
  * @author Michael Marte
@@ -23,7 +24,7 @@ import yuck.util.logging.YuckLogging
 object FlatZincRunner extends YuckLogging {
 
     private case class CommandLine(
-        logLevel: yuck.util.logging.LogLevel = yuck.util.logging.NoLogging,
+        logLevel: yuck.util.logging.LogLevel = yuck.util.logging.LogLevel.NoLogging,
         logFilePath: String = "",
         fznFilePath: String = "",
         cfg: FlatZincSolverConfiguration =
@@ -78,7 +79,7 @@ object FlatZincRunner extends YuckLogging {
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(useProgressiveTightening = x)))
         opt[Unit]('v', "verbose")
             .text("Enable verbose solving (equivalent to --log-level INFO)")
-            .action((_, cl) => cl.copy(logLevel = List(cl.logLevel, yuck.util.logging.InfoLogLevel).minBy(_.intValue)))
+            .action((_, cl) => cl.copy(logLevel = List(cl.logLevel, yuck.util.logging.LogLevel.InfoLogLevel).minBy(_.intValue)))
         opt[String]("log-level")
             .text("%s, default value is %s".format(logLevels.mkString("|"), defaultCl.logLevel.toString))
             .action((x, cl) => cl.copy(logLevel = List(cl.logLevel, logLevelMap.getOrElse(x, cl.logLevel)).minBy(_.intValue)))

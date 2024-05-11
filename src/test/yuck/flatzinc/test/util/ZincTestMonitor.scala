@@ -1,10 +1,14 @@
 package yuck.flatzinc.test.util
 
 import scala.collection.mutable
+
 import yuck.annealing.{AnnealingResult, StandardAnnealingMonitor}
 import yuck.core.{NumericalObjective, *}
 import yuck.flatzinc.compiler.FlatZincCompilerResult
-import yuck.util.logging.{FineLogLevel, LazyLogger}
+import yuck.flatzinc.test.util.SourceFormat.*
+import yuck.flatzinc.test.util.VerificationFrequency.*
+import yuck.util.logging.LazyLogger
+import yuck.util.logging.LogLevel.FineLogLevel
 import yuck.util.DescriptiveStatistics.*
 
 /**

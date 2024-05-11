@@ -4,7 +4,8 @@ import scala.collection.*
 
 import yuck.core.{given, *}
 import yuck.core.IntegerDomain.ensureRangeList
-import yuck.util.logging.{FineLogLevel, LazyLogger}
+import yuck.util.logging.LazyLogger
+import yuck.util.logging.LogLevel.FineLogLevel
 import yuck.test.*
 
 /**

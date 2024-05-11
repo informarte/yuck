@@ -4,7 +4,8 @@ import scala.collection.*
 
 import yuck.core.{given, *}
 import yuck.test.util.{EqualityTestHelper, YuckAssert}
-import yuck.util.logging.{FineLogLevel, LazyLogger}
+import yuck.util.logging.LazyLogger
+import yuck.util.logging.LogLevel.FineLogLevel
 
 /**
  * @author Michael Marte

@@ -2,6 +2,7 @@ package yuck.flatzinc.compiler
 
 import yuck.core.*
 import yuck.flatzinc.ast.{Annotation, ArrayConst, Expr, Term}
+import yuck.util.logging.LogLevel.FineLogLevel
 
 /**
  * Parses warm-start annotations and assigns the variables accordingly.
@@ -62,7 +63,7 @@ class WarmStartAnnotationParser
 
     private def logWarmStartAssignments(): Unit = {
         cc.logger.criticalSection {
-            cc.logger.withRootLogLevel(yuck.util.logging.FineLogLevel) {
+            cc.logger.withRootLogLevel(FineLogLevel) {
                 cc.logger.withLogScope("Warm-start assignments") {
                     for ((x, y) <- cc.warmStartAssignment) {
                         cc.logger.log("%s = %s".format(x, y.domain.singleValue))

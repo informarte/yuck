@@ -5,6 +5,8 @@ import org.junit.experimental.categories.*
 import org.junit.experimental.categories.Categories.*
 
 import yuck.flatzinc.test.util.*
+import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
+import yuck.flatzinc.test.util.VerificationFrequency.*
 
 /**
  * A collection of problems from the MiniZinc challenges 2012 - 2023

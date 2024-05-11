@@ -1,53 +1,57 @@
 package yuck.flatzinc.test.util
 
-import yuck.core.Result
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.test.util.{DefaultNumberOfThreads, DefaultRuntimeLimitInSeconds}
+import yuck.util.logging.LogLevel
 
 /**
  * @author Michael Marte
  *
  */
-sealed abstract class SourceFormat
-case object FlatZinc extends SourceFormat
-case object MiniZinc extends SourceFormat
+enum SourceFormat {
+    case FlatZinc
+    case MiniZinc
+}
 
 /**
  * @author Michael Marte
  *
  */
-sealed abstract class VerificationFrequency
-case object NoVerification extends VerificationFrequency
-case object VerifyOnlyLastSolution extends VerificationFrequency
-case object VerifyEverySolution extends VerificationFrequency
+enum VerificationFrequency {
+    case NoVerification
+    case VerifyOnlyLastSolution
+    case VerifyEverySolution
+}
 
 /**
  * @author Michael Marte
  *
  */
-sealed abstract class TestDataDirectoryLayout
-// all model (mzn) files in one folder, models contain data
-case object MiniZincExamplesLayout extends TestDataDirectoryLayout
-// several model (mzn) and data (dzn) files in one folder, data files may be organized into sub folders
-case object StandardMiniZincBenchmarksLayout extends TestDataDirectoryLayout
-// several model (mzn) files in one folder, models contain data
-case object NonStandardMiniZincBenchmarksLayout extends TestDataDirectoryLayout
+enum TestDataDirectoryLayout {
+    // all model (mzn) files in one folder, models contain data
+    case MiniZincExamplesLayout
+    // several model (mzn) and data (dzn) files in one folder, data files may be organized into sub folders
+    case StandardMiniZincBenchmarksLayout
+    // several model (mzn) files in one folder, models contain data
+    case NonStandardMiniZincBenchmarksLayout
+}
 
 /**
  * @author Michael Marte
  *
  */
-sealed abstract class VerificationTool
-case object Chuffed extends VerificationTool
-case object Gecode extends VerificationTool
-case object OrTools extends VerificationTool
+enum VerificationTool {
+    case Chuffed
+    case Gecode
+    case OrTools
+}
 
 /**
  * @author Michael Marte
  *
  */
 final case class ZincTestTask(
-    sourceFormat: SourceFormat = MiniZinc,
+    sourceFormat: SourceFormat = SourceFormat.MiniZinc,
     directoryLayout: TestDataDirectoryLayout,
     suitePath: String = "",
     suiteName: String = "",
@@ -64,17 +68,17 @@ final case class ZincTestTask(
     maybeOptimum: Option[Long] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
     maybeHighScore: Option[Long] = None, // best ever recorded objective value
     maybeTargetObjectiveValue: Option[Long] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
-    logLevel: yuck.util.logging.LogLevel = yuck.util.logging.InfoLogLevel,
+    logLevel: LogLevel = LogLevel.InfoLogLevel,
     throwWhenUnsolved: Boolean = false,
     reusePreviousTestResult: Boolean = true,
-    verificationFrequency: VerificationFrequency = VerifyOnlyLastSolution,
+    verificationFrequency: VerificationFrequency = VerificationFrequency.VerifyOnlyLastSolution,
     verificationModelName: String = "",
-    verificationTool: VerificationTool = Gecode,
+    verificationTool: VerificationTool = VerificationTool.Gecode,
     miniZincCompilerRenamesVariables: Boolean = true,
     keepFlatZincFile: Boolean = true,
     createDotFile: Boolean = false)
 {
-    require(sourceFormat != FlatZinc || directoryLayout == MiniZincExamplesLayout)
+    require(sourceFormat != SourceFormat.FlatZinc || directoryLayout == TestDataDirectoryLayout.MiniZincExamplesLayout)
     def effectiveInstanceName: String = if (instanceName.isEmpty) problemName else instanceName
     override def toString = "%s/%s/%s".format(problemName, modelName, instanceName)
 }

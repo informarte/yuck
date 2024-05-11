@@ -9,8 +9,12 @@ import yuck.core.{*, given}
 import yuck.flatzinc.ast.*
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.flatzinc.runner.*
+import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
+import yuck.flatzinc.test.util.VerificationFrequency.*
+import yuck.flatzinc.test.util.VerificationTool.*
 import yuck.test.util.{DefaultRuntimeLimitInSeconds, ProcessRunner}
-import yuck.util.logging.{FineLogLevel, LazyLogger}
+import yuck.util.logging.LazyLogger
+import yuck.util.logging.LogLevel.FineLogLevel
 
 /**
  * @author Michael Marte

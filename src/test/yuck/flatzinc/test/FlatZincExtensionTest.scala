@@ -4,10 +4,12 @@ import org.junit.*
 import org.junit.experimental.categories.*
 
 import scala.language.implicitConversions
+
 import yuck.constraints.*
 import yuck.core.{*, given}
 import yuck.flatzinc.compiler.Bool2Costs1
 import yuck.flatzinc.test.util.*
+import yuck.flatzinc.test.util.VerificationFrequency.*
 import yuck.test.*
 import yuck.test.util.ParallelTestRunner
 

@@ -6,6 +6,6 @@ package yuck.util
  */
 package object logging {
 
-    val logLevels = List(NoLogging, InfoLogLevel, FineLogLevel, FinerLogLevel, FinestLogLevel, LogEverything)
+    val logLevels = LogLevel.values.toList
 
 }

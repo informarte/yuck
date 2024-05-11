@@ -26,6 +26,7 @@ final class Circuit
 {
 
     import Circuit.*
+    import Circuit.GreedyStrategy.*
 
     inline private val MaxNumberOfGreedyHeuristicRuns = 100
 
@@ -186,9 +187,10 @@ final class Circuit
  */
 object Circuit {
 
-    private trait GreedyStrategy
-    private case object FirstFailStrategy extends GreedyStrategy
-    private case object RandomizedStrategy extends GreedyStrategy
+    private enum GreedyStrategy {
+        case FirstFailStrategy
+        case RandomizedStrategy
+    }
 
     private trait HeuristicResult
     private case object UnsatisfiableInstance extends HeuristicResult

@@ -3,8 +3,11 @@ package yuck.flatzinc.test
 import org.junit.*
 import org.junit.experimental.categories.*
 import org.junit.experimental.categories.Categories.*
+
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.test.util.*
+import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
+import yuck.flatzinc.test.util.VerificationFrequency.*
 import yuck.test.util.ParallelTestRunner
 
 /**

@@ -11,38 +11,15 @@ package yuck.util.logging
  *
  * @author Michael Marte
  */
-trait LogLevel {
-    def intValue: Int
-    def name: String
+enum LogLevel(val intValue: Int, val name: String) {
+
+    case NoLogging extends LogLevel(Int.MaxValue, "OFF")
+    case InfoLogLevel extends LogLevel(1000, "INFO")
+    case FineLogLevel extends LogLevel(900, "FINE")
+    case FinerLogLevel extends LogLevel(800, "FINER")
+    case FinestLogLevel extends LogLevel(700, "FINEST")
+    case LogEverything extends LogLevel(Int.MinValue, "ALL")
+
     override def toString = name
-}
 
-case object NoLogging extends LogLevel {
-    override def intValue = Int.MaxValue
-    override def name = "OFF"
-}
-
-case object InfoLogLevel extends LogLevel {
-    override def intValue = 1000
-    override def name = "INFO"
-}
-
-case object FineLogLevel extends LogLevel {
-    override def intValue = 900
-    override def name = "FINE"
-}
-
-case object FinerLogLevel extends LogLevel {
-    override def intValue = 800
-    override def name = "FINER"
-}
-
-case object FinestLogLevel extends LogLevel {
-    override def intValue = 700
-    override def name = "FINEST"
-}
-
-case object LogEverything extends LogLevel {
-    override def intValue = Int.MinValue
-    override def name = "ALL"
 }

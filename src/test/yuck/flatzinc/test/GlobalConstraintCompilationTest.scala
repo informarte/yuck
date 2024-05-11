@@ -7,9 +7,12 @@ import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 import yuck.constraints.*
+import yuck.constraints.OrderingRelation.*
 import yuck.core.{given, *}
 import yuck.flatzinc.compiler.{Bool2Costs2, LevelWeightMaintainer}
 import yuck.flatzinc.test.util.*
+import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
+import yuck.flatzinc.test.util.VerificationFrequency.*
 import yuck.test.util.ParallelTestRunner
 
 /**

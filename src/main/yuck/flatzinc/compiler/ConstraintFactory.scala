@@ -4,6 +4,7 @@ import scala.collection.*
 import scala.ref.WeakReference
 
 import yuck.constraints.*
+import yuck.constraints.OrderingRelation.*
 import yuck.core.{given, *}
 import yuck.flatzinc.ast.*
 import yuck.util.arm.scoped

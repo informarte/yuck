@@ -30,7 +30,7 @@ abstract class Disjoint
     final override def outVariables = List(costs)
 
     protected type BBox <: HyperRect[?]
-    protected trait HasBBox {
+    protected abstract class HasBBox {
         def bbox: BBox
     }
     protected type RTreeEntry <: HasBBox

@@ -8,6 +8,7 @@ import yuck.annealing.AnnealingResult
 import yuck.core.{given, *}
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.FlatZincCompilerResult
+import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 
 /**
  * @author Michael Marte

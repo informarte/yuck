@@ -11,6 +11,7 @@ import scala.language.implicitConversions
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
 import yuck.flatzinc.test.util.*
+import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 
 /**
  * Test cases taken from the MiniZinc 1.6 distribution

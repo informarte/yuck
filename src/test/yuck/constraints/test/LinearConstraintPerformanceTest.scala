@@ -6,6 +6,7 @@ import scala.collection.*
 import scala.jdk.CollectionConverters.*
 
 import yuck.constraints.*
+import yuck.constraints.OrderingRelation.*
 import yuck.core.{given, *}
 import yuck.test.util.UnitTest
 

@@ -4,20 +4,13 @@ package yuck.constraints
  * @author Michael Marte
  *
  */
-trait OrderingRelation
+enum OrderingRelation(val name: String) {
 
-case object EqRelation extends OrderingRelation {
-    override def toString = "=="
-}
+    case EqRelation extends OrderingRelation("==")
+    case NeRelation extends OrderingRelation("!=")
+    case LtRelation extends OrderingRelation("<")
+    case LeRelation extends OrderingRelation("=<")
 
-case object NeRelation extends OrderingRelation {
-    override def toString = "!="
-}
+    override def toString = name
 
-case object LtRelation extends OrderingRelation {
-    override def toString = "<"
-}
-
-case object LeRelation extends OrderingRelation {
-    override def toString = "=<"
 }

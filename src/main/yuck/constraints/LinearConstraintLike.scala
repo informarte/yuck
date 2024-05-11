@@ -2,6 +2,7 @@ package yuck.constraints
 
 import scala.collection.*
 
+import yuck.constraints.OrderingRelation.*
 import yuck.core.*
 
 /**

@@ -17,7 +17,7 @@ abstract class YuckTest extends YuckAssert with YuckLogging {
     nativeLogger.setLevel(java.util.logging.Level.ALL)
     private val consoleHandler = new java.util.logging.ConsoleHandler
     consoleHandler.setFormatter(formatter)
-    logger.setThresholdLogLevel(yuck.util.logging.InfoLogLevel)
+    logger.setThresholdLogLevel(yuck.util.logging.LogLevel.InfoLogLevel)
 
     // By default, don't log to console when the test is run in parallel to other tests.
     protected val logToConsole = Thread.currentThread.getName == "main"

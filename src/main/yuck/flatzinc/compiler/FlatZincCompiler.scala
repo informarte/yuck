@@ -77,7 +77,7 @@ final class FlatZincCompiler
     }
 
     // Use the optional root log level to focus on a particular compilation phase.
-    private def run(phase: CompilationPhase, rootLogLevel: yuck.util.logging.LogLevel = yuck.util.logging.FineLogLevel): Unit = {
+    private def run(phase: CompilationPhase, rootLogLevel: yuck.util.logging.LogLevel = yuck.util.logging.LogLevel.FineLogLevel): Unit = {
         if (sigint.isSet) {
             throw new FlatZincCompilerInterruptedException
         }

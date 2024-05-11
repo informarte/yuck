@@ -6,6 +6,7 @@ import java.util.concurrent.locks.ReentrantLock
 import java.util.logging.{Level, Logger}
 
 import yuck.util.arm.scoped
+import yuck.util.logging.LogLevel.*
 
 /**
  * Turns a given [[http://docs.oracle.com/javase/7/docs/api/java/util/logging/Logger.html

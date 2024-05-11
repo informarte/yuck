@@ -8,6 +8,8 @@ import yuck.annealing.AnnealingResult
 import yuck.core.{*, given}
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.test.util.*
+import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
+import yuck.flatzinc.test.util.VerificationFrequency.*
 import yuck.util.logging.LazyLogger
 import yuck.test.*
 
