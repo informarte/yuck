@@ -117,7 +117,13 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
     def testIfThenElseVarBoolWithConstCondition(): Unit = {
-        testIfThenElseVarWithConstCondition("if_then_else_var_bool_with_const_condition_test")
+        val result = solveWithResult(task.copy(problemName = "if_then_else_var_bool_with_const_condition_test"))
+        assertEq(result.space.searchVariables.map(_.name), Set("u"))
+        assertEq(result.space.channelVariables.size, 2)
+        assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 1)
+        assertEq(result.space.numberOfConstraints, 2)
+        assertEq(result.space.numberOfConstraints[Conjunction], 1)
+        assertEq(result.space.numberOfConstraints[Not], 1)
     }
 
     @Test
