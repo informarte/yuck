@@ -15,7 +15,7 @@ RUN apt-get install -y openjdk-17-jre-headless && \
 ENV LC_ALL=C.UTF-8
 
 # Install MiniZinc compiler
-ARG minizinc_version=2.8.4
+ARG minizinc_version=2.8.5
 LABEL minizinc_version=${minizinc_version}
 RUN apt-get install -y bison clang cmake flex git && \
     git clone https://github.com/MiniZinc/libminizinc.git && \

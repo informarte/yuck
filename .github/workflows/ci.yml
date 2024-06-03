@@ -5,7 +5,7 @@ on: [push]
 env:
   ACTIONS_RUNNER_DEBUG: true
   ACTIONS_STEP_DEBUG: true
-  MINIZINC_VERSION: 2.8.4
+  MINIZINC_VERSION: 2.8.5
 
 jobs:
   ci:
