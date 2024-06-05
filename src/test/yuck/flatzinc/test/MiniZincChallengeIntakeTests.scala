@@ -57,6 +57,12 @@ class MiniZincChallengeIntakeTests extends ZincBasedTest {
     }
 
     @Test
+    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentExceptConstraint]))
+    def testAllDifferentExcept0(): Unit = {
+        solve(task.copy(problemName = "test_globals", modelName = "test_all_different_except_0", maybeOptimum = Some(10)))
+    }
+
+    @Test
     @Category(Array(classOf[MinimizationProblem]))
     def testAllDisjoint(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_all_disjoint", maybeOptimum = Some(0)))
@@ -81,6 +87,18 @@ class MiniZincChallengeIntakeTests extends ZincBasedTest {
     }
 
     @Test
+    @Category(Array(classOf[MaximizationProblem], classOf[HasCumulativeConstraint]))
+    def testCumulativeOpt(): Unit = {
+        solve(task.copy(problemName = "test_globals", modelName = "test_cumulative", maybeOptimum = Some(3)))
+    }
+
+    @Test
+    @Category(Array(classOf[MinimizationProblem], classOf[HasDecreasingConstraint]))
+    def testDecreasing(): Unit = {
+        solve(task.copy(problemName = "test_globals", modelName = "test_decreasing", maybeOptimum = Some(13)))
+    }
+
+    @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasDiffnConstraint]))
     def testDiffn(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_diffn", maybeOptimum = Some(44)))
@@ -90,6 +108,24 @@ class MiniZincChallengeIntakeTests extends ZincBasedTest {
     @Category(Array(classOf[MinimizationProblem], classOf[HasDisjunctiveConstraint]))
     def testDisjunctive(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_disjunctive", maybeOptimum = Some(6)))
+    }
+
+    @Test
+    @Category(Array(classOf[MinimizationProblem], classOf[HasDisjunctiveConstraint]))
+    def testDisjunctiveOpt(): Unit = {
+        solve(task.copy(problemName = "test_globals", modelName = "test_disjunctive_opt", maybeOptimum = Some(5)))
+    }
+
+    @Test
+    @Category(Array(classOf[MinimizationProblem], classOf[HasDisjunctiveConstraint]))
+    def testDisjunctiveStrict(): Unit = {
+        solve(task.copy(problemName = "test_globals", modelName = "test_disjunctive_strict", maybeOptimum = Some(7)))
+    }
+
+    @Test
+    @Category(Array(classOf[MinimizationProblem], classOf[HasDisjunctiveConstraint]))
+    def testDisjunctiveStrictOpt(): Unit = {
+        solve(task.copy(problemName = "test_globals", modelName = "test_disjunctive_strict_opt", maybeOptimum = Some(6)))
     }
 
     @Test
@@ -108,6 +144,12 @@ class MiniZincChallengeIntakeTests extends ZincBasedTest {
     @Category(Array(classOf[MinimizationProblem], classOf[HasIncreasingConstraint]))
     def testIncreasing(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_increasing", maybeOptimum = Some(13)))
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
+    def testInverse(): Unit = {
+        solve(task.copy(problemName = "test_globals", modelName = "test_inverse"))
     }
 
     @Test
