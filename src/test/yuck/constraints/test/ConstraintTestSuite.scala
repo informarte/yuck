@@ -13,8 +13,6 @@ import yuck.constraints.test.util.test.ConstraintTestToolingTest
     Array(
         classOf[ConstraintTestToolingTest],
         classOf[BasicNumericalConstraintsTest],
-        classOf[AlldistinctTest],
-        classOf[AlldistinctExceptTest],
         classOf[BinPackingTest],
         classOf[BooleanIncreasingTest],
         classOf[BooleanIncreasingNeighbourhoodTest],
@@ -31,6 +29,9 @@ import yuck.constraints.test.util.test.ConstraintTestToolingTest
         classOf[ElementVarTest],
         classOf[GeneralInverseNeighbourhoodTest],
         classOf[IfThenElseTest],
+        classOf[AllDifferentTest],
+        classOf[AllDifferentExceptTest],
+        classOf[AllDifferentNeighbourhoodTest],
         classOf[IntegerIncreasingTest],
         classOf[IntegerIncreasingNeighbourhoodTest],
         classOf[TableTest],

@@ -497,12 +497,12 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.channelVariables.size, 5)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
         assertEq(result.space.numberOfConstraints, 5)
-        assertEq(result.space.numberOfConstraints[Alldistinct[?]], 1)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[Ne[?]], 3)
         assertEq(result.space.numberOfPropagations, 6)
         assertEq(result.space.numberOfRetractions, 0)
-        assert(result.neighbourhood.isInstanceOf[AlldistinctNeighbourhood[?]])
+        assert(result.neighbourhood.isInstanceOf[AllDifferentNeighbourhood[?]])
     }
 
     // Checks that the reified redundant alldifferent constraints are ignored.
@@ -557,7 +557,7 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.channelVariables.size, 2)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 2)
         assertEq(result.space.numberOfConstraints, 2)
-        assertEq(result.space.numberOfConstraints[Alldistinct[?]], 1)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfPropagations, 23)
         assertEq(result.space.numberOfRetractions, 13)

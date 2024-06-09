@@ -48,8 +48,8 @@ abstract class Increasing
 
     final override def propagate(): PropagationEffects = {
         if (costs.domain == TrueDomain) {
-            val leftToRight = (0 until n - 1).foldLeft(NoPropagationOccurred: PropagationEffects)(propagate(_, _))
-            val rightToLeft = (n - 2 to 0 by -1).foldLeft(leftToRight)(propagate(_, _))
+            val leftToRight = (0 until n - 1).foldLeft(NoPropagationOccurred: PropagationEffects)(propagate)
+            val rightToLeft = (n - 2 to 0 by -1).foldLeft(leftToRight)(propagate)
             rightToLeft
         } else {
             NoPropagationOccurred
@@ -69,7 +69,7 @@ abstract class Increasing
     final override def initialize(now: SearchState) = {
         currentCosts = (0 until n - 1).iterator
             .map(i => computeCosts(now.value(xs(i)), now.value(xs(i + 1))))
-            .foldLeft(0L)(safeAdd(_, _))
+            .foldLeft(0L)(safeAdd)
         effect.a = BooleanValue(currentCosts)
         effect
     }

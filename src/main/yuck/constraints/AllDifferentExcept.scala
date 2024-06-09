@@ -3,10 +3,9 @@ package yuck.constraints
 import scala.collection.*
 
 import yuck.core.*
+import yuck.util.logging.LazyLogger
 
 /**
- * Implements the ''alldifferent_except'' constraint as specified by MiniZinc.
- *
  * Given a set X of variables and a set of values S, the constraint maintains the set A = {s(x): x in X}
  * of values assigned to the variables and provides |{x in X: s(x) not in S}| - |A \ S| as measure of
  * constraint violation.
@@ -15,15 +14,20 @@ import yuck.core.*
  *
  * @author Michael Marte
  */
-final class AlldistinctExcept
-    [V <: NumericalValue[V]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.Seq[NumericalVariable[V]], S: immutable.Set[V], costs: BooleanVariable)
-    (using valueTraits: NumericalValueTraits[V])
-    extends ValueFrequencyTracker[V, BooleanValue](id, xs, costs)
+final class AllDifferentExcept
+    [V <: Value[V]]
+    (id: Id[Constraint],
+     override val maybeGoal: Option[Goal],
+     override protected val xs: immutable.Seq[Variable[V]],
+     S: immutable.Set[V],
+     override protected val result: BooleanVariable)
+    (using override protected val valueTraits: ValueTraits[V])
+    extends ValueFrequencyTracker[V, BooleanValue](id)
 {
-    override def toString = "alldistinctExcept([%s], {%s}, %s)".format(xs.mkString(", "), S.mkString(", "), costs)
-    override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) = {
+
+    final override def toString = "all_different_except([%s], {%s}, %s)".format(xs.mkString(", "), S.mkString(", "), result)
+
+    final override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) = {
         var violation = xs.size - valueRegistry.size
         for (a <- S) {
             val maybeCount = valueRegistry.get(a)
@@ -33,4 +37,5 @@ final class AlldistinctExcept
         }
         BooleanValue(violation)
     }
+
 }

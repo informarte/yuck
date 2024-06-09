@@ -6,11 +6,11 @@ import scala.collection.*
 import yuck.core.*
 
 /**
- * This neighbourhood can be used to maintain any ''all_different_int'' constraint.
+ * This neighbourhood can be used to maintain ''all_different'' constraints.
  *
  * @author Michael Marte
  */
-final class AlldistinctNeighbourhood
+final class AllDifferentNeighbourhood
     [V <: Value[V]]
     (space: Space,
      xs: immutable.IndexedSeq[Variable[V]],
@@ -52,9 +52,9 @@ final class AlldistinctNeighbourhood
             if (m == 1) {
                 val candidates =
                     randomGenerator
-                    .lazyShuffle(xs)
-                    .map(x => (x, (x.domain.diff(usedValues))))
-                    .filter(! _._2.isEmpty)
+                        .lazyShuffle(xs)
+                        .map(x => (x, (x.domain.diff(usedValues))))
+                        .filter(! _._2.isEmpty)
                 val (x, unusedValues) = candidates.next()
                 val u = unusedValues.randomValue(randomGenerator)
                 // {(x, a)} -> {(x, u)}
@@ -63,9 +63,9 @@ final class AlldistinctNeighbourhood
             } else if (variablesHaveTheSameDomain) {
                 val candidates =
                     randomGenerator
-                    .lazyShuffle(xs.indices)
-                    .map(i => (i, (xs(i).domain.diff(usedValues))))
-                    .filter(! _._2.isEmpty)
+                        .lazyShuffle(xs.indices)
+                        .map(i => (i, (xs(i).domain.diff(usedValues))))
+                        .filter(! _._2.isEmpty)
                 val (i, unusedValues) = candidates.next()
                 val x = xs(i)
                 val a = value(x)

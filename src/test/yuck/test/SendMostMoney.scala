@@ -53,7 +53,7 @@ final class SendMostMoney extends IntegrationTest {
             val vars = Set(S, E, N, D, M, O, S, T, M, O, N, E, Y)
             val numberOfMissingValues = new BooleanVariable(space.nextVariableId(), "numberOfMissingValues", CompleteBooleanDomain)
             space.post(
-                new Alldistinct(
+                new AllDifferent(
                     space.nextConstraintId(), null,
                     Set(S, E, N, D, M, O, S, T, M, O, N, E, Y).toVector, numberOfMissingValues, logger))
             val LHS = List((1000, S), (100, E), (10, N), (1, D), (1000, M), (100, O), (10, S), (1, T))

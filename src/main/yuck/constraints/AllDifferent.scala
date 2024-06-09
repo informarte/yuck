@@ -10,8 +10,6 @@ import yuck.core.{given, *}
 import yuck.util.logging.LazyLogger
 
 /**
- * Implements the ''all_different_int/set'' constraints as specified by MiniZinc.
- *
  * Given a set X of variables, the constraint maintains the set A = {s(x): x in X} of values
  * assigned to the variables and provides |X| - |A| as measure of constraint violation.
  *
@@ -19,22 +17,24 @@ import yuck.util.logging.LazyLogger
  *
  * @author Michael Marte
  */
-final class Alldistinct
+final class AllDifferent
     [V <: Value[V]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.IndexedSeq[Variable[V]], costs: BooleanVariable,
+    (id: Id[Constraint],
+     override val maybeGoal: Option[Goal],
+     override protected val xs: immutable.IndexedSeq[Variable[V]],
+     override protected val result: BooleanVariable,
      logger: LazyLogger)
-    (using valueTraits: ValueTraits[V])
-    extends ValueFrequencyTracker[V, BooleanValue](id, xs, costs)
+    (using override protected val valueTraits: ValueTraits[V])
+    extends ValueFrequencyTracker[V, BooleanValue](id)
 {
 
-    override def toString = "alldistinct([%s], %s)".format(xs.mkString(", "), costs)
+    final override def toString = "all_different([%s], %s)".format(xs.mkString(", "), result)
 
     override def propagate() = {
         if (valueTraits == IntegerSetValueTraits) {
             // bail out because integer-set domains do not support the diff operation
             NoPropagationOccurred
-        } else if (costs.domain == TrueDomain) {
+        } else if (result.domain == TrueDomain) {
             NoPropagationOccurred.pruneDomains(
                 for (x <- xs.iterator if x.domain.isSingleton;
                      y <- xs.iterator if y != x && y.domain.contains(x.domain.singleValue))
@@ -45,19 +45,19 @@ final class Alldistinct
         }
     }
 
-    override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
+    final override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
         BooleanValue(xs.size - valueRegistry.size)
 
-    override def isCandidateForImplicitSolving(space: Space) = {
+    final override def isCandidateForImplicitSolving(space: Space) = {
         val (xs, ys) = this.xs.partition(! _.domain.isSingleton)
         val as = ys.iterator.map(_.domain.singleValue).toSet
         valueTraits == IntegerValueTraits &&
-        xs.size > 1 &&
-        xs.toSet.size == xs.size &&
-        ! xs.exists(space.isChannelVariable) &&
-        xs.forall(_.domain.isFinite) &&
-        xs.forall(x => ! as.exists(a => x.domain.contains(a))) &&
-        ys.size == as.size
+            xs.size > 1 &&
+            xs.toSet.size == xs.size &&
+            ! xs.exists(space.isChannelVariable) &&
+            xs.forall(_.domain.isFinite) &&
+            xs.forall(x => ! as.exists(a => x.domain.contains(a))) &&
+            ys.size == as.size
     }
 
     override def createNeighbourhood(
@@ -105,8 +105,8 @@ final class Alldistinct
                 for (Edge(x, a) <- matching.getEdges.asScala) {
                     space.setValue(x, a)
                 }
-                space.setValue(costs, True)
-                Some(new AlldistinctNeighbourhood(space, xs.filter(! _.domain.isSingleton), randomGenerator, moveSizeDistribution))
+                space.setValue(result, True)
+                Some(new AllDifferentNeighbourhood(space, xs.filter(! _.domain.isSingleton), randomGenerator, moveSizeDistribution))
             }
         } else {
             None

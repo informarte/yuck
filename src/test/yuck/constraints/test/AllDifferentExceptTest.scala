@@ -2,7 +2,7 @@ package yuck.constraints.test
 
 import org.junit.*
 
-import yuck.constraints.AlldistinctExcept
+import yuck.constraints.AllDifferentExcept
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.{given, *}
 import yuck.test.*
@@ -13,7 +13,8 @@ import yuck.test.util.UnitTest
  *
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class AlldistinctExceptTest extends UnitTest with ConstraintTestTooling {
+
+final class AllDifferentExceptTest extends UnitTest with ConstraintTestTooling {
 
     private val space = new Space(logger, sigint)
 
@@ -23,8 +24,8 @@ final class AlldistinctExceptTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new AlldistinctExcept(space.nextConstraintId(), null, xs, Set(Zero), costs)
-        assertEq(constraint.toString, "alldistinctExcept([x1, x2, x3, x4], {0}, costs)")
+        val constraint = new AllDifferentExcept(space.nextConstraintId(), null, xs, Set(Zero), costs)
+        assertEq(constraint.toString, "all_different_except([x1, x2, x3, x4], {0}, costs)")
         assertEq(constraint.inVariables.size, 4)
         assertEq(constraint.inVariables.toSet, xs.toSet)
         assertEq(constraint.outVariables.size, 1)
@@ -33,7 +34,7 @@ final class AlldistinctExceptTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testCostComputation(): Unit = {
-        space.post(new AlldistinctExcept(space.nextConstraintId(), null, xs, Set(Zero, Nine), costs))
+        space.post(new AllDifferentExcept(space.nextConstraintId(), null, xs, Set(Zero, Nine), costs))
         runScenario(
             TestScenario(
                 space,
@@ -51,7 +52,7 @@ final class AlldistinctExceptTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testCostComputationWithAVariableOccurringTwice(): Unit = {
-        space.post(new AlldistinctExcept(space.nextConstraintId(), null, List(x1, x2, x2), Set(Zero), costs))
+        space.post(new AllDifferentExcept(space.nextConstraintId(), null, List(x1, x2, x2), Set(Zero), costs))
         runScenario(
             TestScenario(
                 space,

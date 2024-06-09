@@ -38,15 +38,15 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testAlldifferentIntWithImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "alldifferent_int_test"))
-        assertEq(result.space.numberOfConstraints[Alldistinct[?]], 1)
-        assert(result.neighbourhood.isInstanceOf[AlldistinctNeighbourhood[?]])
+        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
+        assert(result.neighbourhood.isInstanceOf[AllDifferentNeighbourhood[?]])
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testAlldifferentIntWithoutImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithoutImplicitSolving.copy(problemName = "alldifferent_int_test"))
-        assertEq(result.space.numberOfConstraints[Alldistinct[?]], 1)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -54,7 +54,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testAlldifferentIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "alldifferent_int_reif_test"))
-        assertEq(result.space.numberOfConstraints[Alldistinct[?]], 2)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 2)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -62,7 +62,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testAlldifferentSet(): Unit = {
         val result = solveWithResult(task.copy(problemName = "alldifferent_set_test"))
-        assertEq(result.space.numberOfConstraints[Alldistinct[?]], 1)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -70,7 +70,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testAlldifferentSetReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "alldifferent_set_reif_test"))
-        assertEq(result.space.numberOfConstraints[Alldistinct[?]], 2)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 2)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -78,28 +78,28 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExceptConstraint]))
     def testAlldifferentExcept0(): Unit = {
         val result = solveWithResult(task.copy(problemName = "alldifferent_except_0_test"))
-        assertEq(result.space.numberOfConstraints[AlldistinctExcept[?]], 1)
+        assertEq(result.space.numberOfConstraints[AllDifferentExcept[?]], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExceptConstraint]))
     def testAlldifferentExcept0Reif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "alldifferent_except_0_reif_test"))
-        assertEq(result.space.numberOfConstraints[AlldistinctExcept[?]], 2)
+        assertEq(result.space.numberOfConstraints[AllDifferentExcept[?]], 2)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExceptConstraint]))
     def testAlldifferentExcept(): Unit = {
         val result = solveWithResult(task.copy(problemName = "alldifferent_except_test"))
-        assertEq(result.space.numberOfConstraints[AlldistinctExcept[?]], 1)
+        assertEq(result.space.numberOfConstraints[AllDifferentExcept[?]], 1)
     }
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentExceptConstraint]))
     def testAlldifferentExceptReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "alldifferent_except_reif_test"))
-        assertEq(result.space.numberOfConstraints[AlldistinctExcept[?]], 2)
+        assertEq(result.space.numberOfConstraints[AllDifferentExcept[?]], 2)
     }
 
     // We test the bin_packing constraints very thoroughly because the Yuck bindings,

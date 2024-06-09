@@ -94,7 +94,7 @@ abstract class NeighbourhoodFactory extends CompilationPhase {
         val constraintHardness: Map[Class[? <: Constraint], Int] = Map(
             (classOf[BooleanIncreasing], 3), (classOf[Circuit], 3), (classOf[IntegerIncreasing], 3), (classOf[Inverse], 3),
             (classOf[Regular], 3),
-            (classOf[Alldistinct[?]], 2),
+            (classOf[AllDifferent[?]], 2),
             (classOf[Table[?]], 1))
         def constraintRanking(constraint: Constraint): Int =
             -(constraintHardness(constraint.getClass) * constraint.inVariables.size)

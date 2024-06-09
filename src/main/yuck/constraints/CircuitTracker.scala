@@ -15,9 +15,9 @@ import yuck.core.*
  */
 abstract class CircuitTracker
     (id: Id[Constraint],
-     protected val succ: immutable.IndexedSeq[IntegerVariable],
-     protected val offset: Int,
-     protected val costs: BooleanVariable)
+     succ: immutable.IndexedSeq[IntegerVariable],
+     offset: Int,
+     costs: BooleanVariable)
     extends Constraint(id)
 {
 

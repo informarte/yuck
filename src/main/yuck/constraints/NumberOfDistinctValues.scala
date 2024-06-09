@@ -10,14 +10,16 @@ import yuck.core.*
  */
 class NumberOfDistinctValues
     [V <: OrderedValue[V]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.Seq[Variable[V]], n: IntegerVariable)
-    (using valueTraits: OrderedValueTraits[V])
-    extends ValueFrequencyTracker[V, IntegerValue](id, xs, n)
+    (id: Id[Constraint],
+     override val maybeGoal: Option[Goal],
+     override protected val xs: immutable.Seq[Variable[V]],
+     override protected val result: IntegerVariable)
+    (using override protected val valueTraits: OrderedValueTraits[V])
+    extends ValueFrequencyTracker[V, IntegerValue](id)
 {
-    override def toString = "%s = numberOfDistinctValues([%s])".format(n, xs.mkString(", "))
+    override def toString = "%s = nvalue([%s])".format(result, xs.mkString(", "))
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
         IntegerValue(valueRegistry.size)
     override def propagate() =
-        NoPropagationOccurred.pruneDomain(n, IntegerRange(if (xs.isEmpty) 0 else 1, xs.size))
+        NoPropagationOccurred.pruneDomain(result, IntegerRange(if (xs.isEmpty) 0 else 1, xs.size))
 }

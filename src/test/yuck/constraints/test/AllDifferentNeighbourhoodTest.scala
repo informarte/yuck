@@ -1,13 +1,13 @@
 package yuck.constraints.test
 
-import yuck.constraints.{Alldistinct, AlldistinctNeighbourhood}
-import yuck.core.{given, *}
+import yuck.constraints.{AllDifferent, AllDifferentNeighbourhood}
+import yuck.core.{*, given}
 
 /**
  * @author Michael Marte
  *
  */
-final class AlldistinctNeighbourhoodTest extends SpecialNeighbourhoodTest {
+final class AllDifferentNeighbourhoodTest extends SpecialNeighbourhoodTest {
 
     private val NumberOfVariables = 100
 
@@ -17,10 +17,10 @@ final class AlldistinctNeighbourhoodTest extends SpecialNeighbourhoodTest {
     }
 
     override protected def createConstraint() = {
-        new Alldistinct(space.nextConstraintId(), null, xs, costs, logger)
+        new AllDifferent(space.nextConstraintId(), null, xs, costs, logger)
     }
 
-    override protected val expectedNeighbourhoodClass = classOf[AlldistinctNeighbourhood[?]]
+    override protected val expectedNeighbourhoodClass = classOf[AllDifferentNeighbourhood[?]]
 
     override protected def checkSearchState(searchState: SearchState) = {
         assert(xs.forall(_.hasValidValue(searchState)))
