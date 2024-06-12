@@ -201,8 +201,7 @@ final class IntegerDomainTestHelper
         }
     }
 
-    private val specialDifferenceCases =
-        new immutable.HashMap[(IntegerDomain, IntegerDomain), IntegerDomain] ++
+    private val specialDifferenceCases: HashMap[(IntegerDomain, IntegerDomain), IntegerDomain] =
         List((CompleteIntegerRange, NegativeIntegerRange) -> NonNegativeIntegerRange,
              (CompleteIntegerRange, NonNegativeIntegerRange) -> NegativeIntegerRange,
              (CompleteIntegerRange, PositiveIntegerRange) -> NonPositiveIntegerRange,
@@ -211,6 +210,7 @@ final class IntegerDomainTestHelper
              (NonPositiveIntegerRange, NegativeIntegerRange) -> IntegerRange(0, 0),
              (NonNegativeIntegerRange, NonPositiveIntegerRange) -> PositiveIntegerRange,
              (NonPositiveIntegerRange, NonNegativeIntegerRange) -> NegativeIntegerRange)
+            .to(HashMap)
 
     private def testSetDifference(d: IntegerDomain, e: IntegerDomain): Unit = {
         val result = d.diff(e)

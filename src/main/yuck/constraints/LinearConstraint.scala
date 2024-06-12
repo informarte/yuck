@@ -29,15 +29,13 @@ final class LinearConstraint
     override protected def a(i: Int) = axs(i).a
     override protected def x(i: Int) = axs(i).x
 
-    private val x2i: immutable.Map[AnyVariable, Int] =
-        new immutable.HashMap[AnyVariable, Int] ++ (axs.iterator.map(_.x).zipWithIndex)
+    private val x2ax: HashMap[AnyVariable, AX[V]] = axs.view.map(ax => ax.x -> ax).to(HashMap)
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         futureSum = currentSum
         for (x0 <- move) {
             if (x0 != z) {
-                val i = x2i(x0)
-                val ax = axs(i)
+                val ax = x2ax(x0)
                 val x = ax.x
                 futureSum = futureSum.addAndSub(ax.a, after.value(x), before.value(x))
             }

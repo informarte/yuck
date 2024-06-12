@@ -19,7 +19,7 @@ final class Minimum
 {
     require(! xs.isEmpty)
     override def toString = "%s = min([%s])".format(result, xs.mkString(", "))
-    override protected def createValueRegistry() = immutable.TreeMap[V, Int]()
+    override protected def createValueRegistry() = TreeMap[V, Int]()
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
         valueRegistry.head._1
     override def propagate() = {

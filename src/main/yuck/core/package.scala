@@ -92,4 +92,7 @@ package object core {
 
     val DefaultRestartLimit = 1000
 
+    // The scala package object provides List and Vector but it does not provide map and set implementations.
+    export scala.collection.immutable.{HashMap, TreeMap, HashSet, TreeSet}
+
 }

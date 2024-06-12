@@ -29,8 +29,8 @@ final class OptimizationGoalTracker
     override def inVariables = axs.view.map(_.x)
     override def outVariables = Nil
 
-    private val indexMap: immutable.Map[AnyVariable, (Int, AX[V])] =
-        axs.indices.iterator.map(i => (axs(i).x, (i, axs(i)))).toMap
+    private val indexMap: HashMap[AnyVariable, (Int, AX[V])] =
+        axs.indices.view.map(i => (axs(i).x, (i, axs(i)))).to(HashMap)
 
     override def initialize(now: SearchState) = {
         distribution.clear()

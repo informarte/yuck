@@ -23,7 +23,7 @@ final class LinearCombination
     override def inVariables = axs.view.map(_.x)
     override def outVariables = List(y)
 
-    private val x2ax = immutable.HashMap[AnyVariable, AX[V]]() ++ (axs.iterator.map(_.x).zip(axs.iterator))
+    private val x2ax: HashMap[AnyVariable, AX[V]] = axs.view.map(ax => ax.x -> ax).to(HashMap)
     private var sum = valueTraits.zero
     private val effect = y.reuseableEffect
 
@@ -47,7 +47,8 @@ final class LinearCombination
         effect.a = sum
         for (x0 <- move) {
             val ax = x2ax(x0)
-            effect.a = effect.a.addAndSub(ax.a, after.value(ax.x), before.value(ax.x))
+            val x = ax.x
+            effect.a = effect.a.addAndSub(ax.a, after.value(x), before.value(x))
         }
         effect
     }

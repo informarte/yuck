@@ -22,18 +22,18 @@ abstract class ValueFrequencyTracker
     protected val result: Variable[Result]
     protected val valueTraits: ValueTraits[V]
 
-    override def inVariables: Iterable[AnyVariable] = xs
+    override def inVariables = xs
     override def outVariables = List(result)
 
     type VariableRegistry = immutable.Map[AnyVariable, Int]
-    protected def createVariableRegistry(): VariableRegistry = immutable.TreeMap[AnyVariable, Int]()
+    protected def createVariableRegistry(): VariableRegistry = TreeMap[AnyVariable, Int]()
     private def registerVariable(registry: VariableRegistry, x: AnyVariable) =
         registry + (x -> (registry.getOrElse(x, 0) + 1))
     private val variableRegistry =
         xs.foldLeft(createVariableRegistry())(registerVariable)
 
     type ValueRegistry = immutable.Map[V, Int]
-    protected def createValueRegistry(): ValueRegistry = immutable.HashMap[V, Int]()
+    protected def createValueRegistry(): ValueRegistry = HashMap[V, Int]()
     private var valueRegistry: ValueRegistry = null
     private var futureValueRegistry: ValueRegistry = null
     inline private def registerValue(valueRegistry: ValueRegistry, a0: V, n: Int): ValueRegistry = {

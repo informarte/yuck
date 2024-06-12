@@ -23,8 +23,8 @@ final class CountConst
     override def inVariables = xs
     override def outVariables = List(n)
 
-    private val x2n: immutable.Map[AnyVariable, Int] =
-        xs.groupBy(identity).view.mapValues(_.size).filter((_, n) => n > 1).toMap
+    private val x2n: HashMap[AnyVariable, Int] =
+        xs.groupBy(identity).view.mapValues(_.size).filter((_, n) => n > 1).to(HashMap)
 
     private var count = 0
     private val effect = n.reuseableEffect

@@ -19,7 +19,7 @@ final class Maximum
 {
     require(! xs.isEmpty)
     override def toString = "%s = max([%s])".format(result, xs.mkString(", "))
-    override protected def createValueRegistry() = immutable.TreeMap[V, Int]()
+    override protected def createValueRegistry() = TreeMap[V, Int]()
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
         valueRegistry.last._1
     override def propagate() = {

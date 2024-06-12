@@ -45,10 +45,10 @@ final class BinPacking
     override def inVariables = items.view.filter(_.weight > valueTraits.zero).map(_.bin)
     override def outVariables = loads.view.values
 
-    private val x2Item = (for (item <- items) yield item.bin -> item).toMap[AnyVariable, BinPackingItem[Load]]
+    private val x2Item = items.view.map(item => (item.bin: AnyVariable) -> item).to(immutable.HashMap)
     private val currentLoads = new mutable.HashMap[Int, Load] // bin -> load
     private val loadDeltas = new mutable.HashMap[Int, Load] // bin -> load delta
-    private val effects = for ((i, load) <- loads) yield i -> load.reuseableEffect // bin -> effect
+    private val effects = loads.view.map((i, load) => i -> load.reuseableEffect).to(immutable.HashMap) // bin -> effect
 
     override def initialize(now: SearchState) = {
         currentLoads.clear()

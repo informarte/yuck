@@ -2,8 +2,6 @@ package yuck.constraints.test
 
 import org.junit.*
 
-import scala.collection.immutable.TreeMap
-
 import yuck.constraints.*
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.{given, *}

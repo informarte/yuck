@@ -72,7 +72,7 @@ class RegularNeighbourhood
                     val a = x.domain.nextRandomValue(randomGenerator, now.value(x))
                     x -> a
                 })
-                .to(immutable.HashMap)
+                .to(HashMap)
         }
 
         val move = new BulkMove(space.nextMoveId())
@@ -120,7 +120,7 @@ class RegularNeighbourhood
     // with the resulting neighbourhoods, the solver failed to optimize solutions.
     // The current approach (based on random move proposals) does not suffer from this flaw.
     private final class PenaltyProvider
-        (proposal: immutable.HashMap[IntegerVariable, IntegerValue], searchState: SearchState)
+        (proposal: HashMap[IntegerVariable, IntegerValue], searchState: SearchState)
         extends DistanceProvider
     {
         override def apply(transition: Transition) =

@@ -125,13 +125,13 @@ final class RegularGraph(dfa: RegularDfa) {
 
         private val i2v: Array[State] =
             mapBasedRepresentation.vertexSet.iterator.asScala.toArray
-        private val v2i: immutable.HashMap[State, Int] =
-            (0 until i2v.size).iterator.map(i => (i2v(i), i)).to(immutable.HashMap)
+        private val v2i: HashMap[State, Int] =
+            (0 until i2v.size).iterator.map(i => (i2v(i), i)).to(HashMap)
 
         private val i2e: Array[Transition] =
             mapBasedRepresentation.edgeSet.iterator.asScala.toArray
-        private val e2i : immutable.HashMap[Transition, Int] =
-            (0 until i2e.size).iterator.map(i => (i2e(i), i)).to(immutable.HashMap)
+        private val e2i : HashMap[Transition, Int] =
+            (0 until i2e.size).iterator.map(i => (i2e(i), i)).to(HashMap)
 
         private val topologicalOrdering: Array[T] =
             new TopologicalOrderIterator(mapBasedRepresentation).asScala.map(v => integral.fromInt(v2i(v))).toArray[T]

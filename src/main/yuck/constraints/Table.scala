@@ -38,16 +38,16 @@ final class Table
     override def inVariables = xs
     override def outVariables = List(costs)
 
-    private var cols: immutable.IndexedSeq[immutable.IndexedSeq[V]] = null // columns improve data locality
+    private var cols: Vector[Vector[V]] = null // columns improve data locality
 
     private var currentDistances: Array[Long] = null // for each row
     protected var futureDistances: Array[Long] = null // for each row
 
-    private val x2i: immutable.Map[AnyVariable, Int] =
-        if hasDuplicateVariables then null else xs.view.zipWithIndex.toMap
-    private val x2is: immutable.Map[AnyVariable, immutable.IndexedSeq[Int]] =
+    private val x2i: HashMap[AnyVariable, Int] =
+        if hasDuplicateVariables then null else xs.view.zipWithIndex.to(HashMap)
+    private val x2is: HashMap[AnyVariable, Vector[Int]] =
         if hasDuplicateVariables
-        then xs.view.zipWithIndex.groupBy(_._1).view.mapValues(_.map(_._2).toVector).toMap
+        then xs.view.zipWithIndex.groupBy(_._1).view.mapValues(_.map(_._2).toVector).to(HashMap)
         else null
 
     private val effect = costs.reuseableEffect
@@ -77,7 +77,7 @@ final class Table
 
     override def initialize(now: SearchState) = {
         val m = rows.size
-        cols = rows.transpose
+        cols = rows.toVector.map(_.toVector).transpose
         currentDistances = new Array[Long](m)
         futureDistances = new Array[Long](m)
         for (j <- 0 until m) {
@@ -96,20 +96,18 @@ final class Table
             initialize(before)
         }
         Array.copy(currentDistances, 0, futureDistances, 0, rows.size)
-        val is =
-            if (hasDuplicateVariables) {
-                if (move.size == 1) x2is(move.effects.head.x).iterator
-                else move.involvedVariablesIterator.flatMap(x2is)
+        if (hasDuplicateVariables) {
+            if (move.size == 1) {
+                computeFutureDistances(move, before, after, x2is(move.effects.head.x).iterator)
             } else {
-                if (move.size == 1) Iterator.single(x2i(move.effects.head.x))
-                else move.involvedVariablesIterator.map(x2i)
+                computeFutureDistances(move, before, after, move.involvedVariablesIterator.flatMap(x2is))
             }
-        while (is.hasNext) {
-            val i = is.next()
-            val x = xs(i)
-            val a = before.value(x)
-            val b = after.value(x)
-            computeFutureDistances(cols(i), a, b)
+        } else {
+            if (move.size == 1) {
+                computeFutureDistances(move, before, after, x2i(move.effects.head.x))
+            } else {
+                computeFutureDistances(move, before, after, move.involvedVariablesIterator.map(x2i))
+            }
         }
         effect.a = BooleanValue(computeMinDistance(futureDistances))
         effect
@@ -122,7 +120,18 @@ final class Table
         effect
     }
 
-    private def computeFutureDistances(col: IndexedSeq[V], a: V, b: V): Unit = {
+    inline private def computeFutureDistances(move: Move, before: SearchState, after: SearchState, it: Iterator[Int]): Unit = {
+        while (it.hasNext) {
+            computeFutureDistances(move, before, after, it.next())
+        }
+    }
+
+    inline private def computeFutureDistances(move: Move, before: SearchState, after: SearchState, i: Int): Unit = {
+        val x = xs(i)
+        computeFutureDistances(cols(i), before.value(x), after.value(x))
+    }
+
+    private def computeFutureDistances(col: Vector[V], a: V, b: V): Unit = {
         var j = 0
         val m = col.size
         while (j < m) {

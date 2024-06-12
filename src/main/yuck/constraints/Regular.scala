@@ -42,7 +42,7 @@ final class Regular
     private val n = xs.size
     private val hasDuplicateVariables = xs.toSet.size < n
 
-    private val (distancesToAcceptingState: immutable.IndexedSeq[Int], _) = logger.withTimedLogScope("Computing distances") {
+    private val (distancesToAcceptingState: Vector[Int], _) = logger.withTimedLogScope("Computing distances") {
         // We use the Floyd-Warshall algorithm to compute, for each q in Q, the minimum number of
         // transitions that are required to reach an accepting state from q.
         val d = Array.ofDim[Int](Q, Q)
@@ -72,21 +72,21 @@ final class Regular
     override def inVariables = xs
     override def outVariables = List(costs)
 
-    private val x2i: immutable.Map[AnyVariable, Int] =
-        if hasDuplicateVariables then null else xs.view.zipWithIndex.toMap
-    private val x2is: immutable.Map[AnyVariable, immutable.IndexedSeq[Int]] =
+    private val x2i: HashMap[AnyVariable, Int] =
+        if hasDuplicateVariables then null else xs.view.zipWithIndex.to(HashMap)
+    private val x2is: HashMap[AnyVariable, Vector[Int]] =
         if hasDuplicateVariables
-        then xs.view.zipWithIndex.groupBy(_._1).view.mapValues(_.map(_._2).toVector).toMap
+        then xs.view.zipWithIndex.groupBy(_._1).view.mapValues(_.map(_._2).toVector).to(HashMap)
         else null
 
     private var currentCosts = 0
-    private var currentStates: immutable.IndexedSeq[Int] = null
+    private var currentStates: Vector[Int] = null
     // The position at which the current sequence is recognized as invalid.
     // All states after this position are to be considered as failed!
     // (We do not maintain those states i.e. they may actually be greater than 0.)
     private var currentFailurePosition = 0
     private var futureCosts = 0
-    private var futureStates: immutable.IndexedSeq[Int] = null
+    private var futureStates: Vector[Int] = null
     private var futureFailurePosition = 0
     private val effect = costs.reuseableEffect
 
@@ -102,7 +102,7 @@ final class Regular
             i += 1
         }
         i -= 1
-        currentCosts = computeCosts(currentStates, i, q)
+        currentCosts = computeCosts(i, q)
         currentFailurePosition = if (q == 0) i else n
         assert(currentCosts >= 0)
         effect.a = BooleanValue(currentCosts)
@@ -154,7 +154,7 @@ final class Regular
             if (q == 0 || i == n) {
                 // We either failed or reached some state q at the end of the sequence.
                 i -= 1
-                futureCosts = computeCosts(futureStates, i, q)
+                futureCosts = computeCosts(i, q)
                 futureFailurePosition = if (q == 0) i else n
             } else {
                 // We found a fixed point i < currentFailurePosition, so nothing changes.
@@ -173,7 +173,7 @@ final class Regular
     }
 
     // Cost model: see the class comment
-    private def computeCosts(states: immutable.IndexedSeq[Int], i: Int, q: Int): Int = {
+    private def computeCosts(i: Int, q: Int): Int = {
         assert(i >= 0 && i < n)
         assert(q == 0 || i == n - 1)
         // We avoid the search by relying on distance checking in initialize and consult.

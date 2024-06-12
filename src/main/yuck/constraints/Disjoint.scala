@@ -43,14 +43,14 @@ abstract class Disjoint
     private var futureCosts = 0L
     protected def computeOverlap(e1: RTreeEntry, e2: RTreeEntry): Long
 
-    private val x2is: immutable.Map[AnyVariable, immutable.IndexedSeq[Int]] =
+    private val x2is: HashMap[AnyVariable, Vector[Int]] =
         (0 until n)
             .view
             .flatMap(i => variablesIterator(i).map((_, i)))
             .groupBy(_._1)
             .view
             .mapValues(_.map(_._2).toVector)
-            .toMap
+            .to(HashMap)
 
     private val effect = costs.reuseableEffect
 

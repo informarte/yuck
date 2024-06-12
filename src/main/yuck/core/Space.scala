@@ -237,7 +237,7 @@ final class Space(
         result
     }
     private def addInvolvedSearchVariables(
-        x: AnyVariable, result: mutable.Set[AnyVariable], visited: mutable.Set[AnyVariable]): Unit =
+        x: AnyVariable, result: mutable.HashSet[AnyVariable], visited: mutable.HashSet[AnyVariable]): Unit =
     {
         if (! visited.contains(x)) {
             visited += x
@@ -261,7 +261,7 @@ final class Space(
         result
     }
     private def addInvolvedSearchVariables(
-        constraint: Constraint, result: mutable.Set[AnyVariable], visited: mutable.Set[AnyVariable]): Unit =
+        constraint: Constraint, result: mutable.HashSet[AnyVariable], visited: mutable.HashSet[AnyVariable]): Unit =
     {
         for (x <- constraint.inVariables) {
             if (isSearchVariable(x)) {
@@ -283,7 +283,7 @@ final class Space(
         result
     }
     private def addInvolvedConstraints(
-        x: AnyVariable, result: mutable.Set[Constraint], visited: mutable.Set[AnyVariable]): Unit =
+        x: AnyVariable, result: mutable.HashSet[Constraint], visited: mutable.HashSet[AnyVariable]): Unit =
     {
         if (! visited.contains(x)) {
             visited += x
