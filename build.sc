@@ -28,13 +28,13 @@ object yuck extends ScalaModule with BuildInfo {
     override def millSourcePath = os.pwd
     override def sources = T.sources {millSourcePath / "src" / "main"}
     override def resources = T.sources()
-    override def javacOptions = Seq("-source", "1.8", "-target", "1.8")
-    override def scalacOptions = Seq("-deprecation", "-unchecked", "-feature")
+    override def javacOptions = Seq("-source", "11", "-target", "11")
+    override def scalacOptions = Seq("-release", "11", "-deprecation", "-unchecked", "-feature")
 
     override def ivyDeps = Agg(
         ivy"com.conversantmedia:rtree:1.0.5",
         ivy"com.github.scopt::scopt:4.1.0",
-        ivy"org.jgrapht:jgrapht-core:1.4.0",
+        ivy"org.jgrapht:jgrapht-core:1.5.2",
         ivy"org.scala-lang.modules::scala-parser-combinators:2.4.0"
     )
 
@@ -57,7 +57,7 @@ object yuck extends ScalaModule with BuildInfo {
         override def ivyDeps = Agg(
             ivy"junit:junit:4.13.2",
             ivy"io.spray::spray-json:1.3.6".withDottyCompat(test.this.scalaVersion()),
-            ivy"org.jgrapht:jgrapht-io:1.4.0",
+            ivy"org.jgrapht:jgrapht-io:1.5.2",
             ivy"org.mockito:mockito-core:3.12.4"
         )
 

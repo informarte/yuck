@@ -4,7 +4,7 @@ Version: #VERSION#
 Section: universe/interpreters
 Priority: optional
 Architecture: all
-Depends: java8-runtime-headless
+Depends: java11-runtime-headless
 Maintainer: Michael Marte <informarte@freenet.de>
 Description: FlatZinc interpreter
  Yuck is a local-search constraint solver with FlatZinc interface

@@ -25,7 +25,7 @@ When you installed the Debian package, you are already good to go; the package r
 
 When you decided for the ZIP package, proceed as follows:
 
-1. Make sure that a [Java runtime environment](https://openjdk.java.net/install) is available on your system; Yuck requires at least version 8.
+1. Make sure that a [Java runtime environment](https://openjdk.java.net/install) is available on your system; Yuck requires at least version 11.
 2. Unzip the package in a suitable location.
 3. To register Yuck as a backend for the MiniZinc toolchain, define the ```MZN_SOLVER_PATH``` environment variable to point to the ```mzn``` subfolder of the Yuck distribution. (For other ways of providing a solver configuration file to the MiniZinc toolchain, see the section on [Solver Configuration Files](http://www.minizinc.org/doc-2.8.5/en/fzn-spec.html#solver-configuration-files) of *The MiniZinc Handbook*.)
 4. If you want to use Yuck on MacOS, you have to install the `coreutils` package with the following Homebrew command: `brew install coreutils`
