@@ -58,7 +58,7 @@ final class Table
         costModel.eqViolation(a, b)
 
     override def propagate() = {
-        if (costs.domain == TrueDomain) {
+        if (costs.domain == TrueDomain && valueTraits.domainCapabilities.createDomain) {
             rows = rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(row(i))))
             val effects =
                 NoPropagationOccurred.pruneDomains(

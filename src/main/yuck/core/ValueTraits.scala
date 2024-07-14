@@ -17,6 +17,9 @@ abstract class ValueTraits[V <: Value[V]] {
     /** The type of the concrete values. */
     val valueType: Class[V]
 
+    /** Informs about which operations are fully implemented. */
+    val domainCapabilities: DomainCapabilities
+
     /** Computes the normal form of the given value. */
     def normalizedValue(a: V): V
 

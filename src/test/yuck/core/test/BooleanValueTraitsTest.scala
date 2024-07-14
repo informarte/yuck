@@ -15,6 +15,15 @@ final class BooleanValueTraitsTest extends UnitTest {
     import BooleanValueTraits.*
 
     @Test
+    def testDomainCapabilities(): Unit = {
+        assert(domainCapabilities.createDomain)
+        assert(domainCapabilities.diff)
+        assert(domainCapabilities.randomSubdomain)
+        assert(domainCapabilities.size)
+        assert(domainCapabilities.union)
+    }
+
+    @Test
     def testValueNormalization(): Unit = {
         assertEq(normalizedValue(True), True)
         assertEq(normalizedValue(False), False)

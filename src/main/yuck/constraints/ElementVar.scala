@@ -39,10 +39,7 @@ final class ElementVar
     }
 
     override def propagate() = {
-        if (valueTraits == IntegerSetValueTraits) {
-            // bail out because integer-set domains do not support the union operation
-            NoPropagationOccurred
-        } else {
+        if (valueTraits.domainCapabilities.union) {
             val di1 =
                 i.domain.intersect(IntegerRange(offset, safeDec(safeAdd(xs.size, offset))))
             val dy1 =
@@ -52,6 +49,8 @@ final class ElementVar
                 IntegerDomain(
                     di1.valuesIterator.filter(i => xs(i.toInt - offset).domain.intersects(dy1)).toSet)
             NoPropagationOccurred.pruneDomains(i, di2, y, dy1)
+        } else {
+            NoPropagationOccurred
         }
     }
 

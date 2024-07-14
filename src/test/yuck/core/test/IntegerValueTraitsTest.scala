@@ -16,6 +16,15 @@ final class IntegerValueTraitsTest extends UnitTest {
     import IntegerValueTraits.*
 
     @Test
+    def testDomainCapabilities(): Unit = {
+        assert(domainCapabilities.createDomain)
+        assert(domainCapabilities.diff)
+        assert(domainCapabilities.randomSubdomain)
+        assert(domainCapabilities.size)
+        assert(domainCapabilities.union)
+    }
+
+    @Test
     def testValueNormalization(): Unit = {
         assertEq(normalizedValue(MinusOne), MinusOne)
         assertEq(normalizedValue(Zero), Zero)

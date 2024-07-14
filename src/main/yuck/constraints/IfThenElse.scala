@@ -70,10 +70,7 @@ final class IfThenElse
                 // skip impossible case
                 propagate2(effects, i + 1)
             }
-        } else if (valueTraits == IntegerSetValueTraits) {
-            // bail out because integer-set domains do not support the union operation
-            effects
-        } else {
+        } else if (valueTraits.domainCapabilities.union) {
             // constructive disjunction: propagate the union of the x[j] domains, j > i, to y
             effects.pruneDomain(
                 y,
@@ -81,6 +78,8 @@ final class IfThenElse
                     .iterator
                     .filter(i => cs(i).domain != FalseDomain)
                     .foldLeft(valueTraits.emptyDomain)((u, i) => u.union(xs(i).domain)))
+        } else {
+            effects
         }
     }
 

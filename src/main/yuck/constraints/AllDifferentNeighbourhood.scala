@@ -20,6 +20,9 @@ final class AllDifferentNeighbourhood
     extends Neighbourhood
 {
 
+    require(valueTraits.domainCapabilities.createDomain)
+    require(valueTraits.domainCapabilities.diff)
+
     private val n = xs.size
     private def value(x: Variable[V]) = space.searchState.value(x)
 
