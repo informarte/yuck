@@ -6,7 +6,7 @@ import scala.collection.*
 import yuck.core.*
 
 /**
- * This neighbourhood can be used to maintain ''all_different'' constraints.
+ * This neighbourhood can be used to maintain constraints like ''all_different'' and ''all_different_except_0''.
  *
  * @author Michael Marte
  */
@@ -14,6 +14,7 @@ final class AllDifferentNeighbourhood
     [V <: Value[V]]
     (space: Space,
      xs: immutable.IndexedSeq[Variable[V]],
+     exceptedValues: immutable.Set[V],
      randomGenerator: RandomGenerator,
      moveSizeDistribution: Distribution)
     (using valueTraits: ValueTraits[V])
@@ -31,7 +32,10 @@ final class AllDifferentNeighbourhood
     require(xs.forall(space.isSearchVariable))
     require(xs.forall(_.domain.isFinite))
     require(xs.forall(_.hasValidValue(space.searchState)))
-    require(xs.map(value).toSet.size == n)
+    {
+        val ys = xs.filterNot(x => exceptedValues.contains(value(x)))
+        require(ys.map(value).toSet.size == ys.size)
+    }
 
     require(moveSizeDistribution.frequency(0) == 0)
     require(moveSizeDistribution.volume > 0)
@@ -51,12 +55,12 @@ final class AllDifferentNeighbourhood
             swappingInValuesIsPossible &&
             (m == 1 || randomGenerator.nextDecision(probabilityOfSwappingInValues))
         if (swapInAValue) {
-            val usedValues = valueTraits.createDomain(xs.iterator.map(value).toSet)
+            val usedValues = valueTraits.createDomain(xs.view.map(value).filterNot(exceptedValues.contains).toSet)
             if (m == 1) {
                 val candidates =
                     randomGenerator
                         .lazyShuffle(xs)
-                        .map(x => (x, (x.domain.diff(usedValues))))
+                        .map(x => (x, x.domain.diff(usedValues)))
                         .filter(! _._2.isEmpty)
                 val (x, unusedValues) = candidates.next()
                 val u = unusedValues.randomValue(randomGenerator)
@@ -67,7 +71,7 @@ final class AllDifferentNeighbourhood
                 val candidates =
                     randomGenerator
                         .lazyShuffle(xs.indices)
-                        .map(i => (i, (xs(i).domain.diff(usedValues))))
+                        .map(i => (i, xs(i).domain.diff(usedValues)))
                         .filter(! _._2.isEmpty)
                 val (i, unusedValues) = candidates.next()
                 val x = xs(i)
@@ -103,7 +107,7 @@ final class AllDifferentNeighbourhood
                         unusedValues = x.domain.diff(usedValues)
                         if ! unusedValues.isEmpty
                         a = value(x)
-                        ys = xs.filter(y => y != x && y.domain.contains(a))
+                        ys = xs.filter(y => y != x && y.domain.contains(a) && value(y) != a)
                         y <- randomGenerator.lazyShuffle(ys)
                     } yield {
                         (x, unusedValues, y)
@@ -126,7 +130,7 @@ final class AllDifferentNeighbourhood
                         unusedValues = x.domain.diff(usedValues)
                         if ! unusedValues.isEmpty
                         a = value(x)
-                        ys = xs.filter(y => y != x && y.domain.contains(a))
+                        ys = xs.filter(y => y != x && y.domain.contains(a) && value(y) != a)
                         y <- randomGenerator.lazyShuffle(ys)
                         b = value(y)
                         zs = xs.filter(z => x != z && y != z && z.domain.contains(b))
@@ -147,7 +151,7 @@ final class AllDifferentNeighbourhood
                     nextMove(2)
                 }
             }
-        } else if (variablesHaveTheSameDomain) {
+        } else if (variablesHaveTheSameDomain && exceptedValues.isEmpty) {
             val i = randomGenerator.nextInt(n)
             val x = xs(i)
             val a = value(x)
@@ -180,7 +184,12 @@ final class AllDifferentNeighbourhood
                 for {
                     x <- randomGenerator.lazyShuffle(xs)
                     a = value(x)
-                    ys = xs.filter(y => y != x && x.domain.contains(value(y)) && y.domain.contains(a))
+                    ys = xs.filter(
+                        y => y != x && {
+                            val b = value(y)
+                            a != b && x.domain.contains(b) && y.domain.contains(a)
+                        }
+                    )
                     y <- randomGenerator.lazyShuffle(ys)
                 } yield {
                     (x, y)
@@ -202,7 +211,7 @@ final class AllDifferentNeighbourhood
                 for {
                     x <- randomGenerator.lazyShuffle(xs)
                     a = value(x)
-                    ys = xs.filter(y => y != x && y.domain.contains(a))
+                    ys = xs.filter(y => y != x && y.domain.contains(a) && value(y) != a)
                     y <- randomGenerator.lazyShuffle(ys)
                     b = value(y)
                     zs = xs.filter(z => x != z && y != z && x.domain.contains(value(z)) && z.domain.contains(b))
@@ -224,11 +233,11 @@ final class AllDifferentNeighbourhood
         }
     }
 
-    override def searchVariables = xs.toSet
+    final override def searchVariables = xs.toSet
 
-    override def children = Nil
+    final override def children = Nil
 
-    override def nextMove = {
+    final override def nextMove = {
         val m1 = min(n, moveSizeDistribution.nextIndex(randomGenerator))
         val m2 = if (swappingInValuesIsPossible) m1 else max(m1, 2)
         nextMove(m2)

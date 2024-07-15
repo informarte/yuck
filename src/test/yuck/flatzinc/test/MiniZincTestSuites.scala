@@ -6,7 +6,7 @@ import org.junit.experimental.categories.Categories.IncludeCategory
 import org.junit.runner.RunWith
 import org.junit.runners.Suite.SuiteClasses
 
-import yuck.flatzinc.test.util.{HasAlldifferentConstraint, HasInverseConstraint, HasRegularConstraint}
+import yuck.flatzinc.test.util.*
 
 /**
  * Big integration test suite
@@ -31,6 +31,15 @@ class MiniZincTestSuites
 @SuiteClasses(Array(classOf[MiniZincChallenges]))
 class AlldifferentChallenges
 
+/**
+ * Challenge problems with all_different_except constraints
+ *
+ * @author Michael Marte
+ */
+@RunWith(classOf[Categories])
+@IncludeCategory(Array(classOf[HasAlldifferentExceptConstraint]))
+@SuiteClasses(Array(classOf[MiniZincChallenges]))
+class AlldifferentExceptChallenges
 
 /**
  * Challenge problems with inverse constraints

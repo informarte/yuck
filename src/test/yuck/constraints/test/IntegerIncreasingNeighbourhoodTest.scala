@@ -13,7 +13,9 @@ import yuck.core.{*, given}
  */
 @runner.RunWith(classOf[runners.Parameterized])
 final class IntegerIncreasingNeighbourhoodTest
-    (numberOfVariables: Int, domainGenerator: (Int, Int) => IntegerDomain, strict: Boolean,
+    (numberOfVariables: Int,
+     domainGenerator: (Int, Int) => IntegerDomain,
+     strict: Boolean,
      override protected val propagate: Boolean)
     extends SpecialNeighbourhoodTest
 {
@@ -58,7 +60,7 @@ object IntegerIncreasingNeighbourhoodTest {
         new Function2[Int, Int, IntegerDomain] {
             override def toString = "HoleAtI"
             override def apply(numberOfVariables: Int, i: Int) =
-                IntegerRange(1, 2 * numberOfVariables).diff(IntegerRange(i, i))
+                IntegerRange(1, 2 * numberOfVariables).diff(IntegerDomain(i))
         }
     )
 

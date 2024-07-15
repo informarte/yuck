@@ -520,19 +520,19 @@ final class ConstraintFactory
                 constraint)
         case Constraint("fzn_all_different_int", Seq(as), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.space.post(new AllDifferent[IntegerValue](nextConstraintId(), maybeGoal, as, costs, cc.logger))
+            cc.space.post(new AllDifferent[IntegerValue](nextConstraintId(), maybeGoal, as, immutable.Set(), costs, cc.logger))
             List(costs)
         case Constraint("fzn_all_different_set", Seq(as), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.space.post(new AllDifferent[IntegerSetValue](nextConstraintId(), maybeGoal, as, costs, cc.logger))
+            cc.space.post(new AllDifferent[IntegerSetValue](nextConstraintId(), maybeGoal, as, immutable.Set(), costs, cc.logger))
             List(costs)
         case Constraint("fzn_alldifferent_except", Seq(as, s), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.space.post(new AllDifferentExcept[IntegerValue](nextConstraintId(), maybeGoal, as, s.set.values.toSet, costs))
+            cc.space.post(new AllDifferent[IntegerValue](nextConstraintId(), maybeGoal, as, s.set.values.toSet, costs, cc.logger))
             List(costs)
         case Constraint("fzn_alldifferent_except_0", Seq(as), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.space.post(new AllDifferentExcept[IntegerValue](nextConstraintId(), maybeGoal, as, immutable.Set(Zero), costs))
+            cc.space.post(new AllDifferent[IntegerValue](nextConstraintId(), maybeGoal, as, immutable.Set(Zero), costs, cc.logger))
             List(costs)
         case Constraint("fzn_increasing_bool", Seq(as), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())

@@ -30,7 +30,6 @@ import yuck.constraints.test.util.test.ConstraintTestToolingTest
         classOf[GeneralInverseNeighbourhoodTest],
         classOf[IfThenElseTest],
         classOf[AllDifferentTest],
-        classOf[AllDifferentExceptTest],
         classOf[AllDifferentNeighbourhoodTest],
         classOf[IntegerIncreasingTest],
         classOf[IntegerIncreasingNeighbourhoodTest],

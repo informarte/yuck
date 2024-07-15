@@ -173,7 +173,7 @@ final class MiniZincExamples extends ZincBasedTest {
     // The improved model uses alldifferent_except_0 and count :-)
     // This formulation maximizes the number of squares in the sum.
     @Test
-    @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem], classOf[HasAlldifferentExceptConstraint]))
     def testPerfectSquares(): Unit = {
         solve(task.copy(problemName = "perfsq_ls", maybeOptimum = Some(5)))
     }

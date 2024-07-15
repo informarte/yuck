@@ -155,7 +155,7 @@ Yuck provides dedicated solvers for the following global MiniZinc constraints an
 
 Yuck provides dedicated neighbourhoods for the following global MiniZinc constraints:
 
-* all_different
+* all_different, all_different_except, all_different_except_0
 * circuit
 * inverse
 * increasing, strictly_increasing

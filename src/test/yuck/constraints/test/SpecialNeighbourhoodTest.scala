@@ -28,6 +28,7 @@ abstract class SpecialNeighbourhoodTest extends UnitTest {
     protected def checkSearchState(searchState: SearchState): Unit
 
     protected val sampleSize: Int = 1000
+    protected val moveSizeDistribution: Distribution = DefaultMoveSizeDistribution
 
     @Test
     protected final def testMoveGeneration(): Unit = {
@@ -39,7 +40,7 @@ abstract class SpecialNeighbourhoodTest extends UnitTest {
         val xs = space.searchVariables
         xs.foreach(space.registerObjectiveVariable)
         space.registerObjectiveVariable(costs)
-        val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution).get
+        val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, moveSizeDistribution).get
         assertEq(neighbourhood.getClass, expectedNeighbourhoodClass)
         assertEq(neighbourhood.searchVariables, xs)
         val now = space.searchState

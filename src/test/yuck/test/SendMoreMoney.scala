@@ -7,6 +7,7 @@ import yuck.constraints.*
 import yuck.core.{given, *}
 import yuck.test.util.{DefaultNumberOfThreads, IntegrationTest}
 
+
 /**
  * The classic send-more-money problem
  *
@@ -54,7 +55,7 @@ final class SendMoreMoney extends IntegrationTest {
             val numberOfMissingValues =
                 new BooleanVariable(space.nextVariableId(), "numberOfMissingValues", CompleteBooleanDomain)
             space.post(
-                new AllDifferent(space.nextConstraintId(), null, vars.toVector, numberOfMissingValues, logger))
+                new AllDifferent(space.nextConstraintId(), null, vars.toVector, Set(), numberOfMissingValues, logger))
             val LHS = List((1000, S), (100, E), (10, N), (1, D), (1000, M), (100, O), (10, R), (1, E))
             val RHS = List((10000, M), (1000, O), (100, N), (10, E), (1, Y))
             val lhs = new IntegerVariable(space.nextVariableId(), "lhs", CompleteIntegerRange)
