@@ -5,7 +5,7 @@ import org.junit.*
 import scala.jdk.CollectionConverters.*
 
 import yuck.constraints.{AllDifferent, AllDifferentNeighbourhood}
-import yuck.core.{*, given}
+import yuck.core.*
 
 /**
  * @author Michael Marte

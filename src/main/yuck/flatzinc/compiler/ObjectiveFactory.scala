@@ -3,7 +3,7 @@ package yuck.flatzinc.compiler
 import scala.collection.*
 
 import yuck.constraints.{Conjunction, Lt}
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.*
 

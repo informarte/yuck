@@ -5,7 +5,7 @@ import org.junit.*
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.constraints.{Table, TableNeighbourhood}
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**

@@ -2,7 +2,7 @@ package yuck.core.test
 
 import scala.collection.*
 
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.test.util.YuckAssert
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger

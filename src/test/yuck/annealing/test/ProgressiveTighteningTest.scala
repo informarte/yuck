@@ -5,7 +5,7 @@ import org.junit.*
 import scala.jdk.CollectionConverters.*
 
 import yuck.annealing.*
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.test.*
 import yuck.test.util.IntegrationTest
 

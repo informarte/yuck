@@ -3,7 +3,7 @@ package yuck.constraints
 import scala.annotation.tailrec
 import scala.collection.*
 
-import yuck.core.{given, *}
+import yuck.core.*
 
 /**
  * @author Michael Marte

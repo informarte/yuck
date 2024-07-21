@@ -5,7 +5,7 @@ import scala.ref.WeakReference
 
 import yuck.constraints.*
 import yuck.constraints.OrderingRelation.*
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.flatzinc.ast.*
 import yuck.util.arm.scoped
 import yuck.util.logging.LogScope

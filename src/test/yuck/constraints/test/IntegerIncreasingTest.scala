@@ -7,7 +7,7 @@ import scala.jdk.CollectionConverters.*
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.constraints.{IntegerIncreasing, IntegerIncreasingNeighbourhood}
-import yuck.core.{*, given}
+import yuck.core.*
 import yuck.test.*
 import yuck.test.util.UnitTest
 

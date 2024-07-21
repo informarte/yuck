@@ -2,7 +2,7 @@ package yuck.constraints
 
 import scala.collection.*
 
-import yuck.core.{given, *}
+import yuck.core.*
 
 /**
  * Used to implement the family of array_*_element constraints as required by FlatZinc.

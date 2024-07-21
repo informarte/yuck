@@ -8,7 +8,7 @@ import scala.language.implicitConversions
 
 import spray.json.*
 import yuck.BuildInfo
-import yuck.core.{*, given}
+import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.*
 import yuck.flatzinc.compiler.{FlatZincCompilerResult, UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}

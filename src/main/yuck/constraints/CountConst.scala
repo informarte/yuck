@@ -2,7 +2,7 @@ package yuck.constraints
 
 import scala.collection.*
 
-import yuck.core.{given, *}
+import yuck.core.*
 
 /**
  * @author Michael Marte

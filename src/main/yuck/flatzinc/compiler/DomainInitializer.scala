@@ -2,7 +2,7 @@ package yuck.flatzinc.compiler
 
 import scala.collection.*
 
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.core.IntegerDomain.ensureRangeList
 import yuck.flatzinc.ast.*
 

@@ -5,7 +5,7 @@ import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 import yuck.annealing.AnnealingResult
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.flatzinc.test.util.TestDataDirectoryLayout.*

@@ -2,7 +2,7 @@ package yuck.core.test
 
 import scala.collection.*
 
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.test.util.{EqualityTestHelper, YuckAssert}
 import yuck.util.logging.LazyLogger
 import yuck.util.logging.LogLevel.FineLogLevel

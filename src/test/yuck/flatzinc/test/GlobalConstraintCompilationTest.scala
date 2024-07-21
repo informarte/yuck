@@ -8,7 +8,7 @@ import scala.reflect.ClassTag
 
 import yuck.constraints.*
 import yuck.constraints.OrderingRelation.*
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.flatzinc.compiler.{Bool2Costs2, LevelWeightMaintainer}
 import yuck.flatzinc.test.util.*
 import yuck.flatzinc.test.util.TestDataDirectoryLayout.*

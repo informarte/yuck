@@ -2,7 +2,7 @@ package yuck.constraints.test.util
 
 import org.junit.Assert
 
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.test.util.YuckAssert
 import yuck.util.logging.LazyLogger
 

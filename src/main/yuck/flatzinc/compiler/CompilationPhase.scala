@@ -3,7 +3,7 @@ package yuck.flatzinc.compiler
 import scala.collection.*
 import scala.language.implicitConversions
 
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.flatzinc.ast.*
 import yuck.flatzinc.parser.*
 

@@ -2,7 +2,7 @@ package yuck.constraints.test
 
 import scala.jdk.CollectionConverters.*
 import yuck.constraints.{Regular, RegularDfa, RegularNeighbourhood}
-import yuck.core.{*, given}
+import yuck.core.*
 
 /**
  * @author Michael Marte

@@ -5,7 +5,7 @@ import java.util.concurrent.Callable
 import scala.collection.*
 import scala.jdk.CollectionConverters.*
 
-import yuck.core.{*, given}
+import yuck.core.*
 import yuck.flatzinc.ast.*
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.flatzinc.runner.*

@@ -8,7 +8,7 @@ import org.jgrapht.graph.DefaultUndirectedWeightedGraph
 import scala.collection.*
 import scala.jdk.CollectionConverters.*
 
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.util.logging.LazyLogger
 
 /**

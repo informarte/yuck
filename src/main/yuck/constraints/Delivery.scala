@@ -4,7 +4,7 @@ import scala.collection.*
 import scala.ref.WeakReference
 import scala.reflect.ClassTag
 
-import yuck.core.{given, *}
+import yuck.core.*
 
 /**
  * Helps with solving single-depot vehicle-routing problems with time windows.

@@ -1,6 +1,6 @@
 package yuck.core.test
 
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.util.logging.LazyLogger
 
 /**

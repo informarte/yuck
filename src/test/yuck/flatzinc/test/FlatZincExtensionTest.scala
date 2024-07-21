@@ -6,7 +6,7 @@ import org.junit.experimental.categories.*
 import scala.language.implicitConversions
 
 import yuck.constraints.*
-import yuck.core.{*, given}
+import yuck.core.*
 import yuck.flatzinc.compiler.Bool2Costs1
 import yuck.flatzinc.test.util.*
 import yuck.flatzinc.test.util.VerificationFrequency.*

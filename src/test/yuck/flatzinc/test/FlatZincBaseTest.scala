@@ -7,7 +7,7 @@ import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 import yuck.constraints.*
-import yuck.core.{*, given}
+import yuck.core.*
 import yuck.flatzinc.compiler.{Bool2Int1, LevelWeightMaintainer, VariableWithInfiniteDomainException}
 import yuck.flatzinc.test.util.*
 import yuck.flatzinc.test.util.SourceFormat.*

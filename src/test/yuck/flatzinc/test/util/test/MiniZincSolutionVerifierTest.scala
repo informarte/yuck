@@ -5,7 +5,7 @@ import scala.jdk.CollectionConverters.*
 import org.junit.*
 
 import yuck.annealing.AnnealingResult
-import yuck.core.{*, given}
+import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.test.util.*
 import yuck.flatzinc.test.util.TestDataDirectoryLayout.*

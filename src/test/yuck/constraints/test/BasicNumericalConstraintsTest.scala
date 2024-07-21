@@ -5,7 +5,7 @@ import org.junit.*
 import scala.collection.*
 
 import yuck.constraints.*
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.test.*
 import yuck.test.util.UnitTest
 

@@ -4,7 +4,7 @@ import org.junit.*
 
 import yuck.constraints.LexLessEq
 import yuck.constraints.test.util.ConstraintTestTooling
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**

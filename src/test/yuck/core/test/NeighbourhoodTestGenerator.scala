@@ -5,7 +5,7 @@ import org.junit.*
 import scala.collection.*
 import scala.jdk.CollectionConverters.*
 
-import yuck.core.{given, *}
+import yuck.core.*
 
 /**
  * @author Michael Marte

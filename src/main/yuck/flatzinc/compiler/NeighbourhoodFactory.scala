@@ -4,7 +4,7 @@ import scala.collection.*
 
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.*
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.flatzinc.FlatZincLevelConfiguration
 
 /**

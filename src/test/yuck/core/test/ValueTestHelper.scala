@@ -2,7 +2,7 @@ package yuck.core.test
 
 import scala.collection.Seq
 
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.test.util.{EqualityTestHelper, YuckAssert}
 
 /**

@@ -1,7 +1,7 @@
 package yuck.constraints.test
 
 import yuck.constraints.{BooleanIncreasing, BooleanIncreasingNeighbourhood}
-import yuck.core.{given, *}
+import yuck.core.*
 
 /**
  * @author Michael Marte

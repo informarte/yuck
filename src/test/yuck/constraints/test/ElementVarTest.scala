@@ -6,7 +6,7 @@ import scala.jdk.CollectionConverters.*
 
 import yuck.constraints.*
 import yuck.constraints.test.util.ConstraintTestTooling
-import yuck.core.{given, *}
+import yuck.core.*
 import yuck.test.util.UnitTest
 
 /**
