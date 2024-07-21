@@ -2,6 +2,8 @@ package yuck.constraints.test
 
 import org.junit.*
 
+import scala.jdk.CollectionConverters.*
+
 import yuck.constraints.*
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.*
@@ -11,8 +13,8 @@ import yuck.test.util.UnitTest
  * @author Michael Marte
  *
  */
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
+@runner.RunWith(classOf[runners.Parameterized])
+final class Disjoint2Test(strict: Boolean) extends UnitTest with ConstraintTestTooling {
 
     private val BaseDomain = IntegerRange(0, 9)
 
@@ -31,8 +33,8 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     def testBasics(): Unit = {
         val rects = (1 to 2).map(createRect)
         val Seq(r1, r2) = rects
-        val constraint = new Disjoint2(space.nextConstraintId(), null, rects, false, costs)
-        assertEq(constraint.toString, "disjoint2([(x1, y1, w1, h1), (x2, y2, w2, h2)], false, costs)")
+        val constraint = new Disjoint2(space.nextConstraintId(), null, rects, strict, costs)
+        assertEq(constraint.toString, "disjoint2([(x1, y1, w1, h1), (x2, y2, w2, h2)], %s, costs)".format(strict))
         assertEq(constraint.inVariables.size, 8)
         assertEq(constraint.inVariables.toSet, Set(r1.x, r1.y, r1.w, r1.h, r2.x, r2.y, r2.w, r2.h))
         assertEq(constraint.outVariables.size, 1)
@@ -41,47 +43,27 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testRectangleMovement(): Unit = {
-        val rects = (1 to 4).map(createRect)
-        val Seq(r1, r2, r3, r4) = rects
-        space.post(new Disjoint2(space.nextConstraintId(), null, rects, false, costs))
-        runScenario(
-            TestScenario(
-                space,
-                Initialize(
-                    "initial conflict: r1 and r3 are identical, r3 overlaps with r1 and r2",
-                    r1.x << 0, r1.y << 1, r1.w << 3, r1.h << 4,
-                    r2.x << 5, r2.y << 4, r2.w << 3, r2.h << 2, // disjoint from r1
-                    r3.x << 0, r3.y << 1, r3.w << 3, r3.h << 4, // identical to r1
-                    r4.x << 2, r4.y << 3, r4.w << 5, r4.h << 4, // overlaps r1, r2, and r3
-                    costs << BooleanValue(20)),
-                ConsultAndCommit("move r1 from (0, 1) to (3, 1)", r1.x << 3, costs << BooleanValue(13)),
-                ConsultAndCommit("move r3 from (0, 1) to (0, 3)", r3.y << 3, costs << BooleanValue(15)),
-                ConsultAndCommit("move r1 and r3 back", r1.x << 0, r3.y << 1, costs << BooleanValue(20))))
+        if (strict) {
+            testRectangleMovementWithStrictSemantics()
+        } else {
+            testRectangleMovementWithNonstrictSemantics()
+        }
     }
 
     @Test
     def testRectangleResizing(): Unit = {
-        val rects = (1 to 2).map(createRect)
-        val Seq(r1, r2) = rects
-        space.post(new Disjoint2(space.nextConstraintId(), null, rects, false, costs))
-        runScenario(
-            TestScenario(
-                space,
-                Initialize(
-                    "initial conflict: r2 overlaps with r1",
-                    r1.x << 0, r1.y << 1, r1.w << 4, r1.h << 4,
-                    r2.x << 2, r2.y << 3, r2.w << 4, r2.h << 4,
-                    costs << False4),
-                ConsultAndCommit("reduce height and width of r2 to 1", r2.w << 1, r2.h << 1, costs << False),
-                ConsultAndCommit("restore width of r2", r2.w << 4, costs << False2),
-                ConsultAndCommit("restore height of r2", r2.h << 4, costs << False4)))
+        if (strict) {
+            testRectangleResizingWithStrictSemantics()
+        } else {
+            testRectangleResizingWithNonstrictSemantics()
+        }
     }
 
     @Test
     def testSimultaneousRectangleMovementAndResizing(): Unit = {
         val rects = (1 to 2).map(createRect)
         val Seq(r1, r2) = rects
-        space.post(new Disjoint2(space.nextConstraintId(), null, rects, false, costs))
+        space.post(new Disjoint2(space.nextConstraintId(), null, rects, strict, costs))
         runScenario(
             TestScenario(
                 space,
@@ -101,7 +83,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     def testHandlingOfAdjacentRectangles(): Unit = {
         val rects = (1 to 3).map(createRect)
         val Seq(r1, r2, r3) = rects
-        space.post(new Disjoint2(space.nextConstraintId(), null, rects, false, costs))
+        space.post(new Disjoint2(space.nextConstraintId(), null, rects, strict, costs))
         runScenario(
             TestScenario(
                 space,
@@ -117,7 +99,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     def testHandlingOfNegativeWidthAndHeight(): Unit = {
         val rects = (1 to 3).map(createRect)
         val Seq(r1, r2, r3) = rects
-        space.post(new Disjoint2(space.nextConstraintId(), null, rects, false, costs))
+        space.post(new Disjoint2(space.nextConstraintId(), null, rects, strict, costs))
         runScenario(
             TestScenario(
                 space,
@@ -141,7 +123,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
                 r1.w,
                 new IntegerVariable(space.nextVariableId(), "h2", BaseDomain))
         val r3 = createRect(3)
-        space.post(new Disjoint2(space.nextConstraintId(), null, Vector(r1, r2, r3, r1), false, costs))
+        space.post(new Disjoint2(space.nextConstraintId(), null, Vector(r1, r2, r3, r1), strict, costs))
         runScenario(
             TestScenario(
                 space,
@@ -159,7 +141,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
     def testConsultWithoutCommit(): Unit = {
         val rects = (1 to 2).map(createRect)
         val Seq(r1, r2) = rects
-        space.post(new Disjoint2(space.nextConstraintId(), null, rects, false, costs))
+        space.post(new Disjoint2(space.nextConstraintId(), null, rects, strict, costs))
         runScenario(
             TestScenario(
                 space,
@@ -172,8 +154,7 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
                 Consult("move r1 to fully overlap r2", r1.x << 2, r1.y << 3, costs << BooleanValue(16))))
     }
 
-    @Test
-    def testRectangleMovementWithStrictSemantics(): Unit = {
+    private def testRectangleMovementWithStrictSemantics(): Unit = {
         val rects = (1 to 9).map(createRect)
         val Seq(r1, r2, r3, r4, vl1, vl2, hl1, hl2, p1) = rects
         space.post(new Disjoint2(space.nextConstraintId(), null, rects, true, costs))
@@ -222,8 +203,26 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
                 ConsultAndCommit("let hl2 and vl2 intersect each other and other rectangles", hl2.y << 3, vl2.x << 3, costs << False9)))
     }
 
-    @Test
-    def testRectangleResizingWithStrictSemantics(): Unit = {
+    private def testRectangleMovementWithNonstrictSemantics(): Unit = {
+        val rects = (1 to 4).map(createRect)
+        val Seq(r1, r2, r3, r4) = rects
+        space.post(new Disjoint2(space.nextConstraintId(), null, rects, false, costs))
+        runScenario(
+            TestScenario(
+                space,
+                Initialize(
+                    "initial conflict: r1 and r3 are identical, r3 overlaps with r1 and r2",
+                    r1.x << 0, r1.y << 1, r1.w << 3, r1.h << 4,
+                    r2.x << 5, r2.y << 4, r2.w << 3, r2.h << 2, // disjoint from r1
+                    r3.x << 0, r3.y << 1, r3.w << 3, r3.h << 4, // identical to r1
+                    r4.x << 2, r4.y << 3, r4.w << 5, r4.h << 4, // overlaps r1, r2, and r3
+                    costs << BooleanValue(20)),
+                ConsultAndCommit("move r1 from (0, 1) to (3, 1)", r1.x << 3, costs << BooleanValue(13)),
+                ConsultAndCommit("move r3 from (0, 1) to (0, 3)", r3.y << 3, costs << BooleanValue(15)),
+                ConsultAndCommit("move r1 and r3 back", r1.x << 0, r3.y << 1, costs << BooleanValue(20))))
+    }
+
+    private def testRectangleResizingWithStrictSemantics(): Unit = {
         val rects = (1 to 3).map(createRect)
         val Seq(r1, r2, r3) = rects
         space.post(new Disjoint2(space.nextConstraintId(), null, rects, true, costs))
@@ -244,5 +243,33 @@ final class Disjoint2Test extends UnitTest with ConstraintTestTooling {
                     costs << True),
                 ConsultAndCommit("undoing changes to r2 and r4 creates conflicts", r2.h << 1, r3.w << 1, costs << False7)))
     }
+
+    private def testRectangleResizingWithNonstrictSemantics(): Unit = {
+        val rects = (1 to 2).map(createRect)
+        val Seq(r1, r2) = rects
+        space.post(new Disjoint2(space.nextConstraintId(), null, rects, false, costs))
+        runScenario(
+            TestScenario(
+                space,
+                Initialize(
+                    "initial conflict: r2 overlaps with r1",
+                    r1.x << 0, r1.y << 1, r1.w << 4, r1.h << 4,
+                    r2.x << 2, r2.y << 3, r2.w << 4, r2.h << 4,
+                    costs << False4),
+                ConsultAndCommit("reduce height and width of r2 to 1", r2.w << 1, r2.h << 1, costs << False),
+                ConsultAndCommit("restore width of r2", r2.w << 4, costs << False2),
+                ConsultAndCommit("restore height of r2", r2.h << 4, costs << False4)))
+    }
+
+}
+
+/**
+ * @author Michael Marte
+ *
+ */
+object Disjoint2Test {
+
+    @runners.Parameterized.Parameters(name = "{index}: {0}")
+    def parameters = List(true, false).asJava
 
 }
