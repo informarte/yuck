@@ -8,7 +8,7 @@ predicate fzn_bin_packing_capa_reif(
 =
     satisfied <-> (
         forall(i in index_set(bin))(
-            min(index_set(capacity)) <= bin[i] /\ bin[i] <= max(index_set(capacity))
+            bin[i] in index_set(capacity)
         )
         /\
         let {

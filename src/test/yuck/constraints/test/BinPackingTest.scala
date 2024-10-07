@@ -2,6 +2,8 @@ package yuck.constraints.test
 
 import org.junit.*
 
+import scala.language.implicitConversions
+
 import yuck.constraints.*
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.*
@@ -26,8 +28,10 @@ final class BinPackingTest extends UnitTest with ConstraintTestTooling {
         .to(TreeMap)
     private val loads =
         (for (i <- binDomain.values) yield
-            i.toInt -> new IntegerVariable(space.nextVariableId(), "load%d".format(i.value), CompleteIntegerRange))
+            i -> new IntegerVariable(space.nextVariableId(), "load%d".format(i.value), CompleteIntegerRange))
         .to(TreeMap)
+
+    private implicit def intToIntegerValue(a: Int): IntegerValue = IntegerValue(a)
 
     @Test
     def testBasics(): Unit = {
@@ -43,7 +47,8 @@ final class BinPackingTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testCostComputation(): Unit = {
-        space.post(new BinPacking(space.nextConstraintId(), null, items.values.toVector, loads))
+        val loads = this.loads.map((bin, load) => (bin.toInt, load))
+        space.post(new BinPacking(space.nextConstraintId(), null, items.values.toVector, this.loads))
         runScenario(
             TestScenario(
                 space,

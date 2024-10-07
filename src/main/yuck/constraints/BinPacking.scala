@@ -28,7 +28,10 @@ final class BinPacking
     [Load <: NumericalValue[Load]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      items: immutable.Seq[BinPackingItem[Load]],
-     loads: immutable.Map[Int, Variable[Load]]) // bin -> load
+     // In generic code, scalac translates == to BoxesRunTime.equals, which incurs overhead to
+     // properly compare numbers of different types.
+     // We avoid this overhead by using IntegerValue instead of int.
+     loads: immutable.Map[IntegerValue, Variable[Load]]) // bin -> load
     (using valueTraits: NumericalValueTraits[Load])
     extends Constraint(id)
 {
@@ -46,8 +49,8 @@ final class BinPacking
     override def outVariables = loads.view.values
 
     private val x2Item = items.view.map(item => (item.bin: AnyVariable) -> item).to(immutable.HashMap)
-    private val currentLoads = new mutable.HashMap[Int, Load] // bin -> load
-    private val loadDeltas = new mutable.HashMap[Int, Load] // bin -> load delta
+    private val currentLoads = new mutable.HashMap[IntegerValue, Load] // bin -> load
+    private val loadDeltas = new mutable.HashMap[IntegerValue, Load] // bin -> load delta
     private val effects = loads.view.map((i, load) => i -> load.reuseableEffect).to(immutable.HashMap) // bin -> effect
 
     override def initialize(now: SearchState) = {
@@ -56,7 +59,7 @@ final class BinPacking
             currentLoads(i) = valueTraits.zero
         }
         for (item <- items) {
-            val i = now.value(item.bin).toInt
+            val i = now.value(item.bin)
             if (currentLoads.contains(i)) {
                 currentLoads(i) += item.weight
             }
@@ -72,8 +75,8 @@ final class BinPacking
        loadDeltas.clear()
        for (x <- move) {
            val item = x2Item(x)
-           val j = before.value(item.bin).toInt
-           val k = after.value(item.bin).toInt
+           val j = before.value(item.bin)
+           val k = after.value(item.bin)
            if (effects.contains(j)) {
                loadDeltas += j -> (loadDeltas.getOrElse(j, valueTraits.zero) - item.weight)
            }

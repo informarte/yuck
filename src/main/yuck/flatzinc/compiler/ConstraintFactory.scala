@@ -628,7 +628,7 @@ final class ConstraintFactory
                     new BinPackingItem(bin, weight)
             val items = itemGenerator.toVector
             val loads1 = compileIntArray(loads0)
-            val loads = (minLoadIndex until minLoadIndex + loads1.size).iterator.zip(loads1.iterator).toMap
+            val loads = (minLoadIndex until minLoadIndex + loads1.size).iterator.map(IntegerValue.apply).zip(loads1.iterator).toMap
             compileBinPackingConstraint(maybeGoal, constraint, items, loads)
         case Constraint("fzn_global_cardinality", Seq(xs0, cover0, counts0), _) =>
             val xs = compileIntArray(xs0)
@@ -636,7 +636,7 @@ final class ConstraintFactory
             val cover = getArrayElems(cover0).map(getConst[IntegerValue](_).toInt)
             val counts = compileIntArray(counts0)
             require(cover.size == counts.size)
-            val loads = cover.iterator.zip(counts.iterator).toMap
+            val loads = cover.iterator.map(IntegerValue.apply).zip(counts.iterator).toMap
             compileBinPackingConstraint(maybeGoal, constraint, items, loads)
         case Constraint("fzn_lex_less_int", Seq(as, bs), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
@@ -803,7 +803,7 @@ final class ConstraintFactory
         (maybeGoal: Option[Goal],
          constraint: yuck.flatzinc.ast.Constraint,
          items: immutable.Seq[BinPackingItem[Load]],
-         loads: immutable.Map[Int, NumericalVariable[Load]]) // bin -> load
+         loads: immutable.Map[IntegerValue, NumericalVariable[Load]]) // bin -> load
         (using loadTraits: NumericalValueTraits[Load]):
         Iterable[BooleanVariable] =
     {
@@ -825,7 +825,7 @@ final class ConstraintFactory
             loads.values.filterNot(hasRedundantDomain).flatMap(enforceDomain)
         }
         def generalCase = {
-            val loads1: immutable.Map[Int, NumericalVariable[Load]] = {
+            val loads1: immutable.Map[IntegerValue, NumericalVariable[Load]] = {
                 val definedVars = new mutable.HashSet[NumericalVariable[Load]]
                 for ((bin, load) <- loads) yield
                     if (! definedVars.contains(load) && definesVar(constraint, bins, loads(bin))) {

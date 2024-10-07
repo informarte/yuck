@@ -6,7 +6,7 @@ predicate fzn_bin_packing_capa(
     array [int] of int: weight)
 =
     forall(i in index_set(bin))(
-        min(index_set(capacity)) <= bin[i] /\ bin[i] <= max(index_set(capacity))
+        bin[i] in index_set(capacity)
     )
     /\
     let {
