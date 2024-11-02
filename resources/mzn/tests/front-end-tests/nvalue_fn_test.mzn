@@ -1,7 +1,7 @@
 include "nvalue_fn.mzn";
 
 array [1..3] of var 1..3: x;
-array [1..3] of var 1..3: y;
+array [1..3] of var 1..2: y;
 
 % should translate to NumberOfDistinctValues and Contains
 var 1..2: m = nvalue(x);

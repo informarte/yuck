@@ -545,7 +545,12 @@ final class ConstraintFactory
         case Constraint("fzn_nvalue", _, _) =>
             compileBinaryConstraint2[IntegerValue, IntegerVariable, IntegerValue, IntegerVariable](
                 new NumberOfDistinctValues[IntegerValue](_, _, _, _),
-                (xs, y) => if IntegerRange(if xs.isEmpty then 0 else 1, xs.size).isSubsetOf(y.domain) then Nil else enforceIntDomain(y),
+                (xs, y) => {
+                    val countDomainApproximation = IntegerRange(
+                        if xs.isEmpty then 0 else 1,
+                        min(xs.size, xs.foldLeft(IntegerValueTraits.emptyDomain)((u, x) => u.union(x.domain)).size))
+                    if countDomainApproximation.isSubsetOf(y.domain) then Nil else enforceIntDomain(y)
+                },
                 maybeGoal,
                 constraint)
         case Constraint(Count(_, "bool"), _, _) =>
@@ -818,8 +823,8 @@ final class ConstraintFactory
                 .toVector
         val bins = items1.map(_.bin)
         val maxLoad = items.map(_.weight).sum(loadTraits.numericalOperations)
-        val trivialLoadDomain = loadTraits.createDomain(loadTraits.zero, maxLoad)
-        def hasRedundantDomain(load: NumericalVariable[Load]) = trivialLoadDomain.isSubsetOf(load.domain)
+        val loadDomainApproximation = loadTraits.createDomain(loadTraits.zero, maxLoad)
+        def hasRedundantDomain(load: NumericalVariable[Load]) = loadDomainApproximation.isSubsetOf(load.domain)
         def functionalCase = {
             cc.space.post(new BinPacking[Load](nextConstraintId(), maybeGoal, items1, loads))
             loads.values.filterNot(hasRedundantDomain).flatMap(enforceDomain)
