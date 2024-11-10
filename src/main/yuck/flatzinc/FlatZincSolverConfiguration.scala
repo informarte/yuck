@@ -36,6 +36,7 @@ final case class FlatZincSolverConfiguration(
     useProgressiveTightening: Boolean = true,
     checkIncrementalCostUpdate: Boolean = false,
     checkAssignmentsToNonChannelVariables: Boolean = false,
+    delayCycleCheckingUntilInitialization: Boolean = false,
     moveSizeDistribution: Distribution = Distribution(1, List(90, 10)),
     topLevelConfiguration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, true, Some(Probability(9))),
     subordinateLevelConfiguration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(false, true, Some(Probability(13))))

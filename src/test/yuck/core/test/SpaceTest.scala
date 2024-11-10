@@ -128,8 +128,8 @@ final class SpaceTest extends UnitTest {
     }
 
     @Test
-    def testCycleDetection(): Unit = {
-        val space = new Space(logger, sigint)
+    def testCycleDetectionBeforeInitialization(): Unit = {
+        val space = new Space(logger, sigint, delayCycleCheckingUntilInitialization = false)
         val x = space.createVariable("x", CompleteIntegerRange)
         val y = space.createVariable("y", CompleteIntegerRange)
         val z = space.createVariable("z", CompleteIntegerRange)
@@ -137,7 +137,7 @@ final class SpaceTest extends UnitTest {
         assert(space.wouldIntroduceCycle(c))
         assertEq(space.numberOfConstraints, 0)
         space.checkConsistency()
-        assertEx(space.post(c), classOf[CyclicConstraintNetworkException])
+        assertEx(space.post(c), classOf[IllegalArgumentException])
         assertEq(space.numberOfConstraints, 0)
         space.checkConsistency()
         val d = new DummyConstraint(space.nextConstraintId(), List(x, y), List(z))
@@ -154,12 +154,27 @@ final class SpaceTest extends UnitTest {
         assert(space.wouldIntroduceCycle(e))
         assertEq(space.numberOfConstraints, 1)
         space.checkConsistency()
-        assertEx(space.post(e), classOf[CyclicConstraintNetworkException])
+        assertEx(space.post(e), classOf[IllegalArgumentException])
         assertEq(space.numberOfConstraints, 1)
         space.checkConsistency()
         assert(! space.wouldIntroduceCycle(d))
         assertEq(space.numberOfConstraints, 1)
         space.checkConsistency()
+    }
+
+    @Test
+    def testCycleDetectionDuringInitialization(): Unit = {
+        val space = new Space(logger, sigint, delayCycleCheckingUntilInitialization = true)
+        val x = space.createVariable("x", CompleteIntegerRange)
+        val y = space.createVariable("y", CompleteIntegerRange)
+        val z = space.createVariable("z", CompleteIntegerRange)
+        val c = new DummyConstraint(space.nextConstraintId(), List(x, y), List(z))
+        val d = new DummyConstraint(space.nextConstraintId(), List(x, z), List(y))
+        space.post(c)
+        space.post(d)
+        assertEq(space.numberOfConstraints, 2)
+        space.checkConsistency()
+        assertEx(space.initialize(), classOf[CyclicConstraintNetworkException])
     }
 
     @Test

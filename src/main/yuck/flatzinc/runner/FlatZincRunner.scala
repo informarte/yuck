@@ -2,14 +2,11 @@ package yuck.flatzinc.runner
 
 import java.io.IOException
 import java.util.concurrent.CancellationException
-
 import scala.annotation.tailrec
 import scala.math.max
-
 import scopt.*
-
 import yuck.BuildInfo
-import yuck.core.InconsistentProblemException
+import yuck.core.{CyclicConstraintNetworkException, InconsistentProblemException}
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.{UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
 import yuck.flatzinc.parser.*
@@ -77,6 +74,9 @@ object FlatZincRunner extends YuckLogging {
         opt[Boolean]("use-progressive-tightening")
             .text("Default value is %s".format(defaultCfg.useProgressiveTightening))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(useProgressiveTightening = x)))
+        opt[Boolean]("delay-cycle-checking-until-initialization")
+            .text("Default value is %s".format(defaultCfg.delayCycleCheckingUntilInitialization))
+            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(delayCycleCheckingUntilInitialization = x)))
         opt[Unit]('v', "verbose")
             .text("Enable verbose solving (equivalent to --log-level INFO)")
             .action((_, cl) => cl.copy(logLevel = List(cl.logLevel, yuck.util.logging.LogLevel.InfoLogLevel).minBy(_.intValue)))
@@ -218,6 +218,9 @@ object FlatZincRunner extends YuckLogging {
         case error: InconsistentProblemException =>
             System.err.println(error.getMessage)
             println(FlatZincInconsistentProblemIndicator)
+        case error: CyclicConstraintNetworkException =>
+            System.err.println(error.getMessage)
+            System.exit(1)
         case error: Throwable =>
             // JVM will print error
             throw error

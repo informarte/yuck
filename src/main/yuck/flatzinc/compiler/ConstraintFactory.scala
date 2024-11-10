@@ -99,7 +99,6 @@ final class ConstraintFactory
                 functionalCase
             }
             catch {
-                case _: CyclicConstraintNetworkException => generalCase
                 case _: IllegalArgumentException => generalCase
             }
         } else {

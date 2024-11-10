@@ -1,7 +1,7 @@
 package yuck.core
 
 import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge}
-import org.jgrapht.traverse.{BreadthFirstIterator, TopologicalOrderIterator}
+import org.jgrapht.traverse.{BreadthFirstIterator, TopologicalOrderIterator, NotDirectedAcyclicGraphException}
 
 import scala.collection.*
 import scala.jdk.CollectionConverters.*
@@ -29,7 +29,8 @@ final class Space(
     logger: LazyLogger,
     sigint: Sigint,
     checkIncrementalCostUpdate: Boolean = false,
-    checkAssignmentsToNonChannelVariables: Boolean = false)
+    checkAssignmentsToNonChannelVariables: Boolean = false,
+    delayCycleCheckingUntilInitialization: Boolean = false)
 {
 
     private val constraints = new mutable.HashSet[Constraint] // maintained by post and removeUselessConstraints
@@ -83,9 +84,7 @@ final class Space(
     private type FlowModel = DefaultDirectedGraph[Constraint, DefaultEdge]
     private var flowModel = new FlowModel(classOf[DefaultEdge]) // maintained by post and discarded by initialize
     private def addToFlowModel(constraint: Constraint): Unit = {
-        if (isCyclic(constraint)) {
-            throw new CyclicConstraintNetworkException(constraint)
-        }
+        require(! isCyclic(constraint), "%s is cyclic".format(constraint))
         flowModel.addVertex(constraint)
         for (x <- constraint.inVariables) {
             val maybePred = maybeDefiningConstraint(x)
@@ -98,19 +97,21 @@ final class Space(
                 flowModel.addEdge(constraint, succ)
             }
         }
-        // BFS seems to be faster than DFS
-        val i = new BreadthFirstIterator[Constraint, DefaultEdge](flowModel, constraint) {
-            override def encounterVertexAgain(vertex: Constraint, edge: DefaultEdge): Unit = {
-                if (vertex == constraint) {
-                    flowModel.removeVertex(constraint)
-                    throw new CyclicConstraintNetworkException(constraint)
-                } else {
-                    super.encounterVertexAgain(vertex, edge)
+        if (! delayCycleCheckingUntilInitialization) {
+            // BFS seems to be faster than DFS
+            val i = new BreadthFirstIterator[Constraint, DefaultEdge](flowModel, constraint) {
+                override def encounterVertexAgain(vertex: Constraint, edge: DefaultEdge): Unit = {
+                    if (vertex == constraint) {
+                        flowModel.removeVertex(constraint)
+                        require(false, "%s would introduce a cycle".format(constraint))
+                    } else {
+                        super.encounterVertexAgain(vertex, edge)
+                    }
                 }
             }
-        }
-        while (i.hasNext) {
-            i.next()
+            while (i.hasNext) {
+                i.next()
+            }
         }
     }
     private def removeFromFlowModel(constraint: Constraint): Unit = {
@@ -121,10 +122,16 @@ final class Space(
     private var constraintOrder: ConstraintOrder = null // created by initialize
     private def sortConstraintsTopologically(): Unit = {
         constraintOrder = new ConstraintOrder(constraints.iterator.map(_.id).max.rawId + 1)
-        // The topological ordering exists because it was possible to build the flow model.
-        for ((constraint, i) <- new TopologicalOrderIterator[Constraint, DefaultEdge](flowModel).asScala.zipWithIndex) {
-            constraintOrder.update(constraint.id.rawId, i)
+        try {
+            for ((constraint, i) <- new TopologicalOrderIterator[Constraint, DefaultEdge](flowModel).asScala.zipWithIndex) {
+                constraintOrder.update(constraint.id.rawId, i)
+            }
+        } catch {
+            case error: NotDirectedAcyclicGraphException =>
+                constraintOrder = null
+                throw new CyclicConstraintNetworkException
         }
+
     }
     private object ConstraintOrdering extends Ordering[Constraint] {
         override def compare(lhs: Constraint, rhs: Constraint) =
@@ -314,7 +321,7 @@ final class Space(
             false
         }
         catch {
-            case _: CyclicConstraintNetworkException => true
+            case _: IllegalArgumentException => true
         }
     }
 
@@ -324,7 +331,7 @@ final class Space(
     /**
      * Adds the given constraint to the constraint network.
      *
-     * Throws a CyclicConstraintNetworkException when adding the constraint would create a cycle in the network.
+     * Throws when adding the constraint would create a cycle in the network.
      */
     def post(constraint: Constraint): Space = {
         logger.log("Adding %s".format(constraint))
