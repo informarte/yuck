@@ -5,7 +5,7 @@ import scala.collection.*
 import yuck.core.*
 
 /**
- * Intuitively, given a set search variables and set of constraints (represented by
+ * Intuitively, given a set of search variables and set of constraints (represented by
  * their cost variables), this constraint maintains, for each search variable,
  * the number of unsatisfied constraints the variable is involved in.
  *

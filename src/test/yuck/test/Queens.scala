@@ -69,7 +69,7 @@ final class Queens(val n: Int) extends IntegrationTest {
                     randomGenerator.nextGen(),
                     new SatisfactionObjective(conflicts),
                     None,
-                    Some(new StandardAnnealingMonitor(logger)),
+                    Some(new AnnealingEventLogger(logger)),
                     None,
                     sigint)
 

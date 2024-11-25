@@ -1,18 +1,13 @@
-package yuck.flatzinc.test.util
+package yuck.annealing
 
 import scala.collection.mutable
-
-import yuck.annealing.{AnnealingResult, StandardAnnealingMonitor}
-import yuck.core.{NumericalObjective, *}
+import yuck.core.*
 import yuck.flatzinc.compiler.FlatZincCompilerResult
-import yuck.flatzinc.test.util.SourceFormat.*
-import yuck.flatzinc.test.util.VerificationFrequency.*
+import yuck.util.DescriptiveStatistics.median
 import yuck.util.logging.LazyLogger
-import yuck.util.logging.LogLevel.FineLogLevel
-import yuck.util.DescriptiveStatistics.*
 
 /**
- * Collects statistics about the solving process for testing purposes.
+ * A monitor for collecting solver statistics.
  *
  * Assumes that the solver either terminates by itself or gets suspended due
  * to a timeout.
@@ -21,7 +16,7 @@ import yuck.util.DescriptiveStatistics.*
  *
  * @author Michael Marte
  */
-class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAnnealingMonitor(logger) {
+final class AnnealingStatisticsCollector(logger: LazyLogger) extends AnnealingMonitor {
 
     case class QualityImprovement(runtimeInMillis: Long, quality: NumericalValue[?])
 
@@ -66,12 +61,10 @@ class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAn
     }
 
     override def open() = {
-        super.open()
         timeStampInMillis = System.currentTimeMillis
     }
 
     override def close() = {
-        super.close()
         val now = System.currentTimeMillis
         if (areaTrackingState == TrackingArea) {
             area += maybePreviousQuality.get.toDouble * ((now - timeStampInMillis) / 1000.0)
@@ -83,7 +76,6 @@ class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAn
     }
 
     override def onSolverSuspended(result: AnnealingResult) = {
-        super.onSolverSuspended(result)
         // We assume that the solver timed out and that it will never be resumed.
         captureSolverStatistics(result)
     }
@@ -93,13 +85,11 @@ class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAn
     }
 
     override def onSolverFinished(result: AnnealingResult) = {
-        super.onSolverFinished(result)
         captureSolverStatistics(result)
     }
 
     override def onBetterProposal(result: AnnealingResult) = {
         synchronized {
-            super.onBetterProposal(result)
             if (result.isSolution) {
                 if (costsOfBestProposal.eq(null) ||
                     result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestProposal))
@@ -107,11 +97,6 @@ class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAn
                     costsOfBestProposal = result.costsOfBestProposal
                     keepRecords(result)
                 }
-            }
-        }
-        if (result.isSolution && task.sourceFormat == MiniZinc && task.verificationFrequency == VerifyEverySolution) {
-            logger.criticalSection {
-                verifySolution(task, result)
             }
         }
     }
@@ -155,17 +140,6 @@ class ZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends StandardAn
             qualityStepFunction += QualityImprovement(runtimeInMillis, currentQuality)
         }
         timeStampInMillis = now
-    }
-
-    private def verifySolution(task: ZincTestTask, result: Result): Unit = {
-        logger.withTimedLogScope("Verifying solution") {
-            logger.withRootLogLevel(FineLogLevel) {
-                val verifier = new MiniZincSolutionVerifier(task, result, logger)
-                if (! verifier.call()) {
-                    throw new SolutionNotVerifiedException
-                }
-            }
-        }
     }
 
     // Runtime from opening this resource until the first solution was found.

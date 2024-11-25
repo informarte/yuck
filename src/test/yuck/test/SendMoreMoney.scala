@@ -17,7 +17,7 @@ final class SendMoreMoney extends IntegrationTest {
 
     override protected val logToConsole = false
 
-    private val monitor = new StandardAnnealingMonitor(logger)
+    private val monitor = new AnnealingEventLogger(logger)
 
     private final class ModelData(
         val LHS: List[(Int, IntegerVariable)],

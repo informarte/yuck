@@ -36,7 +36,6 @@ abstract class YuckTest extends YuckAssert with YuckLogging {
         // However, as a side effect, test methods without interrupt handling (e.g. typical unit tests)
         // will ignore interrupts.
         .around(new ManagedResourceAsTestRule(new yuck.util.arm.ManagedShutdownHook({})))
-        .around(new ManagedResourceAsTestRule(logManager))
         .around(
             new ManagedResourceAsTestRule(
                 if (logToConsole) new yuck.util.logging.ManagedLogHandler(nativeLogger, consoleHandler)

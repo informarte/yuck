@@ -5,11 +5,11 @@ import yuck.util.arm.ManagedResource
 import yuck.util.logging.LazyLogger
 
 /**
- * A managed resource for logging solver events.
+ * A monitor for logging solver events.
  *
  * @author Michael Marte
  */
-class StandardAnnealingMonitor(logger: LazyLogger) extends AnnealingMonitor with ManagedResource {
+final class AnnealingEventLogger(logger: LazyLogger) extends AnnealingMonitor {
 
     private trait ThreadState
     private case object ThreadIsIdle extends ThreadState
@@ -20,12 +20,6 @@ class StandardAnnealingMonitor(logger: LazyLogger) extends AnnealingMonitor with
         override def initialValue = ThreadIsIdle
     }
     private var costsOfBestProposal: Costs = null
-
-    override def open() = {
-    }
-
-    override def close() = {
-    }
 
     override def onSolverLaunched(result: AnnealingResult) = {
         require(solverState.get == ThreadIsIdle)

@@ -2,14 +2,20 @@ package yuck.flatzinc.runner
 
 import java.io.IOException
 import java.util.concurrent.CancellationException
+
 import scala.annotation.tailrec
 import scala.math.max
+
 import scopt.*
+import spray.json.JsBoolean
+
 import yuck.BuildInfo
+import yuck.annealing.{AnnealingEventLogger, AnnealingMonitorCollection, AnnealingStatisticsCollector}
 import yuck.core.{CyclicConstraintNetworkException, InconsistentProblemException}
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.{UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
 import yuck.flatzinc.parser.*
+import yuck.flatzinc.util.SummaryBuilder
 import yuck.util.arm.*
 import yuck.util.logging.YuckLogging
 import yuck.util.logging.LogLevel.InfoLogLevel
@@ -23,6 +29,7 @@ object FlatZincRunner extends YuckLogging {
     private case class CommandLine(
         logLevel: yuck.util.logging.LogLevel = yuck.util.logging.LogLevel.NoLogging,
         logFilePath: String = "",
+        summaryFilePath: String = "",
         fznFilePath: String = "",
         cfg: FlatZincSolverConfiguration =
             FlatZincSolverConfiguration(
@@ -87,11 +94,18 @@ object FlatZincRunner extends YuckLogging {
         opt[String]("log-file-path")
             .text("Optional log file path")
             .action((x, cl) => cl.copy(logFilePath = x))
+        opt[String]("summary-file-path")
+            .text("Optional summary file path")
+            .action((x, cl) => cl.copy(summaryFilePath = x))
         arg[String]("FlatZinc file")
             .required()
             .hidden()
             .action((x, cl) => cl.copy(fznFilePath = x))
     }
+
+    private val sigint = new SettableSigint
+
+    private val summaryBuilder = new SummaryBuilder
 
     def main(args: Array[String]): Unit = {
         val parser = new CommandLineParser
@@ -100,29 +114,19 @@ object FlatZincRunner extends YuckLogging {
             System.exit(1)
         }
         val cl = maybeCl.get
-        try {
-            // We use an empty, managed shutdown hook to enforce the completion of a shutdown
-            // initiated upon interrupt.
-            // (Without it, the JVM would already exit when the inner, managed shutdown hook
-            //  goes out of scope.)
-            scoped(new ManagedShutdownHook({})) {
-                scoped(logManager) {
-                    setupLogging(cl)
-                    logVersion()
-                    val sigint = new SettableSigint
-                    scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set()})) {
-                        maybeTimeboxed(cl.cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
-                            solve(cl, sigint)
-                        }
-                    }
-                    logger.log("Shutdown complete, exiting")
-                }
+        setupLogging(cl)
+        summaryBuilder.addOsEnv()
+        summaryBuilder.addJavaEnv()
+        summaryBuilder.addYuckVersion()
+        summaryBuilder.addSolverConfiguration(cl.cfg)
+        val exitCode = scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set()})) {
+            val exitCode = maybeTimeboxed(cl.cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
+                solve(cl)
             }
+            logger.log("Shutdown complete, exiting")
+            exitCode
         }
-        catch {
-            case error: ShutdownInProgressException =>
-            case error: Throwable => handleError(error)
-        }
+        System.exit(exitCode)
     }
 
     private def setupLogging(cl: CommandLine): Unit = {
@@ -149,85 +153,105 @@ object FlatZincRunner extends YuckLogging {
         logger.setThresholdLogLevel(cl.logLevel)
     }
 
-    private def logVersion(): Unit = {
-        logger.withLogScope("Yuck version") {
-            logger.log("Git branch: %s".format(BuildInfo.gitBranch))
-            logger.log("Git commit data: %s".format(BuildInfo.gitCommitDate))
-            logger.log("Git commit hash: %s".format(BuildInfo.gitCommitHash))
-        }
-    }
-
-    private def solve(cl: CommandLine, sigint: SettableSigint): Unit = {
+    private def solve(cl: CommandLine): Int = {
+        var exitCode = 0
         try {
-            trySolve(cl, sigint)
+            trySolve(cl)
         }
         catch {
-            case error: CancellationException =>
-            case error: InterruptedException =>
-            case error: ShutdownInProgressException =>
-            case error: Throwable => throw findUltimateCause(error)
+            case _: CancellationException =>
+            case _: InterruptedException =>
+            case _: ShutdownInProgressException =>
+            case throwable: Throwable => exitCode = handleException(findUltimateCause(throwable))
         }
-    }
-
-    private def trySolve(cl: CommandLine, sigint: SettableSigint): Unit = {
-        logger.log("Processing %s".format(cl.fznFilePath))
-        val (ast, _) =
-            logger.withTimedLogScope("Parsing FlatZinc file") {
-                new FlatZincFileParser(cl.fznFilePath, logger).call()
-            }
-        val monitor = new FlatZincSolverMonitor(logger)
-        val solverGenerator = new FlatZincSolverGenerator(ast, cl.cfg, sigint, logger, monitor)
-        val solver = solverGenerator.call()
-        val result = solver.call()
-        if (! result.isSolution) {
-            println(FlatZincNoSolutionFoundIndicator)
-        } else {
-            logger.criticalSection {
-                logger.withLogScope("Solution") {
-                    new FlatZincResultFormatter(result).call().foreach(logger.log(_))
+        finally {
+            if (! cl.summaryFilePath.isEmpty) {
+                logger.withLogScope("Writing %s".format(cl.summaryFilePath)) {
+                    val jsonDoc = summaryBuilder.build()
+                    val jsonWriter = new java.io.FileWriter(cl.summaryFilePath)
+                    jsonWriter.write(jsonDoc.prettyPrint)
+                    jsonWriter.close()
                 }
             }
         }
+        exitCode
     }
 
-    private def handleError(error: Throwable) = error match {
+    private def trySolve(cl: CommandLine): Unit = {
+        logger.log("Processing %s".format(cl.fznFilePath))
+        val (ast, parserRuntime) =
+            logger.withTimedLogScope("Parsing FlatZinc file") {
+                new FlatZincParser(cl.fznFilePath, logger).call()
+            }
+        summaryBuilder.addParserStatistics(parserRuntime)
+        val md5Sum = SummaryBuilder.computeMd5Sum(cl.fznFilePath)
+        summaryBuilder.addFlatZincModelStatistics(ast, md5Sum)
+        val statisticsCollector = new AnnealingStatisticsCollector(logger)
+        val monitor = new AnnealingMonitorCollection(
+            Vector(new AnnealingEventLogger(logger), statisticsCollector, new FlatZincResultPrinter(logger)))
+        val (result, _) = logger.withTimedLogScope("Solving problem") {
+            scoped(monitor) {
+                new FlatZincSolverGenerator(ast, cl.cfg, sigint, logger, monitor).call().call()
+            }
+        }
+        summaryBuilder.addYuckModelStatistics(result.space)
+        summaryBuilder.addResult(result)
+        summaryBuilder.addSearchStatistics(statisticsCollector)
+        if (! result.isSolution) {
+            println(FlatZincNoSolutionFoundIndicator)
+        } else logger.withLogScope("Solution") {
+            new FlatZincResultFormatter(result).call().foreach(logger.log(_))
+        }
+    }
+
+    private def handleException(throwable: Throwable): Int = throwable match {
         case error: java.nio.file.NoSuchFileException =>
             Console.err.println("%s: Directory or file not found".format(error.getFile))
-            System.exit(1)
+            1
         case error: java.nio.file.AccessDeniedException =>
             Console.err.println("%s: Access denied".format(error.getFile))
-            System.exit(1)
+            1
         case error: java.nio.file.FileSystemException if error.getReason.ne(null) =>
             Console.err.println("%s: %s".format(error.getFile, error.getReason))
-            System.exit(1)
+            1
         case error: java.nio.file.FileSystemException =>
             Console.err.println("%s: I/O error".format(error.getFile))
-            System.exit(1)
-        case error: IOException =>
-            Console.err.println("I/O error: %s".format(error.getMessage))
-            System.exit(1)
-        case error: FlatZincParserException =>
-            System.err.println(error.getMessage)
-            System.exit(1)
-        case error: UnsupportedFlatZincTypeException =>
-            System.err.println(error.getMessage)
-            System.exit(1)
-        case error: VariableWithInfiniteDomainException =>
-            System.err.println(error.getMessage)
-            System.exit(1)
-        case error: InconsistentProblemException =>
-            System.err.println(error.getMessage)
+            1
+        case _: IOException =>
+            Console.err.println("I/O error: %s".format(throwable.getMessage))
+            1
+        case _: FlatZincParserException =>
+            summaryBuilder.addError(throwable)
+            logger.log(throwable.getMessage)
+            System.err.println(throwable.getMessage)
+            1
+        case _: UnsupportedFlatZincTypeException | _: VariableWithInfiniteDomainException =>
+            summaryBuilder.addWarning(throwable)
+            logger.log(throwable.getMessage)
+            System.err.println(throwable.getMessage)
+            1
+        case _: InconsistentProblemException =>
+            summaryBuilder.extendResult("satisfiable", JsBoolean(false))
+            logger.log(throwable.getMessage)
+            logger.log(FlatZincInconsistentProblemIndicator)
+            System.err.println(throwable.getMessage)
             println(FlatZincInconsistentProblemIndicator)
-        case error: CyclicConstraintNetworkException =>
-            System.err.println(error.getMessage)
-            System.exit(1)
-        case error: Throwable =>
-            // JVM will print error
-            throw error
+            0
+        case _: CyclicConstraintNetworkException =>
+            summaryBuilder.addError(throwable)
+            logger.log(throwable.getMessage)
+            System.err.println(throwable.getMessage)
+            1
+        case _: Throwable =>
+            summaryBuilder.addError(throwable)
+            logger.withLogScope(throwable.getMessage) {
+                throwable.getStackTrace.foreach(frame => logger.log(frame.toString))
+            }
+            1
     }
 
     @tailrec
-    private def findUltimateCause(error: Throwable): Throwable =
-        if (error.getCause.eq(null)) error else findUltimateCause(error.getCause)
+    private def findUltimateCause(throwable: Throwable): Throwable =
+        if (throwable.getCause.eq(null)) throwable else findUltimateCause(throwable.getCause)
 
 }

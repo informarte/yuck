@@ -27,10 +27,9 @@ final class ProgressiveTighteningTest
     private val space = new Space(logger, sigint)
     private val randomGenerator = new JavaRandomGenerator
 
-    private final class TighteningCounter(val y: AnyVariable) extends StandardAnnealingMonitor(logger) {
+    private final class TighteningCounter(val y: AnyVariable) extends AnnealingMonitor {
         var n = 0
         override def onObjectiveTightened(x: AnyVariable) = {
-            super.onObjectiveTightened(x)
             assert(x == y)
             n += 1
         }

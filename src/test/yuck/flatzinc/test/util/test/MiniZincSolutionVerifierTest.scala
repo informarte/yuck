@@ -1,34 +1,17 @@
 package yuck.flatzinc.test.util.test
 
+import scala.collection.*
 import scala.jdk.CollectionConverters.*
 
 import org.junit.*
 
-import yuck.annealing.AnnealingResult
+import yuck.annealing.{AnnealingMonitor, AnnealingMonitorCollection, AnnealingResult}
 import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.test.util.*
 import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 import yuck.flatzinc.test.util.VerificationFrequency.*
-import yuck.util.logging.LazyLogger
 import yuck.test.*
-
-/**
- * @author Michael Marte
- *
- */
-class MiniZincSolutionVerifierTestMonitor(task: ZincTestTask, logger: LazyLogger) extends ZincTestMonitor(task, logger) {
-
-    override def onBetterProposal(result: AnnealingResult) = {
-        val varDir = result.bestProposal.mappedVariables.map(x => (x.name, x)).toMap
-        val modifiedSolution = new HashMapBackedAssignment(result.bestProposal)
-        modifiedSolution.setValue(varDir("x").asInstanceOf[IntegerVariable], Ten)
-        modifiedSolution.setValue(varDir("y").asInstanceOf[IntegerVariable], Ten)
-        result.bestProposal = modifiedSolution
-        super.onBetterProposal(result)
-    }
-
-}
 
 /**
  * @author Michael Marte
@@ -39,10 +22,20 @@ class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean, verificationFrequ
 
     override protected val logToConsole = false
 
-    override protected def createTestMonitor(task: ZincTestTask): ZincTestMonitor = {
-        if (simulateBadSolver) new MiniZincSolutionVerifierTestMonitor(task, logger)
-        else super.createTestMonitor(task)
+    class SolutionSpoiler extends AnnealingMonitor {
+
+        override def onBetterProposal(result: AnnealingResult) = {
+            val varDir = result.bestProposal.mappedVariables.map(x => (x.name, x)).toMap
+            val modifiedSolution = new HashMapBackedAssignment(result.bestProposal)
+            modifiedSolution.setValue(varDir("x").asInstanceOf[IntegerVariable], Ten)
+            modifiedSolution.setValue(varDir("y").asInstanceOf[IntegerVariable], Ten)
+            result.bestProposal = modifiedSolution
+        }
+
     }
+
+    override protected def customizeMonitoring(monitors: Seq[AnnealingMonitor]) =
+        if simulateBadSolver then monitors.prepended(new SolutionSpoiler) else monitors
 
     @Test
     def testVerification(): Unit = {

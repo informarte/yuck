@@ -1,7 +1,5 @@
 package yuck.util.logging
 
-import yuck.util.arm.ManagedResource
-
 /**
  * A replacement for the
  * [[http://docs.oracle.com/javase/7/docs/api/java/util/logging/LogManager.html Java default log manager]],
@@ -15,13 +13,7 @@ import yuck.util.arm.ManagedResource
  *
  * @author Michael Marte
  */
-final class ManagedLogManager extends java.util.logging.LogManager with ManagedResource {
-
-    override def open() = {
-    }
-
-    override def close() = {
-    }
+final class LogManager extends java.util.logging.LogManager {
 
     override def reset() = {
     }
