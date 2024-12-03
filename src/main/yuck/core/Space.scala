@@ -7,6 +7,7 @@ import scala.collection.*
 import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
 
+import yuck.core.profiling.*
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 
@@ -22,14 +23,34 @@ import yuck.util.logging.LazyLogger
  *  - A ''channel variable'' is an output variable.
  *  - A ''dangling variable'' is neither an input nor an output variable - it is unused.
  *
+ * The implementation supports two modes of profiling:
+ *  - ''ByConstraint'' collects metrics for each type of constraints.
+ *  - ''ByGoal'' collects metrics for each goal.
+ *
+ * Profiling is supposed to support the exploratory quantitative analysis of both
+ * model and solver in order to identify performance hotspots. Therefore only a limited
+ * effort is made to produce precise numbers: while the profiling overhead is measured
+ * and deducted, no effort is made to warm up the solver.
+ *
  * @author Michael Marte
  */
 final class Space(
     logger: LazyLogger,
     sigint: Sigint,
     checkAssignmentsToNonChannelVariables: Boolean = false,
-    delayCycleCheckingUntilInitialization: Boolean = false)
+    delayCycleCheckingUntilInitialization: Boolean = false,
+    maybeSpaceProfilingMode: Option[SpaceProfilingMode] = None)
 {
+
+    import Space.*
+
+    private val profiling = maybeSpaceProfilingMode.isDefined
+
+    val performanceMetricsBuilder = maybeSpaceProfilingMode match {
+        case Some(SpaceProfilingMode.ByConstraint) => new ByConstraintPerformanceMetricsBuilder(this)
+        case Some(SpaceProfilingMode.ByGoal) => new ByGoalPerformanceMetricsBuilder(this)
+        case _ => null
+    }
 
     private val constraints = new mutable.HashSet[Constraint] // maintained by post and removeUselessConstraints
     private val implicitConstraints = new mutable.HashSet[Constraint] // maintained by registerImplicitConstraint
@@ -315,9 +336,6 @@ final class Space(
         }
     }
 
-    private def isCyclic(constraint: Constraint): Boolean =
-        constraint.outVariables.exists(constraint.inVariables.iterator.contains)
-
     /**
      * Adds the given constraint to the constraint network.
      *
@@ -358,6 +376,7 @@ final class Space(
      */
     def retract(constraint: Constraint): Space = {
         logger.log("Retracting %s".format(constraint))
+        require(! initialized, "Space has already been initialized")
         require(
             constraint.outVariables.forall(x => directlyAffectedConstraints(x).isEmpty),
             "%s feeds into another constraint".format(constraint))
@@ -613,6 +632,18 @@ final class Space(
      * (For efficiency reasons, this requirement is not enforced.)
      */
     def consult(move: Move): SearchState = {
+        if (profiling) {
+            val startTimeInNanos = System.nanoTime
+            val result = doConsult(move)
+            val endTimeInNanos = System.nanoTime
+            performanceMetricsBuilder.consulted(endTimeInNanos - startTimeInNanos)
+            result
+        } else {
+            doConsult(move)
+        }
+    }
+
+    def doConsult(move: Move): SearchState = {
         require(initialized, "Call initialize after posting the last constraint")
         idOfMostRecentlyAssessedMove = move.id
         val acc = new BulkMove(move.id)
@@ -630,7 +661,16 @@ final class Space(
             while (j >= 0) {
                 val constraint = layer(j)
                 val after = constraint.after
-                val effects = constraint.consult(assignment, after, after.move)
+                val effects =
+                    if (profiling) {
+                        val startTimeInNanos = System.nanoTime
+                        val result = constraint.consult(assignment, after, after.move)
+                        val endTimeInNanos = System.nanoTime
+                        performanceMetricsBuilder.consulted(constraint, endTimeInNanos - startTimeInNanos)
+                        result
+                    } else {
+                        constraint.consult(assignment, after, after.move)
+                    }
                 propagateEffects(move, effects.iterator, acc)
                 numberOfConsultations += 1
                 j -= 1
@@ -682,6 +722,18 @@ final class Space(
      */
     def commit(move: Move): Space = {
         require(move.id == idOfMostRecentlyAssessedMove)
+        if (profiling) {
+            val startTimeInNanos = System.nanoTime
+            doCommit(move)
+            val endTimeInNanos = System.nanoTime
+            performanceMetricsBuilder.committed(endTimeInNanos - startTimeInNanos)
+        } else {
+            doCommit(move)
+        }
+        this
+    }
+
+    private def doCommit(move: Move): Unit = {
         pendingChanges.clear()
         pendingChanges ++= move.effectsIterator
         var i = queue.size - 1
@@ -691,7 +743,16 @@ final class Space(
             while (j >= 0) {
                 val constraint = layer(j)
                 val after = constraint.after
-                val effects = constraint.commit(assignment, after, after.move)
+                val effects =
+                    if (profiling) {
+                        val startTimeInNanos = System.nanoTime
+                        val result = constraint.commit(assignment, after, after.move)
+                        val endTimeInNanos = System.nanoTime
+                        performanceMetricsBuilder.committed(constraint, endTimeInNanos - startTimeInNanos)
+                        result
+                    } else {
+                        constraint.commit(assignment, after, after.move)
+                    }
                 pendingChanges ++= effects
                 numberOfCommitments += 1
                 j -= 1
@@ -703,7 +764,6 @@ final class Space(
             pendingChanges(j).affect(this)
             j -= 1
         }
-        this
     }
 
     /** Throws when the internal data structures are inconsistent. */
@@ -712,5 +772,18 @@ final class Space(
             assert(flowModel.vertexSet().size() == constraints.size)
         }
     }
+
+}
+
+/**
+ * Companion object to Space.
+ *
+ * @author Michael Marte
+ *
+ */
+object Space {
+
+    private def isCyclic(constraint: Constraint): Boolean =
+        constraint.outVariables.exists(constraint.inVariables.iterator.contains)
 
 }

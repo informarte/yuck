@@ -6,7 +6,6 @@
 # and supports some keywords introduced by LKH-3.
 
 import argparse
-import math
 import re
 import sys
 

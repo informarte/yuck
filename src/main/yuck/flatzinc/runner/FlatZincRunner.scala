@@ -11,6 +11,7 @@ import spray.json.JsBoolean
 
 import yuck.BuildInfo
 import yuck.annealing.{AnnealingEventLogger, AnnealingMonitorCollection, AnnealingStatisticsCollector}
+import yuck.core.profiling.SpaceProfilingMode
 import yuck.core.{CyclicConstraintNetworkException, InconsistentProblemException}
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.{UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
@@ -97,6 +98,12 @@ object FlatZincRunner extends YuckLogging {
         opt[String]("summary-file-path")
             .text("Optional summary file path")
             .action((x, cl) => cl.copy(summaryFilePath = x))
+        opt[Boolean]("constraint-profiling")
+            .text("Profile constraints and write results into summary file")
+            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(maybeSpaceProfilingMode = Some(SpaceProfilingMode.ByConstraint))))
+        opt[Boolean]("goal-profiling")
+            .text("Profile goals and write results into summary file")
+            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(maybeSpaceProfilingMode = Some(SpaceProfilingMode.ByGoal))))
         arg[String]("FlatZinc file")
             .required()
             .hidden()
@@ -197,6 +204,9 @@ object FlatZincRunner extends YuckLogging {
         summaryBuilder.addYuckModelStatistics(result.space)
         summaryBuilder.addResult(result)
         summaryBuilder.addSearchStatistics(statisticsCollector)
+        if (cl.cfg.maybeSpaceProfilingMode.isDefined) {
+            summaryBuilder.addSpacePerformanceMetrics(result.space.performanceMetricsBuilder.build())
+        }
         if (! result.isSolution) {
             println(FlatZincNoSolutionFoundIndicator)
         } else logger.withLogScope("Solution") {

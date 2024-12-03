@@ -12,3 +12,5 @@ annotation sat_goal(var bool: b);
 annotation goal_hierarchy(array[$I] of ann);
 
 annotation implicit;
+
+annotation goal(string);

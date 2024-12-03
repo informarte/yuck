@@ -9,7 +9,6 @@ import argparse
 import json
 from urllib.request import pathname2url
 import sqlite3
-import sys
 
 def diffResults(cursor, args):
     query = 'SELECT suite, problem, model, instance FROM RESULT WHERE run = ? AND solved = 1'

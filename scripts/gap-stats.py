@@ -3,7 +3,7 @@
 # This script helps to compare a given set of integration test runs.
 #
 # For each instance and each run, this script computes the gap between the best known
-# objective value (BKS) and and the value achieved in the run.
+# objective value (BKS) and the value achieved in the run.
 #
 # In the end the script prints, for each given run, the gaps in terms of their mean,
 # standard deviation, and median.
@@ -15,10 +15,8 @@
 
 import argparse
 import json
-import numpy
 from urllib.request import pathname2url
 import sqlite3
-import statistics
 import sys
 
 import common

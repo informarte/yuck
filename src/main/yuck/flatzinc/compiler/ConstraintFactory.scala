@@ -81,6 +81,18 @@ final class ConstraintFactory
             case _=> false
         }
 
+    private def createGoal(constraint: yuck.flatzinc.ast.Constraint): Option[Goal] =
+        val userDefinedGoals =
+            constraint.annotations.flatMap {
+                case Annotation(Term("goal", Seq(StringConst(name)))) => List(name)
+                case _ => Nil
+            }
+        if ! userDefinedGoals.isEmpty
+        then Option(UserDefinedGoal(userDefinedGoals.head))
+        else if cc.cfg.attachGoals
+        then Some(FlatZincGoal(constraint))
+        else None
+
     private def compileConstraint
         (constraint: yuck.flatzinc.ast.Constraint,
          out: Iterable[AnyVariable],
@@ -116,12 +128,8 @@ final class ConstraintFactory
 
     override def run() = {
         cc.costVars ++=
-            cc.ast.constraints
-            .iterator
-            .flatMap(constraint =>
-                compileConstraint(if (cc.cfg.attachGoals) Some(new FlatZincGoal(constraint)) else None,
-                constraint,
-                None))
+            cc.ast.constraints.iterator
+                .flatMap(constraint => compileConstraint(createGoal(constraint), constraint, None))
         optimizeIntDomainEnforcement()
     }
 
@@ -1236,7 +1244,9 @@ final class ConstraintFactory
         }
     }
 
-    private object DomainEnforcementGoal extends Goal("Domain enforcement")
+    private object DomainEnforcementGoal extends Goal {
+        override def toString = "Domain enforcement"
+    }
 
     private def enforceDomain(x: AnyVariable): List[BooleanVariable] = {
         x match {

@@ -5,6 +5,4 @@ package yuck.core
  *
  * @author Michael Marte
  */
-class Goal(val name: String) {
-    override def toString = name
-}
+abstract class Goal

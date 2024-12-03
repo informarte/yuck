@@ -69,7 +69,7 @@ def plotDiagrams(args, results):
         [run for run in results],
         lambda run: (lambda result: [result[task] for task in result])(results[run]),
         title = title,
-        xlabel = 'Speedup',
+        xlabel = 'Speedup (higher is better)',
         legendLocation = 'center right')
 
 def main():

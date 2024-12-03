@@ -134,6 +134,9 @@ class ZincBasedTest extends IntegrationTest {
         summaryBuilder.addYuckModelStatistics(result.space)
         summaryBuilder.addResult(result)
         summaryBuilder.addSearchStatistics(statisticsCollector)
+        if (cfg.maybeSpaceProfilingMode.isDefined) {
+            summaryBuilder.addSpacePerformanceMetrics(result.space.performanceMetricsBuilder.build())
+        }
         if (task.createDotFile) {
             logger.withTimedLogScope("Exporting constraint network to a DOT file") {
                 val dotFilePath = "%s/yuck.dot".format(outputDirectoryPath)

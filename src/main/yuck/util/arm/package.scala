@@ -40,7 +40,12 @@ package object arm {
         (operation: => Result):
         Result =
     {
-        using(resource)(_ => operation)
+        resource.open()
+        try {
+            operation
+        } finally {
+            resource.close()
+        }
     }
 
     /**

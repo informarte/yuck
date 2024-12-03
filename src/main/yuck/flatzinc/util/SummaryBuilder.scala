@@ -9,7 +9,8 @@ import spray.json.*
 
 import yuck.BuildInfo
 import yuck.annealing.AnnealingStatisticsCollector
-import yuck.core.{BooleanVariable, IntegerValue, IntegerVariable, Result, Space}
+import yuck.core.*
+import yuck.core.profiling.{ConstraintPerformanceMetrics, SpacePerformanceMetrics}
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.FlatZincAst
 import yuck.flatzinc.compiler.FlatZincCompilerResult
@@ -119,6 +120,9 @@ final class SummaryBuilder {
         if (cfg.maybeTargetObjectiveValue.isDefined) {
             cfgNode += "target-objective-value" -> JsNumber(cfg.maybeTargetObjectiveValue.get)
         }
+        if (cfg.maybeSpaceProfilingMode.isDefined) {
+            cfgNode += "space-profiling-mode" -> JsString(cfg.maybeSpaceProfilingMode.get.toString)
+        }
         rootNode +="solver-configuration" -> cfgNode
         this
     }
@@ -224,6 +228,28 @@ final class SummaryBuilder {
         this
     }
 
+    def addSpacePerformanceMetrics(metrics: SpacePerformanceMetrics): SummaryBuilder = {
+        val byConstraintNode = convertConstraintPerformanceMetrics(metrics.performanceMetricsByConstraint)
+        val metricsNode =
+            JsObjectBuilder(
+                "number-of-consultations" -> JsNumber(metrics.numberOfConsultations),
+                "consultation-effort-in-seconds" -> convertDuration(metrics.consultationEffort),
+                "number-of-commitments" -> JsNumber(metrics.numberOfCommitments),
+                "commitment-effort-in-seconds" -> convertDuration(metrics.commitmentEffort),
+                "by-constraint" -> byConstraintNode
+            )
+        if (metrics.maybePerformanceMetricsByGoalAndConstraint.isDefined) {
+            val byGoalNode = metrics.maybePerformanceMetricsByGoalAndConstraint.get
+                .foldLeft(new JsObjectBuilder) {
+                    case (builder, (goal, byConstraint)) =>
+                        builder += goal.toString -> convertConstraintPerformanceMetrics(byConstraint)
+                }
+            metricsNode += "by-goal" -> byGoalNode
+        }
+        rootNode += "space-performance-metrics" -> metricsNode
+        this
+    }
+
     def addError(throwable: Throwable): SummaryBuilder =
         extendResult("error", JsObjectBuilder(throwable))
 
@@ -285,5 +311,26 @@ object SummaryBuilder {
         md.update(Files.readAllBytes(Paths.get(filePath)))
         new BigInteger(1, md.digest).toString(16)
     }
+
+    private def convertConstraintPerformanceMetrics(
+        byConstraint: immutable.Map[Class[? <: Constraint], ConstraintPerformanceMetrics]): JsValueBuilder =
+    {
+        byConstraint
+            .foldLeft(new JsObjectBuilder) {
+                case (builder, (clazz, metrics)) =>
+                    builder += clazz.getSimpleName -> convertConstraintPerformanceMetrics(metrics)
+            }
+    }
+
+    private def convertConstraintPerformanceMetrics(metrics: ConstraintPerformanceMetrics): JsValueBuilder =
+        JsObjectBuilder(
+            "number-of-consultations" -> JsNumber(metrics.numberOfConsultations),
+            "consultation-effort-in-seconds" -> convertDuration(metrics.consultationEffort),
+            "number-of-commitments" -> JsNumber(metrics.numberOfCommitments),
+            "commitment-effort-in-seconds" -> convertDuration(metrics.commitmentEffort)
+        )
+
+    private def convertDuration(duration: Duration): JsNumber =
+        JsNumber(duration.getSeconds + duration.getNano / 1e9)
 
 }

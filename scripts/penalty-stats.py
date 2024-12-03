@@ -18,11 +18,9 @@
 
 import argparse
 import json
-import numpy
 from urllib.request import pathname2url
 import re
 import sqlite3
-import statistics
 import sys
 
 import common
@@ -106,7 +104,7 @@ def plotDiagrams(args, results):
         [run for run in results],
         lambda run: [results[run][task]['penalty'] for task in results[run] if 'penalty' in results[run][task]],
         title = title,
-        xlabel = 'Penalty',
+        xlabel = 'Penalty (lower is better)',
         legendLocation = 'upper center')
 
 def main():

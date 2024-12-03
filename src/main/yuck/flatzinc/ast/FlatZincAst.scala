@@ -103,6 +103,10 @@ final case class VarDecl(
     def isDefined: Boolean = annotations.contains(Annotation(Term("is_defined_var", Nil)))
 }
 
+final case class Annotation(term: Term) {
+    override def toString = term.toString
+}
+
 final case class Constraint(id: String, params: LinearSeq[Expr], annotations: LinearSeq[Annotation]) {
     override def toString = {
         val tmp =
@@ -111,10 +115,6 @@ final case class Constraint(id: String, params: LinearSeq[Expr], annotations: Li
         if (annotations.isEmpty) tmp
         else "%s :: %s".format(tmp, annotations.iterator.map(_.toString).mkString(", "))
     }
-}
-
-final case class Annotation(term: Term) {
-    override def toString = term.toString
 }
 
 abstract class SolveGoal(val annotations: LinearSeq[Annotation])

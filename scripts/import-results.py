@@ -21,7 +21,6 @@ import argparse
 import json
 from urllib.request import pathname2url
 import sqlite3
-from itertools import repeat
 
 def createDb(cursor):
     cursor.execute(
