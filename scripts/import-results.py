@@ -45,6 +45,7 @@ def createDb(cursor):
         'number_of_channel_variables INT CONSTRAINT result_number_of_channel_variables_constraint CHECK (number_of_channel_variables >= 0), '\
         'number_of_constraints INT CONSTRAINT result_number_of_constraints_constraint CHECK (number_of_constraints >= 0), '\
         'number_of_implicit_constraints INT CONSTRAINT result_number_of_implicit_constraints_constraint CHECK (number_of_implicit_constraints >= 0), '\
+        'number_of_layers INT CONSTRAINT result_number_of_layers_constraint CHECK (number_of_layers >= 0), '\
         'search_runtime_to_first_solution_in_seconds DOUBLE CONSTRAINT result_search_runtime_to_first_solution_in_seconds_constraint CHECK (search_runtime_to_first_solution_in_seconds >= 0), '\
         'search_runtime_to_best_solution_in_seconds DOUBLE CONSTRAINT result_search_runtime_to_best_solution_in_seconds_constraint CHECK (search_runtime_to_best_solution_in_seconds >= 0), '\
         'search_runtime_in_seconds DOUBLE CONSTRAINT result_search_runtime_in_seconds_constraint CHECK (search_runtime_in_seconds >= 0), '\
@@ -74,7 +75,7 @@ def importResults(args, file, cursor):
         print("No model statistics (FlatZinc compiler error?)")
     else:
         cursor.execute(
-            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             (args.run,
              solver['name'] if solver else None,
              solver['version'] if solver else None,
@@ -94,6 +95,7 @@ def importResults(args, file, cursor):
              yuckModelStatistics['number-of-channel-variables'] if yuckModelStatistics else None,
              yuckModelStatistics['number-of-constraints'] if yuckModelStatistics else None,
              yuckModelStatistics['number-of-implicit-constraints'] if yuckModelStatistics else None,
+             yuckModelStatistics.get('number-of-layers') if yuckModelStatistics else None,
              searchStatistics.get('runtime-to-first-solution-in-seconds') if searchStatistics else None,
              searchStatistics.get('runtime-to-best-solution-in-seconds') if searchStatistics else None,
              searchStatistics.get('runtime-in-seconds') if searchStatistics else None,

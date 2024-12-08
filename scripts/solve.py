@@ -188,7 +188,7 @@ def main():
     parser.add_argument('-v', '--verbose', action = 'store_true')
     parser.add_argument('--solver', dest = 'solver', default = 'gecode', help = 'Solver to run')
     parser.add_argument('--solver-arg', '--fzn-flag', dest = 'extraSolverArgs', action = 'append', help = 'Extra argument to pass to the solver')
-    parser.add_argument('--runtime-limit', dest = 'runtimeLimitInSeconds', type = int, help = 'Runtime limit in secconds')
+    parser.add_argument('--runtime-limit', dest = 'runtimeLimitInSeconds', type = int, help = 'Runtime limit in seconds')
     args = parser.parse_args()
     if not args.dataAssignments:
         args.dataAssignments = []

@@ -1,15 +1,14 @@
 package yuck.core
 
 import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge}
-import org.jgrapht.traverse.{BreadthFirstIterator, TopologicalOrderIterator, NotDirectedAcyclicGraphException}
+import org.jgrapht.traverse.{BreadthFirstIterator, NotDirectedAcyclicGraphException, TopologicalOrderIterator}
 
 import scala.collection.*
 import scala.jdk.CollectionConverters.*
+import scala.reflect.ClassTag
 
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
-
-import scala.reflect.ClassTag
 
 /**
  * This class is used for building and managing a constraint network,
@@ -118,24 +117,16 @@ final class Space(
         flowModel.removeVertex(constraint)
     }
 
-    private type ConstraintOrder = Array[Int]
-    private var constraintOrder: ConstraintOrder = null // created by initialize
     private def sortConstraintsTopologically(): Unit = {
-        constraintOrder = new ConstraintOrder(constraints.iterator.map(_.id).max.rawId + 1)
+        val constraintOrder = new Array[Int](constraints.iterator.map(_.id).max.rawId + 1)
         try {
             for ((constraint, i) <- new TopologicalOrderIterator[Constraint, DefaultEdge](flowModel).asScala.zipWithIndex) {
                 constraintOrder.update(constraint.id.rawId, i)
             }
         } catch {
             case error: NotDirectedAcyclicGraphException =>
-                constraintOrder = null
                 throw new CyclicConstraintNetworkException
         }
-
-    }
-    private object ConstraintOrdering extends Ordering[Constraint] {
-        override def compare(lhs: Constraint, rhs: Constraint) =
-            constraintOrder(lhs.id.rawId) - constraintOrder(rhs.id.rawId)
     }
 
     private val assignment = new ArrayBackedAssignment
@@ -311,7 +302,7 @@ final class Space(
      * you can try another approach to modeling your problem, otherwise everything is fine.
      */
     def wouldIntroduceCycle(constraint: Constraint): Boolean = {
-        require(constraintOrder.eq(null), "Space has already been initialized")
+        require(! initialized, "Space has already been initialized")
         if (isCyclic(constraint)) true
         else if (constraints.isEmpty) false
         else if (constraints.contains(constraint)) false
@@ -335,7 +326,7 @@ final class Space(
      */
     def post(constraint: Constraint): Space = {
         logger.log("Adding %s".format(constraint))
-        require(constraintOrder.eq(null), "Space has already been initialized")
+        require(! initialized, "Space has already been initialized")
         require(
             ! constraint.outVariables.exists(outVariables.contains),
             "%s shares out-variables with the following constraints:\n%s".format(
@@ -354,7 +345,7 @@ final class Space(
         for (x <- constraint.outVariables) {
             registerOutflow(x, constraint)
         }
-        constraintOrder = null
+        initialized = false
         this
     }
 
@@ -384,7 +375,7 @@ final class Space(
             inVariablesOfImplicitConstraints --= constraint.inVariables
         }
         objectiveVariables --= constraint.outVariables
-        constraintOrder = null
+        initialized = false
         numberOfRetractions += 1
         this
     }
@@ -424,7 +415,7 @@ final class Space(
                 constraint.inVariables.filter(isImplicitlyConstrainedSearchVariable).mkString(", ")))
         implicitConstraints.add(constraint)
         inVariablesOfImplicitConstraints ++= constraint.inVariables
-        constraintOrder = null
+        initialized = false
         this
     }
 
@@ -539,21 +530,39 @@ final class Space(
     /** Counts how often Constraint.initialize was called. */
     var numberOfInitializations = 0
 
+    private var initialized = false
+
     /**
      * Initializes the constraint network for local search.
      *
      * The caller has to assign values to all search variables before initializing!
      */
     def initialize(): Space = {
-        if (constraintOrder.eq(null)) {
-            sortConstraintsTopologically()
-            // free memory
-            flowModel = null
+
+        if (! initialized) {
+            if (delayCycleCheckingUntilInitialization) {
+                sortConstraintsTopologically()
+            }
+            flowModel = null // free memory
+            initialized = true
         }
-        for (constraint <- constraints.iterator.filterNot(isImplicitConstraint(_)).toBuffer.sorted(ConstraintOrdering)) {
-            constraint.initialize(assignment).foreach(_.affect(this))
-            numberOfInitializations += 1
+
+        val layers = computeLayers()
+        for (i <- layers.indices; constraint <- layers(i)) {
+            constraint.layer = i
+            constraint.after = null
+            if (! isImplicitConstraint(constraint)) {
+                constraint.initialize(assignment).foreach(_.affect(this))
+                numberOfInitializations += 1
+            }
         }
+        queue = Vector.fill(layers.size)(new mutable.ArrayBuffer[Constraint] {
+            inline override def clear() = {
+                // No need to clear the underlying array!
+                size0 = 0
+            }
+        })
+
         this
     }
 
@@ -567,111 +576,35 @@ final class Space(
         initialize()
     }
 
-    abstract private class MoveProcessor(val move: Move) {
-        // Commits could be made cheaper by storing the affected constraints in the order of
-        // processing while consulting.
-        // This makes consulting more expensive, increases code complexity, and does not
-        // pay off because commits are very rare at the normal operating temperatures of
-        // simulated annealing.
-        require(constraintOrder.ne(null), "Call initialize after posting the last constraint")
-        protected val diff = new BulkMove(move.id)
-        private val diffs = new java.util.TreeMap[Constraint, BulkMove](ConstraintOrdering)
-        private def propagateEffect(effect: AnyMoveEffect): Unit = {
-            if (assignment.value(effect.x) != effect.a) {
-                val affectedConstraints = directlyAffectedConstraints(effect.x)
-                for (constraint <- affectedConstraints) {
-                    if (! isImplicitConstraint(constraint)) {
-                        var diff = diffs.get(constraint)
-                        if (diff.eq(null)) {
-                            diff = new BulkMove(move.id)
-                            diffs.put(constraint, diff)
-                        }
-                        diff += effect
-                    }
-                }
-                recordEffect(effect)
-            }
+    private def computeLayers(): IndexedSeq[Iterable[Constraint]] = {
+        val layers = new mutable.ArrayBuffer[mutable.HashSet[Constraint]]
+        val availableInputs = new mutable.HashSet[AnyVariable]
+        availableInputs ++= searchVariables
+        val candidates = new mutable.HashSet[Constraint]
+        candidates ++= availableInputs.view.flatMap(directlyAffectedConstraints)
+        candidates ++= constraints.view.filter(_.inVariables.view.filterNot(isProblemParameter).isEmpty)
+        while (! candidates.isEmpty) {
+            val layer = new mutable.HashSet[Constraint]
+            layer ++= candidates.view.filter(_.inVariables.view.filterNot(isProblemParameter).toSet.subsetOf(availableInputs))
+            layers += layer
+            availableInputs ++= layer.view.flatMap(_.outVariables)
+            candidates --= layer
+            candidates ++= layer.view.flatMap(_.outVariables).flatMap(directlyAffectedConstraints)
         }
-        protected def processConstraint(
-            constraint: Constraint, before: SearchState, after: SearchState, move: Move): Iterable[AnyMoveEffect]
-        protected def recordEffect(effect: AnyMoveEffect): Unit
-        def run(): Move = {
-            move.effectsIterator.foreach(propagateEffect)
-            while (! diffs.isEmpty) {
-                val entry = diffs.pollFirstEntry
-                val constraint = entry.getKey
-                val diff = entry.getValue
-                val after = new MoveSimulator(assignment, diff)
-                processConstraint(constraint, assignment, after, diff).foreach(propagateEffect)
-            }
-            diff
-        }
+        assert(! layers.exists(_.isEmpty))
+        assert(layers.view.map(_.size).sum == constraints.size)
+        assert(layers.foldLeft(mutable.HashSet.empty[Constraint])((acc, layer) => acc ++= layer) == constraints)
+        layers
     }
 
     /** Counts how often Constraint.consult was called. */
     var numberOfConsultations = 0
 
-    private final class EffectComputer(move: Move) extends MoveProcessor(move) {
-        override protected def processConstraint(
-            constraint: Constraint, before: SearchState, after: SearchState, move: Move) =
-        {
-            numberOfConsultations += 1
-            if (checkIncrementalCostUpdate) {
-                checkedConsult(constraint, before, after, move)
-            } else {
-                constraint.consult(before, after, move)
-            }
-        }
-        override protected def recordEffect(effect: AnyMoveEffect): Unit = {
-            if (isObjectiveVariable(effect.x)) {
-                diff += effect
-            }
-        }
-        private def checkedConsult(
-            constraint: Constraint, before: SearchState, after: SearchState, move: Move) =
-        {
-            // Constraint implementations re-use effect objects for efficiency reasons.
-            // In particular, the final reset to the state before the move will change these effect objects!
-            // Hence, to avoid havoc, we have to clone the effects before proceeding with our sanity checks.
-            val effects = constraint.consult(before, after, move).map(_.clone)
-            val stateAfterConsultation =
-                new MoveSimulator(after, new BulkMove(move.id) ++= effects)
-            val stateAfterInitialization =
-                new MoveSimulator(after, new BulkMove(move.id) ++= constraint.initialize(after))
-            var buggy = false
-            for (x <- constraint.outVariables) {
-                if (stateAfterConsultation.value(x) != stateAfterInitialization.value(x)) {
-                    println(
-                        "%s: consultation computed %s, initialization computed %s".format(
-                            x,
-                            stateAfterConsultation.value(x),
-                            stateAfterInitialization.value(x)))
-                    buggy = true
-                }
-            }
-            if (buggy) {
-                // replay and console output for debugging
-                println("before = %s".format(before))
-                println("after = %s".format(after))
-                println("move = %s".format(move))
-                println("constraint = %s".format(constraint))
-                println("constraint.initialize(before) = %s".format(constraint.initialize(before).toList))
-                // Should the output from the following statement be inconsistent with the error message, then
-                // a likely cause is a buggy commit implementation that fails to maintain the constraint's state.
-                println("constraint.consult(before, after, move) = %s".format(constraint.consult(before, after, move).toList))
-                println("constraint.initialize(after) = %s".format(constraint.initialize(after).toList))
-            }
-            for (x <- constraint.outVariables) {
-                assert(
-                    stateAfterConsultation.value(x) == stateAfterInitialization.value(x),
-                    "Consultation failed for output variable %s of %s".format(x, constraint))
-            }
-            constraint.initialize(before)
-            constraint.consult(before, after, move)
-        }
-    }
-
     private var idOfMostRecentlyAssessedMove = moveIdFactory.nextId()
+    private var queue: Vector[mutable.ArrayBuffer[Constraint]] = null // per layer
+
+    /** Returns the number of layers the constraints were partitioned into. */
+    def numberOfLayers: Int = queue.size
 
     /**
      * Computes the search state that would result from applying the given move to
@@ -681,70 +614,70 @@ final class Space(
      * (For efficiency reasons, this requirement is not enforced.)
      */
     def consult(move: Move): SearchState = {
+        require(initialized, "Call initialize after posting the last constraint")
         idOfMostRecentlyAssessedMove = move.id
-        new MoveSimulator(assignment, new EffectComputer(move).run())
+        val acc = new BulkMove(move.id)
+        var i = 0
+        val n = queue.size
+        while (i < n) {
+            queue(i).clear()
+            i += 1
+        }
+        propagateEffects(move, move.effectsIterator, acc)
+        i = 0
+        while (i < n) {
+            val layer = queue(i)
+            var j = layer.size - 1
+            while (j >= 0) {
+                val constraint = layer(j)
+                val after = constraint.after
+                val effects =
+                    if checkIncrementalCostUpdate
+                    then checkedConsult(constraint, assignment, after, after.move)
+                    else constraint.consult(assignment, after, after.move)
+                propagateEffects(move, effects.iterator, acc)
+                numberOfConsultations += 1
+                j -= 1
+            }
+            i += 1
+        }
+        new MoveSimulator(assignment, acc)
     }
 
-    private final class EffectPropagator(move: Move) extends MoveProcessor(move) {
-        override protected def processConstraint(
-            constraint: Constraint, before: SearchState, after: SearchState, move: Move) =
-        {
-            numberOfCommitments += 1
-            if (checkIncrementalCostUpdate) {
-                checkedCommit(constraint, before, after, move)
-            } else {
-                constraint.commit(before, after, move)
-            }
-        }
-        override protected def recordEffect(effect: AnyMoveEffect): Unit = {
-            diff += effect
-        }
-        private def checkedCommit(
-            constraint: Constraint, before: SearchState, after: SearchState, move: Move) =
-        {
-            // Constraint implementations re-use effect objects for efficiency reasons.
-            // In particular, the final reset to the state before the move will change these effect objects!
-            // Hence, to avoid havoc, we have to clone the effects before proceeding with our sanity checks.
-            val effects = constraint.commit(before, after, move).map(_.clone)
-            val stateAfterCommitting =
-                new MoveSimulator(after, new BulkMove(move.id) ++= effects)
-            val stateAfterInitialization =
-                new MoveSimulator(after, new BulkMove(move.id) ++= constraint.initialize(after))
-            var buggy = false
-            for (x <- constraint.outVariables) {
-                if (stateAfterCommitting.value(x) != stateAfterInitialization.value(x)) {
-                    println(
-                        "%s: committing computed %s, initialization computed %s".format(
-                            x,
-                            stateAfterCommitting.value(x),
-                            stateAfterInitialization.value(x)))
-                    buggy = true
+    private def propagateEffects(move: Move, effectsIt: Iterator[AnyMoveEffect], acc: BulkMove): Unit = {
+        while (effectsIt.hasNext) {
+            val effect = effectsIt.next()
+            if (assignment.value(effect.x) != effect.a) {
+                val constraintsIt = directlyAffectedConstraints(effect.x).iterator
+                while (constraintsIt.hasNext) {
+                    val constraint = constraintsIt.next()
+                    if (! isImplicitConstraint(constraint)) {
+                        if (constraint.after != null && constraint.after.move == move) {
+                            constraint.after.move.asInstanceOf[BulkMove] += effect
+                        } else {
+                            val diff = new BulkMove(move.id)
+                            diff += effect
+                            constraint.after = new MoveSimulator(assignment, diff)
+                            queue(constraint.layer) += constraint
+                        }
+                    }
+                }
+                if (isObjectiveVariable(effect.x)) {
+                    acc += effect
                 }
             }
-            if (buggy) {
-                // replay and console output for debugging
-                println("before = %s".format(before))
-                println("after = %s".format(after))
-                println("move = %s".format(move))
-                println("constraint = %s".format(constraint))
-                println("constraint.initialize(before) = %s".format(constraint.initialize(before)))
-                println("constraint.consult(before, after, move) = %s".format(constraint.consult(before, after, move).toList))
-                println("constraint.commit(before, after, move) = %s".format(constraint.commit(before, after, move).toList))
-                println("constraint.initialize(after) = %s".format(constraint.initialize(after).toList))
-            }
-            for (x <- constraint.outVariables) {
-                assert(
-                    stateAfterCommitting.value(x) == stateAfterInitialization.value(x),
-                    "Committing failed for output variable %s of %s".format(x, constraint))
-            }
-            constraint.initialize(before)
-            constraint.consult(before, after, move)
-            constraint.commit(before, after, move)
         }
     }
 
     /** Counts how often Constraint.commit was called. */
     var numberOfCommitments = 0
+
+    private val pendingChanges = new mutable.ArrayBuffer[AnyMoveEffect] {
+        inline override def clear() = {
+            // No need to clear the underlying array!
+            size0 = 0
+        }
+    } // for internal use by commit
 
     /**
      * Performs the given move.
@@ -753,7 +686,30 @@ final class Space(
      */
     def commit(move: Move): Space = {
         require(move.id == idOfMostRecentlyAssessedMove)
-        new EffectPropagator(move).run().effectsIterator.foreach(_.affect(this))
+        pendingChanges.clear()
+        pendingChanges ++= move.effectsIterator
+        var i = queue.size - 1
+        while (i >= 0) {
+            val layer = queue(i)
+            var j = layer.size - 1
+            while (j >= 0) {
+                val constraint = layer(j)
+                val after = constraint.after
+                val effects =
+                    if checkIncrementalCostUpdate
+                    then checkedCommit(constraint, assignment, after, after.move)
+                    else constraint.commit(assignment, after, after.move)
+                pendingChanges ++= effects
+                numberOfCommitments += 1
+                j -= 1
+            }
+            i -= 1
+        }
+        var j = pendingChanges.size - 1
+        while (j >= 0) {
+            pendingChanges(j).affect(this)
+            j -= 1
+        }
         this
     }
 
@@ -762,6 +718,90 @@ final class Space(
         if (flowModel.ne(null)) {
             assert(flowModel.vertexSet().size() == constraints.size)
         }
+    }
+
+    private def checkedConsult(constraint: Constraint, before: SearchState, after: SearchState, move: Move): Iterable[AnyMoveEffect] = {
+        // Constraint implementations re-use effect objects for efficiency reasons.
+        // In particular, the final reset to the state before the move will change these effect objects!
+        // Hence, to avoid havoc, we have to clone the effects before proceeding with our sanity checks.
+        val effects = constraint.consult(before, after, move).map(_.clone)
+        val stateAfterConsultation =
+            new MoveSimulator(after, new BulkMove(move.id) ++= effects)
+        val stateAfterInitialization =
+            new MoveSimulator(after, new BulkMove(move.id) ++= constraint.initialize(after))
+        var buggy = false
+        for (x <- constraint.outVariables) {
+            if (stateAfterConsultation.value(x) != stateAfterInitialization.value(x)) {
+                println(
+                    "%s: consultation computed %s, initialization computed %s".format(
+                        x,
+                        stateAfterConsultation.value(x),
+                        stateAfterInitialization.value(x)))
+                buggy = true
+            }
+        }
+        if (buggy) {
+            // replay and console output for debugging
+            println("before = %s".format(before))
+            println("after = %s".format(after))
+            println("move = %s".format(move))
+            println("constraint = %s".format(constraint))
+            println("constraint.initialize(before) = %s".format(constraint.initialize(before).toList))
+            // Should the output from the following statement be inconsistent with the error message, then
+            // a likely cause is a buggy commit implementation that fails to maintain the constraint's state.
+            println("constraint.consult(before, after, move) = %s".format(constraint
+                .consult(before, after, move)
+                .toList))
+            println("constraint.initialize(after) = %s".format(constraint.initialize(after).toList))
+        }
+        for (x <- constraint.outVariables) {
+            assert(
+                stateAfterConsultation.value(x) == stateAfterInitialization.value(x),
+                "Consultation failed for output variable %s of %s".format(x, constraint))
+        }
+        constraint.initialize(before)
+        constraint.consult(before, after, move)
+    }
+
+    private def checkedCommit(constraint: Constraint, before: SearchState, after: SearchState, move: Move): Iterable[AnyMoveEffect] = {
+        // Constraint implementations re-use effect objects for efficiency reasons.
+        // In particular, the final reset to the state before the move will change these effect objects!
+        // Hence, to avoid havoc, we have to clone the effects before proceeding with our sanity checks.
+        val effects = constraint.commit(before, after, move).map(_.clone)
+        val stateAfterCommitting =
+            new MoveSimulator(after, new BulkMove(move.id) ++= effects)
+        val stateAfterInitialization =
+            new MoveSimulator(after, new BulkMove(move.id) ++= constraint.initialize(after))
+        var buggy = false
+        for (x <- constraint.outVariables) {
+            if (stateAfterCommitting.value(x) != stateAfterInitialization.value(x)) {
+                println(
+                    "%s: committing computed %s, initialization computed %s".format(
+                        x,
+                        stateAfterCommitting.value(x),
+                        stateAfterInitialization.value(x)))
+                buggy = true
+            }
+        }
+        if (buggy) {
+            // replay and console output for debugging
+            println("before = %s".format(before))
+            println("after = %s".format(after))
+            println("move = %s".format(move))
+            println("constraint = %s".format(constraint))
+            println("constraint.initialize(before) = %s".format(constraint.initialize(before)))
+            println("constraint.consult(before, after, move) = %s".format(constraint.consult(before, after, move).toList))
+            println("constraint.commit(before, after, move) = %s".format(constraint.commit(before, after, move).toList))
+            println("constraint.initialize(after) = %s".format(constraint.initialize(after).toList))
+        }
+        for (x <- constraint.outVariables) {
+            assert(
+                stateAfterCommitting.value(x) == stateAfterInitialization.value(x),
+                "Committing failed for output variable %s of %s".format(x, constraint))
+        }
+        constraint.initialize(before)
+        constraint.consult(before, after, move)
+        constraint.commit(before, after, move)
     }
 
 }

@@ -34,7 +34,7 @@ final case class FlatZincSolverConfiguration(
     runPresolver: Boolean = true,
     useImplicitSolving: Boolean = true,
     useProgressiveTightening: Boolean = true,
-    checkIncrementalCostUpdate: Boolean = false,
+    checkIncrementalCostUpdate: Boolean = true,
     checkAssignmentsToNonChannelVariables: Boolean = false,
     delayCycleCheckingUntilInitialization: Boolean = false,
     moveSizeDistribution: Distribution = Distribution(1, List(90, 10)),

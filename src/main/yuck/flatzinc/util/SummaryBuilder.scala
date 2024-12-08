@@ -145,7 +145,8 @@ final class SummaryBuilder {
                 "number-of-channel-variables" -> JsNumber(space.channelVariables.size),
                 // dangling variables are not readily available
                 "number-of-constraints" -> JsNumber(space.numberOfConstraints),
-                "number-of-implicit-constraints" -> JsNumber(space.numberOfImplicitConstraints)
+                "number-of-implicit-constraints" -> JsNumber(space.numberOfImplicitConstraints),
+                "number-of-layers" -> JsNumber(space.numberOfLayers)
             )
         this
     }

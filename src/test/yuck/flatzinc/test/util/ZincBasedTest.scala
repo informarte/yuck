@@ -290,6 +290,7 @@ class ZincBasedTest extends IntegrationTest {
                 for (x <- sum.xs if result.space.searchState.value(x) > True) {
                     logViolatedConstraints(result, x, visited)
                 }
+            case _ =>
         }
     }
 

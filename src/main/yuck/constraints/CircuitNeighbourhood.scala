@@ -50,6 +50,7 @@ final class CircuitNeighbourhood
 
     private val effects = new mutable.ArrayBuffer[MoveEffect[IntegerValue]](3) {
         override def clear() = {
+            // No need to clear the underlying array!
             size0 = 0
         }
     }

@@ -76,3 +76,14 @@ abstract class AnyVariable
     def nextMove(space: Space, randomGenerator: RandomGenerator): Move
 
 }
+
+/**
+ * Companion object to AnyVariable.
+ *
+ * @author Michael Marte
+ */
+object AnyVariable {
+
+    given ordering: Ordering[AnyVariable] = AnyVariableOrdering
+
+}

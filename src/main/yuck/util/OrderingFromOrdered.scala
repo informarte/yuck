@@ -5,5 +5,5 @@ package yuck.util
  *
  */
 class OrderingFromOrdered[T <: Ordered[T]] extends Ordering[T] {
-    override def compare(a: T, b: T) = a.compare(b)
+    inline override def compare(a: T, b: T) = a.compare(b)
 }

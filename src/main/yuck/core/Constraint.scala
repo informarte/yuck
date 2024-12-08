@@ -18,6 +18,10 @@ import scala.collection.*
  */
 abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
 
+    // used by Space to improve data locality
+    private[core] var layer: Int = -1
+    private[core] var after: MoveSimulator = null
+
     /** The optimization goal this constraint contributes to. */
     val maybeGoal: Option[Goal] = None
 

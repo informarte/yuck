@@ -50,6 +50,15 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVar
     def value(x: AnyVariable): AnyValue = effectsIterator.filter(_.x == x).next().a
 
     /**
+     * Returns null if the move does not involve the given variable x,
+     * otherwise it returns the value assigned to x by the move.
+     */
+    def valueOrNull(x: AnyVariable): AnyValue = {
+        val it = effectsIterator.filter(_.x == x)
+        if it.hasNext then it.next().a else null
+    }
+
+    /**
      * Returns None if the move does not involve the given variable x,
      * otherwise it returns Some(a) where a is the value assigned to x
      * by the move.
@@ -63,6 +72,13 @@ abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVar
      */
     inline final def value[V <: Value[V]](x: Variable[V]): V =
         value(x.asInstanceOf[AnyVariable]).asInstanceOf[V]
+
+    /**
+     * Returns null if the move does not involve the given variable x,
+     * otherwise it returns the value assigned to x by the move.
+     */
+    def valueOrNull[V <: Value[V]](x: Variable[V]): V =
+        valueOrNull(x.asInstanceOf[AnyVariable]).asInstanceOf[V]
 
     /**
      * Returns None if the move does not involve the given variable x,
