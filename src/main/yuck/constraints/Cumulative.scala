@@ -1,6 +1,6 @@
 package yuck.constraints
 
-import com.conversantmedia.util.collection.geometry.{Point2d, Rect2d}
+import com.conversantmedia.util.collection.geometry.Rect2d
 import com.conversantmedia.util.collection.spatial.*
 
 import java.util.function.Consumer
@@ -114,33 +114,41 @@ final class Cumulative
     private var futureCosts = 0L
 
     private final class EventPoint(val x: Int, val bbox: Rect2d, val isBBoxStart: Boolean)
+
     private object EventPointOrdering extends Ordering[EventPoint] {
         override def compare(p1: EventPoint, p2: EventPoint) = java.lang.Integer.compare(p1.x, p2.x)
     }
 
+    private val eventPoints = new mutable.ArrayBuffer[EventPoint]  {
+        override def clear() = {
+            // No need to clear the underlying array!
+            size0 = 0
+        }
+    }
+
     private def computeCosts(rTree: SpatialSearch[RTreeEntry], capacity: Int): Long = {
         require(capacity >= 0)
-        val eventPoints = new java.util.ArrayList[EventPoint]
+        eventPoints.clear()
         rTree.forEach(
             new Consumer[RTreeEntry] {
                 override def accept(entry: RTreeEntry) = {
                     val bbox = entry.bbox
-                    eventPoints.add(new EventPoint(bbox.x1, bbox, true))
-                    eventPoints.add(new EventPoint(bbox.x2, bbox, false))
+                    eventPoints.addOne(new EventPoint(bbox.x1, bbox, true))
+                    eventPoints.addOne(new EventPoint(bbox.x2, bbox, false))
                 }
             }
         )
-        eventPoints.sort(EventPointOrdering) // sort in place without copying (infeasible with Scala facilities)
+        eventPoints.sortInPlace()(EventPointOrdering)
         val n = eventPoints.size
         var costs = 0L
         if (n > 0) {
             assert(n > 1)
-            var sweepLinePos = eventPoints.get(0).x
+            var sweepLinePos = eventPoints(0).x
             var i = 0
             var consumption = 0
             while {
                 while {
-                    val p = eventPoints.get(i)
+                    val p = eventPoints(i)
                     if (p.isBBoxStart) {
                         consumption = safeAdd(consumption, p.bbox.h)
                     } else {
@@ -148,10 +156,10 @@ final class Cumulative
                     }
                     assert(consumption >= 0)
                     i += 1
-                    i < n && eventPoints.get(i).x == sweepLinePos
+                    i < n && eventPoints(i).x == sweepLinePos
                 } do ()
                 if (i < n) {
-                    val nextSweepLinePos = eventPoints.get(i).x
+                    val nextSweepLinePos = eventPoints(i).x
                     val segmentWidth = nextSweepLinePos - sweepLinePos
                     sweepLinePos = nextSweepLinePos
                     if (consumption > capacity) {
@@ -168,7 +176,7 @@ final class Cumulative
         require(x1 < x2)
         require(consumptionDelta != 0)
         require(capacity >= 0)
-        val eventPoints = new java.util.ArrayList[EventPoint]
+        eventPoints.clear()
         rTree.intersects(
             new Rect2d(x1, 0, x2, 1),
             new Consumer[RTreeEntry] {
@@ -178,8 +186,8 @@ final class Cumulative
                     val p2 = new EventPoint(min(x2, bbox.x2), bbox, false)
                     if (p1.x < x2 && p2.x > x1) {
                         // entry really intersects with [x1, x2]
-                        eventPoints.add(p1)
-                        eventPoints.add(p2)
+                        eventPoints.addOne(p1)
+                        eventPoints.addOne(p2)
                     }
                 }
             }
@@ -187,21 +195,21 @@ final class Cumulative
         if (consumptionDelta > 0) {
             // add event points for the case that [x1, x2] is not (yet) fully covered by tasks
             val bbox = new Rect2d(x1, 0, x2, 0)
-            eventPoints.add(new EventPoint(x1, bbox, true))
-            eventPoints.add(new EventPoint(x2, bbox, false))
+            eventPoints.addOne(new EventPoint(x1, bbox, true))
+            eventPoints.addOne(new EventPoint(x2, bbox, false))
         }
-        eventPoints.sort(EventPointOrdering) // sort in place without copying (infeasible with Scala facilities)
+        eventPoints.sortInPlace()(EventPointOrdering)
         val n = eventPoints.size
         assert(n > 1)
-        assert(eventPoints.get(0).x == x1)
-        assert(eventPoints.get(n - 1).x == x2)
-        var sweepLinePos = eventPoints.get(0).x
+        assert(eventPoints(0).x == x1)
+        assert(eventPoints(n - 1).x == x2)
+        var sweepLinePos = eventPoints(0).x
         var i = 0
         var consumption = 0
         var costDelta = 0L
         while {
             while {
-                val p = eventPoints.get(i)
+                val p = eventPoints(i)
                 if (p.isBBoxStart) {
                     consumption = safeAdd(consumption, p.bbox.h)
                 } else {
@@ -209,10 +217,10 @@ final class Cumulative
                 }
                 assert(consumption >= 0)
                 i += 1
-                i < n && eventPoints.get(i).x == sweepLinePos
+                i < n && eventPoints(i).x == sweepLinePos
             } do ()
             if (i < n) {
-                val nextSweepLinePos = eventPoints.get(i).x
+                val nextSweepLinePos = eventPoints(i).x
                 val segmentWidth = nextSweepLinePos - sweepLinePos
                 if (consumptionDelta > 0) {
                     if (consumption >= capacity) {
