@@ -169,14 +169,24 @@ final class Table
         Option[Neighbourhood] =
     {
         if (isCandidateForImplicitSolving(space)) {
-            val rows = this.rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(row(i))))
-            if (rows.size > 1) {
-                val row = rows(randomGenerator.nextInt(rows.size))
-                for ((x, a) <- xs.iterator.zip(row.iterator)) {
-                    space.setValue(x, a)
+            val xs1 = xs
+            val rows1 = rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(row(i))))
+            if (rows1.size > 1) {
+                val xs2 = xs.filterNot(_.domain.isSingleton)
+                val rows2 =
+                    if xs2.size == xs1.size
+                    then rows1
+                    else rows1.map(row => row.view.zipWithIndex.filterNot((a, i) => xs(i).domain.isSingleton).map(_._1).toVector)
+                if (rows2(0).size > 1) {
+                    val row = rows1(randomGenerator.nextInt(rows1.size))
+                    for ((x, a) <- xs1.view.zip(row.iterator)) {
+                        space.setValue(x, a)
+                    }
+                    space.setValue(costs, True)
+                    Some(new TableNeighbourhood(space, xs2, rows2, randomGenerator))
+                } else {
+                    None
                 }
-                space.setValue(costs, True)
-                Some(new TableNeighbourhood(space, xs, rows, randomGenerator))
             } else {
                 None
             }
