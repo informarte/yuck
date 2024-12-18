@@ -32,7 +32,7 @@ final class SatisfactionGoalTracker
     require(involvementMatrix.forall(_._2.forall(_ < n)))
 
     override def toString =
-        "satisfactionGoalTracker([%s])".format(involvementMatrix.iterator.map(_._1).mkString(", "))
+        "satisfaction_goal_tracker([%s])".format(involvementMatrix.iterator.map(_._1).mkString(", "))
 
     override def inVariables = involvementMatrix.view.keys
     override def outVariables = Nil

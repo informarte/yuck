@@ -14,7 +14,7 @@ final class MinimizationObjective
     extends NumericalObjective[V]
 {
     override def toString =
-        "min %s".format(x)
+        "minimize %s".format(x)
     override def targetCosts: V = {
         val dx = x.domain
         if (dx.hasLb && maybeTargetCosts.isDefined) valueTraits.valueOrdering.max(dx.lb, maybeTargetCosts.get)

@@ -8,12 +8,14 @@ import yuck.core.*
  */
 final class RoundLog(val roundIndex: Int) {
     override def toString =
-        "%d;%3.6f;%1.6f;%1.6f;%s;%s;%s;%s;%s;%d;%f;%f;%d;%f;%f;%d;%f;%f".format(
+        "%d;%3.6f;%d;%d;%1.6f;%d;%1.6f;%s;%s;%s;%s;%s;%f;%f;%d;%f;%f;%d;%f;%f".format(
             roundIndex,
-            temperature, traditionalAcceptanceRatio, uphillAcceptanceRatio,
+            temperature,
+            numberOfMonteCarloAttempts,
+            numberOfMonteCarloAttempts - numberOfRejectedMoves, traditionalAcceptanceRatio,
+            numberOfAcceptedUphillMoves, uphillAcceptanceRatio,
             costsOfInitialProposal, costsOfFinalProposal, costsOfBestProposal,
             bestProposalWasImproved, roundWasFutile,
-            numberOfMonteCarloAttempts,
             runtimeInSeconds,
             movesPerSecond,
             numberOfConsultations, consultationsPerSecond, consultationsPerMove,

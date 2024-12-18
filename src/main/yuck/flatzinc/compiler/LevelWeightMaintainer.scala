@@ -21,7 +21,7 @@ final class LevelWeightMaintainer
 
     require(objectives.size == distribution.size)
 
-    override def toString = "levelWeightMaintainer([%s])".format(objectives.mkString(", "))
+    override def toString = "level_weight_maintainer([%s])".format(objectives.mkString(", "))
 
     override def inVariables = objectives.map(_.x)
     override def outVariables = Nil

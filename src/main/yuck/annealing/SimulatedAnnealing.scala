@@ -162,6 +162,8 @@ final class SimulatedAnnealing(
         roundLog.updateAcceptanceRatio()
         assert(! objective.isHigherThan(roundLog.costsOfBestProposal, roundLog.costsOfInitialProposal))
         assert(! objective.isHigherThan(roundLog.costsOfBestProposal, roundLog.costsOfFinalProposal))
+        // If roundLog.numberOfAcceptedUphillMoves == 0, roundLog.costsOfFinalProposal may still be
+        // higher than roundLog.costsOfBestProposal due to tightening.
         roundLog.numberOfConsultations += space.numberOfConsultations
         space.numberOfConsultations = 0
         roundLog.numberOfCommitments += space.numberOfCommitments

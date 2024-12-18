@@ -6,6 +6,7 @@ package yuck.core
  * @author Michael Marte
  */
 final class SatisfactionObjective(override val x: BooleanVariable) extends PrimitiveObjective {
+    override def toString = "satisfy %s".format(x)
     override def targetCosts = True
     override def costs(searchState: SearchState): BooleanValue = searchState.value(x)
     override def isSolution(costs: Costs): Boolean = costs == True
