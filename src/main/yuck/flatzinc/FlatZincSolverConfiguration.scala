@@ -1,6 +1,6 @@
 package yuck.flatzinc
 
-import yuck.core.{DefaultRestartLimit, DefaultSeed, Distribution, Probability}
+import yuck.core.{Constraint, DefaultRestartLimit, DefaultSeed, Distribution, Probability}
 
 /**
  * @author Michael Marte
@@ -34,7 +34,7 @@ final case class FlatZincSolverConfiguration(
     runPresolver: Boolean = true,
     useImplicitSolving: Boolean = true,
     useProgressiveTightening: Boolean = true,
-    checkIncrementalCostUpdate: Boolean = true,
+    checkIncrementalCostUpdate: Constraint => Boolean = _ => false,
     checkAssignmentsToNonChannelVariables: Boolean = false,
     delayCycleCheckingUntilInitialization: Boolean = false,
     moveSizeDistribution: Distribution = Distribution(1, List(90, 10)),

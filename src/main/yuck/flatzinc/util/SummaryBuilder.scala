@@ -107,7 +107,6 @@ final class SummaryBuilder {
                 "run-presolver" -> JsBoolean(cfg.runPresolver),
                 "use-implicit-solving" -> JsBoolean(cfg.useImplicitSolving),
                 "use-progressive-tightening" -> JsBoolean(cfg.useProgressiveTightening),
-                "check-incremental-cost-update" -> JsBoolean(cfg.checkIncrementalCostUpdate),
                 "check-assignments-to-non-channel-variables" -> JsBoolean(cfg.checkAssignmentsToNonChannelVariables),
                 "delay-cycle-checking-until-initialization" -> JsBoolean(cfg.delayCycleCheckingUntilInitialization)
             )

@@ -131,9 +131,9 @@ final class VariableDrivenNeighbourhoodFactory
             s += x -> createNonNegativeChannel[V]()
             val zl = AX.normalize(zs(x))
             if (zl.forall(ax => ax.a == valueTraits.one)) {
-               cc.space.post(new Sum(nextConstraintId(), None, zl.iterator.map(ax => ax.x).toVector, s(x)))
+               cc.post(new Sum(nextConstraintId(), None, zl.iterator.map(ax => ax.x).toVector, s(x)))
             } else {
-               cc.space.post(new LinearCombination(nextConstraintId(), None, zl.toVector, s(x)))
+               cc.post(new LinearCombination(nextConstraintId(), None, zl.toVector, s(x)))
             }
         }
         s
@@ -148,7 +148,7 @@ final class VariableDrivenNeighbourhoodFactory
     {
         val hotSpotDistribution = Distribution(xs.size)
         val weightedIndicators = xs.iterator.map(x => new AX(valueTraits.one, hotSpotIndicators(x))).toVector
-        cc.space.post(new OptimizationGoalTracker(nextConstraintId(), None, OptimizationMode.Min, weightedIndicators, hotSpotDistribution))
+        cc.post(new OptimizationGoalTracker(nextConstraintId(), None, OptimizationMode.Min, weightedIndicators, hotSpotDistribution))
         Some(hotSpotDistribution)
     }
 
