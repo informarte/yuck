@@ -1099,21 +1099,13 @@ final class ConstraintFactory
             if (constraint.params.size == 4) constraint.params: @unchecked
             else IntConst(1) +: constraint.params: @unchecked
         val i = compileIntExpr(b)
-        val xs0 = compileArray[V](as)
+        val xs = compileArray[V](as)
         val y = compileOrdExpr[V](c)
-        val indexRange0 = IntegerRange(offset0, offset0 + xs0.size - 1)
-        if (! i.domain.intersects(indexRange0)) {
+        val indexRange = IntegerRange(offset0, offset0 + xs.size - 1)
+        val offset = indexRange.lb.toInt
+        if (! i.domain.intersects(indexRange)) {
             throw new InconsistentConstraintException(constraint)
         }
-        // If xs0(j) does not play a role (because j is not in i.domain), then there is no
-        // need to monitor xs0(j) and we either drop it or replace it by some xs0(j') with j' in i.domain
-        // to omit a useless arc from the constraint network.
-        val indexRange = indexRange0.intersect(i.domain.hull)
-        val offset = indexRange.lb.toInt
-        val xs1 = xs0.drop(max(0, i.domain.lb.toInt - indexRange0.lb.toInt)).take(indexRange.size)
-        val xs =
-            (for (j <- indexRange.values) yield xs1((if (i.domain.contains(j)) j else i.domain.lb).toInt - offset))
-                .toVector
         def post(y: OrderedVariable[V]): OrderedVariable[V] = {
             if (xs.forall(_.domain.isSingleton)) {
                 val as = xs.map(_.domain.singleValue)
@@ -1320,11 +1312,11 @@ final class ConstraintFactory
     private def optimizeIntDomainEnforcement(): Unit = {
         val intDomainEnforcementConstraints =
             cc.costVars.iterator
-                .map(cc.space.maybeDefiningConstraint(_))
+                .map(cc.space.maybeDefiningConstraint)
                 .filter(_.isDefined)
                 .map(_.get)
                 .filter(_.isInstanceOf[Contains])
-                .filter(_.maybeGoal == Some(DomainEnforcementGoal))
+                .filter(_.maybeGoal.contains(DomainEnforcementGoal))
                 .toVector
         if (intDomainEnforcementConstraints.size > 32) {
             // When there are many integer channels, we enforce their domains using a single InDomain constraint.

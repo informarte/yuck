@@ -68,6 +68,9 @@ final class FlatZincCompiler
         if (cfg.pruneConstraintNetwork) {
             run(new ConstraintNetworkPruner(cc))
         }
+        if (cfg.optimizeArrayAccess) {
+            run(new ArrayAccessOptimizer(cc))
+        }
         run(new WarmStartAnnotationParser(cc))
 
         checkSearchVariableDomains(cc)

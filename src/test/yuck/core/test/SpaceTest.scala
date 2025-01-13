@@ -205,7 +205,6 @@ final class SpaceTest extends UnitTest {
         space.post(d)
         space.registerImplicitConstraint(c)
         space.registerObjectiveVariable(v)
-        assertEx(space.retract(c))
         space.retract(d)
         assertEq(space.numberOfConstraints, 1)
         assertEq(space.numberOfRetractions, 1)
@@ -405,6 +404,31 @@ final class SpaceTest extends UnitTest {
                 assertEq(spy.numberOfCommitments, 0)
             }
 
+        }
+
+    }
+
+    @Test
+    def testLayerComputation(): Unit = {
+
+        val n = 8 // number of networks
+        val randomGenerator = new JavaRandomGenerator
+
+        // generate and test n networks
+        for (i <- 1 to n) {
+            val (space, _, spies) = createRandomSpyNetwork(randomGenerator)
+            val layers = space.computeLayers()
+            assertEq(layers.view.flatten.toSet, spies.toSet)
+            val availableInputs = new mutable.HashSet[AnyVariable]
+            availableInputs ++= space.searchVariables
+            for (layer <- layers) {
+                for (constraint <- layer) {
+                    assert(constraint.inVariables.forall(availableInputs.contains))
+                }
+                for (constraint <- layer) {
+                    availableInputs ++= constraint.outVariables
+                }
+            }
         }
 
     }

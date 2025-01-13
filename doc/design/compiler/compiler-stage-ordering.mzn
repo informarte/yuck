@@ -1,6 +1,6 @@
 include "alldifferent.mzn";
 
-int: N = 8;
+int: N = 9;
 
 set of int: STAGES = 1..N;
 
@@ -12,10 +12,12 @@ var STAGES: ObjectiveFactory;
 var STAGES: ConstraintNetworkPruner;
 var STAGES: Presolver;
 var STAGES: NeighbourhoodFactory;
+var STAGES: ArrayAccessOptimizer;
 
 constraint alldifferent([
    DomainInitializer, VariableFactory, VariableClassifier, ConstraintFactory,
-   ObjectiveFactory, ConstraintNetworkPruner, Presolver, NeighbourhoodFactory]);
+   ObjectiveFactory, ConstraintNetworkPruner, Presolver, NeighbourhoodFactory,
+   ArrayAccessOptimizer]);
 
 /* Sequence of stages to produce a complete model */
 constraint DomainInitializer < VariableFactory;
@@ -27,6 +29,7 @@ constraint ConstraintFactory < ObjectiveFactory;
 constraint ConstraintFactory < ConstraintNetworkPruner;
 constraint ConstraintFactory < Presolver;
 constraint ConstraintFactory < NeighbourhoodFactory;
+constraint ConstraintFactory < ArrayAccessOptimizer;
 
 /* ObjectiveFactory generates and registers the objective variables */
 constraint ObjectiveFactory < ConstraintNetworkPruner;
@@ -36,3 +39,6 @@ constraint ObjectiveFactory < NeighbourhoodFactory;
 
 /* Domains must not shrink after identification of implicit constraints */
 constraint Presolver < NeighbourhoodFactory;
+
+/* Remove useless constraints before optimizing array access */
+constraint ConstraintNetworkPruner < ArrayAccessOptimizer;

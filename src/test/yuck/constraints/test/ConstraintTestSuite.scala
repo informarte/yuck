@@ -27,6 +27,7 @@ import yuck.constraints.test.util.test.ConstraintTestToolingTest
         classOf[DisjunctionTest],
         classOf[ElementConstTest],
         classOf[ElementVarTest],
+        classOf[ElementsVarTest],
         classOf[GeneralInverseNeighbourhoodTest],
         classOf[IfThenElseTest],
         classOf[AllDifferentTest],

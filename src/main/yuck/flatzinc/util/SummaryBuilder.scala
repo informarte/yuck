@@ -104,6 +104,7 @@ final class SummaryBuilder {
                 "number-of-threads" -> JsNumber(cfg.numberOfThreads),
                 "focus-on-top-objective" -> JsBoolean(cfg.focusOnTopObjective),
                 "stop-on-first-solution" -> JsBoolean(cfg.stopOnFirstSolution),
+                "optimize-array-access" -> JsBoolean(cfg.optimizeArrayAccess),
                 "prune-constraint-network" -> JsBoolean(cfg.pruneConstraintNetwork),
                 "run-presolver" -> JsBoolean(cfg.runPresolver),
                 "use-implicit-solving" -> JsBoolean(cfg.useImplicitSolving),

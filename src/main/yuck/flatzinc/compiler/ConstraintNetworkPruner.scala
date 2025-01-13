@@ -38,7 +38,7 @@ final class ConstraintNetworkPruner
     }
 
     private def findObjectiveVariables: Set[AnyVariable] =
-        cc.space.channelVariables.filter(cc.space.isObjectiveVariable(_))
+        cc.space.channelVariables.filter(cc.space.isObjectiveVariable)
 
     private def isUseless(isImportant: AnyVariable => Boolean, constraint: Constraint): Boolean = {
         constraint match {

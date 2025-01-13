@@ -58,9 +58,18 @@ final class FlatZincBaseTest extends FrontEndTest {
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
-    def testVarArrayAccess(): Unit = {
+    def testVarArrayAccessWithoutOptimization(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "var_array_access_test", solverConfiguration = task.solverConfiguration.copy(optimizeArrayAccess = false)))
+        assertEq(result.space.numberOfConstraints[ElementVar[?]], 10)
+        assertEq(result.space.searchVariables.size, 40)
+    }
+
+    @Test
+    @Category(Array(classOf[SatisfiabilityProblem]))
+    def testVarArrayAccessWithOptimization(): Unit = {
         val result = solveWithResult(task.copy(problemName = "var_array_access_test"))
-        assertEq(result.space.numberOfConstraints[ElementVar[?]], 3)
+        assertEq(result.space.numberOfConstraints[ElementsVar[?]], 1)
+        assertEq(result.space.searchVariables.size, 25)
     }
 
     @Test

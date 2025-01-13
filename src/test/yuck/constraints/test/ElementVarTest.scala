@@ -30,7 +30,7 @@ final class ElementVarTest(offset: Int) extends UnitTest with ConstraintTestTool
 
     @Test
     def testBasics(): Unit = {
-        assertEq(constraint.toString, "y = element(i, [x1, x2, x3], %d)".format(offset))
+        assertEq(constraint.toString, "y = element([x1, x2, x3], i, %d)".format(offset))
         assertEq(constraint.inVariables.size, 4)
         assertEq(constraint.inVariables.toSet, Set(x1, x2, x3, i))
         assertEq(constraint.outVariables.size, 1)
@@ -74,9 +74,9 @@ final class ElementVarTest(offset: Int) extends UnitTest with ConstraintTestTool
             TestScenario(
                 space,
                 Initialize("i = offset - 1", x1 << 4, x2 << 7, x3 << 2, i << offset - 1, y << 4),
-                Initialize("i = offset",     i << offset,     y << 4),
+                Initialize("i = offset", i << offset, y << 4),
                 Initialize("i = offset + 1", i << offset + 1, y << 7),
-                Initialize("i = offset + 3", i << offset + 2, y << 2),
+                Initialize("i = offset + 2", i << offset + 2, y << 2),
                 Initialize("i = offset + 3", i << offset + 3, y << 2)))
     }
 

@@ -17,14 +17,14 @@ import yuck.core.*
 final class ElementVar
     [V <: Value[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.IndexedSeq[Variable[V]], i: IntegerVariable, y: Variable[V], offset: Int)
+     val xs: immutable.IndexedSeq[Variable[V]], val i: IntegerVariable, val y: Variable[V], val offset: Int)
     (using valueTraits: ValueTraits[V])
     extends Constraint(id)
 {
 
     require(! xs.isEmpty)
 
-    override def toString = "%s = element(%s, [%s], %d)".format(y, i, xs.mkString(", "), offset)
+    override def toString = "%s = element([%s], %s, %d)".format(y, xs.mkString(", "), i, offset)
 
     override def inVariables = xs.view :+ i
     override def outVariables = List(y)

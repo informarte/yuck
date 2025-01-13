@@ -29,7 +29,7 @@ final class ElementConstTest(offset: Int) extends UnitTest with ConstraintTestTo
 
     @Test
     def testBasics(): Unit = {
-        assertEq(constraint.toString, "y = element(i, [4, 7, 2], %d)".format(offset))
+        assertEq(constraint.toString, "y = element([4, 7, 2], i, %d)".format(offset))
         assertEq(constraint.inVariables.size, 1)
         assertEq(constraint.inVariables.head, i)
         assertEq(constraint.outVariables.size, 1)

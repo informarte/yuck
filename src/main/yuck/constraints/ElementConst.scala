@@ -24,7 +24,7 @@ final class ElementConst
 
     require(! as.isEmpty)
 
-    override def toString = "%s = element(%s, [%s], %d)".format(y, i, as.mkString(", "), offset)
+    override def toString = "%s = element([%s], %s, %d)".format(y, as.mkString(", "), i, offset)
 
     override def inVariables = List(i)
     override def outVariables = List(y)

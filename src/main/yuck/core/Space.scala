@@ -377,9 +377,6 @@ final class Space(
     def retract(constraint: Constraint): Space = {
         logger.log("Retracting %s".format(constraint))
         require(! initialized, "Space has already been initialized")
-        require(
-            constraint.outVariables.forall(x => directlyAffectedConstraints(x).isEmpty),
-            "%s feeds into another constraint".format(constraint))
         for (x <- constraint.inVariables.toSet) {
             deregisterInflow(x, constraint)
         }
@@ -565,7 +562,9 @@ final class Space(
             initialized = true
         }
 
-        val layers = computeLayers()
+        val (layers, _) = logger.withTimedLogScope("Computing layers") {
+            computeLayers()
+        }
         for (i <- layers.indices; constraint <- layers(i)) {
             constraint.layer = i
             constraint.after = null
@@ -594,22 +593,26 @@ final class Space(
         initialize()
     }
 
-    private def computeLayers(): IndexedSeq[Iterable[Constraint]] = {
+    /**
+     * Organizes the constraints into a minimal number of layers s.t. the constraints
+     * of each layer could be processed in parallel.
+     */
+    def computeLayers(): IndexedSeq[Set[Constraint]] = {
         val layers = new mutable.ArrayBuffer[mutable.HashSet[Constraint]]
         val availableInputs = new mutable.HashSet[AnyVariable]
         availableInputs ++= searchVariables
         val candidates = new mutable.HashSet[Constraint]
         candidates ++= availableInputs.view.flatMap(directlyAffectedConstraints)
-        candidates ++= constraints.view.filter(_.inVariables.view.filterNot(isProblemParameter).isEmpty)
-        while (! candidates.isEmpty) {
+        candidates ++= constraints.view.filter(_.inVariables.forall(isProblemParameter))
+        while (candidates.nonEmpty) {
             val layer = new mutable.HashSet[Constraint]
-            layer ++= candidates.view.filter(_.inVariables.view.filterNot(isProblemParameter).toSet.subsetOf(availableInputs))
+            layer ++= candidates.view.filter(_.inVariables.forall(x => isProblemParameter(x) || availableInputs.contains(x)))
             layers += layer
             availableInputs ++= layer.view.flatMap(_.outVariables)
             candidates --= layer
             candidates ++= layer.view.flatMap(_.outVariables).flatMap(directlyAffectedConstraints)
         }
-        assert(! layers.exists(_.isEmpty))
+        assert(layers.forall(_.nonEmpty))
         assert(layers.view.map(_.size).sum == constraints.size)
         assert(layers.foldLeft(mutable.HashSet.empty[Constraint])((acc, layer) => acc ++= layer) == constraints)
         layers

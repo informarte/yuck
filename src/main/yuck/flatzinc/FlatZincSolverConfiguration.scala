@@ -31,6 +31,7 @@ final case class FlatZincSolverConfiguration(
     maybeTargetObjectiveValue: Option[Long] = None,
     focusOnTopObjective: Boolean = true,
     stopOnFirstSolution: Boolean = false,
+    optimizeArrayAccess: Boolean = true,
     pruneConstraintNetwork: Boolean = true,
     runPresolver: Boolean = true,
     useImplicitSolving: Boolean = true,
