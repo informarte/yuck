@@ -1,7 +1,8 @@
 #! /usr/bin/python3
 
 # This script was inspired by the area scoring procedure as defined by the rules of the
-# MiniZinc challenge:
+# MiniZinc challenge.
+#
 # For each instance of an optimization problem, Yuck's test infrastructure provides
 # the integral of the quality step function over the runtime horizon (called "area")
 # when no negative objective values were encountered during solving the instance.

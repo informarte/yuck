@@ -1,6 +1,10 @@
 #! /usr/bin/python3
 
-# This script computes speedups for a given set of Yuck integration test runs.
+# This script helps to compare a set of integration test runs to a reference run.
+#
+# Given the runs and a metric, the script retrieves the metric values in order to compute,
+# for each run (other than the reference run) and instance, the ratio of the value measured
+# in the run to the value measured in the reference run.
 #
 # The result database is expected to reside in the working directory under the name results.db
 # unless another name is specified by way of the --db option.
@@ -14,51 +18,44 @@ import sys
 
 import common
 
-runtimeColumns = {
-    'parser': 'parser_runtime_in_seconds',
-    'compiler': 'compiler_runtime_in_seconds',
-    'search': 'search_runtime_in_seconds'
-}
-
-def computeSpeedups(cursor, args):
+def computeRatios(cursor, args):
     runs = [args.referenceRun] + args.runs
     query = \
-        'SELECT run, problem, model, instance, moves_per_second, {} FROM result WHERE run IN ({})'.format(
-            runtimeColumns[args.component],
-            ','.join('?' for run in runs))
+        'SELECT run, problem, model, instance, {} FROM result WHERE run IN ({}) and {}'.format(
+            args.metric,
+            ','.join('?' for run in runs),
+            args.additionalFilter)
     tasks = set()
-    data = {}
+    metricValues = {}
     problemPattern = re.compile(args.problemFilter)
     modelPattern = re.compile(args.modelFilter)
     instancePattern = re.compile(args.instanceFilter)
-    for (run, problem, model, instance, movesPerSecond, runtimeInSeconds) in cursor.execute(query, runs):
+    for (run, problem, model, instance, metricValue) in cursor.execute(query, runs):
         if problemPattern.match(problem) and modelPattern.match(model) and instancePattern.match(instance):
             task = (problem, model, instance)
             tasks.add(task)
-            data[(run, task)] = {'mps': movesPerSecond, 'rts': runtimeInSeconds}
+            metricValues[(run, task)] = metricValue
     for task in tasks:
-        if not (args.referenceRun, task) in data:
+        if not (args.referenceRun, task) in metricValues:
             (problem, model, instance) = task
             print('Warning: No reference result found for instance {}/{}/{}'.format(problem, model, instance, file = sys.stderr))
     return {
         run: {
             task:
-            newData['mps'] / refData['mps']
-            for (task, newData, refData) in
-            [(task, data[(run, task)], data[(args.referenceRun, task)])
+            newValue / refValue
+            for (task, newValue, refValue) in
+            [(task, metricValues[(run, task)], metricValues[(args.referenceRun, task)])
              for task in tasks
-             if (run, task) in data
-             if (args.referenceRun, task) in data]
-            if newData['mps']
-            if refData['mps']
-            if newData['rts'] and newData['rts'] >= args.minRuntimeInSeconds
-            if refData['rts'] and refData['rts'] >= args.minRuntimeInSeconds
+             if (run, task) in metricValues
+             if (args.referenceRun, task) in metricValues]
+            if newValue
+            if refValue and refValue != 0
         }
         for run in args.runs
     }
 
 def plotDiagrams(args, results):
-    title = 'Speedups ({}, wrt. {})'.format(args.component, args.referenceRun)
+    title = '{} wrt. {}'.format(args.metric, args.referenceRun)
     filters = \
         ([args.problemFilter] if args.problemFilter else []) + \
         ([args.modelFilter] if args.modelFilter else []) + \
@@ -69,27 +66,27 @@ def plotDiagrams(args, results):
         [run for run in results],
         lambda run: (lambda result: [result[task] for task in result])(results[run]),
         title = title,
-        xlabel = 'Speedup (higher is better)',
+        xlabel = 'New value / Reference value',
         legendLocation = 'center right')
 
 def main():
     parser = argparse.ArgumentParser(
-        description = 'Computes speedups for a given set of Yuck integration test runs',
+        description = 'Computes metric stats for a given set of Yuck integration test runs',
         formatter_class = argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--db', '--database', dest = 'database', default = 'results.db', help = 'Define results database')
-    parser.add_argument('--component', choices = ['parser', 'compiler', 'search'], default = 'search', help = 'Define the component of interest')
+    parser.add_argument('--metric', default = 'moves_per_second', help = 'Some numeric column created and filled by import-results.py')
     parser.add_argument('-p', '--plot', dest = 'plotDiagrams', action = 'store_true', help = 'Plot diagrams')
     parser.add_argument('--problem-filter', dest = 'problemFilter', default = '', help = 'Consider only problems that match the given regexp')
     parser.add_argument('--model-filter', dest = 'modelFilter', default = '', help = 'Consider only models that match the given regexp')
     parser.add_argument('--instance-filter', dest = 'instanceFilter', default = '', help = 'Consider only instances that match the given regexp')
-    parser.add_argument('--min-runtime', dest = 'minRuntimeInSeconds', type = int, default = 1, help = 'Ignore runs quicker than the lower bound given in seconds')
+    parser.add_argument('--additional-filter', dest = 'additionalFilter', default = 'true', help = 'Additional SQL filter expression')
     parser.add_argument('referenceRun', metavar = 'reference-run')
     parser.add_argument('runs', metavar = 'run', nargs = '+')
     args = parser.parse_args()
     dburi = 'file:{}?mode=ro'.format(pathname2url(args.database))
     with sqlite3.connect(dburi, uri = True) as conn:
         cursor = conn.cursor()
-        results = computeSpeedups(cursor, args)
+        results = computeRatios(cursor, args)
         if results:
             for run in results:
                 if not results[run]:
