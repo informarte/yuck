@@ -6,7 +6,7 @@
     "executable": "#EXE_PATH#",
     "mznlib": "#MZN_LIB_PATH#",
     "tags": ["cbls", "int", "set", "restart"],
-    "stdFlags": ["-a", "-f", "-p", "-r", "-v"],
+    "stdFlags": ["-a", "-i", "-f", "-p", "-r", "-v"],
     "supportsMzn": false,
     "supportsFzn": true,
     "needsSolns2Out": true,

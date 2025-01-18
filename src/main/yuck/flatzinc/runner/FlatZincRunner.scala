@@ -4,13 +4,14 @@ import java.io.IOException
 import java.util.concurrent.CancellationException
 
 import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 import scala.math.max
 
 import scopt.*
 import spray.json.JsBoolean
 
 import yuck.BuildInfo
-import yuck.annealing.{AnnealingEventLogger, AnnealingMonitorCollection, AnnealingStatisticsCollector}
+import yuck.annealing.*
 import yuck.core.profiling.SpaceProfilingMode
 import yuck.core.{CyclicConstraintNetworkException, InconsistentProblemException}
 import yuck.flatzinc.FlatZincSolverConfiguration
@@ -31,6 +32,7 @@ object FlatZincRunner extends YuckLogging {
         logLevel: yuck.util.logging.LogLevel = yuck.util.logging.LogLevel.NoLogging,
         logFilePath: String = "",
         summaryFilePath: String = "",
+        printIntermediateSolutions: Boolean = false,
         fznFilePath: String = "",
         cfg: FlatZincSolverConfiguration =
             FlatZincSolverConfiguration(
@@ -50,8 +52,13 @@ object FlatZincRunner extends YuckLogging {
         help("help").abbr("h").text("Show this help message")
         version("version")
         // -a and -f are used by MiniZinc challenge scripts!
-        opt[Unit]('a', "print-all-solutions").text("Ignored")
-        opt[Unit]('f', "free-search").text("Ignored")
+        opt[Unit]('a', "all-solutions")
+            .text("Equivalent to -i")
+            .action((_, cl) => cl.copy(printIntermediateSolutions = true))
+        opt[Unit]('f', "free-search")
+            .text("Ignored")
+        opt[Unit]('i', "intermediate-solutions")
+            .action((_, cl) => cl.copy(printIntermediateSolutions = true))
         opt[Int]('p', "number-of-threads")
             .text("Default value is %s".format(defaultCfg.numberOfThreads))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(numberOfThreads = max(1, x))))
@@ -194,23 +201,33 @@ object FlatZincRunner extends YuckLogging {
         val md5Sum = SummaryBuilder.computeMd5Sum(cl.fznFilePath)
         summaryBuilder.addFlatZincModelStatistics(ast, md5Sum)
         val statisticsCollector = new AnnealingStatisticsCollector(logger)
-        val monitor = new AnnealingMonitorCollection(
-            Vector(new AnnealingEventLogger(logger), statisticsCollector, new FlatZincResultPrinter(logger)))
+        val monitors = new ArrayBuffer[AnnealingMonitor]
+        monitors += new AnnealingEventLogger(logger)
+        monitors += statisticsCollector
+        if (cl.printIntermediateSolutions) {
+            monitors += new FlatZincResultPrinter(logger)
+        }
+        val monitor = new AnnealingMonitorCollection(monitors.toVector)
         val (result, _) = logger.withTimedLogScope("Solving problem") {
             scoped(monitor) {
                 new FlatZincSolverGenerator(ast, cl.cfg, sigint, logger, monitor).call().call()
             }
+        }
+        if (result.isSolution) {
+            if (! cl.printIntermediateSolutions) {
+                new FlatZincResultFormatter(result).call().foreach(println)
+            }
+            logger.withLogScope("Solution") {
+                new FlatZincResultFormatter(result).call().foreach(logger.log(_))
+            }
+        } else {
+            println(FlatZincNoSolutionFoundIndicator)
         }
         summaryBuilder.addYuckModelStatistics(result.space)
         summaryBuilder.addResult(result)
         summaryBuilder.addSearchStatistics(statisticsCollector)
         if (cl.cfg.maybeSpaceProfilingMode.isDefined) {
             summaryBuilder.addSpacePerformanceMetrics(result.space.performanceMetricsBuilder.build())
-        }
-        if (! result.isSolution) {
-            println(FlatZincNoSolutionFoundIndicator)
-        } else logger.withLogScope("Solution") {
-            new FlatZincResultFormatter(result).call().foreach(logger.log(_))
         }
     }
 
