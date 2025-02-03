@@ -102,6 +102,8 @@ final class ConstraintDrivenNeighbourhoodFactory
             case (OptimizationMode.Max, sum: Sum[V @ unchecked])
             if sum.xs.forall(x => x.domain.hasUb) =>
                 createNeighbourhood(mode, levelCfg, sum.xs.map(new AX(valueTraits.one, _)))
+            case (OptimizationMode.Min, bool2Costs: Bool2Costs1) =>
+                createSatisfactionNeighbourhood(levelCfg, bool2Costs.inVariables.head.asInstanceOf[BooleanVariable])
             case _ =>
                 val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
                 val xs0 = cc.space.involvedSearchVariables(constraint)
