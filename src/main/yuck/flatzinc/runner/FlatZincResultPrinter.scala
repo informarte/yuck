@@ -2,6 +2,7 @@ package yuck.flatzinc.runner
 
 import yuck.annealing.{AnnealingMonitor, AnnealingResult}
 import yuck.core.Costs
+import yuck.flatzinc.ast.FlatZincAst
 import yuck.util.logging.LazyLogger
 
 /**
@@ -9,7 +10,9 @@ import yuck.util.logging.LazyLogger
  *
  * @author Michael Marte
  */
-final class FlatZincResultPrinter(logger: LazyLogger) extends AnnealingMonitor {
+final class FlatZincResultPrinter(ast: FlatZincAst, logger: LazyLogger) extends AnnealingMonitor {
+
+    private val solutionFormatter = new FlatZincResultFormatter(ast)
 
     private var costsOfBestSolution: Costs = null
 
@@ -20,7 +23,7 @@ final class FlatZincResultPrinter(logger: LazyLogger) extends AnnealingMonitor {
                  result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestSolution)))
             {
                 costsOfBestSolution = result.costsOfBestProposal
-                new FlatZincResultFormatter(result).call().foreach(println)
+                solutionFormatter(result).foreach(println)
             }
         }
     }

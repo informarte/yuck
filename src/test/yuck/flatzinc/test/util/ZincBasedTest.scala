@@ -111,7 +111,7 @@ class ZincBasedTest extends IntegrationTest {
                 then List(new MiniZincTestMonitor(task, logger))
                 else Nil))
         val monitor = new AnnealingMonitorCollection(monitors.toVector)
-        val (result, _) = maybeTimeboxed(cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
+        val ((ast, result), _) = maybeTimeboxed(cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
             val (ast, parserRuntime) =
                 logger.withTimedLogScope("Parsing FlatZinc file") {
                     new FlatZincParser(fznFilePath, logger).call()
@@ -122,14 +122,14 @@ class ZincBasedTest extends IntegrationTest {
             summaryBuilder.addFlatZincModelStatistics(ast, md5Sum)
             logger.withTimedLogScope("Solving problem") {
                 scoped(monitor) {
-                    new FlatZincSolverGenerator(ast, cfg, sigint, logger, monitor).call().call()
+                    (ast, new FlatZincSolverGenerator(ast, cfg, sigint, logger, monitor).call().call())
                 }
             }
         }
         logger.log("Quality of best proposal: %s".format(result.costsOfBestProposal))
         logger.log("Best proposal was produced by: %s".format(result.solverName))
         logger.withLogScope("Best proposal") {
-            new FlatZincResultFormatter(result).call().foreach(logger.log(_))
+            new FlatZincResultFormatter(ast)(result).foreach(logger.log(_))
         }
         summaryBuilder.addYuckModelStatistics(result.space)
         summaryBuilder.addResult(result)

@@ -208,7 +208,7 @@ object FlatZincRunner extends YuckLogging {
         monitors += new AnnealingEventLogger(logger)
         monitors += statisticsCollector
         if (cl.printIntermediateSolutions) {
-            monitors += new FlatZincResultPrinter(logger)
+            monitors += new FlatZincResultPrinter(ast, logger)
         }
         val monitor = new AnnealingMonitorCollection(monitors.toVector)
         val (result, _) = logger.withTimedLogScope("Solving problem") {
@@ -217,11 +217,12 @@ object FlatZincRunner extends YuckLogging {
             }
         }
         if (result.isSolution) {
+            val outputLines = new FlatZincResultFormatter(ast)(result)
             if (! cl.printIntermediateSolutions) {
-                new FlatZincResultFormatter(result).call().foreach(println)
+                outputLines.foreach(println)
             }
             logger.withLogScope("Solution") {
-                new FlatZincResultFormatter(result).call().foreach(logger.log(_))
+                outputLines.foreach(logger.log(_))
             }
         } else {
             println(FlatZincNoSolutionFoundIndicator)

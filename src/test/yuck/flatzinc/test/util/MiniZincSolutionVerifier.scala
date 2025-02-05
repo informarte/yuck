@@ -26,6 +26,7 @@ class MiniZincSolutionVerifier(
 {
 
     private val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
+    private val solutionFormatter = new FlatZincResultFormatter(compilerResult.ast)
 
     override def call() =
         logger.withTimedLogScope("Checking expectations")(checkExpectations)._1 ||
@@ -48,7 +49,7 @@ class MiniZincSolutionVerifier(
             .toList
             .filter(_.getName.matches("%s\\.exp.*".format(instanceName)))
         logger.log("Found %d expectation files in %s".format(expectationFiles.size, searchPath))
-        val actualLines = new FlatZincResultFormatter(result).call()
+        val actualLines = solutionFormatter(result)
         val witnessFile = expectationFiles.find(expectationFile => {
             val fileReader = new java.io.BufferedReader(new java.io.FileReader(expectationFile))
             val expectedLines = fileReader.lines.iterator.asScala.toList
@@ -116,11 +117,10 @@ class MiniZincSolutionVerifier(
             then "%s/solution-%s.mzn".format(outputDirectoryPath, Thread.currentThread.getName)
             else "%s/solution.mzn".format(outputDirectoryPath)
         val solutionWriter = new java.io.FileWriter(solutionFilePath, false /* do not append */)
-        val solutionFormatter = new FlatZincResultFormatter(result)
         val solution =
             if task.miniZincCompilerRenamesVariables
-            then undoVariableRenamings("%s/problem.ozn".format(outputDirectoryPath), solutionFormatter.call())
-            else solutionFormatter.call()
+            then undoVariableRenamings("%s/problem.ozn".format(outputDirectoryPath), solutionFormatter(result))
+            else solutionFormatter(result)
         assert(checkDelimiters(solution), "Issue with delimiters")
         val assignments = solution.takeWhile(_ != FlatZincSolutionSeparator)
         for (assignment <- assignments) {
