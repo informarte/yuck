@@ -13,6 +13,9 @@ import yuck.flatzinc.ast.*
  */
 object FlatZincParser extends RegexParsers {
 
+    // consider comments as whitespace
+    override val whiteSpace = new Regex("""(\s|%.*)+""")
+
     val bool_const: Parser[BoolConst] =
         "true" ^^^ BoolConst(true) | "false" ^^^ BoolConst(false)
     val identifier: Parser[String] =
