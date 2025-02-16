@@ -68,7 +68,7 @@ final class FlatZincSolverGenerator
                 val scheduleFactory = new StandardAnnealingScheduleFactory(n, randomGenerator.nextGen())
                 val schedule = scheduleFactory.createHybridSchedule
                 schedule.start(
-                    if (compilerResult.performWarmStart) DefaultWarmStartTemperature else DefaultStartTemperature,
+                    if compilerResult.performWarmStart then cfg.warmStartTemperature else cfg.startTemperature,
                     0)
                 logger.log("Start temperature: %s".format(schedule.temperature))
                 new SimulatedAnnealing(

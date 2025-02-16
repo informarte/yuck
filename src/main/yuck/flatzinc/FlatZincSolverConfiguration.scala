@@ -1,5 +1,6 @@
 package yuck.flatzinc
 
+import yuck.annealing.{DefaultStartTemperature, DefaultWarmStartTemperature}
 import yuck.core.profiling.SpaceProfilingMode
 import yuck.core.{Constraint, DefaultRestartLimit, DefaultSeed, Distribution, Probability}
 
@@ -39,6 +40,8 @@ final case class FlatZincSolverConfiguration(
     checkIncrementalCostUpdate: Constraint => Boolean = _ => false,
     checkAssignmentsToNonChannelVariables: Boolean = false,
     delayCycleCheckingUntilInitialization: Boolean = false,
+    startTemperature: Double = DefaultStartTemperature,
+    warmStartTemperature: Double = DefaultWarmStartTemperature,
     maybeSpaceProfilingMode: Option[SpaceProfilingMode] = None,
     moveSizeDistribution: Distribution = Distribution(1, List(90, 10)),
     topLevelConfiguration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, true, Some(Probability(9))),
