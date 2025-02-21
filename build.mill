@@ -1,4 +1,4 @@
-// build.sc
+package build
 
 import mill._
 import mill.scalalib._
@@ -8,13 +8,13 @@ import mill.contrib.buildinfo.BuildInfo
 object yuck extends ScalaModule with BuildInfo {
 
     def git(args: String*) = os.proc("git" :: args.toList).call().out.lines().head
-    def gitCommitHash = T.input {git("rev-parse", "HEAD")}
-    def gitCommitDate = T {git("log", "-1", "--pretty=format:%cd", "--date=format:%Y%m%d")}
-    def gitBranch = T {git("rev-parse", "--abbrev-ref", "HEAD")}
-    def shortVersion = T {gitCommitDate()}
-    def longVersion = T {
+    def gitCommitHash = Task.Input {git("rev-parse", "HEAD")}
+    def gitCommitDate = Task {git("log", "-1", "--pretty=format:%cd", "--date=format:%Y%m%d")}
+    def gitBranch = Task {git("rev-parse", "--abbrev-ref", "HEAD")}
+    def shortVersion = Task {gitCommitDate()}
+    def longVersion = Task {
         "%s-%s-%s".format(gitCommitDate(), gitBranch().replaceAll("/", "-"), gitCommitHash().take(8))}
-    def version = T {if (gitBranch() == "master") shortVersion() else longVersion()}
+    def version = Task {if (gitBranch() == "master") shortVersion() else longVersion()}
 
     override def buildInfoPackageName = "yuck"
     override def buildInfoMembers = Seq(
@@ -25,9 +25,9 @@ object yuck extends ScalaModule with BuildInfo {
     override def buildInfoStaticCompiled = true
 
     override def scalaVersion = "3.6.3"
-    override def millSourcePath = os.pwd
-    override def sources = T.sources {millSourcePath / "src" / "main"}
-    override def resources = T.sources()
+    override def millSourcePath = super.millSourcePath / ".."
+    override def resources = Task { Seq.empty[PathRef] }
+    override def sources = Task.Sources {millSourcePath / "src" / "main"}
     override def javacOptions = Seq("-source", "11", "-target", "11")
     override def scalacOptions = Seq("-release", "11", "-deprecation", "-unchecked", "-feature")
 
@@ -46,14 +46,14 @@ object yuck extends ScalaModule with BuildInfo {
 
     override def mainClass = Some("yuck.flatzinc.runner.FlatZincRunner")
 
-    def fullClasspath = T {(localClasspath() ++ upstreamAssemblyClasspath()).map(_.path)}
-    def fullClasspathAsString = T {fullClasspath().mkString(":")}
+    def fullClasspath = Task {(localClasspath() ++ upstreamAssemblyClasspath()).map(_.path)}
+    def fullClasspathAsString = Task {fullClasspath().mkString(":")}
 
     object test extends ScalaTests {
 
-        override def millSourcePath = os.pwd
-        override def sources = T.sources {millSourcePath / "src" / "test"}
-        override def resources = T.sources()
+        override def millSourcePath = super.millSourcePath / ".."
+        override def resources = Task { Seq.empty[PathRef] }
+        override def sources = Task.Sources {millSourcePath / "src" / "test"}
 
         override def ivyDeps = Agg(
             ivy"junit:junit:4.13.2",
@@ -69,20 +69,20 @@ object yuck extends ScalaModule with BuildInfo {
 
         override def mainClass = Some("yuck.test.util.YuckTestRunner")
 
-        def fullClasspath = T {(localClasspath() ++ upstreamAssemblyClasspath()).map(_.path)}
-        def fullClasspathAsString = T {fullClasspath().mkString(":")}
+        def fullClasspath = Task {(localClasspath() ++ upstreamAssemblyClasspath()).map(_.path)}
+        def fullClasspathAsString = Task {fullClasspath().mkString(":")}
     }
 
-    def documentation = T.source {millSourcePath / "doc"}
-    def miniZincBindings = T.source {millSourcePath / "resources" / "mzn" / "lib" / "yuck"}
-    def miniZincSolverConfigurationTemplate = T.source {millSourcePath / "resources" / "mzn" / "yuck.msc.in"}
-    def unixStartScriptTemplate = T.source {millSourcePath / "resources" / "bin" / "yuck.in"}
-    def winStartScriptTemplate = T.source {millSourcePath / "resources" / "bin" / "yuck.bat.in"}
-    def debianControlFileTemplate = T.source {millSourcePath / "resources" / "debian" / "control.in"}
+    def documentation = Task.Source {millSourcePath / "doc"}
+    def miniZincBindings = Task.Source {millSourcePath / "resources" / "mzn" / "lib" / "yuck"}
+    def miniZincSolverConfigurationTemplate = Task.Source {millSourcePath / "resources" / "mzn" / "yuck.msc.in"}
+    def unixStartScriptTemplate = Task.Source {millSourcePath / "resources" / "bin" / "yuck.in"}
+    def winStartScriptTemplate = Task.Source {millSourcePath / "resources" / "bin" / "yuck.bat.in"}
+    def debianControlFileTemplate = Task.Source {millSourcePath / "resources" / "debian" / "control.in"}
 
-    def corePackage = T {
+    def corePackage = Task {
         val packageName = "yuck-".concat(version())
-        val packageDir = T.dest / packageName
+        val packageDir = Task.dest / packageName
         os.remove.all(packageDir)
         for (dependency <- upstreamAssemblyClasspath().map(_.path)) {
             os.copy.into(dependency, packageDir / "lib", createFolders = true, copyAttributes = true)
@@ -107,9 +107,9 @@ object yuck extends ScalaModule with BuildInfo {
         PathRef(packageDir)
     }
 
-    def universalPackage = T {
+    def universalPackage = Task {
         val packageName = "yuck-".concat(version())
-        val packageDir = T.dest / packageName
+        val packageDir = Task.dest / packageName
         os.remove.all(packageDir)
         os.copy(corePackage().path, packageDir, createFolders = true, copyAttributes = true)
         fillTemplateIn(
@@ -117,13 +117,13 @@ object yuck extends ScalaModule with BuildInfo {
             packageDir / "mzn" / "yuck.msc",
             Map("#VERSION#" -> version(), "#EXE_PATH#" -> "../bin/yuck", "#MZN_LIB_PATH#" -> "lib"))
         val archiveName = packageName.concat(".zip")
-        os.proc("zip", "-r", archiveName, packageName).call(cwd = T.dest)
-        PathRef(T.dest / archiveName)
+        os.proc("zip", "-r", archiveName, packageName).call(cwd = Task.dest)
+        PathRef(Task.dest / archiveName)
     }
 
-    def debianPackage = T {
+    def debianPackage = Task {
         val packageName = "yuck-".concat(version())
-        val packageDir = T.dest / packageName
+        val packageDir = Task.dest / packageName
         os.remove.all(packageDir)
         os.copy(corePackage().path, packageDir / "usr" / "share" / "yuck", createFolders = true, copyAttributes = true)
         fillTemplateIn(
@@ -136,8 +136,8 @@ object yuck extends ScalaModule with BuildInfo {
             Map("#VERSION#" -> version()))
         os.makeDir.all(packageDir / "usr" / "bin")
         os.symlink(packageDir / "usr" / "bin" / "yuck", os.Path("/usr/share/yuck/bin/yuck"))
-        os.proc("dpkg-deb", "--build", packageName).call(cwd = T.dest)
-        PathRef(T.dest / (packageName.concat(".deb")))
+        os.proc("dpkg-deb", "--build", packageName).call(cwd = Task.dest)
+        PathRef(Task.dest / (packageName.concat(".deb")))
     }
 
     private def fillTemplateIn(template: os.Path, target: os.Path, mapping: Map[String, String]): Unit = {

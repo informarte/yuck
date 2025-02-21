@@ -31,7 +31,7 @@ def main():
         os.sync()
     else:
         result = subprocess.run(
-            ['./mill', 'yuck.test.run', '--list-test-methods', 'true', testClass],
+            ['./mill', '--disable-prompt', 'yuck.test.run', '--list-test-methods', 'true', testClass],
             capture_output = True, text = True)
         exitCode = result.returncode
         if exitCode == 0:
