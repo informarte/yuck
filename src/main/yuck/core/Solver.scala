@@ -58,7 +58,7 @@ abstract class SolverGenerator extends Callable[Solver] {
  *
  * @author Michael Marte
  */
-abstract class SolverMonitor[ResultImpl <: Result] extends ManagedResource {
+trait SolverMonitor[ResultImpl <: Result] extends ManagedResource {
     override def open() = {}
     override def close() = {}
     def onSolverLaunched(result: ResultImpl): Unit = {}

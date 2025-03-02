@@ -49,7 +49,7 @@ class MiniZincSolutionVerifier(
             .toList
             .filter(_.getName.matches("%s\\.exp.*".format(instanceName)))
         logger.log("Found %d expectation files in %s".format(expectationFiles.size, searchPath))
-        val actualLines = solutionFormatter(result)
+        val actualLines = solutionFormatter(new FlatZincResult(result))
         val witnessFile = expectationFiles.find(expectationFile => {
             val fileReader = new java.io.BufferedReader(new java.io.FileReader(expectationFile))
             val expectedLines = fileReader.lines.iterator.asScala.toList
@@ -119,8 +119,8 @@ class MiniZincSolutionVerifier(
         val solutionWriter = new java.io.FileWriter(solutionFilePath, false /* do not append */)
         val solution =
             if task.miniZincCompilerRenamesVariables
-            then undoVariableRenamings("%s/problem.ozn".format(outputDirectoryPath), solutionFormatter(result))
-            else solutionFormatter(result)
+            then undoVariableRenamings("%s/problem.ozn".format(outputDirectoryPath), solutionFormatter(new FlatZincResult(result)))
+            else solutionFormatter(new FlatZincResult(result))
         assert(checkDelimiters(solution), "Issue with delimiters")
         val assignments = solution.takeWhile(_ != FlatZincSolutionSeparator)
         for (assignment <- assignments) {

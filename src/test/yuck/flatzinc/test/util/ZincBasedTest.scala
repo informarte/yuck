@@ -129,7 +129,7 @@ class ZincBasedTest extends IntegrationTest {
         logger.log("Quality of best proposal: %s".format(result.costsOfBestProposal))
         logger.log("Best proposal was produced by: %s".format(result.solverName))
         logger.withLogScope("Best proposal") {
-            new FlatZincResultFormatter(ast)(result).foreach(logger.log(_))
+            new FlatZincResultFormatter(ast)(new FlatZincResult(result)).foreach(logger.log(_))
         }
         summaryBuilder.addYuckModelStatistics(result.space)
         summaryBuilder.addResult(result)

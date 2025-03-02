@@ -19,7 +19,7 @@ import yuck.flatzinc.compiler.{UnsupportedFlatZincTypeException, VariableWithInf
 import yuck.flatzinc.parser.*
 import yuck.flatzinc.util.SummaryBuilder
 import yuck.util.arm.*
-import yuck.util.logging.YuckLogging
+import yuck.util.logging.{TransientThreadRenaming, YuckLogging}
 import yuck.util.logging.LogLevel.InfoLogLevel
 
 /**
@@ -33,6 +33,7 @@ object FlatZincRunner extends YuckLogging {
         logFilePath: String = "",
         summaryFilePath: String = "",
         printIntermediateSolutions: Boolean = false,
+        outputThrottlingIntervalInMillis: Int = 1000,
         fznFilePath: String = "",
         cfg: FlatZincSolverConfiguration =
             FlatZincSolverConfiguration(
@@ -59,6 +60,10 @@ object FlatZincRunner extends YuckLogging {
             .text("Ignored")
         opt[Unit]('i', "intermediate-solutions")
             .action((_, cl) => cl.copy(printIntermediateSolutions = true))
+        opt[Int]("output-throttling-interval")
+            .text("Output-throttling interval in milliseconds, default value is %s, 0 implies no throttling"
+                .format(defaultCl.outputThrottlingIntervalInMillis))
+            .action((x, cl) => cl.copy(outputThrottlingIntervalInMillis = x))
         opt[Int]('p', "number-of-threads")
             .text("Default value is %s".format(defaultCfg.numberOfThreads))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(numberOfThreads = max(1, x))))
@@ -213,18 +218,26 @@ object FlatZincRunner extends YuckLogging {
         val monitors = new ArrayBuffer[AnnealingMonitor]
         monitors += new AnnealingEventLogger(logger)
         monitors += statisticsCollector
+        val resultPrinter = new FlatZincResultPrinter(ast, cl.outputThrottlingIntervalInMillis)
+        val resultPrinterThread = new Thread(resultPrinter)
         if (cl.printIntermediateSolutions) {
-            monitors += new FlatZincResultPrinter(ast, logger)
+            monitors += resultPrinter
         }
         val monitor = new AnnealingMonitorCollection(monitors.toVector)
-        val (result, _) = logger.withTimedLogScope("Solving problem") {
-            scoped(monitor) {
-                new FlatZincSolverGenerator(ast, cl.cfg, sigint, logger, monitor).call().call()
+        val (result, _) = scoped(new TransientThreadRenaming(resultPrinterThread, "result-printer")) {
+            scoped(new ManagedThread(resultPrinterThread, logger)) {
+                logger.withTimedLogScope("Solving problem") {
+                    scoped(monitor) {
+                        new FlatZincSolverGenerator(ast, cl.cfg, sigint, logger, monitor).call().call()
+                    }
+                }
             }
         }
         if (result.isSolution) {
-            val outputLines = new FlatZincResultFormatter(ast)(result)
-            if (! cl.printIntermediateSolutions) {
+            val outputLines = new FlatZincResultFormatter(ast)(new FlatZincResult(result))
+            if (cl.printIntermediateSolutions) {
+                resultPrinter.flush()
+            } else {
                 outputLines.foreach(println)
             }
             logger.withLogScope("Solution") {
