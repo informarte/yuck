@@ -70,7 +70,7 @@ def importResults(args, file, cursor):
     searchStatistics = data['search-statistics'] if 'search-statistics' in data else data['solver-statistics'] if 'solver-statistics' in data else None
     if not task:
          print("No task (MiniZinc compiler error?)")
-    elif data['env'].get('yuck') and not yuckModelStatistics:
+    elif 'env' in data and 'yuck' in data['env'] and not yuckModelStatistics:
         print("No model statistics (FlatZinc compiler error?)")
     else:
         cursor.execute(

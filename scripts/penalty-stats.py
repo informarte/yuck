@@ -55,7 +55,7 @@ def compareRuns(cursor, args):
             print('Warning: Expected {} results for run {}, but found {}'.format(len(jobs), run, len(results[run])), file = sys.stderr)
     for (problem, model, instance, problemType) in jobs:
         task = (problem, model, instance)
-        qualities = [int(result['quality']) for result in [results[run][task] for run in results if task in results[run]] if result['quality']]
+        qualities = [int(result['quality']) for result in [results[run][task] for run in results if task in results[run]] if result['solved'] and result['quality']]
         optima = [int(result[0]) for result in cursor.execute('SELECT optimum FROM result WHERE problem = ? AND model = ? AND instance = ? AND optimum IS NOT NULL', task)]
         qualities += optima
         highScores = [int(result[0]) for result in cursor.execute('SELECT high_score FROM result WHERE problem = ? AND model = ? AND instance = ? AND high_score IS NOT NULL', task)]
