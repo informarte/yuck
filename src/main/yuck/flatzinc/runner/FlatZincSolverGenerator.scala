@@ -35,9 +35,7 @@ final class FlatZincSolverGenerator
         override def hasFinished = finished
         override def call() = {
             require(! finished)
-            val result = new AnnealingResult(name, space, objective, Some(compilerResult))
-            result.bestProposal = space.searchState
-            result.costsOfBestProposal = objective.costs(result.bestProposal)
+            val result = new AnnealingResult(Some(compilerResult), name, objective, space.searchState, Vector())
             monitor.onSolverLaunched(result)
             monitor.onBetterProposal(result)
             finished = true

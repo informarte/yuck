@@ -14,6 +14,15 @@ import yuck.util.arm.{RevocableSigint, SettableSigint, Sigint}
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class SolverTest extends UnitTest {
 
+    private class TestResult(
+        override val solverName: String,
+        override val objective: AnyObjective = null,
+        override val costsOfBestProposal: Costs = null)
+    extends Result {
+        override val maybeUserData = None
+        override val bestProposal = null
+    }
+
     private class GoodSolver(result: Result, sleepTimeInMillis: Int, sigint: Sigint) extends Solver {
         override def name = result.solverName
         private var finished = false
@@ -47,7 +56,7 @@ final class SolverTest extends UnitTest {
     @Test
     def testTimeboxingWithTimeout(): Unit = {
         val sigint = new RevocableSigint
-        val result = new Result("0", null, null, null)
+        val result = new TestResult("0")
         val solver = new GoodSolver(result, 100, sigint)
         val timebox = new TimeboxedSolver(solver, 0, logger, sigint)
         assertEx(timebox.call(), classOf[SolverInterruptedException])
@@ -63,7 +72,7 @@ final class SolverTest extends UnitTest {
 
     @Test
     def testTimeboxingWithoutTimeout(): Unit = {
-        val result = new Result("0", null, null, null)
+        val result = new TestResult("0")
         val solver = new TimeboxedSolver(new GoodSolver(result, 0, sigint), 1, logger, sigint)
         solver.call()
         assert(solver.hasFinished)
@@ -86,7 +95,7 @@ final class SolverTest extends UnitTest {
 
     @Test
     def testOnDemandGenerationWithResult(): Unit = {
-        val result = new Result("0", null, null, null)
+        val result = new TestResult("0")
         val solverGenerator = new SolverGenerator {
             override def solverName = result.solverName
             override def call = new GoodSolver(result, 0, sigint)
@@ -123,8 +132,7 @@ final class SolverTest extends UnitTest {
         val space = new Space(logger, sigint)
         val x = new IntegerVariable(space.nextVariableId(), "x", NonNegativeIntegerRange)
         val objective = new MinimizationObjective(x, Some(Zero), None)
-        val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
-        results.indices.foreach(i => results(i).costsOfBestProposal = if (i == 8) Zero else One)
+        val results = (0 until 256).map(i => new TestResult(i.toString, objective, if (i == 8) Zero else One))
         val solvers = results.map(result => new GoodSolver(result, 100, sigint))
         val solver = new ParallelSolver(solvers, 4, "Test", logger, sigint)
         val result = solver.call()
@@ -150,8 +158,7 @@ final class SolverTest extends UnitTest {
         val space = new Space(logger, sigint)
         val x = new IntegerVariable(space.nextVariableId(), "x", NonNegativeIntegerRange)
         val objective = new MinimizationObjective(x, Some(Zero), None)
-        val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
-        results.indices.foreach(i => results(i).costsOfBestProposal = One)
+        val results = (0 until 256).map(i => new TestResult(i.toString, objective, One))
         val solvers = results.map(result => new GoodSolver(result, 0, sigint))
         val solver = new ParallelSolver(solvers, 4, "Test", logger, sigint)
         val result = solver.call()
@@ -174,8 +181,7 @@ final class SolverTest extends UnitTest {
         val space = new Space(logger, sigint)
         val x = new IntegerVariable(space.nextVariableId(), "x", NonNegativeIntegerRange)
         val objective = new MinimizationObjective(x, Some(Zero), None)
-        val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
-        results.indices.foreach(i => results(i).costsOfBestProposal = One)
+        val results = (0 until 256).map(i => new TestResult(i.toString, objective, One))
         val solvers = results.indices.map(i => if (i == 8) new BadSolver else new GoodSolver(results(i), 100, sigint))
         val solver = new ParallelSolver(solvers, 4, "Test", logger, sigint)
         assertEx(solver.call(), classOf[BadSolverException])
@@ -198,8 +204,7 @@ final class SolverTest extends UnitTest {
         val space = new Space(logger, sigint)
         val x = new IntegerVariable(space.nextVariableId(), "x", NonNegativeIntegerRange)
         val objective = new MinimizationObjective(x, Some(Zero), None)
-        val results = (0 until 256).map(i => new Result(i.toString, null, objective, null))
-        results.indices.foreach(i => results(i).costsOfBestProposal = if (i == 8) Zero else One)
+        val results = (0 until 256).map(i => new TestResult(i.toString, objective, if (i == 8) Zero else One))
         class GoodSolverGenerator(result: Result) extends SolverGenerator {
             override def solverName = result.solverName
             override def call = new GoodSolver(result, 100, sigint)

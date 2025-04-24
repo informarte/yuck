@@ -22,20 +22,21 @@ class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean, verificationFrequ
 
     override protected val logToConsole = false
 
-    class SolutionSpoiler extends AnnealingMonitor {
-
-        override def onBetterProposal(result: AnnealingResult) = {
+    final class SpoiledResult(result: Result) extends Result {
+        override val maybeUserData = result.maybeUserData
+        override val solverName = result.solverName
+        override val objective = result.objective
+        override val bestProposal = {
             val varDir = result.bestProposal.mappedVariables.map(x => (x.name, x)).toMap
             val modifiedSolution = new HashMapBackedAssignment(result.bestProposal)
             modifiedSolution.setValue(varDir("x").asInstanceOf[IntegerVariable], Ten)
             modifiedSolution.setValue(varDir("y").asInstanceOf[IntegerVariable], Ten)
-            result.bestProposal = modifiedSolution
+            modifiedSolution
         }
-
     }
 
-    override protected def customizeMonitoring(monitors: Seq[AnnealingMonitor]) =
-        if simulateBadSolver then monitors.prepended(new SolutionSpoiler) else monitors
+    override protected def spoilResult(result: Result) =
+        if simulateBadSolver then new SpoiledResult(result) else result
 
     @Test
     def testVerification(): Unit = {

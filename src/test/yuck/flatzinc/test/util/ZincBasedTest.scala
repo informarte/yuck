@@ -1,14 +1,12 @@
 package yuck.flatzinc.test.util
 
-import java.time.Duration
-
 import scala.annotation.tailrec
 import scala.collection.*
 import scala.language.implicitConversions
 
 import spray.json.*
 
-import yuck.annealing.{AnnealingEventLogger, AnnealingMonitor, AnnealingMonitorCollection, AnnealingStatisticsCollector}
+import yuck.annealing.{AnnealingEventLogger, AnnealingMonitorCollection, AnnealingResult, AnnealingStatisticsCollector}
 import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.*
@@ -29,6 +27,40 @@ import yuck.util.logging.LogLevel.*
  *
  */
 class ZincBasedTest extends IntegrationTest {
+
+    extension (result: Result) {
+
+        protected def neighbourhood: Neighbourhood =
+            compilerResult.maybeNeighbourhood.get
+
+        protected def violation: BooleanValue =
+            result.costsOfBestProposal match {
+                case violation: BooleanValue => violation
+                case costs: PolymorphicListValue => costs.value(0).asInstanceOf[BooleanValue]
+            }
+
+        protected def quality(i: Int): AnyValue =
+            result.costsOfBestProposal.asInstanceOf[PolymorphicListValue].value(i)
+
+        protected def quality: AnyValue =
+            result.quality(1)
+
+        protected def assignment: SearchState =
+            space.searchState
+
+        protected def space: Space =
+            compilerResult.space
+
+        protected def warmStartWasPerformed: Boolean =
+            compilerResult.performWarmStart
+
+        protected def searchWasPerformed: Boolean =
+            ! result.asInstanceOf[AnnealingResult].roundLogs.isEmpty
+
+        protected def compilerResult: FlatZincCompilerResult =
+            result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
+
+    }
 
     private val summaryBuilder = new SummaryBuilder
     import SummaryBuilder.*
@@ -105,12 +137,12 @@ class ZincBasedTest extends IntegrationTest {
         val cfg = createSolverConfiguration(task)
         summaryBuilder.addSolverConfiguration(cfg)
         val statisticsCollector = new AnnealingStatisticsCollector(logger)
-        val monitors = customizeMonitoring(
+        val monitors =
             Vector(new AnnealingEventLogger(logger), statisticsCollector).appendedAll(
                 if task.sourceFormat == MiniZinc && task.verificationFrequency == VerifyEverySolution
-                then List(new MiniZincTestMonitor(task, logger))
-                else Nil))
-        val monitor = new AnnealingMonitorCollection(monitors.toVector)
+                then List(new MiniZincTestMonitor(task, spoilResult, logger))
+                else Nil)
+        val monitor = new AnnealingMonitorCollection(monitors)
         val ((ast, result), _) = maybeTimeboxed(cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
             val (ast, parserRuntime) =
                 logger.withTimedLogScope("Parsing FlatZinc file") {
@@ -228,13 +260,12 @@ class ZincBasedTest extends IntegrationTest {
                 else task.maybeOptimum)
     }
 
-    protected def customizeMonitoring(monitors: Seq[AnnealingMonitor]): Seq[AnnealingMonitor] =
-        monitors
+    protected def spoilResult(result: Result): Result = result
 
     private def verifySolution(task: ZincTestTask, result: Result): Unit = {
         logger.withTimedLogScope("Verifying solution") {
             logger.withRootLogLevel(FineLogLevel) {
-                val verifier = new MiniZincSolutionVerifier(task, result, logger)
+                val verifier = new MiniZincSolutionVerifier(task, spoilResult(result), logger)
                 if (! verifier.call()) {
                     throw new SolutionNotVerifiedException
                 }

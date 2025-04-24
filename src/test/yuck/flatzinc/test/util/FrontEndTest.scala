@@ -27,37 +27,6 @@ abstract class FrontEndTest extends ZincBasedTest {
             miniZincCompilerRenamesVariables = false,
             createDotFile = true)
 
-    extension (result: Result) {
-
-        protected def neighbourhood: Neighbourhood =
-            compilerResult.maybeNeighbourhood.get
-
-        protected def violation: BooleanValue =
-            result.costsOfBestProposal match {
-                case violation: BooleanValue => violation
-                case costs: PolymorphicListValue => costs.value(0).asInstanceOf[BooleanValue]
-            }
-
-        protected def quality(i: Int): AnyValue =
-            result.costsOfBestProposal.asInstanceOf[PolymorphicListValue].value(i)
-
-        protected def quality: AnyValue =
-            result.quality(1)
-
-        protected def assignment: SearchState =
-            result.space.searchState
-
-        protected def warmStartWasPerformed: Boolean =
-            compilerResult.performWarmStart
-
-        protected def searchWasPerformed: Boolean =
-            ! result.asInstanceOf[AnnealingResult].roundLogs.isEmpty
-
-        protected def compilerResult: FlatZincCompilerResult =
-            result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
-
-    }
-
     protected implicit def createTask(problemName: String): ZincTestTask =
         task.copy(problemName = problemName)
 

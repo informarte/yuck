@@ -15,12 +15,11 @@ import yuck.annealing.*
 import yuck.core.profiling.SpaceProfilingMode
 import yuck.core.{CyclicConstraintNetworkException, InconsistentProblemException}
 import yuck.flatzinc.FlatZincSolverConfiguration
-import yuck.flatzinc.compiler.{UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
+import yuck.flatzinc.compiler.{FlatZincCompilerResult, UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
 import yuck.flatzinc.parser.*
 import yuck.flatzinc.util.SummaryBuilder
 import yuck.util.arm.*
 import yuck.util.logging.{TransientThreadRenaming, YuckLogging}
-import yuck.util.logging.LogLevel.InfoLogLevel
 
 /**
  * @author Michael Marte
@@ -246,11 +245,12 @@ object FlatZincRunner extends YuckLogging {
         } else {
             println(FlatZincNoSolutionFoundIndicator)
         }
-        summaryBuilder.addYuckModelStatistics(result.space)
+        val space = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult].space
+        summaryBuilder.addYuckModelStatistics(space)
         summaryBuilder.addResult(result)
         summaryBuilder.addSearchStatistics(statisticsCollector)
         if (cl.cfg.maybeSpaceProfilingMode.isDefined) {
-            summaryBuilder.addSpacePerformanceMetrics(result.space.performanceMetricsBuilder.build())
+            summaryBuilder.addSpacePerformanceMetrics(space.performanceMetricsBuilder.build())
         }
     }
 

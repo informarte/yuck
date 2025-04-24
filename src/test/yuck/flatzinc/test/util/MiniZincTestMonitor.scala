@@ -10,7 +10,10 @@ import yuck.util.logging.LogLevel.FineLogLevel
  *
  * @author Michael Marte
  */
-final class MiniZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends AnnealingMonitor {
+final class MiniZincTestMonitor
+    (task: ZincTestTask, spoilResult: Result => Result, logger: LazyLogger)
+    extends AnnealingMonitor
+{
 
     override def onBetterProposal(result: AnnealingResult) = {
         if (result.isSolution) {
@@ -23,7 +26,7 @@ final class MiniZincTestMonitor(task: ZincTestTask, logger: LazyLogger) extends 
     private def verifySolution(task: ZincTestTask, result: Result): Unit = {
         logger.withTimedLogScope("Verifying solution") {
             logger.withRootLogLevel(FineLogLevel) {
-                val verifier = new MiniZincSolutionVerifier(task, result, logger)
+                val verifier = new MiniZincSolutionVerifier(task, spoilResult(result), logger)
                 if (! verifier.call()) {
                     throw new SolutionNotVerifiedException
                 }

@@ -5,14 +5,13 @@ package yuck.core
  *
  * @author Michael Marte
  */
-class Result(
-    val solverName: String,
-    val space: Space,
-    val objective: AnyObjective,
-    val maybeUserData: Option[Object])
-{
-    var bestProposal: SearchState = null
-    var costsOfBestProposal: Costs = null
+abstract class Result {
+    val maybeUserData: Option[Object]
+    val solverName: String
+    val objective: AnyObjective
+    val bestProposal: SearchState
+    def costsOfBestProposal: Costs =
+        objective.costs(bestProposal)
     def isSolution: Boolean =
         objective.isSolution(costsOfBestProposal)
     def isGoodEnough: Boolean =
