@@ -64,7 +64,7 @@ final class FlatZincCompiler
         if (cfg.runPresolver) {
             run(new Presolver(cc))
         }
-        run(new ConstraintDrivenNeighbourhoodFactory(cc, randomGenerator.nextGen()))
+        run(new AnnealingNeighbourhoodFactory(cc, randomGenerator.nextGen()))
         if (cfg.pruneConstraintNetwork) {
             run(new ConstraintNetworkPruner(cc))
         }
