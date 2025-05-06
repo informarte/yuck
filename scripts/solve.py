@@ -132,33 +132,33 @@ def run(args):
     if solverResult.returncode == 0:
         solved = False
         complete = False
-        quality = None
+        objectiveValue = None
         elapsedTimeInMs = None
-        qualityStepFunction = []
+        objectiveStepFunction = []
         for line in solverResult.stdout.splitlines():
             match = objectivePattern.match(line)
             if match:
-                quality = int(match.group(1))
+                objectiveValue = int(match.group(1))
             else:
                 match = timeElapsedPattern.match(line)
                 if match:
                     elapsedTimeInMs = int(float(match.group(1)) * 1000)
                 elif line == '----------':
                     solved = True
-                    if quality:
-                        qualityStepFunction += [elapsedTimeInMs, quality]
+                    if objectiveValue:
+                        objectiveStepFunction += [elapsedTimeInMs, objectiveValue]
                 elif line == '==========':
                     complete = True
         data['result'] = {
             'solved': solved,
             'complete': complete
         }
-        if quality:
+        if objectiveValue:
             if complete:
-                data['task']['optimum'] = quality
-            data['result']['quality'] = quality
-            data['result']['optimal'] = quality and complete
-            data['result']['quality-step-function'] = qualityStepFunction
+                data['task']['optimum'] = objectiveValue
+            data['result']['objective-value'] = objectiveValue
+            data['result']['optimal'] = objectiveValue and complete
+            data['result']['objective-step-function'] = objectiveStepFunction
         data['solver-statistics'] = {
             'runtime-in-seconds': runtimeInMillis / 1000
         }

@@ -167,7 +167,7 @@ final class SummaryBuilder {
         if (objectiveVariables.size > 1) {
             objectiveVariables(1) match {
                 case objectiveVar: IntegerVariable =>
-                    resultNode += "quality" -> JsNumber(result.bestProposal.value(objectiveVar).value)
+                    resultNode += "objective-value" -> JsNumber(result.bestProposal.value(objectiveVar).value)
                     if (result.isOptimal) {
                         resultNode += "optimal" -> JsBoolean(true)
                     }
@@ -218,12 +218,12 @@ final class SummaryBuilder {
         if (monitor.maybeArea.isDefined) {
             statsNode += "area" -> JsNumber(monitor.maybeArea.get)
         }
-        if (monitor.maybeQualityStepFunction.isDefined) {
+        if (monitor.maybeObjectiveStepFunction.isDefined) {
             val array =
-                monitor.maybeQualityStepFunction.get.flatMap(
+                monitor.maybeObjectiveStepFunction.get.flatMap(
                     step => Vector(JsNumber(step.runtimeInMillis),
-                        JsNumber(step.quality.asInstanceOf[IntegerValue].value)))
-            statsNode += "quality-step-function" -> JsArray(array.toVector)
+                        JsNumber(step.objectiveValue.asInstanceOf[IntegerValue].value)))
+            statsNode += "objective-step-function" -> JsArray(array.toVector)
         }
         rootNode += "search-statistics" -> statsNode
         this

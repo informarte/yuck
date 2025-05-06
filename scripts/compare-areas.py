@@ -4,7 +4,7 @@
 # MiniZinc challenge.
 #
 # For each instance of an optimization problem, Yuck's test infrastructure provides
-# the integral of the quality step function over the runtime horizon (called "area")
+# the integral of the objective step function over the runtime horizon (called "area")
 # when no negative objective values were encountered during solving the instance.
 # This script retrieves the areas and, for each given run, compares the areas to those
 # from a given reference run resulting in a ratio for each instance.
@@ -41,7 +41,7 @@ def computeAreaRatios(cursor, args):
     for task in tasks:
         if not (args.referenceRun, task) in data:
             (problem, model, instance) = task
-            print('Warning: No reference result found for instance {}/{}/{}'.format(problem, model, instance, file = sys.stderr))
+            print('Warning: No reference result found for instance {}/{}/{}'.format(problem, model, instance), file = sys.stderr)
     return {
         run: {
             task:
@@ -104,10 +104,10 @@ def main():
         if results:
             for run in results:
                 if not results[run]:
-                    print('Warning: No data for run {}'.format(run, file = sys.stderr))
+                    print('Warning: No data for run {}'.format(run), file = sys.stderr)
             postprocessedResults = {run: common.analyzeResult(results[run]) for run in results}
             print(json.dumps(postprocessedResults, sort_keys = True, indent = 4))
-            if (args.plotDiagrams):
+            if args.plotDiagrams:
                 plotDiagrams(args, results)
 
 main()

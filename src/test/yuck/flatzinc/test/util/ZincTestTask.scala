@@ -80,5 +80,5 @@ final case class ZincTestTask(
 {
     require(sourceFormat != SourceFormat.FlatZinc || directoryLayout == TestDataDirectoryLayout.MiniZincExamplesLayout)
     def effectiveInstanceName: String = if (instanceName.isEmpty) problemName else instanceName
-    override def toString = "%s/%s/%s".format(problemName, modelName, instanceName)
+    override def toString = "%s:%s:%s".format(problemName, modelName, instanceName)
 }

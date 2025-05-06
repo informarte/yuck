@@ -2,7 +2,7 @@ package yuck.flatzinc.test.util
 
 import java.io.File
 
-import scala.collection.{Seq, mutable}
+import scala.collection.mutable.ArrayBuffer
 
 import yuck.core.JavaRandomGenerator
 import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
@@ -19,8 +19,10 @@ import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
  */
 abstract class MiniZincTestTaskFactory {
 
+    protected val randomGenerator = new JavaRandomGenerator
+
     protected val suitePath: String
-    protected val maybeInstancesPerProblem: Option[Int] = None
+    protected val maybeNumberOfInstancesPerProblem: Option[Int] = None
 
     private def listFiles(base: File, fileFilter: File => Boolean, recursive: Boolean = true): Seq[File] = {
         val files = base.listFiles.toSeq
@@ -36,18 +38,17 @@ abstract class MiniZincTestTaskFactory {
 
     protected def instanceFilter(file: File): Boolean = file.getName.endsWith(".dzn") || file.getName.endsWith(".json")
 
-    protected def tasks: List[ZincTestTask] = {
-        val randomGenerator = new JavaRandomGenerator
+    protected lazy val tasks: IndexedSeq[ZincTestTask] = {
         val suiteDir = new File(suitePath)
         assert(suiteDir.exists)
         val problems = suiteDir.listFiles.filter(_.isDirectory).filter(problemFilter).sorted
-        val buf = new mutable.ArrayBuffer[ZincTestTask]
+        val buf = new ArrayBuffer[ZincTestTask]
         for (problem <- problems) {
             val modelFiles = listFiles(problem, modelFilter).sorted
             val dataFiles = listFiles(problem, instanceFilter).sorted
             if (dataFiles.isEmpty) {
                 val modelFileSelection =
-                    randomGenerator.shuffle(modelFiles).take(maybeInstancesPerProblem.getOrElse(modelFiles.size)).sorted
+                    randomGenerator.shuffle(modelFiles).take(maybeNumberOfInstancesPerProblem.getOrElse(modelFiles.size)).sorted
                 for (modelFile <- modelFileSelection) {
                     buf +=
                         ZincTestTask(
@@ -58,7 +59,7 @@ abstract class MiniZincTestTaskFactory {
                 }
             } else {
                 val dataFileSelection =
-                    randomGenerator.shuffle(dataFiles).take(maybeInstancesPerProblem.getOrElse(dataFiles.size)).sorted
+                    randomGenerator.shuffle(dataFiles).take(maybeNumberOfInstancesPerProblem.getOrElse(dataFiles.size)).sorted
                 for (modelFile <- modelFiles) {
                     for (dataFile <- dataFileSelection) {
                         buf +=
@@ -72,7 +73,7 @@ abstract class MiniZincTestTaskFactory {
                 }
             }
         }
-        buf.toList
+        buf.toVector
     }
 
 }

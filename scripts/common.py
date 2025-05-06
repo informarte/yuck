@@ -3,7 +3,7 @@ import numpy
 import statistics
 
 # result: task -> value
-def analyzeResult(result, bins = 10, range = None):
+def analyzeResult(result, bins = 10, range = None, withHistogram = False):
     values = [result[task] for task in result]
     if values:
         quartiles = numpy.percentile(values, [25, 50, 75])
@@ -11,7 +11,7 @@ def analyzeResult(result, bins = 10, range = None):
         q2 = quartiles[1]
         q3 = quartiles[2]
         iqr = q3 - q1
-        return {
+        result = {
             'count': len(values),
             'min': min(values),
             'q1': q1,
@@ -20,13 +20,15 @@ def analyzeResult(result, bins = 10, range = None):
             'max': max(values),
             'mean': statistics.mean(values),
             'pstdev': statistics.pstdev(values),
-            'histogram': numpy.histogram(values, 'auto')[0].tolist(),
             'extreme-values': {
                 task[0] + "/" + task[1] + "/" + task[2]: result[task]
                 for task in result
                 if result[task] < q1 - 1.5 * iqr or result[task] > q3 + 1.5 * iqr
             }
         }
+        if withHistogram:
+            result['histogram'] = numpy.histogram(values, 'auto')[0].tolist()
+        return result
     else:
         return {
             'count': 0
@@ -39,7 +41,7 @@ def plotDiagrams(runs, getValues, title, xlabel, legendLocation):
     reverselySortedRuns = sorted(runs, reverse = True)
     values = [getValues(run) for run in reverselySortedRuns]
     ax1.hist(values, bins = 25, histtype = 'step', cumulative = False, label = reverselySortedRuns)
-    ax2.hist(values, bins = 100, histtype = 'step', cumulative = True, label = reverselySortedRuns)
+    ax2.hist(values, bins = 1000, histtype = 'step', cumulative = True, label = reverselySortedRuns)
     ax3.boxplot([getValues(run) for run in reverselySortedRuns], vert = False, labels = reverselySortedRuns, showmeans = True)
     ax1.grid(True)
     ax1.legend(loc=legendLocation, fontsize = 'medium')

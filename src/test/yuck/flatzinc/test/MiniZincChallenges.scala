@@ -863,7 +863,7 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint]))
     def stochastic_vrp_s2_v2_c7(): Unit = {
-        solve(task.copy(problemName = "stochastic-vrp", instanceName = "s2-v2-c7", maybeOptimum = Some(160)))
+        solve(task.copy(problemName = "stochastic-vrp", instanceName = "vrp-s2-v2-c7_vrp-v2-c7_det", maybeOptimum = Some(160)))
     }
 
     @Test

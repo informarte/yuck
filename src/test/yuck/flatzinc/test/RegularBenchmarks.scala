@@ -26,7 +26,7 @@ final class RegularBenchmarks(task: ZincTestTask) extends ZincBasedTest {
 object RegularBenchmarks extends MiniZincTestTaskFactory {
 
     override protected val suitePath = "resources/mzn/tests/minizinc-benchmarks"
-    override protected val maybeInstancesPerProblem = None
+    override protected val maybeNumberOfInstancesPerProblem = None
 
     override protected def problemFilter(file: File) =
         List("generalized-peacable-queens", "peaceable_queens", "rotating-workforce-scheduling", "traveling-tppv")

@@ -14,7 +14,6 @@ import yuck.flatzinc.test.util.VerificationFrequency.*
 import yuck.flatzinc.test.util.VerificationTool.*
 import yuck.test.util.{DefaultRuntimeLimitInSeconds, ProcessRunner}
 import yuck.util.logging.LazyLogger
-import yuck.util.logging.LogLevel.FineLogLevel
 
 /**
  * @author Michael Marte

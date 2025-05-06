@@ -18,7 +18,7 @@ import yuck.util.logging.LazyLogger
  */
 final class AnnealingStatisticsCollector(logger: LazyLogger) extends AnnealingMonitor {
 
-    case class QualityImprovement(runtimeInMillis: Long, quality: NumericalValue[?])
+    case class ObjectiveImprovement(runtimeInMillis: Long, objectiveValue: NumericalValue[?])
 
     private var timeStampInMillis: Long = 0
     private var maybeRuntimeToFirstSolutionInMillis: Option[Long] = None
@@ -33,12 +33,12 @@ final class AnnealingStatisticsCollector(logger: LazyLogger) extends AnnealingMo
     import AreaTrackingState.*
     private var areaTrackingState = AreaTrackingNotStarted
     private var area: Double = 0.0
-    private val qualityStepFunction = new mutable.ArrayBuffer[QualityImprovement]
+    private val objectiveStepFunction = new mutable.ArrayBuffer[ObjectiveImprovement]
 
-    private def maybePreviousQuality: Option[NumericalValue[?]] =
-        if qualityStepFunction.isEmpty then None else Some(qualityStepFunction.last.quality)
+    private def maybePreviousObjectiveValue: Option[NumericalValue[?]] =
+        if objectiveStepFunction.isEmpty then None else Some(objectiveStepFunction.last.objectiveValue)
 
-    private def currentQuality: NumericalValue[?] =
+    private def currentObjectiveValue: NumericalValue[?] =
         costsOfBestProposal.asInstanceOf[PolymorphicListValue].value(1).asInstanceOf[NumericalValue[?]]
 
     private class SolverStatistics(
@@ -67,7 +67,7 @@ final class AnnealingStatisticsCollector(logger: LazyLogger) extends AnnealingMo
     override def close() = {
         val now = System.currentTimeMillis
         if (areaTrackingState == TrackingArea) {
-            area += maybePreviousQuality.get.toDouble * ((now - timeStampInMillis) / 1000.0)
+            area += maybePreviousObjectiveValue.get.toDouble * ((now - timeStampInMillis) / 1000.0)
             logger.logg("Area updated to %.2f".format(area))
             areaTrackingState = AreaTrackingFinished
             logger.logg("Area tracking finished")
@@ -122,22 +122,22 @@ final class AnnealingStatisticsCollector(logger: LazyLogger) extends AnnealingMo
                 logger.logg("Area tracking started")
             }
             if (areaTrackingState == TrackingArea) {
-                if (currentQuality.toDouble < 0) {
+                if (currentObjectiveValue.toDouble < 0) {
                     areaTrackingState = AreaTrackingAborted
                     logger.logg("Area tracking aborted due to negative objective value")
                 } else {
                     maybeOptimizationMode.get match {
                         case OptimizationMode.Min =>
-                            area += maybePreviousQuality.getOrElse(currentQuality).toDouble * ((now - timeStampInMillis) / 1000.0)
+                            area += maybePreviousObjectiveValue.getOrElse(currentObjectiveValue).toDouble * ((now - timeStampInMillis) / 1000.0)
                         case OptimizationMode.Max =>
-                            if (maybePreviousQuality.isDefined) {
-                                area += maybePreviousQuality.get.toDouble * ((now - timeStampInMillis) / 1000.0)
+                            if (maybePreviousObjectiveValue.isDefined) {
+                                area += maybePreviousObjectiveValue.get.toDouble * ((now - timeStampInMillis) / 1000.0)
                             }
                     }
                     logger.logg("Area updated to %.2f".format(area))
                 }
             }
-            qualityStepFunction += QualityImprovement(runtimeInMillis, currentQuality)
+            objectiveStepFunction += ObjectiveImprovement(runtimeInMillis, currentObjectiveValue)
         }
         timeStampInMillis = now
     }
@@ -151,14 +151,14 @@ final class AnnealingStatisticsCollector(logger: LazyLogger) extends AnnealingMo
     // Runtime from opening this resource until closing it.
     def runtimeInSeconds: Double = runtimeInMillis / 1000.0
 
-    // Integral of the quality step function over the runtime horizon.
+    // Integral of the objective step function over the runtime horizon.
     // Only available when no negative objective values were encountered during optimization.
     def maybeArea: Option[Double] = if areaTrackingState == AreaTrackingFinished then Some(area) else None
 
-    // Quality step function over the runtime horizon.
+    // Objective step function over the runtime horizon.
     // Only available when no negative objective values were encountered during optimization.
-    def maybeQualityStepFunction: Option[Seq[QualityImprovement]] =
-        if areaTrackingState == AreaTrackingFinished then Some(qualityStepFunction.toSeq) else None
+    def maybeObjectiveStepFunction: Option[Seq[ObjectiveImprovement]] =
+        if areaTrackingState == AreaTrackingFinished then Some(objectiveStepFunction.toSeq) else None
 
     // Returns true iff search was required to achieve the objective.
     def wasSearchRequired: Boolean = ! solverStatistics.isEmpty

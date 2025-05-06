@@ -3,7 +3,7 @@
 # This script helps to compare a given set of integration test runs.
 #
 # For each instance and each run, this script computes the gap between the best known
-# objective value (BKS) and the value achieved in the run.
+# objective value and the value achieved in the run.
 #
 # In the end the script prints, for each given run, the gaps in terms of their mean,
 # standard deviation, and median.
@@ -35,16 +35,16 @@ def computeGaps(cursor, args):
         return {}
     results = {}
     for run in args.runs:
-        resultQuery = 'SELECT problem, model, instance, solved, quality FROM result WHERE run = ?';
-        for result in cursor.execute(resultQuery, (run,)):
-            (problem, model, instance, solved, quality) = result
+        resultQuery = 'SELECT problem, model, instance, solved, objective_value FROM result WHERE run = ?';
+        for row in cursor.execute(resultQuery, (run,)):
+            (problem, model, instance, solved, objectiveValue) = row
             if problemPattern.match(problem) and modelPattern.match(model) and instancePattern.match(instance):
                 if not run in results:
                     results[run] = {}
                 task = (problem, model, instance)
-                results[run][task] = {'solved': solved, 'quality': quality}
+                results[run][task] = {'solved': solved, 'objective-value': objectiveValue}
         if not run in results:
-            print('Warning: No results found for run {}'.format(run, file = sys.stderr))
+            print('Warning: No results found for run {}'.format(run), file = sys.stderr)
             results[run] = {}
         elif len(results[run]) != len(jobs):
             print('Warning: Expected {} results for run {}, but found {}'.format(len(jobs), run, len(results[run])), file = sys.stderr)
@@ -52,32 +52,30 @@ def computeGaps(cursor, args):
         if problemType != 'MIN':
             raise ValueError('Unsupported problem type {}'.format(problemType))
         task = (problem, model, instance)
-        qualities = [int(result['quality']) for result in [results[run][task] for run in results if task in results[run]] if result['quality']]
-        optima = [int(result[0]) for result in cursor.execute('SELECT optimum FROM result WHERE problem = ? AND model = ? AND instance = ? AND optimum IS NOT NULL', task)]
-        qualities += optima
-        highScores = [int(result[0]) for result in cursor.execute('SELECT high_score FROM result WHERE problem = ? AND model = ? AND instance = ? AND high_score IS NOT NULL', task)]
-        qualities += highScores
-        bks = None if not qualities else min(qualities)
-        if not bks:
+        objectiveValues = [int(result['objective-value']) for result in [results[run][task] for run in results if task in results[run]] if result['objective-value']]
+        objectiveValues += [int(result[0]) for result in cursor.execute('SELECT optimum FROM result WHERE problem = ? AND model = ? AND instance = ? AND optimum IS NOT NULL', task)]
+        objectiveValues += [int(result[0]) for result in cursor.execute('SELECT high_score FROM result WHERE problem = ? AND model = ? AND instance = ? AND high_score IS NOT NULL', task)]
+        bestObjectiveValue = None if not objectiveValues else min(objectiveValues)
+        if not bestObjectiveValue:
             raise ValueError('{}/{}/{}: No best known solution'.format(problem, model, instance))
-        if bks < 0:
+        if bestObjectiveValue < 0:
             raise ValueError('{}/{}/{}: Best known solution has negative objective value'.format(problem, model, instance))
         if args.verbose:
             print('-' * 80)
-            print(problem, model, instance, problemType, bks)
+            print(problem, model, instance, problemType, bestObjectiveValue)
         for run in results:
             if task in results[run]:
                 result = results[run][task]
                 solved = result['solved']
-                quality = result['quality']
+                objectiveValue = result['objective-value']
                 if solved:
-                    if not quality:
+                    if not objectiveValue:
                         raise ValueError('{}/{}/{}/{}: No objective value'.format(run, problem, model, instance))
-                    if quality < 0:
+                    if objectiveValue < 0:
                         raise ValueError('{}/{}/{}/{}: Negative objective value'.format(run, problem, model, instance))
-                    gap = quality / bks
+                    gap = objectiveValue / bestObjectiveValue
                     if args.verbose:
-                        print(run, quality, gap)
+                        print(run, objectiveValue, gap)
                     result['gap'] = gap
     return results
 
@@ -125,7 +123,7 @@ def main():
             if results:
                 postprocessedResults = {run: postprocessResult(results[run]) for run in results}
                 print(json.dumps(postprocessedResults, sort_keys = True, indent = 4))
-                if (args.plotDiagrams):
+                if args.plotDiagrams:
                     plotDiagrams(args, results)
         except ValueError as e:
             print(e, file = sys.stderr)

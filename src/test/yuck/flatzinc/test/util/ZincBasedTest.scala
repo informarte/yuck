@@ -256,8 +256,8 @@ class ZincBasedTest extends IntegrationTest {
             maybeRoundLimit = task.maybeRoundLimit,
             maybeRuntimeLimitInSeconds = task.maybeRuntimeLimitInSeconds,
             maybeTargetObjectiveValue =
-                if (task.maybeTargetObjectiveValue.isDefined) task.maybeTargetObjectiveValue
-                else task.maybeOptimum)
+                task.maybeTargetObjectiveValue.orElse(task.maybeOptimum).orElse(task.maybeHighScore)
+        )
     }
 
     protected def spoilResult(result: Result): Result = result

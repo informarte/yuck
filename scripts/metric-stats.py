@@ -38,24 +38,24 @@ def computeRatios(cursor, args):
     for task in tasks:
         if not (args.referenceRun, task) in metricValues:
             (problem, model, instance) = task
-            print('Warning: No reference result found for instance {}/{}/{}'.format(problem, model, instance, file = sys.stderr))
+            print('Warning: No reference result found for instance {}/{}/{}'.format(problem, model, instance), file = sys.stderr)
     return {
         run: {
             task:
-            newValue / refValue
-            for (task, newValue, refValue) in
+            value / refValue
+            for (task, value, refValue) in
             [(task, metricValues[(run, task)], metricValues[(args.referenceRun, task)])
              for task in tasks
              if (run, task) in metricValues
              if (args.referenceRun, task) in metricValues]
-            if newValue
+            if value
             if refValue and refValue != 0
         }
         for run in args.runs
     }
 
 def plotDiagrams(args, results):
-    title = '{} wrt. {}'.format(args.metric, args.referenceRun)
+    title = '{} wrt. {} (without extreme outliers)'.format(args.metric, args.referenceRun)
     filters = \
         ([args.problemFilter] if args.problemFilter else []) + \
         ([args.modelFilter] if args.modelFilter else []) + \
@@ -64,7 +64,10 @@ def plotDiagrams(args, results):
         title += ' ({})'.format(', '.join(filters))
     common.plotDiagrams(
         [run for run in results],
-        lambda run: (lambda result: [result[task] for task in result])(results[run]),
+        lambda run: list(
+            filter(
+                lambda result: abs(result) <= 10,
+                (results[run][task] for task in results[run]))),
         title = title,
         xlabel = 'New value / Reference value',
         legendLocation = 'center right')
@@ -90,10 +93,10 @@ def main():
         if results:
             for run in results:
                 if not results[run]:
-                    print('Warning: No data for run {}'.format(run, file = sys.stderr))
+                    print('Warning: No data for run {}'.format(run), file = sys.stderr)
             postprocessedResults = {run: common.analyzeResult(results[run]) for run in results}
             print(json.dumps(postprocessedResults, sort_keys = True, indent = 4))
-            if (args.plotDiagrams):
+            if args.plotDiagrams:
                 plotDiagrams(args, results)
 
 main()

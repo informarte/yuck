@@ -54,7 +54,7 @@ def createDb(cursor):
         'area DOUBLE CONSTRAINT result_area_constraint CHECK (area >= 0), '\
         'solved INT NOT NULL CONSTRAINT result_solved_constraint CHECK (solved in (0, 1)), '\
         'violation INT CONSTRAINT result_violation_constraint CHECK (violation >= 0), '\
-        'quality INT, '\
+        'objective_value INT, '\
         'CONSTRAINT result_unique_constraint UNIQUE (run, solver, solver_version, problem, model, instance) ON CONFLICT IGNORE)')
     cursor.execute('CREATE INDEX IF NOT EXISTS result_index ON result(run, solver, solver_version, problem, model, instance)')
 
@@ -67,7 +67,7 @@ def importResults(args, file, cursor):
     solver = data.get('solver')
     parserStatistics = data.get('parser-statistics')
     compilerStatistics = data.get('compiler-statistics')
-    searchStatistics = data['search-statistics'] if 'search-statistics' in data else data['solver-statistics'] if 'solver-statistics' in data else None
+    searchStatistics = data.get('search-statistics', data.get('solver-statistics'))
     if not task:
          print("No task (MiniZinc compiler error?)")
     elif 'env' in data and 'yuck' in data['env'] and not yuckModelStatistics:
@@ -104,7 +104,7 @@ def importResults(args, file, cursor):
              searchStatistics.get('area') if searchStatistics else None,
              result['solved'] if result and 'solved' in result else False,
              result.get('violation') if result else None,
-             result.get('quality') if result else None))
+             result.get('objective-value', result.get('quality')) if result else None))
 
 def main():
     parser = argparse.ArgumentParser(
