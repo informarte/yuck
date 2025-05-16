@@ -73,10 +73,16 @@ final class Div
     [V <: IntegralValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: NumericalVariable[V], y: NumericalVariable[V], z: NumericalVariable[V])
+    (using valueTraits: NumericalValueTraits[V])
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s / %s".format(z, x, y)
-    override def op(a: V, b: V) = a / b
+    override def propagate() =
+        NoPropagationOccurred.pruneDomain(y, y.domain.diff(valueTraits.createDomain(Set(valueTraits.zero))))
+    override def op(a: V, b: V) =
+        // When y is a channel variable, b may be zero!
+        // Nevertheless, we have to provide some value for z.
+       if b == valueTraits.zero then a else a / b
 }
 
 /**
