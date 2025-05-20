@@ -2,13 +2,12 @@ package yuck.core
 
 import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge}
 import org.jgrapht.traverse.{BreadthFirstIterator, NotDirectedAcyclicGraphException, TopologicalOrderIterator}
-
 import scala.collection.*
 import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
 
 import yuck.core.profiling.*
-import yuck.util.arm.Sigint
+import yuck.util.arm.{ManagedResource, Sigint, scoped}
 import yuck.util.logging.LazyLogger
 
 /**
@@ -456,6 +455,26 @@ final class Space(
     /** Counts how often Constraint.propagate was called. */
     var numberOfPropagations = 0
 
+    private class DomainRestorer extends ManagedResource {
+
+        private val backup = new mutable.ArrayBuffer[(AnyVariable, () => Unit)]
+
+        override def open() = {
+            // collect domains of implicitly constrained search variables
+            for (x <- inVariablesOfImplicitConstraints) {
+                backup += x -> x.createDomainRestorer
+            }
+        }
+
+        override def close() = {
+            // restore domains of implicitly constrained search variables
+            for ((x, domainRestorer) <- backup) {
+                domainRestorer.apply()
+            }
+        }
+
+    }
+
     /**
       * Prunes domains by propagating constraints.
       *
@@ -468,20 +487,20 @@ final class Space(
       * Notice that, after propagation, there may be search variables with values outside their domains.
       */
     def propagate(): Space = {
-        propagate {
-            val tasks = new mutable.HashSet[Constraint]
-            for (constraint <- constraints) {
+        scoped(new DomainRestorer) {
+            val constraints = new mutable.HashSet[Constraint]
+            for (constraint <- this.constraints) {
                 val effects = constraint.propagate()
                 numberOfPropagations += 1
                 for (x <- effects.affectedVariables) {
-                    tasks ++= directlyAffectedConstraints(x)
-                    tasks ++= maybeDefiningConstraint(x)
+                    constraints ++= directlyAffectedConstraints(x)
+                    constraints ++= maybeDefiningConstraint(x)
                 }
                 if (effects.rescheduleStep) {
-                    tasks += constraint
+                    constraints += constraint
                 }
             }
-            propagate(tasks)
+            propagate(constraints)
         }
         this
     }
@@ -498,48 +517,30 @@ final class Space(
       * Notice that, after propagation, there may be search variables with values outside their domains.
       */
     def propagate(xs: Iterable[AnyVariable]): Space = {
-        propagate {
-            val tasks = new mutable.HashSet[Constraint]
+        scoped(new DomainRestorer) {
+            val constraints = new mutable.HashSet[Constraint]
             for (x <- xs) {
-                tasks ++= directlyAffectedConstraints(x)
-                tasks ++= maybeDefiningConstraint(x)
+                constraints ++= directlyAffectedConstraints(x)
+                constraints ++= maybeDefiningConstraint(x)
             }
-            propagate(tasks)
+            propagate(constraints)
         }
         this
     }
 
-    private def propagate(tasks: mutable.HashSet[Constraint]): Unit = {
-        while (! tasks.isEmpty && ! sigint.isSet) {
-            val constraint = tasks.head
+    private def propagate(constraints: mutable.HashSet[Constraint]): Unit = {
+        while (! constraints.isEmpty && ! sigint.isSet) {
+            val constraint = constraints.head
             val effects = constraint.propagate()
             numberOfPropagations += 1
             for (x <- effects.affectedVariables) {
-                tasks ++= directlyAffectedConstraints(x)
-                tasks ++= maybeDefiningConstraint(x)
+                constraints ++= directlyAffectedConstraints(x)
+                constraints ++= maybeDefiningConstraint(x)
             }
             if (! effects.rescheduleStep) {
-                tasks.remove(constraint)
+                constraints.remove(constraint)
             }
         }
-    }
-
-    private def propagate(propagationJob: => Unit): Unit = {
-
-        // collect domains of implicitly constrained search variables
-        val backup = new mutable.ArrayBuffer[(AnyVariable, () => Unit)]
-        for (x <- inVariablesOfImplicitConstraints) {
-            backup += x -> x.createDomainRestorer
-        }
-
-        // propagate constraints
-        propagationJob
-
-        // restore domains of implicitly constrained search variables
-        for ((x, domainRestorer) <- backup) {
-            domainRestorer.apply()
-        }
-
     }
 
     /** Counts how often Constraint.initialize was called. */
