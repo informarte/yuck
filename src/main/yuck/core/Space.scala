@@ -554,31 +554,50 @@ final class Space(
      */
     def initialize(): Space = {
 
-        if (! initialized) {
+        if (initialized) {
+
+            val constraintsOrderedByLayer = mutable.ArrayBuffer.from(constraints).sortInPlaceBy(_.layer)
+            for (constraint <- constraintsOrderedByLayer) {
+                if (! isImplicitConstraint(constraint)) {
+                    for (effect <- constraint.initialize(assignment)) {
+                        effect.affect(this)
+                    }
+                    numberOfInitializations += 1
+                }
+            }
+
+        } else {
+
             if (delayCycleCheckingUntilInitialization) {
                 sortConstraintsTopologically()
             }
+
             flowModel = null // free memory
             initialized = true
-        }
 
-        val (layers, _) = logger.withTimedLogScope("Computing layers") {
-            computeLayers()
-        }
-        for (i <- layers.indices; constraint <- layers(i)) {
-            constraint.layer = i
-            constraint.after = null
-            if (! isImplicitConstraint(constraint)) {
-                constraint.initialize(assignment).foreach(_.affect(this))
-                numberOfInitializations += 1
+            val (layers, _) = logger.withTimedLogScope("Computing layers") {
+                computeLayers()
             }
-        }
-        queue = Vector.fill(layers.size)(new mutable.ArrayBuffer[Constraint] {
-            inline override def clear() = {
-                // No need to clear the underlying array!
-                size0 = 0
+
+            for (i <- layers.indices; constraint <- layers(i)) {
+                constraint.layer = i
+                constraint.after = null
+                if (! isImplicitConstraint(constraint)) {
+                    for (effect <- constraint.initialize(assignment)) {
+                        effect.affect(this)
+                    }
+                    numberOfInitializations += 1
+                }
             }
-        })
+
+            queue = Vector.fill(layers.size)(new mutable.ArrayBuffer[Constraint] {
+                inline override def clear() = {
+                    // No need to clear the underlying array!
+                    size0 = 0
+                }
+            })
+
+        }
 
         this
     }
