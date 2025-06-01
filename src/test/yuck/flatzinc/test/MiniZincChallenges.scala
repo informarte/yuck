@@ -160,8 +160,7 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasGlobalCardinalityConstraint]))
     def compression_bin_8(): Unit = {
-        // The solution cannot be verified, see https://github.com/minizinc/libminizinc/issues/898.
-        solve(task.copy(problemName = "compression", instanceName = "bin_8", maybeOptimum = Some(26), verificationFrequency = NoVerification))
+        solve(task.copy(problemName = "compression", instanceName = "bin_8", maybeOptimum = Some(26)))
     }
 
     @Test
@@ -173,8 +172,7 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def connect_0018(): Unit = {
-        // The solution cannot be verified, see https://github.com/minizinc/libminizinc/issues/709.
-        solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "connect", instanceName = "connect__0018", maybeOptimum = Some(52490), verificationFrequency = NoVerification))
+        solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "connect", instanceName = "connect__0018", maybeOptimum = Some(52490)))
     }
 
     @Test
