@@ -356,15 +356,12 @@ final class AnnealingNeighbourhoodFactory
     }
 
     private def createHotSpotDistribution(neighbourhoods: Seq[Neighbourhood]): Distribution = {
-        val neighbourhoodIndex = neighbourhoods.iterator.zipWithIndex.toMap
+        val neighbourhoodScopes = neighbourhoods.iterator.map(_.searchVariables.toSet).toVector
         val hotSpotDistribution = Distribution(neighbourhoods.size)
         def involvedNeighbourhoods(x: AnyVariable) = {
             val xs = cc.space.involvedSearchVariables(x)
-            def isInvolved(neighbourhood: Neighbourhood) = {
-                val ys = neighbourhood.searchVariables.toSet
-                xs.exists(ys.contains)
-            }
-            neighbourhoods.iterator.filter(isInvolved).map(neighbourhoodIndex).toVector
+            def isInvolved(i: Int) = xs.exists(neighbourhoodScopes(i).contains)
+            neighbourhoods.indices.filter(isInvolved).toVector
         }
         val involvementMatrix = cc.costVars.iterator.map(x => (x, involvedNeighbourhoods(x))).filter(_._2.nonEmpty).toMap
         cc.post(new SatisfactionGoalTracker(cc.space.nextConstraintId(), None, involvementMatrix, hotSpotDistribution))

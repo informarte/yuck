@@ -398,6 +398,7 @@ final class MiniZincChallenges extends ZincBasedTest {
         solve(task.copy(problemName = "lot-sizing", modelName = "lot_sizing_cp", instanceName = "pigment15a.psp", maybeOptimum = Some(1195)))
     }
 
+    // Has redundant all_different constraints contributing neighbourhoods.
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint]))
     def ma_path_finding_ins_g16_p10_a10(): Unit = {
