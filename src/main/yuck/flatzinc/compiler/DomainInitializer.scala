@@ -3,8 +3,8 @@ package yuck.flatzinc.compiler
 import scala.collection.*
 
 import yuck.core.*
-import yuck.core.IntegerDomain.ensureRangeList
 import yuck.flatzinc.ast.*
+import yuck.util.logging.LogLevel.FineLogLevel
 
 /**
  * Builds a map from parameter and variable declarations to domains.
@@ -32,10 +32,20 @@ final class DomainInitializer
     }
 
     override def run() = {
-        initializeDomains()
-        propagateAssignments()
-        propagateConstraints()
-        revisitIntegerSetDomains()
+        cc.logger.withRootLogLevel(FineLogLevel) {
+            cc.logger.withTimedLogScope("Initializing domains") {
+                initializeDomains()
+            }
+            cc.logger.withTimedLogScope("Propagating assignments") {
+                propagateAssignments()
+            }
+            cc.logger.withTimedLogScope("Propagating constraints") {
+                propagateConstraints()
+            }
+            cc.logger.withTimedLogScope("Normalizing integer-set domains") {
+                normalizeIntegerSetDomains()
+            }
+        }
     }
 
     private def initializeDomains(): Unit = {
@@ -48,6 +58,9 @@ final class DomainInitializer
             case ArrayType(Some(IntRange(1, n)), baseType) =>
                 val domain = createDomain(baseType)
                 for (idx <- 1 to n.toInt) {
+                    if (cc.sigint.isSet) {
+                        throw new FlatZincCompilerInterruptedException
+                    }
                     val a = ArrayAccess(decl.id, IntConst(idx))
                     cc.declaredVars += a
                     cc.domains += a -> domain
@@ -56,6 +69,9 @@ final class DomainInitializer
                     cc.equalVars += a -> set
                 }
             case _ =>
+                if (cc.sigint.isSet) {
+                    throw new FlatZincCompilerInterruptedException
+                }
                 val domain = createDomain(decl.valueType)
                 val a = Term(decl.id, Nil)
                 cc.declaredVars += a
@@ -100,6 +116,9 @@ final class DomainInitializer
     }
 
     private def propagateAssignment(a: Expr, b: Expr): Unit = {
+        if (cc.sigint.isSet) {
+            throw new FlatZincCompilerInterruptedException
+        }
         val exprType = getExprType(a)
         checkTypeCompatibility(exprType, getExprType(b))
         exprType match {
@@ -208,6 +227,9 @@ final class DomainInitializer
         (using valueTraits: ValueTraits[V]):
         Unit =
     {
+        if (cc.sigint.isSet) {
+            throw new FlatZincCompilerInterruptedException
+        }
         cc.logger.log("%s = %s".format(a, b))
         val e = cc.equalVars(a)
         val f = cc.equalVars(b)
@@ -232,6 +254,9 @@ final class DomainInitializer
         (using valueTraits: ValueTraits[V]):
         Unit =
     {
+        if (cc.sigint.isSet) {
+            throw new FlatZincCompilerInterruptedException
+        }
         cc.logger.log("%s = %s".format(a, d))
         val e = cc.equalVars(a)
         if (cc.domains(a) != d) {
@@ -245,6 +270,9 @@ final class DomainInitializer
         (using valueTraits: ValueTraits[V]):
         Unit =
     {
+        if (cc.sigint.isSet) {
+            throw new FlatZincCompilerInterruptedException
+        }
         if (d.isEmpty) {
             throw new yuck.flatzinc.compiler.DomainWipeOutException(a)
         }
@@ -289,7 +317,7 @@ final class DomainInitializer
     // To avoid frequent conversions from bit sets, this method replaces bit-set based integer-set domains
     // by domains based on ranges or range lists if there is at least one integer-set domain based on a
     // range or a range list.
-    private def revisitIntegerSetDomains(): Unit = {
+    private def normalizeIntegerSetDomains(): Unit = {
         val keysToIntegerSetDomains =
             cc.domains.keysIterator.filter(cc.domains(_).isInstanceOf[IntegerSetDomain]).toList
         val nonBitSetDomainExists =

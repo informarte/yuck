@@ -1006,7 +1006,6 @@ final class MiniZincChallenges extends ZincBasedTest {
 
     // increasing and value_precede constraints might be redundant.
     @Test
-    @Ignore("Does not compile since MiniZinc 2.7.3")
     @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint], classOf[HasCircuitConstraint], classOf[HasIncreasingConstraint], classOf[HasTableConstraint], classOf[HasValuePrecedeConstraint]))
     def yumi_dynamic_p_4_GG_GG_yumi_grid_setup_3_4_zones() : Unit = {
         solve(task.copy(problemName = "yumi-dynamic", instanceName = "p_4_GG_GG_yumi_grid_setup_3_4_zones", maybeOptimum = Some(462)))

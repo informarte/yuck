@@ -28,8 +28,6 @@ final class VariableFactory
         cc.ast.varDecls.iterator.filter(_.valueType.isArrayType).foreach(createVariables)
     }
 
-    import HighPriorityImplicits.*
-
     private def createVariable(decl: PlaceholderDecl): Unit = {
         decl.valueType match {
             case BoolType =>
@@ -62,6 +60,9 @@ final class VariableFactory
         (using valueTraits: ValueTraits[V]):
         Variable[V] =
     {
+        if (cc.sigint.isSet) {
+            throw new FlatZincCompilerInterruptedException
+        }
         def factory(key: Expr) =
             valueTraits.createVariable(cc.space, key.toString, valueTraits.safeDowncast(cc.domains(key)))
         val maybeEqualVars = cc.equalVars.get(key)
