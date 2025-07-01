@@ -64,9 +64,6 @@ final class DomainInitializer
                     val a = ArrayAccess(decl.id, IntConst(idx))
                     cc.declaredVars += a
                     cc.domains += a -> domain
-                    val set = new mutable.TreeSet[Expr]()(ProblemVariablesFirstOrdering)
-                    set += a
-                    cc.equalVars += a -> set
                 }
             case _ =>
                 if (cc.sigint.isSet) {
@@ -76,9 +73,6 @@ final class DomainInitializer
                 val a = Term(decl.id, Nil)
                 cc.declaredVars += a
                 cc.domains += a -> domain
-                val set = new mutable.TreeSet[Expr]()(ProblemVariablesFirstOrdering)
-                set += a
-                cc.equalVars += a -> set
         }
     }
 
@@ -122,39 +116,33 @@ final class DomainInitializer
         val exprType = getExprType(a)
         checkTypeCompatibility(exprType, getExprType(b))
         exprType match {
-            case BoolType => b match {
-                case BoolConst(_) =>
-                    val da1 = boolDomain(a)
-                    val da2 = da1.intersect(boolDomain(b))
-                    if (da1 != da2) cc.equalVars(a).foreach(b => reduceDomain(b, da2))
-                case b =>
-                    val da = boolDomain(a)
-                    val db = boolDomain(b)
-                    val d = da.intersect(db)
-                    propagateEquality(a, b, d)
+            case BoolType => propagateAssignment(a, b, boolDomain)
+            case IntType(_) => propagateAssignment(a, b, intDomain)
+            case IntSetType(_) => propagateAssignment(a, b, intSetDomain)
+        }
+    }
+
+    private def propagateAssignment
+        [V <: Value[V], D <: Domain[V]]
+        (a: Expr, b: Expr, domainFactory: Expr => D)
+        (using valueTraits: ValueTraits[V]):
+        Unit =
+    {
+        if (b.isConst) {
+            val da1 = domainFactory(a)
+            val da2 = da1.intersect(domainFactory(b))
+            if (da1 != da2) {
+                if (cc.equalVars.contains(a)) {
+                    cc.equalVars(a).foreach(b => reduceDomain(b, da2))
+                } else {
+                    reduceDomain(a, da2)
+                }
             }
-            case IntType(_) => b match {
-                case IntConst(_) =>
-                    val da1 = intDomain(a)
-                    val da2 = da1.intersect(intDomain(b))
-                    if (da1 != da2) cc.equalVars(a).foreach(b => reduceDomain(b, da2))
-                case b =>
-                    val da = intDomain(a)
-                    val db = intDomain(b)
-                    val d = da.intersect(db)
-                    propagateEquality(a, b, d)
-            }
-            case IntSetType(_) => b match {
-                case IntSetConst(_) =>
-                    val da1 = intSetDomain(a)
-                    val da2 = da1.intersect(intSetDomain(b))
-                    if (da1 != da2) cc.equalVars(a).foreach(b => reduceDomain(b, da2))
-                case b =>
-                    val da = intSetDomain(a)
-                    val db = intSetDomain(b)
-                    val d = da.intersect(db)
-                    propagateEquality(a, b, d)
-            }
+        } else {
+            val da = domainFactory(a)
+            val db = domainFactory(b)
+            val d = da.intersect(db)
+            propagateEquality(a, b, d)
         }
     }
 
@@ -231,8 +219,8 @@ final class DomainInitializer
             throw new FlatZincCompilerInterruptedException
         }
         cc.logger.log("%s = %s".format(a, b))
-        val e = cc.equalVars(a)
-        val f = cc.equalVars(b)
+        val e = cc.equalVars.getOrElseUpdate(a, mutable.TreeSet.from(List(a))(ProblemVariablesFirstOrdering))
+        val f = cc.equalVars.getOrElseUpdate(b, mutable.TreeSet.from(List(b))(ProblemVariablesFirstOrdering))
         if (cc.domains(a) != d) {
             e.foreach(a => reduceDomain(a, d))
         }
