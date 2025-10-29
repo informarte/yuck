@@ -56,7 +56,7 @@ class RegularNeighbourhood
 
     override def children = Nil
 
-    override def nextMove = {
+    override def nextMove() = {
 
         val useUniformDistribution =
             maybeHotSpotDistribution.isEmpty ||

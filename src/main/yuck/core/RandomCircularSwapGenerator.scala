@@ -78,7 +78,7 @@ final class RandomCircularSwapGenerator
 
     override def children = Nil
 
-    override def nextMove = {
+    override def nextMove() = {
         val useUniformDistribution =
             maybeHotSpotDistribution.isEmpty ||
                 maybeHotSpotDistribution.get.volume == 0 ||

@@ -22,7 +22,7 @@ final class SimpleInverseNeighbourhood
     private val n = f.xs.size
     private val effects = Vector.fill(4)(new ReusableMoveEffect[IntegerValue])
 
-    override def nextMove = {
+    override def nextMove() = {
         val i1 = randomGenerator.nextInt(n)
         val x1 = f.xs(i1)
         val a1 = value(x1)

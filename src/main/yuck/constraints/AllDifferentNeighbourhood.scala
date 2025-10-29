@@ -237,7 +237,7 @@ final class AllDifferentNeighbourhood
 
     final override def children = Nil
 
-    final override def nextMove = {
+    final override def nextMove() = {
         val m1 = min(n, moveSizeDistribution.nextIndex(randomGenerator))
         val m2 = if (swappingInValuesIsPossible) m1 else max(m1, 2)
         nextMove(m2)

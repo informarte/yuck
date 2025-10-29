@@ -478,7 +478,7 @@ final class SpaceTest extends UnitTest {
                     space, space.searchVariables.toVector, randomGenerator, moveSizeDistribution, None, None)
             for (i <- 1 to m) {
                 // generate move and consult space
-                val move = neighbourhood.nextMove
+                val move = neighbourhood.nextMove()
                 val beforeConsult = space.searchState.clone
                 val afterConsult = space.consult(move).clone
                 // check that each spy was consulted at most once

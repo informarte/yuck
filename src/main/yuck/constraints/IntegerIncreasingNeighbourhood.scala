@@ -54,7 +54,7 @@ final class IntegerIncreasingNeighbourhood
 
     private val frequencyRestorer = new FrequencyRestorer(moveSizeDistribution.size - 2)
 
-    override def nextMove = {
+    override def nextMove() = {
         val useUniformDistribution =
             maybeHotSpotDistribution.isEmpty ||
                 maybeHotSpotDistribution.get.volume == 0 ||

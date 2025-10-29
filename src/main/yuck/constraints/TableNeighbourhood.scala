@@ -33,7 +33,7 @@ final class TableNeighbourhood
     private var currentRowIndex = -1
     private var nextRowIndex = -1
 
-    override def nextMove = {
+    override def nextMove() = {
         if (currentRowIndex == -1) {
             currentRowIndex = rows.indexOf(xs.map(space.searchState.value(_)))
             assert(currentRowIndex >= 0)

@@ -123,7 +123,7 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
             checkArrivalTimes(now)
             checkTotalTravelTime(now)
             checkCosts(now)
-            val move = neighbourhood.nextMove
+            val move = neighbourhood.nextMove()
             for (effect <- move.effects) {
                 effect.affect(space)
             }
@@ -140,7 +140,7 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
             checkArrivalTimes(now)
             checkTotalTravelTime(now)
             checkCosts(now)
-            val move = neighbourhood.nextMove
+            val move = neighbourhood.nextMove()
             space.consult(move)
             if (randomGenerator.nextDecision()) {
                 space.commit(move)

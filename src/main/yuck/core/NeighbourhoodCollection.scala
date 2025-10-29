@@ -53,7 +53,7 @@ final class NeighbourhoodCollection(
 
     override def children = neighbourhoods
 
-    override def nextMove = {
+    override def nextMove() = {
         val useSizeDistribution =
             maybeHotSpotDistribution.isEmpty ||
                 maybeHotSpotDistribution.get.volume == 0 ||
@@ -68,7 +68,7 @@ final class NeighbourhoodCollection(
         if (m == 1) {
             val i = priorityDistribution.nextIndex(randomGenerator)
             val neighbourhood = neighbourhoods(i)
-            val move = neighbourhood.nextMove
+            val move = neighbourhood.nextMove()
             lastProposals.update(neighbourhood, move)
             move
         } else {
@@ -76,7 +76,7 @@ final class NeighbourhoodCollection(
             scoped(frequencyRestorer) {
                 for (i <- priorityDistribution.nextIndices(randomGenerator, m, frequencyRestorer)) {
                     val neighbourhood = neighbourhoods(i)
-                    val move = neighbourhood.nextMove
+                    val move = neighbourhood.nextMove()
                     lastProposals.update(neighbourhood, move)
                     result ++= move.effects
                 }

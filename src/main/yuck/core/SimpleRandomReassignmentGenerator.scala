@@ -19,7 +19,7 @@ final class SimpleRandomReassignmentGenerator
     require(xs.forall(_.domain.isFinite))
     override def searchVariables = xs.toSet
     override def children = Nil
-    override def nextMove =
+    override def nextMove() =
         xs
         .apply(randomGenerator.nextInt(xs.length))
         .nextMove(space, randomGenerator)

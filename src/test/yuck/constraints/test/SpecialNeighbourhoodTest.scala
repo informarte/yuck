@@ -48,7 +48,7 @@ abstract class SpecialNeighbourhoodTest extends UnitTest {
         space.registerImplicitConstraint(constraint)
         space.initialize()
         for (i <- 1 to sampleSize) {
-            val move = neighbourhood.nextMove
+            val move = neighbourhood.nextMove()
             assert(! move.involves(costs))
             val after = space.consult(move)
             assert(xs.exists(x => now.value(x) != after.value(x)))

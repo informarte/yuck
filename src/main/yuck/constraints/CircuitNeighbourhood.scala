@@ -219,7 +219,7 @@ final class CircuitNeighbourhood
         }
     }
 
-    override def nextMove = {
+    override def nextMove() = {
         effects.clear()
         val decision = randomGenerator.nextInt(10)
         val maybeMove = {

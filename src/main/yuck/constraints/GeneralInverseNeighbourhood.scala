@@ -23,7 +23,7 @@ final class GeneralInverseNeighbourhood
         .filter(i => f.xs(i).domain.size > 1 && g.xs(rawValue(f.xs(i)) - g.offset).domain.size > 1)
         .toVector
 
-    override def nextMove = {
+    override def nextMove() = {
         if (candidates1.isEmpty) {
             new ChangeValues[IntegerValue](space.nextMoveId(), Nil)
         } else {

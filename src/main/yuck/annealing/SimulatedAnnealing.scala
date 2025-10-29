@@ -190,7 +190,7 @@ final class SimulatedAnnealing(
     private def monteCarloSimulation(): Unit = {
         val roundLog = roundLogs.last
         while (numberOfRemainingMonteCarloAttempts > 0 && ! wasInterrupted && ! objective.isGoodEnough(costsOfBestProposal)) {
-            val move = neighbourhood.nextMove
+            val move = neighbourhood.nextMove()
             val before = space.searchState
             val after = space.consult(move)
             val delta = objective.assessMove(before, after)

@@ -43,7 +43,7 @@ final class NeighbourhoodTestHelper
         require(neighbourhood.searchVariables == xs.toSet)
         val result = new MeasurementResult
         for (i <- 1 to SampleSize) {
-            val move = neighbourhood.nextMove
+            val move = neighbourhood.nextMove()
             result.moveSizeFrequencies(move.size) += 1
             val ys = move.involvedVariablesIterator.map(valueTraits.safeDowncast).toVector
             assertEq(ys.size, ys.toSet.size)

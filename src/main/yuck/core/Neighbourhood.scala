@@ -16,7 +16,7 @@ abstract class Neighbourhood {
     def children: Iterable[Neighbourhood]
 
     /** Creates a move. */
-    def nextMove: Move
+    def nextMove(): Move
 
     /**
      * Notifies this neighbourhood that search has decided for the given move.

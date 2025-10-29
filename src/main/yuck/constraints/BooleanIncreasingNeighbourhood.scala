@@ -63,7 +63,7 @@ final class BooleanIncreasingNeighbourhood
         move
     }
 
-    override def nextMove = {
+    override def nextMove() = {
         val move = new BulkMove(space.nextMoveId())
         val m = min(moveSizeDistribution.nextIndex(randomGenerator), max(currentBoundary, n - currentBoundary))
         val canShiftLeft = currentBoundary >= m

@@ -45,9 +45,9 @@ class NeighbourhoodCollectionTest
             var lastMove: Move = null
             override def searchVariables = neighbourhood.searchVariables
             override def children = neighbourhood.children
-            override def nextMove = {
+            override def nextMove() = {
                 assert(lastMove.eq(null))
-                lastMove = neighbourhood.nextMove
+                lastMove = neighbourhood.nextMove()
                 lastMove
             }
             override def commit(move: Move) = {
@@ -66,7 +66,7 @@ class NeighbourhoodCollectionTest
                 Some(moveSizeDistribution), maybeHotSpotDistribution, maybeFairChoiceRate)
         val numberOfTrials = 1000
         for (i <- 0 until numberOfTrials) {
-            val move = neighbourhood.nextMove
+            val move = neighbourhood.nextMove()
             neighbourhood.commit(move)
         }
         for (neighbourhood <- neighbourhoods) {
