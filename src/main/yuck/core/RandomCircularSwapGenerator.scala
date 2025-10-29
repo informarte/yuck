@@ -30,7 +30,7 @@ import scala.collection.*
  */
 final class RandomCircularSwapGenerator
     [V <: Value[V]]
-    (space: Space,
+    (override protected val space: Space,
      xs: immutable.IndexedSeq[Variable[V]],
      randomGenerator: RandomGenerator,
      moveSizeDistribution: Distribution,

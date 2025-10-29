@@ -9,7 +9,6 @@ import yuck.core.*
 import yuck.test.*
 import yuck.test.util.IntegrationTest
 
-
 /**
  * @author Michael Marte
  *
@@ -71,11 +70,14 @@ final class ProgressiveTighteningTest
             new SimulatedAnnealing(
                 "SA",
                 space,
-                createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen()),
+                objective,
                 new RandomReassignmentGenerator(
                     space, Vector(x), randomGenerator.nextGen(), DefaultMoveSizeDistribution, None, None),
+                createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen()),
+                DefaultStartTemperature,
+                DefaultStartTemperature,
+                DefaultPerturbationProbability,
                 randomGenerator.nextGen(),
-                objective,
                 Some(1),
                 Some(tighteningCounter),
                 None,

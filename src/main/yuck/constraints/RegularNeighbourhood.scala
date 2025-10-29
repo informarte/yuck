@@ -16,7 +16,7 @@ import yuck.util.arm.scoped
  * @author Michael Marte
  */
 class RegularNeighbourhood
-    (space: Space,
+    (override protected val space: Space,
      xs: immutable.IndexedSeq[IntegerVariable],
      randomGenerator: RandomGenerator,
      moveSizeDistribution: Distribution,
@@ -57,9 +57,14 @@ class RegularNeighbourhood
     override def children = Nil
 
     override def nextMove() = {
+        nextMove(true)
+    }
+
+    private def nextMove(biased: Boolean) = {
 
         val useUniformDistribution =
-            maybeHotSpotDistribution.isEmpty ||
+            ! biased ||
+                maybeHotSpotDistribution.isEmpty ||
                 maybeHotSpotDistribution.get.volume == 0 ||
                 (maybeFairVariableChoiceRate.isDefined && randomGenerator.nextDecision(maybeFairVariableChoiceRate.get))
         val priorityDistribution = if useUniformDistribution then uniformDistribution else maybeHotSpotDistribution.get
@@ -135,6 +140,13 @@ class RegularNeighbourhood
                     }
                 case _ => 0
             }
+    }
+
+    override def perturb(perturbationProbability: Probability): Unit = {
+        val move = nextMove(false)
+        space.consult(move)
+        space.commit(move)
+        commit(move)
     }
 
 }

@@ -26,7 +26,7 @@ import scala.collection.*
  * @author Michael Marte
  */
 final class RandomReassignmentGenerator
-    (space: Space,
+    (override protected val space: Space,
      xs: immutable.IndexedSeq[AnyVariable],
      randomGenerator: RandomGenerator,
      moveSizeDistribution: Distribution,
@@ -88,6 +88,17 @@ final class RandomReassignmentGenerator
         }
         val result = new ChangeAnyValues(space.nextMoveId(), effects)
         result
+    }
+
+    override def perturb(perturbationProbability: Probability) = {
+        val move = new BulkMove(space.nextMoveId())
+        for (x <- xs) {
+            if (randomGenerator.nextDecision(perturbationProbability)) {
+                move += x.nextRandomMoveEffect(space, randomGenerator)
+            }
+        }
+        space.consult(move)
+        space.commit(move)
     }
 
 }

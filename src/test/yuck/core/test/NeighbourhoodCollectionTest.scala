@@ -20,58 +20,50 @@ class NeighbourhoodCollectionTest
     extends UnitTest
 {
 
+    final class CommitChecker
+       (override protected val space: Space, neighbourhood: Neighbourhood)
+        extends Neighbourhood
+    {
+        var lastMove: Move = null
+        override def searchVariables = neighbourhood.searchVariables
+        override def children = neighbourhood.children
+        override def nextMove() = {
+            lastMove = neighbourhood.nextMove()
+            lastMove
+        }
+        override def commit(move: Move) = {
+            assert(lastMove.ne(null))
+            assertEq(lastMove, move)
+            neighbourhood.commit(move)
+            lastMove = null
+        }
+        override def perturb(perturbationProbability: Probability) = {
+            neighbourhood.perturb(perturbationProbability)
+        }
+    }
+
     private val domains = for (i <- 0 until numberOfVariables) yield IntegerRange(0, numberOfVariables - 1)
     private val (space, xs) = NeighbourhoodTestHelper.createSpace(logger, sigint, randomGenerator, domains)
+    val neighbourhoods =
+        for (i <- 0 until numberOfVariables) yield
+            new CommitChecker(space, new SimpleRandomReassignmentGenerator(space, Vector(xs(i)), randomGenerator))
+    val neighbourhood =
+        new NeighbourhoodCollection(
+            space, neighbourhoods, randomGenerator, Some(moveSizeDistribution), maybeHotSpotDistribution, maybeFairChoiceRate)
     private val helper =
-        new NeighbourhoodTestHelper(logger, xs, moveSizeDistribution, maybeHotSpotDistribution, maybeFairChoiceRate)
+        new NeighbourhoodTestHelper(
+            space, neighbourhood, xs, moveSizeDistribution, maybeHotSpotDistribution, maybeFairChoiceRate, logger)
 
     @Test
     def testMoveGeneration(): Unit = {
-        val neighbourhoods =
-            for (i <- 0 until numberOfVariables) yield
-                new SimpleRandomReassignmentGenerator(space, Vector(xs(i)), randomGenerator)
-        val neighbourhood =
-            new NeighbourhoodCollection(
-                space, neighbourhoods, randomGenerator,
-                Some(moveSizeDistribution), maybeHotSpotDistribution, maybeFairChoiceRate)
-        val result = helper.measure(neighbourhood)
+        val result = helper.testMoveGeneration()
         helper.checkMoveSizeFrequencies(result, 0.1, 0)
         helper.checkVariableFrequencies(result, 0.2, 0)
     }
 
     @Test
-    def testCommitForwarding(): Unit = {
-        final class CommitChecker(neighbourhood: Neighbourhood) extends Neighbourhood {
-            var lastMove: Move = null
-            override def searchVariables = neighbourhood.searchVariables
-            override def children = neighbourhood.children
-            override def nextMove() = {
-                assert(lastMove.eq(null))
-                lastMove = neighbourhood.nextMove()
-                lastMove
-            }
-            override def commit(move: Move) = {
-                assert(lastMove.ne(null))
-                assertEq(lastMove, move)
-                neighbourhood.commit(move)
-                lastMove = null
-            }
-        }
-        val neighbourhoods =
-            for (i <- 0 until numberOfVariables) yield
-                new CommitChecker(new SimpleRandomReassignmentGenerator(space, Vector(xs(i)), randomGenerator))
-        val neighbourhood =
-            new NeighbourhoodCollection(
-                space, neighbourhoods, randomGenerator,
-                Some(moveSizeDistribution), maybeHotSpotDistribution, maybeFairChoiceRate)
-        val numberOfTrials = 1000
-        for (i <- 0 until numberOfTrials) {
-            val move = neighbourhood.nextMove()
-            neighbourhood.commit(move)
-        }
-        for (neighbourhood <- neighbourhoods) {
-            assert(neighbourhood.lastMove.eq(null))
-        }
+    def testPerturbation(): Unit = {
+        helper.testPerturbation()
     }
 
 }

@@ -9,11 +9,11 @@ import yuck.core.*
  * @author Michael Marte
  */
 final class SelfInverseNeighbourhood
-    (space: Space, f: InverseFunction, randomGenerator: RandomGenerator)
-    extends InverseNeighbourhood(space, f, f)
+    (override protected val space: Space,
+     f: InverseFunction,
+     randomGenerator: RandomGenerator)
+    extends InverseNeighbourhood(f, f)
 {
-
-    private val n = f.xs.size
 
     require(n > 2)
     require(n % 2 == 0)

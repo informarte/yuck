@@ -154,7 +154,7 @@ class ZincBasedTest extends IntegrationTest {
             summaryBuilder.addFlatZincModelStatistics(ast, md5Sum)
             logger.withTimedLogScope("Solving problem") {
                 scoped(monitor) {
-                    (ast, new FlatZincSolverGenerator(ast, cfg, sigint, logger, monitor).call().call())
+                    (ast, new FlatZincSolverGenerator(ast, cfg, monitor, logger, sigint).call().call())
                 }
             }
         }
@@ -245,18 +245,20 @@ class ZincBasedTest extends IntegrationTest {
 
     private def createSolverConfiguration(task: ZincTestTask): FlatZincSolverConfiguration = {
         task.solverConfiguration.copy(
-            restartLimit =
-                scala.math.min(
-                    task.solverConfiguration.restartLimit,
-                    task.maybeRestartLimit.getOrElse(Int.MaxValue)),
-            numberOfThreads =
-                scala.math.min(
-                    task.solverConfiguration.numberOfThreads,
-                    task.maybeMaximumNumberOfThreads.getOrElse(Int.MaxValue)),
-            maybeRoundLimit = task.maybeRoundLimit,
-            maybeRuntimeLimitInSeconds = task.maybeRuntimeLimitInSeconds,
+            numberOfSolvers =
+                task.maybeNumberOfSolvers
+                    .getOrElse(task.solverConfiguration.numberOfSolvers),
+            maybeRoundLimit =
+                task.maybeRoundLimit
+                    .orElse(task.solverConfiguration.maybeRoundLimit),
+            maybeRuntimeLimitInSeconds =
+                task.maybeRuntimeLimitInSeconds
+                    .orElse(task.solverConfiguration.maybeRuntimeLimitInSeconds),
             maybeTargetObjectiveValue =
-                task.maybeTargetObjectiveValue.orElse(task.maybeOptimum).orElse(task.maybeHighScore)
+                task.maybeTargetObjectiveValue
+                    .orElse(task.maybeOptimum)
+                    .orElse(task.maybeHighScore)
+                    .orElse(task.solverConfiguration.maybeTargetObjectiveValue)
         )
     }
 

@@ -21,7 +21,7 @@ final class UchoaBenchmark(task: ZincTestTask) extends ZincBasedTest {
 
     @Test
     def solve(): Unit = {
-        super.solve(task.copy(dataAssignments = Map(("MaxKToMinKRatio", "2")), maybeMaximumNumberOfThreads = Some(1), keepFlatZincFile = false))
+        super.solve(task.copy(dataAssignments = Map(("MaxKToMinKRatio", "2"))))
     }
 
 }

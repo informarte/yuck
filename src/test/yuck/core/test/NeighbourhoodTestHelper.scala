@@ -13,17 +13,20 @@ import yuck.util.logging.LazyLogger
  */
 final class NeighbourhoodTestHelper
     [V <: Value[V]]
-    (logger: LazyLogger,
+    (space: Space,
+     neighbourhood: Neighbourhood,
      xs: IndexedSeq[Variable[V]],
      moveSizeDistribution: Distribution,
      maybeHotSpotDistribution: Option[Distribution], // goes together with xs
-     maybeFairVariableChoiceRate: Option[Probability])
+     maybeFairVariableChoiceRate: Option[Probability],
+     logger: LazyLogger)
     (using valueTraits: ValueTraits[V])
     extends YuckAssert
 {
 
     require(! xs.isEmpty)
     require(xs.toSet.size == xs.size)
+    require(xs.toSet == neighbourhood.searchVariables)
     require(moveSizeDistribution.frequency(0) == 0)
     require(moveSizeDistribution.volume > 0)
     require(maybeHotSpotDistribution.isEmpty || maybeHotSpotDistribution.get.size == xs.size)
@@ -39,7 +42,7 @@ final class NeighbourhoodTestHelper
 
     private val SampleSize = 10000
 
-    def measure(neighbourhood: Neighbourhood): MeasurementResult = {
+    def testMoveGeneration(): MeasurementResult = {
         require(neighbourhood.searchVariables == xs.toSet)
         val result = new MeasurementResult
         for (i <- 1 to SampleSize) {
@@ -144,6 +147,22 @@ final class NeighbourhoodTestHelper
         assertLe(failureCount.toDouble, xs.size * maxFailureRate)
     }
 
+    private val NumberOfPerturbations = 1000
+    private val PerturbationProbability = Probability(0.5)
+
+    def testPerturbation(): Unit = {
+        val now = space.searchState
+        val numbersOfChangedAssignments = new mutable.ArrayBuffer[Int](NumberOfPerturbations)
+        for (i <- 0 until NumberOfPerturbations) {
+            val before = now.clone()
+            neighbourhood.perturb(PerturbationProbability)
+            numbersOfChangedAssignments += xs.count(x => before.value(x) != now.value(x))
+        }
+        val avg = numbersOfChangedAssignments.sum.toDouble / NumberOfPerturbations
+        assertGt(avg, xs.size * PerturbationProbability.value * 0.9)
+        assertLt(avg, xs.size * PerturbationProbability.value * 1.1)
+    }
+
 }
 
 /**
@@ -164,6 +183,7 @@ object NeighbourhoodTestHelper {
                 x
             }
         space.post(new DummyConstraint(space.nextConstraintId(), xs, Nil))
+        space.initialize()
         (space, xs)
     }
 

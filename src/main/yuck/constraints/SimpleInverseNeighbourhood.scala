@@ -11,15 +11,17 @@ import yuck.core.*
  * @author Michael Marte
  */
 final class SimpleInverseNeighbourhood
-    (space: Space, f: InverseFunction, g: InverseFunction, randomGenerator: RandomGenerator)
-    extends InverseNeighbourhood(space, f, g)
+    (override protected val space: Space,
+     f: InverseFunction,
+     g: InverseFunction,
+     randomGenerator: RandomGenerator)
+    extends InverseNeighbourhood(f, g)
 {
 
     require(f.xs.toSet.intersect(g.xs.toSet).isEmpty)
     require(f.xs.forall(x => x.domain == g.indexDomain))
     require(g.xs.forall(x => x.domain == f.indexDomain))
 
-    private val n = f.xs.size
     private val effects = Vector.fill(4)(new ReusableMoveEffect[IntegerValue])
 
     override def nextMove() = {

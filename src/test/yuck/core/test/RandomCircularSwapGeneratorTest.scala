@@ -22,15 +22,16 @@ final class RandomCircularSwapGeneratorTest
 
     private val domains = for (i <- 0 until numberOfVariables) yield IntegerRange(0, numberOfVariables - 1)
     private val (space, xs) = NeighbourhoodTestHelper.createSpace(logger, sigint, randomGenerator, domains)
+    val neighbourhood =
+        new RandomCircularSwapGenerator(
+            space, xs, randomGenerator, moveSizeDistribution, maybeHotSpotDistribution, maybeFairVariableChoiceRate)
     private val helper =
-        new NeighbourhoodTestHelper(logger, xs, moveSizeDistribution, maybeHotSpotDistribution, maybeFairVariableChoiceRate)
+        new NeighbourhoodTestHelper(
+            space, neighbourhood, xs, moveSizeDistribution, maybeHotSpotDistribution, maybeFairVariableChoiceRate, logger)
 
     @Test
     def testNeighbourhood(): Unit = {
-        val neighbourhood =
-            new RandomCircularSwapGenerator(
-                space, xs, randomGenerator, moveSizeDistribution, maybeHotSpotDistribution, maybeFairVariableChoiceRate)
-        val result = helper.measure(neighbourhood)
+        val result = helper.testMoveGeneration()
         helper.checkMoveSizeFrequencies(result, 0.1, 0)
         helper.checkVariableFrequencies(result, 0.1, 0)
     }

@@ -9,8 +9,11 @@ import yuck.core.*
  * @author Michael Marte
  */
 final class GeneralInverseNeighbourhood
-    (space: Space, f: InverseFunction, g: InverseFunction, randomGenerator: RandomGenerator)
-    extends InverseNeighbourhood(space, f, g)
+    (override protected val space: Space,
+     f: InverseFunction,
+     g: InverseFunction,
+     randomGenerator: RandomGenerator)
+    extends InverseNeighbourhood(f, g)
 {
 
     require(f.xs.toSet.intersect(g.xs.toSet).isEmpty)

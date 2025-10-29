@@ -21,7 +21,7 @@ final class GendreauBenchmark(task: ZincTestTask) extends ZincBasedTest {
 
     @Test
     def solve(): Unit = {
-        super.solve(task.copy(maybeMaximumNumberOfThreads = Some(1), keepFlatZincFile = false))
+        super.solve(task)
     }
 
 }

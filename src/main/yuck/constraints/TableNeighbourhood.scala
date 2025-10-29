@@ -10,7 +10,7 @@ import yuck.core.*
  */
 final class TableNeighbourhood
     [V <: Value[V]]
-    (space: Space,
+    (override protected val space: Space,
      xs: immutable.IndexedSeq[Variable[V]],
      rows: immutable.IndexedSeq[immutable.IndexedSeq[V]],
      randomGenerator: RandomGenerator)

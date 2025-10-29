@@ -10,6 +10,14 @@ abstract class VrpTestTaskFactory extends MiniZincTestTaskFactory {
 
     override protected val suitePath = "resources/mzn/tests/minizinc-benchmarks"
 
+    override protected val baseTask =
+        ZincTestTask(
+            solverConfiguration =
+                ZincTestTask().solverConfiguration.copy(
+                    numberOfSolvers = 1,
+                    maybeRuntimeLimitInSeconds = Some(60)),
+            keepFlatZincFile = false)
+
     protected final case class ObjectiveValue(value: Int, isOptimal: Boolean = false)
 
     protected val Results: Map[String, ObjectiveValue]

@@ -9,6 +9,8 @@ import scala.collection.*
  */
 abstract class Neighbourhood {
 
+    protected val space: Space
+
     /** Returns the variables that may occur in the moves produced by this neighbourhood. */
     def searchVariables: Set[AnyVariable]
 
@@ -27,5 +29,15 @@ abstract class Neighbourhood {
      * The default implementation does nothing.
      */
     def commit(move: Move): Unit = {}
+
+    /**
+     * Perturbs the assignment to the variables governed by this neighbourhood.
+     */
+    def perturb(perturbationProbability: Probability): Unit = {
+        val move = nextMove()
+        space.consult(move)
+        space.commit(move)
+        commit(move)
+    }
 
 }

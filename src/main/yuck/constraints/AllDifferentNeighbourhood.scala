@@ -12,7 +12,7 @@ import yuck.core.*
  */
 final class AllDifferentNeighbourhood
     [V <: Value[V]]
-    (space: Space,
+    (override protected val space: Space,
      xs: immutable.IndexedSeq[Variable[V]],
      exceptedValues: immutable.Set[V],
      randomGenerator: RandomGenerator,

@@ -13,7 +13,7 @@ import yuck.util.arm.scoped
  * @author Michael Marte
  */
 final class IntegerIncreasingNeighbourhood
-    (space: Space,
+    (override protected val space: Space,
      xs: immutable.IndexedSeq[IntegerVariable],
      strict: Boolean,
      randomGenerator: RandomGenerator,
@@ -55,8 +55,13 @@ final class IntegerIncreasingNeighbourhood
     private val frequencyRestorer = new FrequencyRestorer(moveSizeDistribution.size - 2)
 
     override def nextMove() = {
+        nextMove(true)
+    }
+
+    private def nextMove(biased: Boolean) = {
         val useUniformDistribution =
-            maybeHotSpotDistribution.isEmpty ||
+            ! biased ||
+                maybeHotSpotDistribution.isEmpty ||
                 maybeHotSpotDistribution.get.volume == 0 ||
                 (maybeFairVariableChoiceRate.isDefined && randomGenerator.nextDecision(maybeFairVariableChoiceRate.get))
         val priorityDistribution = if useUniformDistribution then uniformDistribution else maybeHotSpotDistribution.get
@@ -156,6 +161,13 @@ final class IntegerIncreasingNeighbourhood
             shift(i, distanceDistribution.nextIndex(randomGenerator))
             move
         }
+    }
+
+    override def perturb(perturbationProbability: Probability): Unit = {
+        val move = nextMove(false)
+        space.consult(move)
+        space.commit(move)
+        commit(move)
     }
 
 }

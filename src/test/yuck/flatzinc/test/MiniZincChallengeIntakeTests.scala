@@ -25,7 +25,7 @@ class MiniZincChallengeIntakeTests extends ZincBasedTest {
             directoryLayout = NonStandardMiniZincBenchmarksLayout,
             suitePath = "resources/mzn/tests/minizinc-challenge-intake-tests/tests",
             suiteName = "minizinc-challenge-intake-tests",
-            maybeRestartLimit = Some(0),
+            maybeNumberOfSolvers = Some(1),
             maybeRuntimeLimitInSeconds = Some(10),
             throwWhenUnsolved = true,
             reusePreviousTestResult = false,

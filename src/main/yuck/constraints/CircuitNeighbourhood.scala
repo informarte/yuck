@@ -12,7 +12,7 @@ import yuck.core.*
  * @author Michael Marte
  */
 final class CircuitNeighbourhood
-    (space: Space,
+    (override protected val space: Space,
      succ: immutable.IndexedSeq[IntegerVariable], offset: Int,
      randomGenerator: RandomGenerator)
     extends Neighbourhood

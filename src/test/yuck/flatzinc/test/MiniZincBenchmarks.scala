@@ -189,7 +189,7 @@ object MiniZincBenchmarks extends MiniZincTestTaskFactory {
     private def amendTask(task: ZincTestTask): ZincTestTask = {
         val summary = summaryByTask(task)
         if summary.maybeSatisfiable == Some(false)
-        then task.copy(maybeRestartLimit = Some(0), maybeRoundLimit = Some(0))
+        then task.copy(maybeNumberOfSolvers = Some(1), maybeRoundLimit = Some(0))
         else if summary.maybeOptimum.isDefined
         then task.copy(maybeOptimum = summary.maybeOptimum)
         else if summary.maybeHighScore.isDefined
