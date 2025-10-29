@@ -69,9 +69,9 @@ object FlatZincRunner extends YuckLogging {
         opt[Long]('r', "seed")
             .text("Default value is %s".format(defaultCfg.seed))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(seed = x)))
-        opt[Int]("restart-limit")
-            .text("Default value is %s".format(defaultCfg.restartLimit))
-            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(restartLimit = max(0, x))))
+        opt[Int]("number-of-solvers")
+            .text("Default value is %s".format(defaultCfg.numberOfSolvers))
+            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(numberOfSolvers = max(1, x))))
         opt[Int]("target-objective-value")
             .text("Optional stopping criterion in terms of an objective value")
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(maybeTargetObjectiveValue = Some(x))))
@@ -227,7 +227,7 @@ object FlatZincRunner extends YuckLogging {
             scoped(new ManagedThread(resultPrinterThread, logger)) {
                 logger.withTimedLogScope("Solving problem") {
                     scoped(monitor) {
-                        new FlatZincSolverGenerator(ast, cl.cfg, sigint, logger, monitor).call().call()
+                        new FlatZincSolverGenerator(ast, cl.cfg, monitor, logger, sigint).call().call()
                     }
                 }
             }

@@ -92,6 +92,10 @@ final class AnnealingEventLogger(logger: LazyLogger) extends AnnealingMonitor {
         }
     }
 
+    override def onObjectiveTightened(x: AnyVariable) = {
+        logger.logg("Reduced domain of objective variable %s to %s".format(x, x.domain))
+    }
+
     override def onReheatingStarted(result: AnnealingResult) = {
         val roundLog = result.roundLogs.last
         logger.logg(
@@ -106,8 +110,9 @@ final class AnnealingEventLogger(logger: LazyLogger) extends AnnealingMonitor {
                 result.roundLogs.size, roundLog.uphillAcceptanceRatio, roundLog.temperature))
     }
 
-    override def onObjectiveTightened(x: AnyVariable) = {
-        logger.logg("Reduced domain of objective variable %s to %s".format(x, x.domain))
+    override def onScheduleRestarted(result: AnnealingResult) = {
+        val roundLog = result.roundLogs.last
+        logger.logg("Schedule restarted after round %d".format(result.roundLogs.size))
     }
 
     private def logStatistics(result: AnnealingResult): Unit = {

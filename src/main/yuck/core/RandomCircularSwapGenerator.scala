@@ -30,7 +30,7 @@ import scala.collection.*
  */
 final class RandomCircularSwapGenerator
     [V <: Value[V]]
-    (space: Space,
+    (override protected val space: Space,
      xs: immutable.IndexedSeq[Variable[V]],
      randomGenerator: RandomGenerator,
      moveSizeDistribution: Distribution,
@@ -113,6 +113,20 @@ final class RandomCircularSwapGenerator
         }
         swapValues(swap)
         new ChangeValues(space.nextMoveId(), swap)
+    }
+
+    override def perturb(perturbationProbability: Probability) = {
+        require(perturbationProbability.value > 0)
+        val move = new BulkMove(space.nextMoveId())
+        while (move.isEmpty) {
+            for (x <- xs) {
+                if (randomGenerator.nextDecision(perturbationProbability)) {
+                    move += x.nextRandomMoveEffect(space, randomGenerator)
+                }
+            }
+        }
+        space.consult(move)
+        space.commit(move)
     }
 
 }

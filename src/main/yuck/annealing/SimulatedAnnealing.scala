@@ -6,33 +6,38 @@ import yuck.core.*
 import yuck.util.arm.Sigint
 
 /**
- * Executes the search strategy defined by the given annealing schedule
- * and the given neighbourhood.
+ * Starts the given annealing schedule with the given temperature and then executes
+ * the search strategy defined by the schedule and the given neighbourhood.
  *
- * Terminates when the given objective is reached, the given annealing schedule
- * freezes up, or when the optional round limit is reached.
+ * Terminates when the given objective is reached or when the optional round limit
+ * is reached.
+ *
+ * When the schedules freezes up, the current assignment is perturbed and the schedule
+ * is restarted with the given restart temperature.
  *
  * Keeps track of the best proposal and restores it upon interruption or termination.
- *
- * Supports the propagation of the bounds established by progressive tightening.
- * Notice that bound propagation may prove optimality and that, in such a case, the underlying
- * space might be left unusable due to variables with empty domains.
  *
  * @author Michael Marte
  */
 final class SimulatedAnnealing(
     override val name: String,
     space: Space,
-    schedule: AnnealingSchedule,
-    neighbourhood: Neighbourhood,
-    randomGenerator: RandomGenerator,
     objective: AnyObjective,
+    neighbourhood: Neighbourhood,
+    schedule: AnnealingSchedule,
+    startTemperature: Double,
+    restartTemperature: Double,
+    restartPerturbationProbability: Probability,
+    randomGenerator: RandomGenerator,
     maybeRoundLimit: Option[Int],
     maybeMonitor: Option[AnnealingMonitor],
     maybeUserData: Option[Object],
     sigint: Sigint)
     extends Solver
 {
+
+    require(restartPerturbationProbability.value > 0)
+
     private var roundCount = 0
     private var temperature = 0.0
     private var heatingPhase = false
@@ -43,22 +48,23 @@ final class SimulatedAnnealing(
     private var costsOfBestProposal: Costs = null
     private var proposalBeforeSuspension: SearchState = null
     private val roundLogs = new mutable.ArrayBuffer[RoundLog]
+    private var numberOfPerturbations = 0
 
     {
         space.initialize()
         costsOfCurrentProposal = objective.costs(currentProposal)
         bestProposal = currentProposal.clone
         costsOfBestProposal = costsOfCurrentProposal
+        schedule.start(startTemperature, 0)
     }
 
     private def wasInterrupted = sigint.isSet
 
     override def hasFinished =
         (maybeRoundLimit.isDefined && roundCount >= maybeRoundLimit.get) ||
-        schedule.isFrozen ||
         objective.isGoodEnough(costsOfBestProposal)
 
-    override def call()  =
+    override def call() =
         if (hasFinished) {
             val result = createResult()
             if (roundCount == 0 && maybeMonitor.isDefined) {
@@ -76,8 +82,13 @@ final class SimulatedAnnealing(
 
     private def start(): AnnealingResult = {
         if (maybeMonitor.isDefined) {
-            val monitor = maybeMonitor.get
-            monitor.onSolverLaunched(createResult())
+            maybeMonitor.get.onSolverLaunched(createResult())
+        }
+        if (objective.isSolution(currentProposal)) {
+            // Sometimes the initial assignment is a solution.
+            objective.findActualObjectiveValue(space)
+            costsOfCurrentProposal = objective.costs(currentProposal)
+            tightenObjective()
         }
         anneal()
         createResult()
@@ -98,6 +109,9 @@ final class SimulatedAnnealing(
         // main annealing loop
         while (! wasInterrupted && ! hasFinished) {
             nextRound()
+            if (schedule.isFrozen) {
+                restart()
+            }
         }
 
         // book-keeping
@@ -133,6 +147,7 @@ final class SimulatedAnnealing(
                         if (maybeMonitor.isDefined) {
                             maybeMonitor.get.onReheatingFinished(createResult())
                         }
+                        numberOfPerturbations += 1
                     }
                 } else if (! heatingPhase) {
                     heatingPhase = true
@@ -219,6 +234,10 @@ final class SimulatedAnnealing(
             roundLog.bestProposalWasImproved = true
             costsOfBestProposal = costsOfCurrentProposal
             bestProposal = currentProposal.clone
+            if (maybeMonitor.isDefined) {
+                maybeMonitor.get.onBetterProposal(createResult())
+            }
+            tightenObjective()
         }
         val tightenedVariables = objective.tighten(space)
         if (maybeMonitor.isDefined) {
@@ -226,10 +245,34 @@ final class SimulatedAnnealing(
                 maybeMonitor.get.onObjectiveTightened(x)
             }
         }
+    }
+
+    private def restart(): Unit = {
+        neighbourhood.perturb(restartPerturbationProbability)
+        numberOfPerturbations += 1
+        objective.findActualObjectiveValue(space)
         costsOfCurrentProposal = objective.costs(currentProposal)
-        if (bestProposalWasImproved && maybeMonitor.isDefined) {
-            maybeMonitor.get.onBetterProposal(createResult())
+        if (objective.isLowerThan(costsOfCurrentProposal, costsOfBestProposal)) {
+            costsOfBestProposal = costsOfCurrentProposal
+            bestProposal = currentProposal.clone
+            if (maybeMonitor.isDefined) {
+                maybeMonitor.get.onBetterProposal(createResult())
+            }
+            tightenObjective()
         }
+        schedule.start(restartTemperature, 0)
+        if (maybeMonitor.isDefined) {
+            maybeMonitor.get.onScheduleRestarted(createResult())
+        }
+    }
+
+    private def tightenObjective(): Unit = {
+        val tightenedVariables = objective.tighten(space)
+        if (maybeMonitor.isDefined) {
+            val monitor = maybeMonitor.get
+            tightenedVariables.foreach(monitor.onObjectiveTightened)
+        }
+        costsOfCurrentProposal = objective.costs(currentProposal)
     }
 
     private def createResult(): AnnealingResult =

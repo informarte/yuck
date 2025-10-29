@@ -136,13 +136,13 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint], classOf[HasCumulativeConstraint], classOf[HasDiffnConstraint], classOf[HasMaximumConstraint], classOf[HasMinimumConstraint], classOf[HasTableConstraint]))
     def code_generator_mips_gcc_cfgbuild_control_flow_insn_p(): Unit = {
-        solve(task.copy(problemName = "code-generator", modelName = "unison", instanceName = "mips_gcc.cfgbuild.control_flow_insn_p", maybeMaximumNumberOfThreads = Some(1), maybeOptimum = Some(274663947)))
+        solve(task.copy(problemName = "code-generator", modelName = "unison", instanceName = "mips_gcc.cfgbuild.control_flow_insn_p", maybeNumberOfSolvers = Some(1), maybeOptimum = Some(274663947)))
     }
 
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def collaborative_construction_37(): Unit = {
-        solve(task.copy(problemName = "collaborative-construction", modelName = "macc", instanceName = "37", maybeMaximumNumberOfThreads = Some(1), maybeOptimum = Some(9)))
+        solve(task.copy(problemName = "collaborative-construction", modelName = "macc", instanceName = "37", maybeNumberOfSolvers = Some(1), maybeOptimum = Some(9)))
     }
 
     @Test
@@ -402,7 +402,7 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint]))
     def ma_path_finding_ins_g16_p10_a10(): Unit = {
-        solve(task.copy(problemName = "ma-path-finding", modelName = "mapf", instanceName = "ins_g16_p10_a10", maybeOptimum = Some(112), maybeMaximumNumberOfThreads = Some(1)))
+        solve(task.copy(problemName = "ma-path-finding", modelName = "mapf", instanceName = "ins_g16_p10_a10", maybeOptimum = Some(112), maybeNumberOfSolvers = Some(1)))
     }
 
     @Test
@@ -522,7 +522,7 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Test
     @Category(Array(classOf[MaximizationProblem], classOf[HasCumulativeConstraint], classOf[HasGlobalCardinalityConstraint]))
     def nside_EASY_200_50(): Unit = {
-        solve(task.copy(problemName = "nside", modelName = "full", instanceName = "EASY_200_50", maybeOptimum = Some(2916), maybeMaximumNumberOfThreads = Some(2)))
+        solve(task.copy(problemName = "nside", modelName = "full", instanceName = "EASY_200_50", maybeOptimum = Some(2916), maybeNumberOfSolvers = Some(2)))
     }
 
     @Test
@@ -710,7 +710,7 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def road_cons_17(): Unit = {
-        solve(task.copy(problemName = "road-cons", modelName = "road_naive", instanceName = "road_17", maybeMaximumNumberOfThreads = Some(1), maybeOptimum = Some(13560)))
+        solve(task.copy(problemName = "road-cons", modelName = "road_naive", instanceName = "road_17", maybeNumberOfSolvers = Some(1), maybeOptimum = Some(13560)))
     }
 
     // The original problem definition was buggy and hence trivial,

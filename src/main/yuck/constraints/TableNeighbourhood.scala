@@ -10,7 +10,7 @@ import yuck.core.*
  */
 final class TableNeighbourhood
     [V <: Value[V]]
-    (space: Space,
+    (override protected val space: Space,
      xs: immutable.IndexedSeq[Variable[V]],
      rows: immutable.IndexedSeq[immutable.IndexedSeq[V]],
      randomGenerator: RandomGenerator)
@@ -53,6 +53,13 @@ final class TableNeighbourhood
 
     override def commit(move: Move) = {
         currentRowIndex = nextRowIndex
+    }
+
+    override def perturb(perturbationProbability: Probability) = {
+        val move = nextMove()
+        space.consult(move)
+        space.commit(move)
+        commit(move)
     }
 
 }

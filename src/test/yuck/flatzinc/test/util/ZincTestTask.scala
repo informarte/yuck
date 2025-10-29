@@ -52,7 +52,7 @@ enum VerificationTool {
  */
 final case class ZincTestTask(
     sourceFormat: SourceFormat = SourceFormat.MiniZinc,
-    directoryLayout: TestDataDirectoryLayout,
+    directoryLayout: TestDataDirectoryLayout = TestDataDirectoryLayout.StandardMiniZincBenchmarksLayout,
     suitePath: String = "",
     suiteName: String = "",
     problemName: String = "",
@@ -60,12 +60,15 @@ final case class ZincTestTask(
     instanceName: String = "",
     dataAssignments: Map[String, String] = Map[String, String](),
     solverConfiguration: FlatZincSolverConfiguration =
-        FlatZincSolverConfiguration(checkAssignmentsToNonChannelVariables = true),
-    maybeRestartLimit: Option[Int] = None, // limits solverConfiguration.restartLimit
-    maybeMaximumNumberOfThreads: Option[Int] = Some(DefaultNumberOfThreads), // limits solverConfiguration.numberOfThreads
-    maybeRoundLimit: Option[Int] = None, // overrules solverConfiguration.maybeRoundLimitInSeconds
-    maybeRuntimeLimitInSeconds: Option[Int] = Some(DefaultRuntimeLimitInSeconds), // overrules solverConfiguration.maybeRuntimeLimitInSeconds
-    maybeOptimum: Option[Long] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
+        FlatZincSolverConfiguration(
+            numberOfSolvers = DefaultNumberOfThreads,
+            numberOfThreads = DefaultNumberOfThreads,
+            maybeRuntimeLimitInSeconds = Some(DefaultRuntimeLimitInSeconds),
+            checkAssignmentsToNonChannelVariables = true),
+    maybeNumberOfSolvers: Option[Int] = None, // overrides solverConfiguration.numberOfSolvers if set
+    maybeRoundLimit: Option[Int] = None, // overrides solverConfiguration.maybeRoundLimit if set
+    maybeRuntimeLimitInSeconds: Option[Int] = None, // overrules solverConfiguration.maybeRuntimeLimitInSeconds if set (disabling timeboxing is not supported by design)
+    maybeOptimum: Option[Long] = None, // overrules solverConfiguration.maybeTargetObjectiveValue if set
     maybeHighScore: Option[Long] = None, // best ever recorded objective value
     maybeTargetObjectiveValue: Option[Long] = None, // overrules solverConfiguration.maybeTargetObjectiveValue
     logLevel: LogLevel = LogLevel.InfoLogLevel,

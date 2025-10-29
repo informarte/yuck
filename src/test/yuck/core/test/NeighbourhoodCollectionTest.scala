@@ -41,7 +41,10 @@ class NeighbourhoodCollectionTest
 
     @Test
     def testCommitForwarding(): Unit = {
-        final class CommitChecker(neighbourhood: Neighbourhood) extends Neighbourhood {
+        final class CommitChecker
+            (override protected val space: Space, neighbourhood: Neighbourhood)
+            extends Neighbourhood
+        {
             var lastMove: Move = null
             override def searchVariables = neighbourhood.searchVariables
             override def children = neighbourhood.children
@@ -59,7 +62,7 @@ class NeighbourhoodCollectionTest
         }
         val neighbourhoods =
             for (i <- 0 until numberOfVariables) yield
-                new CommitChecker(new SimpleRandomReassignmentGenerator(space, Vector(xs(i)), randomGenerator))
+                new CommitChecker(space, new SimpleRandomReassignmentGenerator(space, Vector(xs(i)), randomGenerator))
         val neighbourhood =
             new NeighbourhoodCollection(
                 space, neighbourhoods, randomGenerator,

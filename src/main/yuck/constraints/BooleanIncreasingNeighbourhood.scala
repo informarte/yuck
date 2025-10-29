@@ -11,7 +11,7 @@ import yuck.core.*
  * @author Michael Marte
  */
 final class BooleanIncreasingNeighbourhood
-    (space: Space,
+    (override protected val space: Space,
      xs: immutable.IndexedSeq[BooleanVariable],
      randomGenerator: RandomGenerator,
      moveSizeDistribution: Distribution)

@@ -45,7 +45,7 @@ class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean, verificationFrequ
                 directoryLayout = MiniZincExamplesLayout,
                 suitePath = "resources/mzn/tests/test-util-tests",
                 problemName = "verification-test",
-                solverConfiguration = FlatZincSolverConfiguration(restartLimit = 0, pruneConstraintNetwork = false),
+                solverConfiguration = FlatZincSolverConfiguration(numberOfSolvers = 1, pruneConstraintNetwork = false),
                 maybeRuntimeLimitInSeconds = Some(10),
                 throwWhenUnsolved = true,
                 reusePreviousTestResult = false,

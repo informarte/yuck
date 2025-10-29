@@ -100,7 +100,7 @@ final class SummaryBuilder {
         val cfgNode =
             JsObjectBuilder(
                 "seed" -> JsNumber(cfg.seed),
-                "restart-limit" -> JsNumber(cfg.restartLimit),
+                "number-of-solvers" -> JsNumber(cfg.numberOfSolvers),
                 "number-of-threads" -> JsNumber(cfg.numberOfThreads),
                 "focus-on-top-objective" -> JsBoolean(cfg.focusOnTopObjective),
                 "stop-on-first-solution" -> JsBoolean(cfg.stopOnFirstSolution),

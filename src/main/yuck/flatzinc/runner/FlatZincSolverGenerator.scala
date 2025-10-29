@@ -15,9 +15,9 @@ import yuck.util.logging.LazyLogger
 final class FlatZincSolverGenerator
     (ast: FlatZincAst,
      cfg: FlatZincSolverConfiguration,
-     sigint: SettableSigint,
+     monitor: AnnealingMonitor,
      logger: LazyLogger,
-     monitor: AnnealingMonitor)
+     sigint: SettableSigint)
     extends SolverGenerator
 {
 
@@ -45,7 +45,7 @@ final class FlatZincSolverGenerator
     }
 
     private final class BaseSolverGenerator
-        (randomGenerator: RandomGenerator, solverIndex: Int)
+        (solverIndex: Int, randomGenerator: RandomGenerator)
         extends SolverGenerator
     {
         override def solverName = "FZS-%d".format(solverIndex)
@@ -65,17 +65,18 @@ final class FlatZincSolverGenerator
                 val n = neighbourhood.searchVariables.size
                 val scheduleFactory = new StandardAnnealingScheduleFactory(n, randomGenerator.nextGen())
                 val schedule = scheduleFactory.createHybridSchedule
-                schedule.start(
-                    if compilerResult.performWarmStart then cfg.warmStartTemperature else cfg.startTemperature,
-                    0)
-                logger.log("Start temperature: %s".format(schedule.temperature))
+                val startTemperature =
+                    if compilerResult.performWarmStart then cfg.warmStartTemperature else cfg.startTemperature
+                logger.log("Start temperature: %s".format(startTemperature))
                 new SimulatedAnnealing(
                     solverName,
                     space,
-                    schedule,
-                    neighbourhood,
-                    randomGenerator.nextGen(),
                     compilerResult.objective,
+                    neighbourhood,
+                    schedule,
+                    startTemperature, cfg.startTemperature,
+                    cfg.perturbationProbability,
+                    randomGenerator.nextGen(),
                     cfg.maybeRoundLimit,
                     Some(monitor),
                     Some(compilerResult),
@@ -87,9 +88,9 @@ final class FlatZincSolverGenerator
     override def call() = {
         val randomGenerator = new JavaRandomGenerator(cfg.seed)
         val solvers =
-            for (i <- 1 to 1 + cfg.restartLimit) yield
+            for (i <- 1 to cfg.numberOfSolvers) yield
                 new OnDemandGeneratedSolver(
-                    new BaseSolverGenerator(randomGenerator.nextGen(), i),
+                    new BaseSolverGenerator(i, randomGenerator.nextGen()),
                     logger,
                     sigint)
         val solver =

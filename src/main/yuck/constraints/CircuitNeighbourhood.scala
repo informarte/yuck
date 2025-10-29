@@ -12,7 +12,7 @@ import yuck.core.*
  * @author Michael Marte
  */
 final class CircuitNeighbourhood
-    (space: Space,
+    (override protected val space: Space,
      succ: immutable.IndexedSeq[IntegerVariable], offset: Int,
      randomGenerator: RandomGenerator)
     extends Neighbourhood
@@ -251,6 +251,13 @@ final class CircuitNeighbourhood
             case exchange: PathReversal => performPathReversal(exchange)
             case EmptyMove() =>
         }
+    }
+
+    final override def perturb(perturbationProbability: Probability) = {
+        val move = nextMove()
+        space.consult(move)
+        space.commit(move)
+        commit(move)
     }
 
 }

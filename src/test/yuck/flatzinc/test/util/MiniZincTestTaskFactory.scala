@@ -23,6 +23,7 @@ abstract class MiniZincTestTaskFactory {
 
     protected val suitePath: String
     protected val maybeNumberOfInstancesPerProblem: Option[Int] = None
+    protected val baseTask: ZincTestTask = ZincTestTask()
 
     private def listFiles(base: File, fileFilter: File => Boolean, recursive: Boolean = true): Seq[File] = {
         val files = base.listFiles.toSeq
@@ -51,7 +52,7 @@ abstract class MiniZincTestTaskFactory {
                     randomGenerator.shuffle(modelFiles).take(maybeNumberOfInstancesPerProblem.getOrElse(modelFiles.size)).sorted
                 for (modelFile <- modelFileSelection) {
                     buf +=
-                        ZincTestTask(
+                        baseTask.copy(
                             directoryLayout = NonStandardMiniZincBenchmarksLayout,
                             suitePath = suitePath,
                             problemName = problem.getName,
@@ -63,7 +64,7 @@ abstract class MiniZincTestTaskFactory {
                 for (modelFile <- modelFiles) {
                     for (dataFile <- dataFileSelection) {
                         buf +=
-                            ZincTestTask(
+                            baseTask.copy(
                                 directoryLayout = StandardMiniZincBenchmarksLayout,
                                 suitePath = suitePath,
                                 problemName = problem.getName,

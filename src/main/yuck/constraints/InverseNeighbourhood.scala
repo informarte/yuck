@@ -7,11 +7,12 @@ import yuck.core._
  *
  */
 abstract class InverseNeighbourhood
-    (protected val space: Space,
-     protected val f: InverseFunction,
+    (protected val f: InverseFunction,
      protected val g: InverseFunction)
     extends Neighbourhood
 {
+
+    protected val n = f.xs.size
 
     protected final def value(x: IntegerVariable): IntegerValue = space.searchState.value(x)
     protected final def rawValue(x: IntegerVariable): Int = value(x).toInt

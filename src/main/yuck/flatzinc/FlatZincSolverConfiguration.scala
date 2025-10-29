@@ -1,6 +1,6 @@
 package yuck.flatzinc
 
-import yuck.annealing.{DefaultStartTemperature, DefaultWarmStartTemperature}
+import yuck.annealing.{DefaultPerturbationProbability, DefaultStartTemperature, DefaultWarmStartTemperature}
 import yuck.core.profiling.SpaceProfilingMode
 import yuck.core.{Constraint, DefaultRestartLimit, DefaultSeed, Distribution, Probability}
 
@@ -25,7 +25,7 @@ final case class FlatZincSolverConfiguration(
     maybeName: Option[String] = None,
     attachGoals: Boolean = false,
     seed: Long = DefaultSeed,
-    restartLimit: Int = DefaultRestartLimit,
+    numberOfSolvers: Int = 1,
     numberOfThreads: Int = Runtime.getRuntime.availableProcessors,
     maybeRoundLimit: Option[Int] = None,
     maybeRuntimeLimitInSeconds: Option[Int] = None,
@@ -42,12 +42,13 @@ final case class FlatZincSolverConfiguration(
     delayCycleCheckingUntilInitialization: Boolean = false,
     startTemperature: Double = DefaultStartTemperature,
     warmStartTemperature: Double = DefaultWarmStartTemperature,
+    perturbationProbability: Probability = DefaultPerturbationProbability,
     maybeSpaceProfilingMode: Option[SpaceProfilingMode] = None,
     moveSizeDistribution: Distribution = Distribution(1, List(90, 10)),
     topLevelConfiguration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, true, Some(Probability(9))),
     subordinateLevelConfiguration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(false, true, Some(Probability(13))))
 {
-    require(restartLimit >= 0)
+    require(numberOfSolvers > 0)
     require(numberOfThreads > 0)
     require(maybeRoundLimit.getOrElse(0) >= 0)
     require(maybeRuntimeLimitInSeconds.getOrElse(0) >= 0)

@@ -1,6 +1,6 @@
 package yuck
 
-import yuck.core.Distribution
+import yuck.core.{Distribution, Probability}
 
 /**
  * @author Michael Marte
@@ -17,5 +17,6 @@ package object annealing {
     val DefaultMinimumUphillAcceptanceRatio = 0.0001
     val DefaultHeatingRate = 1.2
     val DefaultCoolingRate = 0.95
+    val DefaultPerturbationProbability = Probability(0.5)
 
 }

@@ -26,13 +26,13 @@ import yuck.util.arm.scoped
  *
  * @author Michael Marte
  */
-final class NeighbourhoodCollection(
-    space: Space,
-    neighbourhoods: immutable.IndexedSeq[Neighbourhood],
-    randomGenerator: RandomGenerator,
-    maybeSelectionSizeDistribution: Option[Distribution],
-    maybeHotSpotDistribution: Option[Distribution],
-    maybeFairChoiceRate: Option[Probability])
+final class NeighbourhoodCollection
+    (override protected val space: Space,
+     neighbourhoods: immutable.IndexedSeq[Neighbourhood],
+     randomGenerator: RandomGenerator,
+     maybeSelectionSizeDistribution: Option[Distribution],
+     maybeHotSpotDistribution: Option[Distribution],
+     maybeFairChoiceRate: Option[Probability])
     extends Neighbourhood
 {
 
@@ -88,6 +88,12 @@ final class NeighbourhoodCollection(
     override def commit(move: Move) = {
         for ((neighbourhood, move) <- lastProposals) {
             neighbourhood.commit(move)
+        }
+    }
+
+    final override def perturb(perturbationProbability: Probability) = {
+        for (neighbourhood <- neighbourhoods) {
+            neighbourhood.perturb(perturbationProbability)
         }
     }
 
