@@ -2,8 +2,7 @@ package yuck.flatzinc.util
 
 import java.util.concurrent.atomic.AtomicReference
 
-import yuck.annealing.{AnnealingMonitor, AnnealingResult}
-import yuck.core.Costs
+import yuck.core.{Costs, Result, SolverMonitor}
 
 /**
  * Tracks solvers in order to update the cost vector of the best solution seen so far.
@@ -11,9 +10,9 @@ import yuck.core.Costs
  * @author Michael Marte
  *
  */
-final class SharedBoundMaintainer(holder: AtomicReference[Costs]) extends AnnealingMonitor {
+final class SharedBoundMaintainer(holder: AtomicReference[Costs]) extends SolverMonitor {
 
-    override def onBetterProposal(result: AnnealingResult) = {
+    override def onBetterProposal(result: Result) = {
         if (result.isSolution) {
             holder.accumulateAndGet(
                 result.costsOfBestProposal,

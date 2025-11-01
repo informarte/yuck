@@ -8,7 +8,6 @@ import scala.language.implicitConversions
 import spray.json.*
 
 import yuck.BuildInfo
-import yuck.annealing.AnnealingStatisticsCollector
 import yuck.core.*
 import yuck.core.profiling.{ConstraintPerformanceMetrics, SpacePerformanceMetrics}
 import yuck.flatzinc.FlatZincSolverConfiguration
@@ -99,6 +98,7 @@ final class SummaryBuilder {
     def addSolverConfiguration(cfg: FlatZincSolverConfiguration): SummaryBuilder = {
         val cfgNode =
             JsObjectBuilder(
+                "name" -> JsString(cfg.name),
                 "seed" -> JsNumber(cfg.seed),
                 "number-of-solvers" -> JsNumber(cfg.numberOfSolvers),
                 "number-of-threads" -> JsNumber(cfg.numberOfThreads),
@@ -107,13 +107,13 @@ final class SummaryBuilder {
                 "optimize-array-access" -> JsBoolean(cfg.optimizeArrayAccess),
                 "prune-constraint-network" -> JsBoolean(cfg.pruneConstraintNetwork),
                 "run-presolver" -> JsBoolean(cfg.runPresolver),
-                "use-implicit-solving" -> JsBoolean(cfg.useImplicitSolving),
+                "use-implicit-solving" -> JsBoolean(cfg.annealingConfiguration.useImplicitSolving),
                 "use-progressive-tightening" -> JsBoolean(cfg.useProgressiveTightening),
                 "check-assignments-to-non-channel-variables" -> JsBoolean(cfg.checkAssignmentsToNonChannelVariables),
                 "delay-cycle-checking-until-initialization" -> JsBoolean(cfg.delayCycleCheckingUntilInitialization)
             )
-        if (cfg.maybeRoundLimit.isDefined) {
-            cfgNode += "round-limit" -> JsNumber(cfg.maybeRoundLimit.get)
+        if (cfg.annealingConfiguration.maybeRoundLimit.isDefined) {
+            cfgNode += "round-limit" -> JsNumber(cfg.annealingConfiguration.maybeRoundLimit.get)
         }
         if (cfg.maybeRuntimeLimitInSeconds.isDefined) {
             cfgNode += "runtime-limit-in-seconds" -> JsNumber(cfg.maybeRuntimeLimitInSeconds.get)
@@ -194,16 +194,16 @@ final class SummaryBuilder {
         this
     }
 
-    def addSearchStatistics(monitor: AnnealingStatisticsCollector): SummaryBuilder = {
+    def addSearchStatistics(monitor: LocalSearchStatisticsCollector): SummaryBuilder = {
         val statsNode =
             if (monitor.wasSearchRequired) {
                 JsObjectBuilder(
-                    "number-of-restarts" -> JsNumber(monitor.numberOfRestarts),
                     "moves-per-second" -> JsNumber(monitor.movesPerSecond),
                     "consultations-per-second" -> JsNumber(monitor.consultationsPerSecond),
                     "consultations-per-move" -> JsNumber(monitor.consultationsPerMove),
                     "commitments-per-second" -> JsNumber(monitor.commitmentsPerSecond),
-                    "commitments-per-move" -> JsNumber(monitor.commitmentsPerMove)
+                    "commitments-per-move" -> JsNumber(monitor.commitmentsPerMove),
+                    "number-of-perturbations" -> JsNumber(monitor.numberOfPerturbations)
                 )
             } else {
                 JsObjectBuilder()

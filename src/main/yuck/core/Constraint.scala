@@ -101,7 +101,7 @@ abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
         space: Space,
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution = Distribution(1, List(1)),
-        createHotSpotDistribution: Seq[AnyVariable] => Option[Distribution] = _ => None,
+        createHotSpotDistribution: IndexedSeq[AnyVariable] => Option[Distribution] = _ => None,
         maybeFairVariableChoiceRate: Option[Probability] = None):
         Option[Neighbourhood] =
         None

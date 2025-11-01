@@ -39,7 +39,7 @@ final class BasicNumericalConstraintsTest extends UnitTest {
         assertEq(now.value(u), Three)
         assertEq(now.value(w), Four)
         val move = new ChangeValue(space.nextMoveId(), s, Two)
-        val after = space.consult(move)
+        val after: SearchState = space.consult(move)
         assertEq(after.value(u), Four)
         assertEq(after.value(w), Five)
         space.commit(move)

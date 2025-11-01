@@ -40,7 +40,7 @@ def plotDiagrams(runs, getValues, title, xlabel, legendLocation):
     fig.suptitle(title, fontsize = 'x-large')
     reverselySortedRuns = sorted(runs, reverse = True)
     values = [getValues(run) for run in reverselySortedRuns]
-    ax1.hist(values, bins = 25, histtype = 'step', cumulative = False, label = reverselySortedRuns)
+    ax1.hist(values, bins = 100, histtype = 'step', cumulative = False, label = reverselySortedRuns)
     ax2.hist(values, bins = 1000, histtype = 'step', cumulative = True, label = reverselySortedRuns)
     ax3.boxplot([getValues(run) for run in reverselySortedRuns], vert = False, labels = reverselySortedRuns, showmeans = True)
     ax1.grid(True)

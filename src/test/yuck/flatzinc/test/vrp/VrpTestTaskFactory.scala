@@ -1,6 +1,7 @@
 package yuck.flatzinc.test.vrp
 
-import yuck.flatzinc.test.util.{ZincTestTask, MiniZincTestTaskFactory}
+import yuck.SolvingMethod
+import yuck.flatzinc.test.util.{MiniZincTestTaskFactory, ZincTestTask}
 
 /**
  * @author Michael Marte
@@ -15,6 +16,7 @@ abstract class VrpTestTaskFactory extends MiniZincTestTaskFactory {
             solverConfiguration =
                 ZincTestTask().solverConfiguration.copy(
                     numberOfSolvers = 1,
+                    maybePreferredSolvingMethod = Some(SolvingMethod.SimulatedAnnealing),
                     maybeRuntimeLimitInSeconds = Some(60)),
             keepFlatZincFile = false)
 

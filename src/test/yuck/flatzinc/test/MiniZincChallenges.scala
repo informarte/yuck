@@ -2,8 +2,8 @@ package yuck.flatzinc.test
 
 import org.junit.*
 import org.junit.experimental.categories.*
-import org.junit.experimental.categories.Categories.*
 
+import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.test.util.*
 import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 import yuck.flatzinc.test.util.VerificationFrequency.*
@@ -34,7 +34,8 @@ final class MiniZincChallenges extends ZincBasedTest {
             directoryLayout = StandardMiniZincBenchmarksLayout,
             suitePath = "resources/mzn/tests/minizinc-benchmarks",
             suiteName = "minizinc-challenges",
-            maybeRuntimeLimitInSeconds = Some(150))
+            maybeRuntimeLimitInSeconds = Some(150),
+            reusePreviousTestResult = true)
 
     @Test
     @Category(Array(classOf[MinimizationProblem], classOf[HasDiffnConstraint]))

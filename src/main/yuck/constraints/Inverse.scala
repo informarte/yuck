@@ -230,7 +230,7 @@ final class Inverse
         space: Space,
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
-        createHotSpotDistribution: Seq[AnyVariable] => Option[Distribution],
+        createHotSpotDistribution: IndexedSeq[AnyVariable] => Option[Distribution],
         maybeFairVariableChoiceRate: Option[Probability]):
         Option[Neighbourhood] =
     {

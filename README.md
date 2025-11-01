@@ -104,6 +104,7 @@ env JAVA_OPTS=-Xmx4g yuck zebra.fzn
 
 * Yuck's approach to problem solving is comparable to Comet [HM05] and OscaR/CBLS [BMFP15].
 * Yuck implements simulated annealing along with some basic annealing schedules and some schedule combinators.
+* Yuck implements a generalized version of the Feasibility Jump heuristic (inspired by [DDL24]).
 * Yuck supports lexicographic cost functions with both minimization and maximization goals.
 * Yuck allows to timebox and parallelize solvers by means of solver combinators.
 * Yuck supports the interruption and the resumption of solvers to facilitate the presentation of intermediate results.
@@ -473,3 +474,5 @@ In addition, the following rules apply:
 [BMFP15] G. Björdal, J.-N. Monette, P. Flener, and J. Pearson. A Constraint-Based Local Search Backend for MiniZinc. Constraints, 20(3):325-345, 2015.
 
 [HM05] P. V. Hentenryck and L. Michel. Constraint-Based Local Search. MIT Press, 2005.
+
+[DDL24] T. O. Davies, F. Didier, and L. Perron. ViolationLS: Constraint-Based Local Search in CP-SAT. LNCS 14742, 243-257, 2024.

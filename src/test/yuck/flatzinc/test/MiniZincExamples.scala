@@ -6,8 +6,10 @@ import org.junit.experimental.categories.Categories.*
 import org.junit.runner.RunWith
 import org.junit.runners.Suite.SuiteClasses
 
+import scala.jdk.CollectionConverters.*
 import scala.language.implicitConversions
 
+import yuck.SolvingMethod
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
 import yuck.flatzinc.test.util.*
@@ -19,7 +21,8 @@ import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
  * @author Michael Marte
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class MiniZincExamples extends ZincBasedTest {
+@runner.RunWith(classOf[runners.Parameterized])
+final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod]) extends ZincBasedTest {
 
     override protected val logToConsole = false
 
@@ -27,9 +30,12 @@ final class MiniZincExamples extends ZincBasedTest {
         ZincTestTask(
             directoryLayout = MiniZincExamplesLayout,
             suitePath = "resources/mzn/tests/minizinc-examples",
-            maybeRuntimeLimitInSeconds = Some(10),
-            throwWhenUnsolved = true,
-            reusePreviousTestResult = false)
+            solverConfiguration =
+                ZincTestTask().solverConfiguration.copy(
+                    name = maybePreferredSolvingMethod.map(_.toString.toLowerCase).getOrElse("hybrid"),
+                    maybePreferredSolvingMethod = maybePreferredSolvingMethod,
+                    maybeRuntimeLimitInSeconds = Some(5)),
+            throwWhenUnsolved = true)
 
     private implicit def createTask(problemName: String): ZincTestTask = task.copy(problemName = problemName)
 
@@ -44,7 +50,7 @@ final class MiniZincExamples extends ZincBasedTest {
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testAlpha(): Unit = {
-        solve("alpha")
+        solve(task.copy(problemName = "alpha", maybeRuntimeLimitInSeconds = Some(10)))
     }
 
     @Test
@@ -56,13 +62,13 @@ final class MiniZincExamples extends ZincBasedTest {
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testBlocksworld1(): Unit = {
-        solve(task.copy(problemName = "blocksworld_instance_1"))
+        solve("blocksworld_instance_1")
     }
 
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testBlocksworld2(): Unit = {
-        solve(task.copy(problemName = "blocksworld_instance_2"))
+        solve("blocksworld_instance_2")
     }
 
     // Search variables item[] have infinite domains but pruning saves the day.
@@ -99,7 +105,7 @@ final class MiniZincExamples extends ZincBasedTest {
     @Test
     @Category(Array(classOf[HardInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testKnights(): Unit = {
-        solve(task.copy(problemName = "knights"))
+        solve("knights")
     }
 
     // Uses redundant constraints in the form of a dual model that implies the need for
@@ -160,11 +166,12 @@ final class MiniZincExamples extends ZincBasedTest {
     @Test
     @Category(Array(classOf[HardInstance], classOf[SatisfiabilityProblem]))
     def testPacking(): Unit = {
-        solve(task.copy(problemName = "packing"))
+        solve("packing")
     }
 
+    // This one is hard for FJ because FJ does not support implicit constraints.
     @Test
-    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[HardInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
     def testPartition(): Unit = {
         solve("partition")
     }
@@ -179,10 +186,11 @@ final class MiniZincExamples extends ZincBasedTest {
     }
 
     // Another formulation for the perfect square problem that maximizes the sum of squares.
+    // FJ finds good solutions very fast but cannot find optimum.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MaximizationProblem]))
     def testPerfectSquares2(): Unit = {
-        solve(task.copy(problemName = "perfsq2", maybeOptimum = Some(337561)))
+        solve(task.copy(problemName = "perfsq2", maybeOptimum = Some(337561), maybeTargetObjectiveValue = Some(300000)))
     }
 
     @Test
@@ -192,7 +200,7 @@ final class MiniZincExamples extends ZincBasedTest {
     }
 
     // Big domains!
-    // Solver finds good solutions very fast but cannot find optimum.
+    // Solver finds good solutions fast but cannot find optimum.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
     def testProductFd(): Unit = {
@@ -337,6 +345,17 @@ final class MiniZincExamples extends ZincBasedTest {
     def testZebra(): Unit = {
         solve("zebra")
     }
+
+}
+
+/**
+ * @author Michael Marte
+ *
+ */
+object MiniZincExamples {
+
+    @runners.Parameterized.Parameters(name = "{index}: {0}")
+    def parameters = List(None, Some(SolvingMethod.SimulatedAnnealing), Some(SolvingMethod.FeasibilityJump)).asJava
 
 }
 

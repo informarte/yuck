@@ -1,5 +1,6 @@
 package yuck.core
 
+
 /**
  * @param maybeUserData can be used to pass information from a preprocessing to a postprocessing phase.
  *
@@ -10,14 +11,13 @@ abstract class Result {
     val solverName: String
     val objective: AnyObjective
     val bestProposal: SearchState
-    def costsOfBestProposal: Costs =
-        objective.costs(bestProposal)
-    def isSolution: Boolean =
-        objective.isSolution(costsOfBestProposal)
-    def isGoodEnough: Boolean =
-        objective.isGoodEnough(costsOfBestProposal)
-    def isOptimal: Boolean =
-        objective.isOptimal(costsOfBestProposal)
-    def isBetterThan(that: Result): Boolean =
-        objective.isLowerThan(this.costsOfBestProposal, that.costsOfBestProposal)
+    lazy val costsOfBestProposal: Costs = objective.costs(bestProposal)
+    val runtimeInMillis: Long
+    def runtimeInSeconds: Double = runtimeInMillis / 1000.0
+    override def toString = costsOfBestProposal.toString
+    def isSolution: Boolean = objective.isSolution(costsOfBestProposal)
+    def isGoodEnough: Boolean = objective.isGoodEnough(costsOfBestProposal)
+    def isOptimal: Boolean = objective.isOptimal(costsOfBestProposal)
+    def isBetterThan(that: Result): Boolean = objective.isLowerThan(this.costsOfBestProposal, that.costsOfBestProposal)
+    def searchWasPerformed: Boolean
 }

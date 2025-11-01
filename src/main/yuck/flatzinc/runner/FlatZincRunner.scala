@@ -14,11 +14,12 @@ import spray.json.JsBoolean
 import yuck.BuildInfo
 import yuck.annealing.*
 import yuck.core.profiling.SpaceProfilingMode
-import yuck.core.{Costs, CyclicConstraintNetworkException, InconsistentProblemException, SharedBound}
-import yuck.flatzinc.FlatZincSolverConfiguration
+import yuck.core.{Costs, CyclicConstraintNetworkException, InconsistentProblemException, SharedBound, SolverMonitoring}
+import yuck.fj.{FeasibilityJumpEventLogger}
+import yuck.flatzinc.{AnnealingConfiguration, FlatZincSolverConfiguration}
 import yuck.flatzinc.compiler.{FlatZincCompilerResult, UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
 import yuck.flatzinc.parser.*
-import yuck.flatzinc.util.{SharedBoundMaintainer, SummaryBuilder}
+import yuck.flatzinc.util.{BestProposalLogger, LocalSearchStatisticsCollector, PortfolioSolverMonitor, SharedBoundMaintainer, SummaryBuilder}
 import yuck.util.arm.*
 import yuck.util.logging.{TransientThreadRenaming, YuckLogging}
 
@@ -37,9 +38,8 @@ object FlatZincRunner extends YuckLogging {
         fznFilePath: String = "",
         cfg: FlatZincSolverConfiguration =
             FlatZincSolverConfiguration(
-                numberOfThreads = 1,
                 // The parser expects the following values to be undefined!
-                maybeRoundLimit = None,
+                annealingConfiguration = AnnealingConfiguration(maybeRoundLimit = None),
                 maybeRuntimeLimitInSeconds = None,
                 maybeTargetObjectiveValue = None))
     {}
@@ -78,7 +78,10 @@ object FlatZincRunner extends YuckLogging {
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(maybeTargetObjectiveValue = Some(x))))
         opt[Int]("round-limit")
             .text("Optional round limit for simulated annealing")
-            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(maybeRoundLimit = Some(max(0, x)))))
+            .action((x, cl) => cl.copy(
+                cfg = cl.cfg.copy(
+                    annealingConfiguration =
+                        cl.cfg.annealingConfiguration.copy(maybeRoundLimit = Some(max(0, x))))))
         opt[Int]("runtime-limit")
             .text("Optional runtime limit in seconds")
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(maybeRuntimeLimitInSeconds = Some(max(0, x)))))
@@ -92,8 +95,11 @@ object FlatZincRunner extends YuckLogging {
             .text("Default value is %s".format(defaultCfg.runPresolver))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(runPresolver = x)))
         opt[Boolean]("use-implicit-solving")
-            .text("Default value is %s".format(defaultCfg.useImplicitSolving))
-            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(useImplicitSolving = x)))
+            .text("Default value is %s".format(defaultCfg.annealingConfiguration.useImplicitSolving))
+            .action((x, cl) => cl.copy(
+                cfg = cl.cfg.copy(
+                    annealingConfiguration =
+                        cl.cfg.annealingConfiguration.copy(useImplicitSolving = x))))
         opt[Boolean]("use-progressive-tightening")
             .text("Default value is %s".format(defaultCfg.useProgressiveTightening))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(useProgressiveTightening = x)))
@@ -104,11 +110,17 @@ object FlatZincRunner extends YuckLogging {
             .text("Default value is %s".format(defaultCfg.delayCycleCheckingUntilInitialization))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(delayCycleCheckingUntilInitialization = x)))
         opt[Double]("start-temperature")
-            .text("Default value is %s".format(defaultCfg.startTemperature))
-            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(startTemperature = x)))
+            .text("Default value is %s".format(defaultCfg.annealingConfiguration.startTemperature))
+            .action((x, cl) => cl.copy(
+                cfg = cl.cfg.copy(
+                    annealingConfiguration =
+                        cl.cfg.annealingConfiguration.copy(startTemperature = x))))
         opt[Double]("warm-start-temperature")
-            .text("Default value is %s".format(defaultCfg.warmStartTemperature))
-            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(warmStartTemperature = x)))
+            .text("Default value is %s".format(defaultCfg.annealingConfiguration.warmStartTemperature))
+            .action((x, cl) => cl.copy(
+                cfg = cl.cfg.copy(
+                    annealingConfiguration =
+                        cl.cfg.annealingConfiguration.copy(warmStartTemperature = x))))
         opt[Unit]('v', "verbose")
             .text("Enable verbose solving (equivalent to --log-level INFO)")
             .action((_, cl) => cl.copy(logLevel = List(cl.logLevel, yuck.util.logging.LogLevel.InfoLogLevel).minBy(_.intValue)))
@@ -217,9 +229,13 @@ object FlatZincRunner extends YuckLogging {
         summaryBuilder.addParserStatistics(parserRuntime)
         val md5Sum = SummaryBuilder.computeMd5Sum(cl.fznFilePath)
         summaryBuilder.addFlatZincModelStatistics(ast, md5Sum)
-        val statisticsCollector = new AnnealingStatisticsCollector(logger)
-        val monitors = new ArrayBuffer[AnnealingMonitor]
-        monitors += new AnnealingEventLogger(logger)
+        val monitors = new ArrayBuffer[SolverMonitoring[?]]
+        if (cl.logLevel != yuck.util.logging.LogLevel.NoLogging) {
+            monitors += new AnnealingEventLogger(logger)
+            monitors += new FeasibilityJumpEventLogger(logger)
+            monitors += new BestProposalLogger(logger)
+        }
+        val statisticsCollector = new LocalSearchStatisticsCollector(logger)
         monitors += statisticsCollector
         val resultPrinter = new FlatZincResultPrinter(ast, cl.outputThrottlingIntervalInMillis)
         val resultPrinterThread = new Thread(resultPrinter)
@@ -230,7 +246,7 @@ object FlatZincRunner extends YuckLogging {
         if (cl.cfg.shareBounds) {
             monitors += new SharedBoundMaintainer(sharedBoundHolder)
         }
-        val monitor = new AnnealingMonitorCollection(monitors.toVector)
+        val monitor = new PortfolioSolverMonitor(monitors.toVector)
         val (result, _) = scoped(new TransientThreadRenaming(resultPrinterThread, "result-printer")) {
             scoped(new ManagedThread(resultPrinterThread, logger)) {
                 logger.withTimedLogScope("Solving problem") {

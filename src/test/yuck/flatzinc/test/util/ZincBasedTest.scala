@@ -4,12 +4,14 @@ import java.util.concurrent.atomic.AtomicReference
 
 import scala.annotation.tailrec
 import scala.collection.*
+import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 
 import spray.json.*
 
-import yuck.annealing.{AnnealingEventLogger, AnnealingMonitorCollection, AnnealingResult, AnnealingStatisticsCollector}
+import yuck.annealing.AnnealingEventLogger
 import yuck.core.*
+import yuck.fj.FeasibilityJumpEventLogger
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.*
 import yuck.flatzinc.compiler.{FlatZincCompilerResult, UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
@@ -18,7 +20,7 @@ import yuck.flatzinc.runner.*
 import yuck.flatzinc.test.util.SourceFormat.*
 import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 import yuck.flatzinc.test.util.VerificationFrequency.*
-import yuck.flatzinc.util.{SharedBoundMaintainer, SummaryBuilder}
+import yuck.flatzinc.util.{BestProposalLogger, LocalSearchStatisticsCollector, PortfolioSolverMonitor, SharedBoundMaintainer, SummaryBuilder}
 import yuck.test.util.{IntegrationTest, ProcessRunner}
 import yuck.util.arm.*
 import yuck.util.logging.ManagedLogHandler
@@ -56,9 +58,6 @@ class ZincBasedTest extends IntegrationTest {
         protected def warmStartWasPerformed: Boolean =
             compilerResult.performWarmStart
 
-        protected def searchWasPerformed: Boolean =
-            ! result.asInstanceOf[AnnealingResult].roundLogs.isEmpty
-
         protected def compilerResult: FlatZincCompilerResult =
             result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
 
@@ -91,9 +90,10 @@ class ZincBasedTest extends IntegrationTest {
             case NonStandardMiniZincBenchmarksLayout =>
                 "tmp/%s/%s/%s".format(suiteName, problemName, instanceName)
         }
-        val outputDirectoryPath = task.solverConfiguration.maybeName
-            .map(name => "%s/%s".format(outputDirectoryPath0, name))
-            .getOrElse(outputDirectoryPath0)
+        val outputDirectoryPath =
+            if task.solverConfiguration.name.isEmpty
+            then outputDirectoryPath0
+            else "%s/%s".format(outputDirectoryPath0, task.solverConfiguration.name)
         new java.io.File(outputDirectoryPath).mkdirs
         val logFilePath = "%s/yuck.log".format(outputDirectoryPath)
         val summaryFilePath = "%s/yuck.json".format(outputDirectoryPath)
@@ -138,20 +138,22 @@ class ZincBasedTest extends IntegrationTest {
         logger.log("Processing %s".format(fznFilePath))
         val cfg = createSolverConfiguration(task)
         summaryBuilder.addSolverConfiguration(cfg)
-        val statisticsCollector = new AnnealingStatisticsCollector(logger)
+        val monitors = new ArrayBuffer[SolverMonitoring[?]]
+        monitors += new AnnealingEventLogger(logger)
+        monitors += new FeasibilityJumpEventLogger(logger)
+        monitors += new BestProposalLogger(logger)
+        val statisticsCollector = new LocalSearchStatisticsCollector(logger)
+        monitors += statisticsCollector
+        monitors += new SolverStateTracker
+        if (task.sourceFormat == MiniZinc && task.verificationFrequency == VerifyEverySolution) {
+            monitors += new CorrectnessSentinel(task, spoilResult, logger)
+        }
         val sharedBoundHolder = new AtomicReference[Costs]
-        val monitors =
-            Vector(new AnnealingEventLogger(logger), statisticsCollector)
-                .appendedAll(
-                    if task.sourceFormat == MiniZinc && task.verificationFrequency == VerifyEverySolution
-                    then List(new MiniZincTestMonitor(task, spoilResult, logger))
-                    else Nil)
-                .appendedAll(
-                    if cfg.shareBounds
-                    then List(new SharedBoundMaintainer(sharedBoundHolder))
-                    else Nil)
-                .appendedAll(task.additionalMonitors)
-        val monitor = new AnnealingMonitorCollection(monitors)
+        if (cfg.shareBounds) {
+            monitors += new SharedBoundMaintainer(sharedBoundHolder)
+        }
+        monitors ++= task.additionalMonitors
+        val monitor = new PortfolioSolverMonitor(monitors.toVector)
         val ((ast, result), _) = maybeTimeboxed(cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
             val (ast, parserRuntime) =
                 logger.withTimedLogScope("Parsing FlatZinc file") {
@@ -258,9 +260,6 @@ class ZincBasedTest extends IntegrationTest {
             numberOfSolvers =
                 task.maybeNumberOfSolvers
                     .getOrElse(task.solverConfiguration.numberOfSolvers),
-            maybeRoundLimit =
-                task.maybeRoundLimit
-                    .orElse(task.solverConfiguration.maybeRoundLimit),
             maybeRuntimeLimitInSeconds =
                 task.maybeRuntimeLimitInSeconds
                     .orElse(task.solverConfiguration.maybeRuntimeLimitInSeconds),

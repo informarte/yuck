@@ -654,7 +654,7 @@ final class Space(
      * The move must involve search variables only!
      * (For efficiency reasons, this requirement is not enforced.)
      */
-    def consult(move: Move): SearchState = {
+    def consult(move: Move): MoveSimulator = {
         if (profiling) {
             val startTimeInNanos = System.nanoTime
             val result = doConsult(move)
@@ -666,8 +666,9 @@ final class Space(
         }
     }
 
-    def doConsult(move: Move): SearchState = {
+    def doConsult(move: Move): MoveSimulator = {
         require(initialized, "Call initialize after posting the last constraint")
+        require(move.id > idOfMostRecentlyAssessedMove, "Do not re-use move ids")
         idOfMostRecentlyAssessedMove = move.id
         val acc = new BulkMove(move.id)
         var i = 0
@@ -712,6 +713,7 @@ final class Space(
                     val constraint = constraintsIt.next()
                     if (! isImplicitConstraint(constraint)) {
                         if (constraint.after != null && constraint.after.move == move) {
+                            // Here we rely on move ids not being re-used.
                             constraint.after.move.asInstanceOf[BulkMove] += effect
                         } else {
                             val diff = new BulkMove(move.id)

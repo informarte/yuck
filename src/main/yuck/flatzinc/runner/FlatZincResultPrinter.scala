@@ -2,12 +2,11 @@ package yuck.flatzinc.runner
 
 import java.util.concurrent.atomic.AtomicReference
 
-import yuck.annealing.{AnnealingMonitor, AnnealingResult}
-import yuck.core.Costs
+import yuck.core.{Costs, Result, SolverMonitor}
 import yuck.flatzinc.ast.FlatZincAst
 
 /**
- * A monitor for printing solutions.
+ * Prints solutions in FlatZinc format.
  *
  * Designed to work in its own thread.
  *
@@ -15,7 +14,7 @@ import yuck.flatzinc.ast.FlatZincAst
  */
 final class FlatZincResultPrinter
     (ast: FlatZincAst, throttlingIntervalInMillis: Int)
-    extends AnnealingMonitor
+    extends SolverMonitor
     with Runnable
 {
 
@@ -47,7 +46,7 @@ final class FlatZincResultPrinter
         }
     }
 
-    override def onBetterProposal(result: AnnealingResult) = {
+    override def onBetterProposal(result: Result) = {
         if (result.isSolution) {
             synchronized {
                 if (costsOfBestSolution.eq(null) ||

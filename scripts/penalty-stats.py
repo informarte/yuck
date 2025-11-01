@@ -26,7 +26,7 @@
 #
 # - <0 means the solution is even better than the best challenge results.
 # - 0 means the solution is as good as the best challenge results.
-# - 1 means the solution is as worse as the worst challenge results.
+# - 1 means the solution is as bad as the worst challenge results.
 # - >1 means the solution is even worse than the worst challenge results.
 #
 # Unsolved instances are ignored.

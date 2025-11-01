@@ -51,7 +51,7 @@ final class AnnealingScheduleSequence(
     override def start(temperature: Double, progress: Double) = {
         i = 0
         this.progress = progress
-        (children(0)).start(temperature, progress)
+        children(0).start(temperature, progress)
     }
 
 }

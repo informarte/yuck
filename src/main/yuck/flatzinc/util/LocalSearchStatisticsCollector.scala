@@ -1,6 +1,7 @@
-package yuck.annealing
+package yuck.flatzinc.util
 
 import scala.collection.mutable
+
 import yuck.core.*
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.util.DescriptiveStatistics.median
@@ -9,14 +10,13 @@ import yuck.util.logging.LazyLogger
 /**
  * A monitor for collecting solver statistics.
  *
- * Assumes that the solver either terminates by itself or gets suspended due
- * to a timeout.
+ * Assumes that the solver either terminates by itself or gets suspended due to a timeout.
  *
  * Does not support resumption.
  *
  * @author Michael Marte
  */
-final class AnnealingStatisticsCollector(logger: LazyLogger) extends AnnealingMonitor {
+final class LocalSearchStatisticsCollector(logger: LazyLogger) extends LocalSearchMonitor {
 
     case class ObjectiveImprovement(runtimeInMillis: Long, objectiveValue: NumericalValue[?])
 
@@ -44,18 +44,20 @@ final class AnnealingStatisticsCollector(logger: LazyLogger) extends AnnealingMo
     private class SolverStatistics(
         val runtimeInSeconds: Double, val movesPerSecond: Double,
         val consultationsPerSecond: Double, val consultationsPerMove: Double,
-        val commitmentsPerSecond: Double, val commitmentsPerMove: Double)
+        val commitmentsPerSecond: Double, val commitmentsPerMove: Double,
+        val numberOfPerturbations: Int)
 
     private val solverStatistics = new mutable.ArrayBuffer[SolverStatistics]
 
-    private def captureSolverStatistics(result: AnnealingResult): Unit = {
-        if (! result.roundLogs.isEmpty) {
+    private def captureSolverStatistics(result: LocalSearchResult): Unit = {
+        if (result.searchWasPerformed) {
             synchronized {
                 solverStatistics +=
                     new SolverStatistics(
                         result.runtimeInSeconds, result.movesPerSecond,
                         result.consultationsPerSecond, result.consultationsPerMove,
-                        result.commitmentsPerSecond, result.commitmentsPerMove)
+                        result.commitmentsPerSecond, result.commitmentsPerMove,
+                        result.numberOfPerturbations)
             }
         }
     }
@@ -75,22 +77,22 @@ final class AnnealingStatisticsCollector(logger: LazyLogger) extends AnnealingMo
         runtimeInMillis += now - timeStampInMillis
     }
 
-    override def onSolverSuspended(result: AnnealingResult) = {
+    override def onSolverSuspended(result: LocalSearchResult) = {
         // We assume that the solver timed out and that it will never be resumed.
         captureSolverStatistics(result)
     }
 
-    override def onSolverResumed(result: AnnealingResult) = {
+    override def onSolverResumed(result: LocalSearchResult) = {
         ???
     }
 
-    override def onSolverFinished(result: AnnealingResult) = {
+    override def onSolverFinished(result: LocalSearchResult) = {
         captureSolverStatistics(result)
     }
 
-    override def onBetterProposal(result: AnnealingResult) = {
-        synchronized {
-            if (result.isSolution) {
+    override def onBetterProposal(result: LocalSearchResult) = {
+        if (result.isSolution) {
+            synchronized {
                 if (costsOfBestProposal.eq(null) ||
                     result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestProposal))
                 {
@@ -164,11 +166,11 @@ final class AnnealingStatisticsCollector(logger: LazyLogger) extends AnnealingMo
     def wasSearchRequired: Boolean = ! solverStatistics.isEmpty
 
     // Do not use the following methods when there was no search!
-    def numberOfRestarts: Int = solverStatistics.size - 1
     def movesPerSecond: Double = solverStatistics.map(_.movesPerSecond).median
     def consultationsPerSecond: Double = solverStatistics.map(_.consultationsPerSecond).median
     def consultationsPerMove: Double = solverStatistics.map(_.consultationsPerMove).median
     def commitmentsPerSecond: Double = solverStatistics.map(_.commitmentsPerSecond).median
     def commitmentsPerMove: Double = solverStatistics.map(_.commitmentsPerMove).median
+    def numberOfPerturbations: Double = solverStatistics.map(_.numberOfPerturbations.toDouble).median
 
 }

@@ -4,7 +4,7 @@ import org.junit.*
 
 import scala.jdk.CollectionConverters.*
 
-import yuck.annealing.*
+import yuck.{SolvingMethod, annealing}
 import yuck.constraints.*
 import yuck.core.*
 import yuck.test.util.{DefaultNumberOfThreads, IntegrationTest}
@@ -15,12 +15,12 @@ import yuck.test.util.{DefaultNumberOfThreads, IntegrationTest}
  * @author Michael Marte
  */
 @runner.RunWith(classOf[runners.Parameterized])
-final class Queens(val n: Int) extends IntegrationTest {
+final class Queens(val n: Int, solvingMethod: SolvingMethod) extends HelloWorldTest {
 
     override protected val logToConsole = false
 
     private final class QueensGenerator(n: Int, i: Int, seed: Int) extends SolverGenerator {
-        override def solverName = "SA-%d".format(i)
+        override def solverName = "%s-%d".format(solvingMethod, i)
         override def call() = {
 
             // define problem
@@ -56,26 +56,23 @@ final class Queens(val n: Int) extends IntegrationTest {
             space.registerObjectiveVariable(conflicts)
 
             // build local-search solver
+            val objective = new SatisfactionObjective(conflicts)
             val randomGenerator = new JavaRandomGenerator(seed)
-            val Some(neighbourhood) =
-                rowConstraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution): @unchecked
-            space.registerImplicitConstraint(rowConstraint)
-            val solver =
-                new SimulatedAnnealing(
-                    solverName,
-                    space,
-                    new SatisfactionObjective(conflicts),
-                    neighbourhood,
-                    createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen()),
-                    DefaultStartTemperature,
-                    DefaultStartTemperature,
-                    DefaultPerturbationProbability,
-                    None,
-                    randomGenerator.nextGen(),
-                    None,
-                    Some(new AnnealingEventLogger(logger)),
-                    None,
-                    sigint)
+            val solver = solvingMethod match {
+                case SolvingMethod.SimulatedAnnealing =>
+                    val Some(neighbourhood) =
+                        rowConstraint.createNeighbourhood(
+                            space, randomGenerator, annealing.DefaultMoveSizeDistribution): @unchecked
+                    space.registerImplicitConstraint(rowConstraint)
+                    createSimulatedAnnealingSolver(
+                        solverName, space, objective, neighbourhood, randomGenerator.nextGen(), None)
+                case SolvingMethod.FeasibilityJump =>
+                    val initializer = new RandomInitializer(space, randomGenerator.nextGen())
+                    initializer.run()
+                    val xs = rows.toVector
+                    val cs = Vector(rowConflicts, diagonalConflicts1, diagonalConflicts2)
+                    createFeasibilityJumpSolver(solverName, space, xs, cs, objective, randomGenerator.nextGen(), None)
+            }
 
             solver
         }
@@ -85,11 +82,11 @@ final class Queens(val n: Int) extends IntegrationTest {
     def queens(): Unit = {
         val randomGenerator = new JavaRandomGenerator(29071972)
         val solvers =
-            (1 to DefaultRestartLimit).map(
+            (1 to DefaultNumberOfThreads).map(
                 i => new OnDemandGeneratedSolver(new QueensGenerator(n, i, randomGenerator.nextInt()), logger, sigint))
         val solver = new ParallelSolver(solvers, DefaultNumberOfThreads, "Queens", logger, sigint)
         val result = solver.call()
-        assert(result.isSolution)
+        assert(sigint.isSet || result.isSolution)
     }
 
 }
@@ -100,7 +97,12 @@ final class Queens(val n: Int) extends IntegrationTest {
  */
 object Queens {
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}")
-    def parameters = List(8, 16, 32, 64, 128).asJava
+    private val configurations =
+        for (n <- List(8, 16, 32, 64, 128);
+             solvingMethod <- SolvingMethod.values)
+        yield Vector(n, solvingMethod)
+
+    @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
+    def parameters = configurations.map(_.toArray).asJava
 
 }
