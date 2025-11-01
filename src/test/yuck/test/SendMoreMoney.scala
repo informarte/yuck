@@ -114,6 +114,7 @@ final class SendMoreMoney extends IntegrationTest {
                     DefaultStartTemperature,
                     DefaultStartTemperature,
                     DefaultPerturbationProbability,
+                    None,
                     randomGenerator.nextGen(),
                     None,
                     Some(monitor),

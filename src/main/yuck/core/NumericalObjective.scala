@@ -14,12 +14,12 @@ abstract class NumericalObjective
 {
 
     override val x: NumericalVariable[V]
-    protected val maybeY: Option[NumericalVariable[V]]
+    val maybeY: Option[NumericalVariable[V]]
 
     final override def costs(searchState: SearchState): NumericalValue[V] = searchState.value(x)
     final override def isSolution(costs: Costs) = isGoodEnough(costs)
 
-    final override private[core] def findActualObjectiveValue(space: Space, rootObjective: AnyObjective) = {
+    final override def findActualObjectiveValue(space: Space, rootObjective: AnyObjective) = {
         val minimize = optimizationMode == OptimizationMode.Min
         val costsOnEntry = rootObjective.costs(space.searchState)
         def isFeasibleObjectiveValue(a: V): Boolean = {
@@ -63,20 +63,22 @@ abstract class NumericalObjective
         }
     }
 
-    final override def tighten(space: Space) = {
+    final override def tighten(space: Space, bound: AnyValue) =
+        tighten(space, bound.asInstanceOf[V])
+
+    private def tighten(space: Space, bound: V): Set[AnyVariable] = {
         if (maybeY.isDefined) {
-            val a = space.searchState.value(x)
             val y = maybeY.get
             assert(! space.isChannelVariable(y))
             assert(! space.isImplicitlyConstrainedSearchVariable(y))
-            if (y.domain.contains(a)) {
-                val move = new ChangeValue(space.nextMoveId(), y, a)
+            if (y.domain.contains(bound)) {
+                val move = new ChangeValue(space.nextMoveId(), y, bound)
                 space.consult(move)
                 space.commit(move)
                 val dy0 = y.domain
                 val dy1 = optimizationMode match {
-                    case OptimizationMode.Min => dy0.boundFromAbove(a)
-                    case OptimizationMode.Max => dy0.boundFromBelow(a)
+                    case OptimizationMode.Min => dy0.boundFromAbove(bound)
+                    case OptimizationMode.Max => dy0.boundFromBelow(bound)
                 }
                 if (y.pruneDomain(dy1)) Set(y) else Set.empty
             } else {

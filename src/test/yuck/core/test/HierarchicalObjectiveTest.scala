@@ -21,7 +21,6 @@ final class HierarchicalObjectiveTest extends UnitTest {
 
     private val x = new IntegerVariable(space.nextVariableId(), "x", BaseDomain)
     private val y = new IntegerVariable(space.nextVariableId(), "y", BaseDomain)
-    private val z = new IntegerVariable(space.nextVariableId(), "z", BaseDomain)
 
     @Test
     def testBasics(): Unit = {
@@ -122,6 +121,8 @@ final class HierarchicalObjectiveTest extends UnitTest {
     def testTighteningWhenMinimizing(): Unit = {
         val costs = new BooleanVariable(space.nextVariableId(), "costs", TrueDomain)
         val mainObjective = new SatisfactionObjective(costs)
+        val zd = IntegerRange(BaseDomain.lb + One, BaseDomain.ub + One)
+        val z = new IntegerVariable(space.nextVariableId(), "z", zd)
         val subordinateObjective = new MinimizationObjective(y, None, Some(z))
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
         space
@@ -134,16 +135,16 @@ final class HierarchicalObjectiveTest extends UnitTest {
             assertEq(x.domain, BaseDomain)
             assertEq(now.value(y), b)
             assertEq(y.domain, BaseDomain)
-            if (objective.isSolution(now) && b < y.domain.ub) {
+            if (objective.isSolution(now) && b > y.domain.lb) {
                 assertEq(tightenedVariables, Set(z))
                 assertEq(now.value(z), b)
-                assertEq(z.domain, IntegerRange(BaseDomain.lb, b))
-                z.relaxDomain(BaseDomain)
+                assertEq(z.domain, IntegerRange(zd.lb, b))
+                z.relaxDomain(zd)
                 space.setValue(z, z.domain.ub)
             } else {
                 assert(tightenedVariables.isEmpty)
                 assertEq(now.value(z), z.domain.ub)
-                assertEq(z.domain, BaseDomain)
+                assertEq(z.domain, zd)
             }
         }
     }
@@ -173,6 +174,8 @@ final class HierarchicalObjectiveTest extends UnitTest {
     def testTighteningWhenMaximizing(): Unit = {
         val costs = new BooleanVariable(space.nextVariableId(), "costs", TrueDomain)
         val mainObjective = new SatisfactionObjective(costs)
+        val zd = IntegerRange(BaseDomain.lb - One, BaseDomain.ub - One)
+        val z = new IntegerVariable(space.nextVariableId(), "z", zd)
         val subordinateObjective = new MaximizationObjective(y, None, Some(z))
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
         space
@@ -185,16 +188,16 @@ final class HierarchicalObjectiveTest extends UnitTest {
             assertEq(x.domain, BaseDomain)
             assertEq(now.value(y), b)
             assertEq(y.domain, BaseDomain)
-            if (objective.isSolution(now) && b > y.domain.lb) {
+            if (objective.isSolution(now) && b < y.domain.ub) {
                 assertEq(tightenedVariables, Set(z))
                 assertEq(now.value(z), b)
-                assertEq(z.domain, IntegerRange(b, BaseDomain.ub))
-                z.relaxDomain(BaseDomain)
+                assertEq(z.domain, IntegerRange(b, zd.ub))
+                z.relaxDomain(zd)
                 space.setValue(z, z.domain.lb)
             } else {
                 assert(tightenedVariables.isEmpty)
                 assertEq(now.value(z), z.domain.lb)
-                assertEq(z.domain, BaseDomain)
+                assertEq(z.domain, zd)
             }
         }
     }

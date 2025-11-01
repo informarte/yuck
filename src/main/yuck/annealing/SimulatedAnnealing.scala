@@ -28,6 +28,7 @@ final class SimulatedAnnealing(
     startTemperature: Double,
     restartTemperature: Double,
     restartPerturbationProbability: Probability,
+    maybeSharedBound: Option[SharedBound],
     randomGenerator: RandomGenerator,
     maybeRoundLimit: Option[Int],
     maybeMonitor: Option[AnnealingMonitor],
@@ -47,6 +48,7 @@ final class SimulatedAnnealing(
     private var bestProposal: SearchState = null
     private var costsOfBestProposal: Costs = null
     private var proposalBeforeSuspension: SearchState = null
+    private var maybeLastSeenBound: Option[Costs] = None
     private val roundLogs = new mutable.ArrayBuffer[RoundLog]
     private var numberOfPerturbations = 0
 
@@ -88,7 +90,7 @@ final class SimulatedAnnealing(
             // Sometimes the initial assignment is a solution.
             objective.findActualObjectiveValue(space)
             costsOfCurrentProposal = objective.costs(currentProposal)
-            tightenObjective()
+            tightenObjective(costsOfCurrentProposal)
         }
         anneal()
         createResult()
@@ -172,6 +174,9 @@ final class SimulatedAnnealing(
         monteCarloSimulation()
         val endTimeInMillis = System.currentTimeMillis
 
+        // ingest shared bound
+        ingestSharedBound()
+
         // book-keeping
         roundLog.runtimeInMillis += (endTimeInMillis - startTimeInMillis)
         roundLog.numberOfMonteCarloAttempts = schedule.numberOfMonteCarloAttempts - numberOfRemainingMonteCarloAttempts
@@ -237,12 +242,20 @@ final class SimulatedAnnealing(
             if (maybeMonitor.isDefined) {
                 maybeMonitor.get.onBetterProposal(createResult())
             }
-            tightenObjective()
+            tightenObjective(costsOfBestProposal)
         }
-        val tightenedVariables = objective.tighten(space)
-        if (maybeMonitor.isDefined) {
-            for (x <- tightenedVariables) {
-                maybeMonitor.get.onObjectiveTightened(x)
+    }
+
+    private def ingestSharedBound(): Unit = {
+        if (maybeSharedBound.isDefined) {
+            val maybeBound = maybeSharedBound.get.maybeBound()
+            if (maybeBound.isDefined) {
+                val bound = maybeBound.get
+                if ((maybeLastSeenBound.isEmpty && objective.isLowerThan(bound, costsOfBestProposal)) ||
+                    (maybeLastSeenBound.isDefined && objective.isLowerThan(bound, maybeLastSeenBound.get))) {
+                    tightenObjective(bound)
+                    maybeLastSeenBound = maybeBound
+                }
             }
         }
     }
@@ -258,7 +271,7 @@ final class SimulatedAnnealing(
             if (maybeMonitor.isDefined) {
                 maybeMonitor.get.onBetterProposal(createResult())
             }
-            tightenObjective()
+            tightenObjective(costsOfBestProposal)
         }
         schedule.start(restartTemperature, 0)
         if (maybeMonitor.isDefined) {
@@ -266,8 +279,8 @@ final class SimulatedAnnealing(
         }
     }
 
-    private def tightenObjective(): Unit = {
-        val tightenedVariables = objective.tighten(space)
+    private def tightenObjective(bound: Costs): Unit = {
+        val tightenedVariables = objective.tighten(space, bound)
         if (maybeMonitor.isDefined) {
             val monitor = maybeMonitor.get
             tightenedVariables.foreach(monitor.onObjectiveTightened)

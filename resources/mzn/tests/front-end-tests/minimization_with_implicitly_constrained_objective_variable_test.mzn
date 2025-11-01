@@ -8,7 +8,7 @@ include "alldifferent.mzn";
 
 % The higher N, the higher the reliability of this test.
 % (The smaller N, the higher the probability that the objective variable
-% gets assigned the optimium value before search and hence that search
+% gets assigned the optimum value before search and hence that search
 % will be skipped.)
 int: N = 512;
 

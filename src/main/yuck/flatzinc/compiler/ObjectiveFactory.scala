@@ -35,23 +35,29 @@ final class ObjectiveFactory
                             case Term("sat_goal", Seq(a)) =>
                                 objectives.append(createSatisfactionObjective(goalCfg, compileBoolExpr(a)))
                             case Term("int_min_goal", Seq(a)) =>
-                                objectives.append(createMinimizationObjective(goalCfg, a))
+                                objectives.append(createMinimizationObjective(goalCfg, a, maybeBound(i + 1)))
                             case Term("int_max_goal", Seq(a)) =>
-                                objectives.append(createMaximizationObjective(goalCfg, a))
+                                objectives.append(createMaximizationObjective(goalCfg, a, maybeBound(i + 1)))
                             case _ => ???
                         }
                     }
                 }
             case Minimize(a, _) =>
-                objectives.append(createMinimizationObjective(cc.cfg, a))
+                objectives.append(createMinimizationObjective(cc.cfg, a, maybeBound(1)))
             case Maximize(a, _) =>
-                objectives.append(createMaximizationObjective(cc.cfg, a))
+                objectives.append(createMaximizationObjective(cc.cfg, a, maybeBound(1)))
         }
         objectives.prepend(createSatisfactionObjective(cc.cfg, cc.costVars))
         cc.objective =
-            if (objectives.size == 1) objectives.head
+            if objectives.size == 1
+            then objectives.head
             else new HierarchicalObjective(objectives.toList, cc.cfg.focusOnTopObjective, cc.cfg.stopOnFirstSolution)
     }
+
+    private def maybeBound(i: Int): Option[IntegerValue] =
+        if cc.cfg.shareBounds
+        then cc.sharedBound.maybeBound().map(_.asInstanceOf[PolymorphicListValue].value(i).asInstanceOf[IntegerValue])
+        else None
 
     private def createSatisfactionObjective
         (cfg: FlatZincSolverConfiguration, costVars: Set[BooleanVariable]):
@@ -71,7 +77,7 @@ final class ObjectiveFactory
     }
 
     private def createMinimizationObjective
-        (cfg: FlatZincSolverConfiguration, x: IntegerVariable):
+        (cfg: FlatZincSolverConfiguration, x: IntegerVariable, maybeBound: Option[IntegerValue]):
         MinimizationObjective[IntegerValue] =
     {
         val dx = x.domain
@@ -87,7 +93,8 @@ final class ObjectiveFactory
             }
             else if (cfg.useProgressiveTightening && dx.maybeUb.isDefined) {
                 cc.logger.log("Objective variable %s has upper bound, setting up for progressive tightening".format(x))
-                val y = new IntegerVariable(cc.space.nextVariableId(), "_YUCK_UB", IntegerRange(dx.lb + One, dx.ub + One))
+                val dy = IntegerRange(dx.lb + One, maybeBound.getOrElse(dx.ub) + One)
+                val y = new IntegerVariable(cc.space.nextVariableId(), "_YUCK_UB", dy)
                 cc.space.setValue(y, dx.ub + One)
                 cc.implicitlyConstrainedVars += y
                 val costs = createBoolChannel()
@@ -95,6 +102,7 @@ final class ObjectiveFactory
                 cc.post(new Lt(nextConstraintId(), None, x, y, costs))
                 Some(y)
             } else {
+                cc.logger.log("Objective variable %s has no upper bound, so progressive tightening is not possible".format(x))
                 None
             }
         cc.space.registerObjectiveVariable(x)
@@ -102,7 +110,7 @@ final class ObjectiveFactory
     }
 
     private def createMaximizationObjective
-        (cfg: FlatZincSolverConfiguration, x: IntegerVariable):
+        (cfg: FlatZincSolverConfiguration, x: IntegerVariable, maybeBound: Option[IntegerValue]):
         MaximizationObjective[IntegerValue] =
     {
         val dx = x.domain
@@ -118,7 +126,8 @@ final class ObjectiveFactory
             }
             else if (cfg.useProgressiveTightening && dx.maybeLb.isDefined) {
                 cc.logger.log("Objective variable %s has lower bound, setting up for progressive tightening".format(x))
-                val y = new IntegerVariable(cc.space.nextVariableId(), "_YUCK_LB", IntegerRange(dx.lb - One, dx.ub - One))
+                val dy = IntegerRange(maybeBound.getOrElse(dx.lb) - One, dx.ub - One)
+                val y = new IntegerVariable(cc.space.nextVariableId(), "_YUCK_LB", dy)
                 cc.space.setValue(y, dx.lb - One)
                 cc.implicitlyConstrainedVars += y
                 val costs = createBoolChannel()
@@ -126,6 +135,7 @@ final class ObjectiveFactory
                 cc.post(new Lt(nextConstraintId(), None, y, x, costs))
                 Some(y)
             } else {
+                cc.logger.log("Objective variable %s has no lower bound, so progressive tightening is not possible".format(x))
                 None
             }
         cc.space.registerObjectiveVariable(x)

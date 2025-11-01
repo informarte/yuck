@@ -12,5 +12,6 @@ import org.junit.*
     Array(
         classOf[FlatZincBaseTest],
         classOf[FlatZincExtensionTest],
-        classOf[GlobalConstraintCompilationTest]))
+        classOf[GlobalConstraintCompilationTest],
+        classOf[ProgressiveTighteningTest]))
 class FrontEndTestSuite

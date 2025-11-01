@@ -1,5 +1,7 @@
 package yuck.flatzinc.test.util
 
+import java.util.concurrent.atomic.AtomicReference
+
 import scala.annotation.tailrec
 import scala.collection.*
 import scala.language.implicitConversions
@@ -16,7 +18,7 @@ import yuck.flatzinc.runner.*
 import yuck.flatzinc.test.util.SourceFormat.*
 import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 import yuck.flatzinc.test.util.VerificationFrequency.*
-import yuck.flatzinc.util.SummaryBuilder
+import yuck.flatzinc.util.{SharedBoundMaintainer, SummaryBuilder}
 import yuck.test.util.{IntegrationTest, ProcessRunner}
 import yuck.util.arm.*
 import yuck.util.logging.ManagedLogHandler
@@ -137,11 +139,18 @@ class ZincBasedTest extends IntegrationTest {
         val cfg = createSolverConfiguration(task)
         summaryBuilder.addSolverConfiguration(cfg)
         val statisticsCollector = new AnnealingStatisticsCollector(logger)
+        val sharedBoundHolder = new AtomicReference[Costs]
         val monitors =
-            Vector(new AnnealingEventLogger(logger), statisticsCollector).appendedAll(
-                if task.sourceFormat == MiniZinc && task.verificationFrequency == VerifyEverySolution
-                then List(new MiniZincTestMonitor(task, spoilResult, logger))
-                else Nil)
+            Vector(new AnnealingEventLogger(logger), statisticsCollector)
+                .appendedAll(
+                    if task.sourceFormat == MiniZinc && task.verificationFrequency == VerifyEverySolution
+                    then List(new MiniZincTestMonitor(task, spoilResult, logger))
+                    else Nil)
+                .appendedAll(
+                    if cfg.shareBounds
+                    then List(new SharedBoundMaintainer(sharedBoundHolder))
+                    else Nil)
+                .appendedAll(task.additionalMonitors)
         val monitor = new AnnealingMonitorCollection(monitors)
         val ((ast, result), _) = maybeTimeboxed(cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
             val (ast, parserRuntime) =
@@ -154,7 +163,8 @@ class ZincBasedTest extends IntegrationTest {
             summaryBuilder.addFlatZincModelStatistics(ast, md5Sum)
             logger.withTimedLogScope("Solving problem") {
                 scoped(monitor) {
-                    (ast, new FlatZincSolverGenerator(ast, cfg, monitor, logger, sigint).call().call())
+                    val sharedBound = new SharedBound(sharedBoundHolder)
+                    (ast, new FlatZincSolverGenerator(ast, cfg, sharedBound, monitor, logger, sigint).call().call())
                 }
             }
         }

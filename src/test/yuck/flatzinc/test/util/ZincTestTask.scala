@@ -1,5 +1,6 @@
 package yuck.flatzinc.test.util
 
+import yuck.annealing.AnnealingMonitor
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.test.util.{DefaultNumberOfThreads, DefaultRuntimeLimitInSeconds}
 import yuck.util.logging.LogLevel
@@ -79,7 +80,8 @@ final case class ZincTestTask(
     verificationTool: VerificationTool = VerificationTool.Gecode,
     miniZincCompilerRenamesVariables: Boolean = true,
     keepFlatZincFile: Boolean = true,
-    createDotFile: Boolean = false)
+    createDotFile: Boolean = false,
+    additionalMonitors: Seq[AnnealingMonitor] = Nil)
 {
     require(sourceFormat != SourceFormat.FlatZinc || directoryLayout == TestDataDirectoryLayout.MiniZincExamplesLayout)
     def effectiveInstanceName: String = if (instanceName.isEmpty) problemName else instanceName

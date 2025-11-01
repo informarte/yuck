@@ -70,6 +70,7 @@ final class Queens(val n: Int) extends IntegrationTest {
                     DefaultStartTemperature,
                     DefaultStartTemperature,
                     DefaultPerturbationProbability,
+                    None,
                     randomGenerator.nextGen(),
                     None,
                     Some(new AnnealingEventLogger(logger)),
