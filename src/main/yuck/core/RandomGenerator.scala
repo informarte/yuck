@@ -65,28 +65,55 @@ abstract class RandomGenerator {
         {
             var i = 0
             while (i < n) {
-                buf.update(i, i)
+                buf(i) = i
                 i += 1
             }
         }
 
         inline override def hasNext = n > 0
+
         override def next() = {
-            require(hasNext)
+            if (! hasNext) {
+                throw new NoSuchElementException
+            }
             val i = nextInt(n)
             n -= 1
             val a = source(buf(i))
-            if (i < n) buf.update(i, buf(n))
+            if (i < n) {
+                buf(i) = buf(n)
+            }
             a
         }
 
     }
 
+    private final class LazyShuffleInPlaceIterator[T](source: mutable.IndexedSeq[T]) extends Iterator[T] {
+
+        private var n = source.size
+
+        inline override def hasNext = n > 0
+
+        override def next() = {
+            if (! hasNext) {
+                throw new NoSuchElementException
+            }
+            val i = nextInt(n)
+            n -= 1
+            val a = source(i)
+            if (i < n) {
+                source(i) = source(n)
+                source(n) = a
+            }
+            a
+        }
+
+    }
 
     /**
      * Shuffles the given collection lazily.
      *
      * Time and space complexity for creating the iterator are O(n).
+     *
      * In case not all elements are needed, lazyShuffle is more efficient than
      * shuffle because less random numbers are generated.
      */
@@ -94,5 +121,16 @@ abstract class RandomGenerator {
         if (source.isEmpty) Iterator.empty
         else if (source.size == 1) source.iterator
         else new LazyShuffleIterator[T](source)
+
+    /**
+     * Shuffles the given collection lazily in place.
+     *
+     * In case not all elements are needed, lazyShuffleInPlace is more efficient than
+     * shuffle because less random numbers are generated.
+     */
+    final def lazyShuffleInPlace[T](source: mutable.IndexedSeq[T]): Iterator[T] =
+        if (source.isEmpty) Iterator.empty
+        else if (source.size == 1) source.iterator
+        else new LazyShuffleInPlaceIterator[T](source)
 
 }

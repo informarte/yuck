@@ -16,7 +16,7 @@ final class RandomInitializer(space: Space, randomGenerator: RandomGenerator) ex
 
         // To protect us from the implementation details of hash set operations, we need to sort
         // the search variables before initializing them.
-        val xs = (space.searchVariables.diff(space.searchState.mappedVariables)).toBuffer.sorted
+        val xs = space.searchVariables.diff(space.searchState.mappedVariables).toBuffer.sorted
         for (x <- xs) {
             x.randomMoveEffect(randomGenerator).affect(space)
         }

@@ -2,21 +2,26 @@ package yuck.flatzinc.test
 
 import org.junit.*
 import org.junit.experimental.categories.*
-import org.junit.experimental.categories.Categories.*
 
-import yuck.flatzinc.FlatZincSolverConfiguration
+import yuck.SolvingMethod
 import yuck.flatzinc.test.util.*
 import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 import yuck.flatzinc.test.util.VerificationFrequency.*
-import yuck.test.util.ParallelTestRunner
+import yuck.test.util.ParallelParameterizedTestRunner
 
 /**
  * Test cases taken from the MiniZinc challenge submission procedure
  *
+ * This suite runs on one thread per parameter value.
+ *
+ * Unexpectedly, IntelliJ IDEA 2024.3.4 aggregates the runtimes, reporting 0 for all parameters except one.
+ * After some digging and debugging, it seems that the issue is caused by IDEA's JUnit 4 integration.
+ *
  * @author Michael Marte
  */
-@runner.RunWith(classOf[ParallelTestRunner])
-class MiniZincChallengeIntakeTests extends ZincBasedTest {
+@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
+@runner.RunWith(classOf[ParallelParameterizedTestRunner])
+class MiniZincChallengeIntakeTests(preferredSolvingMethod: SolvingMethod) extends ZincBasedTest {
 
     override protected val logToConsole = false
 
@@ -25,10 +30,13 @@ class MiniZincChallengeIntakeTests extends ZincBasedTest {
             directoryLayout = NonStandardMiniZincBenchmarksLayout,
             suitePath = "resources/mzn/tests/minizinc-challenge-intake-tests/tests",
             suiteName = "minizinc-challenge-intake-tests",
-            maybeNumberOfSolvers = Some(1),
-            maybeRuntimeLimitInSeconds = Some(10),
+            solverConfiguration =
+                ZincTestTask().solverConfiguration.copy(
+                    name = preferredSolvingMethod.toString.toLowerCase,
+                    numberOfSolvers = 1,
+                    maybePreferredSolvingMethod = Some(preferredSolvingMethod),
+                    maybeRuntimeLimitInSeconds = Some(10)),
             throwWhenUnsolved = true,
-            reusePreviousTestResult = false,
             verificationFrequency = VerifyEverySolution,
             createDotFile = true)
 
@@ -89,7 +97,7 @@ class MiniZincChallengeIntakeTests extends ZincBasedTest {
     @Test
     @Category(Array(classOf[MaximizationProblem], classOf[HasCumulativeConstraint]))
     def testCumulativeOpt(): Unit = {
-        solve(task.copy(problemName = "test_globals", modelName = "test_cumulative", maybeOptimum = Some(3)))
+        solve(task.copy(problemName = "test_globals", modelName = "test_cumulative_opt", maybeOptimum = Some(3)))
     }
 
     @Test
@@ -187,5 +195,16 @@ class MiniZincChallengeIntakeTests extends ZincBasedTest {
     def testVarSet2(): Unit = {
         solve(task.copy(problemName = "test_var_set", modelName = "var_set_2", maybeOptimum = Some(97)))
     }
+
+}
+
+/**
+ * @author Michael Marte
+ *
+ */
+object MiniZincChallengeIntakeTests {
+
+    @runners.Parameterized.Parameters(name = "{index}: {0}")
+    def parameters = SolvingMethod.values
 
 }

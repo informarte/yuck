@@ -22,6 +22,7 @@ final class RandomGeneratorTest extends UnitTest {
         val numberOfChangedPositionsDistribution = new Array[Int](m + 1)
         for (i <- 1 to n) {
             val shuffledData = shuffle(randomGenerator, data)
+            assertEq(data.sorted, shuffledData.sorted)
             var numberOfChangedPositions = 0
             for (j <- 0 until m) {
                 if (shuffledData(j) != data(j)) numberOfChangedPositions += 1
@@ -49,6 +50,18 @@ final class RandomGeneratorTest extends UnitTest {
             (randomGenerator, data) => {
                 val shuffledData = new mutable.ArrayBuffer[Int]
                 shuffledData ++= randomGenerator.lazyShuffle(data)
+                shuffledData
+            })
+    }
+
+    @Test
+    def testLazyShufflingInPlace(): Unit = {
+        testShuffling(
+            (randomGenerator, data) => {
+                val shuffledData = new mutable.ArrayBuffer[Int]
+                val shufflingGround = data.to(mutable.ArrayBuffer)
+                shuffledData ++= randomGenerator.lazyShuffleInPlace(shufflingGround)
+                assertEq(data.sorted, shufflingGround.sorted)
                 shuffledData
             })
     }

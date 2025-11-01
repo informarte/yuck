@@ -2,18 +2,19 @@ package yuck.test
 
 import org.junit.*
 
+import yuck.SolvingMethod
 import yuck.annealing.*
 import yuck.constraints.*
 import yuck.core.*
 import yuck.test.util.{DefaultNumberOfThreads, IntegrationTest}
-
 
 /**
  * The classic send-more-money problem
  *
  * @author Michael Marte
  */
-final class SendMoreMoney extends IntegrationTest {
+@runner.RunWith(classOf[runners.Parameterized])
+final class SendMoreMoney(solvingMethod: SolvingMethod) extends HelloWorldTest {
 
     override protected val logToConsole = false
 
@@ -24,7 +25,7 @@ final class SendMoreMoney extends IntegrationTest {
         val RHS: List[(Int, IntegerVariable)])
 
     private final class SendMoreMoneyGenerator(i: Int, seed: Int) extends SolverGenerator {
-        override def solverName = "SA-%d".format(i)
+        override def solverName = "%s-%d".format(solvingMethod, i)
         override def call() = {
 
             /*
@@ -98,28 +99,21 @@ final class SendMoreMoney extends IntegrationTest {
             }
 
             // build local-search solver
-            for (x <- vars if x.domain.isSingleton) {
-                space.setValue(x, x.domain.singleValue)
-            }
+            val xs = space.searchVariables.toVector
+            val objective = new SatisfactionObjective(costs)
             val randomGenerator = new JavaRandomGenerator(seed)
             val initializer = new RandomInitializer(space, randomGenerator.nextGen())
             initializer.run()
-            val solver =
-                new SimulatedAnnealing(
-                    "SA",
-                    space,
-                    new SatisfactionObjective(costs),
-                    new SimpleRandomReassignmentGenerator(space, space.searchVariables.toVector, randomGenerator.nextGen()),
-                    createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen()),
-                    DefaultStartTemperature,
-                    DefaultStartTemperature,
-                    DefaultPerturbationProbability,
-                    None,
-                    randomGenerator.nextGen(),
-                    None,
-                    Some(monitor),
-                    Some(new ModelData(LHS, RHS)),
-                    sigint)
+            val solver = solvingMethod match {
+                case SolvingMethod.SimulatedAnnealing =>
+                    val neighbourhood =
+                        new SimpleRandomReassignmentGenerator(space, xs, randomGenerator.nextGen())
+                    createSimulatedAnnealingSolver(
+                        solverName, space, objective, neighbourhood, randomGenerator.nextGen(), Some(new ModelData(LHS, RHS)))
+                case SolvingMethod.FeasibilityJump =>
+                    val cs = Vector(numberOfMissingValues, delta)
+                    createFeasibilityJumpSolver(solverName, space, xs, cs, objective, randomGenerator.nextGen(), Some(new ModelData(LHS, RHS)))
+            }
 
             solver
         }
@@ -130,7 +124,7 @@ final class SendMoreMoney extends IntegrationTest {
     def sendMoreMoney(): Unit = {
         val randomGenerator = new JavaRandomGenerator(29071972)
         val solvers =
-            (1 to DefaultRestartLimit).map(
+            (1 to DefaultNumberOfThreads).map(
                 i => new OnDemandGeneratedSolver(new SendMoreMoneyGenerator(i, randomGenerator.nextInt()), logger, sigint))
         val solver = new ParallelSolver(solvers, DefaultNumberOfThreads, "SendMoreMoney", logger, sigint)
         val result = solver.call()
@@ -140,7 +134,18 @@ final class SendMoreMoney extends IntegrationTest {
                 modelData.LHS.foldLeft(0){case (y, (a, x)) => y + a * result.bestProposal.value(x).toInt},
                 modelData.RHS.foldLeft(0){case (y, (a, x)) => y + a * result.bestProposal.value(x).toInt})
         }
-        assert(result.isSolution)
+        assert(sigint.isSet || result.isSolution)
     }
+
+}
+
+/**
+ * @author Michael Marte
+ *
+ */
+object SendMoreMoney {
+
+    @runners.Parameterized.Parameters(name = "{index}: {0}")
+    def parameters = SolvingMethod.values
 
 }

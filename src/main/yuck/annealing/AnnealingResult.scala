@@ -14,14 +14,10 @@ final class AnnealingResult(
     override val solverName: String,
     override val objective: AnyObjective,
     override val bestProposal: SearchState,
+    override val numberOfMoves: Long,
+    override val runtimeInMillis: Long,
+    override val numberOfConsultations: Long,
+    override val numberOfCommitments: Long,
+    override val numberOfPerturbations: Int,
     val roundLogs: IndexedSeq[RoundLog])
-    extends Result
-{
-    override def toString = roundLogs.iterator.map(_.toString).mkString("\n")
-    def runtimeInSeconds: Double = roundLogs.map(_.runtimeInSeconds).median
-    def movesPerSecond: Double = roundLogs.map(_.movesPerSecond).median
-    def consultationsPerSecond: Double = roundLogs.map(_.consultationsPerSecond).median
-    def consultationsPerMove: Double = roundLogs.map(_.consultationsPerMove).median
-    def commitmentsPerSecond: Double = roundLogs.map(_.commitmentsPerSecond).median
-    def commitmentsPerMove: Double = roundLogs.map(_.commitmentsPerMove).median
-}
+    extends LocalSearchResult

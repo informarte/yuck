@@ -42,7 +42,7 @@ final class AnnealingScheduleLoop(
                 iterationWasFutile = true
                 child.start(
                     temperature,
-                    (1.0 + numberOfSuccessiveFutileIterations.toDouble) /
+                    (1 + numberOfSuccessiveFutileIterations).toDouble /
                     maximumNumberOfSuccessiveFutileIterations.toDouble)
             }
         }

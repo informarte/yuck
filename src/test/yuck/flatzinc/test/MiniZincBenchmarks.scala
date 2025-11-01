@@ -5,6 +5,8 @@ import scala.jdk.CollectionConverters.*
 
 import org.junit.*
 import spray.json.*
+
+import yuck.SolvingMethod
 import yuck.flatzinc.test.util.*
 
 /**
@@ -189,7 +191,11 @@ object MiniZincBenchmarks extends MiniZincTestTaskFactory {
     private def amendTask(task: ZincTestTask): ZincTestTask = {
         val summary = summaryByTask(task)
         if summary.maybeSatisfiable == Some(false)
-        then task.copy(maybeNumberOfSolvers = Some(1), maybeRoundLimit = Some(0))
+        then task.copy(
+            solverConfiguration = task.solverConfiguration.copy(
+                numberOfSolvers = 1,
+                maybePreferredSolvingMethod = Some(SolvingMethod.SimulatedAnnealing),
+                annealingConfiguration = task.solverConfiguration.annealingConfiguration.copy(maybeRoundLimit = Some(0))))
         else if summary.maybeOptimum.isDefined
         then task.copy(maybeOptimum = summary.maybeOptimum)
         else if summary.maybeHighScore.isDefined

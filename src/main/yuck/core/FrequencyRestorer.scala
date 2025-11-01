@@ -7,6 +7,8 @@ import yuck.util.arm.ManagedResource
 /**
  * Managed resource to memorize changes to distributions to be undone upon closing.
  *
+ * The changes are undone in LIFO fashion.
+ *
  * @author Michael Marte
  */
 final class FrequencyRestorer(capacity: Int) extends ManagedResource {
@@ -18,11 +20,10 @@ final class FrequencyRestorer(capacity: Int) extends ManagedResource {
     override def open() = {}
 
     override def close() = {
-        var i = 0
-        val n = indices.size
-        while (i < n) {
+        var i = indices.size
+        while (i > 0) {
+            i -= 1
             distributions(i).setFrequency(indices(i), frequencies(i))
-            i += 1
         }
         distributions.clear()
         indices.clear()

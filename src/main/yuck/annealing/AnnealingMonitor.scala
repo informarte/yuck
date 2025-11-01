@@ -1,13 +1,12 @@
 package yuck.annealing
 
-import yuck.core.SolverMonitor
+import yuck.core.IteratedLocalSearchMonitoring
 
 /**
  * @author Michael Marte
  *
  */
-trait AnnealingMonitor extends SolverMonitor[AnnealingResult] {
-    def onNextRound(result: AnnealingResult): Unit = {}
+class AnnealingMonitor extends IteratedLocalSearchMonitoring[AnnealingResult] {
     def onReheatingStarted(result: AnnealingResult): Unit = {}
     def onReheatingFinished(result: AnnealingResult): Unit = {}
     def onScheduleRestarted(result: AnnealingResult): Unit = {}

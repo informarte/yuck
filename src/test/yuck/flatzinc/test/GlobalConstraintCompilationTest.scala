@@ -6,12 +6,12 @@ import org.junit.experimental.categories.*
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
+import yuck.SolvingMethod
 import yuck.constraints.*
 import yuck.constraints.OrderingRelation.*
 import yuck.core.*
 import yuck.flatzinc.compiler.{Bool2Costs2, LevelWeightMaintainer}
 import yuck.flatzinc.test.util.*
-import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 import yuck.flatzinc.test.util.VerificationFrequency.*
 import yuck.test.util.ParallelTestRunner
 
@@ -27,12 +27,21 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     private val taskWithImplicitSolving =
         task.copy(
             solverConfiguration =
-                task.solverConfiguration.copy(maybeName = Some("with-implicit-solving")))
+                task.solverConfiguration.copy(
+                    name = "with-implicit-solving",
+                    annealingConfiguration =
+                        task.solverConfiguration.annealingConfiguration.copy(
+                            useImplicitSolving = true)))
 
     private val taskWithoutImplicitSolving =
         task.copy(
             solverConfiguration =
-                task.solverConfiguration.copy(maybeName = Some("without-implicit-solving"), useImplicitSolving = false))
+                task.solverConfiguration.copy(
+                    name = "without-implicit-solving",
+                    annealingConfiguration =
+                        task.solverConfiguration.annealingConfiguration.copy(
+                            startTemperature = 0.01,
+                            useImplicitSolving = false)))
 
     @Test
     @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))

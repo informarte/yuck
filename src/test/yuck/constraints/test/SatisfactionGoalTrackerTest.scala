@@ -5,6 +5,7 @@ import org.junit.*
 import yuck.constraints.*
 import yuck.core.*
 import yuck.test.util.UnitTest
+import yuck.util.Collections.*
 
 /**
  * @author Michael Marte
@@ -18,7 +19,7 @@ class SatisfactionGoalTrackerTest extends UnitTest {
         val space = new Space(logger, sigint)
         val IndexedSeq(c1, c2, c3) =
             (0 to 2).map(i => new BooleanVariable(space.nextVariableId(), "c%d".format(i), CompleteBooleanDomain))
-        val m = Map(c1 -> Vector(0, 2), c2 -> Vector(2), c3 -> Vector(0, 1, 2))
+        val m = Map(c1 -> IntArraySeq(0, 2), c2 -> IntArraySeq(2), c3 -> IntArraySeq(0, 1, 2))
         val d = new ArrayBackedDistribution(3)
         space
             .post(new SatisfactionGoalTracker(space.nextConstraintId(), None, m, d))

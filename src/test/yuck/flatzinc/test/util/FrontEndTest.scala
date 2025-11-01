@@ -1,13 +1,10 @@
 package yuck.flatzinc.test.util
 
-import scala.collection.*
 import scala.language.implicitConversions
-import scala.reflect.ClassTag
 
-import yuck.annealing.AnnealingResult
+import yuck.SolvingMethod
 import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
-import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 
 /**
@@ -20,15 +17,15 @@ abstract class FrontEndTest extends ZincBasedTest {
         ZincTestTask(
             directoryLayout = MiniZincExamplesLayout,
             suitePath = "resources/mzn/tests/front-end-tests",
-            solverConfiguration = FlatZincSolverConfiguration(attachGoals = true, numberOfSolvers = 1),
-            maybeRuntimeLimitInSeconds = Some(10),
+            solverConfiguration =
+                ZincTestTask().solverConfiguration.copy(
+                    attachGoals = true,
+                    numberOfSolvers = 1,
+                    maybePreferredSolvingMethod = Some(SolvingMethod.SimulatedAnnealing),
+                    maybeRuntimeLimitInSeconds = Some(5)),
             throwWhenUnsolved = true,
-            reusePreviousTestResult = false,
             miniZincCompilerRenamesVariables = false,
             createDotFile = true)
-
-    protected implicit def createTask(problemName: String): ZincTestTask =
-        task.copy(problemName = problemName)
 
     protected final def wasIntroducedByMiniZincCompiler(x: AnyVariable): Boolean =
         x.name.startsWith("X_INTRODUCED")

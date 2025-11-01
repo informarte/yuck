@@ -33,10 +33,13 @@ License 2.0:
 
 * Conversant RTree
   (https://github.com/conversant/rtree)
-* spray-json
-  (https://github.com/spray/spray-json)
+* fastutil
+  (https://github.com/vigna/fastutil)
 * JHeaps
   (http://www.jheaps.org)
+* spray-json
+  (https://github.com/spray/spray-json)
+
 
 Please see the folder licenses/ for all copyright statements and the
 licenses.

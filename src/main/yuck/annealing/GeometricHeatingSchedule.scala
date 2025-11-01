@@ -21,6 +21,7 @@ final class GeometricHeatingSchedule(
 
     require(maximumUphillAcceptanceRatio >= 0.0 && maximumUphillAcceptanceRatio <= 1.0)
     require(heatingRate > 1.0)
+    require(numberOfMonteCarloAttempts > 0)
 
     private var currentTemperature = 1.0
     private var targetUphillAcceptanceRatio = maximumUphillAcceptanceRatio

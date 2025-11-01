@@ -5,7 +5,7 @@ import scala.collection.*
 import yuck.core.*
 
 /**
- * Equivalent to set_in(x, x.domain) for all x.
+ * Equivalent to set_in(x, x.domain) for all x in xs.
  *
  * @author Michael Marte
  */

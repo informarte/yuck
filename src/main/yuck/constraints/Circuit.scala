@@ -45,7 +45,7 @@ final class Circuit
         space: Space,
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
-        createHotSpotDistribution: Seq[AnyVariable] => Option[Distribution] = _ => None,
+        createHotSpotDistribution: IndexedSeq[AnyVariable] => Option[Distribution] = _ => None,
         maybeFairVariableChoiceRate: Option[Probability] = None):
         Option[Neighbourhood] =
     {

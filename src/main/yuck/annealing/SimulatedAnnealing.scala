@@ -50,6 +50,8 @@ final class SimulatedAnnealing(
     private var proposalBeforeSuspension: SearchState = null
     private var maybeLastSeenBound: Option[Costs] = None
     private val roundLogs = new mutable.ArrayBuffer[RoundLog]
+    private var numberOfMonteCarloAttempts = 0L
+    private var runtimeInMillis = 0L
     private var numberOfPerturbations = 0
 
     {
@@ -109,16 +111,19 @@ final class SimulatedAnnealing(
     private def anneal(): Unit = {
 
         // main annealing loop
+        val startTimeInMillis = System.currentTimeMillis
         while (! wasInterrupted && ! hasFinished) {
             nextRound()
             if (schedule.isFrozen) {
                 restart()
             }
         }
+        val endTimeInMillis = System.currentTimeMillis
 
         // book-keeping
         val costsOfFinalProposal = costsOfCurrentProposal
         proposalBeforeSuspension = currentProposal.clone
+        runtimeInMillis += (endTimeInMillis - startTimeInMillis)
 
         // revert to best assignment
         if (objective.isLowerThan(costsOfBestProposal, costsOfCurrentProposal)) {
@@ -215,20 +220,21 @@ final class SimulatedAnnealing(
             val after = space.consult(move)
             val delta = objective.assessMove(before, after)
             if (delta <= 0 || randomGenerator.nextProbability() <= scala.math.exp(-delta / temperature)) {
-                space.commit(move)
-                neighbourhood.commit(move)
-                postprocessMove(roundLog)
+                processMove(move, roundLog)
                 if (delta > 0) {
                     roundLog.numberOfAcceptedUphillMoves += 1
                 }
             } else {
                 roundLog.numberOfRejectedMoves += 1
             }
+            numberOfMonteCarloAttempts += 1
             numberOfRemainingMonteCarloAttempts -= 1
         }
     }
 
-    private def postprocessMove(roundLog: RoundLog): Unit = {
+    private def processMove(move: Move, roundLog: RoundLog): Unit = {
+        space.commit(move)
+        neighbourhood.commit(move)
         objective.findActualObjectiveValue(space)
         costsOfCurrentProposal = objective.costs(currentProposal)
         if (objective.isLowerThan(costsOfCurrentProposal, roundLog.costsOfBestProposal)) {
@@ -283,12 +289,19 @@ final class SimulatedAnnealing(
         val tightenedVariables = objective.tighten(space, bound)
         if (maybeMonitor.isDefined) {
             val monitor = maybeMonitor.get
-            tightenedVariables.foreach(monitor.onObjectiveTightened)
+            for (x <- tightenedVariables) {
+                monitor.onObjectiveTightened(createResult(), x)
+            }
         }
         costsOfCurrentProposal = objective.costs(currentProposal)
     }
 
     private def createResult(): AnnealingResult =
-        new AnnealingResult(maybeUserData, name, objective, bestProposal, roundLogs)
+        new AnnealingResult(
+            maybeUserData, name, objective, bestProposal,
+            numberOfMonteCarloAttempts, runtimeInMillis,
+            space.numberOfConsultations, space.numberOfCommitments,
+            numberOfPerturbations,
+            roundLogs)
 
 }

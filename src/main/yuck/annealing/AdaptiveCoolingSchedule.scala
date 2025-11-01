@@ -25,6 +25,7 @@ final class AdaptiveCoolingSchedule(
     require(finalTemperature >= 0.0)
     require(minimumUphillAcceptanceRatio >= 0.0 && minimumUphillAcceptanceRatio <= 1.0)
     require(coolingRate > 0.0 && coolingRate < 1.0)
+    require(numberOfMonteCarloAttempts > 0)
     require(maximumNumberOfSuccessiveFutileRoundsInAttractionBasin > 0)
 
     private var currentTemperature = 1.0

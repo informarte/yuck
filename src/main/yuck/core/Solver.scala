@@ -53,23 +53,6 @@ abstract class SolverGenerator extends Callable[Solver] {
 }
 
 /**
- * An interface (with empty default implementation) that solvers can use to communicate
- * special events to the outside world.
- *
- * @author Michael Marte
- */
-trait SolverMonitor[ResultImpl <: Result] extends ManagedResource {
-    override def open() = {}
-    override def close() = {}
-    def onSolverLaunched(result: ResultImpl): Unit = {}
-    def onSolverSuspended(result: ResultImpl): Unit = {}
-    def onSolverResumed(result: ResultImpl): Unit = {}
-    def onSolverFinished(result: ResultImpl): Unit = {}
-    def onBetterProposal(result: ResultImpl): Unit = {}
-    def onObjectiveTightened(x: AnyVariable): Unit = {}
-}
-
-/**
  * A solver that is always finished and hence cannot be run.
  *
  * @author Michael Marte

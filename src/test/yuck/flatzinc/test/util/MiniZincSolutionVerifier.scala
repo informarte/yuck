@@ -9,6 +9,7 @@ import yuck.core.*
 import yuck.flatzinc.ast.*
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.flatzinc.runner.*
+import yuck.flatzinc.test.util.SourceFormat.MiniZinc
 import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 import yuck.flatzinc.test.util.VerificationFrequency.*
 import yuck.flatzinc.test.util.VerificationTool.*
@@ -23,6 +24,8 @@ class MiniZincSolutionVerifier(
     task: ZincTestTask, result: Result, logger: LazyLogger)
     extends Callable[Boolean]
 {
+
+    require(task.sourceFormat == MiniZinc)
 
     private val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
     private val solutionFormatter = new FlatZincResultFormatter(compilerResult.ast)
@@ -107,9 +110,10 @@ class MiniZincSolutionVerifier(
                  "",
                  "tmp/%s/%s/%s".format(suiteName, problemName, instanceName))
         }
-        val outputDirectoryPath = task.solverConfiguration.maybeName
-            .map(name => "%s/%s".format(outputDirectoryPath0, name))
-            .getOrElse(outputDirectoryPath0)
+        val outputDirectoryPath =
+            if task.solverConfiguration.name.isEmpty
+            then outputDirectoryPath0
+            else "%s/%s".format(outputDirectoryPath0, task.solverConfiguration.name)
         new java.io.File(outputDirectoryPath).mkdirs
         val solutionFilePath =
             if task.verificationFrequency == VerifyEverySolution

@@ -1,11 +1,10 @@
 package yuck.flatzinc.test.util.test
 
-import scala.collection.*
 import scala.jdk.CollectionConverters.*
 
 import org.junit.*
 
-import yuck.annealing.{AnnealingMonitor, AnnealingMonitorCollection, AnnealingResult}
+import yuck.SolvingMethod
 import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.test.util.*
@@ -33,6 +32,8 @@ class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean, verificationFrequ
             modifiedSolution.setValue(varDir("y").asInstanceOf[IntegerVariable], Ten)
             modifiedSolution
         }
+        override val searchWasPerformed = result.searchWasPerformed
+        override val runtimeInMillis = result.runtimeInMillis
     }
 
     override protected def spoilResult(result: Result) =
@@ -45,10 +46,13 @@ class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean, verificationFrequ
                 directoryLayout = MiniZincExamplesLayout,
                 suitePath = "resources/mzn/tests/test-util-tests",
                 problemName = "verification-test",
-                solverConfiguration = FlatZincSolverConfiguration(numberOfSolvers = 1, pruneConstraintNetwork = false),
-                maybeRuntimeLimitInSeconds = Some(10),
+                solverConfiguration =
+                    ZincTestTask().solverConfiguration.copy(
+                        numberOfSolvers = 1,
+                        pruneConstraintNetwork = false,
+                        maybePreferredSolvingMethod = Some(SolvingMethod.SimulatedAnnealing),
+                        maybeRuntimeLimitInSeconds = Some(10)),
                 throwWhenUnsolved = true,
-                reusePreviousTestResult = false,
                 verificationFrequency = verificationFrequency)
         if (simulateBadSolver && verificationFrequency != NoVerification) {
             assertEx(solve(task), classOf[SolutionNotVerifiedException])

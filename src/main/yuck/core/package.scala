@@ -29,6 +29,8 @@ package object core {
     inline def max(a: Long, b: Long): Long = java.lang.Math.max(a, b)
     inline def abs(a: Long): Long = java.lang.Math.abs(a)
 
+    inline def ld(a: Double): Double = java.lang.Math.log(a) / java.lang.Math.log(2.0)
+
     type Costs = AnyValue
 
     val True = BooleanValue(0)
@@ -89,8 +91,6 @@ package object core {
     }
 
     val DefaultSeed = 0x0a23d679a633c596L
-
-    val DefaultRestartLimit = 1000
 
     // The scala package object provides List and Vector but it does not provide map and set implementations.
     export scala.collection.immutable.{HashMap, TreeMap, HashSet, TreeSet}

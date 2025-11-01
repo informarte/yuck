@@ -6,7 +6,6 @@ import scala.collection.*
 
 import yuck.core.{Constraint, Goal}
 
-
 final class SpacePerformanceMetrics(
     val numberOfConsultations: Long,
     val consultationEffort: Duration, // without profiling overhead

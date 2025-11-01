@@ -2,7 +2,10 @@ package yuck.flatzinc.compiler
 
 import java.util.concurrent.Callable
 
+import yuck.constraints.Delivery
+import yuck.SolvingMethod
 import yuck.core.*
+import yuck.SolvingMethod
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.FlatZincAst
 import yuck.util.arm.Sigint
@@ -42,7 +45,8 @@ final class FlatZincCompiler
         val vars = (for ((key, x) <- cc.vars) yield key.toString -> x).toMap
         val arrays = (for ((key, array) <- cc.arrays) yield key.toString -> array).toMap
         new FlatZincCompilerResult(
-            cc.ast, cc.space, vars, arrays, cc.objective, cc.maybeNeighbourhood, ! cc.warmStartAssignment.isEmpty, runtime)
+            cc.ast, cc.space, vars, arrays, cc.objective, cc.maybeNeighbourhood, ! cc.warmStartAssignment.isEmpty,
+            runtime)
 
     }
 
@@ -65,7 +69,27 @@ final class FlatZincCompiler
         if (cfg.runPresolver) {
             run(new Presolver(cc))
         }
-        run(new AnnealingNeighbourhoodFactory(cc, randomGenerator.nextGen()))
+        val objectiveIsSuitableForFj = cc.objective match {
+            case _: SatisfactionObjective => true
+            case hierarchicalObjective: HierarchicalObjective =>
+                hierarchicalObjective.primitiveObjectives match {
+                    case List(_: SatisfactionObjective, numericalObjective: NumericalObjective[?]) =>
+                        numericalObjective.maybeY.isDefined
+                    case _ => false
+                }
+            case _ => false
+        }
+        if (cfg.maybePreferredSolvingMethod.getOrElse(SolvingMethod.SimulatedAnnealing) == SolvingMethod.SimulatedAnnealing ||
+            ! objectiveIsSuitableForFj ||
+            cc.space.searchVariables.iterator.exists(_.isInstanceOf[IntegerSetVariable]) ||
+            // Delivery requires the circuit to be maintained by a neighbourhood.
+            cc.costVars.exists(costs =>
+                cc.space.maybeDefiningConstraint(costs).map(_.isInstanceOf[Delivery[?]]).getOrElse(false)))
+        {
+            run(new AnnealingNeighbourhoodFactory(cc, randomGenerator.nextGen()))
+        } else {
+            run(new FeasibilityJumpNeighbourhoodFactory(cc, randomGenerator.nextGen()))
+        }
         if (cfg.pruneConstraintNetwork) {
             run(new ConstraintNetworkPruner(cc))
         }

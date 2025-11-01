@@ -124,7 +124,7 @@ final class Regular
         val is = {
             val xs = move.involvedVariablesIterator
             val is0 = if (hasDuplicateVariables) xs.flatMap(x2is) else xs.map(x2i)
-            is0.filter(_ <= currentFailurePosition).toBuffer.sorted
+            is0.filter(_ <= currentFailurePosition).toArray.sortInPlace()
         }
         val m = is.size
         var j = 0
@@ -190,7 +190,7 @@ final class Regular
         space: Space,
         randomGenerator: RandomGenerator,
         moveSizeDistribution: Distribution,
-        createHotSpotDistribution: Seq[AnyVariable] => Option[Distribution],
+        createHotSpotDistribution: IndexedSeq[AnyVariable] => Option[Distribution],
         maybeFairVariableChoiceRate: Option[Probability]) =
     {
         if (isCandidateForImplicitSolving(space)) {

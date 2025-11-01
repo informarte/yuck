@@ -2,6 +2,7 @@ package yuck.test
 
 import org.junit.*
 
+import yuck.SolvingMethod
 import yuck.annealing.*
 import yuck.constraints.*
 import yuck.core.*
@@ -12,7 +13,8 @@ import yuck.test.util.{DefaultNumberOfThreads, IntegrationTest}
  *
  * @author Michael Marte
  */
-final class SendMostMoney extends IntegrationTest {
+@runner.RunWith(classOf[runners.Parameterized])
+final class SendMostMoney(solvingMethod: SolvingMethod) extends HelloWorldTest {
 
     override protected val logToConsole = false
 
@@ -23,7 +25,7 @@ final class SendMostMoney extends IntegrationTest {
         val RHS: List[(Int, IntegerVariable)])
 
     private final class SendMostMoneyGenerator(i: Int, seed: Int) extends SolverGenerator {
-        override def solverName = "SA-%d".format(i)
+        override def solverName = "%s-%d".format(solvingMethod, i)
         override def call() = {
 
             /*
@@ -98,31 +100,25 @@ final class SendMostMoney extends IntegrationTest {
             }
 
             // build local-search solver
-            for (x <- vars if x.domain.isSingleton) {
-                space.setValue(x, x.domain.singleValue)
-            }
+            val xs = space.searchVariables.toVector
+            val objective =
+                new HierarchicalObjective(
+                    List(new SatisfactionObjective(costs),
+                         new MaximizationObjective(rhs, Some(IntegerValue(10876)), None)),
+                    false, false)
             val randomGenerator = new JavaRandomGenerator(seed)
             val initializer = new RandomInitializer(space, randomGenerator.nextGen())
             initializer.run()
-            val solver =
-                new SimulatedAnnealing(
-                    solverName,
-                    space,
-                    new HierarchicalObjective(
-                        List(new SatisfactionObjective(costs),
-                             new MaximizationObjective(rhs, Some(IntegerValue(10876)), None)),
-                        false, false),
-                    new SimpleRandomReassignmentGenerator(space, space.searchVariables.toVector, randomGenerator.nextGen()),
-                    createAnnealingSchedule(space.searchVariables.size, randomGenerator.nextGen()),
-                    DefaultStartTemperature,
-                    DefaultStartTemperature,
-                    DefaultPerturbationProbability,
-                    None,
-                    randomGenerator.nextGen(),
-                    None,
-                    Some(monitor),
-                    Some(new ModelData(LHS, RHS)),
-                    sigint)
+            val solver = solvingMethod match {
+                case SolvingMethod.SimulatedAnnealing =>
+                    val neighbourhood =
+                        new SimpleRandomReassignmentGenerator(space, xs, randomGenerator.nextGen())
+                    createSimulatedAnnealingSolver(
+                        solverName, space, objective, neighbourhood, randomGenerator.nextGen(), Some(new ModelData(LHS, RHS)))
+                case SolvingMethod.FeasibilityJump =>
+                    val cs = Vector(numberOfMissingValues, delta)
+                    createFeasibilityJumpSolver(solverName, space, xs, cs, objective, randomGenerator.nextGen(), Some(new ModelData(LHS, RHS)))
+            }
 
             solver
         }
@@ -132,7 +128,7 @@ final class SendMostMoney extends IntegrationTest {
     def sendMostMoney(): Unit = {
         val randomGenerator = new JavaRandomGenerator(29071972)
         val solvers =
-            (1 to DefaultRestartLimit).map(
+            (1 to DefaultNumberOfThreads).map(
                 i => new OnDemandGeneratedSolver(new SendMostMoneyGenerator(i, randomGenerator.nextInt()), logger, sigint))
         val solver = new ParallelSolver(solvers, DefaultNumberOfThreads, "SendMostMoney", logger, sigint)
         val result = solver.call()
@@ -142,7 +138,19 @@ final class SendMostMoney extends IntegrationTest {
                 modelData.LHS.foldLeft(0){case (y, (a, x)) => y + a * result.bestProposal.value(x).toInt},
                 modelData.RHS.foldLeft(0){case (y, (a, x)) => y + a * result.bestProposal.value(x).toInt})
         }
-        assert(result.isSolution)
+        assert(sigint.isSet || result.isSolution)
     }
+
+}
+
+
+/**
+ * @author Michael Marte
+ *
+ */
+object SendMostMoney {
+
+    @runners.Parameterized.Parameters(name = "{index}: {0}")
+    def parameters = SolvingMethod.values
 
 }

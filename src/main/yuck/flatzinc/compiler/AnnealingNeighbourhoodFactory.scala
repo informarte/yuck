@@ -2,10 +2,11 @@ package yuck.flatzinc.compiler
 
 import scala.collection.*
 
-import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.*
+import yuck.constraints.SatisfactionGoalTracker.computeInvolvementMap
 import yuck.core.*
 import yuck.flatzinc.FlatZincLevelConfiguration
+import yuck.util.Collections.*
 
 /**
  * Generates focused annealing neighbourhoods for all types of goals.
@@ -46,6 +47,8 @@ final class AnnealingNeighbourhoodFactory
     extends CompilationPhase
 {
 
+    private val moveSizeDistribution = cc.cfg.annealingConfiguration.moveSizeDistribution
+
     private val neighbourhoodsFromImplicitConstraints = new mutable.ArrayBuffer[Neighbourhood]
 
     override def run() = {
@@ -55,7 +58,10 @@ final class AnnealingNeighbourhoodFactory
     private final def createNeighbourhood: Option[Neighbourhood] = {
         val buf = new mutable.ArrayBuffer[(PrimitiveObjective, Option[Neighbourhood])]
         for ((objective, i) <- cc.objective.primitiveObjectives.zipWithIndex) {
-            val levelCfg = if (i == 0) cc.cfg.topLevelConfiguration else cc.cfg.subordinateLevelConfiguration
+            val levelCfg =
+                if i == 0
+                then cc.cfg.annealingConfiguration.topLevelConfiguration
+                else cc.cfg.annealingConfiguration.subordinateLevelConfiguration
             objective.x match {
                 case costVar: BooleanVariable =>
                     cc.logger.withTimedLogScope("Creating a neighbourhood for satisfaction") {
@@ -89,7 +95,7 @@ final class AnnealingNeighbourhoodFactory
     {
         val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
         val candidatesForImplicitSolving =
-            if (cc.cfg.useImplicitSolving && levelCfg.isTopLevel) {
+            if (cc.cfg.annealingConfiguration.useImplicitSolving && levelCfg.isTopLevel) {
                 cc.costVarsFromRedundantConstraints.iterator.concat(Iterator.single(x))
                     .flatMap(findCandidatesForImplicitSolving).toBuffer.sorted.toIndexedSeq
             } else {
@@ -107,8 +113,7 @@ final class AnnealingNeighbourhoodFactory
             if ((xs & cc.implicitlyConstrainedVars).isEmpty) {
                 val (maybeNeighbourhood, _) = cc.logger.withTimedLogScope("Solving %s".format(constraint)) {
                     constraint.createNeighbourhood(
-                        cc.space, randomGenerator,
-                        cc.cfg.moveSizeDistribution,
+                        cc.space, randomGenerator, moveSizeDistribution,
                         createHotSpotDistribution = xs => Some(createHotSpotDistribution(xs, cc.costVars)),
                         maybeFairVariableChoiceRate = levelCfg.maybeFairVariableChoiceRate)
                 }
@@ -134,7 +139,7 @@ final class AnnealingNeighbourhoodFactory
                 else None
             neighbourhoods +=
                 new RandomReassignmentGenerator(
-                    cc.space, xs, randomGenerator, cc.cfg.moveSizeDistribution,
+                    cc.space, xs, randomGenerator, moveSizeDistribution,
                     if (levelCfg.guideOptimization && maybeCostVars.isDefined) Some(createHotSpotDistribution(xs, maybeCostVars.get)) else None,
                     if (levelCfg.guideOptimization) levelCfg.maybeFairVariableChoiceRate else None)
         }
@@ -255,7 +260,7 @@ final class AnnealingNeighbourhoodFactory
                     cc.logger.log("%s contributes a neighbourhood over %s".format(constraint, xs))
                         neighbourhoods +=
                             new RandomReassignmentGenerator(
-                                cc.space, xs, randomGenerator, cc.cfg.moveSizeDistribution, None, None)
+                                cc.space, xs, randomGenerator, moveSizeDistribution, None, None)
                     if (neighbourhoods.size < 2) {
                         neighbourhoods.headOption
                     } else {
@@ -289,7 +294,7 @@ final class AnnealingNeighbourhoodFactory
                 cc.logger.logg("Adding a neighbourhood over %s".format(xs))
                 val hotSpotDistribution = createHotSpotDistribution(mode, weights)
                 Some(new RandomReassignmentGenerator(
-                    cc.space, xs, randomGenerator, cc.cfg.moveSizeDistribution, Some(hotSpotDistribution), None))
+                    cc.space, xs, randomGenerator, moveSizeDistribution, Some(hotSpotDistribution), None))
             }
         } else {
             val weightedNeighbourhoods = new mutable.ArrayBuffer[(AX[V], Neighbourhood)]
@@ -340,31 +345,27 @@ final class AnnealingNeighbourhoodFactory
         } else {
             cc.logger.logg("Adding a neighbourhood over %s".format(xs))
             Some(new RandomReassignmentGenerator(
-                cc.space, xs.toBuffer.sorted.toVector, randomGenerator, cc.cfg.moveSizeDistribution, None, None))
+                cc.space, xs.toBuffer.sorted.toVector, randomGenerator, moveSizeDistribution, None, None))
         }
     }
 
-    private def createHotSpotDistribution(searchVars: Seq[AnyVariable], costVars: Set[BooleanVariable]): Distribution = {
-        val searchVarIndex = searchVars.iterator.zipWithIndex.toMap
-        val hotSpotDistribution = Distribution(searchVars.size)
-        val searchVarSet = searchVars.toSet
-        def involvedSearchVars(x: AnyVariable) =
-            cc.space.involvedSearchVariables(x).intersect(searchVarSet).iterator.map(searchVarIndex).toVector
-        val involvementMatrix = costVars.iterator.map(x => (x, involvedSearchVars(x))).filter(_._2.nonEmpty).toMap
-        cc.post(new SatisfactionGoalTracker(cc.space.nextConstraintId(), None, involvementMatrix, hotSpotDistribution))
+    private def createHotSpotDistribution(xs: IndexedSeq[AnyVariable], cs: Iterable[BooleanVariable]): Distribution = {
+        val involvementMap = computeInvolvementMap(cc.space, xs, cs)
+        val hotSpotDistribution = Distribution(xs.size)
+        cc.post(new SatisfactionGoalTracker(cc.space.nextConstraintId(), None, involvementMap, hotSpotDistribution))
         hotSpotDistribution
     }
 
     private def createHotSpotDistribution(neighbourhoods: Seq[Neighbourhood]): Distribution = {
         val neighbourhoodScopes = neighbourhoods.iterator.map(_.searchVariables.toSet).toVector
-        val hotSpotDistribution = Distribution(neighbourhoods.size)
-        def involvedNeighbourhoods(x: AnyVariable) = {
+        def involvedNeighbourhoods(x: AnyVariable): IntArraySeq = {
             val xs = cc.space.involvedSearchVariables(x)
             def isInvolved(i: Int) = xs.exists(neighbourhoodScopes(i).contains)
-            neighbourhoods.indices.filter(isInvolved).toVector
+            neighbourhoods.indices.stream.filter(isInvolved).toArraySeq
         }
-        val involvementMatrix = cc.costVars.iterator.map(x => (x, involvedNeighbourhoods(x))).filter(_._2.nonEmpty).toMap
-        cc.post(new SatisfactionGoalTracker(cc.space.nextConstraintId(), None, involvementMatrix, hotSpotDistribution))
+        val involvementMap = cc.costVars.iterator.map(x => (x, involvedNeighbourhoods(x))).toMap
+        val hotSpotDistribution = Distribution(neighbourhoods.size)
+        cc.post(new SatisfactionGoalTracker(cc.space.nextConstraintId(), None, involvementMap, hotSpotDistribution))
         hotSpotDistribution
     }
 
@@ -394,7 +395,7 @@ final class AnnealingNeighbourhoodFactory
     protected def maybeSelectionSizeDistribution(neighbourhoods: Iterable[Neighbourhood]): Option[Distribution] = {
         val searchVariables = neighbourhoods.iterator.flatMap(_.searchVariables).toSet
         val neighbourhoodsAreDisjoint = searchVariables.size == neighbourhoods.iterator.map(_.searchVariables.size).sum
-        if neighbourhoodsAreDisjoint then Some(cc.cfg.moveSizeDistribution) else None
+        if neighbourhoodsAreDisjoint then Some(moveSizeDistribution) else None
     }
 
 }
