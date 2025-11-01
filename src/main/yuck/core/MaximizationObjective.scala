@@ -9,7 +9,7 @@ final class MaximizationObjective
     [V <: NumericalValue[V]]
     (override val x: NumericalVariable[V],
      maybeTargetCosts: Option[V],
-     override protected val maybeY: Option[NumericalVariable[V]])
+     override val maybeY: Option[NumericalVariable[V]])
     (using valueTraits: NumericalValueTraits[V])
     extends NumericalObjective[V]
 {
@@ -17,9 +17,12 @@ final class MaximizationObjective
         "maximize %s".format(x)
     override def targetCosts: V = {
         val dx = x.domain
-        if (dx.hasUb && maybeTargetCosts.isDefined) valueTraits.valueOrdering.min(dx.ub, maybeTargetCosts.get)
-        else if (dx.hasUb) dx.ub
-        else if (maybeTargetCosts.isDefined) maybeTargetCosts.get
+        if dx.hasUb && maybeTargetCosts.isDefined
+        then valueTraits.valueOrdering.min(dx.ub, maybeTargetCosts.get)
+        else if dx.hasUb
+        then dx.ub
+        else if maybeTargetCosts.isDefined
+        then maybeTargetCosts.get
         else valueTraits.maxValue
     }
     override def isOptimal(costs: Costs) = {

@@ -74,19 +74,22 @@ final class HierarchicalObjective
     private def assessMove(objectives: List[AnyObjective], before: SearchState, after: SearchState): Double =
         objectives match {
             case Nil => 0
-            case (h :: t) =>
+            case h :: t =>
                 val delta = h.assessMove(before, after)
                 if (delta == 0) assessMove(t, before, after) else delta
         }
-    override private[core] def findActualObjectiveValue(space: Space, rootObjective: AnyObjective) =
+    override def findActualObjectiveValue(space: Space, rootObjective: AnyObjective) =
         primitiveObjectives.foreach(_.findActualObjectiveValue(space, rootObjective))
-    override def tighten(space: Space) =
-        tighten(space, primitiveObjectives)
-    private def tighten(space: Space, objectives: List[AnyObjective]): Set[AnyVariable] =
-        objectives match {
-            case Nil => Set.empty
-            case (h :: t) =>
-                if (h.isGoodEnough(space.searchState)) h.tighten(space).union(tighten(space, t))
-                else h.tighten(space)
+    override def tighten(space: Space, bound: AnyValue) =
+        tighten(space, primitiveObjectives, bound.asInstanceOf[PolymorphicListValue].value)
+    private def tighten(space: Space, objectives: List[AnyObjective], bounds: List[AnyValue]): Set[AnyVariable] = {
+        require(objectives.size == bounds.size)
+        (objectives, bounds) match {
+            case (objective :: remainingObjectives, bound :: remainingBounds) =>
+                if objective.isGoodEnough(bound)
+                then tighten(space, remainingObjectives, remainingBounds)
+                else objective.tighten(space, bound)
+            case _ => Set.empty
         }
+    }
 }

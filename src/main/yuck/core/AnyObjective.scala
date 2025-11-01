@@ -74,16 +74,23 @@ abstract class AnyObjective {
      * Finds the best objective value a that is compatible with the current search state
      * (in the sense that x = a does not violate more important objectives) and assigns a to x.
      */
-    final def findActualObjectiveValue(space: Space): Unit = findActualObjectiveValue(space, this)
-
-    private[core] def findActualObjectiveValue(space: Space, rootObjective: AnyObjective): Unit = {}
+    def findActualObjectiveValue(space: Space, rootObjective: AnyObjective = this): Unit = {}
 
     /**
      * Tries to tighten this objective (by reducing variable domains) such that search states
-     * worse than or equivalent to the current one become infeasible.
+     * worse than or equivalent to the given one become infeasible.
      *
      * Returns the set of variables the domains of which were reduced in the process.
      */
-    def tighten(space: Space): Set[AnyVariable] = Set.empty
+    final def tighten(space: Space): Set[AnyVariable] =
+        tighten(space, costs(space.searchState))
+
+    /**
+     * Tries to tighten this objective (by reducing variable domains) such that search states
+     * with objective value worse than or equivalent to the given one become infeasible.
+     *
+     * Returns the set of variables the domains of which were reduced in the process.
+     */
+    def tighten(space: Space, bound: AnyValue): Set[AnyVariable] = Set.empty
 
 }

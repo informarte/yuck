@@ -2,7 +2,6 @@ package yuck.test
 
 import org.junit.*
 
-import yuck.annealing.test.*
 import yuck.constraints.test.*
 import yuck.core.test.*
 import yuck.flatzinc.ast.test.*
@@ -26,7 +25,6 @@ import yuck.util.alg.rtree.test.*
         classOf[DistributionTest],
         classOf[ConstraintTestSuite],
         classOf[NeighbourhoodTestSuite],
-        classOf[ProgressiveTighteningTest],
         classOf[RTreeIntakeTest],
         classOf[RTreeTransactionTest],
         classOf[FlatZincAstTest],

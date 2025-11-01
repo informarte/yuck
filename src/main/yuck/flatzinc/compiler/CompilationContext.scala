@@ -15,6 +15,7 @@ import yuck.util.logging.LazyLogger
 final class CompilationContext(
     val ast: FlatZincAst,
     val cfg: FlatZincSolverConfiguration,
+    val sharedBound: SharedBound,
     val logger: LazyLogger,
     val sigint: Sigint)
 {

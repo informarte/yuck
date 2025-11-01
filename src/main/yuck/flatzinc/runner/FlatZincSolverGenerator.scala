@@ -15,6 +15,7 @@ import yuck.util.logging.LazyLogger
 final class FlatZincSolverGenerator
     (ast: FlatZincAst,
      cfg: FlatZincSolverConfiguration,
+     sharedBound: SharedBound,
      monitor: AnnealingMonitor,
      logger: LazyLogger,
      sigint: SettableSigint)
@@ -50,7 +51,7 @@ final class FlatZincSolverGenerator
     {
         override def solverName = "FZS-%d".format(solverIndex)
         override def call() = {
-            val compiler = new FlatZincCompiler(ast, cfg, randomGenerator.nextGen(), logger, sigint)
+            val compiler = new FlatZincCompiler(ast, cfg, randomGenerator.nextGen(), sharedBound, logger, sigint)
             val compilerResult = compiler.call()
             val space = compilerResult.space
             // The initializer will respect existing value assignments.
@@ -76,6 +77,7 @@ final class FlatZincSolverGenerator
                     schedule,
                     startTemperature, cfg.startTemperature,
                     cfg.perturbationProbability,
+                    if cfg.shareBounds then Some(sharedBound) else None,
                     randomGenerator.nextGen(),
                     cfg.maybeRoundLimit,
                     Some(monitor),

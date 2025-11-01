@@ -21,6 +21,7 @@ final class FlatZincCompiler
     (ast: FlatZincAst,
      cfg: FlatZincSolverConfiguration,
      randomGenerator: RandomGenerator,
+     sharedBound: SharedBound,
      logger: LazyLogger,
      sigint: Sigint)
     extends Callable[FlatZincCompilerResult]
@@ -47,7 +48,7 @@ final class FlatZincCompiler
 
     private def compile(): CompilationContext = {
 
-        val cc = new CompilationContext(ast, cfg, logger, sigint)
+        val cc = new CompilationContext(ast, cfg, sharedBound, logger, sigint)
 
         randomGenerator.nextGen()
         run(new DomainInitializer(cc))

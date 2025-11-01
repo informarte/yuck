@@ -11,8 +11,8 @@ import yuck.core.*
 import yuck.flatzinc.compiler.{Bool2Int1, LevelWeightMaintainer, VariableWithInfiniteDomainException}
 import yuck.flatzinc.test.util.*
 import yuck.flatzinc.test.util.SourceFormat.*
-import yuck.flatzinc.test.util.VerificationFrequency.*
 import yuck.test.util.ParallelTestRunner
+import yuck.flatzinc.test.util.VerificationFrequency.*
 
 /**
  * Tests that cover edge cases and rarely used features of the FlatZinc language

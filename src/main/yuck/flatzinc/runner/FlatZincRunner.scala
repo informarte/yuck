@@ -2,6 +2,7 @@ package yuck.flatzinc.runner
 
 import java.io.IOException
 import java.util.concurrent.CancellationException
+import java.util.concurrent.atomic.AtomicReference
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -13,11 +14,11 @@ import spray.json.JsBoolean
 import yuck.BuildInfo
 import yuck.annealing.*
 import yuck.core.profiling.SpaceProfilingMode
-import yuck.core.{CyclicConstraintNetworkException, InconsistentProblemException}
+import yuck.core.{Costs, CyclicConstraintNetworkException, InconsistentProblemException, SharedBound}
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.{FlatZincCompilerResult, UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
 import yuck.flatzinc.parser.*
-import yuck.flatzinc.util.SummaryBuilder
+import yuck.flatzinc.util.{SharedBoundMaintainer, SummaryBuilder}
 import yuck.util.arm.*
 import yuck.util.logging.{TransientThreadRenaming, YuckLogging}
 
@@ -96,6 +97,9 @@ object FlatZincRunner extends YuckLogging {
         opt[Boolean]("use-progressive-tightening")
             .text("Default value is %s".format(defaultCfg.useProgressiveTightening))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(useProgressiveTightening = x)))
+        opt[Boolean]("share-bounds")
+            .text("Default value is %s".format(defaultCfg.shareBounds))
+            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(shareBounds = x)))
         opt[Boolean]("delay-cycle-checking-until-initialization")
             .text("Default value is %s".format(defaultCfg.delayCycleCheckingUntilInitialization))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(delayCycleCheckingUntilInitialization = x)))
@@ -222,12 +226,17 @@ object FlatZincRunner extends YuckLogging {
         if (cl.printIntermediateSolutions) {
             monitors += resultPrinter
         }
+        val sharedBoundHolder = new AtomicReference[Costs]
+        if (cl.cfg.shareBounds) {
+            monitors += new SharedBoundMaintainer(sharedBoundHolder)
+        }
         val monitor = new AnnealingMonitorCollection(monitors.toVector)
         val (result, _) = scoped(new TransientThreadRenaming(resultPrinterThread, "result-printer")) {
             scoped(new ManagedThread(resultPrinterThread, logger)) {
                 logger.withTimedLogScope("Solving problem") {
                     scoped(monitor) {
-                        new FlatZincSolverGenerator(ast, cl.cfg, monitor, logger, sigint).call().call()
+                        val sharedBound = new SharedBound(sharedBoundHolder)
+                        new FlatZincSolverGenerator(ast, cl.cfg, sharedBound, monitor, logger, sigint).call().call()
                     }
                 }
             }
