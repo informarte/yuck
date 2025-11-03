@@ -173,7 +173,8 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Test
     @Category(Array(classOf[MinimizationProblem]))
     def connect_0018(): Unit = {
-        solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "connect", instanceName = "connect__0018", maybeOptimum = Some(52490)))
+        // The solution cannot be verified due to a model issue, see https://github.com/minizinc/libminizinc/issues/709.
+        solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "connect", instanceName = "connect__0018", maybeOptimum = Some(52490), verificationFrequency = NoVerification))
     }
 
     @Test
