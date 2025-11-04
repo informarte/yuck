@@ -10,3 +10,16 @@ enum SolvingMethod(val abbreviation: String) {
 
     override def toString = abbreviation
 }
+
+/**
+ * @author Michael Marte
+ *
+ */
+object SolvingMethod {
+
+    def fromAbbreviation(str: String): SolvingMethod =
+        values.find(_.abbreviation == str).getOrElse {
+            throw new IllegalArgumentException("Unknown abbreviation: %s".format(str))
+        }
+
+}

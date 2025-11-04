@@ -11,11 +11,11 @@ import scala.math.max
 import scopt.*
 import spray.json.JsBoolean
 
-import yuck.BuildInfo
+import yuck.{BuildInfo, SolvingMethod}
 import yuck.annealing.*
 import yuck.core.profiling.SpaceProfilingMode
 import yuck.core.{Costs, CyclicConstraintNetworkException, InconsistentProblemException, SharedBound, SolverMonitoring}
-import yuck.fj.{FeasibilityJumpEventLogger}
+import yuck.fj.FeasibilityJumpEventLogger
 import yuck.flatzinc.{AnnealingConfiguration, FlatZincSolverConfiguration}
 import yuck.flatzinc.compiler.{FlatZincCompilerResult, UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
 import yuck.flatzinc.parser.*
@@ -39,10 +39,18 @@ object FlatZincRunner extends YuckLogging {
         cfg: FlatZincSolverConfiguration =
             FlatZincSolverConfiguration(
                 // The parser expects the following values to be undefined!
+                maybePreferredSolvingMethod = None,
                 annealingConfiguration = AnnealingConfiguration(maybeRoundLimit = None),
                 maybeRuntimeLimitInSeconds = None,
                 maybeTargetObjectiveValue = None))
     {}
+
+    given Read[SolvingMethod] = Read.reads { str =>
+        try SolvingMethod.fromAbbreviation(str)
+        catch case _: IllegalArgumentException =>
+            throw new IllegalArgumentException(
+                "Invalid solving method %s, use one of {%s}".format(str, SolvingMethod.values.mkString(", ")))
+    }
 
     private class CommandLineParser extends OptionParser[CommandLine]("yuck") {
         val defaultCl = CommandLine()
@@ -64,27 +72,16 @@ object FlatZincRunner extends YuckLogging {
             .text("Output-throttling interval in milliseconds, default value is %s, 0 implies no throttling"
                 .format(defaultCl.outputThrottlingIntervalInMillis))
             .action((x, cl) => cl.copy(outputThrottlingIntervalInMillis = x))
-        opt[Int]('p', "number-of-threads")
-            .text("Default value is %s".format(defaultCfg.numberOfThreads))
-            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(numberOfThreads = max(1, x))))
+        opt[Int]('p', "number-of-solvers")
+            .text("Default value is %s".format(defaultCfg.numberOfSolvers))
+            .action((x, cl) => cl.copy(
+                cfg = cl.cfg.copy(numberOfThreads = max(1, x), numberOfSolvers = max(1, x))))
         opt[Long]('r', "seed")
             .text("Default value is %s".format(defaultCfg.seed))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(seed = x)))
-        opt[Int]("number-of-solvers")
-            .text("Default value is %s".format(defaultCfg.numberOfSolvers))
-            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(numberOfSolvers = max(1, x))))
         opt[Int]("target-objective-value")
             .text("Optional stopping criterion in terms of an objective value")
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(maybeTargetObjectiveValue = Some(x))))
-        opt[Int]("round-limit")
-            .text("Optional round limit for simulated annealing")
-            .action((x, cl) => cl.copy(
-                cfg = cl.cfg.copy(
-                    annealingConfiguration =
-                        cl.cfg.annealingConfiguration.copy(maybeRoundLimit = Some(max(0, x))))))
-        opt[Int]("runtime-limit")
-            .text("Optional runtime limit in seconds")
-            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(maybeRuntimeLimitInSeconds = Some(max(0, x)))))
         opt[Boolean]("optimize-array-access")
             .text("Default value is %s".format(defaultCfg.optimizeArrayAccess))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(optimizeArrayAccess = x)))
@@ -109,6 +106,9 @@ object FlatZincRunner extends YuckLogging {
         opt[Boolean]("delay-cycle-checking-until-initialization")
             .text("Default value is %s".format(defaultCfg.delayCycleCheckingUntilInitialization))
             .action((x, cl) => cl.copy(cfg = cl.cfg.copy(delayCycleCheckingUntilInitialization = x)))
+        opt[SolvingMethod]("solving-method")
+            .text("Optional solving method (%s)".format(SolvingMethod.values.mkString("|")))
+            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(maybePreferredSolvingMethod = Some(x))))
         opt[Double]("start-temperature")
             .text("Default value is %s".format(defaultCfg.annealingConfiguration.startTemperature))
             .action((x, cl) => cl.copy(
@@ -121,6 +121,15 @@ object FlatZincRunner extends YuckLogging {
                 cfg = cl.cfg.copy(
                     annealingConfiguration =
                         cl.cfg.annealingConfiguration.copy(warmStartTemperature = x))))
+        opt[Int]("round-limit")
+            .text("Optional round limit for simulated annealing")
+            .action((x, cl) => cl.copy(
+                cfg = cl.cfg.copy(
+                    annealingConfiguration =
+                        cl.cfg.annealingConfiguration.copy(maybeRoundLimit = Some(max(0, x))))))
+        opt[Int]("runtime-limit")
+            .text("Optional runtime limit in seconds")
+            .action((x, cl) => cl.copy(cfg = cl.cfg.copy(maybeRuntimeLimitInSeconds = Some(max(0, x)))))
         opt[Unit]('v', "verbose")
             .text("Enable verbose solving (equivalent to --log-level INFO)")
             .action((_, cl) => cl.copy(logLevel = List(cl.logLevel, yuck.util.logging.LogLevel.InfoLogLevel).minBy(_.intValue)))
