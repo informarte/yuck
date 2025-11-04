@@ -15,7 +15,7 @@ import yuck.util.logging.LazyLogger
  * This class orchestrates the various compiler stages.
  *
  * There are a lot of constraints on the execution order of the stages,
- * see doc/design/compiler/compiler-stage-ordering.mzn.
+ * see src/doc/design/compiler/compiler-stage-ordering.mzn.
  * (The problem has 5 solutions one of which is implemented here.)
  *
  * @author Michael Marte
