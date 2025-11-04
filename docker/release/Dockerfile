@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:24.04
 
 LABEL maintainer="informarte@freenet.de"
 LABEL description="Yuck is a local-search constraint solver with FlatZinc interface"
@@ -7,7 +7,7 @@ LABEL homepage="https://github.com/informarte/yuck"
 RUN apt-get update
 
 # Install Java runtime
-RUN apt-get install -y openjdk-17-jre-headless && \
+RUN apt-get install -y openjdk-21-jre-headless && \
     apt-get clean && \
     java -version
 
