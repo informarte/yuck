@@ -1,8 +1,12 @@
+//| mill-version: 1.0.6-jvm
+//| mill-jvm-version: temurin:21
+//| mvnDeps:
+//| - "com.lihaoyi::mill-contrib-buildinfo:$MILL_VERSION"
+
 package build
 
 import mill._
 import mill.scalalib._
-import $ivy.`com.lihaoyi::mill-contrib-buildinfo:$MILL_VERSION`
 import mill.contrib.buildinfo.BuildInfo
 
 object yuck extends ScalaModule with BuildInfo {
@@ -25,19 +29,19 @@ object yuck extends ScalaModule with BuildInfo {
     override def buildInfoStaticCompiled = true
 
     override def scalaVersion = "3.6.3"
-    override def millSourcePath = super.millSourcePath / ".."
+    override def moduleDir = super.moduleDir / ".."
     override def resources = Task { Seq.empty[PathRef] }
-    override def sources = Task.Sources {millSourcePath / "src" / "main"}
+    override def sources = Task.Sources {moduleDir / "src" / "main"}
     override def javacOptions = Seq("-source", "11", "-target", "11")
     override def scalacOptions = Seq("-release", "11", "-deprecation", "-unchecked", "-feature")
 
-    override def ivyDeps = Agg(
-        ivy"io.spray::spray-json:1.3.6".withDottyCompat(this.scalaVersion()),
-        ivy"com.conversantmedia:rtree:1.0.5",
-        ivy"com.github.scopt::scopt:4.1.0",
-        ivy"it.unimi.dsi:fastutil-core:8.5.15",
-        ivy"org.jgrapht:jgrapht-core:1.5.2",
-        ivy"org.scala-lang.modules::scala-parser-combinators:2.4.0"
+    override def mvnDeps = Seq(
+        mvn"io.spray::spray-json:1.3.6".withDottyCompat(this.scalaVersion()),
+        mvn"com.conversantmedia:rtree:1.0.5",
+        mvn"com.github.scopt::scopt:4.1.0",
+        mvn"it.unimi.dsi:fastutil-core:8.5.15",
+        mvn"org.jgrapht:jgrapht-core:1.5.2",
+        mvn"org.scala-lang.modules::scala-parser-combinators:2.4.0"
     )
 
     val basicJvmConfiguration = Seq("-Djava.lang.Integer.IntegerCache.high=10000", "-XX:+UseParallelGC")
@@ -52,14 +56,14 @@ object yuck extends ScalaModule with BuildInfo {
 
     object test extends ScalaTests {
 
-        override def millSourcePath = super.millSourcePath / ".."
+        override def moduleDir = super.moduleDir / ".."
         override def resources = Task { Seq.empty[PathRef] }
-        override def sources = Task.Sources {millSourcePath / "src" / "test"}
+        override def sources = Task.Sources {moduleDir / "src" / "test"}
 
-        override def ivyDeps = Agg(
-            ivy"junit:junit:4.13.2",
-            ivy"org.jgrapht:jgrapht-io:1.5.2",
-            ivy"org.mockito:mockito-core:3.12.4"
+        override def mvnDeps = Seq(
+            mvn"junit:junit:4.13.2",
+            mvn"org.jgrapht:jgrapht-io:1.5.2",
+            mvn"org.mockito:mockito-core:3.12.4"
         )
 
         override def testFramework = "com.novocode.junit.JUnitFramework"
@@ -74,12 +78,12 @@ object yuck extends ScalaModule with BuildInfo {
         def fullClasspathAsString = Task {fullClasspath().mkString(":")}
     }
 
-    def documentation = Task.Source {millSourcePath / "doc"}
-    def miniZincBindings = Task.Source {millSourcePath / "resources" / "mzn" / "lib" / "yuck"}
-    def miniZincSolverConfigurationTemplate = Task.Source {millSourcePath / "resources" / "mzn" / "yuck.msc.in"}
-    def unixStartScriptTemplate = Task.Source {millSourcePath / "resources" / "bin" / "yuck.in"}
-    def winStartScriptTemplate = Task.Source {millSourcePath / "resources" / "bin" / "yuck.bat.in"}
-    def debianControlFileTemplate = Task.Source {millSourcePath / "resources" / "debian" / "control.in"}
+    def documentation = Task.Source {moduleDir / "doc"}
+    def miniZincBindings = Task.Source {moduleDir / "resources" / "mzn" / "lib" / "yuck"}
+    def miniZincSolverConfigurationTemplate = Task.Source {moduleDir / "resources" / "mzn" / "yuck.msc.in"}
+    def unixStartScriptTemplate = Task.Source {moduleDir / "resources" / "bin" / "yuck.in"}
+    def winStartScriptTemplate = Task.Source {moduleDir / "resources" / "bin" / "yuck.bat.in"}
+    def debianControlFileTemplate = Task.Source {moduleDir / "resources" / "debian" / "control.in"}
 
     def corePackage = Task {
         val packageName = "yuck-".concat(version())
