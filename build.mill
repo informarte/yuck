@@ -28,7 +28,7 @@ object yuck extends ScalaModule with BuildInfo {
         BuildInfo.Value("version", version()))
     override def buildInfoStaticCompiled = true
 
-    override def scalaVersion = "3.6.3"
+    override def scalaVersion = "3.7.4"
     override def moduleDir = super.moduleDir / ".."
     override def resources = Task { Seq.empty[PathRef] }
     override def sources = Task.Sources {moduleDir / "src" / "main"}
