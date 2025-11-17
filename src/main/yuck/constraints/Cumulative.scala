@@ -138,7 +138,7 @@ final class Cumulative
                 }
             }
         )
-        eventPoints.sortInPlace()(EventPointOrdering)
+        eventPoints.sortInPlace()(using EventPointOrdering)
         val n = eventPoints.size
         var costs = 0L
         if (n > 0) {
@@ -198,7 +198,7 @@ final class Cumulative
             eventPoints.addOne(new EventPoint(x1, bbox, true))
             eventPoints.addOne(new EventPoint(x2, bbox, false))
         }
-        eventPoints.sortInPlace()(EventPointOrdering)
+        eventPoints.sortInPlace()(using EventPointOrdering)
         val n = eventPoints.size
         assert(n > 1)
         assert(eventPoints(0).x == x1)

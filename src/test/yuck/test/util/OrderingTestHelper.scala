@@ -46,7 +46,7 @@ class OrderingTestHelper[T](randomGenerator: RandomGenerator) extends EqualityTe
                 }
             }
         }
-        for (Seq(a, b) <- randomGenerator.shuffle(testData ++ testData).sorted(ord).combinations(2)) {
+        for (Seq(a, b) <- randomGenerator.shuffle(testData ++ testData).sorted(using ord).combinations(2)) {
             assertLe(ord.compare(a, b), 0)
         }
     }

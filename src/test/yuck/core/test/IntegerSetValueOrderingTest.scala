@@ -22,7 +22,7 @@ final class IntegerSetValueOrderingTest extends UnitTest with IntegerSetValueTes
         val ord2 = new Ordering[IntegerSetValue] {
             override def compare(a: IntegerSetValue, b: IntegerSetValue) = a.compare(b)
         }
-        assertEq(testData.sorted(ord1), testData.sorted(ord2))
+        assertEq(testData.sorted(using ord1), testData.sorted(using ord2))
     }
 
 }

@@ -36,7 +36,7 @@ final class IntegerValueOperationsTest extends UnitTest with IntegerValueTestDat
         val ord = new Ordering[IntegerValue] {
             override def compare(a: IntegerValue, b: IntegerValue) = a.compare(b)
         }
-        assertEq(testData.sorted(num), testData.sorted(ord))
+        assertEq(testData.sorted(using num), testData.sorted(using ord))
     }
 
     @Test

@@ -22,7 +22,7 @@ final class BooleanValueOrderingTest extends UnitTest with BooleanValueTestData 
         val ord2 = new Ordering[BooleanValue] {
             override def compare(a: BooleanValue, b: BooleanValue) = a.compare(b)
         }
-        assertEq(testData.sorted(ord1), testData.sorted(ord2))
+        assertEq(testData.sorted(using ord1), testData.sorted(using ord2))
     }
 
 }

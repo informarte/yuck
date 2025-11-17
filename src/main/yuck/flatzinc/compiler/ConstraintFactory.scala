@@ -829,7 +829,7 @@ final class ConstraintFactory
                 .map((bin, weight) => new BinPackingItem(bin, weight))
                 .toVector
         val bins = items1.map(_.bin)
-        val maxLoad = items.map(_.weight).sum(loadTraits.numericalOperations)
+        val maxLoad = items.map(_.weight).sum(using loadTraits.numericalOperations)
         val loadDomainApproximation = loadTraits.createDomain(loadTraits.zero, maxLoad)
         def hasRedundantDomain(load: NumericalVariable[Load]) = loadDomainApproximation.isSubsetOf(load.domain)
         def functionalCase = {

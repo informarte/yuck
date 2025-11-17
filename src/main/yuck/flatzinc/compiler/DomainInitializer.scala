@@ -219,8 +219,8 @@ final class DomainInitializer
             throw new FlatZincCompilerInterruptedException
         }
         cc.logger.log("%s = %s".format(a, b))
-        val e = cc.equalVars.getOrElseUpdate(a, mutable.TreeSet.from(List(a))(ProblemVariablesFirstOrdering))
-        val f = cc.equalVars.getOrElseUpdate(b, mutable.TreeSet.from(List(b))(ProblemVariablesFirstOrdering))
+        val e = cc.equalVars.getOrElseUpdate(a, mutable.TreeSet.from(List(a))(using ProblemVariablesFirstOrdering))
+        val f = cc.equalVars.getOrElseUpdate(b, mutable.TreeSet.from(List(b))(using ProblemVariablesFirstOrdering))
         if (cc.domains(a) != d) {
             e.foreach(a => reduceDomain(a, d))
         }
