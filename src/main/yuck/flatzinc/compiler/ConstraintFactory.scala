@@ -397,11 +397,17 @@ final class ConstraintFactory
                 Constraint("int_" + name.replace("le", "lt"), x :: y :: t, annotations),
                 maybeCosts)
         case Constraint("int_lin_eq", Seq(ArrayConst(as), ArrayConst(bs), c), annotations)
-            if ! definesVar(constraint, c) && as.iterator.zip(bs.iterator).exists {
-                case (IntConst(a), b) => (a == -1 || a == 1) && definesVar(constraint, b)
-            } =>
+            if ! definesVar(constraint, c) && as.iterator.zip(bs.iterator).exists(
+                (_: @unchecked) match {
+                    case (IntConst(a), b) => (a == -1 || a == 1) && definesVar(constraint, b)
+                }
+            ) =>
             val abs = as.zip(bs)
-            val (a, b) = abs.find { case (IntConst(a), b) => (a == -1 || a == 1) && definesVar(constraint, b) }.get
+            val (a, b) = abs.find(
+                (_: @unchecked) match {
+                    case (IntConst(a), b) => (a == -1 || a == 1) && definesVar(constraint, b)
+                }
+            ).get
             a match {
                 case IntConst(1) =>
                     // b1 + a2 b2 + ... = c

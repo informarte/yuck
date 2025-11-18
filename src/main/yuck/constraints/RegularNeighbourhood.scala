@@ -33,9 +33,11 @@ class RegularNeighbourhood
     require(xs.exists(space.isSearchVariable))
     require(xs.forall(_.domain.isFinite))
     require(xs.forall(_.hasValidValue(space.searchState)))
-    require(xs.view.zip(initialPath).forall {
-        case (x, Assignment(_, y, d, _)) => x == y && d.contains(space.searchState.value(x))
-    })
+    require(xs.view.zip(initialPath).forall(
+        (_: @unchecked) match {
+            case (x, Assignment(_, y, d, _)) => x == y && d.contains(space.searchState.value(x))
+        }
+    ))
 
     require(moveSizeDistribution.frequency(0) == 0)
     require(moveSizeDistribution.volume > 0)

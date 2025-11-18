@@ -30,7 +30,7 @@ class WarmStartAnnotationParser
                 val ys = compileAnyArray(valArray)
                 require(xs.size == ys.size)
                 for ((x, y) <- xs.zip(ys)) {
-                    (x, y) match {
+                    ((x, y): @unchecked) match {
                         case (x: BooleanVariable, y: BooleanVariable) => setValue(x, y)
                         case (x: IntegerVariable, y: IntegerVariable) => setValue(x, y)
                         case (x: IntegerSetVariable, y: IntegerSetVariable) => setValue(x, y)
