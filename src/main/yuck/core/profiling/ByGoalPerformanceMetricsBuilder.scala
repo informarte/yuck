@@ -23,7 +23,7 @@ final class ByGoalPerformanceMetricsBuilder(val space: Space) extends SpacePerfo
     override protected def keyOf(constraint: Constraint) = constraint
 
     override protected val constraintPerformanceMetricsBuilders =
-        new mutable.AnyRefMap[Constraint, ConstraintPerformanceMetricsBuilder]
+        new mutable.HashMap[Constraint, ConstraintPerformanceMetricsBuilder]
 
     override protected lazy val performanceMetricsByConstraint =
         aggregatedPerformanceMetricsByConstraint(constraintPerformanceMetricsBuilders.keySet)

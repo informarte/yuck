@@ -47,7 +47,7 @@ final class NeighbourhoodCollection
 
     private val neighbourhoodSizeDistribution = Distribution(0, neighbourhoods.map(_.searchVariables.size))
     private val frequencyRestorer = new FrequencyRestorer(maybeSelectionSizeDistribution.map(_.size).getOrElse(2) - 2)
-    private val lastProposals = new mutable.AnyRefMap[Neighbourhood, Move](neighbourhoods.size)
+    private val lastProposals = new mutable.HashMap[Neighbourhood, Move](neighbourhoods.size, mutable.HashMap.defaultLoadFactor)
 
     override def searchVariables = neighbourhoods.iterator.flatMap(_.searchVariables).toSet
 

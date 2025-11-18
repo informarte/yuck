@@ -20,7 +20,7 @@ final class ByConstraintPerformanceMetricsBuilder
     override protected def keyOf(constraint: Constraint) = constraint.getClass
 
     override protected val constraintPerformanceMetricsBuilders =
-        new mutable.AnyRefMap[Class[? <: Constraint], ConstraintPerformanceMetricsBuilder]
+        new mutable.HashMap[Class[? <: Constraint], ConstraintPerformanceMetricsBuilder]
 
     override protected lazy val performanceMetricsByConstraint =
         constraintPerformanceMetricsBuilders.view.mapValues(_.build()).toMap

@@ -85,7 +85,7 @@ final class Delivery
     }
 
     // variable -> tour (in terms of 0-based tour index)
-    private val x2Tour = new mutable.AnyRefMap[AnyVariable, Int]
+    private val x2Tour = new mutable.HashMap[AnyVariable, Int]
 
     private var currentTourTravelTimes: Array[Time] = null // for each tour
     private var futureTourTravelTimes: Array[Time] = null // for each tour

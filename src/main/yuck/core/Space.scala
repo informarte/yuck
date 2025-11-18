@@ -59,7 +59,7 @@ final class Space(
 
     // The inflow model allows to find out which constraints are affected by changing
     // the value of a given variable.
-    private type InflowModel = mutable.AnyRefMap[AnyVariable, mutable.HashSet[Constraint]]
+    private type InflowModel = mutable.HashMap[AnyVariable, mutable.HashSet[Constraint]]
     private val inflowModel = new InflowModel // maintained by post
     private def registerInflow(x: AnyVariable, constraint: Constraint): Unit = {
         inVariables += x
@@ -78,7 +78,7 @@ final class Space(
 
     // The outflow model allows to find out which constraint, if any, computes the value of a
     // given variable.
-    private type OutflowModel = mutable.AnyRefMap[AnyVariable, Constraint]
+    private type OutflowModel = mutable.HashMap[AnyVariable, Constraint]
     private val outflowModel = new OutflowModel // maintained by post
     private def registerOutflow(x: AnyVariable, constraint: Constraint): Unit = {
         outVariables += x

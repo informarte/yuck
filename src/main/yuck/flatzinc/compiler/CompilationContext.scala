@@ -21,14 +21,14 @@ final class CompilationContext(
 {
 
     val declaredVars = new mutable.HashSet[Expr]
-    val equalVars = new mutable.AnyRefMap[Expr, mutable.TreeSet[Expr] /* head = representative */]
+    val equalVars = new mutable.HashMap[Expr, mutable.TreeSet[Expr] /* head = representative */]
     val impliedConstraints = new mutable.HashSet[yuck.flatzinc.ast.Constraint]
     val space = new Space(logger, sigint, cfg.checkAssignmentsToNonChannelVariables, cfg.delayCycleCheckingUntilInitialization, cfg.maybeSpaceProfilingMode)
-    val consts = new mutable.AnyRefMap[Expr, AnyVariable] // holds unnamed inline constants
-    val vars = new mutable.AnyRefMap[Expr, AnyVariable] // holds named variables and parameters
-    val arrayConsts = new mutable.AnyRefMap[Expr, immutable.IndexedSeq[AnyVariable]] // holds unnamed inline arrays
-    val arrays = new mutable.AnyRefMap[Expr, immutable.IndexedSeq[AnyVariable]] // holds named arrays of variables and parameters
-    val domains = new mutable.AnyRefMap[Expr, AnyDomain]
+    val consts = new mutable.HashMap[Expr, AnyVariable] // holds unnamed inline constants
+    val vars = new mutable.HashMap[Expr, AnyVariable] // holds named variables and parameters
+    val arrayConsts = new mutable.HashMap[Expr, immutable.IndexedSeq[AnyVariable]] // holds unnamed inline arrays
+    val arrays = new mutable.HashMap[Expr, immutable.IndexedSeq[AnyVariable]] // holds named arrays of variables and parameters
+    val domains = new mutable.HashMap[Expr, AnyDomain]
     val searchVars = new mutable.HashSet[AnyVariable] // variables that occur in a search annotation
     val definedVars = new mutable.HashSet[AnyVariable] // variables that occur in a defines_var annotation
     val implicitlyConstrainedVars = new mutable.HashSet[AnyVariable]

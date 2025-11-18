@@ -7,9 +7,9 @@ import scala.collection.*
  *
  * @author Michael Marte
  */
-final class HashMapBackedAssignment(valDir: mutable.AnyRefMap[AnyVariable, AnyValue]) extends SearchState {
+final class HashMapBackedAssignment(valDir: mutable.HashMap[AnyVariable, AnyValue]) extends SearchState {
 
-    def this() = this(new mutable.AnyRefMap[AnyVariable, AnyValue])
+    def this() = this(new mutable.HashMap[AnyVariable, AnyValue])
     def this(searchState: SearchState) = {
         this()
         setValues(searchState)
