@@ -146,7 +146,11 @@ final class AllDifferent
                     space.setValue(x, a)
                 }
                 space.setValue(result, True)
-                Some(new AllDifferentNeighbourhood(space, xs.filterNot(_.domain.isSingleton), exceptedValues, randomGenerator, moveSizeDistribution))
+                val ys = xs.filterNot(_.domain.isSingleton)
+                Some(new AllDifferentNeighbourhood(
+                    space, ys, exceptedValues,
+                    randomGenerator,
+                    moveSizeDistribution, createHotSpotDistribution(ys), maybeFairVariableChoiceRate))
             }
         } else {
             None

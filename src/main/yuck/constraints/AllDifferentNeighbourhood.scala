@@ -1,9 +1,9 @@
 package yuck.constraints
 
-import scala.annotation.tailrec
 import scala.collection.*
 
 import yuck.core.*
+import yuck.util.arm.scoped
 
 /**
  * This neighbourhood can be used to maintain constraints like ''all_different'' and ''all_different_except_0''.
@@ -16,7 +16,9 @@ final class AllDifferentNeighbourhood
      xs: immutable.IndexedSeq[Variable[V]],
      exceptedValues: immutable.Set[V],
      randomGenerator: RandomGenerator,
-     moveSizeDistribution: Distribution)
+     moveSizeDistribution: Distribution,
+     maybeHotSpotDistribution: Option[Distribution],
+     maybeFairVariableChoiceRate: Option[Probability])
     (using valueTraits: ValueTraits[V])
     extends Neighbourhood
 {
@@ -40,6 +42,8 @@ final class AllDifferentNeighbourhood
     require(moveSizeDistribution.frequency(0) == 0)
     require(moveSizeDistribution.volume > 0)
 
+    private val uniformDistribution = Distribution(0, Vector.fill(n)(1))
+    private val frequencyRestorer = new FrequencyRestorer(moveSizeDistribution.size - 1)
     private val probabilityOfSwappingInValues = moveSizeDistribution.probability(1)
     private val variablesHaveTheSameDomain = xs.forall(x => x.domain == xs.head.domain)
     private val swappingInValuesIsPossible = xs.iterator.flatMap(_.domain.valuesIterator).toSet.size > n
@@ -48,62 +52,161 @@ final class AllDifferentNeighbourhood
     private def succeed(n: Int): Move = new ChangeValues[V](space.nextMoveId(), swaps(n - 1))
     private def fail(): Move = new ChangeValues[V](space.nextMoveId(), Nil)
 
-    @tailrec
-    private def nextMove(m: Int): Move = {
+    override def searchVariables = xs.toSet
+
+    override def children = Nil
+
+    override def nextMove() = {
+        val useUniformDistribution =
+            maybeHotSpotDistribution.isEmpty ||
+                maybeHotSpotDistribution.get.volume == 0 ||
+                (maybeFairVariableChoiceRate.isDefined && randomGenerator.nextDecision(maybeFairVariableChoiceRate.get))
+        nextMove(useUniformDistribution)
+    }
+
+    override def perturb(perturbationProbability: Probability): Unit = {
+        val move = nextMove(true)
+        space.consult(move)
+        space.commit(move)
+        commit(move)
+    }
+
+    private def nextMove(useUniformDistribution: Boolean): Move = {
+        val m1 = min(n, moveSizeDistribution.nextIndex(randomGenerator))
+        val m2 = if (swappingInValuesIsPossible) m1 else max(m1, 2)
+        nextMove(m2, useUniformDistribution)
+    }
+
+    private def nextMove(m: Int, useUniformDistribution: Boolean): Move = {
+
         require(m <= n)
-        val swapInAValue =
-            swappingInValuesIsPossible &&
-            (m == 1 || randomGenerator.nextDecision(probabilityOfSwappingInValues))
-        if (swapInAValue) {
-            val usedValues = valueTraits.createDomain(xs.view.map(value).filterNot(exceptedValues.contains).toSet)
-            if (m == 1) {
-                val candidates =
-                    randomGenerator
-                        .lazyShuffle(xs)
-                        .map(x => (x, x.domain.diff(usedValues)))
-                        .filter(! _._2.isEmpty)
-                val (x, unusedValues) = candidates.next()
-                val u = unusedValues.randomValue(randomGenerator)
-                // {(x, a)} -> {(x, u)}
-                effects(0).set(x, u)
-                succeed(1)
-            } else if (variablesHaveTheSameDomain) {
-                val candidates =
-                    randomGenerator
-                        .lazyShuffle(xs.indices)
-                        .map(i => (i, xs(i).domain.diff(usedValues)))
-                        .filter(! _._2.isEmpty)
-                val (i, unusedValues) = candidates.next()
-                val x = xs(i)
-                val a = value(x)
-                val u = unusedValues.randomValue(randomGenerator)
-                val j = {
-                    val k = randomGenerator.nextInt(n - 1)
-                    if (k < i) k else k + 1
-                }
-                val y = xs(j)
-                if (m == 2) {
-                    // {(x, a), (y, b)} -> {(x, u), (y, a)}
-                    effects(0).set(x, u)
-                    effects(1).set(y, a)
-                    succeed(2)
+
+        if (swappingInValuesIsPossible &&
+            (m == 1 || randomGenerator.nextDecision(probabilityOfSwappingInValues)))
+        {
+            swapInAValue(m, useUniformDistribution)
+        } else if (variablesHaveTheSameDomain && exceptedValues.isEmpty) {
+            simpleSwap(m, useUniformDistribution)
+        } else if (m == 2) {
+            val maybeMove = maybe2Swap(useUniformDistribution)
+            if (maybeMove.isDefined) {
+                maybeMove.get
+            } else {
+                val maybeMove = maybe3Swap(useUniformDistribution)
+                if (maybeMove.isDefined) {
+                    maybeMove.get
+                } else if (swappingInValuesIsPossible) {
+                    nextMove(1, useUniformDistribution)
+                } else if (useUniformDistribution) {
+                    fail()
                 } else {
-                    val b = value(y)
-                    val k = {
-                        val l = randomGenerator.nextInt(n - 2)
-                        if (l < min(i, j)) l else if (l > max(i, j) - 2) l + 2 else l + 1
-                    }
-                    val z = xs(k)
-                    // {(x, a), (y, b), (z, c)} -> {(x, u), (y, a), (z, b)}
-                    effects(0).set(x, u)
-                    effects(1).set(y, a)
-                    effects(2).set(z, b)
-                    succeed(3)
+                    nextMove(m, true)
                 }
-            } else if (m == 2) {
+            }
+        } else {
+            val maybeMove = maybe3Swap(useUniformDistribution)
+            if (maybeMove.isDefined) {
+                maybeMove.get
+            } else {
+                val maybeMove = maybe2Swap(useUniformDistribution)
+                if (maybeMove.isDefined) {
+                    maybeMove.get
+                } else if (swappingInValuesIsPossible) {
+                    nextMove(1, useUniformDistribution)
+                } else if (useUniformDistribution) {
+                    fail()
+                } else {
+                    nextMove(m, true)
+                }
+            }
+        }
+    }
+
+    private def simpleSwap(m: Int, useUniformDistribution: Boolean): Move = {
+        val priorityDistribution =
+            if useUniformDistribution then uniformDistribution else maybeHotSpotDistribution.get
+        val i = priorityDistribution.nextIndex(randomGenerator)
+        val x = xs(i)
+        val a = value(x)
+        val j = {
+            val k = randomGenerator.nextInt(n - 1)
+            if (k < i) k else k + 1
+        }
+        val y = xs(j)
+        val b = value(y)
+        if (m == 2) {
+            // {(x, a), (y, b)} -> {(x, b), (y, a)}
+            effects(0).set(x, b)
+            effects(1).set(y, a)
+            succeed(2)
+        } else {
+            val k = {
+                val l = randomGenerator.nextInt(n - 2)
+                if (l < min(i, j)) l else if (l > max(i, j) - 2) l + 2 else l + 1
+            }
+            val z = xs(k)
+            val c = value(z)
+            // {(x, a), (y, b), (z, c)} -> {(x, c), (y, a), (z, b)}
+            effects(0).set(x, c)
+            effects(1).set(y, a)
+            effects(2).set(z, b)
+            succeed(3)
+        }
+    }
+
+    private def swapInAValue(m: Int, useUniformDistribution: Boolean): Move = {
+        val usedValues = valueTraits.createDomain(xs.view.map(value).filterNot(exceptedValues.contains).toSet)
+        if (m == 1) {
+            val (i, unusedValues) = scoped(frequencyRestorer) {
+                xiIterator(useUniformDistribution)
+                    .map(i => (i, xs(i).domain.diff(usedValues)))
+                    .filterNot(_._2.isEmpty)
+                    .next()
+            }
+            val x = xs(i)
+            val u = unusedValues.randomValue(randomGenerator)
+            // {(x, a)} -> {(x, u)}
+            effects(0).set(x, u)
+            succeed(1)
+        } else if (variablesHaveTheSameDomain) {
+            val (i, unusedValues) = scoped(frequencyRestorer) {
+                xiIterator(useUniformDistribution)
+                    .map(i => (i, xs(i).domain.diff(usedValues)))
+                    .filterNot(_._2.isEmpty)
+                    .next()
+            }
+            val x = xs(i)
+            val a = value(x)
+            val u = unusedValues.randomValue(randomGenerator)
+            val j = {
+                val k = randomGenerator.nextInt(n - 1)
+                if (k < i) k else k + 1
+            }
+            val y = xs(j)
+            if (m == 2) {
+                // {(x, a), (y, b)} -> {(x, u), (y, a)}
+                effects(0).set(x, u)
+                effects(1).set(y, a)
+                succeed(2)
+            } else {
+                val b = value(y)
+                val k = {
+                    val l = randomGenerator.nextInt(n - 2)
+                    if (l < min(i, j)) l else if (l > max(i, j) - 2) l + 2 else l + 1
+                }
+                val z = xs(k)
+                // {(x, a), (y, b), (z, c)} -> {(x, u), (y, a), (z, b)}
+                effects(0).set(x, u)
+                effects(1).set(y, a)
+                effects(2).set(z, b)
+                succeed(3)
+            }
+        } else if (m == 2) {
+            val maybeCandidate = scoped(frequencyRestorer) {
                 val candidates =
                     for {
-                        x <- randomGenerator.lazyShuffle(xs)
+                        i <- xiIterator(useUniformDistribution)
+                        x = xs(i)
                         unusedValues = x.domain.diff(usedValues)
                         if ! unusedValues.isEmpty
                         a = value(x)
@@ -112,21 +215,25 @@ final class AllDifferentNeighbourhood
                     } yield {
                         (x, unusedValues, y)
                     }
-                if (candidates.hasNext){
-                    val (x, unusedValues, y) = candidates.next()
-                    val a = value(x)
-                    val u = unusedValues.randomValue(randomGenerator)
-                    // {(x, a), (y, b)} -> {(x, u), (y, a)}
-                    effects(0).set(x, u)
-                    effects(1).set(y, a)
-                    succeed(2)
-                } else {
-                    nextMove(1)
-                }
+                candidates.nextOption()
+            }
+            if (maybeCandidate.isDefined) {
+                val (x, unusedValues, y) = maybeCandidate.get
+                val a = value(x)
+                val u = unusedValues.randomValue(randomGenerator)
+                // {(x, a), (y, b)} -> {(x, u), (y, a)}
+                effects(0).set(x, u)
+                effects(1).set(y, a)
+                succeed(2)
             } else {
+                nextMove(1, useUniformDistribution)
+            }
+        } else {
+            val maybeCandidate = scoped(frequencyRestorer) {
                 val candidates =
                     for {
-                        x <- randomGenerator.lazyShuffle(xs)
+                        i <- xiIterator(useUniformDistribution)
+                        x = xs(i)
                         unusedValues = x.domain.diff(usedValues)
                         if ! unusedValues.isEmpty
                         a = value(x)
@@ -138,51 +245,29 @@ final class AllDifferentNeighbourhood
                     } yield {
                         (x, unusedValues, y, z)
                     }
-                if (candidates.hasNext) {
-                    val (x, unusedValues, y, z) = candidates.next()
-                    val (a, b) = (value(x), value(y))
-                    val u = unusedValues.randomValue(randomGenerator)
-                    // {(x, a), (y, b), (z, c)} -> {(x, u), (y, a), (z, b)}
-                    effects(0).set(x, u)
-                    effects(1).set(y, a)
-                    effects(2).set(z, b)
-                    succeed(3)
-                } else {
-                    nextMove(2)
-                }
+                candidates.nextOption()
             }
-        } else if (variablesHaveTheSameDomain && exceptedValues.isEmpty) {
-            val i = randomGenerator.nextInt(n)
-            val x = xs(i)
-            val a = value(x)
-            val j = {
-                val k = randomGenerator.nextInt(n - 1)
-                if (k < i) k else k + 1
-            }
-            val y = xs(j)
-            val b = value(y)
-            if (m == 2) {
-                // {(x, a), (y, b)} -> {(x, b), (y, a)}
-                effects(0).set(x, b)
-                effects(1).set(y, a)
-                succeed(2)
-            } else {
-                val k = {
-                    val l = randomGenerator.nextInt(n - 2)
-                    if (l < min(i, j)) l else if (l > max(i, j) - 2) l + 2 else l + 1
-                }
-                val z = xs(k)
-                val c = value(z)
-                // {(x, a), (y, b), (z, c)} -> {(x, c), (y, a), (z, b)}
-                effects(0).set(x, c)
+            if (maybeCandidate.isDefined) {
+                val (x, unusedValues, y, z) = maybeCandidate.get
+                val (a, b) = (value(x), value(y))
+                val u = unusedValues.randomValue(randomGenerator)
+                // {(x, a), (y, b), (z, c)} -> {(x, u), (y, a), (z, b)}
+                effects(0).set(x, u)
                 effects(1).set(y, a)
                 effects(2).set(z, b)
                 succeed(3)
+            } else {
+                nextMove(2, useUniformDistribution)
             }
-        } else if (m == 2) {
+        }
+    }
+
+    private def maybe2Swap(useUniformDistribution: Boolean): Option[Move] = {
+        val maybeCandidate = scoped(frequencyRestorer) {
             val candidates =
                 for {
-                    x <- randomGenerator.lazyShuffle(xs)
+                    i <- xiIterator(useUniformDistribution)
+                    x = xs(i)
                     a = value(x)
                     ys = xs.filter(
                         y => y != x && {
@@ -194,22 +279,26 @@ final class AllDifferentNeighbourhood
                 } yield {
                     (x, y)
                 }
-            if (candidates.hasNext) {
-                val (x, y) = candidates.next()
-                val (a, b) = (value(x), value(y))
-                // {(x, a), (y, b)} -> {(x, b), (y, a)}
-                effects(0).set(x, b)
-                effects(1).set(y, a)
-                succeed(2)
-            } else if (swappingInValuesIsPossible) {
-                nextMove(1)
-            } else {
-                fail()
-            }
+            candidates.nextOption()
+        }
+        if (maybeCandidate.isDefined) {
+            val (x, y) = maybeCandidate.get
+            val (a, b) = (value(x), value(y))
+            // {(x, a), (y, b)} -> {(x, b), (y, a)}
+            effects(0).set(x, b)
+            effects(1).set(y, a)
+            Some(succeed(2))
         } else {
+            None
+        }
+    }
+
+    private def maybe3Swap(useUniformDistribution: Boolean): Option[Move] = {
+        val maybeCandidate = scoped(frequencyRestorer) {
             val candidates =
                 for {
-                    x <- randomGenerator.lazyShuffle(xs)
+                    i <- xiIterator(useUniformDistribution)
+                    x = xs(i)
                     a = value(x)
                     ys = xs.filter(y => y != x && y.domain.contains(a) && value(y) != a)
                     y <- randomGenerator.lazyShuffle(ys)
@@ -219,28 +308,25 @@ final class AllDifferentNeighbourhood
                 } yield {
                     (x, y, z)
                 }
-            if (candidates.hasNext) {
-                val (x, y, z) = candidates.next()
-                val (a, b, c) = (value(x), value(y), value(z))
-                // {(x, a), (y, b), (z, c)} -> {(x, c), (y, a), (z, b)}
-                effects(0).set(x, c)
-                effects(1).set(y, a)
-                effects(2).set(z, b)
-                succeed(3)
-            } else {
-                nextMove(2)
-            }
+            candidates.nextOption()
+        }
+        if (maybeCandidate.isDefined) {
+            val (x, y, z) = maybeCandidate.get
+            val (a, b, c) = (value(x), value(y), value(z))
+            // {(x, a), (y, b), (z, c)} -> {(x, c), (y, a), (z, b)}
+            effects(0).set(x, c)
+            effects(1).set(y, a)
+            effects(2).set(z, b)
+            Some(succeed(3))
+        } else {
+            None
         }
     }
 
-    final override def searchVariables = xs.toSet
-
-    final override def children = Nil
-
-    final override def nextMove() = {
-        val m1 = min(n, moveSizeDistribution.nextIndex(randomGenerator))
-        val m2 = if (swappingInValuesIsPossible) m1 else max(m1, 2)
-        nextMove(m2)
-    }
+    private def xiIterator(useUniformDistribution: Boolean): Iterator[Int] =
+        if useUniformDistribution
+        then randomGenerator.lazyShuffle(xs.indices)
+        else maybeHotSpotDistribution.get.nextIndices(randomGenerator, n, frequencyRestorer) ++
+                xiIterator(true).filter(xi => maybeHotSpotDistribution.get.frequency(xi) == 0)
 
 }

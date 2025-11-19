@@ -55,15 +55,21 @@ final class IntegerIncreasingNeighbourhood
     private val frequencyRestorer = new FrequencyRestorer(moveSizeDistribution.size - 2)
 
     override def nextMove() = {
-        nextMove(true)
-    }
-
-    private def nextMove(biased: Boolean) = {
         val useUniformDistribution =
-            ! biased ||
-                maybeHotSpotDistribution.isEmpty ||
+            maybeHotSpotDistribution.isEmpty ||
                 maybeHotSpotDistribution.get.volume == 0 ||
                 (maybeFairVariableChoiceRate.isDefined && randomGenerator.nextDecision(maybeFairVariableChoiceRate.get))
+        nextMove(useUniformDistribution)
+    }
+
+    override def perturb(perturbationProbability: Probability) = {
+        val move = nextMove(true)
+        space.consult(move)
+        space.commit(move)
+        commit(move)
+    }
+
+    private def nextMove(useUniformDistribution: Boolean) = {
         val priorityDistribution = if useUniformDistribution then uniformDistribution else maybeHotSpotDistribution.get
         val m = min(moveSizeDistribution.nextIndex(randomGenerator), priorityDistribution.numberOfAlternatives)
         val move = new BulkMove(space.nextMoveId())
@@ -161,13 +167,6 @@ final class IntegerIncreasingNeighbourhood
             shift(i, distanceDistribution.nextIndex(randomGenerator))
             move
         }
-    }
-
-    override def perturb(perturbationProbability: Probability): Unit = {
-        val move = nextMove(false)
-        space.consult(move)
-        space.commit(move)
-        commit(move)
     }
 
 }
