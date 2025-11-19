@@ -17,16 +17,16 @@ int: N = S * S;
 array[1..N,1..N] of var 1..N: puzzle;
 
 
-include "alldifferent.mzn";
+include "all_different.mzn";
 
     % All cells in a row, in a column, and in a subsquare are different.
 constraint
-    forall(i in 1..N)( alldifferent(j in 1..N)( puzzle[i,j] ))
+    forall(i in 1..N)( all_different(j in 1..N)( puzzle[i,j] ))
     /\
-    forall(j in 1..N)( alldifferent(i in 1..N)( puzzle[i,j] ))
+    forall(j in 1..N)( all_different(i in 1..N)( puzzle[i,j] ))
     /\
     forall(i,j in 1..S)
-        ( alldifferent(p,q in 1..S)( puzzle[S*(i-1)+p, S*(j-1)+q] ));
+        ( all_different(p,q in 1..S)( puzzle[S*(i-1)+p, S*(j-1)+q] ));
 
 
 solve satisfy;
@@ -59,4 +59,3 @@ _, 4, _, 6, 1, _, _, _, _|
 _, 3, _, 2, _, 7, 6, 9, _|
 _, _, _, _, _, _, _, _, _|
 |];
-

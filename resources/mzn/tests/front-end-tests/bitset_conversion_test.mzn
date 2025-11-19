@@ -1,4 +1,4 @@
-include "alldifferent.mzn";
+include "all_different.mzn";
 
 % In this test case, the domain of x does not fit into 64 bits, so all bit-set domains should
 % be converted to alternative representations.

@@ -7,10 +7,10 @@
 % RUNS ON minizinc_cpx
 % RUNS ON minizinc_fd
 % WHO OWNS THE ZEBRA?
-% 
+%
 % This is a puzzle which has been circulating the net. There are a couple
 % different versions out there which try to be a little more politically
-% correct but are essentially the same problem.    
+% correct but are essentially the same problem.
 % 	1. There are five houses, each of a different color and inhabited by
 %	   men of different nationalities, with different pets, drinks,
 %	   and cigarettes.
@@ -82,7 +82,7 @@ array[Animals] of var Houses: animal;
 array[Drinks] of var Houses: drink;
 array[Cigarettes] of var Houses: smoke;
 
-predicate nextto(var Houses:h1, var Houses:h2) = 
+predicate nextto(var Houses:h1, var Houses:h2) =
        h1 == h2 + 1 \/ h2 == h1 + 1;
 
 predicate rightof(var Houses:h1, var Houses:h2) =
@@ -93,11 +93,11 @@ predicate middle(var Houses:h) = h == 3;
 predicate left(var Houses:h) = h = 1;
 
 constraint
-	alldifferent(nation) /\
-	alldifferent(colour) /\
-	alldifferent(animal) /\
-	alldifferent(drink) /\
-	alldifferent(smoke) /\
+	all_different(nation) /\
+	all_different(colour) /\
+	all_different(animal) /\
+	all_different(drink) /\
+	all_different(smoke) /\
 	nation[English] == colour[Red] /\
 	nation[Spanish] == animal[Dog] /\
 	drink[Coffee] == colour[Green] /\

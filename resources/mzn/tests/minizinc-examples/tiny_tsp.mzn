@@ -6,7 +6,7 @@
 %-----------------------------------------------------------------------------%
 % RUNS ON mzn_mer_lp
 
-include "alldifferent.mzn";
+include "all_different.mzn";
 
 int: n_cities = 4;
 set of int: cities = 1..n_cities;
@@ -25,7 +25,7 @@ array [cities] of var cities: visit;
 var float: dist =
     sum ( i in cities where i < n_cities ) ( d[visit[i], visit[i + 1]] );
 
-constraint alldifferent(visit);
+constraint all_different(visit);
 
 solve satisfy;
 

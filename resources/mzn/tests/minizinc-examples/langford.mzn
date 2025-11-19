@@ -54,7 +54,7 @@ constraint
         );
 
 constraint
-        alldifferent(Pos);
+        all_different(Pos);
 
 %-----------------------------------------------------------------------------%
 % Dual model (partial)
@@ -63,7 +63,7 @@ constraint
 array[positions] of var num_set: Num;   % Num[p]: (number, set) pair at
                                         % position p in the sought sequence
 constraint
-        alldifferent(Num);
+        all_different(Num);
 
 %-----------------------------------------------------------------------------%
 % Channelling between primal model and dual model

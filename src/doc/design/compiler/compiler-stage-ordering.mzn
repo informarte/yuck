@@ -1,4 +1,4 @@
-include "alldifferent.mzn";
+include "all_different.mzn";
 
 int: N = 9;
 
@@ -14,7 +14,7 @@ var STAGES: Presolver;
 var STAGES: NeighbourhoodFactory;
 var STAGES: ArrayAccessOptimizer;
 
-constraint alldifferent([
+constraint all_different([
    DomainInitializer, VariableFactory, VariableClassifier, ConstraintFactory,
    ObjectiveFactory, ConstraintNetworkPruner, Presolver, NeighbourhoodFactory,
    ArrayAccessOptimizer]);

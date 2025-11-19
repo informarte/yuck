@@ -31,14 +31,14 @@ constraint true
     /\  symmetry_breaking_constraint(forall (i in 2..n) (x[i-1] < x[i] /\ y[i-1] < y[i]))
     %   Break symmetries by ordering the groups
     /\  symmetry_breaking_constraint(x[1] < y[1])
-    
+
     %   Partition the numbers
-    /\  (alldifferent(x++y)) :: bounds
-    
+    /\  (all_different(x++y)) :: bounds
+
     %   The sums are equal
     /\  sum (x) = 2*n*(2*n+1) div 4
     /\  sum (y) = 2*n*(2*n+1) div 4
-    
+
     %   The sums of the squares are equal
     /\  let {
             array[1..n] of var 1..4*n*n: sx,
@@ -56,4 +56,3 @@ output
      "sum = ",show(2*n*(2*n+1) div 4),"\n",
      "sum of squares = ", show(2*n*(2*n+1)*(4*n+1) div 12), "\n"
      ];
-

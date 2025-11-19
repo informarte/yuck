@@ -1,13 +1,13 @@
 package yuck.flatzinc.test
 
+import scala.jdk.CollectionConverters.*
+import scala.language.implicitConversions
+
 import org.junit.*
 import org.junit.experimental.categories.*
 import org.junit.experimental.categories.Categories.*
 import org.junit.runner.RunWith
 import org.junit.runners.Suite.SuiteClasses
-
-import scala.jdk.CollectionConverters.*
-import scala.language.implicitConversions
 
 import yuck.SolvingMethod
 import yuck.flatzinc.FlatZincSolverConfiguration
@@ -48,7 +48,7 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
     // Tough puzzle with tight all_different constraint, seemingly has only one solution!
     // (http://www.mathematik.uni-bielefeld.de/~sillke/PUZZLES/ALPHAMETIC/alphacipher)
     @Test
-    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
     def testAlpha(): Unit = {
         solve(task.copy(problemName = "alpha", maybeRuntimeLimitInSeconds = Some(10)))
     }
@@ -60,13 +60,13 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
     }
 
     @Test
-    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
     def testBlocksworld1(): Unit = {
         solve("blocksworld_instance_1")
     }
 
     @Test
-    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
     def testBlocksworld2(): Unit = {
         solve("blocksworld_instance_2")
     }
@@ -91,7 +91,7 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
     }
 
     @Test
-    @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem], classOf[HasAllDifferentConstraint]))
     def testGolomb(): Unit = {
         solve(task.copy(problemName = "golomb", maybeOptimum = Some(6)))
     }
@@ -103,7 +103,7 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
     }
 
     @Test
-    @Category(Array(classOf[HardInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[HardInstance], classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
     def testKnights(): Unit = {
         solve("knights")
     }
@@ -112,7 +112,7 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
     // a lot of channeling constraints.
     // Hence this model is bad for local search and we test langford2 instead.
     @Test
-    @Category(Array(classOf[UnsuitableProblem], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[UnsuitableProblem], classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
     def testLangford(): Unit = {
         solve("langford")
     }
@@ -171,16 +171,16 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
 
     // This one is hard for FJ because FJ does not support implicit constraints.
     @Test
-    @Category(Array(classOf[HardInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[HardInstance], classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
     def testPartition(): Unit = {
         solve("partition")
     }
 
     // The original formulation contains symmetry breaking and the optimization part is based on that.
-    // The improved model uses alldifferent_except_0 and count :-)
+    // The improved model uses all_different_except_0 and count :-)
     // This formulation maximizes the number of squares in the sum.
     @Test
-    @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem], classOf[HasAlldifferentExceptConstraint]))
+    @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem], classOf[HasAllDifferentExceptConstraint]))
     def testPerfectSquares(): Unit = {
         solve(task.copy(problemName = "perfsq_ls", maybeOptimum = Some(5)))
     }
@@ -194,7 +194,7 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
     }
 
     @Test
-    @Category(Array(classOf[EasyInstance], classOf[MaximizationProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[EasyInstance], classOf[MaximizationProblem], classOf[HasAllDifferentConstraint]))
     def testPhoto(): Unit = {
         solve(task.copy(problemName = "photo", maybeOptimum = Some(8)))
     }
@@ -224,13 +224,13 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
     }
 
     @Test
-    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
     def testQuasigroup(): Unit = {
         solve("quasigroup_qg5")
     }
 
     @Test
-    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
     def testQueensCp(): Unit = {
         solve("queen_cp2")
     }
@@ -263,7 +263,7 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
     // Runtime depends strongly on algorithmic details like choice of seed and random generator.
     // Has a lot of constants in all_different constraints that are used to prune domains up-front!
     @Test
-    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
     def testSudoku(): Unit = {
         solve("sudoku")
     }
@@ -315,7 +315,7 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
     }
 
     @Test
-    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
     def testTimetabling(): Unit = {
         solve("timetabling")
     }
@@ -341,7 +341,7 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
     }
 
     @Test
-    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
     def testZebra(): Unit = {
         solve("zebra")
     }
@@ -433,11 +433,11 @@ class TractableMinimizationExamples
 class TractableMaximizationExamples
 
 /**
- * Tractable examples with alldifferent_int constraints
+ * Tractable examples with integer all_different constraints
  *
  * @author Michael Marte
  */
 @RunWith(classOf[Categories])
-@IncludeCategory(Array(classOf[HasAlldifferentConstraint]))
+@IncludeCategory(Array(classOf[HasAllDifferentConstraint]))
 @SuiteClasses(Array(classOf[TractableMiniZincExamples]))
-class TractableAlldistinctExamples
+class TractableAllDifferentExamples

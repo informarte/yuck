@@ -17,13 +17,13 @@ array [1..n] of var 1..n: q;
 
 
 constraint
-    alldifferent(q)     % rows
-    /\ 
-    alldifferent(i in 1..n)(q[i] + i-1)     % diagonals
+    all_different(q)     % rows
     /\
-    alldifferent(i in 1..n)(q[i] + n-i);
+    all_different(i in 1..n)(q[i] + i-1)     % diagonals
+    /\
+    all_different(i in 1..n)(q[i] + n-i);
 
-include "alldifferent.mzn";
+include "all_different.mzn";
 
 
 solve ::

@@ -71,8 +71,8 @@ constraint
 array[1..26] of var 1..26: alphabet = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z];
 
 constraint
-  alldifferent(alphabet);
-  
+  all_different(alphabet);
+
 solve :: int_search(alphabet, first_fail, indomain, complete) satisfy;
 
 output [

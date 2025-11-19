@@ -34,7 +34,7 @@ array[1..n_prefs,0..1] of int: prefs;
 
 n_names = 9;
 n_prefs = 17;
-prefs = array2d(1..n_prefs, 0..1, 
+prefs = array2d(1..n_prefs, 0..1,
   [| 0,2 | 0,4 | 0,7 | 1,4 | 1,8 | 2,3 | 2,4 | 3,0 | 3,4 |
      4,5 | 4,0 | 5,0 | 5,8 | 6,2 | 6,7 | 7,8 | 7,6 |]
 );
@@ -60,7 +60,7 @@ constraint
   sum (i in 1..n_prefs) (bool2int(ful[i])) = satisfies;
 
 constraint
-  alldifferent(pos);
+  all_different(pos);
 
 % Break some symmetry
 constraint symmetry_breaking_constraint(
@@ -74,7 +74,7 @@ constraint symmetry_breaking_constraint(
 %   branch on the pos array (that's what the Gecode version does), but this
 %   array appears only after loads of Boolean variables.  I've added a
 %   search annotation to photo.mzn, which should solve this issue.
-solve :: int_search(pos, first_fail, indomain, complete) 
+solve :: int_search(pos, first_fail, indomain, complete)
     maximize satisfies;
 
 output ["Positions: ", show(pos), "\n",

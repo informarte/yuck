@@ -27,9 +27,9 @@ class MiniZincTestSuites
  * @author Michael Marte
  */
 @RunWith(classOf[Categories])
-@IncludeCategory(Array(classOf[HasAlldifferentConstraint]))
+@IncludeCategory(Array(classOf[HasAllDifferentConstraint]))
 @SuiteClasses(Array(classOf[MiniZincChallenges]))
-class AlldifferentChallenges
+class AllDifferentChallenges
 
 /**
  * Challenge problems with all_different_except constraints
@@ -37,9 +37,9 @@ class AlldifferentChallenges
  * @author Michael Marte
  */
 @RunWith(classOf[Categories])
-@IncludeCategory(Array(classOf[HasAlldifferentExceptConstraint]))
+@IncludeCategory(Array(classOf[HasAllDifferentExceptConstraint]))
 @SuiteClasses(Array(classOf[MiniZincChallenges]))
-class AlldifferentExceptChallenges
+class AllDifferentExceptChallenges
 
 /**
  * Challenge problems with inverse constraints

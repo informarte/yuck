@@ -51,7 +51,7 @@ final class Space(
         case _ => null
     }
 
-    private val constraints = new mutable.HashSet[Constraint] // maintained by post and removeUselessConstraints
+    private val constraints = new mutable.HashSet[Constraint] // maintained by post and retractUselessConstraints
     private val implicitConstraints = new mutable.HashSet[Constraint] // maintained by registerImplicitConstraint
     private val inVariables = new mutable.HashSet[AnyVariable] // maintained by post
     private val inVariablesOfImplicitConstraints = new mutable.HashSet[AnyVariable] // maintained by registerImplicitConstraint

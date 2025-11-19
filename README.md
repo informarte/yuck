@@ -279,7 +279,7 @@ Notice that the goal to satisfy the hard constraints is implicit and that it is 
 sat_goal can be used to define soft constraints as in the following example:
 
 ```
-include "alldifferent.mzn";
+include "all_different.mzn";
 include "yuck.mzn";
 
 int: N = 10;
@@ -288,12 +288,12 @@ array [1..N] of var 1..N: x;
 
 constraint x[1] = x[N];
 
-solve :: goal_hierarchy([sat_goal(alldifferent(x))]) satisfy;
+solve :: goal_hierarchy([sat_goal(all_different(x))]) satisfy;
 
 output ["x = ", show(x)];
 ```
 
-This MiniZinc program states: Find a solution that satisfies x[1] = x[N] and minimizes the violation of the alldifferent constraint.
+This MiniZinc program states: Find a solution that satisfies x[1] = x[N] and minimizes the violation of the all_different constraint.
 
 (Violations are measured by the [bool2costs](#bool2costs) function.)
 

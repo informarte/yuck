@@ -46,11 +46,11 @@ constraint
 
 constraint
   forall( x in 1..N )
-        ( alldifferent([q[x,y] | y in 1..N]) );
+        ( all_different([q[x,y] | y in 1..N]) );
 
 constraint
   forall( y in 1..N )
-        ( alldifferent([q[x,y] | x in 1..N]) );
+        ( all_different([q[x,y] | x in 1..N]) );
 
 constraint
   forall( x in 1..N )

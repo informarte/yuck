@@ -4,7 +4,7 @@
 % neighbourhood, the compiler must not create another neighbourhood containing
 % the objective variable.)
 
-include "alldifferent.mzn";
+include "all_different.mzn";
 
 % The higher N, the higher the reliability of this test.
 % (The smaller N, the higher the probability that the objective variable
@@ -15,7 +15,7 @@ int: N = 512;
 array [1..N] of var 1..N: x;
 
 % This is the implicit constraint.
-constraint alldifferent(x);
+constraint all_different(x);
 
 solve maximize x[1];
 

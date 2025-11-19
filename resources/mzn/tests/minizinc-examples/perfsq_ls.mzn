@@ -13,7 +13,7 @@
 % itself a square.
 
 include "count.mzn";
-include "alldifferent_except_0.mzn";
+include "all_different_except_0.mzn";
 
 int: z = 10;
 
@@ -25,7 +25,7 @@ var 1..z: k;                            % We are summing to sq[k];
 
 % We want a set.
 %
-constraint alldifferent_except_0(s);
+constraint all_different_except_0(s);
 
 % We want the sum of the squares to be square.
 %

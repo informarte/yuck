@@ -67,7 +67,7 @@ constraint
     );
 
     % Ensure each block cannot be put in the wrong place on the table
-    % (this simplifies the model and allows us to use alldifferent below)
+    % (this simplifies the model and allows us to use all_different below)
     % or on itself.
     %
 constraint
@@ -78,7 +78,7 @@ constraint
     % No two blocks can occupy the same location at the same time.
     %
 constraint
-    forall (s in steps) (alldifferent (b in blocks) (on[s, b]));
+    forall (s in steps) (all_different (b in blocks) (on[s, b]));
 
     % A clear block is one that has no other block on top of it.
     % The table is always clear.
@@ -117,4 +117,3 @@ output
         "  block " ++ show(b) ++ " on " ++ show(on[s, b]) ++ "\n"
     |   s in 1..n_steps, b in 1..n_blocks
     ];
-

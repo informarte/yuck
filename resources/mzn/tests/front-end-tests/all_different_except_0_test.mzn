@@ -1,4 +1,4 @@
-include "alldifferent_except_0.mzn";
+include "all_different_except_0.mzn";
 
 array [1..6] of var int: x;
 
@@ -9,10 +9,8 @@ constraint x[4] in 2..5;
 constraint x[5] in 2..3;
 constraint x[6] in 0..6;
 
-constraint x[3] = x[6];
+constraint all_different_except_0(x);
 
-constraint alldifferent_except_0(x);
-
-solve satisfy;
+solve minimize sum(x);
 
 output ["x = ", show(x)];

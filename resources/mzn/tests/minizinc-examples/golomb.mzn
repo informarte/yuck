@@ -18,7 +18,7 @@
 % length a_m. The objective is to find optimal (minimum length) or
 % near optimal rulers.
 %
-% This is the "ternary constraints and an alldifferent" model
+% This is the "ternary constraints and an all_different" model
 %------------------------------------------------------------------------%
 
 include "globals.mzn";
@@ -35,7 +35,7 @@ constraint mark[1] = 0;
 
 constraint forall ( i in 1..m-1 ) ( mark[i] < mark[i+1] );
 
-constraint alldifferent(differences);
+constraint all_different(differences);
 
     % Symmetry breaking
 constraint symmetry_breaking_constraint(differences[1] < differences[(m*(m-1)) div 2]);

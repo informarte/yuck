@@ -1,4 +1,4 @@
-include "alldifferent.mzn";
+include "all_different.mzn";
 
 var set of 0..63: x;
 var set of 10..12 union 27..29: y;

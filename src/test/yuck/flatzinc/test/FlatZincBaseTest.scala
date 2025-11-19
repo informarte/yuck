@@ -358,7 +358,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[MinimizationProblem], classOf[HasAllDifferentConstraint]))
     def testMinimizationProblemWithImplicitlyConstrainedObjectiveVariable(): Unit = {
         val result = solveWithResult(task.copy(problemName = "minimization_with_implicitly_constrained_objective_variable_test"))
         val x = result.objective.objectiveVariables(1).asInstanceOf[IntegerVariable]
@@ -386,7 +386,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[MaximizationProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[MaximizationProblem], classOf[HasAllDifferentConstraint]))
     def testMaximizationProblemWithImplicitlyConstrainedObjectiveVariable(): Unit = {
         val result = solveWithResult(task.copy(problemName = "maximization_with_implicitly_constrained_objective_variable_test"))
         val x = result.objective.objectiveVariables(1).asInstanceOf[IntegerVariable]
@@ -497,11 +497,11 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
     }
 
-    // Checks that the redundant alldifferent constraint is removed after propagation.
+    // Checks that a neighbourhood is created from the redundant all_different constraint.
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
-    def testRedundantAlldifferent(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "redundant_alldifferent_test"))
+    def testRedundantAllDifferent(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "redundant_all_different_test"))
         assertEq(result.space.searchVariables.map(_.name), Set("x[1]", "x[2]", "x[3]"))
         assertEq(result.space.channelVariables.size, 5)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
@@ -514,11 +514,11 @@ final class FlatZincBaseTest extends FrontEndTest {
         assert(result.neighbourhood.isInstanceOf[AllDifferentNeighbourhood[?]])
     }
 
-    // Checks that the reified redundant alldifferent constraints are ignored.
+    // Checks that the reified redundant all_different constraints are ignored.
     @Test
     @Category(Array(classOf[SatisfiabilityProblem]))
-    def testReifiedRedundantAlldifferent(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "reified_redundant_alldifferent_test"))
+    def testReifiedRedundantAllDifferent(): Unit = {
+        val result = solveWithResult(task.copy(problemName = "reified_redundant_all_different_test"))
         assertEq(result.space.searchVariables.size, 6)
         assertEq(result.space.searchVariables.filter(isUserDefined).map(_.name), Set("x[1]", "x[2]", "x[3]", "y[1]", "y[2]", "y[3]"))
         assertEq(result.space.channelVariables.size, 10)

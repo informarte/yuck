@@ -59,13 +59,13 @@ class MiniZincChallengeIntakeTests(preferredSolvingMethod: SolvingMethod) extend
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[MinimizationProblem], classOf[HasAllDifferentConstraint]))
     def testAllDifferent(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_all_different", maybeOptimum = Some(1)))
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasAlldifferentExceptConstraint]))
+    @Category(Array(classOf[MinimizationProblem], classOf[HasAllDifferentExceptConstraint]))
     def testAllDifferentExcept0(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_all_different_except_0", maybeOptimum = Some(10)))
     }

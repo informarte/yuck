@@ -35,7 +35,7 @@ array[1..nC, 1..nSC] of var 1..nT: z;	% Times of each section
 	% All the course-sections of a student must have different times
 constraint
 	forall (i in 1..nS) (
-		alldifferent (j in 1..nCS) (z[Cs[i,j], x[i,j]])
+		all_different (j in 1..nCS) (z[Cs[i,j], x[i,j]])
 	);
 
 solve satisfy;

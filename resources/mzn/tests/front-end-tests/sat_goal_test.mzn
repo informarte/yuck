@@ -1,4 +1,4 @@
-include "alldifferent.mzn";
+include "all_different.mzn";
 include "yuck.mzn";
 
 int: N = 10;
@@ -12,6 +12,6 @@ constraint x[1] = x[N];
 var 1..N: y;
 constraint abs(x[1] - y) = 2;
 
-solve :: goal_hierarchy([sat_goal(alldifferent(x))]) satisfy;
+solve :: goal_hierarchy([sat_goal(all_different(x))]) satisfy;
 
 output ["x = ", show(x)];

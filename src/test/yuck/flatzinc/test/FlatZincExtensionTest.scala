@@ -62,7 +62,7 @@ final class FlatZincExtensionTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAlldifferentConstraint]))
+    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
     def testSatGoal(): Unit = {
         val result = solveWithResult(task.copy(problemName = "sat_goal_test", verificationFrequency = NoVerification))
         assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)

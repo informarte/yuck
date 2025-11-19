@@ -34,7 +34,7 @@ constraint symmetry_breaking_constraint(p[nn] = 2 * n + 2);
 
     % All points along the path must be unique.
     %
-constraint alldifferent(p);
+constraint all_different(p);
 
 array [sq] of set of sq: neighbours =
     [   { n * (R - 1) + C
@@ -58,20 +58,19 @@ solve
     )
     satisfy;
 % It has been observed that Warnsdorf's heuristic of choosing the next
-% square as the one with the fewest remaining neighbours leads almost 
+% square as the one with the fewest remaining neighbours leads almost
 % directly to a solution.  How might we express this in MiniZinc?
 
 output ["p = " ++ show(p) ++ ";\n"];
 
 % Invert the path to show the tour.
-% 
+%
 % array [sq] of var sq: q;
-% 
+%
 % constraint forall (i in sq) (q[p[i]] = i);
-% 
+%
 % output  [   show(q[i]) ++ if i mod n = 0 then "\n" else " " endif
 %         |   i in sq
 %         ] ++
 %         [   "\n"
 %         ];
-
