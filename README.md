@@ -469,6 +469,7 @@ In addition, the following rules apply:
     * Constant objects should live in package or companion objects.
     * Other constants should be inlined when defined on class level.
 * Scala 3 givens and values defined in terms of parameters are not to be considered as constants.
+* Public and protected case classes should be final.
 
 ## References
 

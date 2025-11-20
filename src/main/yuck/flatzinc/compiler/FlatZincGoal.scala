@@ -7,6 +7,6 @@ import yuck.flatzinc.ast.Constraint
  * @author Michael Marte
  *
  */
-case class FlatZincGoal(constraint: Constraint) extends Goal {
+final case class FlatZincGoal(constraint: Constraint) extends Goal {
     override def toString = constraint.toString
 }

@@ -18,7 +18,7 @@ import yuck.util.logging.LazyLogger
  */
 final class LocalSearchStatisticsCollector(logger: LazyLogger) extends LocalSearchMonitor {
 
-    case class ObjectiveImprovement(runtimeInMillis: Long, objectiveValue: NumericalValue[?])
+    final case class ObjectiveImprovement(runtimeInMillis: Long, objectiveValue: NumericalValue[?])
 
     private var timeStampInMillis: Long = 0
     private var maybeRuntimeToFirstSolutionInMillis: Option[Long] = None

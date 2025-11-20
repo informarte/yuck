@@ -92,7 +92,7 @@ object MiniZincBenchmarks extends MiniZincTestTaskFactory {
     private def normalizeName(name: String): String =
         nameTranslationTable.getOrElse(name, name.replace('_', '-').toLowerCase())
 
-    case class Summary(
+    private case class Summary(
         year: Int,
         problemName: String,
         instanceName: String,

@@ -7,7 +7,7 @@ package yuck.core
  *
  * @author Michael Marte
  */
-case class DomainCapabilities(
+final case class DomainCapabilities(
     createDomain: Boolean = true,
     diff: Boolean = true,
     randomSubdomain: Boolean = true,

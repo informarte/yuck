@@ -234,14 +234,14 @@ object RegularGraph {
         val q: Int
     }
 
-    case class IntermediateState(x: IntegerVariable, override val q: Int) extends State
+    private case class IntermediateState(x: IntegerVariable, override val q: Int) extends State
 
     abstract class Transition {
         val q: Int
         val u: Int
     }
 
-    case class Assignment
+    final case class Assignment
         (override val q: Int, x: IntegerVariable, d: IntegerDomain, override val u: Int)
         extends Transition
     {
