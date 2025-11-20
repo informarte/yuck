@@ -7,8 +7,6 @@ import yuck.flatzinc.ast.*
 
 /**
  * Identifies search variables and variables that occur in defines_var annotations.
- *
- * @author Michael Marte
  */
 final class VariableClassifier
     (override protected val cc: CompilationContext)

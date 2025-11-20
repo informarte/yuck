@@ -7,10 +7,6 @@ import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 
-/**
- * @author Michael Marte
- *
- */
 abstract class FrontEndTest extends ZincBasedTest {
 
     protected val task =

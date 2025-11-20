@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Objective to satisfy a Boolean expression.
- *
- * @author Michael Marte
  */
 final class SatisfactionObjective(override val x: BooleanVariable) extends PrimitiveObjective {
     override def toString = "satisfy %s".format(x)

@@ -11,8 +11,6 @@ import yuck.test.util.ParallelParameterizedTestRunner
 
 /**
  * Runs the Dumas TSPTW benchmark
- *
- * @author Michael Marte
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
@@ -28,8 +26,6 @@ final class DumasBenchmark(task: ZincTestTask) extends ZincBasedTest {
 
 /**
  * Generates test tasks from the Dumas TSPTW benchmark instances
- *
- * @author Michael Marte
  */
 object DumasBenchmark extends VrpTestTaskFactory {
 

@@ -2,10 +2,6 @@ package yuck.util
 
 import scala.collection.*
 
-/**
- * @author Michael Marte
- *
- */
 object DescriptiveStatistics {
 
     extension(xs0: IndexedSeq[Double]) {

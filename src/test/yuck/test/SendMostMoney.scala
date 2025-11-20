@@ -10,8 +10,6 @@ import yuck.test.util.{DefaultNumberOfThreads, IntegrationTest}
 
 /**
  * The classic send-most-money problem
- *
- * @author Michael Marte
  */
 @runner.RunWith(classOf[runners.Parameterized])
 final class SendMostMoney(solvingMethod: SolvingMethod) extends HelloWorldTest {
@@ -144,10 +142,6 @@ final class SendMostMoney(solvingMethod: SolvingMethod) extends HelloWorldTest {
 }
 
 
-/**
- * @author Michael Marte
- *
- */
 object SendMostMoney {
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")

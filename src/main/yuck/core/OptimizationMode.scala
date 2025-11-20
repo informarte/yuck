@@ -1,9 +1,5 @@
 package yuck.core
 
-/**
- * @author Michael Marte
- *
- */
 enum OptimizationMode(val name: String) {
 
     case Min extends OptimizationMode("Minimization")

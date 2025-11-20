@@ -10,10 +10,6 @@ import yuck.constraints.OrderingRelation.*
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest {

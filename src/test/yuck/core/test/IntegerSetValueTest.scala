@@ -5,10 +5,6 @@ import org.junit.*
 import yuck.core.{given, *}
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
 

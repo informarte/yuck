@@ -5,10 +5,6 @@ import org.junit.*
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 class NeighbourhoodCollectionTest
@@ -68,10 +64,6 @@ class NeighbourhoodCollectionTest
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object NeighbourhoodCollectionTest extends NeighbourhoodTestGenerator {
 
     override protected val moveSizeDistributions =

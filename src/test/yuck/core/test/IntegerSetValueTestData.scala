@@ -3,10 +3,6 @@ package yuck.core.test
 import yuck.core.*
 import yuck.util.logging.LazyLogger
 
-/**
- * @author Michael Marte
- *
- */
 trait IntegerSetValueTestData {
 
     protected val randomGenerator: RandomGenerator

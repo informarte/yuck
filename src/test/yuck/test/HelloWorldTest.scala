@@ -8,10 +8,6 @@ import yuck.{annealing, fj}
 import yuck.fj.{FeasibilityJump, FeasibilityJumpEventLogger, FeasibilityJumpNeighbourhood}
 import yuck.test.util.IntegrationTest
 
-/**
- * @author Michael Marte
- *
- */
 abstract class HelloWorldTest extends IntegrationTest {
 
     protected def createSimulatedAnnealingSolver

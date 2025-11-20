@@ -4,8 +4,6 @@ import scala.collection.*
 
 /**
  * Provides traits of Boolean values.
- *
- * @author Michael Marte
  */
 object BooleanValueTraits extends OrderedValueTraits[BooleanValue] {
     override val valueType = classOf[BooleanValue]

@@ -5,10 +5,6 @@ import org.junit.*
 import yuck.core.Probability
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 class ProbabilityTest extends UnitTest {
 

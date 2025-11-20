@@ -10,8 +10,6 @@ import yuck.util.arm.Sigint
  * Terminates when the given objective is reached.
  *
  * Keeps track of the best proposal and restores it upon interruption or termination.
- *
- * @author Michael Marte
  */
 final class FeasibilityJump
     (override val name: String,

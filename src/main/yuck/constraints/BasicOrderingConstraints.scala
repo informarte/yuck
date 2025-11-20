@@ -2,10 +2,6 @@ package yuck.constraints
 
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 final class Eq
     [V <: Value[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -26,10 +22,6 @@ final class Eq
         valueTraits.domainPruner.neRule(lhs, rhs)
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class Ne
     [V <: Value[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -50,10 +42,6 @@ final class Ne
         valueTraits.domainPruner.eqRule(lhs, rhs)
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class Lt
     [V <: OrderedValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -76,10 +64,6 @@ final class Lt
     }
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class Le
     [V <: OrderedValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -102,10 +86,6 @@ final class Le
     }
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class Min
     [V <: OrderedValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -122,10 +102,6 @@ final class Min
     }
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class Max
     [V <: OrderedValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],

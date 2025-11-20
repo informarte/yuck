@@ -7,10 +7,6 @@ import scala.jdk.CollectionConverters.*
 import yuck.constraints.{AllDifferent, AllDifferentNeighbourhood}
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 @runner.RunWith(classOf[runners.Parameterized])
 final class AllDifferentNeighbourhoodTest
     (numberOfVariables: Int,
@@ -47,10 +43,6 @@ final class AllDifferentNeighbourhoodTest
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object AllDifferentNeighbourhoodTest {
 
     private def domainGenerators(numberOfVariables: Int, withException: Boolean) =

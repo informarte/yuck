@@ -20,8 +20,6 @@ import yuck.util.Collections.*
  * variables all values of which are explored according to numberOfValuesToExplore.
  *
  * If moveSizeDistribution allows for it, compound moves (affecting more than variable) may be generated.
- *
- * @author Michael Marte
  */
 final class FeasibilityJumpNeighbourhood
     (override protected val space: Space,
@@ -393,11 +391,6 @@ final class FeasibilityJumpNeighbourhood
 
 }
 
-/**
- * Companion object to FeasibilityJumpNeighbourhood.
- *
- * @author Michael Marte
- */
 object FeasibilityJumpNeighbourhood {
 
     private case class JumpCandidate(changes: List[AnyMoveEffect], xis: List[Int], move: Move, score: Double)

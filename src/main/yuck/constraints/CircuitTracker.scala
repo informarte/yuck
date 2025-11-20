@@ -10,8 +10,6 @@ import yuck.core.*
 
 /**
  * Base class for constraints that need to keep track of cycles.
- *
- * @author Michael Marte
  */
 abstract class CircuitTracker
     (id: Id[Constraint],
@@ -105,11 +103,6 @@ abstract class CircuitTracker
 
 }
 
-/**
- * Companion object to CircuitTracker.
- *
- * @author Michael Marte
- */
 object CircuitTracker {
 
     private type Graph = DefaultDirectedGraph[IntegerVariable, DefaultEdge]

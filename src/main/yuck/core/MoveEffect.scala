@@ -1,19 +1,11 @@
 package yuck.core
 
-/**
- * @author Michael Marte
- *
- */
 abstract class MoveEffect[V <: Value[V]] extends AnyMoveEffect {
     override def x: Variable[V]
     override def a: V
     final override def affect(space: Space) = space.setValue(x, a)
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class ImmutableMoveEffect
     [V <: Value[V]]
     (override val x: Variable[V], override val a: V)
@@ -22,10 +14,6 @@ final class ImmutableMoveEffect
     override def clone = this
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class ReusableMoveEffectWithFixedVariable
     [V <: Value[V]]
     (override val x: Variable[V])
@@ -39,10 +27,6 @@ final class ReusableMoveEffectWithFixedVariable
     override def clone = new ImmutableMoveEffect(x, a)
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class ReusableMoveEffect
     [V <: Value[V]]
     extends MoveEffect[V]

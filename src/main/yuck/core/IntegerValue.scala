@@ -4,8 +4,6 @@ import java.lang.Math.pow
 
 /**
  * Implements immutable integer values.
- *
- * @author Michael Marte
  */
 final class IntegerValue(val value: Long) extends IntegralValue[IntegerValue] {
     override def hashCode = value.hashCode
@@ -62,11 +60,6 @@ final class IntegerValue(val value: Long) extends IntegralValue[IntegerValue] {
     inline override def isEven = value % 2 == 0
 }
 
-/**
- * Companion object to IntegerValue.
- *
- * @author Michael Marte
- */
 object IntegerValue {
 
     given operations: Integral[IntegerValue] = IntegerValueOperations

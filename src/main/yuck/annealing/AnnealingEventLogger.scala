@@ -5,8 +5,6 @@ import yuck.util.logging.LazyLogger
 
 /**
  * A monitor for logging solver events.
- *
- * @author Michael Marte
  */
 final class AnnealingEventLogger(logger: LazyLogger) extends AnnealingMonitor {
 

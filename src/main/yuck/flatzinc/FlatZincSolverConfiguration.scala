@@ -4,10 +4,6 @@ import yuck.{SolvingMethod, annealing, fj}
 import yuck.core.profiling.SpaceProfilingMode
 import yuck.core.{Constraint, DefaultSeed, Distribution, Probability}
 
-/**
- * @author Michael Marte
- *
- */
 final case class FlatZincLevelConfiguration(
     isTopLevel: Boolean,
     guideOptimization: Boolean,
@@ -17,10 +13,6 @@ final case class FlatZincLevelConfiguration(
     require(maybeFairVariableChoiceRate.isEmpty || guideOptimization)
 }
 
-/**
- * @author Michael Marte
- *
- */
 final case class AnnealingConfiguration(
     maybeRoundLimit: Option[Int] = None,
     useImplicitSolving: Boolean = true,
@@ -36,10 +28,6 @@ final case class AnnealingConfiguration(
     require(! subordinateLevelConfiguration.isTopLevel)
 }
 
-/**
- * @author Michael Marte
- *
- */
 final case class FeasibilityJumpConfiguration(
     moveSizeDistribution: Distribution = fj.DefaultMoveSizeDistribution,
     maximumNumberOfJumpCandidates: Int => Int = fj.defaultMaximumNumberOfJumpCandidates,
@@ -58,10 +46,6 @@ final case class FeasibilityJumpConfiguration(
     require(numberOfSuccessiveFutileRoundsUntilPerturbation >= 1)
 }
 
-/**
- * @author Michael Marte
- *
- */
 final case class FlatZincSolverConfiguration(
     name: String = "",
     attachGoals: Boolean = false,

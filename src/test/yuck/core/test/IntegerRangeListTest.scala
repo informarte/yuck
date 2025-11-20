@@ -9,10 +9,6 @@ import yuck.core.IntegerDomain.ensureRangeList
 import yuck.test.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerRangeListTest extends UnitTest {
 

@@ -19,10 +19,6 @@ final class RegularBenchmarks(task: ZincTestTask) extends ZincBasedTest {
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object RegularBenchmarks extends MiniZincTestTaskFactory {
 
     override protected val suitePath = "resources/mzn/tests/minizinc-benchmarks"

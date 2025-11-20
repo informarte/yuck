@@ -10,8 +10,6 @@ import yuck.core.*
  * Domains in the compilation context do not get updated, so later stages should ask variables for domains!
  *
  * Domains of implicitly constrained search variables are restored after presolving.
- *
- * @author Michael Marte
  */
 final class Presolver
     (override protected val cc: CompilationContext)

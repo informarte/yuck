@@ -8,10 +8,6 @@ import yuck.constraints.*
 import yuck.constraints.OrderingRelation.*
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 final class SumConstraintTest
@@ -31,10 +27,6 @@ final class SumConstraintTest
         new SumConstraint(space.nextConstraintId(), null, axs.map(_.x), y, relation, z, costs)(using valueTraits)
 }
 
-/**
- * @author Michael Marte
- *
- */
 object SumConstraintTest {
 
     private def configurations =

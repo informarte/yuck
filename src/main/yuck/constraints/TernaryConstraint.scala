@@ -2,10 +2,6 @@ package yuck.constraints
 
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 abstract class TernaryConstraint
     [In1 <: Value[In1], In2 <: Value[In2], Out <: Value[Out]]
     (id: Id[Constraint],
@@ -26,10 +22,6 @@ abstract class TernaryConstraint
         effect
 }
 
-/**
- * @author Michael Marte
- *
- */
 trait ReifiedBinaryConstraintPropagator[LhsDomain <: AnyDomain, RhsDomain <: AnyDomain] {
     protected def enforce(lhs: LhsDomain, rhs: RhsDomain): (LhsDomain, RhsDomain)
     protected def prohibit(lhs: LhsDomain, rhs: RhsDomain): (LhsDomain, RhsDomain)

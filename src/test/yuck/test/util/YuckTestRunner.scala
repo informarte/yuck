@@ -8,8 +8,6 @@ import scopt.*
 
 /**
  * Runs an entire test class or a single test method.
- *
- * @author Michael Marte
  */
 object YuckTestRunner {
 

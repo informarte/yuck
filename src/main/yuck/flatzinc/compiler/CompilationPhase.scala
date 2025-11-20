@@ -9,8 +9,6 @@ import yuck.flatzinc.parser.*
 
 /**
  * The given compilation context may be modified to transport information between phases.
- *
- * @author Michael Marte
  */
 abstract class CompilationPhase extends Runnable {
 

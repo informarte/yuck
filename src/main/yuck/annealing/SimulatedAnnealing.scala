@@ -16,8 +16,6 @@ import yuck.util.arm.Sigint
  * is restarted with the given restart temperature.
  *
  * Keeps track of the best proposal and restores it upon interruption or termination.
- *
- * @author Michael Marte
  */
 final class SimulatedAnnealing(
     override val name: String,

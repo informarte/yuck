@@ -13,8 +13,6 @@ import yuck.util.logging.LazyLogger
  * Assumes that the solver either terminates by itself or gets suspended due to a timeout.
  *
  * Does not support resumption.
- *
- * @author Michael Marte
  */
 final class LocalSearchStatisticsCollector(logger: LazyLogger) extends LocalSearchMonitor {
 

@@ -10,8 +10,6 @@ package yuck.annealing
  *
  * To repeat the child schedule, it gets restarted with the temperature it had
  * ended with and with a progress proportional to the number of futile repetitions.
- *
- * @author Michael Marte
  */
 final class AnnealingScheduleLoop(
     child: AnnealingSchedule,

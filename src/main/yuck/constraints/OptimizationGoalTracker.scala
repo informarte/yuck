@@ -9,8 +9,6 @@ import yuck.core.*
  * Given a linear combination in terms of scalars a[1], ..., a[n] and variables x[1], ..., x[n],
  * this constraint maintains, for all 1 <= i <= n, the distance d[i] between the current value of
  * a[i] * x[i] and its lower or upper bound, respectively, depending on the optimization mode.
- *
- * @author Michael Marte
  */
 final class OptimizationGoalTracker
     [V <: NumericalValue[V]]

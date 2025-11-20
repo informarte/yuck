@@ -4,10 +4,6 @@ import scala.collection.*
 
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 final class CountVar
     [V <: Value[V]]
     (id: Id[Constraint],

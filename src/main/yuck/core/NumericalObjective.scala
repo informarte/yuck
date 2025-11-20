@@ -4,8 +4,6 @@ import scala.annotation.tailrec
 
 /**
  * Objective for optimizing the value of a numerical variable.
- *
- * @author Michael Marte
  */
 abstract class NumericalObjective
     [V <: NumericalValue[V]]

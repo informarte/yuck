@@ -7,8 +7,6 @@ import yuck.flatzinc.test.util.test.MiniZincSolutionVerifierTest
 
 /**
  * Test suite for CI runs
- *
- * @author Michael Marte
  */
 @runner.RunWith(classOf[runners.Suite])
 @runners.Suite.SuiteClasses(

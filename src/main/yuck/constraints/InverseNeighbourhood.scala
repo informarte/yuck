@@ -2,10 +2,6 @@ package yuck.constraints
 
 import yuck.core._
 
-/**
- * @author Michael Marte
- *
- */
 abstract class InverseNeighbourhood
     (protected val f: InverseFunction,
      protected val g: InverseFunction)

@@ -15,9 +15,6 @@ import java.util.function.{Consumer, IntConsumer}
 
 /**
  * Collection of extensions method with a focus on avoiding closures and integer boxing.
- *
- * @author Michael Marte
- *
  */
 object Collections {
 

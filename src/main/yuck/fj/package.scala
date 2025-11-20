@@ -2,10 +2,6 @@ package yuck
 
 import yuck.core.{Distribution, Probability, ld, max}
 
-/**
- * @author Michael Marte
- *
- */
 package object fj {
 
     val DefaultMoveSizeDistribution = Distribution(1, List(80, 20))

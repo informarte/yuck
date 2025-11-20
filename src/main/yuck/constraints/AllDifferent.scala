@@ -19,8 +19,6 @@ import yuck.util.logging.LazyLogger
  * constraint violation.
  *
  * @see [[yuck.Notation Notation]]
- *
- * @author Michael Marte
  */
 final class AllDifferent
     [V <: Value[V]]

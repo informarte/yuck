@@ -11,10 +11,6 @@ import yuck.constraints.{Circuit, Delivery}
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boolean) extends UnitTest {
@@ -151,10 +147,6 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object DeliveryTest {
 
     private def configurations =

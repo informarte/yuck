@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Represents an optimization goal for use in local search.
- *
- * @author Michael Marte
  */
 abstract class AnyObjective {
 

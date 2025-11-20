@@ -3,10 +3,6 @@ package yuck.constraints.test
 import yuck.constraints.{Inverse, InverseFunction, InverseNeighbourhood}
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 abstract class InverseNeighbourhoodTest extends SpecialNeighbourhoodTest {
 
     protected val f: InverseFunction

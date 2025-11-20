@@ -23,10 +23,6 @@ import yuck.flatzinc.util.{BestProposalLogger, LocalSearchStatisticsCollector, P
 import yuck.util.arm.*
 import yuck.util.logging.{TransientThreadRenaming, YuckLogging}
 
-/**
- * @author Michael Marte
- *
- */
 object FlatZincRunner extends YuckLogging {
 
     private case class CommandLine(

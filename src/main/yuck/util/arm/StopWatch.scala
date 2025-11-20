@@ -7,8 +7,6 @@ import java.time.Duration
  *
  * See https://www.javaadvent.com/2019/12/measuring-time-from-java-to-kernel-and-back.html
  * for background on measuring time on Linux systems.
- *
- * @author Michael Marte
  */
 final class StopWatch extends ManagedResource {
 
@@ -27,10 +25,6 @@ final class StopWatch extends ManagedResource {
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object StopWatch {
 
     // tested on OpenJDK 21

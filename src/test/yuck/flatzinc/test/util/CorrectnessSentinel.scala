@@ -7,8 +7,6 @@ import yuck.util.logging.LogLevel.FineLogLevel
 
 /**
  * Verifies every solution.
- *
- * @author Michael Marte
  */
 final class CorrectnessSentinel
     (task: ZincTestTask, spoilResult: Result => Result, logger: LazyLogger)

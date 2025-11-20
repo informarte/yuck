@@ -7,10 +7,6 @@ import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class MaximumTest extends UnitTest with ConstraintTestTooling {
 

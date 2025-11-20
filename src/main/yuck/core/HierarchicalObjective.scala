@@ -4,8 +4,6 @@ import scala.annotation.tailrec
 
 /**
  * Implements a lexicographic ordering on the given objectives.
- *
- * @author Michael Marte
  */
 final class HierarchicalObjective
     (override val primitiveObjectives: List[PrimitiveObjective],

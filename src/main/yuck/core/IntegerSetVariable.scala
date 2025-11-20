@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Implements integer-set variables.
- *
- * @author Michael Marte
  */
 final class IntegerSetVariable
     (id: Id[AnyVariable], name: String, var currentDomain: IntegerSetDomain)

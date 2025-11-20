@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Provides a cost model for equality and inequality constraints.
- *
- * @author Michael Marte
  */
 abstract class EqualityCostModel[V <: Value[V]] {
 

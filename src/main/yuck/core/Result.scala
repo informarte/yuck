@@ -3,8 +3,6 @@ package yuck.core
 
 /**
  * @param maybeUserData can be used to pass information from a preprocessing to a postprocessing phase.
- *
- * @author Michael Marte
  */
 abstract class Result {
     val maybeUserData: Option[Object]

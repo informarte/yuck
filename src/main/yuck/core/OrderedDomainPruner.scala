@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Domain pruner interface for use by generic constraints.
- *
- * @author Michael Marte
  */
 abstract class OrderedDomainPruner[V <: OrderedValue[V]] extends DomainPruner[V] {
 

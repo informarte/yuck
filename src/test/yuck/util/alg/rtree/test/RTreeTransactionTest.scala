@@ -8,10 +8,6 @@ import org.junit.*
 import yuck.test.util.UnitTest
 import yuck.util.alg.rtree.RTreeTransaction
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class RTreeTransactionTest extends UnitTest {
 

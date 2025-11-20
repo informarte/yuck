@@ -4,10 +4,6 @@ import org.junit.*
 
 import yuck.constraints.test.util.test.ConstraintTestToolingTest
 
-/**
- * @author Michael Marte
- *
- */
 @runner.RunWith(classOf[runners.Suite])
 @runners.Suite.SuiteClasses(
     Array(

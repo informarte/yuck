@@ -11,10 +11,6 @@ import yuck.core.*
 import yuck.test.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @runner.RunWith(classOf[runners.Parameterized])
 final class AllDifferentTest(withException: Boolean) extends UnitTest with ConstraintTestTooling {
 
@@ -210,10 +206,6 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object AllDifferentTest {
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")

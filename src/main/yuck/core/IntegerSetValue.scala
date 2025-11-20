@@ -4,8 +4,6 @@ import scala.annotation.tailrec
 
 /**
  * Implements immutable integer-set values.
- *
- * @author Michael Marte
  */
 final class IntegerSetValue(val set: IntegerDomain) extends OrderedValue[IntegerSetValue] {
     import IntegerSetValue.*
@@ -23,11 +21,6 @@ final class IntegerSetValue(val set: IntegerDomain) extends OrderedValue[Integer
     inline def !=(that: IntegerSetValue): Boolean = this.set != that.set
 }
 
-/**
- * Companion object to IntegerSetValue.
- *
- * @author Michael Marte
- */
 object IntegerSetValue {
 
     given ordering: Ordering[IntegerSetValue] = IntegerSetValueOrdering

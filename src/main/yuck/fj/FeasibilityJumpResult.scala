@@ -2,10 +2,6 @@ package yuck.fj
 
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 final class FeasibilityJumpResult(
     override val maybeUserData: Option[Object],
     override val solverName: String,

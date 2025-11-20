@@ -6,8 +6,6 @@ package yuck.core
  * To simplify the implementation, channel domains are sometimes translated to decision domains.
  * This is correct because, for pruning, there is no need to distinguish different levels
  * of violation.
- *
- * @author Michael Marte
  */
 object BooleanDomainPruner extends OrderedDomainPruner[BooleanValue] {
 

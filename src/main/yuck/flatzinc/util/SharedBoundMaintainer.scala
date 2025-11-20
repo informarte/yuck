@@ -6,9 +6,6 @@ import yuck.core.{Costs, Result, SolverMonitor}
 
 /**
  * Tracks solvers in order to update the cost vector of the best solution seen so far.
- *
- * @author Michael Marte
- *
  */
 final class SharedBoundMaintainer(holder: AtomicReference[Costs]) extends SolverMonitor {
 

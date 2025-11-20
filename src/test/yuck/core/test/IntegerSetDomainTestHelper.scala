@@ -5,10 +5,6 @@ import scala.collection.Seq
 import yuck.core.*
 import yuck.util.logging.LazyLogger
 
-/**
- * @author Michael Marte
- *
- */
 final class IntegerSetDomainTestHelper
     (override protected val randomGenerator: RandomGenerator,
      override protected val logger: LazyLogger)

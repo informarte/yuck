@@ -5,9 +5,6 @@ import yuck.util.logging.LazyLogger
 
 /**
  * Emits a log message when a better proposal is found.
- *
- * @author Michael Marte
- *
  */
 final class BestProposalLogger(logger: LazyLogger) extends SolverMonitor {
 

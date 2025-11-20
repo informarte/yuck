@@ -8,10 +8,6 @@ import yuck.constraints.{Table, TableNeighbourhood}
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class TableTest extends UnitTest with ConstraintTestTooling {
 

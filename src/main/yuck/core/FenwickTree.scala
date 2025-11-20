@@ -14,8 +14,6 @@ package yuck.core
  * http://en.wikipedia.org/wiki/Fenwick_tree.
  *
  * Notice that all indices are 1-based (as in the paper).
- *
- * @author Michael Marte
  */
 class FenwickTree(val size: Int) {
 

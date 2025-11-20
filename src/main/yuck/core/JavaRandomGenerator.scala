@@ -3,8 +3,6 @@ package yuck.core
 /**
  * Creates a [[https://docs.oracle.com/javase/8/docs/api/java/util/SplittableRandom.html Java random generator]]
  * and makes it available for optimization.
- *
- * @author Michael Marte
  */
 final class JavaRandomGenerator(seed: Long = DefaultSeed) extends RandomGenerator {
     private val wrappee = new java.util.SplittableRandom(seed)

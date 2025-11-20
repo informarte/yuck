@@ -10,10 +10,6 @@ import yuck.constraints.OrderingRelation.*
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-/**
-  * @author Michael Marte
-  *
-  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 class LinearConstraintPerformanceTest(relation: OrderingRelation, withUnitCoefficients: Boolean) extends UnitTest {
@@ -64,10 +60,6 @@ class LinearConstraintPerformanceTest(relation: OrderingRelation, withUnitCoeffi
 
 }
 
-/**
-  * @author Michael Marte
-  *
-  */
 object LinearConstraintPerformanceTest {
 
     private def configurations =

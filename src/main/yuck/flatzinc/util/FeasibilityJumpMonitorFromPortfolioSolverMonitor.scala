@@ -5,8 +5,6 @@ import yuck.core.AnyVariable
 
 /**
  * Wraps a PortfolioSolverMonitor instance for use with the feasibility-jump method.
- *
- * @author Michael Marte
  */
 final class FeasibilityJumpMonitorFromPortfolioSolverMonitor(monitor: PortfolioSolverMonitor) extends FeasibilityJumpMonitor {
 

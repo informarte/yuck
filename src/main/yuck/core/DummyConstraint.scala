@@ -1,9 +1,5 @@
 package yuck.core
 
-/**
- * @author Michael Marte
- *
- */
 final class DummyConstraint
     (id: Id[Constraint],
      override val inVariables: Iterable[AnyVariable],

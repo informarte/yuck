@@ -5,10 +5,6 @@ import scala.collection.*
 import yuck.core.*
 import yuck.flatzinc.ast.*
 
-/**
- * @author Michael Marte
- *
- */
 final class FlatZincResultFormatter(ast: FlatZincAst) extends (FlatZincResult => Seq[String]) {
 
     private val outputVarDecls =

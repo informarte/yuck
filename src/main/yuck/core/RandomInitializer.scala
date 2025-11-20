@@ -1,8 +1,6 @@
 package yuck.core
 
 /**
- * @author Michael Marte
- *
  * Randomly assigns values to variables without assignment.
  */
 final class RandomInitializer(space: Space, randomGenerator: RandomGenerator) extends Runnable {

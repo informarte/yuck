@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Provides an interface for working with values of known type.
- *
- * @author Michael Marte
  */
 abstract class Value[V] extends AnyValue {
 

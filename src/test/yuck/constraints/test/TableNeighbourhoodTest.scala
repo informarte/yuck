@@ -3,10 +3,6 @@ package yuck.constraints.test
 import yuck.constraints.{Table, TableNeighbourhood}
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 final class TableNeighbourhoodTest extends SpecialNeighbourhoodTest {
 
     private val xs = Vector("s", "t").map(new IntegerVariable(space.nextVariableId(), _, IntegerRange(0, 9)))

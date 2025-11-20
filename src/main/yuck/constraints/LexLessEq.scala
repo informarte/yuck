@@ -7,8 +7,6 @@ import yuck.core.*
 
 /**
  * Implements the ''lex_lesseq_int'' constraint as specified by MiniZinc.
- *
- * @author Michael Marte
  */
 final class LexLessEq
     [V <: OrderedValue[V]]

@@ -4,8 +4,6 @@ import scala.collection.*
 
 /**
  * Implements mutable search states.
- *
- * @author Michael Marte
  */
 final class ArrayBackedAssignment private
     (variables: mutable.ArrayBuffer[AnyVariable], values: mutable.ArrayBuffer[AnyValue])

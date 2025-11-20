@@ -7,10 +7,6 @@ import scala.jdk.CollectionConverters.*
 import yuck.constraints.{InverseFunction, SelfInverseNeighbourhood}
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 @runner.RunWith(classOf[runners.Parameterized])
 final class SelfInverseNeighbourhoodTest(fOffset: Int) extends InverseNeighbourhoodTest {
 
@@ -25,10 +21,6 @@ final class SelfInverseNeighbourhoodTest(fOffset: Int) extends InverseNeighbourh
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object SelfInverseNeighbourhoodTest {
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")

@@ -6,8 +6,6 @@ import scala.concurrent.SyncVar
 
 /**
  * Thrown when adding a JVM shutdown hook failed because a JVM shutdown is already in progress.
- *
- * @author Michael Marte
  */
 final class ShutdownInProgressException(error: IllegalStateException) extends RuntimeException(error)
 
@@ -22,8 +20,6 @@ final class ShutdownInProgressException(error: IllegalStateException) extends Ru
  * ShutdownInProgressException]].
  *
  * @param shutdownAction is the action to run upon SIGINT.
- *
- * @author Michael Marte
  */
 final class ManagedShutdownHook(shutdownAction: => Unit) extends ManagedResource {
 

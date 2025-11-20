@@ -8,10 +8,6 @@ import yuck.flatzinc.ast.*
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 
-/**
- * @author Michael Marte
- *
- */
 final class CompilationContext(
     val ast: FlatZincAst,
     val cfg: FlatZincSolverConfiguration,

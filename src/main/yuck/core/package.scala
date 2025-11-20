@@ -2,10 +2,6 @@ package yuck
 
 import scala.collection.immutable
 
-/**
- * @author Michael Marte
- *
- */
 package object core {
 
     inline def safeAdd(a: Int, b: Int): Int = java.lang.Math.addExact(a, b)

@@ -18,8 +18,6 @@ import yuck.test.util.ParallelTestRunner
 /**
  * Tests to make sure that the global constraints provided by Yuck's library get
  * compiled correctly
- *
- * @author Michael Marte
  */
 @runner.RunWith(classOf[ParallelTestRunner])
 final class GlobalConstraintCompilationTest extends FrontEndTest {

@@ -7,10 +7,6 @@ import yuck.test.util.YuckAssert
 import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 
-/**
- * @author Michael Marte
- *
- */
 final class NeighbourhoodTestHelper
     [V <: Value[V]]
     (space: Space,
@@ -165,10 +161,6 @@ final class NeighbourhoodTestHelper
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object NeighbourhoodTestHelper {
 
     def createSpace

@@ -6,8 +6,6 @@ package yuck.annealing
  *
  * The design of this interface allows for feedback such that the schedule can analyse the
  * progress of search and adjust the temperature accordingly.
- *
- * @author Michael Marte
  */
 abstract class AnnealingSchedule {
 

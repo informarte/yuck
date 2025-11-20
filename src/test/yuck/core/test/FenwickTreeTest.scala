@@ -5,10 +5,6 @@ import org.junit.{FixMethodOrder, Test}
 import yuck.core.FenwickTree
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(org.junit.runners.MethodSorters.NAME_ASCENDING)
 final class FenwickTreeTest extends UnitTest {
 

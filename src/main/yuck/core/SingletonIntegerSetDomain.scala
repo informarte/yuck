@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Turns a given integer domain into an immutable singleton integer-set domain.
- *
- * @author Michael Marte
  */
 final class SingletonIntegerSetDomain
     (val base: IntegerDomain)

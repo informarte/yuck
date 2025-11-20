@@ -32,8 +32,6 @@ import yuck.core.*
  *  - An array-based graph (derived from the map-based graph) for faster shortest-path search
  *
  * This class is tested by RegularTest and RegularNeighbourhoodTest.
- *
- * @author Michael Marte
  */
 final class RegularGraph(dfa: RegularDfa) {
 

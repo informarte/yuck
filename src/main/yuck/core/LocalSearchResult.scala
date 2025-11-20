@@ -1,9 +1,5 @@
 package yuck.core
 
-/**
- * @author Michael Marte
- *
- */
 abstract class LocalSearchResult extends Result {
     val numberOfMoves: Long
     val numberOfConsultations: Long

@@ -18,8 +18,6 @@ import yuck.util.Collections.*
  *                       in the constraint represented by c[j]
  *
  * @see [[yuck.Notation Notation]]
- *
- * @author Michael Marte
  */
 final class SatisfactionGoalTracker
     (id: Id[Constraint],
@@ -68,11 +66,6 @@ final class SatisfactionGoalTracker
 
 }
 
-/**
- * Companion object to SatisfactionGoalTracker.
- *
- * @author Michael Marte
- */
 object SatisfactionGoalTracker {
 
     /**

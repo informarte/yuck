@@ -6,8 +6,6 @@ import yuck.util.logging.LogLevel.FineLogLevel
 
 /**
  * Parses warm-start annotations and assigns the variables accordingly.
- *
- * @author Michael Marte
  */
 class WarmStartAnnotationParser
     (override protected val cc: CompilationContext)

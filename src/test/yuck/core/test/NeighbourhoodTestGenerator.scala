@@ -7,10 +7,6 @@ import scala.jdk.CollectionConverters.*
 
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 abstract class NeighbourhoodTestGenerator {
 
     private val randomGenerator = new JavaRandomGenerator

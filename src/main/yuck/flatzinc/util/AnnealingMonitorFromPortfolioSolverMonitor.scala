@@ -5,8 +5,6 @@ import yuck.core.AnyVariable
 
 /**
  * Wraps a PortfolioSolverMonitor instance for use with simulated annealing.
- *
- * @author Michael Marte
  */
 final class AnnealingMonitorFromPortfolioSolverMonitor(monitor: PortfolioSolverMonitor) extends AnnealingMonitor {
 

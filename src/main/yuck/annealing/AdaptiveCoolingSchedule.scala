@@ -10,8 +10,6 @@ package yuck.annealing
  * Freezes up when the temperature drops below the given final temperature or when
  * n exceeds the given threshold, that is when the search gets stuck in an attraction
  * basin.
- *
- * @author Michael Marte
  */
 final class AdaptiveCoolingSchedule(
     finalTemperature: Double,

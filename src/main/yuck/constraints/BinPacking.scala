@@ -4,10 +4,6 @@ import scala.collection.*
 
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 final class BinPackingItem
     [Weight <: NumericalValue[Weight]]
     (val bin: IntegerVariable, val weight: Weight)
@@ -21,8 +17,6 @@ final class BinPackingItem
  * Maintains the loads for a given set of bins.
  *
  * Ignores tasks assigned to bins other than the given bins.
- *
- * @author Michael Marte
  */
 final class BinPacking
     [Load <: NumericalValue[Load]]

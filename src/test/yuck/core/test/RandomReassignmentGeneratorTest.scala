@@ -5,10 +5,6 @@ import org.junit.*
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 final class RandomReassignmentGeneratorTest
@@ -43,10 +39,6 @@ final class RandomReassignmentGeneratorTest
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object RandomReassignmentGeneratorTest extends NeighbourhoodTestGenerator {
 
     override protected val moveSizeDistributions =

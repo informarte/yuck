@@ -8,8 +8,6 @@ import yuck.core.*
  * Computes the violation of sum x(i) R z where R is an ordering relation.
  *
  * y is a helper channel for propagation: Conceptually, sum a(i) * x(i) = y /\ y R z.
- *
- * @author Michael Marte
  */
 final class SumConstraint
     [V <: NumericalValue[V]]

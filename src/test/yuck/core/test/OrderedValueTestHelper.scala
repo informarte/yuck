@@ -6,10 +6,6 @@ import yuck.core.{OrderedValue, RandomGenerator}
 import yuck.test.util.OrderingTestHelper
 import yuck.util.OrderingFromOrdered
 
-/**
- * @author Michael Marte
- *
- */
 class OrderedValueTestHelper
     [V <: OrderedValue[V]]
     (randomGenerator: RandomGenerator)

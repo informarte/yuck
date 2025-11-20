@@ -19,8 +19,6 @@ import yuck.util.logging.LazyLogger
  * Actually we compute an upper bound l' of l and hence we return a lower bound d' on d.
  * We guarantee that d' = 0 iff the sequence is acceptable.
  * To compute d', we look for the latest state u from which an accepting state could presumably be reached.
- *
- * @author Michael Marte
  */
 final class Regular
     (id: Id[Constraint], override val maybeGoal: Option[Goal],

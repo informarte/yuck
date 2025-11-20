@@ -11,8 +11,6 @@ import yuck.test.util.ParallelParameterizedTestRunner
 
 /**
  * Runs the Ascheuer TSPTW benchmark
- *
- * @author Michael Marte
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
@@ -28,8 +26,6 @@ final class AscheuerBenchmark(task: ZincTestTask) extends ZincBasedTest {
 
 /**
  * Generates test tasks from the Ascheuer TSPTW benchmark instances
- *
- * @author Michael Marte
  */
 object AscheuerBenchmark extends VrpTestTaskFactory {
 

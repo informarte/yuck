@@ -9,8 +9,6 @@ import yuck.core.{Constraint, Space}
  *
  * Since the Constraint interface has only a small number of implementations,
  * the collection process does hopefully not interfere too much with the workload.
- *
- * @author Michael Marte
  */
 final class ByConstraintPerformanceMetricsBuilder
     (val space: Space)

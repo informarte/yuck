@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Objective for minimizing the value of a variable.
- *
- * @author Michael Marte
  */
 final class MinimizationObjective
     [V <: NumericalValue[V]]

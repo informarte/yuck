@@ -1,9 +1,5 @@
 package yuck.constraints
 
-/**
- * @author Michael Marte
- *
- */
 enum OrderingRelation(val name: String) {
 
     case EqRelation extends OrderingRelation("==")

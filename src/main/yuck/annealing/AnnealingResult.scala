@@ -5,10 +5,6 @@ import scala.collection.*
 import yuck.core.*
 import yuck.util.DescriptiveStatistics.*
 
-/**
- * @author Michael Marte
- *
- */
 final class AnnealingResult(
     override val maybeUserData: Option[Object],
     override val solverName: String,

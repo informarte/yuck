@@ -17,8 +17,6 @@ import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 
 /**
  * Test cases taken from the MiniZinc 1.6 distribution
- *
- * @author Michael Marte
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
@@ -348,10 +346,6 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object MiniZincExamples {
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")
@@ -361,8 +355,6 @@ object MiniZincExamples {
 
 /**
  * Test cases for running after every change
- *
- * @author Michael Marte
  */
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[EasyInstance]))
@@ -371,8 +363,6 @@ class EasyMiniZincExamples
 
 /**
  * Test cases for running after every change
- *
- * @author Michael Marte
  */
 @Ignore("Avoid pointless NoTestsRemainException")
 @RunWith(classOf[Categories])
@@ -382,8 +372,6 @@ final class MediumMiniZincExamples
 
 /**
  * Hard and unsolved problems
- *
- * @author Michael Marte
  */
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[HardInstance]))
@@ -391,8 +379,6 @@ final class MediumMiniZincExamples
 final class HardMiniZincExamples
 
 /**
- * @author Michael Marte
- *
  * Test cases for running after every change
  */
 @RunWith(classOf[runners.Suite])
@@ -403,8 +389,6 @@ final class HardMiniZincExamples
 class TractableMiniZincExamples
 
 /**
- * @author Michael Marte
- *
  * Tractable satisfiability examples
  */
 @RunWith(classOf[Categories])
@@ -414,8 +398,6 @@ class TractableSatisfiabilityExamples
 
 /**
  * Tractable minimization examples
- *
- * @author Michael Marte
  */
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[MinimizationProblem]))
@@ -424,8 +406,6 @@ class TractableMinimizationExamples
 
 /**
  * Tractable maximization examples
- *
- * @author Michael Marte
  */
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[MaximizationProblem]))
@@ -434,8 +414,6 @@ class TractableMaximizationExamples
 
 /**
  * Tractable examples with integer all_different constraints
- *
- * @author Michael Marte
  */
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[HasAllDifferentConstraint]))

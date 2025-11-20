@@ -4,8 +4,6 @@ import scala.collection.*
 
 /**
  * Provides properties of ordered values.
- *
- * @author Michael Marte
  */
 abstract class OrderedValueTraits[V <: OrderedValue[V]] extends ValueTraits[V] {
 

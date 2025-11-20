@@ -4,10 +4,6 @@ import scala.collection.*
 
 import yuck.core.RandomGenerator
 
-/**
- * @author Michael Marte
- *
- */
 class OrderingTestHelper[T](randomGenerator: RandomGenerator) extends EqualityTestHelper[T] {
 
     // compare induces a couple of relations: =, <=, >=, <, >

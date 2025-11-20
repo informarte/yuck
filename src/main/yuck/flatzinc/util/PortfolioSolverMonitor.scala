@@ -13,8 +13,6 @@ import yuck.util.arm.ManagedResource
  * Identifies recipients by considering the types of messages and monitors.
  *
  * This is not a real monitor, so for use with a solver it needs wrapping.
- *
- * @author Michael Marte
  */
 final class PortfolioSolverMonitor(monitors: immutable.Seq[SolverMonitoring[?]]) extends ManagedResource {
 

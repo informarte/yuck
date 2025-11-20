@@ -9,8 +9,6 @@ import scala.collection.*
  * Do not use `x.isInstanceOf[Variable[V]]` or `x.asInstanceOf[Variable[V]]`!
  * It will compile but not work due to type erasure :-(
  * Instead use value traits for type checking and down-casting!
- *
- * @author Michael Marte
  */
 abstract class ValueTraits[V <: Value[V]] {
 

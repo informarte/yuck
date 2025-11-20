@@ -7,10 +7,6 @@ import yuck.core.*
 import yuck.test.util.UnitTest
 import yuck.util.Collections.*
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 class SatisfactionGoalTrackerTest extends UnitTest {
 

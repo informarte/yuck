@@ -6,8 +6,6 @@ import yuck.util.logging.LazyLogger
 
 /**
  * Manages a [[http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html Java executor service]].
- *
- * @author Michael Marte
  */
 final class ManagedExecutorService(executor: ExecutorService, logger: LazyLogger) extends ManagedResource {
 

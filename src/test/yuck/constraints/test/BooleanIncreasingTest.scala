@@ -8,10 +8,6 @@ import yuck.constraints.{BooleanIncreasing, BooleanIncreasingNeighbourhood}
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class BooleanIncreasingTest extends UnitTest with ConstraintTestTooling {
 

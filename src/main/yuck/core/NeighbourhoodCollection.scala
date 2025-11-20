@@ -23,8 +23,6 @@ import yuck.util.arm.scoped
  * search variables.
  *
  * Falls back to fair mode when the given hot-spot distribution has zero volume.
- *
- * @author Michael Marte
  */
 final class NeighbourhoodCollection
     (override protected val space: Space,

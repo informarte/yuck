@@ -10,8 +10,6 @@ import yuck.util.logging.LogLevel.FineLogLevel
  * Builds a map from parameter and variable declarations to domains.
  *
  * Assigns declarations to equivalence classes by considering optional assignments and equality constraints.
- *
- * @author Michael Marte
  */
 final class DomainInitializer
     (override protected val cc: CompilationContext)

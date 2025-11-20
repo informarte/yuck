@@ -4,8 +4,6 @@ package yuck.core
  * Provides an interface for working with numerical value types.
  *
  * Values are immutable and hence we do not define += and similar operators.
- *
- * @author Michael Marte
  */
 abstract class NumericalValue[V] extends OrderedValue[V] {
     def +(that: V): V

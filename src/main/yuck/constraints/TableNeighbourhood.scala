@@ -4,10 +4,6 @@ import scala.collection.immutable
 
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 final class TableNeighbourhood
     [V <: Value[V]]
     (override protected val space: Space,

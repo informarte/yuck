@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Implements the cost model for ordering operations on integer values.
- *
- * @author Michael Marte
  */
 object IntegerValueOrderingCostModel extends OrderingCostModel[IntegerValue] {
     override def eqViolation(lhs: IntegerValue, rhs: IntegerValue) =

@@ -17,8 +17,6 @@ import yuck.util.alg.rtree.RTreeTransaction
  *
  * Details like the representation of rectangles and the cost model have to be provided
  * by subclassing.
- *
- * @author Michael Marte
  */
 abstract class Disjoint
     (id: Id[Constraint], n: Int, costs: BooleanVariable)

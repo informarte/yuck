@@ -2,10 +2,6 @@ package yuck
 
 import yuck.core.{Distribution, Probability}
 
-/**
- * @author Michael Marte
- *
- */
 package object annealing {
 
     val DefaultMoveSizeDistribution = Distribution(1, List(90, 10))

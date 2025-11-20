@@ -7,8 +7,6 @@ package yuck.core
  * its lower bound will be greater than its upper bound.
  *
  * Null bounds imply infinity.
- *
- * @author Michael Marte
  */
 abstract class OrderedDomain[V <: OrderedValue[V]] extends Domain[V] with Ordered[OrderedDomain[V]] {
 

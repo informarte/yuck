@@ -1,9 +1,5 @@
 package yuck.util.logging
 
-/**
- * @author Michael Marte
- *
- */
 trait YuckLogging {
 
     // To control logging upon ^C, we install a special log manager.

@@ -6,8 +6,6 @@ import yuck.util.arm.ManagedResource
  * A managed resource that increases indentation upon opening and undoes
  * the change upon closing.
  *
- * @author Michael Marte
- *
  * @see [[yuck.util.logging.LazyLogger]]
  */
 final class LogScope(logger: LazyLogger, indentation: Int = 1) extends ManagedResource {

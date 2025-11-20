@@ -8,8 +8,6 @@ import yuck.core.*
  * This neighbourhood can be used to maintain any ''circuit'' constraint.
  *
  * It swaps nodes and segments.
- *
- * @author Michael Marte
  */
 final class CircuitNeighbourhood
     (override protected val space: Space,

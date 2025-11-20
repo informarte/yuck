@@ -5,8 +5,6 @@ import yuck.core.*
 /**
  * This neighbourhood can be used to maintain an ''inverse'' constraint where
  * f and g do not share variables.
- *
- * @author Michael Marte
  */
 final class GeneralInverseNeighbourhood
     (override protected val space: Space,

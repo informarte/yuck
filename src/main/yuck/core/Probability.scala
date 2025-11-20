@@ -4,8 +4,6 @@ package yuck.core
  * V class for type-safe representation of probabilities.
  *
  * Use Probability.from to construct instances.
- *
- * @author Michael Marte
  */
 final class Probability private(val value: Double) extends AnyVal {
     override def toString = "%s".format(value)
@@ -13,8 +11,6 @@ final class Probability private(val value: Double) extends AnyVal {
 
 /**
  * Factory for probability values.
- *
- * @author Michael Marte
  */
 object Probability {
 

@@ -9,8 +9,6 @@ package yuck.annealing
  *
  * The target acceptance ratio (for uphill moves) is set to a given maximum during
  * construction and may be changed by an invocation of start.
- *
- * @author Michael Marte
  */
 final class GeometricHeatingSchedule(
     maximumUphillAcceptanceRatio: Double,

@@ -2,10 +2,6 @@ package yuck.constraints
 
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 abstract class BinaryConstraint
     [In <: Value[In], Out <: Value[Out]]
     (id: Id[Constraint],

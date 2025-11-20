@@ -2,10 +2,6 @@ package yuck.constraints
 
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 final class Plus
     [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -24,10 +20,6 @@ final class Plus
     }
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class Minus
     [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -46,10 +38,6 @@ final class Minus
     }
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class Times
     [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -65,10 +53,6 @@ final class Times
     }
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class Div
     [V <: IntegralValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -85,10 +69,6 @@ final class Div
        if b == valueTraits.zero then a else a / b
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class Mod
     [V <: IntegralValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -99,10 +79,6 @@ final class Mod
     override def op(a: V, b: V) = a % b
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class Power
     [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -113,10 +89,6 @@ final class Power
     override def op(a: V, b: V) = a ^ b
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class Abs
     [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -132,10 +104,6 @@ final class Abs
     }
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class Even
     [V <: IntegralValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -146,10 +114,6 @@ final class Even
     override def op(a: V) = if (a.isEven) True else False
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class Uneven
     [V <: IntegralValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],

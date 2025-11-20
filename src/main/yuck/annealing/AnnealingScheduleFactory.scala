@@ -4,8 +4,6 @@ import yuck.core.*
 
 /**
  * Creates annealing schedules for problems of the given size.
- *
- * @author Michael Marte
  */
 final class AnnealingScheduleFactory
     (numberOfSearchVariables: Int, randomGenerator: RandomGenerator)

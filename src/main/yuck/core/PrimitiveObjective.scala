@@ -4,8 +4,6 @@ import java.lang.Math.{abs, log, signum}
 
 /**
  * Objective for optimizing the value of a variable.
- *
- * @author Michael Marte
  */
 abstract class PrimitiveObjective extends AnyObjective {
 

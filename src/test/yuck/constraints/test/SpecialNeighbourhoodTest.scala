@@ -5,10 +5,6 @@ import org.junit.Test
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 abstract class SpecialNeighbourhoodTest extends UnitTest {
 
     protected val randomGenerator = new JavaRandomGenerator

@@ -1,13 +1,8 @@
 package yuck.constraints.test
 
-import scala.jdk.CollectionConverters.*
 import yuck.constraints.{Regular, RegularDfa, RegularNeighbourhood}
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 final class RegularNeighbourhoodTest extends SpecialNeighbourhoodTest {
 
     private val xs = for (i <- 1 to 10) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(1, 3))

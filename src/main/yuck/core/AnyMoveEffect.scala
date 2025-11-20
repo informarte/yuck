@@ -4,8 +4,6 @@ import scala.collection.mutable.Cloneable
 
 /**
  * Describes the effect of a move on the value of a variable.
- *
- * @author Michael Marte
  */
 abstract class AnyMoveEffect extends Cloneable[AnyMoveEffect] with Iterable[AnyMoveEffect] {
 

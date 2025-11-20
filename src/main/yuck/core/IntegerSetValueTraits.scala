@@ -4,8 +4,6 @@ import scala.collection.*
 
 /**
  * Provides traits of integer-set values.
- *
- * @author Michael Marte
  */
 object IntegerSetValueTraits extends OrderedValueTraits[IntegerSetValue] {
     override val valueType = classOf[IntegerSetValue]

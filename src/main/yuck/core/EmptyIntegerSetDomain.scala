@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Implements the empty integer-set domain.
- *
- * @author Michael Marte
  */
 object EmptyIntegerSetDomain extends IntegerSetDomain {
     override def isBounded = true

@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Implements integer variables.
- *
- * @author Michael Marte
  */
 final class IntegerVariable
     (id: Id[AnyVariable], name: String, var currentDomain: IntegerDomain)

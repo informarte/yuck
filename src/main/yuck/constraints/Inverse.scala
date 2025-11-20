@@ -11,8 +11,6 @@ import yuck.util.logging.LazyLogger
 
 /**
  * Used in Inverse to represent a function that should be the inverse of another function.
- *
- * @author Michael Marte
  */
 final class InverseFunction
     (val xs: immutable.IndexedSeq[IntegerVariable],
@@ -47,8 +45,6 @@ final class InverseFunction
  * to take valid values.)
  *
  * @see [[yuck.Notation Notation]]
- *
- * @author Michael Marte
  */
 final class Inverse
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -346,11 +342,6 @@ final class Inverse
 
 }
 
-/**
- * Companion object to Inverse.
- *
- * @author Michael Marte
- */
 object Inverse {
 
     def areInverseFunctionsOfEachOther(f: InverseFunction, g: InverseFunction, searchState: SearchState): Boolean =

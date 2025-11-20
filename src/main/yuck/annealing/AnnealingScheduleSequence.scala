@@ -7,8 +7,6 @@ import scala.collection.*
  *
  * When schedule i gets frozen, schedule i + 1 is asked to start out
  * from its predecessor's current temperature.
- *
- * @author Michael Marte
  */
 final class AnnealingScheduleSequence(
     children: immutable.IndexedSeq[AnnealingSchedule])

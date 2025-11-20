@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Provides an interface for working with numerical variables.
- *
- * @author Michael Marte
  */
 abstract class NumericalVariable
     [V <: NumericalValue[V]]

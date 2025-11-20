@@ -7,8 +7,6 @@ import yuck.util.arm.scoped
 
 /**
  * This neighbourhood can be used to maintain constraints like ''all_different'' and ''all_different_except_0''.
- *
- * @author Michael Marte
  */
 final class AllDifferentNeighbourhood
     [V <: Value[V]]

@@ -4,10 +4,6 @@ import org.junit.Assert
 
 import scala.annotation.tailrec
 
-/**
- * @author Michael Marte
- *
- */
 trait YuckAssert {
 
     protected def assert(b: Boolean): Unit = {

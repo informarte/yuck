@@ -7,8 +7,6 @@ import yuck.core.*
 /**
  * This neighbourhood can be used to maintain non-strict ''increasing'' constraints
  * over Boolean variables.
- *
- * @author Michael Marte
  */
 final class BooleanIncreasingNeighbourhood
     (override protected val space: Space,

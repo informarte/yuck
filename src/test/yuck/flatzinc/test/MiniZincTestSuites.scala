@@ -10,8 +10,6 @@ import yuck.flatzinc.test.util.*
 
 /**
  * Big integration test suite
- *
- * @author Michael Marte
  */
 @runner.RunWith(classOf[runners.Suite])
 @runners.Suite.SuiteClasses(
@@ -23,8 +21,6 @@ class MiniZincTestSuites
 
 /**
  * Challenge problems with all_different constraints
- *
- * @author Michael Marte
  */
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[HasAllDifferentConstraint]))
@@ -33,8 +29,6 @@ class AllDifferentChallenges
 
 /**
  * Challenge problems with all_different_except constraints
- *
- * @author Michael Marte
  */
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[HasAllDifferentExceptConstraint]))
@@ -43,8 +37,6 @@ class AllDifferentExceptChallenges
 
 /**
  * Challenge problems with inverse constraints
- *
- * @author Michael Marte
  */
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[HasInverseConstraint]))
@@ -54,8 +46,6 @@ class InverseChallenges
 
 /**
  * Challenge problems with regular constraints
- *
- * @author Michael Marte
  */
 @RunWith(classOf[Categories])
 @IncludeCategory(Array(classOf[HasRegularConstraint]))

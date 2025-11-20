@@ -4,8 +4,6 @@ import scala.collection.*
 
 /**
  * Provides the power set of a given integer domain as immutable integer-set domain.
- *
- * @author Michael Marte
  */
 final class IntegerPowersetDomain
     (val base: IntegerDomain)

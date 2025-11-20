@@ -7,8 +7,6 @@ import yuck.util.arm.ManagedResource
 /**
  * A managed resource that adds the given handler to the given logger upon opening and
  * removes it upon closing.
- *
- * @author Michael Marte
  */
 final class ManagedLogHandler(logger: Logger, handler: Handler) extends ManagedResource {
 

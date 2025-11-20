@@ -8,10 +8,6 @@ import yuck.util.logging.LazyLogger
 import yuck.util.logging.LogLevel.FineLogLevel
 import yuck.test.*
 
-/**
- * @author Michael Marte
- *
- */
 final class IntegerDomainTestHelper
     (override protected val randomGenerator: RandomGenerator,
      override protected val logger: LazyLogger)
@@ -706,10 +702,6 @@ final class IntegerDomainTestHelper
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object IntegerDomainTestHelper {
 
     private val SpecialInfiniteRanges = List(

@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Provides methods for pruning integer-set domains.
- *
- * @author Michael Marte
  */
 object IntegerSetDomainPruner extends OrderedDomainPruner[IntegerSetValue] {
 

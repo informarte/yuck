@@ -11,8 +11,6 @@ import yuck.test.util.ParallelParameterizedTestRunner
 
 /**
  * Runs the Uchoa CVRP benchmark
- *
- * @author Michael Marte
  */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
@@ -28,8 +26,6 @@ final class UchoaBenchmark(task: ZincTestTask) extends ZincBasedTest {
 
 /**
  * Generates test tasks from the Uchoa CVRP benchmark instances
- *
- * @author Michael Marte
  */
 object UchoaBenchmark extends VrpTestTaskFactory {
 

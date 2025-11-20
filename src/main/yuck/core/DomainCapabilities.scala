@@ -4,8 +4,6 @@ package yuck.core
  * Informs about which operations are fully implemented.
  *
  * All non-listed operations can be assumed to be available.
- *
- * @author Michael Marte
  */
 final case class DomainCapabilities(
     createDomain: Boolean = true,

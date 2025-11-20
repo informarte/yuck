@@ -7,10 +7,6 @@ import scala.collection.*
 import yuck.core.*
 import yuck.flatzinc.ast.FlatZincAst
 
-/**
- * @author Michael Marte
- *
- */
 final class FlatZincCompilerResult(
     val ast: FlatZincAst,
     val space: Space,

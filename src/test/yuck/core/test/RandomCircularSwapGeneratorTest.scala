@@ -5,10 +5,6 @@ import org.junit.*
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 final class RandomCircularSwapGeneratorTest
@@ -38,10 +34,6 @@ final class RandomCircularSwapGeneratorTest
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object RandomCircularSwapGeneratorTest extends NeighbourhoodTestGenerator {
 
     override protected val moveSizeDistributions =

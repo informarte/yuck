@@ -13,8 +13,6 @@ import yuck.core.*
  * @param delta State transition function 1..Q x 1..S -> 0..Q (0 is failed state)
  * @param q0 Start state in 1..Q
  * @param F Accepting states (subset of 1..Q)
- *
- * @author Michael Marte
  */
 final class RegularDfa
     (val xs: immutable.IndexedSeq[IntegerVariable],

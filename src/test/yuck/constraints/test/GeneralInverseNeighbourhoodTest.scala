@@ -7,10 +7,6 @@ import scala.jdk.CollectionConverters.*
 import yuck.constraints.{GeneralInverseNeighbourhood, InverseFunction}
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 @runner.RunWith(classOf[runners.Parameterized])
 final class GeneralInverseNeighbourhoodTest(fOffset: Int, gOffset: Int) extends InverseNeighbourhoodTest {
 
@@ -34,10 +30,6 @@ final class GeneralInverseNeighbourhoodTest(fOffset: Int, gOffset: Int) extends 
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object GeneralInverseNeighbourhoodTest {
 
     private def offsets = List(-1, 0, 1).map(Integer.valueOf)

@@ -16,8 +16,6 @@ import yuck.flatzinc.test.util.VerificationFrequency.*
 
 /**
  * Tests that cover edge cases and rarely used features of the FlatZinc language
- *
- * @author Michael Marte
  */
 @runner.RunWith(classOf[ParallelTestRunner])
 final class FlatZincBaseTest extends FrontEndTest {

@@ -4,8 +4,6 @@ import scala.collection.*
 
 /**
  * Implements mutable search states.
- *
- * @author Michael Marte
  */
 final class HashMapBackedAssignment(valDir: mutable.HashMap[AnyVariable, AnyValue]) extends SearchState {
 

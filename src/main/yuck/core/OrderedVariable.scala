@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Provides an interface for working with variables that have an ordered domain.
- *
- * @author Michael Marte
  */
 abstract class OrderedVariable
     [V <: OrderedValue[V]]

@@ -6,8 +6,6 @@ package yuck.flatzinc.parser
  * @param bytes is the array of ASCII-encoded characters.
  * @param start is the start index of the slice (0-based).
  * @param end is the end index of the slice (0-based, exclusive).
- *
- * @author Michael Marte
  */
 final class ByteArrayAsCharSequence(bytes: Array[Byte], start: Int, end: Int) extends CharSequence {
     if (start < 0 || end < start || end > bytes.length) {

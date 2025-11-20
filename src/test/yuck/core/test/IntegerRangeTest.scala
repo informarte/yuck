@@ -8,10 +8,6 @@ import yuck.core.*
 import yuck.test.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(org.junit.runners.MethodSorters.NAME_ASCENDING)
 final class IntegerRangeTest extends UnitTest {
 

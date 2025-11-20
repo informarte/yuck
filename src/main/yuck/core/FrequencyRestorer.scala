@@ -8,8 +8,6 @@ import yuck.util.arm.ManagedResource
  * Managed resource to memorize changes to distributions to be undone upon closing.
  *
  * The changes are undone in LIFO fashion.
- *
- * @author Michael Marte
  */
 final class FrequencyRestorer(capacity: Int) extends ManagedResource {
 

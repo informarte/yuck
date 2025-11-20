@@ -4,8 +4,6 @@ import scala.collection.*
 
 /**
  * Provides an interface for inspecting the current state of search.
- *
- * @author Michael Marte
  */
 abstract class SearchState extends mutable.Cloneable[SearchState] {
 

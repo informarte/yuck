@@ -11,10 +11,6 @@ import yuck.flatzinc.util.{AnnealingMonitorFromPortfolioSolverMonitor, Feasibili
 import yuck.util.arm.SettableSigint
 import yuck.util.logging.LazyLogger
 
-/**
- * @author Michael Marte
- *
- */
 final class FlatZincSolverGenerator
     (ast: FlatZincAst,
      cfg: FlatZincSolverConfiguration,

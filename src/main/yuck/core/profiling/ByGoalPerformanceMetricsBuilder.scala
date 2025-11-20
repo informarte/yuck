@@ -15,8 +15,6 @@ import yuck.core.{Constraint, Goal, Space}
  * Notice that the metrics are collected for each single constraint posted
  * to the given space, possibly resulting in a large map. Hence the collection
  * process might interfere with the workload.
- *
- * @author Michael Marte
  */
 final class ByGoalPerformanceMetricsBuilder(val space: Space) extends SpacePerformanceMetricsBuilder[Constraint] {
 

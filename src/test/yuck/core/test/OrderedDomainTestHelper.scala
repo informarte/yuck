@@ -8,10 +8,6 @@ import yuck.util.OrderingFromOrdered
 import yuck.util.logging.LazyLogger
 import yuck.util.logging.LogLevel.FineLogLevel
 
-/**
- * @author Michael Marte
- *
- */
 abstract class OrderedDomainTestHelper[V <: OrderedValue[V]] extends DomainTestHelper[V] {
 
     protected val randomGenerator: RandomGenerator

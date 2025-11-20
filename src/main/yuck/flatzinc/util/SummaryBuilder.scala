@@ -14,10 +14,6 @@ import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.FlatZincAst
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 
-/**
- * @author Michael Marte
- *
- */
 final class SummaryBuilder {
 
     import SummaryBuilder.*
@@ -261,10 +257,6 @@ final class SummaryBuilder {
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object SummaryBuilder {
 
     abstract class JsValueBuilder {

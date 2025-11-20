@@ -4,8 +4,6 @@ import yuck.util.logging.LazyLogger
 
 /**
  * Manages a thread.
- *
- * @author Michael Marte
  */
 final class ManagedThread(thread: Thread, logger: LazyLogger) extends ManagedResource {
 

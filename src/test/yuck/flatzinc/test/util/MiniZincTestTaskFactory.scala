@@ -14,8 +14,6 @@ import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
  *
  * Supports custom model and instance filters and allows to limit the number of instances
  * per problem.
- *
- * @author Michael Marte
  */
 abstract class MiniZincTestTaskFactory {
 

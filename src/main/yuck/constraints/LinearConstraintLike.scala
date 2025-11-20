@@ -9,8 +9,6 @@ import yuck.core.*
  * Maintains the violation of sum a(i) * x(i) R z where R is an ordering relation.
  *
  * y is a helper channel for propagation: Conceptually, sum a(i) * x(i) = y /\ y R z.
- *
- * @author Michael Marte
  */
 abstract class LinearConstraintLike
     [V <: NumericalValue[V]]

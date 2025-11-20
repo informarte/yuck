@@ -12,8 +12,6 @@ import yuck.util.arm.scoped
  * It proposes a random move and uses the given RegularGraph to turn the proposal into a feasible move
  * by means of a shortest-path search from source to sink. To this end, it penalizes the edges of the
  * graph with the aim to encourage a path that implements the proposal and does not change too much else.
- *
- * @author Michael Marte
  */
 class RegularNeighbourhood
     (override protected val space: Space,

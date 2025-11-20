@@ -6,10 +6,6 @@ import org.junit.rules.{RuleChain, TestName}
 import yuck.util.arm.DummyResource
 import yuck.util.logging.YuckLogging
 
-/**
- * @author Michael Marte
- *
- */
 abstract class YuckTest extends YuckAssert with YuckLogging {
 
     protected val formatter = new yuck.util.logging.Formatter

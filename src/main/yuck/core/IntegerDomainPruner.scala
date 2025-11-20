@@ -4,8 +4,6 @@ import java.lang.Math.{ceil, floor}
 
 /**
  * Provides methods for pruning integer domains.
- *
- * @author Michael Marte
  */
 object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
 

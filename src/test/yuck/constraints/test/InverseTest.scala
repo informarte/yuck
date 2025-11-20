@@ -10,10 +10,6 @@ import yuck.constraints.*
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with ConstraintTestTooling {
@@ -280,10 +276,6 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object InverseTest {
 
     private def offsets = List(-1, 0, 1).map(Integer.valueOf)

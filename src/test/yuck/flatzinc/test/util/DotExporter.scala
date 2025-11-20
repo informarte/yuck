@@ -8,10 +8,6 @@ import scala.collection.mutable
 
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 final class DotExporter(space: Space, dotWriter: java.io.FileWriter) extends Runnable {
 
     import DotExporter.*
@@ -87,10 +83,6 @@ final class DotExporter(space: Space, dotWriter: java.io.FileWriter) extends Run
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object DotExporter {
 
     private trait Vertex

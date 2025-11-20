@@ -39,8 +39,6 @@ import yuck.util.Collections.*
  * In an attempt to decouple this factory from implementation details of data structures
  * (hash sets, in particular) and the earlier compiler stages, we sort constraints and
  * variables (by id) before further processing.
- *
- * @author Michael Marte
  */
 final class AnnealingNeighbourhoodFactory
     (override protected val cc: CompilationContext, randomGenerator: RandomGenerator)

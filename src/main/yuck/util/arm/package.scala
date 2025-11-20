@@ -7,8 +7,6 @@ import yuck.util.logging.LazyLogger
 
 /**
  * This package contains exception-safe functions for working with managed resources.
- *
- * @author Michael Marte
  */
 package object arm {
 

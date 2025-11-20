@@ -9,8 +9,6 @@ import yuck.util.logging.LazyLogger
 
 /**
  * Base class for the family of increasing constraints.
- *
- * @author Michael Marte
  */
 abstract class Increasing
     [V <: OrderedValue[V], X <: OrderedVariable[V]]
@@ -130,11 +128,6 @@ abstract class Increasing
 
 }
 
-/**
- * Companion object to Increasing.
- *
- * @author Michael Marte
- */
 object Increasing {
 
     // [a, b, c, c, d, c] -> [a, b, c, d, c]

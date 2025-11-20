@@ -7,8 +7,6 @@ import yuck.core.*
 
 /**
  * Implements Boolean ''increasing'' constraints as specified by MiniZinc..
- *
- * @author Michael Marte
  */
 final class BooleanIncreasing
     (id: Id[Constraint],

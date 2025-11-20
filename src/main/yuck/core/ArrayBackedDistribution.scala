@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Implements discrete distributions based on arrays.
- *
- * @author Michael Marte
  */
 final class ArrayBackedDistribution(override val size: Int) extends Distribution {
     require(size > 0)

@@ -5,8 +5,6 @@ import scala.collection.*
 
 /**
  * Provides an interface for working with integer domains.
- *
- * @author Michael Marte
  */
 abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
 
@@ -199,11 +197,6 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
 
 }
 
-/**
- * Companion object to IntegerDomain.
- *
- * @author Michael Marte
- */
 object IntegerDomain {
 
     given ordering: Ordering[OrderedDomain[IntegerValue]] = IntegerDomainOrdering

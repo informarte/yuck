@@ -17,8 +17,6 @@ import yuck.util.alg.rtree.{RTreeTransaction, RicherRect2d}
  * @param s is the task start.
  * @param d is the task duration.
  * @param c is the task's resource consumption.
- *
- * @author Michael Marte
  */
 final class CumulativeTask
     (val s: IntegerVariable, val d: IntegerVariable, val c: IntegerVariable)
@@ -35,8 +33,6 @@ final class CumulativeTask
  * Uses an R tree to track task placements and sweeping to compute costs and cost deltas.
  *
  * Ignores tasks with negative duration or consumption.
- *
- * @author Michael Marte
  */
 final class Cumulative
     (id: Id[Constraint], override val maybeGoal: Option[Goal],

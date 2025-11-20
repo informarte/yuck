@@ -9,10 +9,6 @@ import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 final class ElementVarTest(offset: Int) extends UnitTest with ConstraintTestTooling {
@@ -82,10 +78,6 @@ final class ElementVarTest(offset: Int) extends UnitTest with ConstraintTestTool
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object ElementVarTest {
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")

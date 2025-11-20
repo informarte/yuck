@@ -9,8 +9,6 @@ import scala.annotation.tailrec
  * so the empty range has no normal form.
  *
  * Null bounds imply infinity.
- *
- * @author Michael Marte
  */
 final class IntegerRange
     (override val lb: IntegerValue, override val ub: IntegerValue)
@@ -214,11 +212,6 @@ final class IntegerRange
 
 }
 
-/**
- * Companion object to IntegerRange.
- *
- * @author Michael Marte
- */
 object IntegerRange {
 
     /**

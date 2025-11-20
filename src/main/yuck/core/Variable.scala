@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Provides an interface for working with variables of known type.
- *
- * @author Michael Marte
  */
 abstract class Variable
     [V <: Value[V]]

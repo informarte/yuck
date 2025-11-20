@@ -6,8 +6,6 @@ import yuck.core.*
 
 /**
  * Equivalent to set_in(x, x.domain) for all x in xs.
- *
- * @author Michael Marte
  */
 final class InDomain
     (id: Id[Constraint], override val maybeGoal: Option[Goal],

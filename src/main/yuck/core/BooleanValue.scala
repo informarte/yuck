@@ -11,8 +11,6 @@ package yuck.core
  *    In particular, "true" is smaller than all "false" values.
  *  - "false" values with different violations are different and therefore direct comparison
  *    is discouraged; use truthValue instead, it's safer and more efficient than equals!
- *
- * @author Michael Marte
  */
 final class BooleanValue(val violation: Long) extends OrderedValue[BooleanValue] {
     require(violation >= 0)
@@ -41,11 +39,6 @@ final class BooleanValue(val violation: Long) extends OrderedValue[BooleanValue]
     inline def truthValue: Boolean = violation == 0
 }
 
-/**
- * Companion object to BooleanValue.
- *
- * @author Michael Marte
- */
 object BooleanValue {
 
     given ordering: Ordering[BooleanValue] = BooleanValueOrdering

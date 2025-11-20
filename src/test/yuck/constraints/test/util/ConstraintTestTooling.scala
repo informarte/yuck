@@ -11,8 +11,6 @@ import yuck.util.logging.LazyLogger
  *
  * Useful explanation of the interaction between overload resolution and implicit conversions:
  * https://users.scala-lang.org/t/how-does-overload-resolution-interact-with-implicit-conversions/7836/5
- *
- * @author Michael Marte
  */
 trait ConstraintTestTooling extends YuckAssert {
 

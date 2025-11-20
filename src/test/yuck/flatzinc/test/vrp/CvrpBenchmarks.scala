@@ -6,8 +6,6 @@ import org.junit.runners.Suite.SuiteClasses
 
 /**
  * Runs the CVRP benchmarks
- *
- * @author Michael Marte
  */
 @Test
 @RunWith(classOf[runners.Suite])

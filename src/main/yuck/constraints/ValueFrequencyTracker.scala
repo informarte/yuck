@@ -9,8 +9,6 @@ import yuck.core.*
  * assigned to a set of variables and how often each value is assigned.
  *
  * The given (immutable) map serves as a factory for the value registry.
- *
- * @author Michael Marte
  */
 abstract class ValueFrequencyTracker
     [V <: Value[V], Result <: Value[Result]]

@@ -3,8 +3,6 @@ package yuck.core
 /**
  * Provides an interface for working with domains that contain integer
  * sets as elements.
- *
- * @author Michael Marte
  */
 abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
 
@@ -81,11 +79,6 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
 
 }
 
-/**
- * Companion object to IntegerSetDomain.
- *
- * @author Michael Marte
- */
 object IntegerSetDomain {
 
     given ordering: Ordering[OrderedDomain[IntegerSetValue]] = IntegerSetDomainOrdering

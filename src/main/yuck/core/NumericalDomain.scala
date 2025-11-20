@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Provides an interface for working with numerical domains.
- *
- * @author Michael Marte
  */
 abstract class NumericalDomain[V <: NumericalValue[V]] extends OrderedDomain[V] {
 

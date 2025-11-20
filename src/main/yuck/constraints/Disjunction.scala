@@ -27,8 +27,6 @@ import yuck.core.*
  * search towards a solution.
  *
  * @see [[yuck.Notation Notation]]
- *
- * @author Michael Marte
  */
 final class Disjunction
     (id: Id[Constraint],

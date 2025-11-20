@@ -5,10 +5,6 @@ import org.junit.*
 import yuck.core.*
 import yuck.test.util.{OrderingTestHelper, UnitTest}
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class BooleanValueOrderingTest extends UnitTest with BooleanValueTestData {
 

@@ -3,10 +3,6 @@ package yuck.constraints.test
 import yuck.constraints.{BooleanIncreasing, BooleanIncreasingNeighbourhood}
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 final class BooleanIncreasingNeighbourhoodTest extends SpecialNeighbourhoodTest {
 
     private val NumberOfVariables = 100

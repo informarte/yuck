@@ -2,10 +2,6 @@ package yuck.util.alg
 
 import com.conversantmedia.util.collection.geometry.{Point2d, Rect2d}
 
-/**
- * @author Michael Marte
- *
- */
 package object rtree {
 
     /** Decorates Point2d with convenience methods under the assumption that coordinates are integers. */

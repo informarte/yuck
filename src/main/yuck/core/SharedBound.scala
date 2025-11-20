@@ -4,8 +4,6 @@ import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Provides the cost vector of the best solution seen so far.
- *
- * @author Michael Marte
  */
 final class SharedBound(holder: AtomicReference[Costs]) {
 

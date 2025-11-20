@@ -7,10 +7,6 @@ import scala.jdk.CollectionConverters.*
 
 import yuck.util.logging.LazyLogger
 
-/**
- * @author Michael Marte
- *
- */
 class ProcessRunner(logger: LazyLogger, commandLine: Seq[String]) extends Callable[Seq[String]] {
 
     override def call() = {

@@ -13,8 +13,6 @@ import yuck.flatzinc.ast.*
  * variable is introduced.
  *
  * Notice that other phases may introduce additional variables on-the-fly as needed.
- *
- * @author Michael Marte
  */
 final class VariableFactory
     (override protected val cc: CompilationContext)

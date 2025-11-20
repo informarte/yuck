@@ -23,8 +23,6 @@ import yuck.flatzinc.test.util.VerificationFrequency.*
  *   <li>If all solvable instances are very easy to solve, add a solvable and an unsolvable instance.</li>
  *   <li>If there is no solvable instance, choose an easy one - easy according to the official challenge results.</li>
  * </ul>
- *
- * @author Michael Marte
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class MiniZincChallenges extends ZincBasedTest {

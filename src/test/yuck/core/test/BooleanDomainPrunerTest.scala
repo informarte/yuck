@@ -7,10 +7,6 @@ import scala.annotation.tailrec
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(org.junit.runners.MethodSorters.NAME_ASCENDING)
 class BooleanDomainPrunerTest extends UnitTest {
 

@@ -3,10 +3,6 @@ package yuck.flatzinc.compiler
 import yuck.constraints.{BinaryConstraint, ReifiedBinaryConstraintPropagator, TernaryConstraint}
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 final class Bool2Int1
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: BooleanVariable, y: IntegerVariable)
@@ -20,10 +16,6 @@ final class Bool2Int1
     }
 }
 
-/**
- * @author Michael Marte
- *
- */
 final class Bool2Int2
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      x: BooleanVariable, y: IntegerVariable, z: BooleanVariable)
@@ -43,10 +35,6 @@ final class Bool2Int2
         Bool2IntPropagator.notBool2Int(lhs, rhs)
 }
 
-/**
- * @author Michael Marte
- *
- */
 object Bool2IntPropagator {
 
     def bool2Int(lhs0: BooleanDomain, rhs0: IntegerDomain) = {

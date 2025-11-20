@@ -9,8 +9,6 @@ import yuck.util.arm.scoped
 /**
  * This neighbourhood can be used to maintain strict and non-strict ''increasing'' constraints
  * over integer variables.
- *
- * @author Michael Marte
  */
 final class IntegerIncreasingNeighbourhood
     (override protected val space: Space,

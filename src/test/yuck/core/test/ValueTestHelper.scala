@@ -5,10 +5,6 @@ import scala.collection.Seq
 import yuck.core.*
 import yuck.test.util.{EqualityTestHelper, YuckAssert}
 
-/**
- * @author Michael Marte
- *
- */
 class ValueTestHelper[V <: Value[V]] extends YuckAssert {
 
     def testEquality(testData: Seq[V]): Unit = {

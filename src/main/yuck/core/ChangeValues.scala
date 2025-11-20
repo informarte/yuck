@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Turns the given effects into a move.
- *
- * @author Michael Marte
  */
 final class ChangeAnyValues
     (id: Id[Move],
@@ -12,8 +10,6 @@ final class ChangeAnyValues
 
 /**
  * Turns the given effects into a move.
- *
- * @author Michael Marte
  */
 final class ChangeValues
     [V <: Value[V]]
@@ -23,8 +19,6 @@ final class ChangeValues
 
 /**
  * Turns the given (variable, value) pair into a move.
- *
- * @author Michael Marte
  */
 final class ChangeValue
     [V <: Value[V]]

@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Provides an interface for working with variables of unknown type.
- *
- * @author Michael Marte
  */
 abstract class AnyVariable
     (val id: Id[AnyVariable], val name: String)
@@ -77,11 +75,6 @@ abstract class AnyVariable
 
 }
 
-/**
- * Companion object to AnyVariable.
- *
- * @author Michael Marte
- */
 object AnyVariable {
 
     given ordering: Ordering[AnyVariable] = AnyVariableOrdering

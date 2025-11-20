@@ -6,8 +6,6 @@ import scala.collection.*
 import yuck.core.*
 
 /**
- * @author Michael Marte
- *
  * Used to implement the family of fzn_if_then_else_* constraints.
  *
  * Ignores the value of the last element of cs and assumes it to be true.

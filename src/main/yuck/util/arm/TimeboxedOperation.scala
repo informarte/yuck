@@ -8,8 +8,6 @@ import yuck.util.logging.{LazyLogger, TransientThreadRenaming}
  * Interrupts the given operation after reaching the given runtime limit.
  *
  * Stops the watch on interruption and resumes it on resumption.
- *
- * @author Michael Marte
  */
 final class TimeboxedOperation
     [Result]

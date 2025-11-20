@@ -12,10 +12,6 @@ import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 import yuck.flatzinc.test.util.VerificationFrequency.*
 import yuck.test.*
 
-/**
- * @author Michael Marte
- *
- */
 @runner.RunWith(classOf[runners.Parameterized])
 class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean, verificationFrequency: VerificationFrequency) extends ZincBasedTest {
 
@@ -63,10 +59,6 @@ class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean, verificationFrequ
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object MiniZincSolutionVerifierTest {
 
     private def configurations =

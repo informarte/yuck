@@ -8,8 +8,6 @@ import scala.collection.*
   * Remembers the variables the domains of which were pruned and knows whether the step needs rescheduling.
   *
   * Don't prune domains directly; instead use the pruning methods provided by this class!
-  *
-  * @author Michael Marte
   */
 abstract class PropagationEffects {
 
@@ -62,8 +60,6 @@ abstract class PropagationEffects {
 
 /**
   * Starting point for constraint propagation.
-  *
-  * @author Michael Marte
   */
 case object NoPropagationOccurred extends PropagationEffects {
     override val affectedVariables = Nil
@@ -82,8 +78,6 @@ case object NoPropagationOccurred extends PropagationEffects {
 
 /**
   * Indicates that domains were pruned and that the propagation step needs rescheduling.
-  *
-  * @author Michael Marte
   */
 final case class ReschedulePropagationStep
     (override val affectedVariables: mutable.Set[AnyVariable])

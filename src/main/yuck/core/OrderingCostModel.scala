@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Provides a cost model for ordering constraints.
- *
- * @author Michael Marte
  */
 abstract class OrderingCostModel[V <: OrderedValue[V]] extends EqualityCostModel[V] {
 

@@ -1,13 +1,11 @@
 package yuck.core
 
-import yuck.core.{AnyVariable, Result}
+import yuck.core.Result
 import yuck.util.arm.ManagedResource
 
 /**
  * An interface (with empty default implementation) that solvers can use to communicate
  * special events to the outside world.
- *
- * @author Michael Marte
  */
 trait SolverMonitoring[Result <: yuck.core.Result] extends ManagedResource {
     override def open() = {}
@@ -19,8 +17,4 @@ trait SolverMonitoring[Result <: yuck.core.Result] extends ManagedResource {
     def onBetterProposal(result: Result): Unit = {}
 }
 
-/**
- * @author Michael Marte
- *
- */
 class SolverMonitor extends SolverMonitoring[Result]

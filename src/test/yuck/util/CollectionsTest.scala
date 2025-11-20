@@ -5,10 +5,6 @@ import org.junit.*
 import yuck.util.Collections.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class CollectionsTest extends UnitTest {
 

@@ -6,29 +6,17 @@ import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.test.util.{DefaultNumberOfThreads, DefaultRuntimeLimitInSeconds}
 import yuck.util.logging.LogLevel
 
-/**
- * @author Michael Marte
- *
- */
 enum SourceFormat {
     case FlatZinc
     case MiniZinc
 }
 
-/**
- * @author Michael Marte
- *
- */
 enum VerificationFrequency {
     case NoVerification
     case VerifyOnlyLastSolution
     case VerifyEverySolution
 }
 
-/**
- * @author Michael Marte
- *
- */
 enum TestDataDirectoryLayout {
     // all model (mzn) files in one folder, models contain data
     case MiniZincExamplesLayout
@@ -38,20 +26,12 @@ enum TestDataDirectoryLayout {
     case NonStandardMiniZincBenchmarksLayout
 }
 
-/**
- * @author Michael Marte
- *
- */
 enum VerificationTool {
     case Chuffed
     case Gecode
     case OrTools
 }
 
-/**
- * @author Michael Marte
- *
- */
 final case class ZincTestTask(
     sourceFormat: SourceFormat = SourceFormat.MiniZinc,
     directoryLayout: TestDataDirectoryLayout = TestDataDirectoryLayout.StandardMiniZincBenchmarksLayout,

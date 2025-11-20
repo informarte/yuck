@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Decorator for checking the incremental cost update of constraints.
- *
- * @author Michael Marte
  */
 final class CheckedConstraint(constraint: Constraint) extends Constraint(constraint.id) {
 

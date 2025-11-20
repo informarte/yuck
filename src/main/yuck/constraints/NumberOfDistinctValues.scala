@@ -4,10 +4,6 @@ import scala.collection.*
 
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 class NumberOfDistinctValues
     [V <: OrderedValue[V]]
     (id: Id[Constraint],

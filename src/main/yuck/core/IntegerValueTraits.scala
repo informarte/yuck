@@ -4,8 +4,6 @@ import scala.collection.*
 
 /**
  * Provides traits of integer values.
- *
- * @author Michael Marte
  */
 object IntegerValueTraits extends IntegralValueTraits[IntegerValue] {
     override val valueType = classOf[IntegerValue]

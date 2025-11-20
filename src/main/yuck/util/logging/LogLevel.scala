@@ -8,8 +8,6 @@ package yuck.util.logging
  * The intValue distance between INFO and FINE is 300 instead of 100 as between all the
  * other levels.
  * Therefore the Java log levels could not be reused.
- *
- * @author Michael Marte
  */
 enum LogLevel(val intValue: Int, val name: String) {
 

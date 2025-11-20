@@ -10,8 +10,6 @@ import yuck.util.alg.rtree.RicherPoint2d
 
 /**
  * A data structure to provide a single rectangle to a [[yuck.constraints.Disjoint2 Disjoint2]] constraint.
- *
- * @author Michael Marte
  */
 final class Disjoint2Rect
     (val x: IntegerVariable, val y: IntegerVariable, val w: IntegerVariable, val h: IntegerVariable)
@@ -26,8 +24,6 @@ final class Disjoint2Rect
  * as measure of constraint violation.
  *
  * Ignores rectangles with negative width or height.
- *
- * @author Michael Marte
  */
 final class Disjoint2
     (id: Id[Constraint], override val maybeGoal: Option[Goal],

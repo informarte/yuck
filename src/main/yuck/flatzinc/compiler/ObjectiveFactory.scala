@@ -9,8 +9,6 @@ import yuck.flatzinc.ast.*
 
 /**
  * Creates an objective from the FlatZinc solve goal.
- *
- * @author Michael Marte
  */
 final class ObjectiveFactory
     (override protected val cc: CompilationContext)

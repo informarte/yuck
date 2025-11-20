@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Describes a move in terms of its effects.
- *
- * @author Michael Marte
  */
 abstract class Move(val id: Id[Move]) extends Ordered[Move] with Iterable[AnyVariable] {
 

@@ -7,8 +7,6 @@ import yuck.core.*
  *
  *  - f and g do not share variables
  *  - every x in f can be paired with every y in g and vice versa.
- *
- * @author Michael Marte
  */
 final class SimpleInverseNeighbourhood
     (override protected val space: Space,

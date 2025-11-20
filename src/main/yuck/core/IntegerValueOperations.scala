@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Integrates IntegerValue with the Scala library.
- *
- * @author Michael Marte
  */
 object IntegerValueOperations extends Integral[IntegerValue] {
     override def compare(a: IntegerValue, b: IntegerValue) = a.compare(b)

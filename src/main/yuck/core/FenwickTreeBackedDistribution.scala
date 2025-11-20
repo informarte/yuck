@@ -4,8 +4,6 @@ package yuck.core
  * Implements discrete distributions based on Fenwick trees.
  *
  * @see [[yuck.core.FenwickTree]]
- *
- * @author Michael Marte
  */
 final class FenwickTreeBackedDistribution(override val size: Int) extends Distribution {
     require(size > 0)

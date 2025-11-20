@@ -25,8 +25,6 @@ import yuck.util.logging.LogLevel.*
  * debug, and so on, as usual, but log, logg, logg, and so on, the more g's,
  * the less important the message is. (These methods take a message factory
  * instead of a message, which implements lazy logging.)
- *
- * @author Michael Marte
  */
 final class LazyLogger(logger: Logger) {
 

@@ -9,8 +9,6 @@ import yuck.core.*
  *
  * If the top-level objective is satisfied, then its weight is set to zero and all other weights are set to one,
  * and vice versa.
- *
- * @author Michael Marte
  */
 final class LevelWeightMaintainer
     (id: Id[yuck.core.Constraint],

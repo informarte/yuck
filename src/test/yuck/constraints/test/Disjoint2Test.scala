@@ -9,10 +9,6 @@ import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @runner.RunWith(classOf[runners.Parameterized])
 final class Disjoint2Test(strict: Boolean) extends UnitTest with ConstraintTestTooling {
 
@@ -263,10 +259,6 @@ final class Disjoint2Test(strict: Boolean) extends UnitTest with ConstraintTestT
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object Disjoint2Test {
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")

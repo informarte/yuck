@@ -4,8 +4,6 @@ import org.junit.*
 
 /**
  * Test suite that exercises Yuck's FlatZinc front end
- *
- * @author Michael Marte
  */
 @runner.RunWith(classOf[runners.Suite])
 @runners.Suite.SuiteClasses(

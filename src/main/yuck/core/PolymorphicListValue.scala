@@ -5,8 +5,6 @@ package yuck.core
  * to be compared by HierarchicalObjective.compareCosts.
  *
  * @see [[yuck.core.HierarchicalObjective]]
- *
- * @author Michael Marte
  */
 final class PolymorphicListValue(val value: List[AnyValue]) extends AnyValue {
     override def hashCode = value.hashCode

@@ -7,8 +7,6 @@ import yuck.util.arm.{ManagedResource, StopWatch}
 
 /**
  * A managed resource that, upon closing, logs the time passed since opening.
- *
- * @author Michael Marte
  */
 final class DurationLogger(logger: LazyLogger, operationName: String) extends ManagedResource {
 

@@ -6,8 +6,6 @@ import scala.collection.AbstractIterator
  * Provides an interface for working with discrete distributions.
  *
  * All indices are 0-based.
- *
- * @author Michael Marte
  */
 abstract class Distribution {
 
@@ -91,8 +89,6 @@ abstract class Distribution {
 
 /**
  * Provides methods for creating distributions.
- *
- * @author Michael Marte
  */
 object Distribution {
 

@@ -10,8 +10,6 @@ import scala.collection.*
  * The empty domain is represented as the empty list.
  *
  * Takes shortcuts in single-range cases.
- *
- * @author Michael Marte
  */
 final class IntegerRangeList
     (val ranges: immutable.IndexedSeq[IntegerRange])
@@ -240,11 +238,6 @@ final class IntegerRangeList
 
 }
 
-/**
- * Companion object to IntegerRangeList.
- *
- * @author Michael Marte
- */
 object IntegerRangeList {
 
     /**

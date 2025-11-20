@@ -11,8 +11,6 @@ import java.util.function.Consumer;
 
 /**
  * Facilitates the simulation of small changes to a given R tree.
- *
- * @author Michael Marte
  */
 final public class RTreeTransaction<T> implements SpatialSearch<T> {
 

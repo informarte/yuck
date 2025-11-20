@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Implements immutable Boolean domains with two values: True and False (with violation 1).
- *
- * @author Michael Marte
  */
 final class BooleanDomain
     (val containsFalse: Boolean, val containsTrue: Boolean)
@@ -90,11 +88,6 @@ final class BooleanDomain
 
 }
 
-/**
- * Companion object to BooleanDecisionDomain.
- *
- * @author Michael Marte
- */
 object BooleanDomain {
 
     given ordering: Ordering[OrderedDomain[BooleanValue]] = BooleanDomainOrdering

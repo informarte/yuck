@@ -4,8 +4,6 @@ import scala.collection.*
 
 /**
  * Data structure for aggregating effects into a move.
- *
- * @author Michael Marte
  */
 final class BulkMove(id: Id[Move]) extends Move(id) {
 

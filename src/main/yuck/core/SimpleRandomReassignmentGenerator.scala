@@ -4,8 +4,6 @@ import scala.collection.*
 
 /**
  * Generates random moves involving one variable.
- *
- * @author Michael Marte
  */
 final class SimpleRandomReassignmentGenerator
     (override protected val space: Space,

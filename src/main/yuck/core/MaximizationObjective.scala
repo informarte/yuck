@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Objective for maximizing the value of a variable.
- *
- * @author Michael Marte
  */
 final class MaximizationObjective
     [V <: NumericalValue[V]]

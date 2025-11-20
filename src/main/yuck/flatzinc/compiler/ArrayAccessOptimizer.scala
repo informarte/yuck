@@ -9,8 +9,6 @@ import yuck.core.*
  * Tries to replace ElementVar with ElementsVar constraints.
  *
  * Tries to reduce the number of inputs by removing or replacing those array members which cannot be indexed.
- *
- * @author Michael Marte
  */
 final class ArrayAccessOptimizer
     (override protected val cc: CompilationContext)

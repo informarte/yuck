@@ -7,10 +7,6 @@ import yuck.test.util.UnitTest
 import yuck.util.arm.{RevocableSigint, SettableSigint, Sigint}
 
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class SolverTest extends UnitTest {
 

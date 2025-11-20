@@ -5,8 +5,6 @@ import yuck.core.*
 /**
  * This neighbourhood can be used to maintain an ''inverse'' constraint with
  * f = g.
- *
- * @author Michael Marte
  */
 final class SelfInverseNeighbourhood
     (override protected val space: Space,

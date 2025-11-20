@@ -15,8 +15,6 @@ import yuck.util.logging.LazyLogger
  * n - (length of the longest cycle) as measure of constraint violation.
  *
  * @see [[yuck.Notation Notation]]
- *
- * @author Michael Marte
  */
 final class Circuit
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -180,11 +178,6 @@ final class Circuit
 
 }
 
-/**
- * Companion object to Circuit.
- *
- * @author Michael Marte
- */
 object Circuit {
 
     private enum GreedyStrategy {

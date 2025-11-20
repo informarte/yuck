@@ -1,18 +1,10 @@
 package yuck.flatzinc.compiler
 
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
-import scala.collection.*
-
 import yuck.constraints.SatisfactionGoalTracker
 import yuck.constraints.SatisfactionGoalTracker.computeInvolvementMap
 import yuck.core.*
 import yuck.fj.FeasibilityJumpNeighbourhood
-import yuck.util.Collections.*
 
-/**
- * @author Michael Marte
- *
- */
 final class FeasibilityJumpNeighbourhoodFactory
     (override protected val cc: CompilationContext,
      randomGenerator: RandomGenerator)

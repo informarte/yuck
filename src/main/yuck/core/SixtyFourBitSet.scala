@@ -8,8 +8,6 @@ import yuck.core.SixtyFourBitSet.ValueRange
 
 /**
  * Implements immutable subsets of 0..63.
- *
- * @author Michael Marte
  */
 final class SixtyFourBitSet(val set: Long) extends IntegerDomain {
 
@@ -148,11 +146,6 @@ final class SixtyFourBitSet(val set: Long) extends IntegerDomain {
 
 }
 
-/**
- * Companion object to SixtyFourBitSet.
- *
- * @author Michael Marte
- */
 object SixtyFourBitSet {
 
     val MaxUInt = 0xffffffffffffffffL

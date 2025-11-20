@@ -7,10 +7,6 @@ import scala.util.parsing.combinator.RegexParsers
 
 import yuck.flatzinc.ast.*
 
-/**
- * @author Michael Marte
- *
- */
 object FlatZincParser extends RegexParsers {
 
     // consider comments as whitespace

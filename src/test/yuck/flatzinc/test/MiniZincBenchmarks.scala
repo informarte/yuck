@@ -18,8 +18,6 @@ import yuck.flatzinc.test.util.*
  *
  * If a problem has less than five satisfiable instances, then unsatisfiable instances are added
  * to test flattening, parsing, and compilation, but search will not be started on them.
- *
- * @author Michael Marte
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
@@ -32,10 +30,6 @@ final class MiniZincBenchmarks(task: ZincTestTask) extends ZincBasedTest {
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object MiniZincBenchmarks extends MiniZincTestTaskFactory {
 
     override protected val suitePath = "resources/mzn/tests/minizinc-benchmarks"

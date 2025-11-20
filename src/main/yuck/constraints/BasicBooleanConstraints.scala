@@ -4,8 +4,6 @@ import yuck.core.*
 
 /**
  * Implements binary conjunction on cost level (where 0 is true).
- *
- * @author Michael Marte
  */
 final class And
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -26,9 +24,6 @@ final class And
  * Implements binary disjunction on cost level (where 0 is true).
  *
  * See [[yuck.constraints.Disjunction Disjunction]] for the cost model.
- *
- * @author Michael Marte
- *
  */
 final class Or
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
@@ -49,8 +44,6 @@ final class Or
 
 /**
  * Implements negation on cost level (where 0 is true).
- *
- * @author Michael Marte
  */
 final class Not
     (id: Id[Constraint], override val maybeGoal: Option[Goal],

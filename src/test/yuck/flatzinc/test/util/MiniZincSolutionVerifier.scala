@@ -16,10 +16,6 @@ import yuck.flatzinc.test.util.VerificationTool.*
 import yuck.test.util.{DefaultRuntimeLimitInSeconds, ProcessRunner}
 import yuck.util.logging.LazyLogger
 
-/**
- * @author Michael Marte
- *
- */
 class MiniZincSolutionVerifier(
     task: ZincTestTask, result: Result, logger: LazyLogger)
     extends Callable[Boolean]

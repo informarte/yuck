@@ -4,8 +4,6 @@ package yuck.core
  * Provides an interface for working with domains of unknown type.
  *
  * Domains are immutable and may be infinite.
- *
- * @author Michael Marte
  */
 abstract class AnyDomain {
 

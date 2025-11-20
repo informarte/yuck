@@ -4,10 +4,6 @@ import scala.collection.*
 
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 final class Sum
     [V <: NumericalValue[V]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],

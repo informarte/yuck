@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Represents a scalar-variable pair for use in linear combinations.
- *
- * @author Michael Marte
  */
 final case class AX
     [V <: NumericalValue[V]]
@@ -14,8 +12,6 @@ final case class AX
 
 /**
  * Provides helper methods for working with [[yuck.core.AX AX]] instances.
- *
- * @author Michael Marte
  */
 object AX {
 

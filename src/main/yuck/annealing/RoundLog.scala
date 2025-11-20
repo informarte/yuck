@@ -2,10 +2,6 @@ package yuck.annealing
 
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 final class RoundLog(val roundIndex: Int) {
     override def toString =
         "%d;%3.6f;%d;%d;%1.6f;%d;%1.6f;%s;%s;%s;%s;%s;%f;%f;%d;%f;%f;%d;%f;%f".format(

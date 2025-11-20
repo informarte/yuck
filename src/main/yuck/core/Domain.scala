@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Provides an interface for working with domains of known type.
- *
- * @author Michael Marte
  */
 abstract class Domain[V <: Value[V]] extends AnyDomain {
 

@@ -26,8 +26,6 @@ import yuck.util.logging.LogScope
  * Potential functional dependencies (e.g. those pointed out by defines_var annotations)
  * are exploited as far as possible; only those annotations are ignored the processing
  * of which would entail a cyclic constraint graph.
- *
- * @author Michael Marte
  */
 final class ConstraintFactory
     (override protected val cc: CompilationContext)
@@ -1341,11 +1339,6 @@ final class ConstraintFactory
 
 }
 
-/**
- * Companion object to ConstraintFactory.
- *
- * @author Michael Marte
- */
 object ConstraintFactory {
 
     private val Count = "yuck_count_(.*)_(.*)".r

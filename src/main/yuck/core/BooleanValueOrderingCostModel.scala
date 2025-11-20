@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Implements the cost model for ordering operations on Boolean values.
- *
- * @author Michael Marte
  */
 object BooleanValueOrderingCostModel extends OrderingCostModel[BooleanValue] {
     override def eqViolation(lhs: BooleanValue, rhs: BooleanValue) =

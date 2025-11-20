@@ -4,8 +4,6 @@ import scala.collection.*
 
 /**
  * Provides properties of numerical values.
- *
- * @author Michael Marte
  */
 abstract class NumericalValueTraits[V <: NumericalValue[V]] extends OrderedValueTraits[V] {
 

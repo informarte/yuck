@@ -1,9 +1,5 @@
 package yuck.flatzinc
 
-/**
- * @author Michael Marte
- *
- */
 package object runner {
 
     val FlatZincSolutionSeparator = "----------"

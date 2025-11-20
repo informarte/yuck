@@ -3,10 +3,6 @@ package yuck.flatzinc.test.vrp
 import yuck.SolvingMethod
 import yuck.flatzinc.test.util.{MiniZincTestTaskFactory, ZincTestTask}
 
-/**
- * @author Michael Marte
- *
- */
 abstract class VrpTestTaskFactory extends MiniZincTestTaskFactory {
 
     override protected val suitePath = "resources/mzn/tests/minizinc-benchmarks"

@@ -10,8 +10,6 @@ package yuck.util.logging
  * To disable the shutdown hook, the replacement ignores calls to reset.
  *
  * Use only the instance returned by java.util.logging.getLogManager!
- *
- * @author Michael Marte
  */
 final class LogManager extends java.util.logging.LogManager {
 

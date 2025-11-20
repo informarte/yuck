@@ -4,8 +4,6 @@ import scala.collection.*
 
 /**
  * Defines a neighbourhood for local search.
- *
- * @author Michael Marte
  */
 abstract class Neighbourhood {
 

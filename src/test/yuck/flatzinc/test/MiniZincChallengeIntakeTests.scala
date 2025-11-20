@@ -16,8 +16,6 @@ import yuck.test.util.ParallelParameterizedTestRunner
  *
  * Unexpectedly, IntelliJ IDEA 2024.3.4 aggregates the runtimes, reporting 0 for all parameters except one.
  * After some digging and debugging, it seems that the issue is caused by IDEA's JUnit 4 integration.
- *
- * @author Michael Marte
  */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[ParallelParameterizedTestRunner])
@@ -198,10 +196,6 @@ class MiniZincChallengeIntakeTests(preferredSolvingMethod: SolvingMethod) extend
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object MiniZincChallengeIntakeTests {
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")

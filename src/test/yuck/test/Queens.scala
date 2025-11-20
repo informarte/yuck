@@ -11,8 +11,6 @@ import yuck.test.util.{DefaultNumberOfThreads, IntegrationTest}
 
 /**
  * The classic n-queens problem
- *
- * @author Michael Marte
  */
 @runner.RunWith(classOf[runners.Parameterized])
 final class Queens(val n: Int, solvingMethod: SolvingMethod) extends HelloWorldTest {
@@ -91,10 +89,6 @@ final class Queens(val n: Int, solvingMethod: SolvingMethod) extends HelloWorldT
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object Queens {
 
     private val configurations =

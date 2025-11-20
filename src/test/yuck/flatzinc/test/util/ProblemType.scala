@@ -1,9 +1,5 @@
 package yuck.flatzinc.test.util
 
-/**
- * @author Michael Marte
- *
- */
 trait ProblemType
 
 trait SatisfiabilityProblem extends ProblemType

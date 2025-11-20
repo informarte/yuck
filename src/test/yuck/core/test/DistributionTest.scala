@@ -9,10 +9,6 @@ import yuck.core.*
 import yuck.test.util.UnitTest
 import yuck.util.arm.scoped
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 final class DistributionTest(createDistribution: Int => Distribution) extends UnitTest {
@@ -138,10 +134,6 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object DistributionTest {
 
     @runners.Parameterized.Parameters

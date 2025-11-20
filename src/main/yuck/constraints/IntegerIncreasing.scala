@@ -7,8 +7,6 @@ import yuck.core.*
 
 /**
  * Implements integer ''increasing'' and ''strictly_increasing'' constraints as specified by MiniZinc.
- *
- * @author Michael Marte
  */
 final class IntegerIncreasing
     (id: Id[Constraint],

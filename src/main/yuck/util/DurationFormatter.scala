@@ -2,10 +2,6 @@ package yuck.util
 
 import java.time.Duration
 
-/**
- * @author Michael Marte
- *
- */
 object DurationFormatter {
 
     def format(duration: Duration): String = {

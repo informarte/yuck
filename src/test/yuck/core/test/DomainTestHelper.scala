@@ -7,10 +7,6 @@ import yuck.test.util.{EqualityTestHelper, YuckAssert}
 import yuck.util.logging.LazyLogger
 import yuck.util.logging.LogLevel.FineLogLevel
 
-/**
- * @author Michael Marte
- *
- */
 abstract class DomainTestHelper[V <: Value[V]] extends YuckAssert {
 
     protected val logger: LazyLogger

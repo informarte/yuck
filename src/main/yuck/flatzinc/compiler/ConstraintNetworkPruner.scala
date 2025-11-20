@@ -11,8 +11,6 @@ import yuck.flatzinc.ast.{Annotation, Term}
  * Retracts useless constraints from the constraint network.
  *
  * The implementation assumes that objective variables have already been registered.
- *
- * @author Michael Marte
  */
 final class ConstraintNetworkPruner
     (override protected val cc: CompilationContext)

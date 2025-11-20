@@ -7,10 +7,6 @@ import org.junit.*
 
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class RTreeIntakeTest extends UnitTest {
 

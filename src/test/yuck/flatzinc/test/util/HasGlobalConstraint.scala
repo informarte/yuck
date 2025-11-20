@@ -1,9 +1,5 @@
 package yuck.flatzinc.test.util
 
-/**
- * @author Michael Marte
- *
- */
 trait HasGlobalConstraint
 
 trait HasAllDifferentConstraint extends HasGlobalConstraint

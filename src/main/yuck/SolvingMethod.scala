@@ -1,9 +1,5 @@
 package yuck
 
-/**
- * @author Michael Marte
- *
- */
 enum SolvingMethod(val abbreviation: String) {
     case SimulatedAnnealing extends SolvingMethod("SA")
     case FeasibilityJump extends SolvingMethod("FJ")
@@ -11,10 +7,6 @@ enum SolvingMethod(val abbreviation: String) {
     override def toString = abbreviation
 }
 
-/**
- * @author Michael Marte
- *
- */
 object SolvingMethod {
 
     def fromAbbreviation(str: String): SolvingMethod =

@@ -7,17 +7,9 @@ import scala.collection.*
 import yuck.util.arm.*
 import yuck.util.logging.*
 
-/**
- * @author Michael Marte
- *
- */
 final class SolverInterruptedException
 extends InterruptedException("Solver was interrupted")
 
-/**
- * @author Michael Marte
- *
- */
 abstract class Solver extends Callable[Result] {
 
     /** Returns the solver's name. */
@@ -43,10 +35,6 @@ abstract class Solver extends Callable[Result] {
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 abstract class SolverGenerator extends Callable[Solver] {
     /** Should return the name of the unborn solver. */
     def solverName: String
@@ -54,8 +42,6 @@ abstract class SolverGenerator extends Callable[Solver] {
 
 /**
  * A solver that is always finished and hence cannot be run.
- *
- * @author Michael Marte
  */
 object FinishedSolver extends Solver {
     override def hasFinished = true
@@ -69,8 +55,6 @@ object FinishedSolver extends Solver {
  * Interrupts the given solver after reaching the given runtime limit.
  *
  * Stops the watch on interruption and resumes it on resumption.
- *
- * @author Michael Marte
  */
 final class TimeboxedSolver(
     solver: Solver,
@@ -92,8 +76,6 @@ final class TimeboxedSolver(
  * The solver is cached for the purpose of resumption.
  *
  * When the solver has finished, it gets replaced by a mock to free memory.
- *
- * @author Michael Marte
  */
 final class OnDemandGeneratedSolver(
     solverGenerator: SolverGenerator,
@@ -152,8 +134,6 @@ final class OnDemandGeneratedSolver(
  *
  * The given solvers may use different models, search methods, and strategies but they
  * must pursue the same optimization goal.
- *
- * @author Michael Marte
  */
 final class ParallelSolver(
     solvers: Seq[Solver],

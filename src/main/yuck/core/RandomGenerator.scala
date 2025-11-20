@@ -4,8 +4,6 @@ import scala.collection.*
 
 /**
  * Provides an interface for random generation of decisions, integers, and probabilities.
- *
- * @author Michael Marte
  */
 abstract class RandomGenerator {
 

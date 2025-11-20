@@ -26,10 +26,6 @@ import yuck.util.arm.*
 import yuck.util.logging.ManagedLogHandler
 import yuck.util.logging.LogLevel.*
 
-/**
- * @author Michael Marte
- *
- */
 class ZincBasedTest extends IntegrationTest {
 
     extension (result: Result) {

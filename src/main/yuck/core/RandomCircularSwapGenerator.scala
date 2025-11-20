@@ -25,8 +25,6 @@ import scala.collection.*
  * In unfair mode, the probability of fair variable choice comes into play.
  *
  * Falls back to fair mode when the given hot-spot distribution has zero volume.
- *
- * @author Michael Marte
  */
 final class RandomCircularSwapGenerator
     [V <: Value[V]]

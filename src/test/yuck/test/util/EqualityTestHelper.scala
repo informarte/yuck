@@ -2,10 +2,6 @@ package yuck.test.util
 
 import scala.collection.*
 
-/**
- * @author Michael Marte
- *
- */
 class EqualityTestHelper[T] extends YuckAssert {
 
     // Checks that each given value equals itself and that the given values differ from each other.

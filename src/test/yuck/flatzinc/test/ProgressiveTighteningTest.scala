@@ -7,10 +7,6 @@ import yuck.core.{AnyVariable, LocalSearchMonitor, LocalSearchResult}
 import yuck.flatzinc.test.util.*
 import yuck.util.logging.LogLevel.FineLogLevel
 
-/**
- * @author Michael Marte
- *
- */
 final class ProgressiveTighteningTest extends FrontEndTest {
 
     override protected val logToConsole = false

@@ -13,8 +13,6 @@ import scala.collection.*
  *
  * Moreover, the domains of both input and output variables may get pruned between
  * construction and initialization.
- *
- * @author Michael Marte
  */
 abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
 

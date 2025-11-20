@@ -7,10 +7,6 @@ import scala.jdk.CollectionConverters.*
 import yuck.constraints.{IntegerIncreasing, IntegerIncreasingNeighbourhood}
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 @runner.RunWith(classOf[runners.Parameterized])
 final class IntegerIncreasingNeighbourhoodTest
     (numberOfVariables: Int,
@@ -45,10 +41,6 @@ final class IntegerIncreasingNeighbourhoodTest
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object IntegerIncreasingNeighbourhoodTest {
 
     private val holeGenerators = List(

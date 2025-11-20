@@ -10,8 +10,6 @@ import yuck.core.*
  * and provides the minimum distance as measure of constraint violation.
  *
  * @see [[yuck.Notation Notation]]
- *
- * @author Michael Marte
  */
 final class Table
     [V <: OrderedValue[V]]

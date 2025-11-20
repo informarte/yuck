@@ -1,9 +1,5 @@
 package yuck.util.logging
 
-/**
- * @author Michael Marte
- *
- */
 final class Formatter extends java.util.logging.Formatter {
 
     private val startTime = new java.util.Date

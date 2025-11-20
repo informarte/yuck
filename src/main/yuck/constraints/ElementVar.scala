@@ -10,9 +10,6 @@ import yuck.core.*
  * When the index is out-of-bounds, some value from the array is returned.
  * (When such a case may happen, an additional constraint is required that forces the index variable
  * to take a valid value.)
- *
- * @author Michael Marte
- *
  */
 final class ElementVar
     [V <: Value[V]]

@@ -6,8 +6,6 @@ import org.junit.runners.model.RunnerScheduler
 
 /**
  * Scheduler for running JUnit tests in parallel
- *
- * @author Michael Marte
  */
 class ParallelTestScheduler extends RunnerScheduler {
 

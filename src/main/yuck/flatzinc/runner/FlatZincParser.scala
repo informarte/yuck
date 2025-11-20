@@ -9,8 +9,6 @@ import yuck.util.logging.LazyLogger
 
 /**
  * Provides FlatZinc parsing with interrupt handling.
- *
- * @author Michael Marte
  */
 final class FlatZincParser(fznFilePath: String, logger: LazyLogger) extends Callable[FlatZincAst] {
 

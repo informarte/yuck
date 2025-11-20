@@ -9,8 +9,6 @@ import yuck.flatzinc.ast.FlatZincAst
  * Prints solutions in FlatZinc format.
  *
  * Designed to work in its own thread.
- *
- * @author Michael Marte
  */
 final class FlatZincResultPrinter
     (ast: FlatZincAst, throttlingIntervalInMillis: Int)

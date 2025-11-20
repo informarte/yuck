@@ -6,8 +6,6 @@ import yuck.core.*
 
 /**
  * Implements n-ary conjunction on cost level (where 0 is true).
- *
- * @author Michael Marte
  */
 final class Conjunction
     (id: Id[Constraint], override val maybeGoal: Option[Goal],

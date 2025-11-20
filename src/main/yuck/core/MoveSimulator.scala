@@ -2,8 +2,6 @@ package yuck.core
 
 /**
  * Simulates the application of the given move to the given search state.
- *
- * @author Michael Marte
  */
 final class MoveSimulator(val before: SearchState, val move: Move) extends SearchState {
     override def clone =

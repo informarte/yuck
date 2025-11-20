@@ -8,13 +8,8 @@ import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.constraints.{IntegerIncreasing, IntegerIncreasingNeighbourhood}
 import yuck.core.*
-import yuck.test.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
 final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with ConstraintTestTooling {
@@ -261,10 +256,6 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object IntegerIncreasingTest {
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")

@@ -4,10 +4,6 @@ import scala.collection.*
 
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 final class Maximum
     [V <: OrderedValue[V]]
     (id: Id[Constraint],

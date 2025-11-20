@@ -7,10 +7,6 @@ import scala.jdk.CollectionConverters.*
 import yuck.constraints.{Circuit, CircuitNeighbourhood, CircuitTracker}
 import yuck.core.*
 
-/**
- * @author Michael Marte
- *
- */
 @runner.RunWith(classOf[runners.Parameterized])
 final class CircuitNeighbourhoodTest(offset: Int) extends SpecialNeighbourhoodTest {
 
@@ -35,10 +31,6 @@ final class CircuitNeighbourhoodTest(offset: Int) extends SpecialNeighbourhoodTe
 
 }
 
-/**
- * @author Michael Marte
- *
- */
 object CircuitNeighbourhoodTest {
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")

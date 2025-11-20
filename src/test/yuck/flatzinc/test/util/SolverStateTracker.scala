@@ -4,8 +4,6 @@ import yuck.core.{Result, SolverMonitor}
 
 /**
  * Tracks the state of solvers and throws when an unexpected state transition occurs.
- *
- * @author Michael Marte
  */
 final class SolverStateTracker extends SolverMonitor {
 

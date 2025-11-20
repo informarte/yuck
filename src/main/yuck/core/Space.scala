@@ -30,8 +30,6 @@ import yuck.util.logging.LazyLogger
  * model and solver in order to identify performance hotspots. Therefore only a limited
  * effort is made to produce precise numbers: while the profiling overhead is measured
  * and deducted, no effort is made to warm up the solver.
- *
- * @author Michael Marte
  */
 final class Space(
     logger: LazyLogger,
@@ -800,12 +798,6 @@ final class Space(
 
 }
 
-/**
- * Companion object to Space.
- *
- * @author Michael Marte
- *
- */
 object Space {
 
     private def isCyclic(constraint: Constraint): Boolean =

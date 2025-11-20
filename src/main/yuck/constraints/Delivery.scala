@@ -25,8 +25,6 @@ import yuck.core.*
  * of the start nodes; the arrival-time variables of these nodes are considered as input.
  *
  * @see [[yuck.constraints.Circuit Circuit]]
- *
- * @author Michael Marte
  */
 final class Delivery
     [Time <: NumericalValue[Time]]

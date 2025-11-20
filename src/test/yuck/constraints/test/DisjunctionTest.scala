@@ -7,10 +7,6 @@ import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-/**
- * @author Michael Marte
- *
- */
 @Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class DisjunctionTest extends UnitTest with ConstraintTestTooling {
