@@ -62,8 +62,8 @@ final class IntegerValue(val value: Long) extends IntegralValue[IntegerValue] {
 
 object IntegerValue {
 
-    given operations: Integral[IntegerValue] = IntegerValueOperations
-    given traits: IntegralValueTraits[IntegerValue] = IntegerValueTraits
+    given Integral[IntegerValue] = IntegerValueOperations
+    given IntegralValueTraits[IntegerValue] = IntegerValueTraits
 
     inline def min(a: IntegerValue, b: IntegerValue): IntegerValue = if (a < b) a else b
 

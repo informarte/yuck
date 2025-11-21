@@ -15,11 +15,11 @@ final class LinearConstraintTest
      override protected val costsDomain: BooleanDomain)
     extends LinearConstraintLikeTest[IntegerValue]
 {
-    private val NumberOfTerms = 3
+    private val numberOfTerms = 3
     override protected val baseValueTraits = IntegerValueTraits
     override protected val baseDomain: IntegerRange = IntegerRange(0, 9)
     override protected val axs =
-        for (i <- 1 to NumberOfTerms) yield AX(
+        for (i <- 1 to numberOfTerms) yield AX(
             baseDomain.randomValue(randomGenerator),
             new IntegerVariable(
                 space.nextVariableId(), "x%d".format(i), baseDomain.randomSubdomain(randomGenerator)))

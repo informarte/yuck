@@ -10,18 +10,17 @@ import yuck.test.util.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class CumulativeTest extends UnitTest with ConstraintTestTooling {
 
-    private val BaseDomain = IntegerRange(0, 9)
-
     private val space = new Space(logger, sigint)
 
-    private val ub = new IntegerVariable(space.nextVariableId(), "ub", BaseDomain)
+    private val baseDomain = IntegerRange(0, 9)
+    private val ub = new IntegerVariable(space.nextVariableId(), "ub", baseDomain)
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
     private def createTask(i: Int): CumulativeTask =
         new CumulativeTask(
-            new IntegerVariable(space.nextVariableId(), "s%d".format(i), BaseDomain),
-            new IntegerVariable(space.nextVariableId(), "d%d".format(i), BaseDomain),
-            new IntegerVariable(space.nextVariableId(), "c%d".format(i), BaseDomain))
+            new IntegerVariable(space.nextVariableId(), "s%d".format(i), baseDomain),
+            new IntegerVariable(space.nextVariableId(), "d%d".format(i), baseDomain),
+            new IntegerVariable(space.nextVariableId(), "c%d".format(i), baseDomain))
 
     @Test
     def testBasics(): Unit = {
@@ -95,9 +94,9 @@ final class CumulativeTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfDuplicateVariables(): Unit = {
-        val s2 = new IntegerVariable(space.nextVariableId(), "s2", BaseDomain)
-        val d2 = new IntegerVariable(space.nextVariableId(), "d2", BaseDomain)
-        val c2 = new IntegerVariable(space.nextVariableId(), "c2", BaseDomain)
+        val s2 = new IntegerVariable(space.nextVariableId(), "s2", baseDomain)
+        val d2 = new IntegerVariable(space.nextVariableId(), "d2", baseDomain)
+        val c2 = new IntegerVariable(space.nextVariableId(), "c2", baseDomain)
         val t1 = new CumulativeTask(ub, ub, ub)
         val t2 = new CumulativeTask(ub, ub, ub)
         val t3 = new CumulativeTask(s2, d2, c2)

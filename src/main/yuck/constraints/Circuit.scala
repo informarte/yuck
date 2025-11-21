@@ -26,7 +26,7 @@ final class Circuit
     import Circuit.*
     import Circuit.GreedyStrategy.*
 
-    inline private val MaxNumberOfGreedyHeuristicRuns = 100
+    inline private val maxNumberOfGreedyHeuristicRuns = 100
 
     override def toString = "circuit([%s], %d, %s)".format(succ.mkString(", "), offset, costs)
 
@@ -47,9 +47,9 @@ final class Circuit
         maybeFairVariableChoiceRate: Option[Probability] = None):
         Option[Neighbourhood] =
     {
-        if (isCandidateForImplicitSolving(space) && MaxNumberOfGreedyHeuristicRuns > 0) {
+        if (isCandidateForImplicitSolving(space) && maxNumberOfGreedyHeuristicRuns > 0) {
             solve(
-                MaxNumberOfGreedyHeuristicRuns - 1,
+                maxNumberOfGreedyHeuristicRuns - 1,
                 logger.withTimedLogScope("Trying deterministic greedy heuristic") {
                     greedyHeuristic(space, randomGenerator, FirstFailStrategy)
                 }._1,

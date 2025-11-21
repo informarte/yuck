@@ -35,7 +35,7 @@ object GendreauBenchmark extends VrpTestTaskFactory {
 
     // retrieved on Oct 31th 2020 from http://lopez-ibanez.eu/tsptw-instances,
     // optimality results were obtained with Gecode
-    override protected val Results = Map(
+    override protected val results = Map(
         ("n20w120.001", (267, true)), ("n20w120.002", (218, true)), ("n20w120.003", (303, true)),
         ("n20w120.004", (300, true)), ("n20w120.005", (240, true)), ("n20w140.001", (176, true)),
         ("n20w140.002", (272, true)), ("n20w140.003", (236, true)), ("n20w140.004", (255, true)),

@@ -10,13 +10,13 @@ import yuck.test.util.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerPowersetDomainTest extends UnitTest {
 
-    private val BaseRange = IntegerRange(-5, 5)
+    private val baseRange = IntegerRange(-5, 5)
 
     private val randomGenerator = new JavaRandomGenerator
     private val helper = new IntegerSetDomainTestHelper(randomGenerator, logger)
 
     private def createTestData(sampleSize: Int): Seq[IntegerPowersetDomain] =
-        helper.createTestData(BaseRange, sampleSize)
+        helper.createTestData(baseRange, sampleSize)
             .filter(_.isInstanceOf[IntegerPowersetDomain])
             .map(_.asInstanceOf[IntegerPowersetDomain])
 

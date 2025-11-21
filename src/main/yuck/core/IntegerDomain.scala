@@ -199,7 +199,7 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
 
 object IntegerDomain {
 
-    given ordering: Ordering[OrderedDomain[IntegerValue]] = IntegerDomainOrdering
+    given Ordering[OrderedDomain[IntegerValue]] = IntegerDomainOrdering
 
     private def rangeLessThan(lhs: IntegerRange, rhs: IntegerRange) =
         ! rhs.isSubsetOf(lhs) && (lhs.isSubsetOf(rhs) || lhs.startsBefore(rhs))

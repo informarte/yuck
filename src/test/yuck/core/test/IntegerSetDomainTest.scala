@@ -16,7 +16,7 @@ final class IntegerSetDomainTest extends UnitTest {
     //   with different results.
     // * Test that set operations return instances of OrderedDomain[IntegerSetValue].
 
-    private val BaseRange = IntegerRange(-5, 5)
+    private val baseRange = IntegerRange(-5, 5)
 
     private val randomGenerator = new JavaRandomGenerator
     private val helper = new IntegerSetDomainTestHelper(randomGenerator, logger)
@@ -24,7 +24,7 @@ final class IntegerSetDomainTest extends UnitTest {
     @Test
     def testEquality(): Unit = {
         assertEq(new SingletonIntegerSetDomain(EmptyIntegerRange), new IntegerPowersetDomain(EmptyIntegerRange))
-        val testData = helper.createTestData(BaseRange, 16).distinct
+        val testData = helper.createTestData(baseRange, 16).distinct
         helper.testEquality(testData)
         for (d <- testData) {
             for (e <- testData) {
@@ -37,7 +37,7 @@ final class IntegerSetDomainTest extends UnitTest {
     // so we test the ordering only once and here.
     @Test
     def testOrdering(): Unit = {
-        val testData = helper.createTestData(BaseRange, 8)
+        val testData = helper.createTestData(baseRange, 8)
         helper.testOrdering(testData)
     }
 
@@ -116,7 +116,7 @@ final class IntegerSetDomainTest extends UnitTest {
 
     @Test
     def testRandomSubdomainCreation(): Unit = {
-        val testData = helper.createTestData(BaseRange, 8)
+        val testData = helper.createTestData(baseRange, 8)
         for (a <- testData) {
             assertEx(a.randomSubdomain(randomGenerator), classOf[NotImplementedError])
         }
@@ -124,8 +124,11 @@ final class IntegerSetDomainTest extends UnitTest {
 
     @Test
     def testConfiguration(): Unit = {
-        import IntegerSetDomain.{given}
-        assertEq(ordering, IntegerSetDomainOrdering)
+        import IntegerSetDomain.given
+        def testOrdering()(using ordering: Ordering[OrderedDomain[IntegerSetValue]]) = {
+            assertEq(ordering, IntegerSetDomainOrdering)
+        }
+        testOrdering()
     }
 
 }

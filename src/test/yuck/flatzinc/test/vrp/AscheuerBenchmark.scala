@@ -35,7 +35,7 @@ object AscheuerBenchmark extends VrpTestTaskFactory {
 
     // retrieved on Oct 31th 2020 from http://lopez-ibanez.eu/tsptw-instances,
     // optimality results were obtained with OR-Tools
-    override protected val Results = Map(
+    override protected val results = Map(
         ("rbg010a", (671, true)), ("rbg016a", (938, true)), ("rbg016b", (1304, true)),
         ("rbg017.2", (852, true)), ("rbg017", (893, true)), ("rbg017a", (4296, true)),
         ("rbg019a", (1262, true)), ("rbg019b", (1866, true)), ("rbg019c", (4536, true)),

@@ -73,9 +73,15 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
 
     @Test
     def testConfiguration(): Unit = {
-        import BooleanValue.{given}
-        assertEq(ordering, BooleanValueOrdering)
-        assertEq(traits, BooleanValueTraits)
+        import BooleanValue.given
+        def testOrdering()(using ordering: Ordering[BooleanValue]) = {
+            assertEq(ordering, BooleanValueOrdering)
+        }
+        testOrdering()
+        def testTraits()(using traits: OrderedValueTraits[BooleanValue]) = {
+            assertEq(traits, BooleanValueTraits)
+        }
+        testTraits()
     }
 
 }

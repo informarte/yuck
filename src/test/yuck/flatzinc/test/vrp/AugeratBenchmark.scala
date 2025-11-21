@@ -61,7 +61,7 @@ object AugeratBenchmark extends VrpTestTaskFactory {
         ("P-n76-k4", 593), ("P-n76-k5", 627), ("P-n101-k4", 681))
         .map{case (instanceName, value) => ("Augerat/P/" + instanceName, ObjectiveValue(value, true))}
 
-    override protected val Results = AugeratAResults ++ AugeratBResults ++ AugeratPResults
+    override protected val results = AugeratAResults ++ AugeratBResults ++ AugeratPResults
 
     // keep models aligned
     private def verifyAgainstCpModel(task: ZincTestTask) = task.copy(verificationModelName = "cvrp_cp")

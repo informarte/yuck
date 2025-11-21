@@ -36,12 +36,12 @@ final class NeighbourhoodTestHelper
         val variableFrequencies = new mutable.HashMap[Variable[V], Int] ++ xs.map(_ -> 0)
     }
 
-    private val SampleSize = 10000
+    private val sampleSize = 10000
 
     def testMoveGeneration(): MeasurementResult = {
         require(neighbourhood.searchVariables == xs.toSet)
         val result = new MeasurementResult
-        for (i <- 1 to SampleSize) {
+        for (i <- 1 to sampleSize) {
             val move = neighbourhood.nextMove()
             result.moveSizeFrequencies(move.size) += 1
             val ys = move.involvedVariablesIterator.map(valueTraits.safeDowncast).toVector
@@ -60,7 +60,7 @@ final class NeighbourhoodTestHelper
         // from the frequency stipulated by moveSizeDistribution.
         def checkMoveSizeFrequency(n: Int): Boolean = {
             val observation = result.moveSizeFrequencies(n).toDouble
-            val expectation = SampleSize * moveSizeDistribution.probability(n).value
+            val expectation = sampleSize * moveSizeDistribution.probability(n).value
             val ok = observation >= expectation * (1 - tolerance) && observation <= expectation * (1 + tolerance)
             if (! ok) {
                 logger.log("moveSizeFrequencies = %s".format(result.moveSizeFrequencies.toVector))
@@ -143,20 +143,20 @@ final class NeighbourhoodTestHelper
         assertLe(failureCount.toDouble, xs.size * maxFailureRate)
     }
 
-    private val NumberOfPerturbations = 1000
-    private val PerturbationProbability = Probability(0.5)
+    private val numberOfPerturbations = 1000
+    private val perturbationProbability = Probability(0.5)
 
     def testPerturbation(): Unit = {
         val now = space.searchState
-        val numbersOfChangedAssignments = new mutable.ArrayBuffer[Int](NumberOfPerturbations)
-        for (i <- 0 until NumberOfPerturbations) {
+        val numbersOfChangedAssignments = new mutable.ArrayBuffer[Int](numberOfPerturbations)
+        for (i <- 0 until numberOfPerturbations) {
             val before = now.clone()
-            neighbourhood.perturb(PerturbationProbability)
+            neighbourhood.perturb(perturbationProbability)
             numbersOfChangedAssignments += xs.count(x => before.value(x) != now.value(x))
         }
-        val avg = numbersOfChangedAssignments.sum.toDouble / NumberOfPerturbations
-        assertGt(avg, xs.size * PerturbationProbability.value * 0.9)
-        assertLt(avg, xs.size * PerturbationProbability.value * 1.1)
+        val avg = numbersOfChangedAssignments.sum.toDouble / numberOfPerturbations
+        assertGt(avg, xs.size * perturbationProbability.value * 0.9)
+        assertLt(avg, xs.size * perturbationProbability.value * 1.1)
     }
 
 }

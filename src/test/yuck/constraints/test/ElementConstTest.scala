@@ -14,14 +14,14 @@ import yuck.test.util.UnitTest
 @runner.RunWith(classOf[runners.Parameterized])
 final class ElementConstTest(offset: Int) extends UnitTest with ConstraintTestTooling {
 
-    private val Values = Vector(Four, Seven, Two)
+    private val values = Vector(Four, Seven, Two)
 
     private val space = new Space(logger, sigint)
 
     private val indexRange = IntegerRange(offset, offset + 2)
     private val i = new IntegerVariable(space.nextVariableId(), "i", CompleteIntegerRange)
     private val y = new IntegerVariable(space.nextVariableId(), "y", CompleteIntegerRange)
-    private val constraint = new ElementConst(space.nextConstraintId(), null, Values, i, y, offset)
+    private val constraint = new ElementConst(space.nextConstraintId(), null, values, i, y, offset)
 
     @Test
     def testBasics(): Unit = {
@@ -38,7 +38,7 @@ final class ElementConstTest(offset: Int) extends UnitTest with ConstraintTestTo
         runScenario(
             TestScenario(
                 space,
-                Propagate("root-node propagation", Nil, List(i << indexRange, y << IntegerDomain(Values))),
+                Propagate("root-node propagation", Nil, List(i << indexRange, y << IntegerDomain(values))),
                 PropagateAndRollback("reduce domain of i", List(i << List(offset, offset + 2)), List(y << List(2, 4))),
                 PropagateAndRollback("reduce domain of y", List(y << List(7)), List(i << List(offset + 1))),
                 Propagate(

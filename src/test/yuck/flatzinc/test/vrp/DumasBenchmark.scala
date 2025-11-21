@@ -34,7 +34,7 @@ object DumasBenchmark extends VrpTestTaskFactory {
     override protected def instanceFilter(file: File) = super.instanceFilter(file) && file.getPath.contains("Dumas")
 
     // retrieved on Oct 31th 2020 from http://lopez-ibanez.eu/tsptw-instances
-    override protected val Results = Map(
+    override protected val results = Map(
         ("n20w20.001", 378), ("n20w20.002", 286), ("n20w20.003", 394), ("n20w20.004", 396), ("n20w20.005", 352),
         ("n20w40.001", 254), ("n20w40.002", 333), ("n20w40.003", 317), ("n20w40.004", 388), ("n20w40.005", 288),
         ("n20w60.001", 335), ("n20w60.002", 244), ("n20w60.003", 352), ("n20w60.004", 280), ("n20w60.005", 338),

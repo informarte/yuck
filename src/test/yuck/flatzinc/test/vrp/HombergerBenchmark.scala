@@ -33,7 +33,7 @@ object HombergerBenchmark extends VrpTestTaskFactory {
 
     override protected def instanceFilter(file: File) = super.instanceFilter(file) && file.getPath.contains("Homberger")
 
-    override protected val Results = Map(
+    override protected val results = Map(
         ("C1_2_1.200.20", 2704559), ("C1_2_2.200.18", 2917885), ("C1_2_3.200.18", 2707338),
         ("C1_2_4.200.18", 2643300), ("C1_2_5.200.20", 2702041), ("C1_2_6.200.20", 2701028),
         ("C1_2_7.200.20", 2701028), ("C1_2_8.200.19", 2775472), ("C1_2_9.200.18", 2687822),

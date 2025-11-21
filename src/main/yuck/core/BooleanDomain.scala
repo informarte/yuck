@@ -90,7 +90,7 @@ final class BooleanDomain
 
 object BooleanDomain {
 
-    given ordering: Ordering[OrderedDomain[BooleanValue]] = BooleanDomainOrdering
+    given Ordering[OrderedDomain[BooleanValue]] = BooleanDomainOrdering
 
     private val ListWithFalseAndTrue = List(False, True)
     private val ListWithFalse = List(False)

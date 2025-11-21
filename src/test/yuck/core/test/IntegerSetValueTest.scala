@@ -151,9 +151,15 @@ final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
 
     @Test
     def testConfiguration(): Unit = {
-        import IntegerSetValue.{given}
-        assertEq(ordering, IntegerSetValueOrdering)
-        assertEq(traits, IntegerSetValueTraits)
+        import IntegerSetValue.given
+        def testOrdering()(using ordering: Ordering[IntegerSetValue]) = {
+            assertEq(ordering, IntegerSetValueOrdering)
+        }
+        testOrdering()
+        def testTraits()(using traits: OrderedValueTraits[IntegerSetValue]) = {
+            assertEq(traits, IntegerSetValueTraits)
+        }
+        testTraits()
     }
 
 }

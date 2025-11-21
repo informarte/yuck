@@ -9,26 +9,25 @@ import yuck.test.util.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class MaximizationObjectiveTest extends UnitTest {
 
-    private val BaseDomain = IntegerRange(0, 9)
-
     private val space = new Space(logger, sigint)
     private val now = space.searchState
 
-    private val x = new IntegerVariable(space.nextVariableId(), "x", BaseDomain)
-    private val y = new IntegerVariable(space.nextVariableId(), "y", BaseDomain)
-    private val objective = new MaximizationObjective(x, Some(BaseDomain.ub - One), Some(y))
+    private val baseDomain = IntegerRange(0, 9)
+    private val x = new IntegerVariable(space.nextVariableId(), "x", baseDomain)
+    private val y = new IntegerVariable(space.nextVariableId(), "y", baseDomain)
+    private val objective = new MaximizationObjective(x, Some(baseDomain.ub - One), Some(y))
 
     @Test
     def testBasics(): Unit = {
         assertEq(objective.optimizationMode, OptimizationMode.Max)
-        assertEq(objective.targetCosts, BaseDomain.ub - One)
+        assertEq(objective.targetCosts, baseDomain.ub - One)
         assertEq(objective.primitiveObjectives, Seq(objective))
         assertEq(objective.objectiveVariables, Seq(x))
         for (a <- x.domain.values) {
             space.setValue(x, a)
             assertEq(objective.costs(now), a)
-            val isSolution = a >= BaseDomain.ub - One
-            val isOptimal = a == BaseDomain.ub
+            val isSolution = a >= baseDomain.ub - One
+            val isOptimal = a == baseDomain.ub
             assertEq(objective.isSolution(a), isSolution)
             assertEq(objective.isSolution(now), isSolution)
             assertEq(objective.isGoodEnough(a), isSolution)
@@ -70,8 +69,8 @@ final class MaximizationObjectiveTest extends UnitTest {
             space.setValue(x, a)
             objective.findActualObjectiveValue(space)
             assertEq(now.value(x), x.domain.ub)
-            assertEq(x.domain, BaseDomain)
-            assertEq(y.domain, BaseDomain)
+            assertEq(x.domain, baseDomain)
+            assertEq(y.domain, baseDomain)
         }
     }
 
@@ -86,10 +85,10 @@ final class MaximizationObjectiveTest extends UnitTest {
             val tightenedVariables = objective.tighten(space)
             assertEq(now.value(x), a)
             assertEq(now.value(y), a)
-            assertEq(x.domain, BaseDomain)
-            assertEq(y.domain, IntegerRange(a, BaseDomain.ub))
-            assertEq(tightenedVariables.isEmpty, y.domain == BaseDomain)
-            y.relaxDomain(BaseDomain)
+            assertEq(x.domain, baseDomain)
+            assertEq(y.domain, IntegerRange(a, baseDomain.ub))
+            assertEq(tightenedVariables.isEmpty, y.domain == baseDomain)
+            y.relaxDomain(baseDomain)
         }
     }
 

@@ -77,6 +77,6 @@ abstract class AnyVariable
 
 object AnyVariable {
 
-    given ordering: Ordering[AnyVariable] = AnyVariableOrdering
+    given Ordering[AnyVariable] = AnyVariableOrdering
 
 }

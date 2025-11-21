@@ -34,7 +34,7 @@ object UchoaBenchmark extends VrpTestTaskFactory {
     override protected def instanceFilter(file: File) = super.instanceFilter(file) && file.getPath.contains("Uchoa")
 
     // retrieved on Dec 2nd 2020 from http://vrp.galgos.inf.puc-rio.br/
-    override protected val Results = Map(
+    override protected val results = Map(
         ("X-n101-k25", (27591, true)), ("X-n106-k14", (26362, true)), ("X-n110-k13", (14971, true)),
         ("X-n115-k10", (12747, true)), ("X-n120-k6", (13332, true)), ("X-n125-k30", (55539, true)),
         ("X-n129-k18", (28940, true)), ("X-n134-k13", (10916, true)), ("X-n139-k10", (13590, true)),

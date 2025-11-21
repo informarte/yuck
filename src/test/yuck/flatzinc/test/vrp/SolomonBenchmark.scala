@@ -33,7 +33,7 @@ object SolomonBenchmark extends VrpTestTaskFactory {
 
     override protected def instanceFilter(file: File) = super.instanceFilter(file) && file.getPath.contains("Solomon")
 
-    override protected val Results = Map(
+    override protected val results = Map(
         ("C101.25.3", 1913), ("C102.25.3", 1903), ("C103.25.3", 1903), ("C104.25.3", 1869), ("C105.25.3", 1913),
         ("C106.25.3", 1913), ("C107.25.3", 1913), ("C108.25.3", 1913), ("C109.25.3", 1913), ("C201.25.2", 2147),
         ("C202.25.2", 2147), ("C203.25.2", 2147), ("C204.25.1", 2131), ("C205.25.2", 2147), ("C206.25.2", 2147),

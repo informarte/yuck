@@ -12,7 +12,7 @@ import yuck.test.util.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerRangeListTest extends UnitTest {
 
-    private val BaseRange = IntegerRange(-5, 5)
+    private val baseRange = IntegerRange(-5, 5)
 
     private val randomGenerator = new JavaRandomGenerator
     private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
@@ -48,7 +48,7 @@ final class IntegerRangeListTest extends UnitTest {
 
     @Test
     def testEquality(): Unit = {
-        val testData = helper.createRangeLists(BaseRange, 32)
+        val testData = helper.createRangeLists(baseRange, 32)
         helper.testEquality(testData)
         for (d <- testData) {
             val e = IntegerRangeList(d.ranges)
@@ -64,21 +64,21 @@ final class IntegerRangeListTest extends UnitTest {
 
     @Test
     def testOrdering(): Unit = {
-        val testData = helper.createRangeLists(BaseRange, 32)
+        val testData = helper.createRangeLists(baseRange, 32)
         helper.testOrdering(testData)
     }
 
     @Test
     def testOperations(): Unit = {
-        val testDomains = helper.createRangeLists(BaseRange, 16)
-        val testValues = IntegerRange(BaseRange.lb - One, BaseRange.ub + One).values.toSeq
+        val testDomains = helper.createRangeLists(baseRange, 16)
+        val testValues = IntegerRange(baseRange.lb - One, baseRange.ub + One).values.toSeq
         helper.testUnaryOperations(testDomains, testValues)
         helper.testBinaryOperations(testDomains)
     }
 
     @Test
     def testRandomSubdomainCreation(): Unit = {
-        val testData = helper.createRangeLists(BaseRange, 16)
+        val testData = helper.createRangeLists(baseRange, 16)
         helper.testRandomSubrangeCreation(testData)
         helper.testRandomSubdomainCreation(testData)
     }

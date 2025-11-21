@@ -10,11 +10,10 @@ import yuck.test.util.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class MinimumTest extends UnitTest with ConstraintTestTooling {
 
-    private val BaseDomain = IntegerRange(0, 9)
-
     private val space = new Space(logger, sigint)
 
-    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), BaseDomain)
+    private val baseDomain = IntegerRange(0, 9)
+    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
     private val Seq(x1, x2, x3) = xs
     private val y = new IntegerVariable(space.nextVariableId(), "y", CompleteIntegerRange)
 
@@ -33,7 +32,7 @@ final class MinimumTest extends UnitTest with ConstraintTestTooling {
         runScenario(
             TestScenario(
                 space,
-                Propagate("root-node propagation", Nil, List(y << BaseDomain)),
+                Propagate("root-node propagation", Nil, List(y << baseDomain)),
                 Propagate("reduce domains of x1 and x2", List(x1 << (1, 3), x2 << (2, 5)), List(y << (0, 3))),
                 Propagate("reduce domain of y", List(y << (3, 3)), List(x1 << (3, 3), x2 << (3, 5), x3 << (3, 9)))))
     }

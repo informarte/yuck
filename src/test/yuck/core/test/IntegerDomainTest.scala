@@ -4,21 +4,21 @@ import org.junit.*
 
 import scala.collection.*
 
-import yuck.core.*
+import yuck.core.{*, given}
 import yuck.test.*
 import yuck.test.util.UnitTest
 
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerDomainTest extends UnitTest {
 
-    private val BaseRange = IntegerRange(-5, 5)
+    private val baseRange = IntegerRange(-5, 5)
 
     private val randomGenerator = new JavaRandomGenerator
     private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
 
     @Test
     def testEquality(): Unit = {
-        val testData = helper.createTestData(BaseRange, 16).distinct
+        val testData = helper.createTestData(baseRange, 16).distinct
         helper.testEquality(testData)
         for (d <- testData) {
             for (e <- testData) {
@@ -34,13 +34,13 @@ final class IntegerDomainTest extends UnitTest {
 
     @Test
     def testOrdering(): Unit = {
-        val testData = helper.createTestData(BaseRange, 16)
+        val testData = helper.createTestData(baseRange, 16)
         helper.testOrdering(testData)
     }
 
     @Test
     def testOperations(): Unit = {
-        val testData = helper.createTestData(BaseRange, 8)
+        val testData = helper.createTestData(baseRange, 8)
         helper.testBinaryOperations(testData)
     }
 
@@ -96,8 +96,11 @@ final class IntegerDomainTest extends UnitTest {
 
     @Test
     def testConfiguration(): Unit = {
-        import IntegerDomain.{given}
-        assertEq(ordering, IntegerDomainOrdering)
+        import IntegerDomain.given
+        def testOrdering()(using ordering: Ordering[OrderedDomain[IntegerValue]]) = {
+            assertEq(ordering, IntegerDomainOrdering)
+        }
+        testOrdering()
     }
 
 }

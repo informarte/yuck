@@ -13,17 +13,16 @@ import yuck.test.util.UnitTest
 @runner.RunWith(classOf[runners.Parameterized])
 final class ElementsVarTest(offset: Int) extends UnitTest with ConstraintTestTooling {
 
-    private val BaseDomain = IntegerRange(0, 9)
-
     private val space = new Space(logger, sigint)
 
-    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), BaseDomain)
+    private val baseDomain = IntegerRange(0, 9)
+    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
     private val Seq(x1, x2, x3) = xs
     private val indexRange = IntegerRange(offset, offset + 2)
     private val extendedIndexRange = IntegerRange(offset, offset + 3)
     private val is = for (i <- 1 to 2) yield new IntegerVariable(space.nextVariableId(), "i%d".format(i), extendedIndexRange)
     private val Seq(i1, i2) = is
-    private val ys = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "y%d".format(i), BaseDomain)
+    private val ys = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "y%d".format(i), baseDomain)
     private val Seq(y1, y2, y3) = ys
     private val i = new IntegerVariable(space.nextVariableId(), "i", CompleteIntegerRange)
     private val y = new IntegerVariable(space.nextVariableId(), "y", CompleteIntegerRange)

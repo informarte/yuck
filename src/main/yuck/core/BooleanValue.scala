@@ -41,8 +41,8 @@ final class BooleanValue(val violation: Long) extends OrderedValue[BooleanValue]
 
 object BooleanValue {
 
-    given ordering: Ordering[BooleanValue] = BooleanValueOrdering
-    given traits: OrderedValueTraits[BooleanValue] = BooleanValueTraits
+    given Ordering[BooleanValue] = BooleanValueOrdering
+    given OrderedValueTraits[BooleanValue] = BooleanValueTraits
 
     private val ub = 10000
     private val valueRange = Range(0, ub, 1)

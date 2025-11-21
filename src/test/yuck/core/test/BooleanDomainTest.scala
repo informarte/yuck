@@ -110,8 +110,11 @@ final class BooleanDomainTest extends UnitTest {
 
     @Test
     def testConfiguration(): Unit = {
-        import BooleanDomain.{given}
-        assertEq(ordering, BooleanDomainOrdering)
+        import BooleanDomain.given
+        def testOrdering()(using ordering: Ordering[OrderedDomain[BooleanValue]]) = {
+            assertEq(ordering, BooleanDomainOrdering)
+        }
+        testOrdering()
     }
 
 }

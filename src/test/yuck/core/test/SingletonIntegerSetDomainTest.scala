@@ -10,13 +10,13 @@ import yuck.test.util.UnitTest
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class SingletonIntegerSetDomainTest extends UnitTest {
 
-    private val BaseRange = IntegerRange(-5, 5)
+    private val baseRange = IntegerRange(-5, 5)
 
     private val randomGenerator = new JavaRandomGenerator
     private val helper = new IntegerSetDomainTestHelper(randomGenerator, logger)
 
     private def createTestData(sampleSize: Int): Seq[SingletonIntegerSetDomain] =
-        helper.createTestData(BaseRange, sampleSize)
+        helper.createTestData(baseRange, sampleSize)
             .filter(_.isInstanceOf[SingletonIntegerSetDomain])
             .map(_.asInstanceOf[SingletonIntegerSetDomain])
 

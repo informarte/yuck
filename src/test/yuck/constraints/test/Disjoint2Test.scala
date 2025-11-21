@@ -12,18 +12,17 @@ import yuck.test.util.UnitTest
 @runner.RunWith(classOf[runners.Parameterized])
 final class Disjoint2Test(strict: Boolean) extends UnitTest with ConstraintTestTooling {
 
-    private val BaseDomain = IntegerRange(0, 9)
-
     private val space = new Space(logger, sigint)
 
+    private val baseDomain = IntegerRange(0, 9)
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
     private def createRect(i: Int): Disjoint2Rect =
         new Disjoint2Rect(
-            new IntegerVariable(space.nextVariableId(), "x%d".format(i), BaseDomain),
-            new IntegerVariable(space.nextVariableId(), "y%d".format(i), BaseDomain),
-            new IntegerVariable(space.nextVariableId(), "w%d".format(i), BaseDomain),
-            new IntegerVariable(space.nextVariableId(), "h%d".format(i), BaseDomain))
+            new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain),
+            new IntegerVariable(space.nextVariableId(), "y%d".format(i), baseDomain),
+            new IntegerVariable(space.nextVariableId(), "w%d".format(i), baseDomain),
+            new IntegerVariable(space.nextVariableId(), "h%d".format(i), baseDomain))
 
     @Test
     def testBasics(): Unit = {
@@ -115,9 +114,9 @@ final class Disjoint2Test(strict: Boolean) extends UnitTest with ConstraintTestT
         val r2 =
             new Disjoint2Rect(
                 r1.x,
-                new IntegerVariable(space.nextVariableId(), "y2", BaseDomain),
+                new IntegerVariable(space.nextVariableId(), "y2", baseDomain),
                 r1.w,
-                new IntegerVariable(space.nextVariableId(), "h2", BaseDomain))
+                new IntegerVariable(space.nextVariableId(), "h2", baseDomain))
         val r3 = createRect(3)
         space.post(new Disjoint2(space.nextConstraintId(), null, Vector(r1, r2, r3, r1), strict, costs))
         runScenario(

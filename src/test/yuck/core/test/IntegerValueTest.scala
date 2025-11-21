@@ -136,9 +136,15 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
 
     @Test
     def testConfiguration(): Unit = {
-        import IntegerValue.{given}
-        assertEq(operations, IntegerValueOperations)
-        assertEq(traits, IntegerValueTraits)
+        import IntegerValue.given
+        def testOperations()(using operations: Integral[IntegerValue]) = {
+            assertEq(operations, IntegerValueOperations)
+        }
+        testOperations()
+        def testTraits()(using traits: IntegralValueTraits[IntegerValue]) = {
+            assertEq(traits, IntegerValueTraits)
+        }
+        testTraits()
     }
 
 }
