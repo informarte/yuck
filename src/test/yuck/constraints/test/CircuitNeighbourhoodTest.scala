@@ -1,10 +1,10 @@
 package yuck.constraints.test
 
-import org.junit.*
-
 import scala.jdk.CollectionConverters.*
 
-import yuck.constraints.{Circuit, CircuitNeighbourhood, CircuitTracker}
+import org.junit.*
+
+import yuck.constraints.{Circuit, CircuitNeighbourhood}
 import yuck.core.*
 
 @runner.RunWith(classOf[runners.Parameterized])

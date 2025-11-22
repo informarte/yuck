@@ -1,11 +1,11 @@
 package yuck.constraints
 
-import com.conversantmedia.util.collection.geometry.Rect2d
-import com.conversantmedia.util.collection.spatial.*
-
 import java.util.function.Consumer
 
 import scala.collection.*
+
+import com.conversantmedia.util.collection.geometry.Rect2d
+import com.conversantmedia.util.collection.spatial.*
 
 import yuck.core.*
 import yuck.util.alg.rtree.{RTreeTransaction, RicherRect2d}

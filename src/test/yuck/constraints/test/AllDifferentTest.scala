@@ -1,14 +1,13 @@
 package yuck.constraints.test
 
-import org.junit.*
-
 import scala.jdk.CollectionConverters.*
+
+import org.junit.*
 
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.constraints.{AllDifferent, AllDifferentNeighbourhood}
 import yuck.core.*
-import yuck.test.*
 import yuck.test.util.UnitTest
 
 @runner.RunWith(classOf[runners.Parameterized])

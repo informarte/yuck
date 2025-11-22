@@ -2,7 +2,7 @@ package yuck.core.test
 
 import org.junit.*
 
-import yuck.constraints.{Le, Lt}
+import yuck.constraints.Le
 import yuck.core.*
 import yuck.test.*
 import yuck.test.util.UnitTest

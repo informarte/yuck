@@ -35,7 +35,7 @@ object yuck extends ScalaModule with BuildInfo with ScalafixModule {
     override def resources = Task { Seq.empty[PathRef] }
     override def sources = Task.Sources {moduleDir / "src" / "main"}
     override def javacOptions = Seq("-source", "11", "-target", "11")
-    override def scalacOptions = Seq("-release", "11", "-deprecation", "-unchecked", "-feature")
+    override def scalacOptions = Seq("-release", "11", "-deprecation", "-unchecked", "-feature", "-Wunused:imports")
 
     override def mvnDeps = Seq(
         mvn"io.spray::spray-json:1.3.6".withDottyCompat(this.scalaVersion()),

@@ -1,6 +1,6 @@
 package yuck.constraints
 
-import yuck.core._
+import yuck.core.*
 
 abstract class InverseNeighbourhood
     (protected val f: InverseFunction,

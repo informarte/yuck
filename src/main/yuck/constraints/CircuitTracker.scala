@@ -1,10 +1,9 @@
 package yuck.constraints
 
+import scala.collection.*
+
 import org.jgrapht.alg.cycle.TarjanSimpleCycles
 import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge}
-
-import scala.collection.*
-import scala.jdk.CollectionConverters.*
 
 import yuck.core.*
 

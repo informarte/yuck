@@ -11,17 +11,17 @@ import scala.math.max
 import scopt.*
 import spray.json.JsBoolean
 
-import yuck.{BuildInfo, SolvingMethod}
 import yuck.annealing.*
 import yuck.core.profiling.SpaceProfilingMode
 import yuck.core.{Costs, CyclicConstraintNetworkException, InconsistentProblemException, SharedBound, SolverMonitoring}
 import yuck.fj.FeasibilityJumpEventLogger
-import yuck.flatzinc.{AnnealingConfiguration, FlatZincSolverConfiguration}
 import yuck.flatzinc.compiler.{FlatZincCompilerResult, UnsupportedFlatZincTypeException, VariableWithInfiniteDomainException}
 import yuck.flatzinc.parser.*
-import yuck.flatzinc.util.{BestProposalLogger, LocalSearchStatisticsCollector, PortfolioSolverMonitor, SharedBoundMaintainer, SummaryBuilder}
+import yuck.flatzinc.util.*
+import yuck.flatzinc.{AnnealingConfiguration, FlatZincSolverConfiguration}
 import yuck.util.arm.*
 import yuck.util.logging.{TransientThreadRenaming, YuckLogging}
+import yuck.{BuildInfo, SolvingMethod}
 
 object FlatZincRunner extends YuckLogging {
 

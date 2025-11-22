@@ -5,7 +5,6 @@ import scala.language.implicitConversions
 
 import yuck.core.*
 import yuck.flatzinc.ast.*
-import yuck.flatzinc.parser.*
 
 /**
  * The given compilation context may be modified to transport information between phases.

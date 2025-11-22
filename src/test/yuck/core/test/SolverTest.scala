@@ -4,7 +4,7 @@ import org.junit.*
 
 import yuck.core.*
 import yuck.test.util.UnitTest
-import yuck.util.arm.{RevocableSigint, SettableSigint, Sigint}
+import yuck.util.arm.{RevocableSigint, Sigint}
 
 
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)

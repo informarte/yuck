@@ -1,9 +1,8 @@
 package yuck.annealing
 
-import scala.collection.*
+import scala.collection.IndexedSeq
 
-import yuck.core.*
-import yuck.util.DescriptiveStatistics.*
+import yuck.core.{AnyObjective, LocalSearchResult, SearchState}
 
 final class AnnealingResult(
     override val maybeUserData: Option[Object],

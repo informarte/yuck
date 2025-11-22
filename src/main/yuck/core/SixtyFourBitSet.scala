@@ -2,8 +2,6 @@ package yuck.core
 
 import java.lang.Long.*
 
-import scala.collection.mutable
-
 import yuck.core.SixtyFourBitSet.ValueRange
 
 /**

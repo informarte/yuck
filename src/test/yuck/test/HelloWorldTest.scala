@@ -4,9 +4,9 @@ import yuck.annealing.*
 import yuck.constraints.SatisfactionGoalTracker
 import yuck.constraints.SatisfactionGoalTracker.computeInvolvementMap
 import yuck.core.*
-import yuck.{annealing, fj}
 import yuck.fj.{FeasibilityJump, FeasibilityJumpEventLogger, FeasibilityJumpNeighbourhood}
 import yuck.test.util.IntegrationTest
+import yuck.{annealing, fj}
 
 abstract class HelloWorldTest extends IntegrationTest {
 

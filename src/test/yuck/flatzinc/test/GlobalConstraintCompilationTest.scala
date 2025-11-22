@@ -1,12 +1,11 @@
 package yuck.flatzinc.test
 
-import org.junit.*
-import org.junit.experimental.categories.*
-
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
-import yuck.SolvingMethod
+import org.junit.*
+import org.junit.experimental.categories.*
+
 import yuck.constraints.*
 import yuck.constraints.OrderingRelation.*
 import yuck.core.*

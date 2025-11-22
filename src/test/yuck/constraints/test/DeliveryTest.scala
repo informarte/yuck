@@ -1,10 +1,10 @@
 package yuck.constraints.test
 
-import org.junit.*
-
 import scala.jdk.CollectionConverters.*
 import scala.language.implicitConversions
 import scala.ref.WeakReference
+
+import org.junit.*
 
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.{Circuit, Delivery}

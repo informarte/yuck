@@ -1,13 +1,13 @@
 package yuck.test
 
-import org.junit.*
-
 import scala.jdk.CollectionConverters.*
 
-import yuck.{SolvingMethod, annealing}
+import org.junit.*
+
 import yuck.constraints.*
 import yuck.core.*
-import yuck.test.util.{DefaultNumberOfThreads, IntegrationTest}
+import yuck.test.util.DefaultNumberOfThreads
+import yuck.{SolvingMethod, annealing}
 
 /**
  * The classic n-queens problem

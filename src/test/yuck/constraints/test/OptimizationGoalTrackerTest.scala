@@ -2,8 +2,6 @@ package yuck.constraints.test
 
 import org.junit.*
 
-import scala.collection.*
-
 import yuck.constraints.*
 import yuck.core.*
 import yuck.test.*

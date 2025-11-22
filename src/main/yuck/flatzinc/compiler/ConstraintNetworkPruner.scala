@@ -1,7 +1,6 @@
 package yuck.flatzinc.compiler
 
-import scala.collection.mutable
-import scala.collection.Set
+import scala.collection.{Set, mutable}
 
 import yuck.constraints.{OptimizationGoalTracker, SatisfactionGoalTracker}
 import yuck.core.{AnyVariable, Constraint}

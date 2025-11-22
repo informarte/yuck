@@ -1,8 +1,8 @@
 package yuck.core
 
-import yuck.util.arm.scoped
-
 import scala.collection.*
+
+import yuck.util.arm.scoped
 
 /**
  * Generates random moves of random size.

@@ -5,7 +5,6 @@ import scala.collection.Seq
 import yuck.core.*
 import yuck.test.util.OrderingTestHelper
 import yuck.util.OrderingFromOrdered
-import yuck.util.logging.LazyLogger
 import yuck.util.logging.LogLevel.FineLogLevel
 
 abstract class OrderedDomainTestHelper[V <: OrderedValue[V]] extends DomainTestHelper[V] {

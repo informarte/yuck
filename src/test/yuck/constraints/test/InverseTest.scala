@@ -1,12 +1,12 @@
 package yuck.constraints.test
 
-import org.junit.*
-
 import scala.jdk.CollectionConverters.*
 
+import org.junit.*
+
 import yuck.annealing.DefaultMoveSizeDistribution
-import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.constraints.*
+import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.*
 import yuck.test.util.UnitTest
 

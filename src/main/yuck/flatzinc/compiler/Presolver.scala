@@ -1,7 +1,5 @@
 package yuck.flatzinc.compiler
 
-import scala.collection.*
-
 import yuck.core.*
 
 /**

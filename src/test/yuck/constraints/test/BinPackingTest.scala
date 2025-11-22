@@ -1,8 +1,8 @@
 package yuck.constraints.test
 
-import org.junit.*
-
 import scala.language.implicitConversions
+
+import org.junit.*
 
 import yuck.constraints.*
 import yuck.constraints.test.util.ConstraintTestTooling

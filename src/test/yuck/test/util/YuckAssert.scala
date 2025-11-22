@@ -1,8 +1,8 @@
 package yuck.test.util
 
-import org.junit.Assert
-
 import scala.annotation.tailrec
+
+import org.junit.Assert
 
 trait YuckAssert {
 

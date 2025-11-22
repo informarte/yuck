@@ -1,8 +1,8 @@
 package yuck.flatzinc
 
-import yuck.{SolvingMethod, annealing, fj}
 import yuck.core.profiling.SpaceProfilingMode
 import yuck.core.{Constraint, DefaultSeed, Distribution, Probability}
+import yuck.{SolvingMethod, annealing, fj}
 
 final case class FlatZincLevelConfiguration(
     isTopLevel: Boolean,

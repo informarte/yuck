@@ -1,9 +1,8 @@
 package yuck.test.util
 
+import org.junit.Test
 import org.junit.internal.{RealSystem, TextListener}
 import org.junit.runner.{JUnitCore, Request}
-import org.junit.Test
-
 import scopt.*
 
 /**

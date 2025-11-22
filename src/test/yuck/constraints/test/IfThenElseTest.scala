@@ -5,7 +5,6 @@ import org.junit.*
 import yuck.constraints.IfThenElse
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.*
-import yuck.test.*
 import yuck.test.util.UnitTest
 
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)

@@ -6,8 +6,8 @@ import scala.collection.*
 import scala.collection.mutable.ArrayBuffer
 
 import yuck.core.*
-import yuck.util.arm.scoped
 import yuck.util.Collections.*
+import yuck.util.arm.scoped
 
 /**
  * Generates random downhill moves.

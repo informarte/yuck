@@ -1,10 +1,10 @@
 package yuck.flatzinc.test.util
 
+import scala.collection.mutable
+
 import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge}
 import org.jgrapht.nio.dot.DOTExporter
 import org.jgrapht.nio.{Attribute, AttributeType, DefaultAttribute}
-
-import scala.collection.mutable
 
 import yuck.core.*
 

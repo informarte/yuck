@@ -1,10 +1,10 @@
 package yuck.constraints
 
-import com.conversantmedia.util.collection.spatial.{HyperRect, RectBuilder, SpatialSearch, SpatialSearches}
-
 import java.util.function.Consumer
 
 import scala.collection.*
+
+import com.conversantmedia.util.collection.spatial.{HyperRect, RectBuilder, SpatialSearch, SpatialSearches}
 
 import yuck.core.*
 import yuck.util.alg.rtree.RTreeTransaction

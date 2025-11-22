@@ -3,8 +3,7 @@ package yuck.core.test
 import org.junit.*
 
 import yuck.core.*
-import yuck.test.*
-import yuck.test.util.{EqualityTestHelper, OrderingTestHelper, UnitTest}
+import yuck.test.util.UnitTest
 
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerSetDomainTest extends UnitTest {

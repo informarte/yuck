@@ -4,9 +4,9 @@ import scala.collection.*
 
 import yuck.core.*
 import yuck.core.IntegerDomain.ensureRangeList
+import yuck.test.*
 import yuck.util.logging.LazyLogger
 import yuck.util.logging.LogLevel.FineLogLevel
-import yuck.test.*
 
 final class IntegerDomainTestHelper
     (override protected val randomGenerator: RandomGenerator,

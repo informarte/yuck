@@ -20,11 +20,11 @@ import yuck.flatzinc.runner.*
 import yuck.flatzinc.test.util.SourceFormat.*
 import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 import yuck.flatzinc.test.util.VerificationFrequency.*
-import yuck.flatzinc.util.{BestProposalLogger, LocalSearchStatisticsCollector, PortfolioSolverMonitor, SharedBoundMaintainer, SummaryBuilder}
+import yuck.flatzinc.util.*
 import yuck.test.util.{IntegrationTest, ProcessRunner}
 import yuck.util.arm.*
-import yuck.util.logging.ManagedLogHandler
 import yuck.util.logging.LogLevel.*
+import yuck.util.logging.ManagedLogHandler
 
 class ZincBasedTest extends IntegrationTest {
 

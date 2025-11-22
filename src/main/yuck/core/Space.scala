@@ -1,10 +1,11 @@
 package yuck.core
 
-import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge}
-import org.jgrapht.traverse.{BreadthFirstIterator, NotDirectedAcyclicGraphException, TopologicalOrderIterator}
 import scala.collection.*
 import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
+
+import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge}
+import org.jgrapht.traverse.{BreadthFirstIterator, NotDirectedAcyclicGraphException, TopologicalOrderIterator}
 
 import yuck.core.profiling.*
 import yuck.util.arm.{ManagedResource, Sigint, scoped}

@@ -1,18 +1,18 @@
 package yuck.flatzinc.test
 
-import org.junit.*
-import org.junit.experimental.categories.*
-
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
+
+import org.junit.*
+import org.junit.experimental.categories.*
 
 import yuck.constraints.*
 import yuck.core.*
 import yuck.flatzinc.compiler.{Bool2Int1, LevelWeightMaintainer, VariableWithInfiniteDomainException}
 import yuck.flatzinc.test.util.*
 import yuck.flatzinc.test.util.SourceFormat.*
-import yuck.test.util.ParallelTestRunner
 import yuck.flatzinc.test.util.VerificationFrequency.*
+import yuck.test.util.ParallelTestRunner
 
 /**
  * Tests that cover edge cases and rarely used features of the FlatZinc language

@@ -1,11 +1,9 @@
 package yuck.constraints
 
-import yuck.constraints.Increasing.deduplicated
-
 import scala.collection.*
+
+import yuck.constraints.Increasing.deduplicated
 import yuck.core.*
-import yuck.util.arm.Sigint
-import yuck.util.logging.LazyLogger
 
 /**
  * Base class for the family of increasing constraints.

@@ -1,9 +1,9 @@
 package yuck.flatzinc.test
 
+import scala.language.implicitConversions
+
 import org.junit.*
 import org.junit.experimental.categories.*
-
-import scala.language.implicitConversions
 
 import yuck.constraints.*
 import yuck.core.*

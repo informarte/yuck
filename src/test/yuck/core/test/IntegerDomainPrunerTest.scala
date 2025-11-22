@@ -1,11 +1,10 @@
 package yuck.core.test
 
-import org.junit.*
-
 import scala.annotation.tailrec
 
+import org.junit.*
+
 import yuck.core.*
-import yuck.test.*
 import yuck.test.util.UnitTest
 
 @FixMethodOrder(org.junit.runners.MethodSorters.NAME_ASCENDING)

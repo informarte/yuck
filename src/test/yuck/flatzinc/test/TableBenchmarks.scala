@@ -2,9 +2,9 @@ package yuck.flatzinc.test
 
 import java.io.File
 
-import org.junit.*
-
 import scala.jdk.CollectionConverters.*
+
+import org.junit.*
 
 import yuck.flatzinc.test.util.*
 

@@ -1,9 +1,9 @@
 package yuck.constraints
 
+import scala.collection.*
+
 import com.conversantmedia.util.collection.geometry.{Point2d, Rect2d}
 import com.conversantmedia.util.collection.spatial.{HyperPoint, HyperRect, RectBuilder}
-
-import scala.collection.*
 
 import yuck.core.*
 import yuck.util.alg.rtree.RicherPoint2d

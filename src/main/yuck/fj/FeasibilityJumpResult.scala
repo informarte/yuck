@@ -1,6 +1,6 @@
 package yuck.fj
 
-import yuck.core.*
+import yuck.core.{AnyObjective, LocalSearchResult, SearchState}
 
 final class FeasibilityJumpResult(
     override val maybeUserData: Option[Object],

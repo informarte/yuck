@@ -2,7 +2,6 @@ package yuck.util.alg.rtree.test
 
 import com.conversantmedia.util.collection.geometry.Rect2d
 import com.conversantmedia.util.collection.spatial.SpatialSearches
-
 import org.junit.*
 
 import yuck.test.util.UnitTest

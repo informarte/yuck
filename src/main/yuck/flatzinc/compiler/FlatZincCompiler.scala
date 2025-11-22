@@ -2,10 +2,9 @@ package yuck.flatzinc.compiler
 
 import java.util.concurrent.Callable
 
+import yuck.SolvingMethod
 import yuck.constraints.Delivery
-import yuck.SolvingMethod
 import yuck.core.*
-import yuck.SolvingMethod
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.FlatZincAst
 import yuck.util.arm.Sigint

@@ -1,8 +1,8 @@
 package yuck.constraints.test
 
-import org.junit.*
-
 import scala.jdk.CollectionConverters.*
+
+import org.junit.*
 
 import yuck.constraints.{InverseFunction, SimpleInverseNeighbourhood}
 import yuck.core.*

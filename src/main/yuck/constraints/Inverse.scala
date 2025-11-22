@@ -1,10 +1,10 @@
 package yuck.constraints
 
-import org.jgrapht.alg.matching.HopcroftKarpMaximumCardinalityBipartiteMatching
-import org.jgrapht.graph.DefaultUndirectedGraph
-
 import scala.collection.*
 import scala.jdk.CollectionConverters.*
+
+import org.jgrapht.alg.matching.HopcroftKarpMaximumCardinalityBipartiteMatching
+import org.jgrapht.graph.DefaultUndirectedGraph
 
 import yuck.core.*
 import yuck.util.logging.LazyLogger

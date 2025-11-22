@@ -2,7 +2,7 @@ package yuck.core.test
 
 import org.junit.*
 
-import yuck.core.{given, *}
+import yuck.core.{*, given}
 import yuck.test.util.UnitTest
 
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)

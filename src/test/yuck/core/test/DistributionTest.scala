@@ -1,9 +1,8 @@
 package yuck.core.test
 
-import org.junit.*
-
-import scala.collection.*
 import scala.jdk.CollectionConverters.*
+
+import org.junit.*
 
 import yuck.core.*
 import yuck.test.util.UnitTest

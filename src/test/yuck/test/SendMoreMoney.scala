@@ -6,7 +6,7 @@ import yuck.SolvingMethod
 import yuck.annealing.*
 import yuck.constraints.*
 import yuck.core.*
-import yuck.test.util.{DefaultNumberOfThreads, IntegrationTest}
+import yuck.test.util.DefaultNumberOfThreads
 
 /**
  * The classic send-more-money problem

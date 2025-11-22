@@ -2,8 +2,6 @@ package yuck.core.test
 
 import org.junit.*
 
-import scala.collection.*
-
 import yuck.core.*
 import yuck.test.util.UnitTest
 

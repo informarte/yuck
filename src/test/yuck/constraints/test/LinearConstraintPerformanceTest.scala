@@ -1,9 +1,8 @@
 package yuck.constraints.test
 
-import org.junit.*
-
-import scala.collection.*
 import scala.jdk.CollectionConverters.*
+
+import org.junit.*
 
 import yuck.constraints.*
 import yuck.constraints.OrderingRelation.*

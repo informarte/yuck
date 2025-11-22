@@ -2,8 +2,6 @@ package yuck.util.arm
 
 import java.util.concurrent.LinkedBlockingQueue
 
-import scala.concurrent.SyncVar
-
 /**
  * Thrown when adding a JVM shutdown hook failed because a JVM shutdown is already in progress.
  */

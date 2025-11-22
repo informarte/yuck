@@ -1,7 +1,7 @@
 package yuck.flatzinc.util
 
-import yuck.fj.{FeasibilityJumpMonitor, FeasibilityJumpResult}
 import yuck.core.AnyVariable
+import yuck.fj.{FeasibilityJumpMonitor, FeasibilityJumpResult}
 
 /**
  * Wraps a PortfolioSolverMonitor instance for use with the feasibility-jump method.

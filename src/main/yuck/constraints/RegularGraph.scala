@@ -1,12 +1,12 @@
 package yuck.constraints
 
-import org.jgrapht.Graph
-import org.jgrapht.graph.DirectedMultigraph
-import org.jgrapht.traverse.TopologicalOrderIterator
-
 import scala.collection.*
 import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
+
+import org.jgrapht.Graph
+import org.jgrapht.graph.DirectedMultigraph
+import org.jgrapht.traverse.TopologicalOrderIterator
 
 import yuck.core.*
 

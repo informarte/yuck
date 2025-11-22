@@ -2,10 +2,7 @@ package yuck.core.test
 
 import org.junit.*
 
-import scala.collection.*
-
 import yuck.core.*
-import yuck.test.*
 import yuck.test.util.UnitTest
 
 @FixMethodOrder(org.junit.runners.MethodSorters.NAME_ASCENDING)

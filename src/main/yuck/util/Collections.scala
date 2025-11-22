@@ -1,8 +1,8 @@
 package yuck.util
 
 import java.util.Arrays
-import java.util.stream.Stream
-import java.util.stream.IntStream
+import java.util.function.{Consumer, IntConsumer}
+import java.util.stream.{IntStream, Stream}
 
 import scala.collection.*
 import scala.jdk.CollectionConverters.*
@@ -10,8 +10,6 @@ import scala.reflect.ClassTag
 
 import it.unimi.dsi.fastutil.ints.{Int2ObjectOpenHashMap, IntOpenHashSet}
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
-
-import java.util.function.{Consumer, IntConsumer}
 
 /**
  * Collection of extensions method with a focus on avoiding closures and integer boxing.
