@@ -21,13 +21,17 @@ minizinc-benchmarks: ci-tests
 yuck.test.% yuck.flatzinc.test.%:
 	./scripts/test-runner.py $@
 
-.PHONY: bsp idea-project-files compile run stage zip doc clean render-readme
+.PHONY: bsp idea-project-files fix compile run stage zip doc clean render-readme
 
 bsp:
 	./mill mill.bsp.BSP/install
 
 idea-project-files:
 	./mill mill.idea.GenIdea/idea
+
+fix:
+	./mill yuck.fix
+	./mill yuck.test.fix
 
 compile:
 	./mill yuck.test.compile

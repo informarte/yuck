@@ -2,14 +2,16 @@
 //| mill-jvm-version: temurin:21
 //| mvnDeps:
 //| - "com.lihaoyi::mill-contrib-buildinfo:$MILL_VERSION"
+//| - "com.goyeau::mill-scalafix::0.6.0"
 
 package build
 
-import mill._
-import mill.scalalib._
+import com.goyeau.mill.scalafix.ScalafixModule
+import mill.*
 import mill.contrib.buildinfo.BuildInfo
+import mill.scalalib.*
 
-object yuck extends ScalaModule with BuildInfo {
+object yuck extends ScalaModule with BuildInfo with ScalafixModule {
 
     def git(args: String*) = os.proc("git" :: args.toList).call().out.lines().head
     def gitCommitHash = Task.Input {git("rev-parse", "HEAD")}
@@ -54,7 +56,7 @@ object yuck extends ScalaModule with BuildInfo {
     def fullClasspath = Task {(localClasspath() ++ upstreamAssemblyClasspath()).map(_.path)}
     def fullClasspathAsString = Task {fullClasspath().mkString(":")}
 
-    object test extends ScalaTests {
+    object test extends ScalaTests with ScalafixModule {
 
         override def moduleDir = super.moduleDir / ".."
         override def resources = Task { Seq.empty[PathRef] }

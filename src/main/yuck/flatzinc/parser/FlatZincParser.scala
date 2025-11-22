@@ -106,7 +106,7 @@ object FlatZincParser extends RegexParsers {
     val pred_param_type: Parser[Type] =
         param_type | var_type
     val pred_param: Parser[PredParam] =
-        (pred_param_type <~ ":") ~ identifier ~ (annotation*) ^^ {
+        (pred_param_type <~ ":") ~ identifier ~ rep(annotation) ^^ {
             case paramType ~ id ~ annotations => PredParam(id, paramType, annotations)
         }
     val pred_decl: Parser[PredDecl] =
@@ -120,7 +120,7 @@ object FlatZincParser extends RegexParsers {
         }
 
     val var_decl: Parser[VarDecl] =
-        (var_type <~ ":") ~ identifier ~ (annotation*) ~ (("=" ~> expr)?) <~ ";" ^^ {
+        (var_type <~ ":") ~ identifier ~ rep(annotation) ~ (("=" ~> expr)?) <~ ";" ^^ {
             case paramType ~ id ~ annotations ~ optionalValue => VarDecl(id, paramType, optionalValue, annotations)
         }
 
@@ -128,22 +128,22 @@ object FlatZincParser extends RegexParsers {
         "::" ~> term ^^ Annotation.apply
 
     val constraint: Parser[Constraint] =
-        "constraint" ~> identifier ~ ("(" ~> rep1sep(expr, ",") <~ ")") ~ (annotation*) <~ ";" ^^ {
+        "constraint" ~> identifier ~ ("(" ~> rep1sep(expr, ",") <~ ")") ~ rep(annotation) <~ ";" ^^ {
             case id ~ params ~ annotations => Constraint(id, params, annotations)
         }
 
     val solve_goal: Parser[SolveGoal] =
         "solve" ~> (
-            (annotation*) <~ "satisfy" ^^ Satisfy.apply |
-            (annotation*) ~ ("minimize" ~> expr) ^^ {
+            rep(annotation) <~ "satisfy" ^^ Satisfy.apply |
+            rep(annotation) ~ ("minimize" ~> expr) ^^ {
                 case annotations ~ expr => Minimize(expr, annotations)
             } |
-            (annotation*) ~ ("maximize" ~> expr) ^^ {
+            rep(annotation) ~ ("maximize" ~> expr) ^^ {
                 case annotations ~ expr => Maximize(expr, annotations)
             }) <~ ";"
 
     val flatzinc_model: Parser[FlatZincAst] =
-        (pred_decl*)  ~ (param_decl*) ~ (var_decl*) ~ (constraint*)  ~ solve_goal ^^ {
+        rep(pred_decl) ~ rep(param_decl) ~ rep(var_decl) ~ rep(constraint) ~ solve_goal ^^ {
             case predDecls ~ paramDecls ~ varDecls ~ constraints ~ solveGoal =>
                 FlatZincAst(
                     predDecls,
