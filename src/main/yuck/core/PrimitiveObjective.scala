@@ -19,7 +19,7 @@ abstract class PrimitiveObjective extends AnyObjective {
 
     final override def assessMove(before: SearchState, after: SearchState) = {
         var delta = computeDelta(before, after)
-        if (delta != 0) {
+        if delta != 0 then {
             val sign = signum(delta)
             delta = abs(delta)
             // scale compression (log(1) = 0, so shift curve to the left)

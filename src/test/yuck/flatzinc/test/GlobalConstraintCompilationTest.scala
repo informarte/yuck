@@ -576,7 +576,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         // The MiniZinc library does not support set counting.
         val result = solveWithResult(task.copy(problemName = problemName, verificationFrequency = NoVerification))
         assertEq(result.space.channelVariables.size, 5)
-        if (relation == EqRelation) {
+        if relation == EqRelation then {
             assertEq(result.space.searchVariables.size, 11)
             assertEq(result.space.searchVariables.map(_.name).filterNot(_.startsWith("x")), Set("y"))
             assertEq(result.space.channelVariables.filter(isUserDefined).map(_.name), Set("c"))
@@ -608,8 +608,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         relation match {
             case EqRelation => assertEq(n, m)
             case NeRelation => assertNe(n, m)
-            case LeRelation => if (inverseRelation) assertGe(m, n) else assertLe(m, n)
-            case LtRelation => if (inverseRelation) assertGt(m, n) else assertLt(m, n)
+            case LeRelation => if inverseRelation then assertGe(m, n) else assertLe(m, n)
+            case LtRelation => if inverseRelation then assertGt(m, n) else assertLt(m, n)
         }
     }
 
@@ -648,11 +648,15 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
             case NeRelation =>
                 assert(ns(0) != ms(0) || ns(1) != ms(1))
             case LeRelation =>
-                if (inverseRelation) assert(ms(0) >= ns(0) || ms(1) >= ns(1))
-                else assert(ms(0) <= ns(0) || ms(1) <= ns(1))
+                assert(
+                    if inverseRelation
+                    then ms(0) >= ns(0) || ms(1) >= ns(1)
+                    else ms(0) <= ns(0) || ms(1) <= ns(1))
             case LtRelation =>
-                if (inverseRelation) assert(ms(0) > ns(0) || ms(1) > ns(1))
-                else assert(ms(0) < ns(0) || ms(1) < ns(1))
+                assert(
+                    if inverseRelation
+                    then ms(0) > ns(0) || ms(1) > ns(1)
+                    else ms(0) < ns(0) || ms(1) < ns(1))
         }
     }
 

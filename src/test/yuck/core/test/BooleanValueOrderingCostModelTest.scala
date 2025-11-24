@@ -12,8 +12,8 @@ final class BooleanValueOrderingCostModelTest extends UnitTest with BooleanValue
 
     @Test
     def testOrderingCostModel(): Unit = {
-        for (a <- testData) {
-            for (b <- testData) {
+        for a <- testData do {
+            for b <- testData do {
                 assertEq(BooleanValue(costModel.eqViolation(a, b)).truthValue, a.truthValue == b.truthValue)
                 assertEq(BooleanValue(costModel.neViolation(a, b)).truthValue, a.truthValue != b.truthValue)
                 assertEq(BooleanValue(costModel.ltViolation(a, b)).truthValue, ! a.truthValue && b.truthValue)

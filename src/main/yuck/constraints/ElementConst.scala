@@ -36,7 +36,7 @@ final class ElementConst
     }
 
     override def propagate() = {
-        if (valueTraits.domainCapabilities.createDomain && valueTraits.domainCapabilities.union) {
+        if valueTraits.domainCapabilities.createDomain && valueTraits.domainCapabilities.union then {
             val di1 =
                 i.domain.intersect(IntegerRange(offset, safeDec(safeAdd(as.size, offset))))
             val dy1 =

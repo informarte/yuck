@@ -14,7 +14,7 @@ package yuck.core
  */
 final class BooleanValue(val violation: Long) extends OrderedValue[BooleanValue] {
     require(violation >= 0)
-    def this(value: Boolean) = this(if (value) 0 else 1)
+    def this(value: Boolean) = this(if value then 0 else 1)
     override def hashCode = violation.hashCode
     override def equals(that: Any) = that match {
         case rhs: BooleanValue =>
@@ -23,8 +23,10 @@ final class BooleanValue(val violation: Long) extends OrderedValue[BooleanValue]
         case _ => false
     }
     override def compare(that: BooleanValue) =
-        if (this.violation < that.violation) -1
-        else if (this.violation > that.violation) 1
+        if this.violation < that.violation
+        then -1
+        else if this.violation > that.violation
+        then 1
         else 0
     inline override def ==(that: Value[BooleanValue]) = this == that.asInstanceOf[BooleanValue]
     inline def ==(that: BooleanValue): Boolean = this.violation == that.violation
@@ -34,7 +36,7 @@ final class BooleanValue(val violation: Long) extends OrderedValue[BooleanValue]
     inline override def >(that: BooleanValue) = this.violation > that.violation
     inline override def >=(that: BooleanValue) = this.violation >= that.violation
     override def toString =
-        if (violation == 0) "true" else if (violation == 1) "false" else "false(%d)".format(violation)
+        if violation == 0 then "true" else if violation == 1 then "false" else "false(%d)".format(violation)
     /** Returns true iff the violation is zero. */
     inline def truthValue: Boolean = violation == 0
 }
@@ -54,7 +56,7 @@ object BooleanValue {
      * Tries to avoid memory allocation by re-using existing objects.
      */
     inline def apply(a: Boolean): BooleanValue =
-        if (a) True else False
+        if a then True else False
 
     /**
      * Returns a BooleanValue instance for the given violation.
@@ -64,7 +66,7 @@ object BooleanValue {
      * For other violations, a new BooleanValue instance is created.
      */
     def apply(a: Int): BooleanValue =
-        if (a < ub) valueCache(a) else new BooleanValue(a)
+        if a < ub then valueCache(a) else new BooleanValue(a)
 
     /**
      * Returns a BooleanValue instance for the given violation.
@@ -74,6 +76,6 @@ object BooleanValue {
      * For other violations, a new BooleanValue instance is created.
      */
     def apply(a: Long): BooleanValue =
-        if (a >= Int.MinValue && a <= Int.MaxValue) BooleanValue(a.toInt) else new BooleanValue(a)
+        if a >= Int.MinValue && a <= Int.MaxValue then BooleanValue(a.toInt) else new BooleanValue(a)
 
 }

@@ -19,7 +19,7 @@ final class FrequencyRestorer(capacity: Int) extends ManagedResource {
 
     override def close() = {
         var i = indices.size
-        while (i > 0) {
+        while i > 0 do {
             i -= 1
             distributions(i).setFrequency(indices(i), frequencies(i))
         }

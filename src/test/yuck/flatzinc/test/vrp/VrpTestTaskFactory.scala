@@ -22,9 +22,10 @@ abstract class VrpTestTaskFactory extends MiniZincTestTaskFactory {
 
     protected def amendKnownBestResult(task: ZincTestTask) = {
         val maybeObjectiveValue = results.get(task.instanceName)
-        if (maybeObjectiveValue.isDefined) {
+        if maybeObjectiveValue.isDefined then {
             val objectiveValue = maybeObjectiveValue.get
-            if (objectiveValue.isOptimal) task.copy(maybeOptimum = Some(objectiveValue.value))
+            if objectiveValue.isOptimal
+            then task.copy(maybeOptimum = Some(objectiveValue.value))
             else task.copy(maybeHighScore = Some(objectiveValue.value))
         } else {
             task

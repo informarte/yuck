@@ -41,13 +41,13 @@ final class NeighbourhoodTestHelper
     def testMoveGeneration(): MeasurementResult = {
         require(neighbourhood.searchVariables == xs.toSet)
         val result = new MeasurementResult
-        for (i <- 1 to sampleSize) {
+        for i <- 1 to sampleSize do {
             val move = neighbourhood.nextMove()
             result.moveSizeFrequencies(move.size) += 1
             val ys = move.involvedVariablesIterator.map(valueTraits.safeDowncast).toVector
             assertEq(ys.size, ys.toSet.size)
             assert(ys.forall(xs.contains))
-            for (y <- ys) {
+            for y <- ys do {
                 assert(y.domain.contains(move.value(y)))
                 result.variableFrequencies(y) += 1
             }
@@ -62,7 +62,7 @@ final class NeighbourhoodTestHelper
             val observation = result.moveSizeFrequencies(n).toDouble
             val expectation = sampleSize * moveSizeDistribution.probability(n).value
             val ok = observation >= expectation * (1 - tolerance) && observation <= expectation * (1 + tolerance)
-            if (! ok) {
+            if ! ok then {
                 logger.log("moveSizeFrequencies = %s".format(result.moveSizeFrequencies.toVector))
                 logger.log("moveSize = %s".format(n))
                 logger.log("observation = %s".format(observation))
@@ -97,13 +97,15 @@ final class NeighbourhoodTestHelper
                 // P(j) is the probability of choosing xs(i) on some position k with 0 <= j <= k < n
                 // (considering the current state of hotSpotDistribution).
                 def P(j: Int): Double =
-                    if (j == n - 1) hotSpotDistribution.probability(i).value
+                    if j == n - 1
+                    then hotSpotDistribution.probability(i).value
                     else {
                         // Q(k) is the probability of choosing xs(i) on some position l with j <= l < n
                         // under the assumption that xs(k) gets chosen on position j.
                         def Q(k: Int): Double =
                             // consider xs(k) for position j
-                            if (k == i) hotSpotDistribution.probability(i).value
+                            if k == i
+                            then hotSpotDistribution.probability(i).value
                             else {
                                 hotSpotDistribution.probability(k).value * {
                                     val f = hotSpotDistribution.frequency(k)
@@ -116,19 +118,19 @@ final class NeighbourhoodTestHelper
                         xs.indices.iterator.map(Q).sum
                     }
                 val p =
-                    (if (fairVariableChoiceRate > 0) fairVariableChoiceRate * h(1, xs.size, 1, n) else 0) +
-                        (if (fairVariableChoiceRate < 1) (1 - fairVariableChoiceRate) * P(0) else 0)
+                    (if fairVariableChoiceRate > 0 then fairVariableChoiceRate * h(1, xs.size, 1, n) else 0) +
+                        (if fairVariableChoiceRate < 1 then (1 - fairVariableChoiceRate) * P(0) else 0)
                 result.moveSizeFrequencies(n) * p
             }
             val observation = result.variableFrequencies(xs(i))
             val expectation = (1 until moveSizeDistribution.size).iterator.map(E).sum
-            if (expectation == 0) {
+            if expectation == 0 then {
                 // A forbidden variable must not be chosen!
                 assertEq(observation, expectation)
                 true
             } else {
                 val ok = observation >= expectation * (1 - tolerance) && observation <= expectation * (1 + tolerance)
-                if (! ok) {
+                if ! ok then {
                     logger.log("variableFrequencies = %s".format(xs.map(result.variableFrequencies)))
                     logger.log("x = %s".format(xs(i)))
                     logger.log("observation = %s".format(observation))
@@ -149,7 +151,7 @@ final class NeighbourhoodTestHelper
     def testPerturbation(): Unit = {
         val now = space.searchState
         val numbersOfChangedAssignments = new mutable.ArrayBuffer[Int](numberOfPerturbations)
-        for (i <- 0 until numberOfPerturbations) {
+        for i <- 0 until numberOfPerturbations do {
             val before = now.clone()
             neighbourhood.perturb(perturbationProbability)
             numbersOfChangedAssignments += xs.count(x => before.value(x) != now.value(x))
@@ -169,7 +171,7 @@ object NeighbourhoodTestHelper {
     {
         val space = new Space(logger, sigint)
         val xs =
-            for ((i, domain) <- domains.indices.zip(domains)) yield {
+            for (i, domain) <- domains.indices.zip(domains) yield {
                 val x = new IntegerVariable(space.nextVariableId(), "x%d".format(i), domain)
                 space.setValue(x, x.domain.randomValue(randomGenerator))
                 x

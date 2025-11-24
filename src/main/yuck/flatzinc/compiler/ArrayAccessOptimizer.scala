@@ -39,10 +39,10 @@ final class ArrayAccessOptimizer
                 .view
                 .mapValues(_.toVector)
                 .toMap
-        for (((xs, offset), constraints) <- elementVarConstraints) {
+        for ((xs, offset), constraints) <- elementVarConstraints do {
             val n = xs.size
             val m = constraints.size
-            if (m * (n + 1) > 3 * (n + m)) {
+            if m * (n + 1) > 3 * (n + m) then {
                 /*
                 When n = |xs| is large, then each change to one of the xs triggers m ElementVar constraints
                 which, together with the scheduling overhead, can be quite expensive. Hence, to avoid most of
@@ -64,7 +64,7 @@ final class ArrayAccessOptimizer
                             xs.asInstanceOf[immutable.IndexedSeq[Variable[V]]],
                             is.foldLeft(IntegerValueTraits.emptyDomain)((u, i) => u.union(i.domain)),
                             offset)
-                    if (xs1 != xs) {
+                    if xs1 != xs then {
                         cc.logger.log(
                             "Dropping %d inputs while merging ElementVar constraints".format(xs.size - xs1.size))
                     }
@@ -82,7 +82,7 @@ final class ArrayAccessOptimizer
                     case _: IntegerVariable => postConstraint[IntegerValue]()
                     case _: IntegerSetVariable => postConstraint[IntegerSetValue]()
                 }
-            } else for (constraint <- constraints) {
+            } else for constraint <- constraints do {
                 val (xs1, offset1) = uselessInputsRemoved(constraint.xs, constraint.i.domain, constraint.offset)
                 inline def postConstraint[V <: Value[V]]()(using valueTraits: ValueTraits[V]): Unit = {
                     cc.post(
@@ -94,7 +94,7 @@ final class ArrayAccessOptimizer
                             constraint.y.asInstanceOf[Variable[V]],
                             offset1))
                 }
-                if (xs1 != xs) {
+                if xs1 != xs then {
                     cc.logger.log("Dropping %d inputs from ElementVar constraint".format(xs.size - xs1.size))
                     cc.space.retract(constraint)
                     xs.head.match {

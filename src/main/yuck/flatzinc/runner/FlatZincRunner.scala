@@ -132,7 +132,7 @@ object FlatZincRunner extends YuckLogging {
         opt[String]("log-level")
             .text("%s, default value is %s".format(logLevels.mkString("|"), defaultCl.logLevel.toString))
             .action((x, cl) => cl.copy(logLevel = List(cl.logLevel, logLevelMap.getOrElse(x, cl.logLevel)).minBy(_.intValue)))
-            .validate(x => if (logLevelMap.contains(x)) success else failure("Unknown log level %s".format(x)))
+            .validate(x => if logLevelMap.contains(x) then success else failure("Unknown log level %s".format(x)))
         opt[String]("log-file-path")
             .text("Optional log file path")
             .action((x, cl) => cl.copy(logFilePath = x))
@@ -158,7 +158,7 @@ object FlatZincRunner extends YuckLogging {
     def main(args: Array[String]): Unit = {
         val parser = new CommandLineParser
         val maybeCl = parser.parse(args, new CommandLine)
-        if (maybeCl.isEmpty) {
+        if maybeCl.isEmpty then {
             System.exit(1)
         }
         val cl = maybeCl.get
@@ -189,7 +189,7 @@ object FlatZincRunner extends YuckLogging {
     private def trySetupLogging(cl: CommandLine): Unit = {
         nativeLogger.setUseParentHandlers(false); // otherwise our console handler would remain unused
         val formatter = new yuck.util.logging.Formatter
-        if (cl.logFilePath.isEmpty) {
+        if cl.logFilePath.isEmpty then {
             val consoleHandler = new java.util.logging.ConsoleHandler
             consoleHandler.setFormatter(formatter)
             nativeLogger.addHandler(consoleHandler)
@@ -213,7 +213,7 @@ object FlatZincRunner extends YuckLogging {
             case throwable: Throwable => exitCode = handleException(findUltimateCause(throwable))
         }
         finally {
-            if (! cl.summaryFilePath.isEmpty) {
+            if ! cl.summaryFilePath.isEmpty then {
                 logger.withLogScope("Writing %s".format(cl.summaryFilePath)) {
                     val jsonDoc = summaryBuilder.build()
                     val jsonWriter = new java.io.FileWriter(cl.summaryFilePath)
@@ -235,7 +235,7 @@ object FlatZincRunner extends YuckLogging {
         val md5Sum = SummaryBuilder.computeMd5Sum(cl.fznFilePath)
         summaryBuilder.addFlatZincModelStatistics(ast, md5Sum)
         val monitors = new ArrayBuffer[SolverMonitoring[?]]
-        if (cl.logLevel != yuck.util.logging.LogLevel.NoLogging) {
+        if cl.logLevel != yuck.util.logging.LogLevel.NoLogging then {
             monitors += new AnnealingEventLogger(logger)
             monitors += new FeasibilityJumpEventLogger(logger)
             monitors += new BestProposalLogger(logger)
@@ -244,11 +244,11 @@ object FlatZincRunner extends YuckLogging {
         monitors += statisticsCollector
         val resultPrinter = new FlatZincResultPrinter(ast, cl.outputThrottlingIntervalInMillis)
         val resultPrinterThread = new Thread(resultPrinter)
-        if (cl.printIntermediateSolutions) {
+        if cl.printIntermediateSolutions then {
             monitors += resultPrinter
         }
         val sharedBoundHolder = new AtomicReference[Costs]
-        if (cl.cfg.shareBounds) {
+        if cl.cfg.shareBounds then {
             monitors += new SharedBoundMaintainer(sharedBoundHolder)
         }
         val monitor = new PortfolioSolverMonitor(monitors.toVector)
@@ -262,9 +262,9 @@ object FlatZincRunner extends YuckLogging {
                 }
             }
         }
-        if (result.isSolution) {
+        if result.isSolution then {
             val outputLines = new FlatZincResultFormatter(ast)(new FlatZincResult(result))
-            if (cl.printIntermediateSolutions) {
+            if cl.printIntermediateSolutions then {
                 resultPrinter.flush()
             } else {
                 outputLines.foreach(println)
@@ -279,7 +279,7 @@ object FlatZincRunner extends YuckLogging {
         summaryBuilder.addYuckModelStatistics(space)
         summaryBuilder.addResult(result)
         summaryBuilder.addSearchStatistics(statisticsCollector)
-        if (cl.cfg.maybeSpaceProfilingMode.isDefined) {
+        if cl.cfg.maybeSpaceProfilingMode.isDefined then {
             summaryBuilder.addSpacePerformanceMetrics(space.performanceMetricsBuilder.build())
         }
     }
@@ -332,6 +332,6 @@ object FlatZincRunner extends YuckLogging {
 
     @tailrec
     private def findUltimateCause(throwable: Throwable): Throwable =
-        if (throwable.getCause.eq(null)) throwable else findUltimateCause(throwable.getCause)
+        if throwable.getCause.eq(null) then throwable else findUltimateCause(throwable.getCause)
 
 }

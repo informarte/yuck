@@ -23,14 +23,14 @@ final class IntegerRange
     inline def !=(that: IntegerRange): Boolean = ! (this == that)
 
     override def toString =
-        if (isEmpty)
-            "{}"
-        else if (isSingleton)
-            "{%s}".format(singleValue)
+        if isEmpty
+        then "{}"
+        else if isSingleton
+        then "{%s}".format(singleValue)
         else
             "%s..%s".format(
-                if (lb.eq(null)) "-inf" else lb.toString,
-                if (ub.eq(null)) "+inf" else ub.toString)
+                if lb.eq(null) then "-inf" else lb.toString,
+                if ub.eq(null) then "+inf" else ub.toString)
 
     override def size = {
         require(isFinite)
@@ -56,7 +56,7 @@ final class IntegerRange
             private var i = lb.value
             override def hasNext = i <= ub.value
             override def next() = {
-                if (! hasNext) {
+                if ! hasNext then {
                     throw new NoSuchElementException
                 }
                 val a = IntegerValue(i)
@@ -81,13 +81,13 @@ final class IntegerRange
 
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: IntegerValue) = {
         require(! isEmpty && isFinite)
-        if (isSingleton) {
-            singleValue
-        } else if (size == 2) {
-            if (currentValue == lb) ub else lb
-        } else {
+        if isSingleton
+        then singleValue
+        else if size == 2
+        then if currentValue == lb then ub else lb
+        else {
             val a = lb.value + randomGenerator.nextInt(size - 1)
-            IntegerValue(if (a < currentValue.value) a else a + 1)
+            IntegerValue(if a < currentValue.value then a else a + 1)
         }
     }
 
@@ -105,8 +105,10 @@ final class IntegerRange
 
     override def distanceTo(a: IntegerValue): IntegerValue = {
         require(! isEmpty)
-        if (lb.ne(null) && a < lb) lb - a
-        else if (ub.ne(null) && a > ub) a - ub
+        if lb.ne(null) && a < lb
+        then lb - a
+        else if ub.ne(null) && a > ub
+        then a - ub
         else Zero
     }
 
@@ -118,33 +120,41 @@ final class IntegerRange
 
     def intersect(that: IntegerRange): IntegerRange = {
         val lb =
-            if (! this.hasLb) that.lb
-            else if (! that.hasLb) this.lb
-            else if (this.lb < that.lb) that.lb
+            if ! this.hasLb
+            then that.lb
+            else if ! that.hasLb
+            then this.lb
+            else if this.lb < that.lb
+            then that.lb
             else this.lb
         val ub =
-            if (! this.hasUb) that.ub
-            else if (! that.hasUb) this.ub
-            else if (this.ub < that.ub) this.ub
+            if ! this.hasUb
+            then that.ub
+            else if ! that.hasUb
+            then this.ub
+            else if this.ub < that.ub
+            then this.ub
             else that.ub
         IntegerRange(lb, ub)
     }
 
     def maybeIntersectionSize(that: IntegerRange): Option[Int] = {
         val tmp = this.intersect(that)
-        if (tmp.isFinite) Some(tmp.size) else None
+        if tmp.isFinite then Some(tmp.size) else None
     }
 
     override def randomSubrange(randomGenerator: RandomGenerator): IntegerRange =
-        if (isEmpty) EmptyIntegerRange
+        if isEmpty
+        then EmptyIntegerRange
         else {
             val a = randomValue(randomGenerator)
             val b = randomValue(randomGenerator)
-            if (a < b) IntegerRange(a, b) else IntegerRange(b, a)
+            if a < b then IntegerRange(a, b) else IntegerRange(b, a)
         }
 
     override def mirrored: IntegerRange =
-        if (isEmpty) this
+        if isEmpty
+        then this
         else IntegerRange(maybeUb.map(_.negated).orNull, maybeLb.map(_.negated).orNull)
 
     /**
@@ -152,7 +162,7 @@ final class IntegerRange
      * K. R. Apt, Principles of Constraint Programming, p. 221
      */
     def mult(that: IntegerRange): IntegerRange = {
-        if (this.isEmpty || that.isEmpty) {
+        if this.isEmpty || that.isEmpty then {
             EmptyIntegerRange
         } else {
             require(this.isFinite)
@@ -172,7 +182,7 @@ final class IntegerRange
      */
     @tailrec
     def div(that: IntegerRange): IntegerRange = {
-        if (this.isEmpty || that.isEmpty) {
+        if this.isEmpty || that.isEmpty then {
             EmptyIntegerRange
         } else {
             require(this.isFinite)
@@ -181,23 +191,23 @@ final class IntegerRange
             val b = this.ub
             val c = that.lb
             val d = that.ub
-            if (this.contains(Zero) && that.contains(Zero)) {
+            if this.contains(Zero) && that.contains(Zero) then {
                 // case 1
                 CompleteIntegerRange
-            } else if (! this.contains(Zero) && c == Zero && d == Zero) {
+            } else if ! this.contains(Zero) && c == Zero && d == Zero then {
                 // case 2
                 EmptyIntegerRange
-            } else if (! this.contains(Zero) && c < Zero && Zero < d) {
+            } else if ! this.contains(Zero) && c < Zero && Zero < d then {
                 // case 3
                 val e = IntegerValueTraits.valueOrdering.max(a.abs, b.abs)
                 IntegerRange(MinusOne * e, e)
-            } else if (! this.contains(Zero) && c < Zero && d == Zero) {
+            } else if ! this.contains(Zero) && c < Zero && d == Zero then {
                 // case 4a
                 this.div(IntegerRange(c, MinusOne))
-            } else if (! this.contains(Zero) && c == Zero && Zero < d) {
+            } else if ! this.contains(Zero) && c == Zero && Zero < d then {
                 // case 4b
                 this.div(IntegerRange(One, d))
-            } else if (! that.contains(Zero)) {
+            } else if ! that.contains(Zero) then {
                 // case 5
                 // approximation (6.14)
                 val A = List(a.toDouble / c.toDouble, a.toDouble / d.toDouble, b.toDouble / c.toDouble, b.toDouble / d.toDouble)
@@ -220,8 +230,10 @@ object IntegerRange {
      * Tries to avoid memory allocation by re-using existing objects.
      */
     def apply(lb: IntegerValue, ub: IntegerValue): IntegerRange =
-        if (lb.eq(null) && ub.eq(null)) CompleteIntegerRange
-        else if (lb.ne(null) && ub.ne(null) && ub < lb) EmptyIntegerRange
+        if lb.eq(null) && ub.eq(null)
+        then CompleteIntegerRange
+        else if lb.ne(null) && ub.ne(null) && ub < lb
+        then EmptyIntegerRange
         else new IntegerRange(lb, ub)
 
 
@@ -231,7 +243,8 @@ object IntegerRange {
      * Tries to avoid memory allocation by re-using existing objects.
      */
     def apply(lb: Long, ub: Long): IntegerRange =
-        if (ub < lb) EmptyIntegerRange
+        if ub < lb
+        then EmptyIntegerRange
         else new IntegerRange(IntegerValue(lb), IntegerValue(ub))
 
 }

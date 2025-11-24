@@ -15,7 +15,7 @@ private[profiling] final class MutableDuration private(private var _seconds: Lon
         require(nanosToAdd >= 0)
         _seconds = Math.addExact(Math.addExact(_seconds, secondsToAdd), nanosToAdd / NanosPerSecond)
         _nanos = _nanos + Math.toIntExact(nanosToAdd % NanosPerSecond)
-        if (_nanos > NanosPerSecond) {
+        if _nanos > NanosPerSecond then {
             _seconds = Math.incrementExact(_seconds)
             _nanos = _nanos % NanosPerSecond
         }

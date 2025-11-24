@@ -43,7 +43,7 @@ final class RandomCircularSwapGenerator
 
     require(xs.forall(space.isSearchVariable))
     require(xs.forall(_.domain.isFinite))
-    for (i <- 1 until n) {
+    for i <- 1 until n do {
         require(xs(i - 1).domain == xs(i).domain)
     }
 
@@ -65,7 +65,7 @@ final class RandomCircularSwapGenerator
         val m = swap.size
         val a0 = swap(0).a
         var i = 1
-        while (i < m) {
+        while i < m do {
             swap(i - 1).a = swap(i).a
             i += 1
         }
@@ -81,25 +81,25 @@ final class RandomCircularSwapGenerator
             maybeHotSpotDistribution.isEmpty ||
                 maybeHotSpotDistribution.get.volume == 0 ||
                 (maybeFairVariableChoiceRate.isDefined && randomGenerator.nextDecision(maybeFairVariableChoiceRate.get))
-        val priorityDistribution = if (useUniformDistribution) uniformDistribution else maybeHotSpotDistribution.get
+        val priorityDistribution = if useUniformDistribution then uniformDistribution else maybeHotSpotDistribution.get
         val m =
             min(max(2, min(moveSizeDistribution.nextIndex(randomGenerator), n)),
                 priorityDistribution.numberOfAlternatives)
         assert(m > 1)
         val swap = swaps(m - 1)
-        if (useUniformDistribution && m < 4) {
+        if useUniformDistribution && m < 4 then {
             val i = randomGenerator.nextInt(n)
             fillEffect(swap(0), xs(i))
-            if (m > 1) {
+            if m > 1 then {
                 val j = {
                     val k = randomGenerator.nextInt(n - 1)
-                    if (k < i) k else k + 1
+                    if k < i then k else k + 1
                 }
                 fillEffect(swap(1), xs(j))
-                if (m > 2) {
+                if m > 2 then {
                     val k = {
                         val l = randomGenerator.nextInt(n - 2)
-                        if (l < min(i, j)) l else if (l > max(i, j) - 2) l + 2 else l + 1
+                        if l < min(i, j) then l else if l > max(i, j) - 2 then l + 2 else l + 1
                     }
                     fillEffect(swap(2), xs(k))
                 }

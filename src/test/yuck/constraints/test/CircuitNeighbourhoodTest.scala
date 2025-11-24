@@ -13,7 +13,7 @@ final class CircuitNeighbourhoodTest(offset: Int) extends SpecialNeighbourhoodTe
     private val numberOfNodes = 10
     private val baseDomain = IntegerRange(offset, offset + numberOfNodes - 1)
     private val succ =
-        for (i <- 1 to numberOfNodes) yield
+        for i <- 1 to numberOfNodes yield
             new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain.randomSubdomain(randomGenerator))
 
     override protected def createConstraint() = {

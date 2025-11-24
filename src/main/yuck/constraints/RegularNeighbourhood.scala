@@ -92,31 +92,31 @@ class RegularNeighbourhood
 
         val move = new BulkMove(space.nextMoveId())
         val searchIsRequired = proposal.exists((x, a) => ! currentPath(x2i(x)).asInstanceOf[Assignment].d.contains(a))
-        if (searchIsRequired) {
+        if searchIsRequired then {
             // The proposal will be ignored in parts or totally if it is infeasible.
             futurePath = graph.computeShortestPath(new PenaltyProvider(proposal, now)).get
-            for (case Assignment(_, x, d, _) <- futurePath) {
+            for case Assignment(_, x, d, _) <- futurePath do {
                 val a = now.value(x)
                 val effect = x.reuseableEffect
-                if (proposal.contains(x)) {
+                if proposal.contains(x) then {
                     val b = proposal(x)
-                    if (d.contains(b)) {
+                    if d.contains(b) then {
                         effect.a = b
                         move += effect
-                    } else if (d.contains(a)) {
+                    } else if d.contains(a) then {
                         effect.a = d.nextRandomValue(randomGenerator, a)
                         move += effect
                     } else {
                         effect.a = d.randomValue(randomGenerator)
                         move += effect
                     }
-                } else if (! d.contains(a)) {
+                } else if ! d.contains(a) then {
                     effect.a = d.randomValue(randomGenerator)
                     move += effect
                 }
             }
         } else {
-            for ((x, a) <- proposal) {
+            for (x, a) <- proposal do {
                 val effect = x.reuseableEffect
                 effect.a = a
                 move += effect
@@ -137,7 +137,7 @@ class RegularNeighbourhood
         override def apply(transition: Transition) =
             transition match {
                 case Assignment(_, x, d, _) =>
-                    if (proposal.contains(x)) {
+                    if proposal.contains(x) then {
                         // x is affected by the proposal: Strongly discourage all values except for the proposed one.
                         if d.contains(proposal(x)) then 0 else n
                     } else {

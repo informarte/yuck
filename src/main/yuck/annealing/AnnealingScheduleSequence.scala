@@ -13,7 +13,7 @@ final class AnnealingScheduleSequence(
     extends AnnealingSchedule
 {
 
-    for (child <- children) {
+    for child <- children do {
         require(! child.isFrozen)
     }
 
@@ -25,9 +25,9 @@ final class AnnealingScheduleSequence(
         val child = children(i)
         val temperature = child.temperature
         child.nextRound(roundLog)
-        if (child.isFrozen) {
+        if child.isFrozen then {
             i += 1
-            if (i < children.size) {
+            if i < children.size then {
                 children(i).start(temperature, progress)
             }
         }

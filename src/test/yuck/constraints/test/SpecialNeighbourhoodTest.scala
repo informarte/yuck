@@ -28,13 +28,13 @@ abstract class SpecialNeighbourhoodTest extends UnitTest {
     protected final def testMoveGeneration(): Unit = {
         val neighbourhood = createNeighbourhood()
         val xs = neighbourhood.searchVariables
-        for (i <- 1 to sampleSize) {
+        for i <- 1 to sampleSize do {
             val move = neighbourhood.nextMove()
             assert(! move.involves(costs))
             val after = space.consult(move)
             assert(xs.exists(x => now.value(x) != after.value(x)))
             checkSearchState(after)
-            if (randomGenerator.nextDecision()) {
+            if randomGenerator.nextDecision() then {
                 space.commit(move)
                 neighbourhood.commit(move)
             }
@@ -48,7 +48,7 @@ abstract class SpecialNeighbourhoodTest extends UnitTest {
     protected final def testPerturbation(): Unit = {
         val neighbourhood = createNeighbourhood()
         val xs = neighbourhood.searchVariables
-        for (i <- 1 to numberOfPerturbations) {
+        for i <- 1 to numberOfPerturbations do {
             val before = now.clone()
             neighbourhood.perturb(perturbationProbability)
             assert(xs.exists(x => now.value(x) != before.value(x)))
@@ -59,7 +59,7 @@ abstract class SpecialNeighbourhoodTest extends UnitTest {
     private def createNeighbourhood(): Neighbourhood = {
         val constraint = createConstraint()
         space.post(constraint)
-        if (propagate) {
+        if propagate then {
             space.propagate()
         }
         val xs = space.searchVariables

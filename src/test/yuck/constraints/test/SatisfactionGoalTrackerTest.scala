@@ -26,7 +26,7 @@ class SatisfactionGoalTrackerTest extends UnitTest {
         assertEq(d.frequency(0), 0)
         assertEq(d.frequency(1), 0)
         assertEq(d.frequency(2), 0)
-        if (true) {
+        if true then {
             val effects = List(new ImmutableMoveEffect(c1, False))
             val move = new ChangeValues(space.nextMoveId(), effects)
             space.consult(move)
@@ -38,7 +38,7 @@ class SatisfactionGoalTrackerTest extends UnitTest {
             assertEq(d.frequency(1), 0)
             assertEq(d.frequency(2), 1)
         }
-        if (true) {
+        if true then {
             val effects = List(new ImmutableMoveEffect(c1, True), new ImmutableMoveEffect(c2, False))
             val move = new ChangeValues(space.nextMoveId(), effects)
             space.consult(move)
@@ -50,7 +50,7 @@ class SatisfactionGoalTrackerTest extends UnitTest {
             assertEq(d.frequency(1), 0)
             assertEq(d.frequency(2), 1)
         }
-        if (true) {
+        if true then {
             val effects = List(new ImmutableMoveEffect(c2, True), new ImmutableMoveEffect(c3, False))
             val move = new ChangeValues(space.nextMoveId(), effects)
             space.consult(move)
@@ -62,7 +62,7 @@ class SatisfactionGoalTrackerTest extends UnitTest {
             assertEq(d.frequency(1), 1)
             assertEq(d.frequency(2), 1)
         }
-        if (true) {
+        if true then {
             val effects = List(new ImmutableMoveEffect(c1, False), new ImmutableMoveEffect(c2, False))
             val move = new ChangeValues(space.nextMoveId(), effects)
             space.consult(move)

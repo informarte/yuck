@@ -65,7 +65,7 @@ final class Space(
         inflowModel += x -> (inflowModel.getOrElse(x, new mutable.HashSet[Constraint]) += constraint)
     }
     private def deregisterInflow(x: AnyVariable, constraint: Constraint): Unit = {
-        if ((inflowModel(x) -= constraint).isEmpty) {
+        if (inflowModel(x) -= constraint).isEmpty then {
             inflowModel -= x
             inVariables -= x
         }
@@ -103,22 +103,22 @@ final class Space(
     private def addToFlowModel(constraint: Constraint): Unit = {
         require(! isCyclic(constraint), "%s is cyclic".format(constraint))
         flowModel.addVertex(constraint)
-        for (x <- constraint.inVariables) {
+        for x <- constraint.inVariables do {
             val maybePred = maybeDefiningConstraint(x)
-            if (maybePred.isDefined) {
+            if maybePred.isDefined then {
                 flowModel.addEdge(maybePred.get, constraint)
             }
         }
-        for (y <- constraint.outVariables) {
-            for (succ <- directlyAffectedConstraints(y)) {
+        for y <- constraint.outVariables do {
+            for succ <- directlyAffectedConstraints(y) do {
                 flowModel.addEdge(constraint, succ)
             }
         }
-        if (! delayCycleCheckingUntilInitialization) {
+        if ! delayCycleCheckingUntilInitialization then {
             // BFS seems to be faster than DFS
             val i = new BreadthFirstIterator[Constraint, DefaultEdge](flowModel, constraint) {
                 override def encounterVertexAgain(vertex: Constraint, edge: DefaultEdge): Unit = {
-                    if (vertex == constraint) {
+                    if vertex == constraint then {
                         flowModel.removeVertex(constraint)
                         require(false, "%s would introduce a cycle".format(constraint))
                     } else {
@@ -126,7 +126,7 @@ final class Space(
                     }
                 }
             }
-            while (i.hasNext) {
+            while i.hasNext do {
                 i.next()
             }
         }
@@ -138,7 +138,7 @@ final class Space(
     private def sortConstraintsTopologically(): Unit = {
         val constraintOrder = new Array[Int](constraints.iterator.map(_.id).max.rawId + 1)
         try {
-            for ((constraint, i) <- new TopologicalOrderIterator[Constraint, DefaultEdge](flowModel).asScala.zipWithIndex) {
+            for (constraint, i) <- new TopologicalOrderIterator[Constraint, DefaultEdge](flowModel).asScala.zipWithIndex do {
                 constraintOrder.update(constraint.id.rawId, i)
             }
         } catch {
@@ -196,7 +196,7 @@ final class Space(
 
     /** Assigns the given value to the given variable. */
     def setValue[V <: Value[V]](x: Variable[V], a: V): Space = {
-        if (checkAssignmentsToNonChannelVariables && (isProblemParameter(x) || isSearchVariable(x))) {
+        if checkAssignmentsToNonChannelVariables && (isProblemParameter(x) || isSearchVariable(x)) then {
             require(
                 x.domain.contains(a),
                 "Domain %s of variable %s does not contain value %s".format(x.domain, x, a))
@@ -255,10 +255,10 @@ final class Space(
     private def addInvolvedSearchVariables(
         x: AnyVariable, result: mutable.HashSet[AnyVariable], visited: mutable.HashSet[AnyVariable]): Unit =
     {
-        if (! visited.contains(x)) {
+        if ! visited.contains(x) then {
             visited += x
             val maybeConstraint = maybeDefiningConstraint(x)
-            if (maybeConstraint.isDefined) {
+            if maybeConstraint.isDefined then {
                 addInvolvedSearchVariables(maybeConstraint.get, result, visited)
             }
         }
@@ -279,8 +279,8 @@ final class Space(
     private def addInvolvedSearchVariables(
         constraint: Constraint, result: mutable.HashSet[AnyVariable], visited: mutable.HashSet[AnyVariable]): Unit =
     {
-        for (x <- constraint.inVariables) {
-            if (isSearchVariable(x)) {
+        for x <- constraint.inVariables do {
+            if isSearchVariable(x) then {
                 result += x
             } else {
                 addInvolvedSearchVariables(x, result, visited)
@@ -301,10 +301,10 @@ final class Space(
     private def addInvolvedConstraints(
         x: AnyVariable, result: mutable.HashSet[Constraint], visited: mutable.HashSet[AnyVariable]): Unit =
     {
-        if (! visited.contains(x)) {
+        if ! visited.contains(x) then {
             visited += x
             val maybeConstraint = maybeDefiningConstraint(x)
-            if (maybeConstraint.isDefined) {
+            if maybeConstraint.isDefined then {
                 val constraint = maybeConstraint.get
                 result += constraint
                 constraint.inVariables.foreach(addInvolvedConstraints(_, result, visited))
@@ -321,9 +321,12 @@ final class Space(
      */
     def wouldIntroduceCycle(constraint: Constraint): Boolean = {
         require(! initialized, "Space has already been initialized")
-        if (isCyclic(constraint)) true
-        else if (constraints.isEmpty) false
-        else if (constraints.contains(constraint)) false
+        if isCyclic(constraint)
+        then true
+        else if constraints.isEmpty
+        then false
+        else if constraints.contains(constraint)
+        then false
         else try {
             addToFlowModel(constraint)
             removeFromFlowModel(constraint)
@@ -354,10 +357,10 @@ final class Space(
                 implicitConstraints.filter(_.inVariables.exists(constraint.outVariables.iterator.contains)).mkString("\n")))
         addToFlowModel(constraint)
         constraints += constraint
-        for (x <- constraint.inVariables) {
+        for x <- constraint.inVariables do {
             registerInflow(x, constraint)
         }
-        for (x <- constraint.outVariables) {
+        for x <- constraint.outVariables do {
             registerOutflow(x, constraint)
         }
         initialized = false
@@ -375,15 +378,15 @@ final class Space(
     def retract(constraint: Constraint): Space = {
         logger.log("Retracting %s".format(constraint))
         require(! initialized, "Space has already been initialized")
-        for (x <- constraint.inVariables.toSet) {
+        for x <- constraint.inVariables.toSet do {
             deregisterInflow(x, constraint)
         }
-        for (x <- constraint.outVariables) {
+        for x <- constraint.outVariables do {
             deregisterOutflow(x)
         }
         removeFromFlowModel(constraint)
         constraints -= constraint
-        if (isImplicitConstraint(constraint)) {
+        if isImplicitConstraint(constraint) then {
             implicitConstraints -= constraint
             inVariablesOfImplicitConstraints --= constraint.inVariables
         }
@@ -460,14 +463,14 @@ final class Space(
 
         override def open() = {
             // collect domains of implicitly constrained search variables
-            for (x <- inVariablesOfImplicitConstraints) {
+            for x <- inVariablesOfImplicitConstraints do {
                 backup += x -> x.createDomainRestorer
             }
         }
 
         override def close() = {
             // restore domains of implicitly constrained search variables
-            for ((x, domainRestorer) <- backup) {
+            for (x, domainRestorer) <- backup do {
                 domainRestorer.apply()
             }
         }
@@ -488,14 +491,14 @@ final class Space(
     def propagate(): Space = {
         scoped(new DomainRestorer) {
             val constraints = new mutable.HashSet[Constraint]
-            for (constraint <- this.constraints) {
+            for constraint <- this.constraints do {
                 val effects = constraint.propagate()
                 numberOfPropagations += 1
-                for (x <- effects.affectedVariables) {
+                for x <- effects.affectedVariables do {
                     constraints ++= directlyAffectedConstraints(x)
                     constraints ++= maybeDefiningConstraint(x)
                 }
-                if (effects.rescheduleStep) {
+                if effects.rescheduleStep then {
                     constraints += constraint
                 }
             }
@@ -518,7 +521,7 @@ final class Space(
     def propagate(xs: Iterable[AnyVariable]): Space = {
         scoped(new DomainRestorer) {
             val constraints = new mutable.HashSet[Constraint]
-            for (x <- xs) {
+            for x <- xs do {
                 constraints ++= directlyAffectedConstraints(x)
                 constraints ++= maybeDefiningConstraint(x)
             }
@@ -528,15 +531,15 @@ final class Space(
     }
 
     private def propagate(constraints: mutable.HashSet[Constraint]): Unit = {
-        while (! constraints.isEmpty && ! sigint.isSet) {
+        while ! constraints.isEmpty && ! sigint.isSet do {
             val constraint = constraints.head
             val effects = constraint.propagate()
             numberOfPropagations += 1
-            for (x <- effects.affectedVariables) {
+            for x <- effects.affectedVariables do {
                 constraints ++= directlyAffectedConstraints(x)
                 constraints ++= maybeDefiningConstraint(x)
             }
-            if (! effects.rescheduleStep) {
+            if ! effects.rescheduleStep then {
                 constraints.remove(constraint)
             }
         }
@@ -554,12 +557,12 @@ final class Space(
      */
     def initialize(): Space = {
 
-        if (initialized) {
+        if initialized then {
 
             val constraintsOrderedByLayer = mutable.ArrayBuffer.from(constraints).sortInPlaceBy(_.layer)
-            for (constraint <- constraintsOrderedByLayer) {
-                if (! isImplicitConstraint(constraint)) {
-                    for (effect <- constraint.initialize(assignment)) {
+            for constraint <- constraintsOrderedByLayer do {
+                if ! isImplicitConstraint(constraint) then {
+                    for effect <- constraint.initialize(assignment) do {
                         effect.affect(this)
                     }
                     numberOfInitializations += 1
@@ -568,7 +571,7 @@ final class Space(
 
         } else {
 
-            if (delayCycleCheckingUntilInitialization) {
+            if delayCycleCheckingUntilInitialization then {
                 sortConstraintsTopologically()
             }
 
@@ -579,11 +582,11 @@ final class Space(
                 computeLayers()
             }
 
-            for (i <- layers.indices; constraint <- layers(i)) {
+            for i <- layers.indices; constraint <- layers(i) do {
                 constraint.layer = i
                 constraint.after = null
-                if (! isImplicitConstraint(constraint)) {
-                    for (effect <- constraint.initialize(assignment)) {
+                if ! isImplicitConstraint(constraint) then {
+                    for effect <- constraint.initialize(assignment) do {
                         effect.affect(this)
                     }
                     numberOfInitializations += 1
@@ -623,7 +626,7 @@ final class Space(
         val candidates = new mutable.HashSet[Constraint]
         candidates ++= availableInputs.view.flatMap(directlyAffectedConstraints)
         candidates ++= constraints.view.filter(_.inVariables.forall(isProblemParameter))
-        while (candidates.nonEmpty) {
+        while candidates.nonEmpty do {
             val layer = new mutable.HashSet[Constraint]
             layer ++= candidates.view.filter(_.inVariables.forall(x => isProblemParameter(x) || availableInputs.contains(x)))
             layers += layer
@@ -654,7 +657,7 @@ final class Space(
      * (For efficiency reasons, this requirement is not enforced.)
      */
     def consult(move: Move): MoveSimulator = {
-        if (profiling) {
+        if profiling then {
             val startTimeInNanos = System.nanoTime
             val result = doConsult(move)
             val endTimeInNanos = System.nanoTime
@@ -672,20 +675,20 @@ final class Space(
         val acc = new BulkMove(move.id)
         var i = 0
         val n = queue.size
-        while (i < n) {
+        while i < n do {
             queue(i).clear()
             i += 1
         }
         propagateEffects(move, move.effectsIterator, acc)
         i = 0
-        while (i < n) {
+        while i < n do {
             val layer = queue(i)
             var j = layer.size - 1
-            while (j >= 0) {
+            while j >= 0 do {
                 val constraint = layer(j)
                 val after = constraint.after
                 val effects =
-                    if (profiling) {
+                    if profiling then {
                         val startTimeInNanos = System.nanoTime
                         val result = constraint.consult(assignment, after, after.move)
                         val endTimeInNanos = System.nanoTime
@@ -704,14 +707,14 @@ final class Space(
     }
 
     private def propagateEffects(move: Move, effectsIt: Iterator[AnyMoveEffect], acc: BulkMove): Unit = {
-        while (effectsIt.hasNext) {
+        while effectsIt.hasNext do {
             val effect = effectsIt.next()
-            if (assignment.value(effect.x) != effect.a) {
+            if assignment.value(effect.x) != effect.a then {
                 val constraintsIt = directlyAffectedConstraints(effect.x).iterator
-                while (constraintsIt.hasNext) {
+                while constraintsIt.hasNext do {
                     val constraint = constraintsIt.next()
-                    if (! isImplicitConstraint(constraint)) {
-                        if (constraint.after != null && constraint.after.move == move) {
+                    if ! isImplicitConstraint(constraint) then {
+                        if constraint.after != null && constraint.after.move == move then {
                             // Here we rely on move ids not being re-used.
                             constraint.after.move.asInstanceOf[BulkMove] += effect
                         } else {
@@ -722,7 +725,7 @@ final class Space(
                         }
                     }
                 }
-                if (isObjectiveVariable(effect.x)) {
+                if isObjectiveVariable(effect.x) then {
                     acc += effect
                 }
             }
@@ -746,7 +749,7 @@ final class Space(
      */
     def commit(move: Move): Space = {
         require(move.id == idOfMostRecentlyAssessedMove)
-        if (profiling) {
+        if profiling then {
             val startTimeInNanos = System.nanoTime
             doCommit(move)
             val endTimeInNanos = System.nanoTime
@@ -761,14 +764,14 @@ final class Space(
         pendingChanges.clear()
         pendingChanges ++= move.effectsIterator
         var i = queue.size - 1
-        while (i >= 0) {
+        while i >= 0 do {
             val layer = queue(i)
             var j = layer.size - 1
-            while (j >= 0) {
+            while j >= 0 do {
                 val constraint = layer(j)
                 val after = constraint.after
                 val effects =
-                    if (profiling) {
+                    if profiling then {
                         val startTimeInNanos = System.nanoTime
                         val result = constraint.commit(assignment, after, after.move)
                         val endTimeInNanos = System.nanoTime
@@ -784,7 +787,7 @@ final class Space(
             i -= 1
         }
         var j = pendingChanges.size - 1
-        while (j >= 0) {
+        while j >= 0 do {
             pendingChanges(j).affect(this)
             j -= 1
         }
@@ -792,7 +795,7 @@ final class Space(
 
     /** Throws when the internal data structures are inconsistent. */
     def checkConsistency(): Unit = {
-        if (flowModel.ne(null)) {
+        if flowModel.ne(null) then {
             assert(flowModel.vertexSet().size() == constraints.size)
         }
     }

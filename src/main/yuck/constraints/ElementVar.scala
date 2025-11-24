@@ -36,7 +36,7 @@ final class ElementVar
     }
 
     override def propagate() = {
-        if (valueTraits.domainCapabilities.union) {
+        if valueTraits.domainCapabilities.union then {
             val di1 =
                 i.domain.intersect(IntegerRange(offset, safeDec(safeAdd(xs.size, offset))))
             val dy1 =

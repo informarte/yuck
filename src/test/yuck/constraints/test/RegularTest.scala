@@ -22,7 +22,7 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
     private val F = IntegerRange(6, 6)
     // To test the handling of invalid inputs during construction and neighbourhood generation,
     // we extend the input domains with 0 and S + 1.
-    private val xs = for (i <- 1 to 10) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(0, S + 1))
+    private val xs = for i <- 1 to 10 yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(0, S + 1))
     private val Seq(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) = xs
     private val dfa = new RegularDfa(xs, Q, S, delta, q0, F)
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)

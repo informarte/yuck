@@ -32,7 +32,7 @@ final class OptimizationGoalTracker
 
     override def initialize(now: SearchState) = {
         distribution.clear()
-        for (i <- axs.indices) {
+        for i <- axs.indices do {
             distribution.setFrequency(i, computeFrequency(axs(i), now))
         }
         Nil
@@ -42,7 +42,7 @@ final class OptimizationGoalTracker
         Nil
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
-        for (x <- move) {
+        for x <- move do {
             val (i, ax) = indexMap(x)
             distribution.setFrequency(i, computeFrequency(ax, after))
         }
@@ -55,10 +55,12 @@ final class OptimizationGoalTracker
         val dx = ax.x.domain
         val delta = mode match {
             case OptimizationMode.Min =>
-                if (ax.a < valueTraits.zero) safeMul(-a, safeSub(dx.ub.toLong, b)) // minimize -a * (dx.ub - x)
+                if ax.a < valueTraits.zero
+                then safeMul(-a, safeSub(dx.ub.toLong, b)) // minimize -a * (dx.ub - x)
                 else safeMul(a, safeSub(b, dx.lb.toLong)) // minimize a * (x - dx.lb)
             case OptimizationMode.Max =>
-                if (ax.a < valueTraits.zero) safeMul(-a, safeSub(b, dx.lb.toLong)) // minimize -a * (x - dx.lb)
+                if ax.a < valueTraits.zero
+                then safeMul(-a, safeSub(b, dx.lb.toLong)) // minimize -a * (x - dx.lb)
                 else safeMul(a, safeSub(dx.ub.toLong, b)) // minimize a * (dx.ub - x)
         }
         // delta may become negative when ax.x takes a value outside of its domain!

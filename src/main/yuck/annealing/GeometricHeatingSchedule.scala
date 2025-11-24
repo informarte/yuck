@@ -28,7 +28,7 @@ final class GeometricHeatingSchedule(
     override def nextRound(roundLog: RoundLog) = {
         require(! isFrozen)
         lastRoundLog = roundLog
-        if (! isFrozen) {
+        if ! isFrozen then {
             currentTemperature *= heatingRate
         }
     }

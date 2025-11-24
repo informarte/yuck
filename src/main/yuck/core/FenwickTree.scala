@@ -21,14 +21,14 @@ class FenwickTree(val size: Int) {
 
     // Throws when the given index is out-of-range.
     private def checkIndex(i: Int): Unit = {
-        if (i < 1 || i > size) {
+        if i < 1 || i > size then {
             throw new ArrayIndexOutOfBoundsException
         }
     }
 
     /** Clears the Fenwick tree. */
     def clear(): Unit = {
-        for (i <- 1 to size)
+        for i <- 1 to size do
             tree(i) = 0
     }
 
@@ -37,7 +37,7 @@ class FenwickTree(val size: Int) {
         var i = __i
         checkIndex(i)
         var result = 0L
-        while (i > 0) {
+        while i > 0 do {
             result = safeAdd(result, tree(i))
             i -= (i & -i)
         }
@@ -49,14 +49,14 @@ class FenwickTree(val size: Int) {
         checkIndex(left)
         checkIndex(right)
         require(left <= right)
-        prefixSum(right) - (if (left == 1) 0 else prefixSum(left - 1))
+        prefixSum(right) - (if left == 1 then 0 else prefixSum(left - 1))
     }
 
     /** Updates the value at the given index by adding the given delta to it. */
     def addDelta(__i: Int, delta: Long): Unit = {
         var i = __i
         checkIndex(i)
-        while (i <= size) {
+        while i <= size do {
             tree(i) = safeAdd(tree(i), delta)
             i += (i & -i)
         }
@@ -68,10 +68,10 @@ class FenwickTree(val size: Int) {
         checkIndex(i)
         var value = tree(i)
         var parent = 0
-        if (i > 0) {
+        if i > 0 then {
             parent = i & (i - 1)
             i -= 1
-            while (parent != i) {
+            while parent != i do {
                 value -= tree(i)
                 i &= i - 1
             }
@@ -86,12 +86,12 @@ class FenwickTree(val size: Int) {
     def index(__sum: Long): Int = {
         var sum = __sum
         var mask = 1
-        while (mask <= size) mask *= 2
+        while mask <= size do mask *= 2
         var i = 0
-        while (mask != 0) {
-            if (i + mask <= size) {
+        while mask != 0 do {
+            if i + mask <= size then {
                 val j = i + mask
-                if (sum >= tree(j)) {
+                if sum >= tree(j) then {
                     i = j
                     sum -= tree(i)
                 }
@@ -103,7 +103,7 @@ class FenwickTree(val size: Int) {
 
     /** Divides all values by the given scaling factor. */
     def scale(f: Long): Unit = {
-        for (i <- size until 0 by -1) {
+        for i <- size until 0 by -1 do {
             addDelta(i, -value(i) / f)
         }
     }

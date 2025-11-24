@@ -23,14 +23,14 @@ final class SixtyFourBitSetTest extends UnitTest {
     def testEquality(): Unit = {
         val testData = helper.createBitSets(32)
         helper.testEquality(testData)
-        for (d <- testData) {
-            for (e <- List(SixtyFourBitSet(d.set), IntegerDomain(d.values))) {
+        for d <- testData do {
+            for e <- List(SixtyFourBitSet(d.set), IntegerDomain(d.values)) do {
                 assertEq(d, e)
                 assertEq(e, d)
                 assertNe(d, False)
                 assertNe(False, d)
-                for (e <- testData) {
-                    assert(if (d.eq(e)) d == e else d != e)
+                for e <- testData do {
+                    assert(if d.eq(e) then d == e else d != e)
                 }
             }
         }
@@ -48,7 +48,7 @@ final class SixtyFourBitSetTest extends UnitTest {
         val testValues = IntegerRange(baseRange.lb - One, baseRange.ub + One).values.toSeq
         helper.testUnaryOperations(testDomains, testValues)
         helper.testBinaryOperations(testDomains)
-        for (d <- testDomains) {
+        for d <- testDomains do {
             assert(d.intersect(d).isInstanceOf[SixtyFourBitSet])
             assert(d.intersect(baseRange).isInstanceOf[SixtyFourBitSet])
             assert(baseRange.intersect(d).isInstanceOf[SixtyFourBitSet])

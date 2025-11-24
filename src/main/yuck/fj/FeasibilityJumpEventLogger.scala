@@ -14,7 +14,7 @@ final class FeasibilityJumpEventLogger(logger: LazyLogger) extends FeasibilityJu
     }
 
     override def onSolverSuspended(result: FeasibilityJumpResult) = {
-        if (result.searchWasPerformed) {
+        if result.searchWasPerformed then {
             logger.criticalSection {
                 logger.log("Suspended solver")
                 logStatistics(result)
@@ -25,7 +25,7 @@ final class FeasibilityJumpEventLogger(logger: LazyLogger) extends FeasibilityJu
     }
 
     override def onSolverResumed(result: FeasibilityJumpResult) = {
-        if (result.searchWasPerformed) {
+        if result.searchWasPerformed then {
             logger.log("Resumed solver")
         } else {
             logger.log("Resumed solver that was suspended before search")
@@ -35,7 +35,7 @@ final class FeasibilityJumpEventLogger(logger: LazyLogger) extends FeasibilityJu
     override def onSolverFinished(result: FeasibilityJumpResult) = {
         logger.criticalSection {
             logger.log("Solver finished with proposal of quality %s".format(result.costsOfBestProposal))
-            if (result.searchWasPerformed) {
+            if result.searchWasPerformed then {
                 logStatistics(result)
             }
         }

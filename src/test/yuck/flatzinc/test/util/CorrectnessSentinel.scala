@@ -16,7 +16,7 @@ final class CorrectnessSentinel
     require(task.sourceFormat == MiniZinc)
 
     override def onBetterProposal(result: Result) = {
-        if (result.isSolution) {
+        if result.isSolution then {
             verifySolution(task, result)
         }
     }
@@ -26,7 +26,7 @@ final class CorrectnessSentinel
             logger.withTimedLogScope("Verifying solution") {
                 logger.withRootLogLevel(FineLogLevel) {
                     val verifier = new MiniZincSolutionVerifier(task, spoilResult(result), logger)
-                    if (! verifier.call()) {
+                    if ! verifier.call() then {
                         throw new SolutionNotVerifiedException
                     }
                 }

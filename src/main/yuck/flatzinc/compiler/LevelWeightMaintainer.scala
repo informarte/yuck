@@ -26,8 +26,8 @@ final class LevelWeightMaintainer
 
     override def initialize(now: SearchState) = {
         val solved = objectives(0).isSolution(now)
-        for (i <- objectives.indices) {
-            distribution.setFrequency(i, if (i == 0) (if (solved) 0 else 1) else (if (solved) 1 else 0))
+        for i <- objectives.indices do {
+            distribution.setFrequency(i, if i == 0 then (if solved then 0 else 1) else (if solved then 1 else 0))
         }
         Nil
     }

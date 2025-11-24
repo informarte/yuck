@@ -87,7 +87,7 @@ final class IntegerIncreasingNeighbourhood
     // Makes room by shifting the values of other variables, too.
     // searchState is expected to reflect changes made to move.
     private def augmentMove(move: BulkMove, searchState: SearchState, i: Int): BulkMove = {
-        if (move.involves(xs(i))) {
+        if move.involves(xs(i)) then {
             move
         } else {
 
@@ -115,7 +115,7 @@ final class IntegerIncreasingNeighbourhood
             def shiftLeft(i: Int, ub: IntegerValue): Unit = {
                 require(i >= 0)
                 val rem = xs(i).domain.boundFromAbove(ub)
-                if (i > 0 && searchState.value(xs(i - 1)) + offset > rem.ub) {
+                if i > 0 && searchState.value(xs(i - 1)) + offset > rem.ub then {
                     shiftLeft(i - 1, rem.ub - offset)
                 }
                 val effect = xs(i).reuseableEffect
@@ -128,7 +128,7 @@ final class IntegerIncreasingNeighbourhood
             def shiftRight(i: Int, lb: IntegerValue): Unit = {
                 require(i < n)
                 val rem = xs(i).domain.boundFromBelow(lb)
-                if (i < n - 1 && rem.lb + offset > searchState.value(xs(i + 1))) {
+                if i < n - 1 && rem.lb + offset > searchState.value(xs(i + 1)) then {
                     shiftRight(i + 1, rem.lb + offset)
                 }
                 val effect = xs(i).reuseableEffect
@@ -143,7 +143,7 @@ final class IntegerIncreasingNeighbourhood
                 val a = searchState.value(xs(i))
                 val b = IntegerValue(a.value - distance)
                 val c = IntegerValue(a.value + distance)
-                if (randomGenerator.nextDecision()) {
+                if randomGenerator.nextDecision() then {
                     // first try left, then right
                     if canShiftLeft(i, b)
                     then shiftLeft(i, b)

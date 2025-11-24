@@ -54,11 +54,9 @@ final class ElementsVar
     }
 
     override def propagate() = {
-        if (valueTraits.domainCapabilities.union) {
-            is.view.zip(ys).foldLeft(NoPropagationOccurred: PropagationEffects)(propagate)
-        } else {
-            NoPropagationOccurred
-        }
+        if valueTraits.domainCapabilities.union
+        then is.view.zip(ys).foldLeft(NoPropagationOccurred: PropagationEffects)(propagate)
+        else NoPropagationOccurred
     }
 
     private def propagate(effects: PropagationEffects, iy: (IntegerVariable, Variable[V])) = {
@@ -78,7 +76,7 @@ final class ElementsVar
     override def initialize(now: SearchState) = {
         x2ys.keysIterator.foreach(x => x2ys(x).clear())
         y2Effect.clear()
-        for ((i, y) <- is.view.zip(ys)) {
+        for (i, y) <- is.view.zip(ys) do {
             val x = xs(safeIndex(now.value(i)))
             addEffect(y, now.value(x))
             x2ys(x).addOne(y)
@@ -88,18 +86,18 @@ final class ElementsVar
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         y2Effect.clear()
-        for (effect <- move.effectsIterator) {
+        for effect <- move.effectsIterator do {
             val ys = i2ys.getOrElse(effect.x, Vector.empty)
-            if (ys.isEmpty) {
-                for (y <- x2ys(effect.x.asInstanceOf[Variable[V]])) {
-                    if (! y2Effect.contains(y)) {
+            if ys.isEmpty then {
+                for y <- x2ys(effect.x.asInstanceOf[Variable[V]]) do {
+                    if ! y2Effect.contains(y) then {
                         addEffect(y, effect.a.asInstanceOf[V])
                     }
                 }
             } else {
                 val a = after.value(xs(safeIndex(effect.a.asInstanceOf[IntegerValue])))
                 var i = ys.size - 1
-                while (i >= 0) {
+                while i >= 0 do {
                     addEffect(ys(i), a)
                     i -= 1
                 }
@@ -109,9 +107,9 @@ final class ElementsVar
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
-        for (effect <- move.effectsIterator) {
+        for effect <- move.effectsIterator do {
             val ys = i2ys.getOrElse(effect.x, Vector.empty)
-            if (ys.nonEmpty) {
+            if ys.nonEmpty then {
                 x2ys(xs(safeIndex(before.value(effect.x.asInstanceOf[IntegerVariable])))).subtractAll(ys)
                 x2ys(xs(safeIndex(effect.a.asInstanceOf[IntegerValue]))).addAll(ys)
             }

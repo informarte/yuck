@@ -32,10 +32,10 @@ final class CountConst
     }
 
     private def propagate2(effects: PropagationEffects): PropagationEffects = {
-        if (valueTraits.domainCapabilities.createDomain &&
+        if valueTraits.domainCapabilities.createDomain &&
                n.domain.isSingleton &&
-               xs.count(_.domain.contains(a)) == n.domain.singleValue.value)
-        {
+               xs.count(_.domain.contains(a)) == n.domain.singleValue.value
+        then {
             val dx = valueTraits.createDomain(Set(a))
             xs.iterator.filter(_.domain.contains(a)).foldLeft(effects)((effects, x) => effects.pruneDomain(x, dx))
         } else {
@@ -65,12 +65,12 @@ final class CountConst
 
     private def computeDelta(before: SearchState, after: SearchState, move: Move): Int = {
         var delta = 0
-        for (x <- move) {
+        for x <- move do {
             val valueBefore = valueTraits.normalizedValue(valueTraits.safeDowncast(before.value(x)))
             val valueAfter = valueTraits.normalizedValue(valueTraits.safeDowncast(after.value(x)))
-            if (valueBefore == a && valueAfter != a) {
+            if valueBefore == a && valueAfter != a then {
                 delta -= x2n.getOrElse(x, 1)
-            } else if (valueBefore != a && valueAfter == a) {
+            } else if valueBefore != a && valueAfter == a then {
                 delta += x2n.getOrElse(x, 1)
             }
         }

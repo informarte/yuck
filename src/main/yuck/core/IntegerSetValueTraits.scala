@@ -18,11 +18,14 @@ object IntegerSetValueTraits extends OrderedValueTraits[IntegerSetValue] {
     override val valueOrdering = IntegerSetValueOrdering
     override val costModel = IntegerSetValueOrderingCostModel
     override def createDomain(values: Set[IntegerSetValue]): IntegerSetDomain =
-        if (values.isEmpty) EmptyIntegerSetDomain else ???
+        if values.isEmpty then EmptyIntegerSetDomain else ???
     override def createDomain(lb: IntegerSetValue, ub: IntegerSetValue): IntegerSetDomain =
-        if (ub < lb) EmptyIntegerSetDomain
-        else if (lb == ub) new SingletonIntegerSetDomain(lb.set)
-        else if (lb.set.isEmpty) new IntegerPowersetDomain(ub.set)
+        if ub < lb
+        then EmptyIntegerSetDomain
+        else if lb == ub
+        then new SingletonIntegerSetDomain(lb.set)
+        else if lb.set.isEmpty
+        then new IntegerPowersetDomain(ub.set)
         else ???
     override val emptyDomain: IntegerSetDomain = EmptyIntegerSetDomain
     override val completeDomain: IntegerSetDomain = CompleteIntegerSetDomain

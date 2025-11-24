@@ -24,18 +24,18 @@ final class SixtyFourBitSet(val set: Long) extends IntegerDomain {
     override def hasGaps = numberOfLeadingZeros(set) + bitCount(set) + numberOfTrailingZeros(set) < 64
     override def isBounded = true
     override def hasLb = true
-    override def lb = if (isEmpty) One else IntegerValue(numberOfTrailingZeros(set))
+    override def lb = if isEmpty then One else IntegerValue(numberOfTrailingZeros(set))
     override def hasUb = true
-    override def ub = if (isEmpty) Zero else IntegerValue(63 - numberOfLeadingZeros(set))
+    override def ub = if isEmpty then Zero else IntegerValue(63 - numberOfLeadingZeros(set))
     override def hull = IntegerRange(lb, ub)
 
     override def values = new Iterable[IntegerValue] {
         override def isEmpty = SixtyFourBitSet.this.isEmpty
         override def knownSize = SixtyFourBitSet.this.size
-        override def head = if (isEmpty) throw new NoSuchElementException else SixtyFourBitSet.this.lb
-        override def headOption = if (isEmpty) None else Some(SixtyFourBitSet.this.lb)
-        override def last = if (isEmpty) throw new NoSuchElementException else SixtyFourBitSet.this.ub
-        override def lastOption = if (isEmpty) None else Some(SixtyFourBitSet.this.ub)
+        override def head = if isEmpty then throw new NoSuchElementException else SixtyFourBitSet.this.lb
+        override def headOption = if isEmpty then None else Some(SixtyFourBitSet.this.lb)
+        override def last = if isEmpty then throw new NoSuchElementException else SixtyFourBitSet.this.ub
+        override def lastOption = if isEmpty then None else Some(SixtyFourBitSet.this.ub)
         override def iterator = SixtyFourBitSet.this.valuesIterator
     }
 
@@ -43,12 +43,12 @@ final class SixtyFourBitSet(val set: Long) extends IntegerDomain {
         private var i = numberOfTrailingZeros(set)
         inline override def hasNext = i < 64
         override def next() = {
-            if (! hasNext) {
+            if ! hasNext then {
                 throw new NoSuchElementException
             }
             val a = IntegerValue(i)
             i += 1
-            while (i < 64 && (set & (1L << i)) == 0) {
+            while i < 64 && (set & (1L << i)) == 0 do {
                 i += 1
             }
             a
@@ -67,15 +67,18 @@ final class SixtyFourBitSet(val set: Long) extends IntegerDomain {
     override def distanceTo(a: IntegerValue): IntegerValue = {
         require(! isEmpty)
         val i = a.value
-        if (contains(i)) Zero
+        if contains(i)
+        then Zero
         else {
             val lb = numberOfTrailingZeros(set).toLong
             val ub = 63 - numberOfLeadingZeros(set).toLong
-            if (i < lb) IntegerValue(lb - i)
-            else if (i > ub) IntegerValue(i - ub)
+            if i < lb
+            then IntegerValue(lb - i)
+            else if i > ub
+            then IntegerValue(i - ub)
             else {
                 var d = 1L
-                while (! contains(i - d) && ! contains(i + d)) {
+                while ! contains(i - d) && ! contains(i + d) do {
                     d += 1
                 }
                 IntegerValue(d)
@@ -88,11 +91,11 @@ final class SixtyFourBitSet(val set: Long) extends IntegerDomain {
 
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: IntegerValue) = {
         require(! isEmpty)
-        if (isSingleton) {
-            singleValue
-        } else if (size == 2) {
-            if (currentValue == lb) ub else lb
-        } else {
+        if isSingleton
+        then singleValue
+        else if size == 2
+        then if currentValue == lb then ub else lb
+        else {
             require(ValueRange.contains(currentValue))
             IntegerValue(SixtyFourBitSet.randomValue(set & ~(1L << currentValue.value), randomGenerator))
         }
@@ -105,9 +108,9 @@ final class SixtyFourBitSet(val set: Long) extends IntegerDomain {
         var subset = 0L
         var i = numberOfTrailingZeros(set)
         val j = 63 - numberOfLeadingZeros(set)
-        while (i <= j) {
+        while i <= j do {
             val mask = 1L << i
-            if ((set & mask) != 0 && randomGenerator.nextDecision()) {
+            if (set & mask) != 0 && randomGenerator.nextDecision() then {
                 subset = subset | mask
             }
             i += 1
@@ -118,13 +121,17 @@ final class SixtyFourBitSet(val set: Long) extends IntegerDomain {
     override def mirrored = IntegerDomain(values).mirrored
 
     override def boundFromBelow(lb: IntegerValue) =
-        if (lb.value <= 0) this
-        else if (lb.value >= 63) EmptyBitSet
+        if lb.value <= 0
+        then this
+        else if lb.value >= 63
+        then EmptyBitSet
         else SixtyFourBitSet(set & (MaxUInt << lb.value))
 
     override def boundFromAbove(ub: IntegerValue) =
-        if (ub.value < 0) EmptyBitSet
-        else if (ub.value >= 63) this
+        if ub.value < 0
+        then EmptyBitSet
+        else if ub.value >= 63
+        then this
         else SixtyFourBitSet(set & (MaxUInt >>> (63 - ub.value)))
 
     override def bisect = {
@@ -153,9 +160,9 @@ object SixtyFourBitSet {
         require(set != 0)
         var i = numberOfTrailingZeros(set)
         var j = randomGenerator.nextInt(bitCount(set))
-        while (j > 0) {
+        while j > 0 do {
             i += 1
-            if ((set & (1L << i)) != 0) {
+            if (set & (1L << i)) != 0 then {
                 j -= 1
             }
         }
@@ -168,8 +175,10 @@ object SixtyFourBitSet {
      * Tries to avoid memory allocation by re-using existing objects.
      */
     def apply(set: Long): SixtyFourBitSet =
-        if (set == 0) EmptyBitSet
-        else if (set == MaxUInt) FullBitSet
+        if set == 0
+        then EmptyBitSet
+        else if set == MaxUInt
+        then FullBitSet
         else new SixtyFourBitSet(set)
 
     /**
@@ -193,7 +202,7 @@ object SixtyFourBitSet {
      */
     inline def apply(values: Iterable[Long]): SixtyFourBitSet = {
         var set = 0L
-        for (a <- values) {
+        for a <- values do {
             require(a >= 0 && a < 64)
             set = set | (1L << a)
         }

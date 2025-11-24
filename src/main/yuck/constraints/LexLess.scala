@@ -26,22 +26,20 @@ final class LexLess
 
     @tailrec
     private def findFailurePosition(searchState: SearchState, i: Int): Option[Int] =
-        if (i == ys.size) {
-            Some(i - 1)
-        } else if (i == xs.size) {
-            None
-        } else {
+        if i == ys.size
+        then Some(i - 1)
+        else if i == xs.size
+        then None
+        else {
             val a = searchState.value(xs(i))
             val b = searchState.value(ys(i))
             val cmp = ord.compare(a, b).sign
-            if (cmp < 0) None
-            else if (cmp > 0) Some(i)
-            else findFailurePosition(searchState, i + 1)
+            if cmp < 0 then None else if cmp > 0 then Some(i) else findFailurePosition(searchState, i + 1)
         }
 
     override def initialize(now: SearchState) = {
         val maybeFailurePos = findFailurePosition(now, 0)
-        effect.a = if (maybeFailurePos.isEmpty) True else BooleanValue(min(xs.size, ys.size) - maybeFailurePos.get)
+        effect.a = if maybeFailurePos.isEmpty then True else BooleanValue(min(xs.size, ys.size) - maybeFailurePos.get)
         effect
     }
 

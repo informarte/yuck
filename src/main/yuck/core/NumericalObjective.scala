@@ -28,28 +28,30 @@ abstract class NumericalObjective
         }
         @tailrec
         def search(dx: NumericalDomain[V]): Option[V] =
-            if (dx.isEmpty) None
-            else if (dx.isSingleton) {
+            if dx.isEmpty
+            then None
+            else if dx.isSingleton
+            then {
                 val a = dx.singleValue
-                if (isFeasibleObjectiveValue(a)) Some(a) else None
+                if isFeasibleObjectiveValue(a) then Some(a) else None
             } else {
                 // binary search
                 val (left, right) = dx.bisect
                 (isFeasibleObjectiveValue(left.ub), isFeasibleObjectiveValue(right.lb)) match {
-                    case (true, true) => search(if (minimize) left else right)
-                    case (false, false) => search(if (minimize) right else left)
-                    case (true, false) => if (minimize) search(left) else Some(left.ub)
-                    case (false, true) => if (minimize) Some(right.lb) else search(right)
+                    case (true, true) => search(if minimize then left else right)
+                    case (false, false) => search(if minimize then right else left)
+                    case (true, false) => if minimize then search(left) else Some(left.ub)
+                    case (false, true) => if minimize then Some(right.lb) else search(right)
                 }
             }
-        if (space.isSearchVariable(x) && ! space.isImplicitlyConstrainedSearchVariable(x)) {
+        if space.isSearchVariable(x) && ! space.isImplicitlyConstrainedSearchVariable(x) then {
             // We look for a value of x that is compatible with the current search state
             // while all smaller (or greater, respectively) values are in conflict with it.
             val dx0 = x.domain
             val a = space.searchState.value(x)
-            val dx1 = if (minimize) dx0.boundFromAbove(a) else dx0.boundFromBelow(a)
+            val dx1 = if minimize then dx0.boundFromAbove(a) else dx0.boundFromBelow(a)
             val maybeB = search(dx1)
-            if (maybeB.isDefined) {
+            if maybeB.isDefined then {
                 val b = maybeB.get
                 // So b is the actual objective value!
                 val move = new ChangeValue(space.nextMoveId(), x, b)
@@ -65,11 +67,11 @@ abstract class NumericalObjective
         tighten(space, bound.asInstanceOf[V])
 
     private def tighten(space: Space, bound: V): Set[AnyVariable] = {
-        if (maybeY.isDefined) {
+        if maybeY.isDefined then {
             val y = maybeY.get
             assert(! space.isChannelVariable(y))
             assert(! space.isImplicitlyConstrainedSearchVariable(y))
-            if (y.domain.contains(bound)) {
+            if y.domain.contains(bound) then {
                 val move = new ChangeValue(space.nextMoveId(), y, bound)
                 space.consult(move)
                 space.commit(move)
@@ -78,7 +80,7 @@ abstract class NumericalObjective
                     case OptimizationMode.Min => dy0.boundFromAbove(bound)
                     case OptimizationMode.Max => dy0.boundFromBelow(bound)
                 }
-                if (y.pruneDomain(dy1)) Set(y) else Set.empty
+                if y.pruneDomain(dy1) then Set(y) else Set.empty
             } else {
                 Set.empty
             }

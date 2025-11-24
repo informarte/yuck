@@ -26,7 +26,7 @@ final class InDomain
 
     override def initialize(now: SearchState) = {
         currentViolation = 0
-        for (x <- xs) {
+        for x <- xs do {
             currentViolation = safeAdd(currentViolation, x.domain.distanceTo(now.value(x)).value)
         }
         effect.a = BooleanValue(currentViolation)
@@ -35,7 +35,7 @@ final class InDomain
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         futureViolation = currentViolation
-        for (x0 <- move) {
+        for x0 <- move do {
             val x = x0.asInstanceOf[IntegerVariable]
             val dx = x.domain
             val delta = safeSub(dx.distanceTo(after.value(x)).value, dx.distanceTo(before.value(x)).value)

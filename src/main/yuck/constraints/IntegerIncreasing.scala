@@ -19,10 +19,10 @@ final class IntegerIncreasing
     override def toString = "increasing([%s], %s, %s)".format(xs.mkString(", "), strict, costs)
 
     override protected def maybeSmallestFeasibleValue(x: IntegerVariable, maybePreviousValue: Option[IntegerValue]) = {
-        if (maybePreviousValue.isDefined) {
+        if maybePreviousValue.isDefined then {
             val a = maybePreviousValue.get
             val d = x.domain.boundFromBelow(if strict then a + One else a)
-            if (d.isEmpty) None else Some(d.lb)
+            if d.isEmpty then None else Some(d.lb)
         } else {
             Some(x.domain.lb)
         }
@@ -35,7 +35,7 @@ final class IntegerIncreasing
         createHotSpotDistribution: IndexedSeq[AnyVariable] => Option[Distribution],
         maybeFairVariableChoiceRate: Option[Probability]) =
     {
-        if (solve(space)) {
+        if solve(space) then {
             val xs1 = deduplicated(xs).toVector
             Some(new IntegerIncreasingNeighbourhood(
                 space, xs1, strict, randomGenerator,

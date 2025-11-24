@@ -14,7 +14,7 @@ final class AnnealingEventLogger(logger: LazyLogger) extends AnnealingMonitor {
     }
 
     override def onSolverSuspended(result: AnnealingResult) = {
-        if (result.roundLogs.isEmpty) {
+        if result.roundLogs.isEmpty then {
             logger.log("Suspended solver before search")
         } else {
             logger.criticalSection {
@@ -25,7 +25,7 @@ final class AnnealingEventLogger(logger: LazyLogger) extends AnnealingMonitor {
     }
 
     override def onSolverResumed(result: AnnealingResult) = {
-        if (result.roundLogs.isEmpty) {
+        if result.roundLogs.isEmpty then {
             logger.log("Resumed solver that was suspended before search")
         } else {
             logger.log("Resumed solver in round %d".format(result.roundLogs.size))
@@ -34,7 +34,7 @@ final class AnnealingEventLogger(logger: LazyLogger) extends AnnealingMonitor {
 
     override def onSolverFinished(result: AnnealingResult) = {
         logger.criticalSection {
-            if (result.roundLogs.isEmpty) {
+            if result.roundLogs.isEmpty then {
                 logger.log("Solver finished with proposal of quality %s".format(result.costsOfBestProposal))
             } else {
                 logger.criticalSection {

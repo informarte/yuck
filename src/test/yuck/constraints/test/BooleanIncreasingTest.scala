@@ -14,8 +14,9 @@ final class BooleanIncreasingTest extends UnitTest with ConstraintTestTooling {
     private val randomGenerator = new JavaRandomGenerator
     private val space = new Space(logger, sigint)
 
-    private val xs = for (i <- 1 to 4) yield
-        new BooleanVariable(space.nextVariableId(), "x%d".format(i), CompleteBooleanDomain)
+    private val xs =
+        for i <- 1 to 4 yield
+            new BooleanVariable(space.nextVariableId(), "x%d".format(i), CompleteBooleanDomain)
     private val Seq(x1, x2, x3, x4) = xs
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
@@ -161,7 +162,7 @@ final class BooleanIncreasingTest extends UnitTest with ConstraintTestTooling {
         assertEq(neighbourhood.getClass, classOf[BooleanIncreasingNeighbourhood])
         val now = space.searchState
         assert(xs.forall(_.hasValidValue(now)))
-        for (i <- 0 until xs.size - 1) {
+        for i <- 0 until xs.size - 1 do {
             assertGe(now.value(xs(i)), now.value(xs(i + 1)))
         }
         assertEq(now.value(costs), True)

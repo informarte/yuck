@@ -69,7 +69,7 @@ final class Disjoint2
             case _ => false
         }
         override def toString =
-            "%d -> %s (%s)".format(i, bbox, if (hasZeroWidth || hasZeroHeight) "empty" else "non-empty")
+            "%d -> %s (%s)".format(i, bbox, if hasZeroWidth || hasZeroHeight then "empty" else "non-empty")
     }
 
     override protected type RTreeEntry = Disjoint2Entry
@@ -90,8 +90,8 @@ final class Disjoint2
         val h = searchState.value(r1.h).value
         val hasZeroWidth = w == 0
         val hasZeroHeight = h == 0
-        val x2 = safeAdd(x1, if (hasZeroWidth && strict) 1 else max(w, 0))
-        val y2 = safeAdd(y1, if (hasZeroHeight && strict) 1 else max(h, 0))
+        val x2 = safeAdd(x1, if hasZeroWidth && strict then 1 else max(w, 0))
+        val y2 = safeAdd(y1, if hasZeroHeight && strict then 1 else max(h, 0))
         val r2 = new Rect2d(x1.toDouble, y1.toDouble, x2.toDouble, y2.toDouble)
         val entry = new RTreeEntry(i, hasZeroWidth, hasZeroHeight, r2)
         entry
@@ -115,12 +115,12 @@ final class Disjoint2
         val xOverlap = max(0, min(r1x2, r2x2) - max(r1x1, r2x1))
         val yOverlap = max(0, min(r1y2, r2y2) - max(r1y1, r2y1))
         val overlap: Long = safeMul(xOverlap.toLong, yOverlap.toLong)
-        if (strict &&
+        if strict &&
             overlap > 0 &&
             ((e1.hasZeroWidth && (r1x1 == r2x1 || r1x1 == r2x2)) ||
              (e2.hasZeroWidth && (r2x1 == r1x1 || r2x1 == r1x2)) ||
              (e1.hasZeroHeight && (r1y1 == r2y1 || r1y1 == r2y2)) ||
-             (e2.hasZeroHeight && (r2y1 == r1y1 || r2y1 == r1y2))))
+             (e2.hasZeroHeight && (r2y1 == r1y1 || r2y1 == r1y2))) then
         {
             // e1 and e2 are adjacent
             0

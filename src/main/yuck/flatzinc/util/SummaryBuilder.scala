@@ -108,16 +108,16 @@ final class SummaryBuilder {
                 "check-assignments-to-non-channel-variables" -> JsBoolean(cfg.checkAssignmentsToNonChannelVariables),
                 "delay-cycle-checking-until-initialization" -> JsBoolean(cfg.delayCycleCheckingUntilInitialization)
             )
-        if (cfg.annealingConfiguration.maybeRoundLimit.isDefined) {
+        if cfg.annealingConfiguration.maybeRoundLimit.isDefined then {
             cfgNode += "round-limit" -> JsNumber(cfg.annealingConfiguration.maybeRoundLimit.get)
         }
-        if (cfg.maybeRuntimeLimitInSeconds.isDefined) {
+        if cfg.maybeRuntimeLimitInSeconds.isDefined then {
             cfgNode += "runtime-limit-in-seconds" -> JsNumber(cfg.maybeRuntimeLimitInSeconds.get)
         }
-        if (cfg.maybeTargetObjectiveValue.isDefined) {
+        if cfg.maybeTargetObjectiveValue.isDefined then {
             cfgNode += "target-objective-value" -> JsNumber(cfg.maybeTargetObjectiveValue.get)
         }
-        if (cfg.maybeSpaceProfilingMode.isDefined) {
+        if cfg.maybeSpaceProfilingMode.isDefined then {
             cfgNode += "space-profiling-mode" -> JsString(cfg.maybeSpaceProfilingMode.get.toString)
         }
         rootNode +="solver-configuration" -> cfgNode
@@ -156,15 +156,15 @@ final class SummaryBuilder {
         addCompilerStatistics(compilerResult)
         val objectiveVariables = compilerResult.objective.objectiveVariables
         resultNode += "solved" -> JsBoolean(result.isSolution)
-        if (! result.isSolution) {
+        if ! result.isSolution then {
             val costVar = objectiveVariables(0).asInstanceOf[BooleanVariable]
             resultNode += "violation" -> JsNumber(result.bestProposal.value(costVar).violation)
         }
-        if (objectiveVariables.size > 1) {
+        if objectiveVariables.size > 1 then {
             objectiveVariables(1) match {
                 case objectiveVar: IntegerVariable =>
                     resultNode += "objective-value" -> JsNumber(result.bestProposal.value(objectiveVar).value)
-                    if (result.isOptimal) {
+                    if result.isOptimal then {
                         resultNode += "optimal" -> JsBoolean(true)
                     }
                 case _ =>
@@ -192,7 +192,7 @@ final class SummaryBuilder {
 
     def addSearchStatistics(monitor: LocalSearchStatisticsCollector): SummaryBuilder = {
         val statsNode =
-            if (monitor.wasSearchRequired) {
+            if monitor.wasSearchRequired then {
                 JsObjectBuilder(
                     "moves-per-second" -> JsNumber(monitor.movesPerSecond),
                     "consultations-per-second" -> JsNumber(monitor.consultationsPerSecond),
@@ -204,17 +204,17 @@ final class SummaryBuilder {
             } else {
                 JsObjectBuilder()
             }
-        if (monitor.maybeRuntimeToFirstSolutionInSeconds.isDefined) {
+        if monitor.maybeRuntimeToFirstSolutionInSeconds.isDefined then {
             statsNode += "runtime-to-first-solution-in-seconds" -> JsNumber(monitor.maybeRuntimeToFirstSolutionInSeconds.get)
         }
-        if (monitor.maybeRuntimeToBestSolutionInSeconds.isDefined) {
+        if monitor.maybeRuntimeToBestSolutionInSeconds.isDefined then {
             statsNode += "runtime-to-best-solution-in-seconds" -> JsNumber(monitor.maybeRuntimeToBestSolutionInSeconds.get)
         }
         statsNode += "runtime-in-seconds" -> JsNumber(monitor.runtimeInSeconds)
-        if (monitor.maybeArea.isDefined) {
+        if monitor.maybeArea.isDefined then {
             statsNode += "area" -> JsNumber(monitor.maybeArea.get)
         }
-        if (monitor.maybeObjectiveStepFunction.isDefined) {
+        if monitor.maybeObjectiveStepFunction.isDefined then {
             val array =
                 monitor.maybeObjectiveStepFunction.get.flatMap(
                     step => Vector(JsNumber(step.runtimeInMillis),
@@ -235,7 +235,7 @@ final class SummaryBuilder {
                 "commitment-effort-in-seconds" -> convertDuration(metrics.commitmentEffort),
                 "by-constraint" -> byConstraintNode
             )
-        if (metrics.maybePerformanceMetricsByGoalAndConstraint.isDefined) {
+        if metrics.maybePerformanceMetricsByGoalAndConstraint.isDefined then {
             val byGoalNode = metrics.maybePerformanceMetricsByGoalAndConstraint.get
                 .foldLeft(new JsObjectBuilder) {
                     case (builder, (goal, byConstraint)) =>
@@ -289,7 +289,7 @@ object SummaryBuilder {
         def apply(throwable: Throwable): JsObjectBuilder = {
             val builder = new JsObjectBuilder
             builder += "type" -> JsString(throwable.getClass.getName)
-            if (throwable.getMessage.ne(null) && ! throwable.getMessage.isEmpty) {
+            if throwable.getMessage.ne(null) && ! throwable.getMessage.isEmpty then {
                 builder += "message" -> JsString(throwable.getMessage)
             }
             builder

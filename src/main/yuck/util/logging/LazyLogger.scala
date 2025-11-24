@@ -50,7 +50,7 @@ final class LazyLogger(logger: Logger) {
     private val indents = new scala.collection.mutable.HashMap[Int, String]
     private def currentIndent(indentLevel: Int): String = synchronized {
         indents.getOrElse(indentLevel, {
-            val indent = if (indentLevel == 0) "" else currentIndent(indentLevel - 1) + this.indent
+            val indent = if indentLevel == 0 then "" else currentIndent(indentLevel - 1) + this.indent
             indents += indentLevel -> indent
             indent
         })
@@ -118,7 +118,7 @@ final class LazyLogger(logger: Logger) {
     // ConsoleHandler does not print anything when logging on level ALL!?
     // So we use level INFO.
     private def write(logLevel: LogLevel, msg: => String): Unit = {
-        if (thresholdLogLevel.intValue <= logLevel.intValue - currentLogLevelReduction) {
+        if thresholdLogLevel.intValue <= logLevel.intValue - currentLogLevelReduction then {
             yuck.util.arm.criticalSection(lock)(logger.log(Level.INFO, currentIndent(indentLevel.get) + msg))
         }
     }

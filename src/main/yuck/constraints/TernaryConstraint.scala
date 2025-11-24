@@ -29,19 +29,19 @@ trait ReifiedBinaryConstraintPropagator[LhsDomain <: AnyDomain, RhsDomain <: Any
         (dx0: LhsDomain, dy0: RhsDomain, dz0: BooleanDomain):
         (LhsDomain, RhsDomain, BooleanDomain) =
     {
-        if (dz0 == TrueDomain) {
+        if dz0 == TrueDomain then {
             val (dx1, dy1) = enforce(dx0, dy0)
             (dx1, dy1, dz0)
-        } else if (dz0 == FalseDomain) {
+        } else if dz0 == FalseDomain then {
             val (dx1, dy1) = prohibit(dx0, dy0)
             (dx1, dy1, dz0)
         } else {
             val (dx2, dy2) = enforce(dx0, dy0)
-            if (dx2.isEmpty || dy2.isEmpty) {
+            if dx2.isEmpty || dy2.isEmpty then {
                 (dx0, dy0, FalseDomain)
             } else {
                 val (dx3, dy3) = prohibit(dx0, dy0)
-                if (dx3.isEmpty || dy3.isEmpty) {
+                if dx3.isEmpty || dy3.isEmpty then {
                     (dx0, dy0, TrueDomain)
                 } else {
                     (dx0, dy0, dz0)

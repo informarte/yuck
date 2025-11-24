@@ -32,24 +32,24 @@ abstract class CircuitTracker
 
         pending ++= succ
         var x: IntegerVariable = null
-        while (! pending.isEmpty || ! path.isEmpty) {
-            if (path.isEmpty) {
+        while ! pending.isEmpty || ! path.isEmpty do {
+            if path.isEmpty then {
                 x = pending.head
                 pending -= x
                 path += x -> 0
             }
             val j = searchState.value(x).toInt - offset
-            if (j < 0 || j >= succ.size) {
+            if j < 0 || j >= succ.size then {
                 // handle invalid node reference
                 path.clear()
             } else {
                 val y = succ(j)
-                if (path.contains(y)) {
+                if path.contains(y) then {
                     // we found a cycle
                     cycleLengths += path.size - path(y)
                     path.clear()
                     pending -= y
-                } else if (pending.contains(y)) {
+                } else if pending.contains(y) then {
                     // y has not yet been visited, so extend path with y
                     path += y -> path.size
                     pending -= y
@@ -66,19 +66,20 @@ abstract class CircuitTracker
     }
 
     override def propagate() = {
-        if (costs.domain == TrueDomain) {
+        if costs.domain == TrueDomain then {
             val indexRange = IntegerRange(offset, offset + succ.size - 1)
             NoPropagationOccurred
                 .pruneDomains(
-                    for (i <- succ.indices.iterator) yield {
+                    for i <- succ.indices.iterator yield {
                         val a = IntegerValue(offset + i)
                         (succ(i), succ(i).domain.intersect(indexRange).diff(IntegerRange(a, a)))
                     }
                 )
                 .pruneDomains(
-                    for (x <- succ.iterator if x.domain.isSingleton;
-                         y <- succ.iterator if y != x && y.domain.contains(x.domain.singleValue))
-                        yield (y, y.domain.diff(x.domain))
+                    for x <- succ.iterator if x.domain.isSingleton;
+                        y <- succ.iterator if y != x && y.domain.contains(x.domain.singleValue)
+                    yield
+                        (y, y.domain.diff(x.domain))
                 )
         } else {
             NoPropagationOccurred
@@ -111,12 +112,12 @@ object CircuitTracker {
         java.util.List[java.util.List[IntegerVariable]] =
     {
         val graph = new Graph(classOf[DefaultEdge])
-        for (x <- succ) {
+        for x <- succ do {
             graph.addVertex(x)
         }
-        for (x <- succ) {
+        for x <- succ do {
             val i = searchState.value(x).toInt - offset
-            if (i >= 0 && i < succ.size) {
+            if i >= 0 && i < succ.size then {
                 graph.addEdge(x, succ(i))
             }
         }

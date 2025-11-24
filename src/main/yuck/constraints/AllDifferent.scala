@@ -36,11 +36,12 @@ final class AllDifferent
         else "all_different_except([%s], {%s}, %s)".format(xs.mkString(", "), exceptedValues.mkString(", "), result)
 
     override def propagate() = {
-        if (result.domain == TrueDomain && valueTraits.domainCapabilities.diff) {
+        if result.domain == TrueDomain && valueTraits.domainCapabilities.diff then {
             NoPropagationOccurred.pruneDomains(
-                for (x <- xs.iterator if x.domain.isSingleton && ! exceptedValues.contains(x.domain.singleValue);
-                     y <- xs.iterator if y != x && y.domain.contains(x.domain.singleValue))
-                yield (y, y.domain.diff(x.domain))
+                for x <- xs.iterator if x.domain.isSingleton && ! exceptedValues.contains(x.domain.singleValue)
+                    y <- xs.iterator if y != x && y.domain.contains(x.domain.singleValue)
+                yield
+                    (y, y.domain.diff(x.domain))
             )
         } else {
             NoPropagationOccurred
@@ -49,9 +50,9 @@ final class AllDifferent
 
     final override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) = {
         var violation = xs.size - valueRegistry.size
-        for (a <- exceptedValues) {
+        for a <- exceptedValues do {
             val maybeCount = valueRegistry.get(a)
-            if (maybeCount.isDefined) {
+            if maybeCount.isDefined then {
                 violation -= maybeCount.get - 1
             }
         }
@@ -80,7 +81,7 @@ final class AllDifferent
         maybeFairVariableChoiceRate: Option[Probability]):
         Option[Neighbourhood] =
     {
-        if (isCandidateForImplicitSolving(space)) {
+        if isCandidateForImplicitSolving(space) then {
             abstract class Vertex
             case class VariableVertex(x: Variable[V]) extends Vertex
             case class ValueVertex(a: V) extends Vertex
@@ -95,18 +96,18 @@ final class AllDifferent
             val valueVertices = as.iterator.filterNot(exceptedValues.contains).map(a => (a, ValueVertex(a))).toMap
             val exceptedValueVertices = new mutable.ArrayBuffer[Vertex]
             logger.withTimedLogScope("Building graph") {
-                for (v <- variableVertices.values) {
+                for v <- variableVertices.values do {
                     graph.addVertex(v)
                 }
-                for (v <- valueVertices.values) {
+                for v <- valueVertices.values do {
                     graph.addVertex(v)
                 }
-                for (x <- xs) {
-                    for (a <- x.domain.values) {
+                for x <- xs do {
+                    for a <- x.domain.values do {
                         val e = Edge(x, a)
-                        if (exceptedValues.isEmpty) {
+                        if exceptedValues.isEmpty then {
                             graph.addEdge(variableVertices(x), valueVertices(a), e)
-                        } else if (exceptedValues.contains(a)) {
+                        } else if exceptedValues.contains(a) then {
                             val v = ExceptedValueVertex(x, a)
                             graph.addVertex(v)
                             graph.addEdge(variableVertices(x), v, e)
@@ -134,11 +135,11 @@ final class AllDifferent
                         valueVertices.values.concat(exceptedValueVertices).toSet.asJava)
                 matchingAlgo.getMatching
             }
-            if (matching.getEdges.size < xs.size) {
+            if matching.getEdges.size < xs.size then {
                 logger.log("Unsatisfiable")
                 None
             } else {
-                for (Edge(x, a) <- matching.getEdges.asScala) {
+                for Edge(x, a) <- matching.getEdges.asScala do {
                     space.setValue(x, a)
                 }
                 space.setValue(result, True)

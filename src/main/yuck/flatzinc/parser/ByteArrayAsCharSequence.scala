@@ -8,7 +8,7 @@ package yuck.flatzinc.parser
  * @param end is the end index of the slice (0-based, exclusive).
  */
 final class ByteArrayAsCharSequence(bytes: Array[Byte], start: Int, end: Int) extends CharSequence {
-    if (start < 0 || end < start || end > bytes.length) {
+    if start < 0 || end < start || end > bytes.length then {
         throw new IndexOutOfBoundsException
     }
     override def toString =
@@ -17,7 +17,8 @@ final class ByteArrayAsCharSequence(bytes: Array[Byte], start: Int, end: Int) ex
         end - start
     override def charAt(index: Int) = {
         val absoluteIndex = start + index
-        if (absoluteIndex >= start || absoluteIndex < end) bytes(absoluteIndex).toChar
+        if absoluteIndex >= start || absoluteIndex < end
+        then bytes(absoluteIndex).toChar
         else throw new IndexOutOfBoundsException
     }
     override def subSequence(start: Int, end: Int) =

@@ -49,16 +49,16 @@ final class BinPacking
 
     override def initialize(now: SearchState) = {
         currentLoads.clear()
-        for (i <- loads.keysIterator) {
+        for i <- loads.keysIterator do {
             currentLoads(i) = valueTraits.zero
         }
-        for (item <- items) {
+        for item <- items do {
             val i = now.value(item.bin)
-            if (currentLoads.contains(i)) {
+            if currentLoads.contains(i) then {
                 currentLoads(i) += item.weight
             }
         }
-        for (i <- loads.keysIterator) {
+        for i <- loads.keysIterator do {
             val effect = effects(i)
             effect.a = currentLoads(i)
         }
@@ -67,25 +67,25 @@ final class BinPacking
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
        loadDeltas.clear()
-       for (x <- move) {
+       for x <- move do {
            val item = x2Item(x)
            val j = before.value(item.bin)
            val k = after.value(item.bin)
-           if (effects.contains(j)) {
+           if effects.contains(j) then {
                loadDeltas += j -> (loadDeltas.getOrElse(j, valueTraits.zero) - item.weight)
            }
-           if (effects.contains(k)) {
+           if effects.contains(k) then {
                loadDeltas += k -> (loadDeltas.getOrElse(k, valueTraits.zero) + item.weight)
            }
        }
-       for ((j, loadDelta) <- loadDeltas) {
+       for (j, loadDelta) <- loadDeltas do {
            effects(j).a = currentLoads(j) + loadDelta
        }
        loadDeltas.view.keys.map(effects(_))
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
-       for ((j, loadDelta) <- loadDeltas) {
+       for (j, loadDelta) <- loadDeltas do {
            currentLoads(j) += loadDelta
        }
        loadDeltas.view.keys.map(effects(_))

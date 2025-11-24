@@ -19,7 +19,7 @@ final class SatisfactionObjectiveTest extends UnitTest {
         assertEq(objective.targetCosts, True)
         assertEq(objective.primitiveObjectives, Seq(objective))
         assertEq(objective.objectiveVariables, Seq(x))
-        for (a <- x.domain.values) {
+        for a <- x.domain.values do {
             space.setValue(x, a)
             assertEq(objective.costs(now), a)
             val isSolution = a == True

@@ -22,17 +22,17 @@ abstract class Variable
      * when the variable's domain became empty.
      */
     final def pruneDomain(restriction: Domain[V]): Boolean = {
-        if (restriction != domain) {
+        if restriction != domain then {
             // We try to avoid useless and expensive intersections.
-            if (domain.isSubsetOf(restriction)) {
+            if domain.isSubsetOf(restriction) then {
                 false
             } else {
-                if (restriction.isSubsetOf(domain)) {
+                if restriction.isSubsetOf(domain) then {
                     setDomain(restriction)
                 } else {
                     setDomain(domain.intersect(restriction))
                 }
-                if (domain.isEmpty) {
+                if domain.isEmpty then {
                     throw new DomainWipeOutException(this)
                 }
                 true
@@ -50,7 +50,7 @@ abstract class Variable
      * Throws when the new domain is not a superset of the current domain.
      */
     final def relaxDomain(relaxation: Domain[V]): Boolean = {
-        if (relaxation != domain) {
+        if relaxation != domain then {
             require(
                 domain.isSubsetOf(relaxation),
                 "%s is not a superset of %s".format(relaxation, domain))
@@ -75,7 +75,7 @@ abstract class Variable
     val reuseableEffect = new ReusableMoveEffectWithFixedVariable[V](this)
 
     final override def randomMoveEffect(randomGenerator: RandomGenerator) = {
-        reuseableEffect.a = if (domain.isSingleton) domain.singleValue else domain.randomValue(randomGenerator)
+        reuseableEffect.a = if domain.isSingleton then domain.singleValue else domain.randomValue(randomGenerator)
         reuseableEffect
     }
 

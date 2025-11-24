@@ -32,9 +32,9 @@ final class AdaptiveCoolingSchedule(
 
     override def nextRound(roundLog: RoundLog) = {
         require(! isFrozen)
-        if (roundLog.roundWasFutile) {
+        if roundLog.roundWasFutile then {
             numberOfSuccessiveFutileRounds += 1
-            if (roundLog.uphillAcceptanceRatio <= minimumUphillAcceptanceRatio) {
+            if roundLog.uphillAcceptanceRatio <= minimumUphillAcceptanceRatio then {
                 numberOfSuccessiveFutileRoundsInAttractionBasin += 1
             } else {
                 numberOfSuccessiveFutileRoundsInAttractionBasin = 0
@@ -43,8 +43,8 @@ final class AdaptiveCoolingSchedule(
             numberOfSuccessiveFutileRounds = 0
             numberOfSuccessiveFutileRoundsInAttractionBasin = 0
         }
-        if (! isFrozen) {
-            if (numberOfSuccessiveFutileRounds > 0) {
+        if ! isFrozen then {
+            if numberOfSuccessiveFutileRounds > 0 then {
                 currentTemperature *= Math.pow(coolingRate, numberOfSuccessiveFutileRounds)
             }
         }

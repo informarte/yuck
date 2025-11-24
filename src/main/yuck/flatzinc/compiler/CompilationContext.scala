@@ -35,7 +35,7 @@ final class CompilationContext(
     var maybeNeighbourhood: Option[Neighbourhood] = null
 
     def post(constraint: yuck.core.Constraint): CompilationContext = {
-        if (cfg.checkIncrementalCostUpdate(constraint)) {
+        if cfg.checkIncrementalCostUpdate(constraint) then {
             space.post(new CheckedConstraint(constraint))
         } else {
             space.post(constraint)

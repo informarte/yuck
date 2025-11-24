@@ -66,7 +66,7 @@ case object NoPropagationOccurred extends PropagationEffects {
     override def rescheduleStep = false
     override def pruneDomain[V <: Value[V]](x: Variable[V], dx: Domain[V]) = {
         val pruned = x.pruneDomain(dx)
-        if (pruned) {
+        if pruned then {
             val xs = new mutable.HashSet[AnyVariable]
             xs += x
             ReschedulePropagationStep(xs)
@@ -87,7 +87,7 @@ final case class ReschedulePropagationStep
     override def rescheduleStep = true
     override def pruneDomain[V <: Value[V]](x: Variable[V], dx: Domain[V]) = {
         val pruned = x.pruneDomain(dx)
-        if (pruned) {
+        if pruned then {
             affectedVariables += x
         }
         this

@@ -39,8 +39,8 @@ final class FlatZincCompiler
             }
         }
 
-        val vars = (for ((key, x) <- cc.vars) yield key.toString -> x).toMap
-        val arrays = (for ((key, array) <- cc.arrays) yield key.toString -> array).toMap
+        val vars = (for (key, x) <- cc.vars yield key.toString -> x).toMap
+        val arrays = (for (key, array) <- cc.arrays yield key.toString -> array).toMap
         new FlatZincCompilerResult(
             cc.ast, cc.space, vars, arrays, cc.objective, cc.maybeNeighbourhood, ! cc.warmStartAssignment.isEmpty,
             runtime)
@@ -63,7 +63,7 @@ final class FlatZincCompiler
         randomGenerator.nextGen()
         run(new ObjectiveFactory(cc))
         randomGenerator.nextGen()
-        if (cfg.runPresolver) {
+        if cfg.runPresolver then {
             run(new Presolver(cc))
         }
         val objectiveIsSuitableForFj = cc.objective match {
@@ -76,21 +76,21 @@ final class FlatZincCompiler
                 }
             case _ => false
         }
-        if (cfg.maybePreferredSolvingMethod.getOrElse(SolvingMethod.SimulatedAnnealing) == SolvingMethod.SimulatedAnnealing ||
+        if cfg.maybePreferredSolvingMethod.getOrElse(SolvingMethod.SimulatedAnnealing) == SolvingMethod.SimulatedAnnealing ||
             ! objectiveIsSuitableForFj ||
             cc.space.searchVariables.iterator.exists(_.isInstanceOf[IntegerSetVariable]) ||
             // Delivery requires the circuit to be maintained by a neighbourhood.
             cc.costVars.exists(costs =>
-                cc.space.maybeDefiningConstraint(costs).map(_.isInstanceOf[Delivery[?]]).getOrElse(false)))
+                cc.space.maybeDefiningConstraint(costs).map(_.isInstanceOf[Delivery[?]]).getOrElse(false)) then
         {
             run(new AnnealingNeighbourhoodFactory(cc, randomGenerator.nextGen()))
         } else {
             run(new FeasibilityJumpNeighbourhoodFactory(cc, randomGenerator.nextGen()))
         }
-        if (cfg.pruneConstraintNetwork) {
+        if cfg.pruneConstraintNetwork then {
             run(new ConstraintNetworkPruner(cc))
         }
-        if (cfg.optimizeArrayAccess) {
+        if cfg.optimizeArrayAccess then {
             run(new ArrayAccessOptimizer(cc))
         }
         run(new WarmStartAnnotationParser(cc))
@@ -103,7 +103,7 @@ final class FlatZincCompiler
 
     // Use the optional root log level to focus on a particular compilation phase.
     private def run(phase: CompilationPhase, rootLogLevel: yuck.util.logging.LogLevel = yuck.util.logging.LogLevel.FineLogLevel): Unit = {
-        if (sigint.isSet) {
+        if sigint.isSet then {
             throw new FlatZincCompilerInterruptedException
         }
         logger.withRootLogLevel(rootLogLevel) {
@@ -114,18 +114,18 @@ final class FlatZincCompiler
     }
 
     private def checkSearchVariableDomains(cc: CompilationContext): Unit = {
-        for (x <- cc.space.searchVariables) {
-            if (! x.domain.isFinite) {
+        for x <- cc.space.searchVariables do {
+            if ! x.domain.isFinite then {
                 throw new VariableWithInfiniteDomainException(x)
             }
         }
     }
 
     private def assignValuesToDanglingVariables(cc: CompilationContext): Unit = {
-        for (x <- cc.vars.values
-             if cc.space.isDanglingVariable(x) && ! cc.space.searchState.hasValue(x))
+        for x <- cc.vars.values
+             if cc.space.isDanglingVariable(x) && ! cc.space.searchState.hasValue(x) do
         {
-            if (! x.domain.isFinite) {
+            if ! x.domain.isFinite then {
                 throw new VariableWithInfiniteDomainException(x)
             }
             cc.logger.logg("Assigning random value to dangling variable %s".format(x))

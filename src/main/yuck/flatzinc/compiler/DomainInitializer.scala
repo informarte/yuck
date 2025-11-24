@@ -21,11 +21,9 @@ final class DomainInitializer
         override def compare(a: Expr, b: Expr) = {
             val aWasIntroduced = a.toString.startsWith("X_INTRODUCED")
             val bWasIntroduced = b.toString.startsWith("X_INTRODUCED")
-            if (aWasIntroduced) {
-                if (bWasIntroduced) a.toString.compare(b.toString) else 1
-            } else {
-                if (bWasIntroduced) -1 else a.toString.compare(b.toString)
-            }
+            if aWasIntroduced
+            then if bWasIntroduced then a.toString.compare(b.toString) else 1
+            else if bWasIntroduced then -1 else a.toString.compare(b.toString)
         }
     }
 
@@ -55,8 +53,8 @@ final class DomainInitializer
         decl.valueType match {
             case ArrayType(Some(IntRange(1, n)), baseType) =>
                 val domain = createDomain(baseType)
-                for (idx <- 1 to n.toInt) {
-                    if (cc.sigint.isSet) {
+                for idx <- 1 to n.toInt do {
+                    if cc.sigint.isSet then {
                         throw new FlatZincCompilerInterruptedException
                     }
                     val a = ArrayAccess(decl.id, IntConst(idx))
@@ -64,7 +62,7 @@ final class DomainInitializer
                     cc.domains += a -> domain
                 }
             case _ =>
-                if (cc.sigint.isSet) {
+                if cc.sigint.isSet then {
                     throw new FlatZincCompilerInterruptedException
                 }
                 val domain = createDomain(decl.valueType)
@@ -85,21 +83,21 @@ final class DomainInitializer
                 decl.optionalValue match {
                     case Some(Term(rhsId, Nil)) =>
                         val lhsId = decl.id
-                        for (idx <- 1 to n.toInt) {
+                        for idx <- 1 to n.toInt do {
                             val a = ArrayAccess(lhsId, IntConst(idx))
                             val b = ArrayAccess(rhsId, IntConst(idx))
                             propagateAssignment(a, b)
                         }
                     case Some(ArrayConst(elems)) =>
                         assert(elems.size == n)
-                        for ((idx, b) <- (1 to n.toInt).zip(elems)) {
+                        for (idx, b) <- (1 to n.toInt).zip(elems) do {
                             val a = ArrayAccess(decl.id, IntConst(idx))
                             propagateAssignment(a, b)
                         }
                     case _ =>
                 }
             case _ =>
-                if (decl.optionalValue.isDefined) {
+                if decl.optionalValue.isDefined then {
                     val a = Term(decl.id, Nil)
                     val b = decl.optionalValue.get
                     propagateAssignment(a, b)
@@ -108,7 +106,7 @@ final class DomainInitializer
     }
 
     private def propagateAssignment(a: Expr, b: Expr): Unit = {
-        if (cc.sigint.isSet) {
+        if cc.sigint.isSet then {
             throw new FlatZincCompilerInterruptedException
         }
         val exprType = getExprType(a)
@@ -126,11 +124,11 @@ final class DomainInitializer
         (using valueTraits: ValueTraits[V]):
         Unit =
     {
-        if (b.isConst) {
+        if b.isConst then {
             val da1 = domainFactory(a)
             val da2 = da1.intersect(domainFactory(b))
-            if (da1 != da2) {
-                if (cc.equalVars.contains(a)) {
+            if da1 != da2 then {
+                if cc.equalVars.contains(a) then {
                     cc.equalVars(a).foreach(b => reduceDomain(b, da2))
                 } else {
                     reduceDomain(a, da2)
@@ -145,7 +143,7 @@ final class DomainInitializer
     }
 
     private def propagateConstraints(): Unit = {
-        for (constraint <- cc.ast.constraints) {
+        for constraint <- cc.ast.constraints do {
             constraint match {
                 case Constraint("bool_eq", _, _) =>
                     propagateEqualityConstraint(constraint, boolDomain)
@@ -161,7 +159,7 @@ final class DomainInitializer
                     propagateElementConstraint(constraint, intSetDomain)
                 case Constraint("yuck_int_domain", Seq(as, b), _) =>
                     val d = intDomain(b)
-                    for (a <- getArrayElems(as)) {
+                    for a <- getArrayElems(as) do {
                         reduceDomain(a, intDomain(a).intersect(d))
                     }
                     cc.impliedConstraints += constraint
@@ -177,9 +175,9 @@ final class DomainInitializer
         Unit =
     {
         val Seq(a, b) = constraint.params: @unchecked
-        if (! a.isConst) {
+        if ! a.isConst then {
             val d = domain(a).intersect(domain(b))
-            if (b.isConst) {
+            if b.isConst then {
                 propagateEquality(a, d)
             } else {
                 propagateEquality(a, b, d)
@@ -195,12 +193,13 @@ final class DomainInitializer
         Unit =
     {
         val Seq(IntConst(offset), b, as, c) =
-            if (constraint.params.size == 4) constraint.params: @unchecked
+            if constraint.params.size == 4
+            then constraint.params: @unchecked
             else IntConst(1) +: constraint.params: @unchecked
-        if (b.isConst && ! c.isConst) {
+        if b.isConst && ! c.isConst then {
             val IntConst(i) = b: @unchecked
             val a = getArrayElems(as)(i.toInt - offset.toInt)
-            if (! a.isConst) {
+            if ! a.isConst then {
                 propagateEquality(a, c, domain(a).intersect(domain(c)))
                 cc.impliedConstraints += constraint
             }
@@ -213,19 +212,19 @@ final class DomainInitializer
         (using valueTraits: ValueTraits[V]):
         Unit =
     {
-        if (cc.sigint.isSet) {
+        if cc.sigint.isSet then {
             throw new FlatZincCompilerInterruptedException
         }
         cc.logger.log("%s = %s".format(a, b))
         val e = cc.equalVars.getOrElseUpdate(a, mutable.TreeSet.from(List(a))(using ProblemVariablesFirstOrdering))
         val f = cc.equalVars.getOrElseUpdate(b, mutable.TreeSet.from(List(b))(using ProblemVariablesFirstOrdering))
-        if (cc.domains(a) != d) {
+        if cc.domains(a) != d then {
             e.foreach(a => reduceDomain(a, d))
         }
-        if (cc.domains(b) != d) {
+        if cc.domains(b) != d then {
             f.foreach(a => reduceDomain(a, d))
         }
-        if (e.size > f.size) {
+        if e.size > f.size then {
             e ++= f
             f.foreach(a => cc.equalVars += a -> e)
         } else {
@@ -240,12 +239,12 @@ final class DomainInitializer
         (using valueTraits: ValueTraits[V]):
         Unit =
     {
-        if (cc.sigint.isSet) {
+        if cc.sigint.isSet then {
             throw new FlatZincCompilerInterruptedException
         }
         cc.logger.log("%s = %s".format(a, d))
         val e = cc.equalVars(a)
-        if (cc.domains(a) != d) {
+        if cc.domains(a) != d then {
             e.foreach(a => reduceDomain(a, d))
         }
     }
@@ -256,10 +255,10 @@ final class DomainInitializer
         (using valueTraits: ValueTraits[V]):
         Unit =
     {
-        if (cc.sigint.isSet) {
+        if cc.sigint.isSet then {
             throw new FlatZincCompilerInterruptedException
         }
-        if (d.isEmpty) {
+        if d.isEmpty then {
             throw new yuck.flatzinc.compiler.DomainWipeOutException(a)
         }
         assert(d.isSubsetOf(valueTraits.safeDowncast(cc.domains(a))))
@@ -291,11 +290,11 @@ final class DomainInitializer
         case IntSetType(None) => CompleteIntegerSetDomain
         case IntSetType(Some(IntRange(lb, ub))) =>
             val d0 = IntegerRange(lb, ub)
-            val d = if (d0.isSubsetOf(SixtyFourBitSet.ValueRange)) SixtyFourBitSet(lb, ub) else d0
+            val d = if d0.isSubsetOf(SixtyFourBitSet.ValueRange) then SixtyFourBitSet(lb, ub) else d0
             new IntegerPowersetDomain(d)
         case IntSetType(Some(IntSet(set))) =>
             val d0 = IntegerDomain(set)
-            val d = if (d0.isSubsetOf(SixtyFourBitSet.ValueRange)) SixtyFourBitSet(d0) else d0
+            val d = if d0.isSubsetOf(SixtyFourBitSet.ValueRange) then SixtyFourBitSet(d0) else d0
             new IntegerPowersetDomain(d)
         case other => throw new UnsupportedFlatZincTypeException(other)
     }
@@ -312,15 +311,15 @@ final class DomainInitializer
                 case d: SingletonIntegerSetDomain => ! d.base.isInstanceOf[SixtyFourBitSet]
                 case d: IntegerPowersetDomain => ! d.base.isInstanceOf[SixtyFourBitSet]
             })
-        if (nonBitSetDomainExists) {
-            for (expr <- keysToIntegerSetDomains) cc.domains(expr) match {
+        if nonBitSetDomainExists then {
+            for expr <- keysToIntegerSetDomains do cc.domains(expr) match {
                 case _: EmptyIntegerSetDomain.type =>
                 case d: SingletonIntegerSetDomain =>
-                    if (d.base.isInstanceOf[SixtyFourBitSet]) {
+                    if d.base.isInstanceOf[SixtyFourBitSet] then {
                          cc.domains.put(expr, new SingletonIntegerSetDomain(IntegerDomain(d.base.values)))
                     }
                 case d: IntegerPowersetDomain =>
-                    if (d.base.isInstanceOf[SixtyFourBitSet]) {
+                    if d.base.isInstanceOf[SixtyFourBitSet] then {
                          cc.domains.put(expr, new IntegerPowersetDomain(IntegerDomain(d.base.values)))
                     }
             }

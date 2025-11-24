@@ -74,10 +74,10 @@ class ZincBasedTest extends IntegrationTest {
         summaryBuilder.addJavaEnv()
         summaryBuilder.addYuckVersion()
         val suitePath = task.suitePath
-        val suiteName = if (task.suiteName.isEmpty) new java.io.File(suitePath).getName else task.suiteName
+        val suiteName = if task.suiteName.isEmpty then new java.io.File(suitePath).getName else task.suiteName
         val problemName = task.problemName
-        val modelName = if (task.modelName.isEmpty) problemName else task.modelName
-        val instanceName = if (task.instanceName.isEmpty) modelName else task.instanceName
+        val modelName = if task.modelName.isEmpty then problemName else task.modelName
+        val instanceName = if task.instanceName.isEmpty then modelName else task.instanceName
         val outputDirectoryPath0 = task.directoryLayout match {
             case MiniZincExamplesLayout =>
                 "tmp/%s/%s".format (suiteName, problemName)
@@ -93,7 +93,7 @@ class ZincBasedTest extends IntegrationTest {
         new java.io.File(outputDirectoryPath).mkdirs
         val logFilePath = "%s/yuck.log".format(outputDirectoryPath)
         val summaryFilePath = "%s/yuck.json".format(outputDirectoryPath)
-        if (task.reusePreviousTestResult && new java.io.File(summaryFilePath).exists() && ! task.throwWhenUnsolved) {
+        if task.reusePreviousTestResult && new java.io.File(summaryFilePath).exists() && ! task.throwWhenUnsolved then {
             None
         } else scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set()})) {
             val logFileHandler = new java.util.logging.FileHandler(logFilePath)
@@ -141,11 +141,11 @@ class ZincBasedTest extends IntegrationTest {
         val statisticsCollector = new LocalSearchStatisticsCollector(logger)
         monitors += statisticsCollector
         monitors += new SolverStateTracker
-        if (task.sourceFormat == MiniZinc && task.verificationFrequency == VerifyEverySolution) {
+        if task.sourceFormat == MiniZinc && task.verificationFrequency == VerifyEverySolution then {
             monitors += new CorrectnessSentinel(task, spoilResult, logger)
         }
         val sharedBoundHolder = new AtomicReference[Costs]
-        if (cfg.shareBounds) {
+        if cfg.shareBounds then {
             monitors += new SharedBoundMaintainer(sharedBoundHolder)
         }
         monitors ++= task.additionalMonitors
@@ -174,18 +174,18 @@ class ZincBasedTest extends IntegrationTest {
         summaryBuilder.addYuckModelStatistics(result.space)
         summaryBuilder.addResult(result)
         summaryBuilder.addSearchStatistics(statisticsCollector)
-        if (cfg.maybeSpaceProfilingMode.isDefined) {
+        if cfg.maybeSpaceProfilingMode.isDefined then {
             summaryBuilder.addSpacePerformanceMetrics(result.space.performanceMetricsBuilder.build())
         }
-        if (task.createDotFile) {
+        if task.createDotFile then {
             logger.withTimedLogScope("Exporting constraint network to a DOT file") {
                 val dotFilePath = "%s/yuck.dot".format(outputDirectoryPath)
                 val dotWriter = new java.io.FileWriter(dotFilePath)
                 new DotExporter(result.space, dotWriter).run()
             }
         }
-        if (result.isSolution) {
-            if (task.sourceFormat == MiniZinc && task.verificationFrequency == VerifyOnlyLastSolution) {
+        if result.isSolution then {
+            if task.sourceFormat == MiniZinc && task.verificationFrequency == VerifyOnlyLastSolution then {
                 verifySolution(task, result)
             }
         } else {
@@ -198,7 +198,7 @@ class ZincBasedTest extends IntegrationTest {
                 "No solution found, quality of best proposal was %s".format(result.costsOfBestProposal),
                 ! task.throwWhenUnsolved)
         }
-        if (task.sourceFormat == MiniZinc && ! task.keepFlatZincFile) {
+        if task.sourceFormat == MiniZinc && ! task.keepFlatZincFile then {
             new java.io.File(fznFilePath).delete()
         }
         result
@@ -215,7 +215,7 @@ class ZincBasedTest extends IntegrationTest {
                 ("%s/%s/%s.mzn".format(task.suitePath, task.problemName, task.modelName), {
                     val dznFilePath = "%s/%s/%s.dzn".format(task.suitePath, task.problemName, task.instanceName)
                     val jsonFilePath = "%s/%s/%s.json".format(task.suitePath, task.problemName, task.instanceName)
-                    if (new java.io.File(dznFilePath).exists()) dznFilePath else jsonFilePath
+                    if new java.io.File(dznFilePath).exists() then dznFilePath else jsonFilePath
                 })
             case NonStandardMiniZincBenchmarksLayout =>
                 ("%s/%s/%s.mzn".format(task.suitePath, task.problemName, task.instanceName), "")
@@ -227,18 +227,18 @@ class ZincBasedTest extends IntegrationTest {
             "--solver", "org.minizinc.mzn-fzn",
             "-I", "resources/mzn/lib/yuck",
             "--output-fzn-to-file", fznFilePath)
-        if (task.miniZincCompilerRenamesVariables) {
+        if task.miniZincCompilerRenamesVariables then {
             miniZincCommand ++= List(
                 "--output-mode", "dzn",
                 "--output-ozn-to-file", oznFilePath)
         } else {
             miniZincCommand += "--no-output-ozn"
         }
-        for ((key, value) <- task.dataAssignments) {
+        for (key, value) <- task.dataAssignments do {
             miniZincCommand ++= List("-D", "%s=%s".format(key, value))
         }
         miniZincCommand += mznFilePath
-        if (! dataFilePath.isEmpty) {
+        if ! dataFilePath.isEmpty then {
             miniZincCommand += dataFilePath
         }
         val (outputLines, _) =
@@ -273,7 +273,7 @@ class ZincBasedTest extends IntegrationTest {
         logger.withTimedLogScope("Verifying solution") {
             logger.withRootLogLevel(FineLogLevel) {
                 val verifier = new MiniZincSolutionVerifier(task, spoilResult(result), logger)
-                if (! verifier.call()) {
+                if ! verifier.call() then {
                     throw new SolutionNotVerifiedException
                 }
             }
@@ -296,10 +296,10 @@ class ZincBasedTest extends IntegrationTest {
                 "instance" -> JsString(task.instanceName),
                 "problem-type" -> JsString(problemType)
             )
-            if (task.maybeOptimum.isDefined) {
+            if task.maybeOptimum.isDefined then {
                 taskNode += "optimum" -> JsNumber(task.maybeOptimum.get)
             }
-            if (task.maybeHighScore.isDefined) {
+            if task.maybeHighScore.isDefined then {
                 taskNode += "high-score" -> JsNumber(task.maybeHighScore.get)
             }
             summaryBuilder.extendRoot("task", taskNode)
@@ -309,7 +309,7 @@ class ZincBasedTest extends IntegrationTest {
             // MiniZinc to FlatZinc converter, version 2.3.1, build 70205949
             val pattern = java.util.regex.Pattern.compile(".*, version ([\\.\\d]+), build (\\d+)")
             val matcher = pattern.matcher(versionInfo)
-            if (matcher.matches) {
+            if matcher.matches then {
                 summaryBuilder.extendEnv(
                     "minizinc",
                     JsObjectBuilder(
@@ -328,7 +328,7 @@ class ZincBasedTest extends IntegrationTest {
         val costVar = compilerResult.objective.objectiveVariables(0).asInstanceOf[BooleanVariable]
         result.space.definingConstraint(costVar) match {
             case sum: yuck.constraints.Conjunction =>
-                for (x <- sum.xs if result.space.searchState.value(x) > True) {
+                for x <- sum.xs if result.space.searchState.value(x) > True do {
                     logViolatedConstraints(result, x, visited)
                 }
             case _ =>
@@ -339,17 +339,17 @@ class ZincBasedTest extends IntegrationTest {
         result: Result, x: AnyVariable, visited: mutable.Set[AnyVariable]): Unit =
     {
         val a = result.bestProposal.value(x)
-        if (! visited.contains(x)) {
+        if ! visited.contains(x) then {
             visited += x
             val maybeConstraint = result.space.maybeDefiningConstraint(x)
-            if (maybeConstraint.isDefined) {
+            if maybeConstraint.isDefined then {
                 val constraint = maybeConstraint.get
                 logger.withLogScope("%s = %s computed by %s [%s]".format(x, a, constraint, constraint.maybeGoal)) {
-                    for (x <- constraint.inVariables) {
+                    for x <- constraint.inVariables do {
                         logViolatedConstraints(result, x, visited)
                     }
                 }
-             } else if (! result.space.isProblemParameter(x)) {
+             } else if ! result.space.isProblemParameter(x) then {
                 logger.logg("%s = %s".format(x, a))
             }
         }
@@ -386,6 +386,6 @@ class ZincBasedTest extends IntegrationTest {
 
     @tailrec
     private def findUltimateCause(throwable: Throwable): Throwable =
-        if (throwable.getCause.eq(null)) throwable else findUltimateCause(throwable.getCause)
+        if throwable.getCause.eq(null) then throwable else findUltimateCause(throwable.getCause)
 
 }

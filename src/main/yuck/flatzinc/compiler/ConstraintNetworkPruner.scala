@@ -18,13 +18,13 @@ final class ConstraintNetworkPruner
 
     private def findOutputVariables: Set[AnyVariable] = {
         val result = new mutable.HashSet[AnyVariable]
-        for (decl <- cc.ast.varDecls) {
-            for (annotation <- decl.annotations) {
+        for decl <- cc.ast.varDecls do {
+            for annotation <- decl.annotations do {
                 annotation match {
                     case Annotation(Term("output_var", _)) =>
                         result.add(compileAnyExpr(Term(decl.id, Nil)))
                     case Annotation(Term("output_array", _)) =>
-                        for (x <- compileAnyArray(Term(decl.id, Nil))) {
+                        for x <- compileAnyArray(Term(decl.id, Nil)) do {
                             result.add(x)
                         }
                     case _ =>

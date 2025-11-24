@@ -27,7 +27,7 @@ abstract class SearchState extends mutable.Cloneable[SearchState] {
      * Returns None if the given variable x has no value assignment;
      * otherwise returns Some(a) where a is the value assigned to x.
      */
-    def maybeValue(x: AnyVariable): Option[AnyValue] = if (hasValue(x)) Some(value(x)) else None
+    def maybeValue(x: AnyVariable): Option[AnyValue] = if hasValue(x) then Some(value(x)) else None
 
     /**
      * Returns the value assigned to the given variable.

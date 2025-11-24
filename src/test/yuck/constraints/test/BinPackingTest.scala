@@ -17,15 +17,16 @@ final class BinPackingTest extends UnitTest with ConstraintTestTooling {
     // We start with 1 because we want to test the handling of a bin range that does not start at 0.
     private val binDomain = IntegerRange(1, 3)
     private val items =
-        (for (i <- 1 to 5) yield {
-            val bin = new IntegerVariable(space.nextVariableId(), "bin%d".format(i), binDomain)
-            i -> new BinPackingItem(bin, IntegerValue(i))
-        })
-        .to(TreeMap)
+        (1 to 5).iterator
+            .map(i => {
+                val bin = new IntegerVariable(space.nextVariableId(), "bin%d".format(i), binDomain)
+                i -> new BinPackingItem(bin, IntegerValue(i))
+            })
+            .to(TreeMap)
     private val loads =
-        (for (i <- binDomain.values) yield
-            i -> new IntegerVariable(space.nextVariableId(), "load%d".format(i.value), CompleteIntegerRange))
-        .to(TreeMap)
+        binDomain.valuesIterator
+            .map(i => i -> new IntegerVariable(space.nextVariableId(), "load%d".format(i.value), CompleteIntegerRange))
+            .to(TreeMap)
 
     private implicit def intToIntegerValue(a: Int): IntegerValue = IntegerValue(a)
 

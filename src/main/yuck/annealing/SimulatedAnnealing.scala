@@ -67,9 +67,9 @@ final class SimulatedAnnealing(
         objective.isGoodEnough(costsOfBestProposal)
 
     override def call() =
-        if (hasFinished) {
+        if hasFinished then {
             val result = createResult()
-            if (roundCount == 0 && maybeMonitor.isDefined) {
+            if roundCount == 0 && maybeMonitor.isDefined then {
                 // The given, initial assignment is good enough and hence no search is necessary.
                 // In this case, notify the monitor about the initial assignment.
                 val monitor = maybeMonitor.get
@@ -78,15 +78,17 @@ final class SimulatedAnnealing(
                 monitor.onSolverFinished(result)
             }
             result
+        } else if proposalBeforeSuspension.ne(null) then {
+            resume()
+        } else {
+            start()
         }
-        else if (proposalBeforeSuspension.ne(null)) resume()
-        else start()
 
     private def start(): AnnealingResult = {
-        if (maybeMonitor.isDefined) {
+        if maybeMonitor.isDefined then {
             maybeMonitor.get.onSolverLaunched(createResult())
         }
-        if (objective.isSolution(currentProposal)) {
+        if objective.isSolution(currentProposal) then {
             // Sometimes the initial assignment is a solution.
             objective.findActualObjectiveValue(space)
             costsOfCurrentProposal = objective.costs(currentProposal)
@@ -99,7 +101,7 @@ final class SimulatedAnnealing(
     private def resume(): AnnealingResult = {
         space.initialize(proposalBeforeSuspension)
         costsOfCurrentProposal = objective.costs(currentProposal)
-        if (maybeMonitor.isDefined) {
+        if maybeMonitor.isDefined then {
             maybeMonitor.get.onSolverResumed(createResult())
         }
         anneal()
@@ -110,9 +112,9 @@ final class SimulatedAnnealing(
 
         // main annealing loop
         val startTimeInMillis = System.currentTimeMillis
-        while (! wasInterrupted && ! hasFinished) {
+        while ! wasInterrupted && ! hasFinished do {
             nextRound()
-            if (schedule.isFrozen) {
+            if schedule.isFrozen then {
                 restart()
             }
         }
@@ -124,15 +126,15 @@ final class SimulatedAnnealing(
         runtimeInMillis += (endTimeInMillis - startTimeInMillis)
 
         // revert to best assignment
-        if (objective.isLowerThan(costsOfBestProposal, costsOfCurrentProposal)) {
+        if objective.isLowerThan(costsOfBestProposal, costsOfCurrentProposal) then {
             space.initialize(bestProposal)
             costsOfCurrentProposal = objective.costs(currentProposal)
             assert(costsOfCurrentProposal == costsOfBestProposal)
         }
 
         // public relations
-        if (maybeMonitor.isDefined) {
-            if (hasFinished) {
+        if maybeMonitor.isDefined then {
+            if hasFinished then {
                 maybeMonitor.get.onSolverFinished(createResult())
             } else {
                 maybeMonitor.get.onSolverSuspended(createResult())
@@ -144,19 +146,19 @@ final class SimulatedAnnealing(
     private def nextRound(): Unit = {
 
         // prepare for new round
-        if (numberOfRemainingMonteCarloAttempts == 0) {
-            if (! roundLogs.isEmpty) {
-                if (schedule.temperature <= temperature) {
-                    if (heatingPhase) {
+        if numberOfRemainingMonteCarloAttempts == 0 then {
+            if ! roundLogs.isEmpty then {
+                if schedule.temperature <= temperature then {
+                    if heatingPhase then {
                         heatingPhase = false
-                        if (maybeMonitor.isDefined) {
+                        if maybeMonitor.isDefined then {
                             maybeMonitor.get.onReheatingFinished(createResult())
                         }
                         numberOfPerturbations += 1
                     }
-                } else if (! heatingPhase) {
+                } else if ! heatingPhase then {
                     heatingPhase = true
-                    if (maybeMonitor.isDefined) {
+                    if maybeMonitor.isDefined then {
                         maybeMonitor.get.onReheatingStarted(createResult())
                     }
                 }
@@ -195,13 +197,13 @@ final class SimulatedAnnealing(
         space.numberOfCommitments = 0
 
         // cool down
-        if (numberOfRemainingMonteCarloAttempts == 0) {
+        if numberOfRemainingMonteCarloAttempts == 0 then {
             roundLog.roundWasFutile =
                 roundCount > 0 &&
                 (! objective.isLowerThan(
                     roundLog.costsOfBestProposal,
                     roundLogs.apply(roundCount - 1).costsOfBestProposal))
-            if (maybeMonitor.isDefined) {
+            if maybeMonitor.isDefined then {
                 maybeMonitor.get.onNextRound(createResult())
             }
             schedule.nextRound(roundLog)
@@ -212,14 +214,14 @@ final class SimulatedAnnealing(
 
     private def monteCarloSimulation(): Unit = {
         val roundLog = roundLogs.last
-        while (numberOfRemainingMonteCarloAttempts > 0 && ! wasInterrupted && ! objective.isGoodEnough(costsOfBestProposal)) {
+        while numberOfRemainingMonteCarloAttempts > 0 && ! wasInterrupted && ! objective.isGoodEnough(costsOfBestProposal) do {
             val move = neighbourhood.nextMove()
             val before = space.searchState
             val after = space.consult(move)
             val delta = objective.assessMove(before, after)
-            if (delta <= 0 || randomGenerator.nextProbability() <= scala.math.exp(-delta / temperature)) {
+            if delta <= 0 || randomGenerator.nextProbability() <= scala.math.exp(-delta / temperature) then {
                 processMove(move, roundLog)
-                if (delta > 0) {
+                if delta > 0 then {
                     roundLog.numberOfAcceptedUphillMoves += 1
                 }
             } else {
@@ -235,15 +237,15 @@ final class SimulatedAnnealing(
         neighbourhood.commit(move)
         objective.findActualObjectiveValue(space)
         costsOfCurrentProposal = objective.costs(currentProposal)
-        if (objective.isLowerThan(costsOfCurrentProposal, roundLog.costsOfBestProposal)) {
+        if objective.isLowerThan(costsOfCurrentProposal, roundLog.costsOfBestProposal) then {
             roundLog.costsOfBestProposal = costsOfCurrentProposal
         }
         val bestProposalWasImproved = objective.isLowerThan(costsOfCurrentProposal, costsOfBestProposal)
-        if (bestProposalWasImproved) {
+        if bestProposalWasImproved then {
             roundLog.bestProposalWasImproved = true
             costsOfBestProposal = costsOfCurrentProposal
             bestProposal = currentProposal.clone
-            if (maybeMonitor.isDefined) {
+            if maybeMonitor.isDefined then {
                 maybeMonitor.get.onBetterProposal(createResult())
             }
             tightenObjective(costsOfBestProposal)
@@ -251,12 +253,12 @@ final class SimulatedAnnealing(
     }
 
     private def ingestSharedBound(): Unit = {
-        if (maybeSharedBound.isDefined) {
+        if maybeSharedBound.isDefined then {
             val maybeBound = maybeSharedBound.get.maybeBound()
-            if (maybeBound.isDefined) {
+            if maybeBound.isDefined then {
                 val bound = maybeBound.get
-                if ((maybeLastSeenBound.isEmpty && objective.isLowerThan(bound, costsOfBestProposal)) ||
-                    (maybeLastSeenBound.isDefined && objective.isLowerThan(bound, maybeLastSeenBound.get))) {
+                if (maybeLastSeenBound.isEmpty && objective.isLowerThan(bound, costsOfBestProposal)) ||
+                    (maybeLastSeenBound.isDefined && objective.isLowerThan(bound, maybeLastSeenBound.get)) then {
                     tightenObjective(bound)
                     maybeLastSeenBound = maybeBound
                 }
@@ -269,25 +271,25 @@ final class SimulatedAnnealing(
         numberOfPerturbations += 1
         objective.findActualObjectiveValue(space)
         costsOfCurrentProposal = objective.costs(currentProposal)
-        if (objective.isLowerThan(costsOfCurrentProposal, costsOfBestProposal)) {
+        if objective.isLowerThan(costsOfCurrentProposal, costsOfBestProposal) then {
             costsOfBestProposal = costsOfCurrentProposal
             bestProposal = currentProposal.clone
-            if (maybeMonitor.isDefined) {
+            if maybeMonitor.isDefined then {
                 maybeMonitor.get.onBetterProposal(createResult())
             }
             tightenObjective(costsOfBestProposal)
         }
         schedule.start(restartTemperature, 0)
-        if (maybeMonitor.isDefined) {
+        if maybeMonitor.isDefined then {
             maybeMonitor.get.onScheduleRestarted(createResult())
         }
     }
 
     private def tightenObjective(bound: Costs): Unit = {
         val tightenedVariables = objective.tighten(space, bound)
-        if (maybeMonitor.isDefined) {
+        if maybeMonitor.isDefined then {
             val monitor = maybeMonitor.get
-            for (x <- tightenedVariables) {
+            for x <- tightenedVariables do {
                 monitor.onObjectiveTightened(createResult(), x)
             }
         }

@@ -27,7 +27,7 @@ class OptimizationGoalTrackerTest extends UnitTest {
             .initialize()
         assertEq(d.frequency(0), 33)
         assertEq(d.frequency(1), 196)
-        if (true) {
+        if true then {
             // change values a bit
             val effects = List(new ImmutableMoveEffect(x, Five), new ImmutableMoveEffect(y, Ten))
             val move = new ChangeValues(space.nextMoveId(), effects)
@@ -38,7 +38,7 @@ class OptimizationGoalTrackerTest extends UnitTest {
             assertEq(d.frequency(0), 45)
             assertEq(d.frequency(1), 180)
         }
-        if (true) {
+        if true then {
             // let scalar combination take optimum value
             val effects = List(new ImmutableMoveEffect(x, dx.lb), new ImmutableMoveEffect(y, dy.ub))
             val move = new ChangeValues(space.nextMoveId(), effects)
@@ -49,7 +49,7 @@ class OptimizationGoalTrackerTest extends UnitTest {
             assertEq(d.frequency(0), 0)
             assertEq(d.frequency(1), 0)
         }
-        if (true) {
+        if true then {
             // let variables take values outside their domains
             val effects = List(new ImmutableMoveEffect(x, dx.lb - One), new ImmutableMoveEffect(y, dy.ub + One))
             val move = new ChangeValues(space.nextMoveId(), effects)
@@ -79,7 +79,7 @@ class OptimizationGoalTrackerTest extends UnitTest {
             .initialize()
         assertEq(d.frequency(0), 297)
         assertEq(d.frequency(1), 24)
-        if (true) {
+        if true then {
             // change values a bit
             val effects = List(new ImmutableMoveEffect(x, Five), new ImmutableMoveEffect(y, Ten))
             val move = new ChangeValues(space.nextMoveId(), effects)
@@ -90,7 +90,7 @@ class OptimizationGoalTrackerTest extends UnitTest {
             assertEq(d.frequency(0), 285)
             assertEq(d.frequency(1), 40)
         }
-        if (true) {
+        if true then {
             // let scalar combination take optimum value
             val effects = List(new ImmutableMoveEffect(x, dx.ub), new ImmutableMoveEffect(y, dy.lb))
             val move = new ChangeValues(space.nextMoveId(), effects)
@@ -101,7 +101,7 @@ class OptimizationGoalTrackerTest extends UnitTest {
             assertEq(d.frequency(0), 0)
             assertEq(d.frequency(1), 0)
         }
-        if (true) {
+        if true then {
             // let variables take values outside their domains
             val effects = List(new ImmutableMoveEffect(x, dx.ub + One), new ImmutableMoveEffect(y, dy.lb - One))
             val move = new ChangeValues(space.nextMoveId(), effects)

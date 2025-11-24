@@ -55,7 +55,7 @@ final class AnnealingNeighbourhoodFactory
 
     private final def createNeighbourhood: Option[Neighbourhood] = {
         val buf = new mutable.ArrayBuffer[(PrimitiveObjective, Option[Neighbourhood])]
-        for ((objective, i) <- cc.objective.primitiveObjectives.zipWithIndex) {
+        for (objective, i) <- cc.objective.primitiveObjectives.zipWithIndex do {
             val levelCfg =
                 if i == 0
                 then cc.cfg.annealingConfiguration.topLevelConfiguration
@@ -79,12 +79,10 @@ final class AnnealingNeighbourhoodFactory
             }
         }
         val (objectives, neighbourhoods) =
-            (for (case (objective, Some(neighbourhood)) <- buf) yield (objective, neighbourhood)).unzip
-        if (neighbourhoods.size < 2) {
-            neighbourhoods.headOption
-        } else {
-            Some(stackNeighbourhoods(objectives.toVector, neighbourhoods.toVector))
-        }
+            (for case (objective, Some(neighbourhood)) <- buf yield (objective, neighbourhood)).unzip
+        if neighbourhoods.size < 2
+        then neighbourhoods.headOption
+        else Some(stackNeighbourhoods(objectives.toVector, neighbourhoods.toVector))
     }
 
     protected def createSatisfactionNeighbourhood
@@ -93,7 +91,7 @@ final class AnnealingNeighbourhoodFactory
     {
         val neighbourhoods = new mutable.ArrayBuffer[Neighbourhood]
         val candidatesForImplicitSolving =
-            if (cc.cfg.annealingConfiguration.useImplicitSolving && levelCfg.isTopLevel) {
+            if cc.cfg.annealingConfiguration.useImplicitSolving && levelCfg.isTopLevel then {
                 cc.costVarsFromRedundantConstraints.iterator.concat(Iterator.single(x))
                     .flatMap(findCandidatesForImplicitSolving).toBuffer.sorted.toIndexedSeq
             } else {
@@ -106,16 +104,16 @@ final class AnnealingNeighbourhoodFactory
             (classOf[Table[?]], 1))
         def constraintRanking(constraint: Constraint): Int =
             -(constraintHardness(constraint.getClass) * constraint.inVariables.size)
-        for (constraint <- randomGenerator.shuffle(candidatesForImplicitSolving).sortBy(constraintRanking)) {
+        for constraint <- randomGenerator.shuffle(candidatesForImplicitSolving).sortBy(constraintRanking) do {
             val xs = constraint.inVariables.toSet
-            if ((xs & cc.implicitlyConstrainedVars).isEmpty) {
+            if (xs & cc.implicitlyConstrainedVars).isEmpty then {
                 val (maybeNeighbourhood, _) = cc.logger.withTimedLogScope("Solving %s".format(constraint)) {
                     constraint.createNeighbourhood(
                         cc.space, randomGenerator, moveSizeDistribution,
                         createHotSpotDistribution = xs => Some(createHotSpotDistribution(xs, cc.costVars)),
                         maybeFairVariableChoiceRate = levelCfg.maybeFairVariableChoiceRate)
                 }
-                if (maybeNeighbourhood.isDefined) {
+                if maybeNeighbourhood.isDefined then {
                     cc.implicitlyConstrainedVars ++= xs
                     cc.space.registerImplicitConstraint(constraint)
                     cc.logger.log("Adding a neighbourhood for implicit constraint %s".format(constraint))
@@ -125,45 +123,48 @@ final class AnnealingNeighbourhoodFactory
             }
         }
         val xs = cc.space.involvedSearchVariables(x).diff(cc.implicitlyConstrainedVars).toBuffer.sorted.toVector
-        if (! xs.isEmpty && ! cc.sigint.isSet) {
-            for (x <- xs if ! x.domain.isFinite) {
+        if ! xs.isEmpty && ! cc.sigint.isSet then {
+            for x <- xs if ! x.domain.isFinite do {
                 throw new VariableWithInfiniteDomainException(x)
             }
             cc.logger.logg("Adding a neighbourhood over %s".format(xs))
             val maybeCostVars =
-                if (levelCfg.isTopLevel) Some(cc.costVars)
-                else if (cc.space.maybeDefiningConstraint(x).exists(_.isInstanceOf[Conjunction]))
-                    Some(cc.space.definingConstraint(x).asInstanceOf[Conjunction].xs.toSet)
+                if levelCfg.isTopLevel
+                then Some(cc.costVars)
+                else if cc.space.maybeDefiningConstraint(x).exists(_.isInstanceOf[Conjunction])
+                then Some(cc.space.definingConstraint(x).asInstanceOf[Conjunction].xs.toSet)
                 else None
             neighbourhoods +=
                 new RandomReassignmentGenerator(
                     cc.space, xs, randomGenerator, moveSizeDistribution,
-                    if (levelCfg.guideOptimization && maybeCostVars.isDefined) Some(createHotSpotDistribution(xs, maybeCostVars.get)) else None,
-                    if (levelCfg.guideOptimization) levelCfg.maybeFairVariableChoiceRate else None)
+                    if levelCfg.guideOptimization && maybeCostVars.isDefined
+                    then Some(createHotSpotDistribution(xs, maybeCostVars.get))
+                    else None,
+                    if levelCfg.guideOptimization then levelCfg.maybeFairVariableChoiceRate else None)
         }
-        if (neighbourhoods.size < 2) {
-            neighbourhoods.headOption
-        } else {
+        if neighbourhoods.size < 2
+        then neighbourhoods.headOption
+        else {
             Some(new NeighbourhoodCollection(
                 cc.space,
                 neighbourhoods.toVector, randomGenerator,
                 maybeSelectionSizeDistribution(neighbourhoods),
-                if (levelCfg.guideOptimization) Some(createHotSpotDistribution(neighbourhoods)) else None,
-                if (levelCfg.guideOptimization) levelCfg.maybeFairVariableChoiceRate else None))
+                if levelCfg.guideOptimization then Some(createHotSpotDistribution(neighbourhoods)) else None,
+                if levelCfg.guideOptimization then levelCfg.maybeFairVariableChoiceRate else None))
         }
     }
 
     private def findCandidatesForImplicitSolving(x: BooleanVariable): Iterator[Constraint] = {
         val maybeConstraint = cc.space.maybeDefiningConstraint(x)
-        if (maybeConstraint.isDefined) {
+        if maybeConstraint.isDefined then {
             val constraint = maybeConstraint.get
-            if (constraint.isInstanceOf[Conjunction] || constraint.isInstanceOf[And]) {
-                constraint.inVariables.iterator.flatMap(y => findCandidatesForImplicitSolving(y.asInstanceOf[BooleanVariable]))
-            } else if (constraint.isCandidateForImplicitSolving(cc.space)) {
-                Iterator.single(constraint)
-            } else {
-                Iterator.empty
-            }
+            if constraint.isInstanceOf[Conjunction] || constraint.isInstanceOf[And]
+            then
+                constraint.inVariables.iterator
+                    .flatMap(y => findCandidatesForImplicitSolving(y.asInstanceOf[BooleanVariable]))
+            else if constraint.isCandidateForImplicitSolving(cc.space)
+            then Iterator.single(constraint)
+            else Iterator.empty
         } else {
             Iterator.empty
         }
@@ -175,7 +176,8 @@ final class AnnealingNeighbourhoodFactory
         (using valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
-        if (levelCfg.guideOptimization) createNeighbourhood(OptimizationMode.Min, levelCfg, x)
+        if levelCfg.guideOptimization
+        then createNeighbourhood(OptimizationMode.Min, levelCfg, x)
         else createNeighbourhoodOnInvolvedSearchVariables(levelCfg, x)
     }
 
@@ -185,7 +187,8 @@ final class AnnealingNeighbourhoodFactory
         (using valueTraits: NumericalValueTraits[V]):
         Option[Neighbourhood] =
     {
-        if (levelCfg.guideOptimization) createNeighbourhood(OptimizationMode.Max, levelCfg, x)
+        if levelCfg.guideOptimization
+        then createNeighbourhood(OptimizationMode.Max, levelCfg, x)
         else createNeighbourhoodOnInvolvedSearchVariables(levelCfg, x)
     }
 
@@ -196,9 +199,9 @@ final class AnnealingNeighbourhoodFactory
         Option[Neighbourhood] =
     {
         cc.space.registerObjectiveVariable(x)
-        if (cc.space.isProblemParameter(x)) {
+        if cc.space.isProblemParameter(x) then {
             None
-        } else if (cc.space.isDanglingVariable(x)) {
+        } else if cc.space.isDanglingVariable(x) then {
             mode match {
                 case OptimizationMode.Min =>
                     // assign minimum value
@@ -208,11 +211,11 @@ final class AnnealingNeighbourhoodFactory
                     createNeighbourhoodOnInvolvedSearchVariables(levelCfg, x)
             }
         }
-        else if (cc.space.isSearchVariable(x)) {
+        else if cc.space.isSearchVariable(x) then {
             // x is unconstrained, so no need to add a generator for minimizing x.
             None
         }
-        else if (cc.space.isChannelVariable(x)) {
+        else if cc.space.isChannelVariable(x) then {
             createNeighbourhood(mode, levelCfg, cc.space.definingConstraint(x))
         }
         else {
@@ -229,10 +232,10 @@ final class AnnealingNeighbourhoodFactory
     {
         (mode, constraint) match {
             case (OptimizationMode.Min, lc: LinearCombination[V @ unchecked])
-            if lc.axs.forall(ax => if (ax.a < valueTraits.zero) ax.x.domain.hasUb else ax.x.domain.hasLb) =>
+            if lc.axs.forall(ax => if ax.a < valueTraits.zero then ax.x.domain.hasUb else ax.x.domain.hasLb) =>
                 createNeighbourhood(mode, levelCfg, lc.axs)
             case (OptimizationMode.Max, lc: LinearCombination[V @ unchecked])
-            if lc.axs.forall(ax => if (ax.a < valueTraits.zero) ax.x.domain.hasLb else ax.x.domain.hasUb) =>
+            if lc.axs.forall(ax => if ax.a < valueTraits.zero then ax.x.domain.hasLb else ax.x.domain.hasUb) =>
                 createNeighbourhood(mode, levelCfg, lc.axs)
             case (OptimizationMode.Min, sum: Sum[V @ unchecked])
             if sum.xs.forall(x => x.domain.hasLb) =>
@@ -248,18 +251,18 @@ final class AnnealingNeighbourhoodFactory
                 neighbourhoods ++=
                     neighbourhoodsFromImplicitConstraints.iterator.filter(_.searchVariables.intersect(xs0).nonEmpty)
                 val xs = xs0.diff(cc.implicitlyConstrainedVars).toBuffer.sorted.toVector
-                if (xs.isEmpty) {
+                if xs.isEmpty then {
                     // Either there are no variables or they are all managed by neighbourhoods from implicit constraints.
                     None
                 } else {
-                    for (x <- xs if ! x.domain.isFinite) {
+                    for x <- xs if ! x.domain.isFinite do {
                         throw new VariableWithInfiniteDomainException(x)
                     }
                     cc.logger.log("%s contributes a neighbourhood over %s".format(constraint, xs))
                         neighbourhoods +=
                             new RandomReassignmentGenerator(
                                 cc.space, xs, randomGenerator, moveSizeDistribution, None, None)
-                    if (neighbourhoods.size < 2) {
+                    if neighbourhoods.size < 2 then {
                         neighbourhoods.headOption
                     } else {
                         Some(new NeighbourhoodCollection(
@@ -278,15 +281,15 @@ final class AnnealingNeighbourhoodFactory
         Option[Neighbourhood] =
     {
         val axs = axs0.sortBy(_.x)
-        if (axs.forall(ax => cc.space.isProblemParameter(ax.x) ||
-            (cc.space.isSearchVariable(ax.x) && ! cc.implicitlyConstrainedVars.contains(ax.x))))
+        if axs.forall(ax => cc.space.isProblemParameter(ax.x) ||
+            (cc.space.isSearchVariable(ax.x) && ! cc.implicitlyConstrainedVars.contains(ax.x))) then
         {
             val weights = axs.filter(ax => cc.space.isSearchVariable(ax.x))
-            if (weights.isEmpty) {
+            if weights.isEmpty then {
                 None
             } else {
                 val xs = weights.map(_.x).toVector
-                for (x <- xs if ! x.domain.isFinite) {
+                for x <- xs if ! x.domain.isFinite do {
                     throw new VariableWithInfiniteDomainException(x)
                 }
                 cc.logger.logg("Adding a neighbourhood over %s".format(xs))
@@ -296,30 +299,29 @@ final class AnnealingNeighbourhoodFactory
             }
         } else {
             val weightedNeighbourhoods = new mutable.ArrayBuffer[(AX[V], Neighbourhood)]
-            for (ax <- axs) {
-                if (cc.sigint.isSet) {
+            for ax <- axs do {
+                if cc.sigint.isSet then {
                     throw new FlatZincCompilerInterruptedException
                 }
-                val maybeNeighbourhood = {
-                    if (cc.space.isChannelVariable(ax.x)) {
-                        createNeighbourhood(mode, levelCfg, cc.space.definingConstraint(ax.x))
-                    } else if (cc.space.isProblemParameter(ax.x)) {
-                        None
-                    } else if (cc.implicitlyConstrainedVars.contains(ax.x)) {
-                        neighbourhoodsFromImplicitConstraints.find(_.searchVariables.contains(ax.x))
-                    } else {
+                val maybeNeighbourhood =
+                    if cc.space.isChannelVariable(ax.x)
+                    then createNeighbourhood(mode, levelCfg, cc.space.definingConstraint(ax.x))
+                    else if cc.space.isProblemParameter(ax.x)
+                    then None
+                    else if cc.implicitlyConstrainedVars.contains(ax.x)
+                    then neighbourhoodsFromImplicitConstraints.find(_.searchVariables.contains(ax.x))
+                    else {
                         cc.logger.logg("Adding a neighbourhood over %s".format(ax.x))
                         Some(new SimpleRandomReassignmentGenerator(cc.space, Vector(ax.x), randomGenerator))
                     }
-                }
-                if (maybeNeighbourhood.isDefined) {
+                if maybeNeighbourhood.isDefined then {
                     weightedNeighbourhoods += ax -> maybeNeighbourhood.get
                 }
             }
             val maybeNeighbourhood =
-                if (weightedNeighbourhoods.size < 2) {
-                    weightedNeighbourhoods.headOption.map(_._2)
-                } else {
+                if weightedNeighbourhoods.size < 2
+                then weightedNeighbourhoods.headOption.map(_._2)
+                else {
                     val (weights, neighbourhoods) = weightedNeighbourhoods.unzip
                     val hotSpotDistribution = createHotSpotDistribution(mode, weights)
                     Some(new NeighbourhoodCollection(
@@ -336,11 +338,11 @@ final class AnnealingNeighbourhoodFactory
         (levelCfg: FlatZincLevelConfiguration, x: AnyVariable):
         Option[Neighbourhood] =
     {
-        val xs0 = if (cc.space.isSearchVariable(x)) Set(x) else cc.space.involvedSearchVariables(x)
+        val xs0 = if cc.space.isSearchVariable(x) then Set(x) else cc.space.involvedSearchVariables(x)
         val xs = xs0.diff(cc.implicitlyConstrainedVars)
-        if (xs.isEmpty) {
-            None
-        } else {
+        if xs.isEmpty
+        then None
+        else {
             cc.logger.logg("Adding a neighbourhood over %s".format(xs))
             Some(new RandomReassignmentGenerator(
                 cc.space, xs.toBuffer.sorted.toVector, randomGenerator, moveSizeDistribution, None, None))

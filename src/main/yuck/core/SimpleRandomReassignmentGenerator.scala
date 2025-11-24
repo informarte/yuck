@@ -28,8 +28,8 @@ final class SimpleRandomReassignmentGenerator
 
     override def perturb(perturbationProbability: Probability) = {
         val move = new BulkMove(space.nextMoveId())
-        for (x <- xs) {
-            if (randomGenerator.nextDecision(perturbationProbability)) {
+        for x <- xs do {
+            if randomGenerator.nextDecision(perturbationProbability) then {
                 move += x.nextRandomMoveEffect(space, randomGenerator)
             }
         }

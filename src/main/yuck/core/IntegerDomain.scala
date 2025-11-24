@@ -13,8 +13,8 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
     final override def valueType = classOf[IntegerValue]
 
     final override def hashCode =
-        (3 * (3 + (if (isEmpty || lb.eq(null)) 0 else lb.hashCode)) +
-            (if (isEmpty || ub.eq(null)) 0 else ub.hashCode))
+        (3 * (3 + (if isEmpty || lb.eq(null) then 0 else lb.hashCode)) +
+            (if isEmpty || ub.eq(null) then 0 else ub.hashCode))
 
     final override def compare(that: OrderedDomain[IntegerValue]) = (this, that) match {
         case (lhs: IntegerRange, rhs: IntegerRange) => RangeOrdering.compare(lhs, rhs)
@@ -106,12 +106,13 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
     def maybeResidueSize(that: IntegerDomain): Option[Int] = {
         val lhs = this
         val rhs = that
-        if (lhs.isFinite) Some(lhs.size - lhs.maybeIntersectionSize(rhs).get)
-        else if (lhs.isSubsetOf(rhs)) Some(0)
+        if lhs.isFinite
+        then Some(lhs.size - lhs.maybeIntersectionSize(rhs).get)
+        else if lhs.isSubsetOf(rhs)
+        then Some(0)
         else {
             val residue = lhs.diff(rhs)
-            if (residue.isFinite) Some(residue.size)
-            else None
+            if residue.isFinite then Some(residue.size) else None
         }
     }
 
@@ -155,8 +156,10 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
     final def startsBefore(that: IntegerDomain): Boolean = {
         require(! this.isEmpty)
         require(! that.isEmpty)
-        if (! this.hasLb) that.hasLb
-        else if (that.hasLb) this.lb < that.lb
+        if ! this.hasLb
+        then that.hasLb
+        else if that.hasLb
+        then this.lb < that.lb
         else false
     }
 
@@ -190,8 +193,10 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
     final def endsAfter(that: IntegerDomain): Boolean = {
         require(! this.isEmpty)
         require(! that.isEmpty)
-        if (! this.hasUb) that.hasUb
-        else if (that.hasUb) this.ub > that.ub
+        if ! this.hasUb
+        then that.hasUb
+        else if that.hasUb
+        then this.ub > that.ub
         else false
     }
 
@@ -218,7 +223,7 @@ object IntegerDomain {
 
     /** Turns the given integer domain into a range list, if necessary. */
     def ensureRangeList(domain: Domain[IntegerValue]): IntegerRangeList = domain match {
-        case range: IntegerRange => if (range.isEmpty) EmptyIntegerRangeList else IntegerRangeList(range)
+        case range: IntegerRange => if range.isEmpty then EmptyIntegerRangeList else IntegerRangeList(range)
         case rangeList: IntegerRangeList => rangeList
         case bitSet: SixtyFourBitSet => ensureRangeList(IntegerDomain(bitSet.valuesIterator))
         case _ => ???
@@ -232,8 +237,10 @@ object IntegerDomain {
      */
     @targetName("fromRanges")
     def apply(ranges: Iterable[IntegerRange]): IntegerDomain = {
-        if (ranges.isEmpty) EmptyIntegerRange
-        else if (ranges.size == 1) ranges.head
+        if ranges.isEmpty
+        then EmptyIntegerRange
+        else if ranges.size == 1
+        then ranges.head
         else new IntegerRangeList(ranges.toVector)
     }
 
@@ -249,27 +256,27 @@ object IntegerDomain {
     /** Creates an integer domain from the given values. */
     @targetName("fromIntegerValues")
     def apply(values: Iterable[IntegerValue]): IntegerDomain = {
-        if (values.isEmpty) EmptyIntegerRange else apply(values.iterator)
+        if values.isEmpty then EmptyIntegerRange else apply(values.iterator)
     }
 
     /** Creates an integer domain from the given values. */
     @targetName("fromIntegerValuesIterator")
     def apply(i: Iterator[IntegerValue]): IntegerDomain = {
-        if (! i.hasNext) {
+        if ! i.hasNext then {
             EmptyIntegerRange
         } else {
             val buf = new mutable.ArrayBuffer[IntegerRange]
             var lb = i.next()
             var ub = lb
             var sorted = true
-            while (sorted && i.hasNext) {
+            while sorted && i.hasNext do {
                 val a = i.next()
-                if (a < ub) {
+                if a < ub then {
                     sorted = false
                     buf += IntegerRange(lb, ub)
                     lb = a
                     ub = lb
-                } else if (a.value <= safeInc(ub.value)) {
+                } else if a.value <= safeInc(ub.value) then {
                     ub = a
                 } else {
                     buf += IntegerRange(lb, ub)
@@ -278,7 +285,7 @@ object IntegerDomain {
                 }
             }
             buf += IntegerRange(lb, ub)
-            if (sorted) {
+            if sorted then {
                 apply(buf)
             } else {
                 apply(buf.flatMap(_.values).appendAll(i).sortInPlace().iterator)

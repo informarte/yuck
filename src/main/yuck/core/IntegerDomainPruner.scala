@@ -23,24 +23,26 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
     {
         val lhs1 = lhs0.asInstanceOf[IntegerDomain]
         val rhs1 = rhs0.asInstanceOf[IntegerDomain]
-        (if (rhs1.isSingleton) lhs1.diff(rhs1) else lhs1,
-         if (lhs1.isSingleton) rhs1.diff(lhs1) else rhs1)
+        (if rhs1.isSingleton then lhs1.diff(rhs1) else lhs1,
+         if lhs1.isSingleton then rhs1.diff(lhs1) else rhs1)
     }
 
     override def ltRule
         (lhs: OrderedDomain[IntegerValue], rhs: OrderedDomain[IntegerValue]):
         (IntegerDomain, IntegerDomain) =
     {
-        if (lhs.isEmpty || rhs.isEmpty) (EmptyIntegerRange, EmptyIntegerRange)
-        else (IntegerRange(null, if (! rhs.hasUb) null else rhs.ub - One).intersect(lhs),
-              IntegerRange(if (! lhs.hasLb) null else lhs.lb + One, null).intersect(rhs))
+        if lhs.isEmpty || rhs.isEmpty
+        then (EmptyIntegerRange, EmptyIntegerRange)
+        else (IntegerRange(null, if ! rhs.hasUb then null else rhs.ub - One).intersect(lhs),
+              IntegerRange(if ! lhs.hasLb then null else lhs.lb + One, null).intersect(rhs))
     }
 
     override def leRule
         (lhs: OrderedDomain[IntegerValue], rhs: OrderedDomain[IntegerValue]):
         (IntegerDomain, IntegerDomain) =
     {
-        if (lhs.isEmpty || rhs.isEmpty) (EmptyIntegerRange, EmptyIntegerRange)
+        if lhs.isEmpty || rhs.isEmpty
+        then (EmptyIntegerRange, EmptyIntegerRange)
         else (IntegerRange(null, rhs.ub).intersect(lhs), IntegerRange(lhs.lb, null).intersect(rhs))
     }
 
@@ -49,12 +51,12 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         (Iterator[IntegerDomain], IntegerDomain) =
     {
         require(! lhs0.isEmpty)
-        if (rhs0.isEmpty || lhs0.exists(_.isEmpty)) {
-            (for (_ <- lhs0.iterator) yield EmptyIntegerRange, EmptyIntegerRange)
+        if rhs0.isEmpty || lhs0.exists(_.isEmpty) then {
+            (for _ <- lhs0.iterator yield EmptyIntegerRange, EmptyIntegerRange)
         } else {
             val lhs1 = lhs0.iterator.map(d => leRule(rhs0, d)._2)
-            val maybeMinLb = lhs0.iterator.filter(_.hasLb).map(_.lb).reduceLeftOption((a, b) => if (a < b) a else b)
-            val maybeMinUb = lhs0.iterator.filter(_.hasUb).map(_.ub).reduceLeftOption((a, b) => if (a < b) a else b)
+            val maybeMinLb = lhs0.iterator.filter(_.hasLb).map(_.lb).reduceLeftOption((a, b) => if a < b then a else b)
+            val maybeMinUb = lhs0.iterator.filter(_.hasUb).map(_.ub).reduceLeftOption((a, b) => if a < b then a else b)
             val rhs1 = IntegerRange(maybeMinLb.orNull, maybeMinUb.orNull).intersect(rhs0)
             (lhs1, rhs1)
         }
@@ -65,12 +67,12 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         (Iterator[IntegerDomain], IntegerDomain) =
     {
         require(! lhs0.isEmpty)
-        if (rhs0.isEmpty || lhs0.exists(_.isEmpty)) {
-            (for (_ <- lhs0.iterator) yield EmptyIntegerRange, EmptyIntegerRange)
+        if rhs0.isEmpty || lhs0.exists(_.isEmpty) then {
+            (for _ <- lhs0.iterator yield EmptyIntegerRange, EmptyIntegerRange)
         } else {
             val lhs1 = lhs0.iterator.map(d => leRule(d, rhs0)._1)
-            val maybeMaxLb = lhs0.iterator.filter(_.hasLb).map(_.lb).reduceLeftOption((a, b) => if (a > b) a else b)
-            val maybeMaxUb = lhs0.iterator.filter(_.hasUb).map(_.ub).reduceLeftOption((a, b) => if (a > b) a else b)
+            val maybeMaxLb = lhs0.iterator.filter(_.hasLb).map(_.lb).reduceLeftOption((a, b) => if a > b then a else b)
+            val maybeMaxUb = lhs0.iterator.filter(_.hasUb).map(_.ub).reduceLeftOption((a, b) => if a > b then a else b)
             val rhs1 = IntegerRange(maybeMaxLb.orNull, maybeMaxUb.orNull).intersect(rhs0)
             (lhs1, rhs1)
         }
@@ -109,7 +111,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         // <-> sum a_i * x_i <= b & sum -a_i * x_i <= -b
         val (lhs1, rhs1) = linLeRule(lhs0, rhs0)
         val (lhs2, rhs2) = linLeRule(lhs0.map((a, d) => (a.negated, d)), rhs0.hull.mirrored)
-        val lhs3 = for ((d, e) <- lhs1.iterator.zip(lhs2.iterator)) yield d.intersect(e)
+        val lhs3 = for (d, e) <- lhs1.iterator.zip(lhs2.iterator) yield d.intersect(e)
         val rhs3 = rhs1.intersect(rhs2.mirrored)
         (lhs3, rhs3)
     }
@@ -134,18 +136,18 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         (lhs0: Iterable[(IntegerValue, NumericalDomain[IntegerValue])], rhs0: NumericalDomain[IntegerValue]):
         (Iterator[IntegerDomain], IntegerDomain) =
     {
-        if (rhs0.isEmpty || lhs0.exists((_, d) => d.isEmpty)) {
-            (for (_ <- lhs0.iterator) yield EmptyIntegerRange, EmptyIntegerRange)
-        } else if (lhs0.forall((a, d) => if (a.value >= 0) d.hasLb else d.hasUb)) {
+        if rhs0.isEmpty || lhs0.exists((_, d) => d.isEmpty) then {
+            (for _ <- lhs0.iterator yield EmptyIntegerRange, EmptyIntegerRange)
+        } else if lhs0.forall((a, d) => if a.value >= 0 then d.hasLb else d.hasUb) then {
             val lhs1 =
-                if (rhs0.hasUb) {
-                    lazy val posTerm = lhs0.foldLeft(0L){case (sum, (a, d)) => safeAdd(sum, if (a.value >= 0) safeMul(a.value, d.lb.value) else 0)}
-                    lazy val negTerm = lhs0.foldLeft(0L){case (sum, (a, d)) => safeAdd(sum, if (a.value < 0) safeMul(safeNeg(a.value), d.ub.value) else 0)}
-                    for ((a, d) <- lhs0.iterator) yield {
-                        if (a.value > 0) {
+                if rhs0.hasUb then {
+                    lazy val posTerm = lhs0.foldLeft(0L){case (sum, (a, d)) => safeAdd(sum, if a.value >= 0 then safeMul(a.value, d.lb.value) else 0)}
+                    lazy val negTerm = lhs0.foldLeft(0L){case (sum, (a, d)) => safeAdd(sum, if a.value < 0 then safeMul(safeNeg(a.value), d.ub.value) else 0)}
+                    for (a, d) <- lhs0.iterator yield {
+                        if a.value > 0 then {
                             val alpha = safeAdd(safeSub(rhs0.ub.value, safeSub(posTerm, a.value * d.lb.value)), negTerm).toDouble / a.value
                             IntegerRange(null, IntegerValue(floor(alpha).toInt)).intersect(d)
-                        } else if (a.value < 0) {
+                        } else if a.value < 0 then {
                             // In the book, a is positive, but here it is negative, so we have to use -a!
                             val beta = safeSub(safeAdd(safeNeg(rhs0.ub.value), posTerm), safeSub(negTerm, safeNeg(a.value) * d.ub.value)).toDouble / safeNeg(a.value)
                             IntegerRange(IntegerValue(ceil(beta).toInt), null).intersect(d)
@@ -156,7 +158,7 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
                 } else {
                     lhs0.iterator.map(_._2.asInstanceOf[IntegerDomain])
                 }
-            val lhs0Lb = lhs0.foldLeft(0L){case (sum, (a, d)) => safeAdd(sum, safeMul(a.value, if (a.value >= 0) d.lb.value else d.ub.value))}
+            val lhs0Lb = lhs0.foldLeft(0L){case (sum, (a, d)) => safeAdd(sum, safeMul(a.value, if a.value >= 0 then d.lb.value else d.ub.value))}
             val rhs1 = IntegerRange(IntegerValue(lhs0Lb), null).intersect(rhs0)
             (lhs1, rhs1)
         } else {
@@ -174,25 +176,19 @@ object IntegerDomainPruner extends NumericalDomainPruner[IntegerValue] {
         val dz1 = dz0.asInstanceOf[IntegerDomain]
         // MULTIPLICATION 1
         val dz2 =
-            if (dx1.isFinite && dy1.isFinite) {
-                dz1.intersect(dx1.hull.mult(dy1.hull))
-            } else {
-                dz1
-            }
+            if dx1.isFinite && dy1.isFinite
+            then dz1.intersect(dx1.hull.mult(dy1.hull))
+            else dz1
         // MULTIPLICATION 2
         val dx2 =
-            if (dy1.isFinite && dz1.isFinite) {
-                dx1.intersect(dz1.hull.div(dy1.hull))
-            } else {
-                dx1
-            }
+            if dy1.isFinite && dz1.isFinite
+            then dx1.intersect(dz1.hull.div(dy1.hull))
+            else dx1
         // MULTIPLICATION 3
         val dy2 =
-            if (dx1.isFinite && dz1.isFinite) {
-                dy1.intersect(dz1.hull.div(dx1.hull))
-            } else {
-                dy1
-            }
+            if dx1.isFinite && dz1.isFinite
+            then dy1.intersect(dz1.hull.div(dx1.hull))
+            else dy1
         (dx2, dy2, dz2)
     }
 

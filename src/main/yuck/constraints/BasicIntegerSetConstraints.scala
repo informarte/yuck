@@ -18,13 +18,11 @@ final class Contains
 {
     override def toString = "contains(%s, %s, %s)".format(x, y, z)
     override def op(a: IntegerValue, b: IntegerSetValue) =
-        if (b.set.isEmpty) False else BooleanValue(b.set.distanceTo(a).toLong)
+        if b.set.isEmpty then False else BooleanValue(b.set.distanceTo(a).toLong)
     override def propagate() = {
-        if (z.domain == TrueDomain && y.domain.isSingleton) {
-            NoPropagationOccurred.pruneDomain(x, x.domain.intersect(y.domain.singleValue.set))
-        } else {
-            NoPropagationOccurred
-        }
+        if z.domain == TrueDomain && y.domain.isSingleton
+        then NoPropagationOccurred.pruneDomain(x, x.domain.intersect(y.domain.singleValue.set))
+        else NoPropagationOccurred
     }
 }
 

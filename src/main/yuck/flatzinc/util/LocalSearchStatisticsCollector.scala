@@ -48,7 +48,7 @@ final class LocalSearchStatisticsCollector(logger: LazyLogger) extends LocalSear
     private val solverStatistics = new mutable.ArrayBuffer[SolverStatistics]
 
     private def captureSolverStatistics(result: LocalSearchResult): Unit = {
-        if (result.searchWasPerformed) {
+        if result.searchWasPerformed then {
             synchronized {
                 solverStatistics +=
                     new SolverStatistics(
@@ -66,7 +66,7 @@ final class LocalSearchStatisticsCollector(logger: LazyLogger) extends LocalSear
 
     override def close() = {
         val now = System.currentTimeMillis
-        if (areaTrackingState == TrackingArea) {
+        if areaTrackingState == TrackingArea then {
             area += maybePreviousObjectiveValue.get.toDouble * ((now - timeStampInMillis) / 1000.0)
             logger.logg("Area updated to %.2f".format(area))
             areaTrackingState = AreaTrackingFinished
@@ -89,10 +89,10 @@ final class LocalSearchStatisticsCollector(logger: LazyLogger) extends LocalSear
     }
 
     override def onBetterProposal(result: LocalSearchResult) = {
-        if (result.isSolution) {
+        if result.isSolution then {
             synchronized {
-                if (costsOfBestProposal.eq(null) ||
-                    result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestProposal))
+                if costsOfBestProposal.eq(null) ||
+                    result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestProposal) then
                 {
                     costsOfBestProposal = result.costsOfBestProposal
                     keepRecords(result)
@@ -104,7 +104,7 @@ final class LocalSearchStatisticsCollector(logger: LazyLogger) extends LocalSear
     private def keepRecords(result: Result): Unit = {
         val now = System.currentTimeMillis
         runtimeInMillis += now - timeStampInMillis
-        if (maybeRuntimeToFirstSolutionInMillis.isEmpty) {
+        if maybeRuntimeToFirstSolutionInMillis.isEmpty then {
             maybeRuntimeToFirstSolutionInMillis = Some(runtimeInMillis)
         }
         maybeRuntimeToBestSolutionInMillis = Some(runtimeInMillis)
@@ -116,13 +116,13 @@ final class LocalSearchStatisticsCollector(logger: LazyLogger) extends LocalSear
             }
             case _ => None
         }
-        if (maybeOptimizationMode.isDefined) {
-            if (areaTrackingState == AreaTrackingNotStarted) {
+        if maybeOptimizationMode.isDefined then {
+            if areaTrackingState == AreaTrackingNotStarted then {
                 areaTrackingState = TrackingArea
                 logger.logg("Area tracking started")
             }
-            if (areaTrackingState == TrackingArea) {
-                if (currentObjectiveValue.toDouble < 0) {
+            if areaTrackingState == TrackingArea then {
+                if currentObjectiveValue.toDouble < 0 then {
                     areaTrackingState = AreaTrackingAborted
                     logger.logg("Area tracking aborted due to negative objective value")
                 } else {
@@ -130,7 +130,7 @@ final class LocalSearchStatisticsCollector(logger: LazyLogger) extends LocalSear
                         case OptimizationMode.Min =>
                             area += maybePreviousObjectiveValue.getOrElse(currentObjectiveValue).toDouble * ((now - timeStampInMillis) / 1000.0)
                         case OptimizationMode.Max =>
-                            if (maybePreviousObjectiveValue.isDefined) {
+                            if maybePreviousObjectiveValue.isDefined then {
                                 area += maybePreviousObjectiveValue.get.toDouble * ((now - timeStampInMillis) / 1000.0)
                             }
                     }

@@ -43,7 +43,7 @@ abstract class Increasing
     private val effect = costs.reuseableEffect
 
     final override def propagate(): PropagationEffects = {
-        if (costs.domain == TrueDomain) {
+        if costs.domain == TrueDomain then {
             val leftToRight = (0 until n - 1).foldLeft(NoPropagationOccurred: PropagationEffects)(propagate)
             val rightToLeft = (n - 2 to 0 by -1).foldLeft(leftToRight)(propagate)
             rightToLeft
@@ -72,7 +72,7 @@ abstract class Increasing
 
     final override def consult (before: SearchState, after: SearchState, move: Move) = {
         futureCosts = currentCosts
-        for (i <- move.effectsIterator.flatMap(effect => x2is(effect.x).iterator).distinct) {
+        for i <- move.effectsIterator.flatMap(effect => x2is(effect.x).iterator).distinct do {
             val x = xs(i)
             val y = xs(i + 1)
             val delta = safeSub(computeCosts(after.value(x), after.value(y)), computeCosts(before.value(x), before.value(y)))
@@ -98,17 +98,17 @@ abstract class Increasing
     protected def maybeSmallestFeasibleValue(x: X, maybePreviousValue: Option[V]): Option[V]
 
     final protected def solve(space: Space): Boolean = {
-        if (isCandidateForImplicitSolving(space)) {
+        if isCandidateForImplicitSolving(space) then {
             type Assignments = List[(Variable[V], Option[V])]
             val assignments: Assignments = xs.foldLeft(Nil: Assignments) {
                 case (acc@(_, None) :: _, _) => acc
                 case (Nil, x) => (x, maybeSmallestFeasibleValue(x, None)) :: Nil
                 case ((y, Some(a)) :: tail, x) => (x, maybeSmallestFeasibleValue(x, Some(a))) :: (y, Some(a)) :: tail
             }
-            if (assignments.head._2.isEmpty) {
+            if assignments.head._2.isEmpty then {
                 false
             } else {
-                for (case (x, Some(a)) <- assignments) {
+                for case (x, Some(a)) <- assignments do {
                     space.setValue(x, a)
                 }
                 space.setValue(costs, True)

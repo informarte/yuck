@@ -9,7 +9,7 @@ final class ArrayBackedDistribution(override val size: Int) extends Distribution
     private var frequencySum = 0L
     private var numberOfNonZeroFrequencies = 0
     override def clear() = {
-        for (i <- 0 until size) {
+        for i <- 0 until size do {
             frequencies.update(i, 0)
         }
         frequencySum = 0
@@ -21,8 +21,11 @@ final class ArrayBackedDistribution(override val size: Int) extends Distribution
         frequencySum -= f0
         frequencies.update(i, f)
         frequencySum = safeAdd(frequencySum, f)
-        if (f0 == 0 && f > 0) numberOfNonZeroFrequencies += 1
-        else if (f0 > 0 && f == 0) numberOfNonZeroFrequencies -= 1
+        if f0 == 0 && f > 0 then {
+            numberOfNonZeroFrequencies += 1
+        } else if f0 > 0 && f == 0 then {
+            numberOfNonZeroFrequencies -= 1
+        }
     }
     override def addFrequencyDelta(i: Int, delta: Long) = {
         setFrequency(i, safeAdd(frequencies(i), delta))

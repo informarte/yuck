@@ -20,12 +20,12 @@ final class IntegerDomainTest extends UnitTest {
     def testEquality(): Unit = {
         val testData = helper.createTestData(baseRange, 16).distinct
         helper.testEquality(testData)
-        for (d <- testData) {
-            for (e <- testData) {
-                assert(if (d.eq(e)) d == e else d != e)
+        for d <- testData do {
+            for e <- testData do {
+                assert(if d.eq(e) then d == e else d != e)
             }
         }
-        for (d <- testData if d.isInstanceOf[IntegerRange]) {
+        for d <- testData if d.isInstanceOf[IntegerRange] do {
             val e = IntegerDomain.ensureRangeList(d)
             assertEq(d, e)
             assertEq(e, d)
@@ -66,8 +66,8 @@ final class IntegerDomainTest extends UnitTest {
             List(List(Zero, One), List(One, Zero)) -> IntegerRange(0, 1),
             List(List(Zero, One, Three, Four), List(Three, Zero, Four, One, One)) ->
                 IntegerRangeList(Vector(IntegerRange(0, 1), IntegerRange(3, 4))))
-        for ((inputs, expectation) <- testData) {
-            for (input <- inputs) {
+        for (inputs, expectation) <- testData do {
+            for input <- inputs do {
                 def check(result: IntegerDomain) = {
                     assertEq(result, expectation)
                     assertEq(result.getClass, expectation.getClass)

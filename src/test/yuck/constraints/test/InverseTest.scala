@@ -19,9 +19,9 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
     private val now = space.searchState
 
     private val baseDomain = CompleteIntegerRange
-    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
+    private val xs = for i <- 1 to 3 yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
     private val Seq(x1, x2, x3) = xs
-    private val ys = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "y%d".format(i), baseDomain)
+    private val ys = for i <- 1 to 3 yield new IntegerVariable(space.nextVariableId(), "y%d".format(i), baseDomain)
     private val Seq(y1, y2, y3) = ys
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
     private val f = new InverseFunction(xs, fOffset)
@@ -164,7 +164,7 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 
     @Test
     def testInverseFunctionTest(): Unit = {
-        for (i <- xs.indices) {
+        for i <- xs.indices do {
             space.setValue(xs(i), IntegerValue(gOffset + i))
             space.setValue(ys(i), IntegerValue(fOffset + i))
         }
@@ -235,7 +235,7 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 
     @Test
     def testHandlingOfInvalidIndicesInNeighbourhoodGeneration1(): Unit = {
-        if (f.offset != g.offset) {
+        if f.offset != g.offset then {
             xs.foreach(_.pruneDomain(f.indexDomain))
             ys.foreach(_.pruneDomain(f.indexDomain))
             assertNoNeighbourhood(f, g)
@@ -244,7 +244,7 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 
     @Test
     def testHandlingOfInvalidIndicesInNeighbourhoodGeneration2(): Unit = {
-        if (f.offset != g.offset) {
+        if f.offset != g.offset then {
             xs.foreach(_.pruneDomain(g.indexDomain))
             ys.foreach(_.pruneDomain(g.indexDomain))
             assertNoNeighbourhood(f, g)
@@ -278,7 +278,7 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 object InverseTest {
 
     private def offsets = List(-1, 0, 1).map(Integer.valueOf)
-    private def configurations = for (fOffset <- offsets; gOffset <- offsets) yield Vector(fOffset, gOffset)
+    private def configurations = for fOffset <- offsets; gOffset <- offsets yield Vector(fOffset, gOffset)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
     def parameters = configurations.map(_.toArray).asJava

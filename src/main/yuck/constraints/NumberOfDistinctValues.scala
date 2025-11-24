@@ -17,5 +17,5 @@ class NumberOfDistinctValues
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
         IntegerValue(valueRegistry.size)
     override def propagate() =
-        NoPropagationOccurred.pruneDomain(result, IntegerRange(if (xs.isEmpty) 0 else 1, xs.size))
+        NoPropagationOccurred.pruneDomain(result, IntegerRange(if xs.isEmpty then 0 else 1, xs.size))
 }

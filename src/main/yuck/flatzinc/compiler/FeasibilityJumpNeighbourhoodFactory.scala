@@ -32,10 +32,10 @@ final class FeasibilityJumpNeighbourhoodFactory
 
     private def createNeighbourhood(objective: SatisfactionObjective): Option[Neighbourhood] = {
         val xs = cc.space.involvedSearchVariables(objective.x).diff(cc.implicitlyConstrainedVars).toBuffer.sorted.toVector
-        for (x <- xs if ! x.domain.isFinite) {
+        for x <- xs if ! x.domain.isFinite do {
             throw new VariableWithInfiniteDomainException(x)
         }
-        for (x <- cc.costVars) {
+        for x <- cc.costVars do {
             cc.space.registerObjectiveVariable(x)
         }
         if xs.isEmpty

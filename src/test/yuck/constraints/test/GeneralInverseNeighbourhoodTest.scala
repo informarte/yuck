@@ -13,15 +13,15 @@ final class GeneralInverseNeighbourhoodTest(fOffset: Int, gOffset: Int) extends 
     private val domainSize = 10
 
     private val fDomain = IntegerRange(gOffset, gOffset + domainSize - 1)
-    private val xs = for (i <- 0 until domainSize) yield {
-        val dx = if (i == 0) IntegerDomain(List(gOffset + domainSize - 1)) else fDomain.diff(IntegerDomain(List(gOffset + i)))
+    private val xs = for i <- 0 until domainSize yield {
+        val dx = if i == 0 then IntegerDomain(List(gOffset + domainSize - 1)) else fDomain.diff(IntegerDomain(List(gOffset + i)))
         new IntegerVariable(space.nextVariableId(), "x%d".format(i + 1), dx)
     }
     override protected val f = new InverseFunction(xs, fOffset)
 
     private val gDomain = IntegerRange(fOffset, fOffset + domainSize - 1)
-    private val ys = for (i <- 0 until domainSize) yield {
-        val dy = if (i == domainSize - 1) IntegerDomain(List(fOffset)) else gDomain.diff(IntegerDomain(List(fOffset + i)))
+    private val ys = for i <- 0 until domainSize yield {
+        val dy = if i == domainSize - 1 then IntegerDomain(List(fOffset)) else gDomain.diff(IntegerDomain(List(fOffset + i)))
         new IntegerVariable(space.nextVariableId(), "y%d".format(i + 1), dy)
     }
     override protected val g = new InverseFunction(ys, gOffset)
@@ -33,7 +33,7 @@ final class GeneralInverseNeighbourhoodTest(fOffset: Int, gOffset: Int) extends 
 object GeneralInverseNeighbourhoodTest {
 
     private def offsets = List(-1, 0, 1).map(Integer.valueOf)
-    private def configurations = for (fOffset <- offsets; gOffset <- offsets) yield Vector(fOffset, gOffset)
+    private def configurations = for fOffset <- offsets; gOffset <- offsets yield Vector(fOffset, gOffset)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
     def parameters = configurations.map(_.toArray).asJava

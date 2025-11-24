@@ -39,11 +39,9 @@ final class IntegerPowersetDomain
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: IntegerSetValue) = {
         require(! isSingleton)
         val a = base.randomValue(randomGenerator)
-        if (currentValue.set.contains(a)) {
-            new IntegerSetValue(currentValue.set.diff(IntegerRange(a, a)))
-        } else {
-            new IntegerSetValue(currentValue.set.union(IntegerRange(a, a)))
-        }
+        if currentValue.set.contains(a)
+        then new IntegerSetValue(currentValue.set.diff(IntegerRange(a, a)))
+        else new IntegerSetValue(currentValue.set.union(IntegerRange(a, a)))
     }
     inline def isSubsetOf(that: IntegerPowersetDomain): Boolean =
         this.base.isSubsetOf(that.base)

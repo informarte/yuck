@@ -16,17 +16,17 @@ final class IntegerRangeList
     extends IntegerDomain
 {
 
-    for (range <- ranges) {
+    for range <- ranges do {
         require(! range.isEmpty)
     }
-    for (i <- 1 until ranges.size) {
+    for i <- 1 until ranges.size do {
         require(safeInc(ranges(i - 1).ub.value) < ranges(i).lb.value)
     }
 
     inline def ==(that: IntegerRangeList): Boolean = this.eq(that) || this.ranges == that.ranges
     inline def !=(that: IntegerRangeList): Boolean = ! (this == that)
 
-    override def toString = if (isEmpty) "{}" else ranges.iterator.map(_.toString).mkString(" ∪ ")
+    override def toString = if isEmpty then "{}" else ranges.iterator.map(_.toString).mkString(" ∪ ")
 
     inline override def isEmpty = ranges.isEmpty
     override lazy val size = ranges.iterator.map(_.size).foldLeft(0)(safeAdd(_, _))
@@ -34,9 +34,9 @@ final class IntegerRangeList
     override def isFinite = isEmpty || (ranges.head.lb.ne(null) && ranges.last.ub.ne(null))
     override def hasGaps = ranges.size > 1
     override def isBounded = isEmpty || (ranges.head.lb.ne(null) || ranges.last.ub.ne(null))
-    override def lb = if (isEmpty) One else ranges.head.lb
-    override def ub = if (isEmpty) Zero else ranges.last.ub
-    override def hull = if (ranges.size == 1) ranges.head else IntegerRange(lb, ub)
+    override def lb = if isEmpty then One else ranges.head.lb
+    override def ub = if isEmpty then Zero else ranges.last.ub
+    override def hull = if ranges.size == 1 then ranges.head else IntegerRange(lb, ub)
     override def values = {
         require(isFinite)
         ranges.view.flatMap(_.values)
@@ -53,7 +53,7 @@ final class IntegerRangeList
 
     private lazy val rangeDistribution: Distribution = {
         val result = Distribution(ranges.size)
-        for (i <- ranges.indices) {
+        for i <- ranges.indices do {
             result.setFrequency(i, ranges(i).size)
         }
         result
@@ -61,30 +61,29 @@ final class IntegerRangeList
 
     override def randomValue(randomGenerator: RandomGenerator) = {
         require(! isEmpty)
-        if (ranges.size == 1) ranges.head.randomValue(randomGenerator)
+        if ranges.size == 1
+        then ranges.head.randomValue(randomGenerator)
         else ranges(rangeDistribution.nextIndex(randomGenerator)).randomValue(randomGenerator)
     }
 
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: IntegerValue) = {
         require(! isEmpty)
-        if (isSingleton) {
-            singleValue
-        } else if (size == 2) {
-            if (currentValue == lb) ub else lb
-        } else if (ranges.size == 1) {
-            ranges.head.nextRandomValue(randomGenerator, currentValue)
-        } else {
+        if isSingleton
+        then singleValue
+        else if size == 2
+        then if currentValue == lb then ub else lb
+        else if ranges.size == 1
+        then ranges.head.nextRandomValue(randomGenerator, currentValue)
+        else {
             val i = findIndexOfContainingRange(currentValue, 0, ranges.size - 1)
             assert(i >= 0)
             try {
                 rangeDistribution.addFrequencyDelta(i, -1)
                 val j = rangeDistribution.nextIndex(randomGenerator)
                 val range = ranges(j)
-                if (range.contains(currentValue)) {
-                    range.nextRandomValue(randomGenerator, currentValue)
-                } else {
-                    range.randomValue(randomGenerator)
-                }
+                if range.contains(currentValue)
+                then range.nextRandomValue(randomGenerator, currentValue)
+                else range.randomValue(randomGenerator)
             } finally {
                 rangeDistribution.addFrequencyDelta(i, +1)
             }
@@ -106,8 +105,10 @@ final class IntegerRangeList
     def isSubsetOf(that: IntegerRangeList): Boolean = {
         val lhs = this
         val rhs = that
-        if (lhs.isEmpty) true
-        else if (! lhs.hasLb) IntegerRangeList.isSubsetOf(lhs, 0, rhs, 0)
+        if lhs.isEmpty
+        then true
+        else if ! lhs.hasLb
+        then IntegerRangeList.isSubsetOf(lhs, 0, rhs, 0)
         else {
             val i = rhs.findIndexOfContainingRange(lhs.lb, 0, rhs.ranges.size - 1)
             i >= 0 && IntegerRangeList.isSubsetOf(lhs, 0, rhs, i)
@@ -115,10 +116,12 @@ final class IntegerRangeList
     }
 
     def intersect(that: IntegerRangeList): IntegerDomain = {
-        if (this.cannotIntersect(that)) EmptyIntegerRange
+        if this.cannotIntersect(that)
+        then EmptyIntegerRange
         else {
             val i = this.findIndexOfFirstIntersectingRange(that.hull, 0, this.ranges.size - 1)
-            if (i < 0) EmptyIntegerRange
+            if i < 0
+            then EmptyIntegerRange
             else {
                 val buf = new mutable.ArrayBuffer[IntegerRange](max(this.ranges.size, that.ranges.size))
                 IntegerRangeList.intersect(this, i, that, 0, buf)
@@ -128,34 +131,38 @@ final class IntegerRangeList
     }
 
     def maybeIntersectionSize(that: IntegerRangeList): Option[Int] = {
-        if (this.cannotIntersect(that)) Some(0)
+        if this.cannotIntersect(that)
+        then Some(0)
         else {
             val i = this.findIndexOfFirstIntersectingRange(that.hull, 0, this.ranges.size - 1)
-            if (i < 0) Some(0)
-            else IntegerRangeList.maybeIntersectionSize(this, i, that, 0, 0)
+            if i < 0 then Some(0) else IntegerRangeList.maybeIntersectionSize(this, i, that, 0, 0)
         }
     }
 
     def intersects(that: IntegerRangeList): Boolean = {
-        if (this.cannotIntersect(that)) false
+        if this.cannotIntersect(that)
+        then false
         else {
             val i = this.findIndexOfFirstIntersectingRange(that.hull, 0, this.ranges.size - 1)
-            if (i < 0) false
-            else IntegerRangeList.intersects(this, i, that, 0)
+            if i < 0 then false else IntegerRangeList.intersects(this, i, that, 0)
         }
     }
 
     override def distanceTo(a: IntegerValue): IntegerValue = {
         require(! isEmpty)
         val lb = this.lb
-        if (lb.ne(null) && a < lb) lb - a
+        if lb.ne(null) && a < lb
+        then lb - a
         else {
             val ub = this.ub
-            if (ub.ne(null) && a > ub) a - ub
-            else if (ranges.size == 1) Zero
+            if ub.ne(null) && a > ub
+            then a - ub
+            else if ranges.size == 1
+            then Zero
             else {
                 val i = findIndexOfContainingHole(a, 0, ranges.size - 2)
-                if (i < 0) Zero
+                if i < 0
+                then Zero
                 else IntegerValue(min(safeSub(a.value, ranges(i).ub.value), safeSub(ranges(i + 1).lb.value, a.value)))
             }
         }
@@ -164,7 +171,8 @@ final class IntegerRangeList
     def diff(that: IntegerRangeList): IntegerDomain = {
         val lhs = this
         val rhs = that
-        if (lhs.cannotIntersect(rhs)) lhs
+        if lhs.cannotIntersect(rhs)
+        then lhs
         else {
             val buf = new mutable.ArrayBuffer[IntegerRange](lhs.ranges.size * 2)
             IntegerRangeList.diff(lhs, 0, rhs, 0, buf)
@@ -180,10 +188,11 @@ final class IntegerRangeList
 
     override def randomSubrange(randomGenerator: RandomGenerator): IntegerRange = {
         require(isFinite)
-        if (isEmpty) EmptyIntegerRange
+        if isEmpty
+        then EmptyIntegerRange
         else {
             val numberOfSubrangesDistribution = new ArrayBackedDistribution(ranges.size)
-            for (i <- ranges.indices) {
+            for i <- ranges.indices do {
                 numberOfSubrangesDistribution.setFrequency(i, safeMul(ranges(i).size, ranges(i).size + 1) / 2)
             }
             ranges(numberOfSubrangesDistribution.nextIndex(randomGenerator)).randomSubrange(randomGenerator)
@@ -191,8 +200,7 @@ final class IntegerRangeList
     }
 
     override def mirrored: IntegerRangeList =
-        if (isEmpty) this
-        else new IntegerRangeList(ranges.reverseIterator.map(_.mirrored).toVector)
+        if isEmpty then this else new IntegerRangeList(ranges.reverseIterator.map(_.mirrored).toVector)
 
     private def cannotIntersect(that: IntegerRangeList): Boolean =
         this.isEmpty ||
@@ -202,37 +210,42 @@ final class IntegerRangeList
 
     @tailrec
     private def findIndexOfFirstIntersectingRange(r: IntegerRange, start: Int, end: Int): Int =
-        if (start > end) -1
+        if start > end
+        then -1
         else {
             val mid = start + (end - start + 1) / 2
-            if (ranges(mid).intersects(r)) {
-                if (mid > 0 && ranges(mid - 1).intersects(r)) {
-                    findIndexOfFirstIntersectingRange(r, start, mid - 1)
-                } else {
-                    mid
-                }
-            }
-            else if (r.precedes(ranges(mid))) findIndexOfFirstIntersectingRange(r, start, mid - 1)
+            if ranges(mid).intersects(r)
+            then if mid > 0 && ranges(mid - 1).intersects(r)
+                 then findIndexOfFirstIntersectingRange(r, start, mid - 1)
+                 else mid
+            else if r.precedes(ranges(mid))
+            then findIndexOfFirstIntersectingRange(r, start, mid - 1)
             else findIndexOfFirstIntersectingRange(r, mid + 1, end)
         }
 
     @tailrec
     private def findIndexOfContainingRange(a: IntegerValue, start: Int, end: Int): Int =
-        if (start > end) -1
+        if start > end
+        then -1
         else {
             val mid = start + (end - start + 1) / 2
-            if (ranges(mid).contains(a)) mid
-            else if (mid > 0 && ranges(mid).lb > a) findIndexOfContainingRange(a, start, mid - 1)
+            if ranges(mid).contains(a)
+            then mid
+            else if mid > 0 && ranges(mid).lb > a
+            then findIndexOfContainingRange(a, start, mid - 1)
             else findIndexOfContainingRange(a, mid + 1, end)
         }
 
     @tailrec
     private def findIndexOfContainingHole(a: IntegerValue, start: Int, end: Int): Int =
-        if (start > end) -1
+        if start > end
+        then -1
         else {
             val mid = start + (end - start + 1) / 2
-            if (ranges(mid).hasUb && ranges(mid).ub < a && a < ranges(mid + 1).lb) mid
-            else if (ranges(mid).hasLb && ranges(mid).lb > a) findIndexOfContainingHole(a, start, mid - 1)
+            if ranges(mid).hasUb && ranges(mid).ub < a && a < ranges(mid + 1).lb
+            then mid
+            else if ranges(mid).hasLb && ranges(mid).lb > a
+            then findIndexOfContainingHole(a, start, mid - 1)
             else findIndexOfContainingHole(a, mid + 1, end)
         }
 
@@ -246,8 +259,7 @@ object IntegerRangeList {
      * Tries to avoid memory allocation by re-using existing objects.
      */
     def apply(ranges: immutable.IndexedSeq[IntegerRange]) =
-        if (ranges.isEmpty) EmptyIntegerRangeList
-        else new IntegerRangeList(ranges)
+        if ranges.isEmpty then EmptyIntegerRangeList else new IntegerRangeList(ranges)
 
     /**
      * Creates an IntegerRangeList instance from the given range.
@@ -255,8 +267,7 @@ object IntegerRangeList {
      * Tries to avoid memory allocation by re-using existing objects.
      */
     def apply(range: IntegerRange) =
-        if (range.isEmpty) EmptyIntegerRangeList
-        else new IntegerRangeList(Vector(range))
+        if range.isEmpty then EmptyIntegerRangeList else new IntegerRangeList(Vector(range))
 
     /**
      * Creates an IntegerRangeList instance from the given boundaries.
@@ -264,7 +275,8 @@ object IntegerRangeList {
      * Tries to avoid memory allocation by re-using existing objects.
      */
     def apply(a: IntegerValue, b: IntegerValue) =
-        if (a.ne(null) && b.ne(null) && b < a) EmptyIntegerRangeList
+        if a.ne(null) && b.ne(null) && b < a
+        then EmptyIntegerRangeList
         else new IntegerRangeList(Vector(IntegerRange(a, b)))
 
     // In the following methods we prefer indices and tail recursion over iterators and loops
@@ -282,26 +294,32 @@ object IntegerRangeList {
 
     @tailrec
     private def isSubsetOf(lhs: IntegerRangeList, i: Int, rhs: IntegerRangeList, j: Int): Boolean =
-        if (i == lhs.ranges.size) true
-        else if (j == rhs.ranges.size) false
-        else if (lhs.ranges(i).precedes(rhs.ranges(j))) false
-        else if (lhs.ranges(i).isSubsetOf(rhs.ranges(j))) isSubsetOf(lhs, i + 1, rhs, j)
+        if i == lhs.ranges.size
+        then true
+        else if j == rhs.ranges.size
+        then false
+        else if lhs.ranges(i).precedes(rhs.ranges(j))
+        then false
+        else if lhs.ranges(i).isSubsetOf(rhs.ranges(j))
+        then isSubsetOf(lhs, i + 1, rhs, j)
         else isSubsetOf(lhs, i, rhs, j + 1)
 
     @tailrec
     private def intersect(lhs: IntegerRangeList, i: Int, rhs: IntegerRangeList, j: Int, buf: mutable.Buffer[IntegerRange]): Unit = {
-        if (i == lhs.ranges.size) {}
-        else if (j == rhs.ranges.size) {}
-        else {
+        if i == lhs.ranges.size then {
+        } else if j == rhs.ranges.size then {
+        } else {
             val r = lhs.ranges(i)
             val u = rhs.ranges(j)
-            if (r.precedes(u)) intersect(lhs, i + 1, rhs, j, buf)
-            else if (u.precedes(r)) intersect(lhs, i, rhs, j + 1, buf)
+            if r.precedes(u)
+            then intersect(lhs, i + 1, rhs, j, buf)
+            else if u.precedes(r)
+            then intersect(lhs, i, rhs, j + 1, buf)
             else {
                buf += r.intersect(u)
                intersect(
-                   lhs, if (u.endsBefore(r)) i else i + 1,
-                   rhs, if (r.endsBefore(u)) j else j + 1,
+                   lhs, if u.endsBefore(r) then i else i + 1,
+                   rhs, if r.endsBefore(u) then j else j + 1,
                    buf)
             }
         }
@@ -309,44 +327,52 @@ object IntegerRangeList {
 
     @tailrec
     private def maybeIntersectionSize(lhs: IntegerRangeList, i: Int, rhs: IntegerRangeList, j: Int, n: Int): Option[Int] =
-        if (i == lhs.ranges.size) Some(n)
-        else if (j == rhs.ranges.size) Some(n)
+        if i == lhs.ranges.size
+        then Some(n)
+        else if j == rhs.ranges.size
+        then Some(n)
         else {
             val r = lhs.ranges(i)
             val u = rhs.ranges(j)
-            if (r.precedes(u)) maybeIntersectionSize(lhs, i + 1, rhs, j, n)
-            else if (u.precedes(r)) maybeIntersectionSize(lhs, i, rhs, j + 1, n)
+            if r.precedes(u)
+            then maybeIntersectionSize(lhs, i + 1, rhs, j, n)
+            else if u.precedes(r)
+            then maybeIntersectionSize(lhs, i, rhs, j + 1, n)
             else {
                 val maybeM = r.maybeIntersectionSize(u)
-                if (maybeM.isEmpty) None
-                else maybeIntersectionSize(
-                         lhs, if (u.endsBefore(r)) i else i + 1,
-                         rhs, if (r.endsBefore(u)) j else j + 1,
-                         n + maybeM.get)
+                if maybeM.isEmpty
+                then None
+                else
+                    maybeIntersectionSize(
+                        lhs, if u.endsBefore(r) then i else i + 1,
+                        rhs, if r.endsBefore(u) then j else j + 1,
+                        n + maybeM.get)
             }
         }
 
     @tailrec
     private def intersects(lhs: IntegerRangeList, i: Int, rhs: IntegerRangeList, j: Int): Boolean =
-        if (i == lhs.ranges.size) false
-        else if (j == rhs.ranges.size) false
+        if i == lhs.ranges.size
+        then false
+        else if j == rhs.ranges.size
+        then false
         else {
             val r = lhs.ranges(i)
             val u = rhs.ranges(j)
-            if (r.precedes(u)) intersects(lhs, i + 1, rhs, j)
-            else if (u.precedes(r)) intersects(lhs, i, rhs, j + 1)
+            if r.precedes(u)
+            then intersects(lhs, i + 1, rhs, j)
+            else if u.precedes(r)
+            then intersects(lhs, i, rhs, j + 1)
             else
                r.intersects(u) ||
                intersects(
-                   lhs, if (u.endsBefore(r)) i else i + 1,
-                   rhs, if (r.endsBefore(u)) j else j + 1)
+                   lhs, if u.endsBefore(r) then i else i + 1,
+                   rhs, if r.endsBefore(u) then j else j + 1)
         }
 
     @tailrec
     private def diff(lhs: IntegerRangeList, i: Int, rhs: IntegerRangeList, j: Int, buf: mutable.Buffer[IntegerRange]): Unit = {
-        if (i == lhs.ranges.size) {
-        }
-        else {
+        if i != lhs.ranges.size then {
             val k = diff(lhs.ranges(i), rhs, j, buf)
             diff(lhs, i + 1, rhs, k, buf)
         }
@@ -354,27 +380,27 @@ object IntegerRangeList {
 
     @tailrec
     private def diff(lhs: IntegerRange, rhs: IntegerRangeList, j: Int, buf: mutable.Buffer[IntegerRange]): Int = {
-        if (j == rhs.ranges.size) {
+        if j == rhs.ranges.size then {
             buf += lhs
             j
         } else {
             // r \ u
             val r = lhs
             val u = rhs.ranges(j)
-            if (u.precedes(r)) {
+            if u.precedes(r) then {
                 diff(r, rhs, j + 1, buf)
             }
-            else if (r.precedes(u)) {
+            else if r.precedes(u) then {
                 buf += r
                 j
             }
-            else if (u.endsBefore(r)) {
-                if (u.startsAfter(r)) {
+            else if u.endsBefore(r) then {
+                if u.startsAfter(r) then {
                     buf += IntegerRange(r.lb, u.lb - One)
                 }
                 diff(IntegerRange(u.ub + One, r.ub), rhs, j + 1, buf)
             }
-            else if (u.startsAfter(r)) {
+            else if u.startsAfter(r) then {
                 buf += IntegerRange(r.lb, u.lb - One)
                 j
             }
@@ -388,31 +414,31 @@ object IntegerRangeList {
     @tailrec
     private def union(lhs: IntegerRangeList, i: Int, rhs: IntegerRangeList, j: Int, buf: mutable.Buffer[IntegerRange]): Unit = {
         def addRange(u: IntegerRange): Unit = {
-            if (buf.isEmpty) {
+            if buf.isEmpty then {
                 buf += u
             } else {
                 val r = buf.last
                 assert(! r.startsAfter(u))
-                if (r.precedesImmediately(u) || r.intersects(u)) {
-                    buf.update(buf.size - 1, IntegerRange(r.lb, if (r.endsAfter(u)) r.ub else u.ub))
+                if r.precedesImmediately(u) || r.intersects(u) then {
+                    buf.update(buf.size - 1, IntegerRange(r.lb, if r.endsAfter(u) then r.ub else u.ub))
                 } else {
                     buf += u
                 }
             }
         }
-        if (i == lhs.ranges.size) {
-            if (j < rhs.ranges.size) {
+        if i == lhs.ranges.size then {
+            if j < rhs.ranges.size then {
                 addRange(rhs.ranges(j))
                 union(lhs, i, rhs, j + 1, buf)
             }
         }
-        else if (j == rhs.ranges.size) {
+        else if j == rhs.ranges.size then {
             addRange(lhs.ranges(i))
             union(lhs, i + 1, rhs, j, buf)
         } else {
             val r = lhs.ranges(i)
             val u = rhs.ranges(j)
-            if (u.startsAfter(r)) {
+            if u.startsAfter(r) then {
                 addRange(r)
                 union(lhs, i + 1, rhs, j, buf)
             } else {

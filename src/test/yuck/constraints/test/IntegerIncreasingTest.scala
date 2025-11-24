@@ -17,7 +17,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
     private val randomGenerator = new JavaRandomGenerator
     private val space = new Space(logger, sigint)
 
-    private val xs = for (i <- 1 to 4) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(1, 4))
+    private val xs = for i <- 1 to 4 yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(1, 4))
     private val Seq(x1, x2, x3, x4) = xs
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
@@ -34,7 +34,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
     @Test
     def testPropagation(): Unit = {
         space.post(new IntegerIncreasing(space.nextConstraintId(), null, xs, strict, costs))
-        if (strict) {
+        if strict then {
             runScenario(
                 TestScenario(
                     space,
@@ -59,7 +59,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
     @Test
     def testHandlingOfConsecutiveDuplicateVariablesInPropagation(): Unit = {
         space.post(new IntegerIncreasing(space.nextConstraintId(), null, Vector(x1, x2, x2, x4), strict, costs))
-        if (strict) {
+        if strict then {
             runScenario(
                 TestScenario(
                     space,
@@ -80,7 +80,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
     @Test
     def testHandlingOfNonConsecutiveDuplicateVariablesInPropagation(): Unit = {
         space.post(new IntegerIncreasing(space.nextConstraintId(), null, Vector(x1, x2, x1, x4), strict, costs))
-        if (strict) {
+        if strict then {
             runScenario(
                 TestScenario(
                     space,
@@ -101,7 +101,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
     @Test
     def testCostComputation(): Unit = {
         space.post(new IntegerIncreasing(space.nextConstraintId(), null, xs, strict, costs))
-        if (strict) {
+        if strict then {
             runScenario(
                 TestScenario(
                     space,
@@ -129,7 +129,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
     @Test
     def testHandlingOfConsecutiveDuplicateVariablesInCostComputation(): Unit = {
         space.post(new IntegerIncreasing(space.nextConstraintId(), null, Vector(x1, x2, x2, x4), strict, costs))
-        if (strict) {
+        if strict then {
             runScenario(
                 TestScenario(
                     space,
@@ -153,7 +153,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
     @Test
     def testHandlingOfNonConsecutiveDuplicateVariablesInCostComputation(): Unit = {
         space.post(new IntegerIncreasing(space.nextConstraintId(), null, Vector(x1, x2, x1, x4), strict, costs))
-        if (strict) {
+        if strict then {
             runScenario(
                 TestScenario(
                     space,
@@ -184,7 +184,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
     @Test
     def testHandlingOfConsecutiveDuplicateVariablesInNeighbourhoodGeneration(): Unit = {
         val xs = Vector(x1, x2, x2, x4)
-        if (strict) {
+        if strict then {
             assertNoNeighbourhood(xs)
         } else {
             assertNeighbourhood(xs)
@@ -212,7 +212,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
     @Test
     def testHandlingOfFixedAssignmentsInNeighbourhoodGeneration2(): Unit = {
         x1.pruneDomain(IntegerRange(4, 4))
-        if (strict) {
+        if strict then {
             assertNoNeighbourhood(xs, isCandidate = true)
         } else {
             assertNeighbourhood(xs)
@@ -234,10 +234,10 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
         assertEq(neighbourhood.getClass, classOf[IntegerIncreasingNeighbourhood])
         val now = space.searchState
         assert(xs.forall(_.hasValidValue(now)))
-        for (i <- 0 until xs.size - 1) {
+        for i <- 0 until xs.size - 1 do {
             val a = now.value(xs(i))
             val b = now.value(xs(i + 1))
-            if (strict) {
+            if strict then {
                 assertLt(a, b)
             } else {
                 assertLe(a, b)

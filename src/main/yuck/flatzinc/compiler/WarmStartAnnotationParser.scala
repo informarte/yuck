@@ -27,7 +27,7 @@ class WarmStartAnnotationParser
                 val xs = compileAnyArray(varArray)
                 val ys = compileAnyArray(valArray)
                 require(xs.size == ys.size)
-                for ((x, y) <- xs.zip(ys)) {
+                for (x, y) <- xs.zip(ys) do {
                     ((x, y): @unchecked) match {
                         case (x: BooleanVariable, y: BooleanVariable) => setValue(x, y)
                         case (x: IntegerVariable, y: IntegerVariable) => setValue(x, y)
@@ -50,9 +50,9 @@ class WarmStartAnnotationParser
     }
 
     private def setValue[V <: Value[V]](x: Variable[V], y: Variable[V]): Unit = {
-        if (cc.space.isSearchVariable(x)) {
+        if cc.space.isSearchVariable(x) then {
             val a = y.domain.singleValue
-            if (x.domain.contains(a)) {
+            if x.domain.contains(a) then {
                 cc.warmStartAssignment += x -> y
                 cc.space.setValue(x, a)
             }
@@ -63,7 +63,7 @@ class WarmStartAnnotationParser
         cc.logger.criticalSection {
             cc.logger.withRootLogLevel(FineLogLevel) {
                 cc.logger.withLogScope("Warm-start assignments") {
-                    for ((x, y) <- cc.warmStartAssignment) {
+                    for (x, y) <- cc.warmStartAssignment do {
                         cc.logger.log("%s = %s".format(x, y.domain.singleValue))
                     }
                 }

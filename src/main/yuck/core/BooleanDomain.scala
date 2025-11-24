@@ -16,10 +16,14 @@ final class BooleanDomain
     override def compare(that: OrderedDomain[BooleanValue]) = {
         val lhs = this
         val rhs = that.asInstanceOf[BooleanDomain]
-        if (lhs == rhs) 0
-        else if (lhs.isEmpty) -1
-        else if (lhs.containsFalse && !lhs.containsTrue && rhs.containsTrue) -1
-        else if (!lhs.containsFalse && lhs.containsTrue && rhs.containsFalse && rhs.containsTrue) -1
+        if lhs == rhs
+        then 0
+        else if lhs.isEmpty
+        then -1
+        else if lhs.containsFalse && !lhs.containsTrue && rhs.containsTrue
+        then -1
+        else if !lhs.containsFalse && lhs.containsTrue && rhs.containsFalse && rhs.containsTrue
+        then -1
         else +1
     }
 
@@ -28,43 +32,46 @@ final class BooleanDomain
         this.eq(that) || (this.containsFalse == that.containsFalse && this.containsTrue == that.containsTrue)
     inline def !=(that: BooleanDomain): Boolean = ! (this == that)
 
-    override def size = (if (containsFalse) 1 else 0) + (if (containsTrue) 1 else 0)
+    override def size = (if containsFalse then 1 else 0) + (if containsTrue then 1 else 0)
     override def isComplete = false
     override def isFinite = true
     override def isBounded = true
     override def hasLb = true
     override def hasUb = true
 
-    override def lb = if (containsTrue) True else False
-    override def ub = if (containsFalse) False else True
+    override def lb = if containsTrue then True else False
+    override def ub = if containsFalse then False else True
     override def hull: BooleanDomain = this
 
     override def values =
-        if (containsFalse && containsTrue) BooleanDomain.ListWithFalseAndTrue
-        else if (containsFalse) BooleanDomain.ListWithFalse
-        else if (containsTrue) BooleanDomain.ListWithTrue
+        if containsFalse && containsTrue
+        then BooleanDomain.ListWithFalseAndTrue
+        else if containsFalse
+        then BooleanDomain.ListWithFalse
+        else if containsTrue
+        then BooleanDomain.ListWithTrue
         else Nil
 
     override def singleValue = {
         require(isSingleton)
-        if (containsFalse) False else True
+        if containsFalse then False else True
     }
 
     override def contains(a: BooleanValue) =
-        if (a.truthValue) containsTrue else containsFalse
+        if a.truthValue then containsTrue else containsFalse
 
     override def randomValue(randomGenerator: RandomGenerator) = {
         require(! isEmpty)
-        if (isSingleton) {
-            if (containsFalse) False else True
+        if isSingleton then {
+            if containsFalse then False else True
         } else {
-            if (randomGenerator.nextDecision()) True else False
+            if randomGenerator.nextDecision() then True else False
         }
     }
 
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: BooleanValue) = {
         require(! isEmpty)
-        if (isSingleton) singleValue else if (currentValue.truthValue) False else True
+        if isSingleton then singleValue else if currentValue.truthValue then False else True
     }
 
     override def randomSubdomain(randomGenerator: RandomGenerator): BooleanDomain = ???

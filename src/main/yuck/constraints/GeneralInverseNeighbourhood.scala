@@ -25,7 +25,7 @@ final class GeneralInverseNeighbourhood
         .toVector
 
     override def nextMove() = {
-        if (candidates1.isEmpty) {
+        if candidates1.isEmpty then {
             new ChangeValues[IntegerValue](space.nextMoveId(), Nil)
         } else {
             val i1 = candidates1(randomGenerator.nextInt(candidates1.size))
@@ -53,7 +53,7 @@ final class GeneralInverseNeighbourhood
                         y1.domain.contains(b2) && y2.domain.contains(b1)
                     })
                 .toVector
-            if (candidates2.isEmpty) {
+            if candidates2.isEmpty then {
                 new ChangeValues[IntegerValue](space.nextMoveId(), Nil)
             } else {
                 val i2 = candidates2(randomGenerator.nextInt(candidates2.size))

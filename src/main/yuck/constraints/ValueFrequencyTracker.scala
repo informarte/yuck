@@ -41,14 +41,14 @@ abstract class ValueFrequencyTracker
     inline private def deregisterValue(valueRegistry: ValueRegistry, a0: V, n: Int): ValueRegistry = {
         val a = valueTraits.normalizedValue(a0)
         val occurenceCount = valueRegistry(a) - n
-        if (occurenceCount == 0) valueRegistry - a else valueRegistry + (a -> occurenceCount)
+        if occurenceCount == 0 then valueRegistry - a else valueRegistry + (a -> occurenceCount)
     }
 
     private val effect = result.reuseableEffect
 
     override def initialize(now: SearchState) = {
         valueRegistry = createValueRegistry()
-        for (x <- xs) {
+        for x <- xs do {
             valueRegistry = registerValue(valueRegistry, now.value(x), 1)
         }
         effect.a = computeResult(now, valueRegistry)
@@ -58,7 +58,7 @@ abstract class ValueFrequencyTracker
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         futureValueRegistry = valueRegistry
         val it = todo(move).iterator
-        while (it.hasNext) {
+        while it.hasNext do {
             val x0 = it.next()
             val x = valueTraits.safeDowncast(x0)
             val n = variableRegistry(x0)

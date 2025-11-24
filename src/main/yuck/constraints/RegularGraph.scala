@@ -66,7 +66,7 @@ final class RegularGraph(dfa: RegularDfa) {
         graph.addVertex(source)
         val lastLayer = xs.foldLeft(Set(source))((previousLayer, x) =>
             val nextLayer = new mutable.HashSet[State]
-            for (state <- previousLayer) {
+            for state <- previousLayer do {
                 x.domain.values
                     .filter(a => a >= One && a.value.toInt <= dfa.S)
                     .groupBy(a => dfa.delta(state.q - 1)(a.value.toInt - 1))
@@ -87,8 +87,8 @@ final class RegularGraph(dfa: RegularDfa) {
 
         // add sink and connect it to last layer
         graph.addVertex(sink)
-        for (case state @ IntermediateState(_, q) <- lastLayer) {
-            if (dfa.F.contains(IntegerValue(q))) {
+        for case state @ IntermediateState(_, q) <- lastLayer do {
+            if dfa.F.contains(IntegerValue(q)) then {
                 graph.addEdge(state, sink, AcceptingStateToSink(q))
             }
         }
@@ -97,10 +97,10 @@ final class RegularGraph(dfa: RegularDfa) {
         // (The first iteration will remove all non-accepting states from the last layer
         // and subsequent iterations will address the states that were turned into dead ends by
         // earlier iterations.)
-        for (x <- xs.reverse) {
-            for (q <- dfa.Q to 1 by -1) {
+        for x <- xs.reverse do {
+            for q <- dfa.Q to 1 by -1 do {
                 val state = IntermediateState(x, q)
-                if (graph.containsVertex(state) && graph.outgoingEdgesOf(state).isEmpty) {
+                if graph.containsVertex(state) && graph.outgoingEdgesOf(state).isEmpty then {
                     graph.removeVertex(state)
                 }
             }
@@ -178,17 +178,17 @@ final class RegularGraph(dfa: RegularDfa) {
             val edge = Array.fill[T](m)(integral.fromInt(-1)) // edge(i) is the edge leading to vertex i
             var i = 0
             dist(graph.v2i(source)) = 0
-            while (i < m) {
+            while i < m do {
                 val u = graph.topologicalOrdering(i)
                 val outgoingEdges = graph.adjacencyLists(integral.toInt(u))
                 val n = outgoingEdges.length
                 var j = 0
-                while (j < n) {
+                while j < n do {
                     val e = outgoingEdges(j)
                     val v = integral.toInt(graph.edgeTargets(integral.toInt(e)))
                     val d = distanceProvider(graph.i2e(integral.toInt(e)))
                     val td = dist(integral.toInt(u)) + d
-                    if (dist(v) > td) {
+                    if dist(v) > td then {
                         dist(v) = td
                         pred(v) = u
                         edge(v) = e
@@ -200,7 +200,7 @@ final class RegularGraph(dfa: RegularDfa) {
             val path = new Array[Transition](n + 1)
             var v = graph.v2i(sink)
             i = n
-            while (i >= 0 && v >= 0) {
+            while i >= 0 && v >= 0 do {
                 val e = integral.toInt(edge(v))
                 path(i) = graph.i2e(e)
                 i -= 1

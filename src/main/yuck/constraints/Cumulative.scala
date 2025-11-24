@@ -137,7 +137,7 @@ final class Cumulative
         eventPoints.sortInPlace()(using EventPointOrdering)
         val n = eventPoints.size
         var costs = 0L
-        if (n > 0) {
+        if n > 0 then {
             assert(n > 1)
             var sweepLinePos = eventPoints(0).x
             var i = 0
@@ -145,7 +145,7 @@ final class Cumulative
             while {
                 while {
                     val p = eventPoints(i)
-                    if (p.isBBoxStart) {
+                    if p.isBBoxStart then {
                         consumption = safeAdd(consumption, p.bbox.h)
                     } else {
                         consumption -= p.bbox.h
@@ -154,11 +154,11 @@ final class Cumulative
                     i += 1
                     i < n && eventPoints(i).x == sweepLinePos
                 } do ()
-                if (i < n) {
+                if i < n then {
                     val nextSweepLinePos = eventPoints(i).x
                     val segmentWidth = nextSweepLinePos - sweepLinePos
                     sweepLinePos = nextSweepLinePos
-                    if (consumption > capacity) {
+                    if consumption > capacity then {
                         costs = safeAdd(costs, safeMul(segmentWidth.toLong, (consumption - capacity).toLong))
                     }
                 }
@@ -180,7 +180,7 @@ final class Cumulative
                     val bbox = entry.bbox
                     val p1 = new EventPoint(max(x1, bbox.x1), bbox, true)
                     val p2 = new EventPoint(min(x2, bbox.x2), bbox, false)
-                    if (p1.x < x2 && p2.x > x1) {
+                    if p1.x < x2 && p2.x > x1 then {
                         // entry really intersects with [x1, x2]
                         eventPoints.addOne(p1)
                         eventPoints.addOne(p2)
@@ -188,7 +188,7 @@ final class Cumulative
                 }
             }
         )
-        if (consumptionDelta > 0) {
+        if consumptionDelta > 0 then {
             // add event points for the case that [x1, x2] is not (yet) fully covered by tasks
             val bbox = new Rect2d(x1, 0, x2, 0)
             eventPoints.addOne(new EventPoint(x1, bbox, true))
@@ -206,7 +206,7 @@ final class Cumulative
         while {
             while {
                 val p = eventPoints(i)
-                if (p.isBBoxStart) {
+                if p.isBBoxStart then {
                     consumption = safeAdd(consumption, p.bbox.h)
                 } else {
                     consumption -= p.bbox.h
@@ -215,22 +215,22 @@ final class Cumulative
                 i += 1
                 i < n && eventPoints(i).x == sweepLinePos
             } do ()
-            if (i < n) {
+            if i < n then {
                 val nextSweepLinePos = eventPoints(i).x
                 val segmentWidth = nextSweepLinePos - sweepLinePos
-                if (consumptionDelta > 0) {
-                    if (consumption >= capacity) {
+                if consumptionDelta > 0 then {
+                    if consumption >= capacity then {
                         costDelta = safeAdd(costDelta, safeMul(segmentWidth.toLong, consumptionDelta.toLong))
                     } else {
                         val futureConsumption = safeAdd(consumption, consumptionDelta)
-                        if (futureConsumption > capacity) {
+                        if futureConsumption > capacity then {
                             costDelta = safeAdd(costDelta, safeMul(segmentWidth.toLong, (futureConsumption - capacity).toLong))
                         }
                     }
-                } else if (consumption > capacity) {
+                } else if consumption > capacity then {
                     val futureConsumption = safeAdd(consumption, consumptionDelta)
                     assert(futureConsumption >= 0)
-                    if (futureConsumption >= capacity) {
+                    if futureConsumption >= capacity then {
                         costDelta = safeAdd(costDelta, safeMul(segmentWidth.toLong, consumptionDelta.toLong))
                     } else {
                         costDelta = safeSub(costDelta, safeMul(segmentWidth.toLong, (consumption - capacity).toLong))
@@ -247,7 +247,7 @@ final class Cumulative
         rTree = SpatialSearches.rTree[RTreeEntry](rectBuilder)
         rTreeTransaction = new RTreeTransaction[RTreeEntry](rTree, rectBuilder)
         currentCosts = 0
-        for (i <- 0 until n) {
+        for i <- 0 until n do {
             val entry = createRTreeEntry(i, now)
             rTree.add(entry)
         }
@@ -263,23 +263,24 @@ final class Cumulative
         val beforeCapacity = before.value(capacity).toInt
         val capacityChanged = move.involves(capacity)
         val is =
-            if (move.size == 1) x2is.getOrElse(move.effects.head.x, Nil)
+            if move.size == 1
+            then x2is.getOrElse(move.effects.head.x, Nil)
             else move.involvedVariablesIterator.flatMap(x2is.getOrElse(_, Nil)).to(mutable.Set)
-        for (i <- is) {
+        for i <- is do {
             val beforeEntry = createRTreeEntry(i, before)
             val beforeBbox = beforeEntry.bbox
-            if (! capacityChanged && ! beforeBbox.isEmpty) {
+            if ! capacityChanged && ! beforeBbox.isEmpty then {
                 futureCosts = safeAdd(futureCosts, computeCostDelta(rTreeTransaction, beforeBbox.x1, beforeBbox.x2, -beforeBbox.h, beforeCapacity))
             }
             rTreeTransaction.remove(beforeEntry)
             val afterEntry = createRTreeEntry(i, after)
             val afterBbox = afterEntry.bbox
-            if (! capacityChanged && ! afterBbox.isEmpty) {
+            if ! capacityChanged && ! afterBbox.isEmpty then {
                 futureCosts = safeAdd(futureCosts, computeCostDelta(rTreeTransaction, afterBbox.x1, afterBbox.x2, afterBbox.h, beforeCapacity))
             }
             rTreeTransaction.add(afterEntry)
         }
-        if (capacityChanged) {
+        if capacityChanged then {
             val afterCapacity = after.value(capacity).toInt
             futureCosts = computeCosts(rTreeTransaction, afterCapacity)
         }

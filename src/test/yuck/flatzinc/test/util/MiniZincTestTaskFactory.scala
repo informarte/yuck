@@ -42,13 +42,13 @@ abstract class MiniZincTestTaskFactory {
         assert(suiteDir.exists)
         val problems = suiteDir.listFiles.filter(_.isDirectory).filter(problemFilter).sorted
         val buf = new ArrayBuffer[ZincTestTask]
-        for (problem <- problems) {
+        for problem <- problems do {
             val modelFiles = listFiles(problem, modelFilter).sorted
             val dataFiles = listFiles(problem, instanceFilter).sorted
-            if (dataFiles.isEmpty) {
+            if dataFiles.isEmpty then {
                 val modelFileSelection =
                     randomGenerator.shuffle(modelFiles).take(maybeNumberOfInstancesPerProblem.getOrElse(modelFiles.size)).sorted
-                for (modelFile <- modelFileSelection) {
+                for modelFile <- modelFileSelection do {
                     buf +=
                         baseTask.copy(
                             directoryLayout = NonStandardMiniZincBenchmarksLayout,
@@ -59,8 +59,8 @@ abstract class MiniZincTestTaskFactory {
             } else {
                 val dataFileSelection =
                     randomGenerator.shuffle(dataFiles).take(maybeNumberOfInstancesPerProblem.getOrElse(dataFiles.size)).sorted
-                for (modelFile <- modelFiles) {
-                    for (dataFile <- dataFileSelection) {
+                for modelFile <- modelFiles do {
+                    for dataFile <- dataFileSelection do {
                         buf +=
                             baseTask.copy(
                                 directoryLayout = StandardMiniZincBenchmarksLayout,

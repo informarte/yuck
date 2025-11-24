@@ -25,9 +25,9 @@ final class IntegerSetDomainTest extends UnitTest {
         assertEq(new SingletonIntegerSetDomain(EmptyIntegerRange), new IntegerPowersetDomain(EmptyIntegerRange))
         val testData = helper.createTestData(baseRange, 16).distinct
         helper.testEquality(testData)
-        for (d <- testData) {
-            for (e <- testData) {
-                assert(if (d.eq(e)) d == e else d != e)
+        for d <- testData do {
+            for e <- testData do {
+                assert(if d.eq(e) then d == e else d != e)
             }
         }
     }
@@ -116,7 +116,7 @@ final class IntegerSetDomainTest extends UnitTest {
     @Test
     def testRandomSubdomainCreation(): Unit = {
         val testData = helper.createTestData(baseRange, 8)
-        for (a <- testData) {
+        for a <- testData do {
             assertEx(a.randomSubdomain(randomGenerator), classOf[NotImplementedError])
         }
     }

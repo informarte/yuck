@@ -25,18 +25,18 @@ final class AnnealingScheduleLoop(
 
     override def nextRound(roundLog: RoundLog) = {
         require(! isFrozen)
-        if (roundLog.bestProposalWasImproved) {
+        if roundLog.bestProposalWasImproved then {
             iterationWasFutile = false
         }
         val temperature = child.temperature
         child.nextRound(roundLog)
-        if (child.isFrozen) {
-            if (iterationWasFutile) {
+        if child.isFrozen then {
+            if iterationWasFutile then {
                 numberOfSuccessiveFutileIterations += 1
             } else {
                 numberOfSuccessiveFutileIterations = 0
             }
-            if (numberOfSuccessiveFutileIterations < maximumNumberOfSuccessiveFutileIterations) {
+            if numberOfSuccessiveFutileIterations < maximumNumberOfSuccessiveFutileIterations then {
                 iterationWasFutile = true
                 child.start(
                     temperature,

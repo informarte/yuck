@@ -60,7 +60,7 @@ final class FeasibilityJumpNeighbourhood
     private val csir = cs.indices
 
     require(involvementMap.keySet.subsetOf(cs.toSet))
-    for (xis <- involvementMap.values) {
+    for xis <- involvementMap.values do {
         require(xis.isSorted)
         require(xis.inlineForall(xsir.contains))
     }
@@ -83,9 +83,9 @@ final class FeasibilityJumpNeighbourhood
 
     private def setCostDeltaScalingFactors(): Unit = {
         var ci = m
-        while (ci > 0) {
+        while ci > 0 do {
             ci -= 1
-            if (costDeltaSampleSizes(ci) > 0.0) {
+            if costDeltaSampleSizes(ci) > 0.0 then {
                 costDeltaScalingFactors(ci) = 1.0 / costDeltaAverages(ci)
                 costDeltaSampleSizes(ci) = 0.0
                 costDeltaAverages(ci) = 0.0
@@ -153,14 +153,14 @@ final class FeasibilityJumpNeighbourhood
         maybeJumpCandidate match {
             case None =>
                 var ci = m
-                while (ci > 0) {
+                while ci > 0 do {
                     ci -= 1
                     weights(ci) *= weightDecayRate
-                    if (! space.searchState.value(cs(ci)).truthValue) {
+                    if ! space.searchState.value(cs(ci)).truthValue then {
                         weights(ci) += 1.0
                     }
                 }
-                if (useJumpValueCache) {
+                if useJumpValueCache then {
                     clearJumpValueCache()
                 }
                 NoJumpFound()
@@ -174,8 +174,8 @@ final class FeasibilityJumpNeighbourhood
         move match {
             case NoJumpFound() =>
             case Jump(_, xis) =>
-                if (useJumpValueCache) {
-                    for (xi <- xis) {
+                if useJumpValueCache then {
+                    for xi <- xis do {
                         jumpValueCache(xi) = null
                         xi2xis(xi).inlineForeach(yi => jumpValueCache(yi) = null)
                     }
@@ -186,28 +186,28 @@ final class FeasibilityJumpNeighbourhood
     override def perturb(perturbationProbability: Probability) = {
         require(perturbationProbability.value > 0)
         val move = new BulkMove(space.nextMoveId())
-        while (move.isEmpty) {
-            for (x <- xs) {
-                if (randomGenerator.nextDecision(perturbationProbability)) {
+        while move.isEmpty do {
+            for x <- xs do {
+                if randomGenerator.nextDecision(perturbationProbability) then {
                     move += x.nextRandomMoveEffect(space, randomGenerator)
                 }
             }
         }
         space.consult(move)
         space.commit(move)
-        if (resetWeightsOnPerturbation) {
+        if resetWeightsOnPerturbation then {
             resetWeights()
         }
-        if (scaleCostDeltas) {
+        if scaleCostDeltas then {
             setCostDeltaScalingFactors()
         }
-        if (useJumpValueCache) {
+        if useJumpValueCache then {
             clearJumpValueCache()
         }
     }
 
     def onObjectiveTightened(): Unit = {
-        if (useJumpValueCache) {
+        if useJumpValueCache then {
             clearJumpValueCache()
         }
     }
@@ -234,12 +234,12 @@ final class FeasibilityJumpNeighbourhood
     }
 
     private def updateHotSpotDistribution(acc: JumpCandidate): Unit = {
-        if (! acc.xis.isEmpty) {
-            for (case c: BooleanVariable <- acc.move) {
-                if (involvementMap.contains(c)) {
+        if ! acc.xis.isEmpty then {
+            for case c: BooleanVariable <- acc.move do {
+                if involvementMap.contains(c) then {
                     val satisfiedBefore = space.searchState.value(c).truthValue
                     val satisfiedAfter = acc.move.value(c).truthValue
-                    if (satisfiedBefore != satisfiedAfter) {
+                    if satisfiedBefore != satisfiedAfter then {
                         val delta = if satisfiedBefore && ! satisfiedAfter then 1L else -1L
                         involvementMap(c).inlineForeach(xi => {
                             frequencyRestorer.memorize(hotSpotDistribution, xi)
@@ -248,7 +248,7 @@ final class FeasibilityJumpNeighbourhood
                     }
                 }
             }
-            for (xi <- acc.xis) {
+            for xi <- acc.xis do {
                 frequencyRestorer.memorize(hotSpotDistribution, xi)
                 hotSpotDistribution.setFrequency(xi, 0)
             }
@@ -262,12 +262,12 @@ final class FeasibilityJumpNeighbourhood
             then {
                 numberOfJumpValueCacheQueries += 1
                 val jumpValueCacheEntry = jumpValueCache(xi)
-                if (jumpValueCacheEntry != null) {
+                if jumpValueCacheEntry != null then {
                     numberOfJumpValueCacheHits += 1
                 }
-                if (remainingNumberOfJumpValueCacheEvaluationQueries > 0) {
+                if remainingNumberOfJumpValueCacheEvaluationQueries > 0 then {
                     remainingNumberOfJumpValueCacheEvaluationQueries -= 1
-                    if (remainingNumberOfJumpValueCacheEvaluationQueries == 0) {
+                    if remainingNumberOfJumpValueCacheEvaluationQueries == 0 then {
                         val cacheHitRate = numberOfJumpValueCacheHits.toDouble / numberOfJumpValueCacheQueries.toDouble
                         useJumpValueCache = cacheHitRate >= minimumJumpValueCacheHitRate
                     }
@@ -275,7 +275,7 @@ final class FeasibilityJumpNeighbourhood
                 jumpValueCacheEntry
             }
             else null
-        if (cachedJumpCandidate == null) {
+        if cachedJumpCandidate == null then {
             val jumpCandidate = x match {
                 case y: BooleanVariable => findJumpCandidate(acc, y, xi)
                 case y: IntegerVariable =>
@@ -284,7 +284,7 @@ final class FeasibilityJumpNeighbourhood
                     else findJumpCandidate(acc, y.asInstanceOf[Variable[IntegerValue]], xi)
                 case y: IntegerSetVariable => findJumpCandidate(acc, y, xi)
             }
-            if (useJumpValueCache && jumpCandidate.changes.size == 1 && (useConvexArgMin || cacheJumpValuesFor(x))) {
+            if useJumpValueCache && jumpCandidate.changes.size == 1 && (useConvexArgMin || cacheJumpValuesFor(x)) then {
                 val xi = jumpCandidate.xis.head
                 jumpValueCache(xi) = jumpCandidate
             }
@@ -343,12 +343,12 @@ final class FeasibilityJumpNeighbourhood
          right: Long, rightCandidate: JumpCandidate):
         JumpCandidate =
     {
-        if (right - left > 3) {
+        if right - left > 3 then {
             val leftThird = (2 * left + right) / 3
             val rightThird = (left + 2 * right) / 3
             val leftThirdCandidate = computeScore(acc, x, xi, IntegerValue(leftThird))
             val rightThirdCandidate = computeScore(acc, x, xi, IntegerValue(rightThird))
-            if (leftThirdCandidate.score > rightThirdCandidate.score) {
+            if leftThirdCandidate.score > rightThirdCandidate.score then {
                 convexArgMin(acc, x, xi, leftThird, leftThirdCandidate, right, rightCandidate)
             } else {
                 convexArgMin(acc, x, xi, left, leftCandidate, rightThird, rightThirdCandidate)
@@ -376,8 +376,8 @@ final class FeasibilityJumpNeighbourhood
         xi2cis(xi).inlineForeach(ci => {
             val c = cs(ci)
             val costDelta = after.value(c).violation - before.value(c).violation
-            if (costDelta != 0) {
-                if (scaleCostDeltas) {
+            if costDelta != 0 then {
+                if scaleCostDeltas then {
                     costDeltaSampleSizes(ci) += 1.0
                     costDeltaAverages(ci) += (abs(costDelta) - costDeltaAverages(ci)) / costDeltaSampleSizes(ci)
                     score += weights(ci) * costDelta * costDeltaScalingFactors(ci)

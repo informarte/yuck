@@ -111,7 +111,7 @@ final class Even
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "even(%s, %s)".format(x, y)
-    override def op(a: V) = if (a.isEven) True else False
+    override def op(a: V) = if a.isEven then True else False
 }
 
 final class Uneven
@@ -121,5 +121,5 @@ final class Uneven
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "uneven(%s, %s)".format(x, y)
-    override def op(a: V) = if (a.isEven) False else True
+    override def op(a: V) = if a.isEven then False else True
 }

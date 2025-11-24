@@ -32,7 +32,7 @@ final class SimpleInverseNeighbourhood
         assert(b1.toInt - f.offset == i1)
         val i2 = {
             val i = randomGenerator.nextInt(n - 1)
-            if (i < i1) i else i + 1
+            if i < i1 then i else i + 1
         }
         val x2 = f.xs(i2)
         val a2 = value(x2)

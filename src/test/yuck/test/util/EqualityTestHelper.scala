@@ -6,12 +6,12 @@ class EqualityTestHelper[T] extends YuckAssert {
 
     // Checks that each given value equals itself and that the given values differ from each other.
     def testEquality(testData: Seq[T]): Unit = {
-        for (a <- testData) {
+        for a <- testData do {
             assertEq(a, a)
             assertNe(a, null)
             assertNe(null, a)
         }
-        for (Seq(a, b) <- testData.combinations(2)) {
+        for Seq(a, b) <- testData.combinations(2) do {
             assertNe(a, b)
             assertNe(b, a)
         }

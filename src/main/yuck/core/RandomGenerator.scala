@@ -45,7 +45,7 @@ abstract class RandomGenerator {
     {
         val buf = new mutable.ArrayBuffer[T]
         buf.addAll(source)
-        for (i <- buf.size - 1 to 1 by -1) {
+        for i <- buf.size - 1 to 1 by -1 do {
             val j = nextInt(i + 1)
             val tmp = buf(i)
             buf(i) = buf(j)
@@ -62,7 +62,7 @@ abstract class RandomGenerator {
         // Array.tabulate together with identity is slow due to boxing
         {
             var i = 0
-            while (i < n) {
+            while i < n do {
                 buf(i) = i
                 i += 1
             }
@@ -71,13 +71,13 @@ abstract class RandomGenerator {
         inline override def hasNext = n > 0
 
         override def next() = {
-            if (! hasNext) {
+            if ! hasNext then {
                 throw new NoSuchElementException
             }
             val i = nextInt(n)
             n -= 1
             val a = source(buf(i))
-            if (i < n) {
+            if i < n then {
                 buf(i) = buf(n)
             }
             a
@@ -92,13 +92,13 @@ abstract class RandomGenerator {
         inline override def hasNext = n > 0
 
         override def next() = {
-            if (! hasNext) {
+            if ! hasNext then {
                 throw new NoSuchElementException
             }
             val i = nextInt(n)
             n -= 1
             val a = source(i)
-            if (i < n) {
+            if i < n then {
                 source(i) = source(n)
                 source(n) = a
             }
@@ -116,8 +116,10 @@ abstract class RandomGenerator {
      * shuffle because less random numbers are generated.
      */
     final def lazyShuffle[T](source: IndexedSeq[T]): Iterator[T] =
-        if (source.isEmpty) Iterator.empty
-        else if (source.size == 1) source.iterator
+        if source.isEmpty
+        then Iterator.empty
+        else if source.size == 1
+        then source.iterator
         else new LazyShuffleIterator[T](source)
 
     /**
@@ -127,8 +129,10 @@ abstract class RandomGenerator {
      * shuffle because less random numbers are generated.
      */
     final def lazyShuffleInPlace[T](source: mutable.IndexedSeq[T]): Iterator[T] =
-        if (source.isEmpty) Iterator.empty
-        else if (source.size == 1) source.iterator
+        if source.isEmpty
+        then Iterator.empty
+        else if source.size == 1
+        then source.iterator
         else new LazyShuffleInPlaceIterator[T](source)
 
 }

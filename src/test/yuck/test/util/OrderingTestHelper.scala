@@ -14,12 +14,12 @@ class OrderingTestHelper[T](randomGenerator: RandomGenerator) extends EqualityTe
     // > is the inverse of <
     // For efficiency, testData should not contain duplicates.
     def testOrdering(testData: Seq[T], ord: Ordering[T]): Unit = {
-        for (a <- testData) {
+        for a <- testData do {
             // reflexivity of =
             assertEq(ord.compare(a, a), 0)
         }
-        for (a <- testData) {
-            for (b <- testData) {
+        for a <- testData do {
+            for b <- testData do {
                 val cmp1 = ord.compare(a, b)
                 val cmp2 = ord.compare(b, a)
                 // symmetry of =
@@ -27,22 +27,22 @@ class OrderingTestHelper[T](randomGenerator: RandomGenerator) extends EqualityTe
                 // consistency of = with equals
                 assertEq(cmp1 == 0, a == b)
                 // antisymmetry of <=
-                if (cmp1 <= 0 && cmp2 <= 0) {
+                if cmp1 <= 0 && cmp2 <= 0 then {
                     assertEq(cmp1, 0)
                 }
                 // > is the inverse of <
                 assertEq(cmp1 < 0, cmp2 > 0)
                 // >= is the inverse of <=
                 assertEq(cmp1 <= 0, cmp2 >= 0)
-                for (c <- testData) {
+                for c <- testData do {
                     // transitivity of <=
-                    if (cmp1 <= 0 && ord.compare(b, c) <= 0) {
+                    if cmp1 <= 0 && ord.compare(b, c) <= 0 then {
                         assertLe(ord.compare(a, c), 0)
                     }
                 }
             }
         }
-        for (Seq(a, b) <- randomGenerator.shuffle(testData ++ testData).sorted(using ord).combinations(2)) {
+        for Seq(a, b) <- randomGenerator.shuffle(testData ++ testData).sorted(using ord).combinations(2) do {
             assertLe(ord.compare(a, b), 0)
         }
     }

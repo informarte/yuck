@@ -13,7 +13,7 @@ class BooleanDomainPrunerTest extends UnitTest {
     @tailrec
     private def fixedPoint[State](f: State => State, u: State): State = {
         val v = f(u)
-        if (u == v) u else fixedPoint(f, v)
+        if u == v then u else fixedPoint(f, v)
     }
 
     private def testPruning
@@ -22,18 +22,18 @@ class BooleanDomainPrunerTest extends UnitTest {
          predicate: (BooleanValue, BooleanValue) => Boolean): Unit =
     {
         val testData = List(EmptyBooleanDomain, FalseDomain, TrueDomain, CompleteBooleanDomain)
-        for (d <- testData) {
-            for (e <- testData) {
+        for d <- testData do {
+            for e <- testData do {
                 val feasible = d.values.exists(a => e.values.exists(b => predicate(a, b)))
                 val (f, g) = prune(d, e)
                 assert(f.isSubsetOf(d))
                 assert(g.isSubsetOf(e))
                 assertEq(f.isEmpty || g.isEmpty, ! feasible)
-                if (feasible) {
-                    for (a <- d.values) {
+                if feasible then {
+                    for a <- d.values do {
                         assertEq(e.values.exists(b => predicate(a, b)), f.contains(a))
                     }
-                    for (b <- e.values) {
+                    for b <- e.values do {
                         assertEq(d.values.exists(a => predicate(a, b)), g.contains(b))
                     }
                 }
@@ -75,7 +75,7 @@ class BooleanDomainPrunerTest extends UnitTest {
         def checkPruning(u: State, v: State): Unit = {
             val (lhs0, rhs0) = fixedPoint[State](linEqRule, u)
             val (lhs1, rhs1) = v
-            for ((d0, d1) <- lhs0.view.zip(lhs1)) {
+            for (d0, d1) <- lhs0.view.zip(lhs1) do {
                 assertEq(d0, d1)
             }
             assertEq(rhs0, rhs1)
@@ -138,7 +138,7 @@ class BooleanDomainPrunerTest extends UnitTest {
         def checkPruning(u: State, v: State): Unit = {
             val (lhs0, rhs0) = fixedPoint[State](linEqRule, u)
             val (lhs1, rhs1) = v
-            for ((d0, d1) <- lhs0.view.zip(lhs1)) {
+            for (d0, d1) <- lhs0.view.zip(lhs1) do {
                 assertEq(d0, d1)
             }
             assertEq(rhs0, rhs1)

@@ -12,12 +12,12 @@ final class BestProposalLogger(logger: LazyLogger) extends SolverMonitor {
 
     override def onBetterProposal(result: Result) = {
         synchronized {
-            if (costsOfBestProposal.eq(null) ||
-                result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestProposal))
+            if costsOfBestProposal.eq(null) ||
+                result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestProposal) then
             {
                 costsOfBestProposal = result.costsOfBestProposal
                 logger.log("Improved global proposal quality to %s".format(result.costsOfBestProposal))
-                if (result.isGoodEnough) {
+                if result.isGoodEnough then {
                     logger.log("Objective achieved")
                 }
             }

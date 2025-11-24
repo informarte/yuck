@@ -23,9 +23,9 @@ final class FlatZincResultPrinter
     private val nextResult = new AtomicReference[FlatZincResult]()
 
     override def run() = {
-        if (throttlingIntervalInMillis > 0) {
+        if throttlingIntervalInMillis > 0 then {
             var interrupted = false
-            while (! interrupted) {
+            while ! interrupted do {
                 try {
                     Thread.sleep(throttlingIntervalInMillis)
                 }
@@ -39,20 +39,20 @@ final class FlatZincResultPrinter
 
     def flush(): Unit = {
         val result = nextResult.getAndSet(null)
-        if (result != null) {
+        if result != null then {
             solutionFormatter(result).foreach(println)
         }
     }
 
     override def onBetterProposal(result: Result) = {
-        if (result.isSolution) {
+        if result.isSolution then {
             synchronized {
-                if (costsOfBestSolution.eq(null) ||
-                    result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestSolution))
+                if costsOfBestSolution.eq(null) ||
+                    result.objective.isLowerThan(result.costsOfBestProposal, costsOfBestSolution) then
                 {
                     costsOfBestSolution = result.costsOfBestProposal
                     val fznResult = new FlatZincResult(result)
-                    if (throttlingIntervalInMillis > 0) {
+                    if throttlingIntervalInMillis > 0 then {
                         nextResult.set(fznResult)
                     } else {
                         solutionFormatter(fznResult).foreach(println)

@@ -36,9 +36,9 @@ final class HierarchicalObjective
     override def compareCosts(lhs0: Costs, rhs0: Costs) = {
         val lhs = lhs0.asInstanceOf[PolymorphicListValue].value
         val rhs = rhs0.asInstanceOf[PolymorphicListValue].value
-        if (focusOnTopObjective) {
+        if focusOnTopObjective then {
             val topObjective :: subordinateObjectives = primitiveObjectives: @unchecked
-            if (topObjective.isSolution(lhs.head) && topObjective.isSolution(rhs.head)) {
+            if topObjective.isSolution(lhs.head) && topObjective.isSolution(rhs.head) then {
                 compareCosts(subordinateObjectives, lhs.tail, rhs.tail)
             } else {
                 topObjective.compareCosts(lhs.head, rhs.head)
@@ -53,13 +53,13 @@ final class HierarchicalObjective
             case (Nil, Nil, Nil) => 0
             case (o :: t, l :: u, r :: v) =>
                 val result = o.compareCosts(l, r)
-                if (result == 0) compareCosts(t, u, v) else result
+                if result == 0 then compareCosts(t, u, v) else result
             case _ => ???
         }
     override def assessMove(before: SearchState, after: SearchState) = {
-        if (focusOnTopObjective) {
+        if focusOnTopObjective then {
             val topObjective :: subordinateObjectives = primitiveObjectives: @unchecked
-            if (topObjective.isSolution(before) && topObjective.isSolution(after)) {
+            if topObjective.isSolution(before) && topObjective.isSolution(after) then {
                 assessMove(subordinateObjectives, before, after)
             } else {
                 topObjective.assessMove(before, after)
@@ -74,7 +74,7 @@ final class HierarchicalObjective
             case Nil => 0
             case h :: t =>
                 val delta = h.assessMove(before, after)
-                if (delta == 0) assessMove(t, before, after) else delta
+                if delta == 0 then assessMove(t, before, after) else delta
         }
     override def findActualObjectiveValue(space: Space, rootObjective: AnyObjective) =
         primitiveObjectives.foreach(_.findActualObjectiveValue(space, rootObjective))

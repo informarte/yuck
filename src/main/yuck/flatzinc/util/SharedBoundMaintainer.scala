@@ -10,7 +10,7 @@ import yuck.core.{Costs, Result, SolverMonitor}
 final class SharedBoundMaintainer(holder: AtomicReference[Costs]) extends SolverMonitor {
 
     override def onBetterProposal(result: Result) = {
-        if (result.isSolution) {
+        if result.isSolution then {
             holder.accumulateAndGet(
                 result.costsOfBestProposal,
                 (currentBound, newBound) =>

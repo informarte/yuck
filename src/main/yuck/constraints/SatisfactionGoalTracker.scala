@@ -39,9 +39,9 @@ final class SatisfactionGoalTracker
 
     override def initialize(now: SearchState) = {
         val f = new Array[Long](n)
-        for ((costVar, is) <- involvementMap) {
+        for (costVar, is) <- involvementMap do {
             val satisfied = now.value(costVar).truthValue
-            if (! satisfied) {
+            if ! satisfied then {
                 is.inlineForeach(i => f.update(i, f(i) + 1))
             }
         }
@@ -53,10 +53,10 @@ final class SatisfactionGoalTracker
         Nil
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
-        for (costVar <- move.involvedVariables.map(_.asInstanceOf[BooleanVariable])) {
+        for costVar <- move.involvedVariables.map(_.asInstanceOf[BooleanVariable]) do {
              val satisfiedBefore = before.value(costVar).truthValue
              val satisfiedAfter = after.value(costVar).truthValue
-             if (satisfiedBefore != satisfiedAfter) {
+             if satisfiedBefore != satisfiedAfter then {
                  val delta = if satisfiedBefore && ! satisfiedAfter then 1L else -1L
                  involvementMap(costVar).inlineForeach(i => distribution.addFrequencyDelta(i, delta))
              }

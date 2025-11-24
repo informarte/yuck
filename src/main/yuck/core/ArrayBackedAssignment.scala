@@ -22,7 +22,7 @@ final class ArrayBackedAssignment private
     override def hasValue(x: AnyVariable) = x.id.rawId < values.size && values(x.id.rawId).ne(null)
     override def value(x: AnyVariable) = {
         val a = values(x.id.rawId)
-        if (a.eq(null)) {
+        if a.eq(null) then {
             throw new RuntimeException("%s has no value assigned".format(x))
         }
         a
@@ -37,7 +37,7 @@ final class ArrayBackedAssignment private
 
     /** Copies the value ArrayBackedAssignments from the given search state. */
     def setValues(searchState: SearchState): ArrayBackedAssignment = {
-        for (x <- searchState.mappedVariables) {
+        for x <- searchState.mappedVariables do {
             val a = searchState.value(x)
             require(x.valueType == a.valueType)
             setValueUnsafe(x, a)
@@ -47,10 +47,10 @@ final class ArrayBackedAssignment private
 
     private def setValueUnsafe(x: AnyVariable, a: AnyValue): Unit = {
         val i = x.id.rawId
-        if (variables.size < i + 1) {
+        if variables.size < i + 1 then {
             variables.sizeHint(i + 1)
             values.sizeHint(i + 1)
-            while (variables.size < i + 1) {
+            while variables.size < i + 1 do {
                 variables += null
                 values += null
             }

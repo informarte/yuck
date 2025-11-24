@@ -22,9 +22,9 @@ final class SpaceTest extends UnitTest {
          */
         val space = new Space(logger, sigint)
         def domain(name: Char) =
-            if (List('u', 'v').contains(name)) IntegerRange(0, 0) else CompleteIntegerRange
+            if List('u', 'v').contains(name) then IntegerRange(0, 0) else CompleteIntegerRange
         val vars @ IndexedSeq(s, t, u, v, w, x, y, z) =
-            for (name <- 's' to 'z') yield space.createVariable(name.toString, domain(name))
+            for name <- 's' to 'z' yield space.createVariable(name.toString, domain(name))
         val c = new DummyConstraint(space.nextConstraintId(), List(s, t), List(u))
         val d = new DummyConstraint(space.nextConstraintId(), List(s, v), List(w, x))
         val e = new DummyConstraint(space.nextConstraintId(), List(u, w, x), List(y))
@@ -43,7 +43,7 @@ final class SpaceTest extends UnitTest {
         assertEq(channelVars, Set(u, w, x, y))
         val searchVars = space.searchVariables
         assertEq(searchVars, Set(s, t))
-        for (x <- vars) {
+        for x <- vars do {
             assertEq(space.isProblemParameter(x), problemParams.contains(x))
             assertEq(space.isChannelVariable(x), channelVars.contains(x))
             assertEq(space.isSearchVariable(x), searchVars.contains(x))
@@ -60,10 +60,10 @@ final class SpaceTest extends UnitTest {
         assertEq(space.directlyAffectedConstraints(x), Set(e))
         assertEq(space.directlyAffectedConstraints(y), Set())
 
-        for (x <- problemParams) {
+        for x <- problemParams do {
             assert(space.involvedSearchVariables(x).isEmpty)
         }
-        for (x <- searchVars) {
+        for x <- searchVars do {
             assert(space.involvedSearchVariables(x).isEmpty)
         }
         assertEq(space.involvedSearchVariables(u), Set(s, t))
@@ -76,17 +76,17 @@ final class SpaceTest extends UnitTest {
         assertEq(space.involvedSearchVariables(d), Set(s))
         assertEq(space.involvedSearchVariables(e), Set(s, t))
 
-        for (x <- vars) {
-            if (space.maybeDefiningConstraint(x).isEmpty) {
+        for x <- vars do {
+            if space.maybeDefiningConstraint(x).isEmpty then {
                 assertEx(space.definingConstraint(x), classOf[NoSuchElementException])
             } else {
                 assertEq(space.definingConstraint(x), space.maybeDefiningConstraint(x).get)
             }
         }
-        for (x <- problemParams) {
+        for x <- problemParams do {
             assert(space.maybeDefiningConstraint(x).isEmpty)
         }
-        for (x <- searchVars) {
+        for x <- searchVars do {
             assert(space.maybeDefiningConstraint(x).isEmpty)
         }
         assertEq(space.definingConstraint(u), c)
@@ -95,10 +95,10 @@ final class SpaceTest extends UnitTest {
         assertEq(space.definingConstraint(y), e)
         assertEq(space.maybeDefiningConstraint(z), None)
 
-        for (x <- problemParams) {
+        for x <- problemParams do {
             assert(space.involvedConstraints(x).isEmpty)
         }
-        for (x <- searchVars) {
+        for x <- searchVars do {
             assert(space.involvedConstraints(x).isEmpty)
         }
         assertEq(space.involvedConstraints(u), Set(c))
@@ -219,7 +219,7 @@ final class SpaceTest extends UnitTest {
     def testNetworkPruning(): Unit = {
         val space = new Space(logger, sigint)
         val IndexedSeq(s, t, u, v, w, x, y, z) =
-            for (name <- 's' to 'z') yield space.createVariable(name.toString, CompleteIntegerRange)
+            for name <- 's' to 'z' yield space.createVariable(name.toString, CompleteIntegerRange)
         val c = new DummyConstraint(space.nextConstraintId(), List(s), List(t, y))
         val d = new DummyConstraint(space.nextConstraintId(), List(t), List(u))
         val e = new DummyConstraint(space.nextConstraintId(), List(t), List(v))
@@ -294,7 +294,7 @@ final class SpaceTest extends UnitTest {
         }
 
         private def checkContract(before: SearchState, after: SearchState, move: Move): Unit = {
-            for (x <- move.involvedVariables) {
+            for x <- move.involvedVariables do {
                 assert(xs.contains(IntegerValueTraits.safeDowncast(x)))
                 assertNe(before.value(x), after.value(x))
                 assertEq(after.value(x), move.value(x))
@@ -323,16 +323,16 @@ final class SpaceTest extends UnitTest {
 
         // build constraint network (see above for how we do it)
         val xs = new mutable.ArrayBuffer[IntegerVariable]
-        for (i <- 1 to k) {
+        for i <- 1 to k do {
             xs += new IntegerVariable(space.nextVariableId(), "x(0, %d)".format(i), dx)
         }
-        for (i <- 1 to l) {
+        for i <- 1 to l do {
             val ps = new mutable.HashSet[IntegerVariable]
-            while (ps.size < k) {
+            while ps.size < k do {
                 ps += xs(randomGenerator.nextInt(xs.size))
             }
             var j = 1
-            for (qs <- ps.subsets() if ! qs.isEmpty) {
+            for qs <- ps.subsets() if ! qs.isEmpty do {
                 val sum = new IntegerVariable(space.nextVariableId(), "sum(%d, %d)".format(i, j), NonNegativeIntegerRange)
                 xs += sum
                 val spy = new Spy(space.nextConstraintId(), qs, sum)
@@ -354,18 +354,18 @@ final class SpaceTest extends UnitTest {
         val randomGenerator = new JavaRandomGenerator
 
         // generate and test n networks
-        for (i <- 1 to n) {
+        for i <- 1 to n do {
 
             val (space, xs, spies) = createRandomSpyNetwork(randomGenerator)
 
             // check forward propagation
             space.propagate()
-            for (spy <- spies) {
+            for spy <- spies do {
                 assertGe(spy.numberOfPropagations, 2)
                 assertEq(spy.propagate(), NoPropagationOccurred)
             }
             assertEq(space.numberOfPropagations, spies.iterator.map(_.numberOfPropagations - 1).sum)
-            for (spy <- spies) {
+            for spy <- spies do {
                 spy.numberOfPropagations = 0
             }
             space.numberOfPropagations = 0
@@ -373,15 +373,15 @@ final class SpaceTest extends UnitTest {
             // check criss-cross propagation departing from random variable until domain wipe-out
             try {
                 var m = 0
-                while (true) {
+                while true do {
                     val x = xs(randomGenerator.nextInt(xs.size))
                     x.pruneDomain(x.domain.randomSubrange(randomGenerator))
                     space.propagate(List(x))
-                    for (spy <- spies) {
+                    for spy <- spies do {
                         assertEq(spy.propagate(), NoPropagationOccurred)
                     }
                     assertEq(space.numberOfPropagations, spies.iterator.map(_.numberOfPropagations - 1).sum)
-                    for (spy <- spies) {
+                    for spy <- spies do {
                         spy.numberOfPropagations = 0
                     }
                     space.numberOfPropagations = 0
@@ -394,7 +394,7 @@ final class SpaceTest extends UnitTest {
             }
 
             // check that neither initialize, nor consult, nor commit were called during propagation
-            for (spy <- spies) {
+            for spy <- spies do {
                 assertEq(spy.numberOfInitializations, 0)
                 assertEq(spy.numberOfConsultations, 0)
                 assertEq(spy.numberOfCommitments, 0)
@@ -411,17 +411,17 @@ final class SpaceTest extends UnitTest {
         val randomGenerator = new JavaRandomGenerator
 
         // generate and test n networks
-        for (i <- 1 to n) {
+        for i <- 1 to n do {
             val (space, _, spies) = createRandomSpyNetwork(randomGenerator)
             val layers = space.computeLayers()
             assertEq(layers.view.flatten.toSet, spies.toSet)
             val availableInputs = new mutable.HashSet[AnyVariable]
             availableInputs ++= space.searchVariables
-            for (layer <- layers) {
-                for (constraint <- layer) {
+            for layer <- layers do {
+                for constraint <- layer do {
                     assert(constraint.inVariables.forall(availableInputs.contains))
                 }
-                for (constraint <- layer) {
+                for constraint <- layer do {
                     availableInputs ++= constraint.outVariables
                 }
             }
@@ -438,12 +438,12 @@ final class SpaceTest extends UnitTest {
         val randomGenerator = new JavaRandomGenerator
 
         // generate and test n networks
-        for (i <- 1 to n) {
+        for i <- 1 to n do {
 
             val (space, _, spies) = createRandomSpyNetwork(randomGenerator)
 
             def checkResults(searchState: SearchState): Unit = {
-                for (spy <- spies) {
+                for spy <- spies do {
                     val sum = spy.inVariables.iterator.map(searchState.value(_).value).sum
                     assertEq(searchState.value(spy.outVariables(0)).value, sum)
                 }
@@ -451,7 +451,7 @@ final class SpaceTest extends UnitTest {
 
             def checkSearchStateEquivalence(lhs: SearchState, rhs: SearchState): Unit = {
                 assertEq(lhs.mappedVariables, rhs.mappedVariables)
-                for (x <- lhs.mappedVariables) {
+                for x <- lhs.mappedVariables do {
                     assertEq(lhs.value(x), rhs.value(x))
                 }
             }
@@ -461,7 +461,7 @@ final class SpaceTest extends UnitTest {
             // initialize spies
             space.initialize()
             // check that each spy was initialized exactly once
-            for (spy <- spies) {
+            for spy <- spies do {
                 assertEq(spy.numberOfInitializations, 1)
             }
             assertEq(space.numberOfInitializations, spies.size)
@@ -472,18 +472,18 @@ final class SpaceTest extends UnitTest {
             val neighbourhood =
                 new RandomReassignmentGenerator(
                     space, space.searchVariables.toVector, randomGenerator, moveSizeDistribution, None, None)
-            for (i <- 1 to m) {
+            for i <- 1 to m do {
                 // generate move and consult space
                 val move = neighbourhood.nextMove()
                 val beforeConsult = space.searchState.clone
                 val afterConsult = space.consult(move).clone
                 // check that each spy was consulted at most once
-                for (spy <- spies) {
+                for spy <- spies do {
                     assertLe(spy.numberOfConsultations, 1)
                 }
                 assertEq(space.numberOfConsultations, spies.iterator.map(_.numberOfConsultations).sum)
                 // check that consult considered the move
-                for (x <- move.involvedVariables) {
+                for x <- move.involvedVariables do {
                     assertEq(afterConsult.value(x), move.value(x))
                 }
                 // check that results are correct
@@ -494,17 +494,17 @@ final class SpaceTest extends UnitTest {
                 val afterCommit = space.commit(move).searchState
                 checkSearchStateEquivalence(afterConsult, afterCommit)
                 // check that each spy was told at most once to commit
-                for (spy <- spies) {
+                for spy <- spies do {
                     assertLe(spy.numberOfCommitments, 1)
                 }
                 assertEq(space.numberOfCommitments, spies.iterator.map(_.numberOfCommitments).sum)
                 // check that no propagation happened during consult and commit
-                for (spy <- spies) {
+                for spy <- spies do {
                     assertEq(spy.numberOfPropagations, 0)
                 }
                 assertEq(space.numberOfPropagations, 0)
                 // prepare for next round
-                for (spy <- spies) {
+                for spy <- spies do {
                     spy.numberOfConsultations = 0
                     spy.numberOfCommitments = 0
                 }
@@ -521,8 +521,8 @@ final class SpaceTest extends UnitTest {
 
         val space = new Space(logger, sigint)
         val IndexedSeq(s, t, u, v, w, x, y, z) =
-            for (name <- 's' to 'z')
-                yield new IntegerVariable(space.nextVariableId(), name.toString, CompleteIntegerRange)
+            for name <- 's' to 'z' yield
+                new IntegerVariable(space.nextVariableId(), name.toString, CompleteIntegerRange)
         val c = new Spy(space.nextConstraintId(), Set(s), t)
         val d = new Spy(space.nextConstraintId(), Set(u, v, w), x)
         val e = new Spy(space.nextConstraintId(), Set(u, v), y)
@@ -544,7 +544,7 @@ final class SpaceTest extends UnitTest {
         assert(space.isImplicitConstraint(d))
         assert(! space.isImplicitConstraint(e))
         assertEq(space.implicitlyConstrainedSearchVariables, Set(s, u, v, w))
-        for (x <- space.searchVariables) {
+        for x <- space.searchVariables do {
             assertEq(
                 space.implicitlyConstrainedSearchVariables.contains(x),
                 space.isImplicitlyConstrainedSearchVariable(x))

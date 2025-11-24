@@ -45,7 +45,7 @@ object StopWatch {
 
     private def exerciseNanoTime(n: Int): Unit = {
         var i = 0
-        while (i < n) {
+        while i < n do {
             System.nanoTime
             i += 1
         }

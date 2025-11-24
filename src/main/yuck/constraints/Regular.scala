@@ -44,20 +44,24 @@ final class Regular
         // We use the Floyd-Warshall algorithm to compute, for each q in Q, the minimum number of
         // transitions that are required to reach an accepting state from q.
         val d = Array.ofDim[Int](Q, Q)
-        for (u <- 0 until Q)
-            for (v <- 0 until Q)
-                d(u)(v) = if (u == v) 0 else Int.MaxValue
-        for (u <- 0 until Q)
-            for (a <- 0 until S) {
+        for u <- 0 until Q do
+            for v <- 0 until Q do
+                d(u)(v) = if u == v then 0 else Int.MaxValue
+        for u <- 0 until Q do
+            for a <- 0 until S do {
                 val v = delta(u)(a) - 1
-                if (v > -1 /* ignore failed state */ && u != v) d(u)(v) = 1
+                if v > -1 /* ignore failed state */ && u != v then {
+                    d(u)(v) = 1
+                }
             }
-        for (w <- 0 until Q)
-            for (u <- 0 until Q)
-                for (v <- 0 until Q)
-                    if (d(u)(w) < Int.MaxValue && d(w)(v) < Int.MaxValue) {
+        for w <- 0 until Q do
+            for u <- 0 until Q do
+                for v <- 0 until Q do
+                    if d(u)(w) < Int.MaxValue && d(w)(v) < Int.MaxValue then {
                         val duwv = d(u)(w) + d(w)(v)
-                        if (d(u)(v) > duwv) d(u)(v) = duwv
+                        if d(u)(v) > duwv then {
+                            d(u)(v) = duwv
+                        }
                     }
         Vector.tabulate(Q)(i => F.valuesIterator.map(f => d(i)(f.toInt - 1)).min)
     }
@@ -92,16 +96,18 @@ final class Regular
         currentStates = Vector.fill(n)(0)
         var i = 0
         var q = q0
-        while (i < n && q > 0) {
+        while i < n && q > 0 do {
             val a = now.value(xs(i)).toInt
-            q = if (a >= 1 && a <= S) delta(q - 1)(a - 1) else 0
-            if (q > 0 && distancesToAcceptingState(q - 1) > n - i - 1) q = 0
+            q = if a >= 1 && a <= S then delta(q - 1)(a - 1) else 0
+            if q > 0 && distancesToAcceptingState(q - 1) > n - i - 1 then {
+                q = 0
+            }
             currentStates = currentStates.updated(i, q)
             i += 1
         }
         i -= 1
         currentCosts = computeCosts(i, q)
-        currentFailurePosition = if (q == 0) i else n
+        currentFailurePosition = if q == 0 then i else n
         assert(currentCosts >= 0)
         effect.a = BooleanValue(currentCosts)
         effect
@@ -121,7 +127,7 @@ final class Regular
         // 3. In case some i is left in is (j < m), we continue with step 2.
         val is = {
             val xs = move.involvedVariablesIterator
-            val is0 = if (hasDuplicateVariables) xs.flatMap(x2is) else xs.map(x2i)
+            val is0 = if hasDuplicateVariables then xs.flatMap(x2is) else xs.map(x2i)
             is0.filter(_ <= currentFailurePosition).toArray.sortInPlace()
         }
         val m = is.size
@@ -129,31 +135,35 @@ final class Regular
         futureStates = currentStates
         futureCosts = currentCosts
         futureFailurePosition = currentFailurePosition
-        if (m > 0) {
+        if m > 0 then {
             var i = 0
             var q = 0
             while {
                 i = is(j)
                 j += 1
-                q = if (i == 0) q0 else futureStates(i - 1)
+                q = if i == 0 then q0 else futureStates(i - 1)
                 while {
                     val a = after.value(xs(i)).toInt
-                    q = if (a >= 1 && a <= S) delta(q - 1)(a - 1) else 0
-                    if (q > 0 && distancesToAcceptingState(q - 1) > n - i - 1) q = 0
-                    if (q != currentStates(i)) {
+                    q = if a >= 1 && a <= S then delta(q - 1)(a - 1) else 0
+                    if q > 0 && distancesToAcceptingState(q - 1) > n - i - 1 then {
+                        q = 0
+                    }
+                    if q != currentStates(i) then {
                         futureStates = futureStates.updated(i, q)
-                        if (j < m && is(j) == i) j += 1
+                        if j < m && is(j) == i then {
+                            j += 1
+                        }
                     }
                     i += 1
                     i < n && q > 0 && (i - 1 > currentFailurePosition || futureStates(i - 1) != currentStates(i - 1))
                 } do ()
                 i < n && q > 0 && j < m
             } do ()
-            if (q == 0 || i == n) {
+            if q == 0 || i == n then {
                 // We either failed or reached some state q at the end of the sequence.
                 i -= 1
                 futureCosts = computeCosts(i, q)
-                futureFailurePosition = if (q == 0) i else n
+                futureFailurePosition = if q == 0 then i else n
             } else {
                 // We found a fixed point i < currentFailurePosition, so nothing changes.
             }
@@ -175,7 +185,7 @@ final class Regular
         assert(i >= 0 && i < n)
         assert(q == 0 || i == n - 1)
         // We avoid the search by relying on distance checking in initialize and consult.
-        if (q == 0) n - i else 0
+        if q == 0 then n - i else 0
     }
 
     override def isCandidateForImplicitSolving(space: Space) =
@@ -191,7 +201,7 @@ final class Regular
         createHotSpotDistribution: IndexedSeq[AnyVariable] => Option[Distribution],
         maybeFairVariableChoiceRate: Option[Probability]) =
     {
-        if (isCandidateForImplicitSolving(space)) {
+        if isCandidateForImplicitSolving(space) then {
             val (graph, _) = logger.withTimedLogScope("Building graph") {
                 val graph = new RegularGraph(dfa)
                 logger.log(String.format("Graph has %d nodes and %d edges", graph.numberOfNodes, graph.numberOfEdges))
@@ -199,7 +209,7 @@ final class Regular
             }
             graph.computeShortestPath(_ => 0).map(path =>
                 assert(path.length == n + 1) // source is excluded, sink is included
-                for (case Assignment(_, x, d, _) <- path) {
+                for case Assignment(_, x, d, _) <- path do {
                     space.setValue(x, d.randomValue(randomGenerator))
                 }
                 space.setValue(costs, True)

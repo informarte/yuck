@@ -70,10 +70,10 @@ package object core {
     given lexicographicOrderingForIterator[T](using ord: Ordering[T]): Ordering[Iterator[T]] with {
         override def compare(i: Iterator[T], j: Iterator[T]) = {
             var result = 0
-            while (result == 0 && i.hasNext && j.hasNext) {
+            while result == 0 && i.hasNext && j.hasNext do {
                 result = ord.compare(i.next(), j.next())
             }
-            if (result == 0) {
+            if result == 0 then {
                 result = Ordering.Boolean.compare(i.hasNext, j.hasNext)
             }
             result

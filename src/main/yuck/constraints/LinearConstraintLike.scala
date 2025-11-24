@@ -28,7 +28,7 @@ abstract class LinearConstraintLike
 
     override def toString =
         "sum([%s], %s, %s, %s)".format(
-            (for (i <- 0 until n) yield AX(a(i), x(i))).mkString(", "),
+            (for i <- 0 until n yield AX(a(i), x(i))).mkString(", "),
             relation, z, costs)
 
     override def inVariables = (0 until n).view.map(x) :+ z
@@ -92,7 +92,7 @@ abstract class LinearConstraintLike
 
     final override def initialize(now: SearchState) = {
         currentSum = valueTraits.zero
-        for (i <- 0 until n) {
+        for i <- 0 until n do {
             currentSum += a(i) * now.value(x(i))
         }
         effect.a = computeCosts(currentSum, now.value(z))

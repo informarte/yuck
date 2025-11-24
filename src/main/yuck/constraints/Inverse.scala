@@ -72,61 +72,60 @@ final class Inverse
         f: InverseFunction, g: InverseFunction, i: Int, searchState: SearchState): Int =
     {
         val j = searchState.value(f.xs(i - f.offset)).toInt
-        if (g.indexRange.contains(j)) abs(safeSub(searchState.value(g.xs(j - g.offset)).toInt, i))
+        if g.indexRange.contains(j)
+        then abs(safeSub(searchState.value(g.xs(j - g.offset)).toInt, i))
         else 0
     }
 
     private def propagate(effects: PropagationEffects, f: InverseFunction, g: InverseFunction): PropagationEffects = {
         effects
-            .pruneDomains(for (x <- f.xs.iterator) yield (x, g.indexDomain))
-            .pruneDomains(for (x <- g.xs.iterator) yield (x, f.indexDomain))
+            .pruneDomains(for x <- f.xs.iterator yield (x, g.indexDomain))
+            .pruneDomains(for x <- g.xs.iterator yield (x, f.indexDomain))
             .pruneDomains(
-                for (i <- f.indexRange.iterator;
-                     x = f.xs(i - f.offset);
-                     dx = x.domain;
-                     di = IntegerRange(i, i);
-                     j <- g.indexDomain.diff(dx).valuesIterator.map(_.toInt);
-                     y = g.xs(j - g.offset))
+                for i <- f.indexRange.iterator
+                    x = f.xs(i - f.offset)
+                    dx = x.domain
+                    di = IntegerRange(i, i)
+                    j <- g.indexDomain.diff(dx).valuesIterator.map(_.toInt)
+                    y = g.xs(j - g.offset)
                 yield
                     (y, y.domain.diff(di)))
             .pruneDomains(
-                for (i <- f.indexRange.iterator;
-                     x = f.xs(i - f.offset);
-                     dx = x.domain;
-                     if dx.isSingleton;
-                     y = g.xs(dx.singleValue.toInt - g.offset))
+                for i <- f.indexRange.iterator
+                    x = f.xs(i - f.offset)
+                    dx = x.domain
+                    if dx.isSingleton
+                    y = g.xs(dx.singleValue.toInt - g.offset)
                 yield
                     (y, y.domain.intersect(IntegerRange(i, i))))
     }
 
     override def propagate() =
-        if (costs.domain == TrueDomain) {
-            propagate(propagate(NoPropagationOccurred, f, g), g, f)
-        } else {
-            NoPropagationOccurred
-        }
+        if costs.domain == TrueDomain
+        then propagate(propagate(NoPropagationOccurred, f, g), g, f)
+        else NoPropagationOccurred
 
     override def initialize(now: SearchState) = {
         currentCosts = 0
-        for (i <- f.xs.indices) {
+        for i <- f.xs.indices do {
             f.visited(i) = -1
             f.refs(i) = new mutable.HashSet[Int]
         }
-        for (j <- g.xs.indices) {
+        for j <- g.xs.indices do {
             g.visited(j) = -1
             g.refs(j) = new mutable.HashSet[Int]
         }
-        for (i <- f.indexRange) {
+        for i <- f.indexRange do {
             currentCosts = safeAdd(currentCosts, computeCosts(f, g, i, now))
             val j = now.value(f.xs(i - f.offset)).toInt
-            if (g.indexRange.contains(j)) {
+            if g.indexRange.contains(j) then {
                 g.refs(j - g.offset) += i
             }
         }
-        for (j <- g.indexRange) {
+        for j <- g.indexRange do {
             currentCosts = safeAdd(currentCosts, computeCosts(g, f, j, now))
             val i = now.value(g.xs(j - g.offset)).toInt
-            if (f.indexRange.contains(i)) {
+            if f.indexRange.contains(i) then {
                 f.refs(i - f.offset) += j
             }
         }
@@ -137,7 +136,7 @@ final class Inverse
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         def computeCostDelta(f: InverseFunction, g: InverseFunction, i: Int, visited: Array[Int]): Int = {
-            if (! f.indexRange.contains(i) || visited(i - f.offset) == move.id.rawId) {
+            if ! f.indexRange.contains(i) || visited(i - f.offset) == move.id.rawId then {
                 0
             } else {
                 visited(i - f.offset) = move.id.rawId
@@ -146,33 +145,33 @@ final class Inverse
             }
         }
         futureCosts = currentCosts
-        for (x <- move) {
+        for x <- move do {
             val maybeI = f.x2i.get(x)
-            if (maybeI.isDefined) {
+            if maybeI.isDefined then {
                 val i = maybeI.get
                 val x = f.xs(i - f.offset)
                 futureCosts = safeAdd(futureCosts, computeCostDelta(f, g, i, f.visited))
-                for (j <- f.refs(i - f.offset)) {
+                for j <- f.refs(i - f.offset) do {
                     futureCosts = safeAdd(futureCosts, computeCostDelta(g, f, j, g.visited))
                 }
                 futureCosts = safeAdd(futureCosts, computeCostDelta(g, f, after.value(x).toInt, g.visited))
             }
             val maybeJ = g.x2i.get(x)
-            if (maybeJ.isDefined) {
+            if maybeJ.isDefined then {
                 val j = maybeJ.get
                 val y = g.xs(j - g.offset)
                 futureCosts = safeAdd(futureCosts, computeCostDelta(g, f, j, g.visited))
-                for (i <- g.refs(j - g.offset)) {
+                for i <- g.refs(j - g.offset) do {
                     futureCosts = safeAdd(futureCosts, computeCostDelta(f, g, i, f.visited))
                 }
                 futureCosts = safeAdd(futureCosts, computeCostDelta(f, g, after.value(y).toInt, f.visited))
             }
         }
-        if (debug) {
-            for (i <- f.visited.indices if f.visited(i) != move.id.rawId) {
+        if debug then {
+            for i <- f.visited.indices if f.visited(i) != move.id.rawId do {
                 assert(computeCostDelta(f, g, i + f.offset, f.visited) == 0)
             }
-            for (j <- g.visited.indices if g.visited(j) != move.id.rawId) {
+            for j <- g.visited.indices if g.visited(j) != move.id.rawId do {
                 assert(computeCostDelta(g, f, j + g.offset, g.visited) == 0)
             }
         }
@@ -182,30 +181,30 @@ final class Inverse
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
-        for (x <- move) {
+        for x <- move do {
             val maybeI = f.x2i.get(x)
-            if (maybeI.isDefined) {
+            if maybeI.isDefined then {
                 val i = maybeI.get
                 val x = f.xs(i - f.offset)
                 val jBefore = before.value(x).toInt
-                if (g.indexRange.contains(jBefore)) {
+                if g.indexRange.contains(jBefore) then {
                     g.refs(jBefore - g.offset) -= i
                 }
                 val jAfter = after.value(x).toInt
-                if (g.indexRange.contains(jAfter)) {
+                if g.indexRange.contains(jAfter) then {
                     g.refs(jAfter - g.offset) += i
                 }
             }
             val maybeJ = g.x2i.get(x)
-            if (maybeJ.isDefined) {
+            if maybeJ.isDefined then {
                 val j = maybeJ.get
                 val y = g.xs(j - g.offset)
                 val iBefore = before.value(y).toInt
-                if (f.indexRange.contains(iBefore)) {
+                if f.indexRange.contains(iBefore) then {
                     f.refs(iBefore - f.offset) -= j
                 }
                 val iAfter = after.value(y).toInt
-                if (f.indexRange.contains(iAfter)) {
+                if f.indexRange.contains(iAfter) then {
                     f.refs(iAfter - f.offset) += j
                 }
             }
@@ -230,39 +229,39 @@ final class Inverse
         maybeFairVariableChoiceRate: Option[Probability]):
         Option[Neighbourhood] =
     {
-        if (isCandidateForImplicitSolving(space)) {
-            if (f.xs.toSet.intersect(g.xs.toSet).isEmpty) {
-                if (f.xs.forall(x => x.domain == g.indexDomain) &&
-                    g.xs.forall(x => x.domain == f.indexDomain))
+        if isCandidateForImplicitSolving(space) then {
+            if f.xs.toSet.intersect(g.xs.toSet).isEmpty then {
+                if f.xs.forall(x => x.domain == g.indexDomain) &&
+                   g.xs.forall(x => x.domain == f.indexDomain) then
                 {
                     // simplest case
-                    for ((x, j) <- f.xs.iterator.zip(g.indexRange.iterator)) {
+                    for (x, j) <- f.xs.iterator.zip(g.indexRange.iterator) do {
                         space.setValue(x, IntegerValue(j))
                     }
-                    for ((y, i) <- g.xs.iterator.zip(f.indexRange.iterator)) {
+                    for (y, i) <- g.xs.iterator.zip(f.indexRange.iterator) do {
                         space.setValue(y, IntegerValue(i))
                     }
                     space.setValue(costs, True)
                     Some(new SimpleInverseNeighbourhood(space, f, g, randomGenerator))
                 }
-                else if (f.xs.forall(x => x.domain.isSubsetOf(g.indexDomain)) &&
-                         g.xs.forall(x => x.domain.isSubsetOf(f.indexDomain)))
+                else if f.xs.forall(x => x.domain.isSubsetOf(g.indexDomain)) &&
+                        g.xs.forall(x => x.domain.isSubsetOf(f.indexDomain)) then
                 {
                     // general case
                     case class Edge(x: IntegerVariable, j: IntegerValue, y: IntegerVariable, i: IntegerValue)
                     val graph = new DefaultUndirectedGraph[IntegerVariable, Edge](classOf[Edge])
                     logger.withTimedLogScope("Building graph") {
-                        for (x <- f.xs) {
+                        for x <- f.xs do {
                             graph.addVertex(x)
                         }
-                        for (x <- g.xs) {
+                        for x <- g.xs do {
                             graph.addVertex(x)
                         }
-                        for (i <- f.indexDomain.values) {
+                        for i <- f.indexDomain.values do {
                             val x = f.xs(i.toInt - f.offset)
-                            for (j <- x.domain.values) {
+                            for j <- x.domain.values do {
                                 val y = g.xs(j.toInt - g.offset)
-                                if (y.domain.contains(i)) {
+                                if y.domain.contains(i) then {
                                     graph.addEdge(x, y, Edge(x, j, y, i))
                                 }
                             }
@@ -274,11 +273,11 @@ final class Inverse
                             graph, f.xs.toSet.asJava, g.xs.toSet.asJava)
                         matchingAlgo.getMatching
                     }
-                    if (matching.getEdges.size < f.xs.size) {
+                    if matching.getEdges.size < f.xs.size then {
                         logger.log("Unsatisfiable")
                         None
                     } else {
-                        for (Edge(x, a, y, b) <- matching.getEdges.asScala) {
+                        for Edge(x, a, y, b) <- matching.getEdges.asScala do {
                             space.setValue(x, a)
                             space.setValue(y, b)
                         }
@@ -288,11 +287,11 @@ final class Inverse
                 } else {
                     None
                 }
-            } else if (f.xs.size % 2 == 0 && f.xs.size > 2 && f.xs == g.xs &&
-                       f.offset == g.offset && f.xs.forall(x => x.domain == f.indexDomain))
+            } else if f.xs.size % 2 == 0 && f.xs.size > 2 && f.xs == g.xs &&
+                      f.offset == g.offset && f.xs.forall(x => x.domain == f.indexDomain) then
             {
                 // self-inverse case, occurs in elitserien (look for RRT 5)
-                for (IndexedSeq(i1, i2) <- f.indexRange.grouped(2)) {
+                for IndexedSeq(i1, i2) <- f.indexRange.grouped(2) do {
                     space.setValue(f.xs(i1 - f.offset), IntegerValue(i2))
                     space.setValue(f.xs(i2 - f.offset), IntegerValue(i1))
                 }
@@ -324,7 +323,7 @@ final class Inverse
             // the domains do not overlap
             fPartitionByDomain.keysIterator.foldLeft[IntegerDomain](EmptyIntegerRange){union}.size ==
                 fPartitionByDomain.keysIterator.map(_.size).sum
-        if (isDecomposable) {
+        if isDecomposable then {
             fPartitionByDomain.keysIterator.map(domain => {
                 val offset = domain.lb.toInt
                 val costs = new BooleanVariable(space.nextVariableId(), "", CompleteBooleanDomain)

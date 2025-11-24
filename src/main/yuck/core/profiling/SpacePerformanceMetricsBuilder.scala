@@ -34,7 +34,7 @@ abstract class SpacePerformanceMetricsBuilder[K]
 
     private final lazy val averageDurationOfConstraintPerformanceMetricsAccessInNanos: Double = {
 
-        if (constraintPerformanceMetricsBuilders.isEmpty) {
+        if constraintPerformanceMetricsBuilders.isEmpty then {
             0.0
         } else {
 
@@ -53,11 +53,11 @@ abstract class SpacePerformanceMetricsBuilder[K]
     private def exerciseConstraintPerformanceMetricsAccess(n: Int): Unit = {
         var i = 0
         var keysIt = constraintPerformanceMetricsBuilders.keys.iterator
-        while (i < n) {
+        while i < n do {
             i += 1
             constraintPerformanceMetricsBuilders
                 .getOrElseUpdate(keysIt.next(), new ConstraintPerformanceMetricsBuilder)
-            if (!keysIt.hasNext) {
+            if ! keysIt.hasNext then {
                 keysIt = constraintPerformanceMetricsBuilders.keys.iterator
             }
         }

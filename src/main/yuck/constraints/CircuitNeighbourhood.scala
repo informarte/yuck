@@ -81,15 +81,14 @@ final class CircuitNeighbourhood
     private case class EmptyMove() extends CircuitMove
 
     private def nodeSwaps: Iterator[Move] = {
-        for {
-            i <- randomGenerator.lazyShuffle(Range(0, n))
+        for i <- randomGenerator.lazyShuffle(Range(0, n))
             if ! isFixed(i)
             j <- randomGenerator.lazyShuffle(Range(i + 1, i + n - 1))
-            if edgeExists(i - 1, j) && edgeExists(j, if (j == i + 1) i else i + 1) &&
+            if edgeExists(i - 1, j) && edgeExists(j, if j == i + 1 then i else i + 1) &&
                edgeExists(j - 1, i) && edgeExists(i, j + 1)
-        } yield {
+        yield {
             link(i - 1, j)
-            if (j == i + 1) {
+            if j == i + 1 then {
                 link(j, i)
             } else {
                 link(j, i + 1)
@@ -109,14 +108,13 @@ final class CircuitNeighbourhood
 
     // see Aarts & Lenstra, Local search in combinatorial optimization, p. 230
     private def segmentSwaps: Iterator[Move] = {
-        for {
-            i <- randomGenerator.lazyShuffle(Range(0, n))
+        for i <- randomGenerator.lazyShuffle(Range(0, n))
             if ! isFixed(i)
             k <- randomGenerator.lazyShuffle(Range(i + 2, i + min(100, n) - 1))
             if edgeExists(k, i + 1)
             j <- randomGenerator.lazyShuffle(Range(i + 1, k))
             if edgeExists(j, k + 1) && edgeExists(i, j + 1)
-        } yield {
+        yield {
             link(i, j + 1)
             link(k, i + 1)
             link(j, k + 1)
@@ -136,28 +134,28 @@ final class CircuitNeighbourhood
         // (This way we reduce the number of value lookups.)
         val m2 = j - i
         val m3 = k - j
-        if (m3 >= m2) {
+        if m3 >= m2 then {
             var l = i + 1
             // copy s3
-            while (l <= i + m3) {
+            while l <= i + m3 do {
                 currentCycle.update(l % n, currentCycle((l + m2) % n))
                 l += 1
             }
             // recompute s2
-            while (l <= k) {
+            while l <= k do {
                 currentCycle.update(l % n, now.value(succ(currentCycle((l - 1) % n))).toInt - offset)
                 l += 1
             }
         } else {
             var l = j
             // copy s2
-            while (l > i) {
+            while l > i do {
                 currentCycle.update((l + m3) % n, currentCycle(l % n))
                 l -= 1
             }
             // recompute s3
             l += 1
-            while (l <= i + m3) {
+            while l <= i + m3 do {
                 currentCycle.update(l % n, now.value(succ(currentCycle((l - 1) % n))).toInt - offset)
                 l += 1
             }
@@ -169,34 +167,33 @@ final class CircuitNeighbourhood
         var reversible = true
         var i = from
         var m = 0
-        while (reversible && m < maxPathLength) {
+        while reversible && m < maxPathLength do {
             reversible = edgeExists(i + 1, i)
-            if (reversible) {
+            if reversible then {
                 m += 1
                 i += 1
             }
         }
         var success = false
         var j = from + m
-        while (! success && j > from + 2) {
+        while ! success && j > from + 2 do {
             success = edgeExists(from, j) && edgeExists(from + 1, j + 1)
             j -= 1
         }
-        if (success) Some(j + 1) else None
+        if success then Some(j + 1) else None
     }
 
     private def pathReversals: Iterator[Move] =
-        for {
-            i <- randomGenerator.lazyShuffle(Range(0, n))
+        for i <- randomGenerator.lazyShuffle(Range(0, n))
             maxPathLength = max(3, randomGenerator.nextInt(min(n - 1, 25)) + 1)
             maybeJ = findReversiblePath(i, maxPathLength)
             if maybeJ.isDefined
-        } yield {
+        yield {
             val j = maybeJ.get
             assert(j - i < n)
             link(i, j)
             var k = j
-            while (k > i + 1) {
+            while k > i + 1 do {
                 link(k, k - 1)
                 k -= 1
             }
@@ -208,7 +205,7 @@ final class CircuitNeighbourhood
         val PathReversal(i, j) = pathReversal
         var k = i + 1
         var l = j
-        while (k < l) {
+        while k < l do {
             val tmp = currentCycle(k % n)
             currentCycle.update(k % n, currentCycle(l % n))
             currentCycle.update(l % n, tmp)
@@ -221,15 +218,17 @@ final class CircuitNeighbourhood
         effects.clear()
         val decision = randomGenerator.nextInt(10)
         val maybeMove = {
-            if (decision < 1) pathReversals.nextOption().orElse(segmentSwaps.nextOption().orElse(nodeSwaps.nextOption()))
-            else if (decision < 6) segmentSwaps.nextOption().orElse(nodeSwaps.nextOption())
+            if decision < 1
+            then pathReversals.nextOption().orElse(segmentSwaps.nextOption().orElse(nodeSwaps.nextOption()))
+            else if decision < 6
+            then segmentSwaps.nextOption().orElse(nodeSwaps.nextOption())
             else nodeSwaps.nextOption().orElse(segmentSwaps.nextOption())
         }
-        if (maybeMove.isDefined) {
+        if maybeMove.isDefined then {
             val move = maybeMove.get
-            if (debug) {
+            if debug then {
                 assert(move.effects.eq(effects))
-                for (effect <- effects) {
+                for effect <- effects do {
                     assert(effect.x.domain.contains(effect.a))
                 }
                 val now = space.searchState

@@ -20,8 +20,11 @@ final class FenwickTreeBackedDistribution(override val size: Int) extends Distri
         val delta = f - f0
         ft.addDelta(i + 1, delta)
         frequencySum = safeAdd(frequencySum, delta)
-        if (f0 == 0 && f > 0) numberOfNonZeroFrequencies += 1
-        else if (f0 > 0 && f == 0) numberOfNonZeroFrequencies -= 1
+        if f0 == 0 && f > 0 then {
+            numberOfNonZeroFrequencies += 1
+        } else if f0 > 0 && f == 0 then {
+            numberOfNonZeroFrequencies -= 1
+        }
     }
     override def setFrequency(i: Int, f: Long) = {
         setFrequency(i, frequency(i), f)

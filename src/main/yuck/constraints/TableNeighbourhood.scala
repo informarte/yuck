@@ -30,17 +30,17 @@ final class TableNeighbourhood
     private var nextRowIndex = -1
 
     override def nextMove() = {
-        if (currentRowIndex == -1) {
+        if currentRowIndex == -1 then {
             currentRowIndex = rows.indexOf(xs.map(space.searchState.value(_)))
             assert(currentRowIndex >= 0)
         }
         nextRowIndex = {
             val i = randomGenerator.nextInt(rows.size - 1)
-            if (i < currentRowIndex) i else i + 1
+            if i < currentRowIndex then i else i + 1
         }
         val row = rows(nextRowIndex)
         var colIndex = xs.size - 1
-        while (colIndex >= 0) {
+        while colIndex >= 0 do {
             effects(colIndex).a = row(colIndex)
             colIndex -= 1
         }

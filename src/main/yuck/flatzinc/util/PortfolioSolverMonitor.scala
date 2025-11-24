@@ -25,7 +25,7 @@ final class PortfolioSolverMonitor(monitors: immutable.Seq[SolverMonitoring[?]])
     }
 
     def onSolverLaunched(result: Result) = {
-        for (monitor <- monitors) {
+        for monitor <- monitors do {
             (result, monitor) match {
                 case (result: AnnealingResult, monitor: AnnealingMonitor) => monitor.onSolverLaunched(result)
                 case (result: FeasibilityJumpResult, monitor: FeasibilityJumpMonitor) => monitor.onSolverLaunched(result)
@@ -38,7 +38,7 @@ final class PortfolioSolverMonitor(monitors: immutable.Seq[SolverMonitoring[?]])
     }
 
     def onSolverSuspended(result: Result) = {
-        for (monitor <- monitors) {
+        for monitor <- monitors do {
             (result, monitor) match {
                 case (result: AnnealingResult, monitor: AnnealingMonitor) => monitor.onSolverSuspended(result)
                 case (result: FeasibilityJumpResult, monitor: FeasibilityJumpMonitor) => monitor.onSolverSuspended(result)
@@ -51,7 +51,7 @@ final class PortfolioSolverMonitor(monitors: immutable.Seq[SolverMonitoring[?]])
     }
 
     def onSolverResumed(result: Result) = {
-        for (monitor <- monitors) {
+        for monitor <- monitors do {
             (result, monitor) match {
                 case (result: AnnealingResult, monitor: AnnealingMonitor) => monitor.onSolverResumed(result)
                 case (result: FeasibilityJumpResult, monitor: FeasibilityJumpMonitor) => monitor.onSolverResumed(result)
@@ -64,7 +64,7 @@ final class PortfolioSolverMonitor(monitors: immutable.Seq[SolverMonitoring[?]])
     }
 
     def onSolverFinished(result: Result) = {
-        for (monitor <- monitors) {
+        for monitor <- monitors do {
             (result, monitor) match {
                 case (result: AnnealingResult, monitor: AnnealingMonitor) => monitor.onSolverFinished(result)
                 case (result: FeasibilityJumpResult, monitor: FeasibilityJumpMonitor) => monitor.onSolverFinished(result)
@@ -77,7 +77,7 @@ final class PortfolioSolverMonitor(monitors: immutable.Seq[SolverMonitoring[?]])
     }
 
     def onBetterProposal(result: Result) = {
-        for (monitor <- monitors) {
+        for monitor <- monitors do {
             (result, monitor) match {
                 case (result: AnnealingResult, monitor: AnnealingMonitor) => monitor.onBetterProposal(result)
                 case (result: FeasibilityJumpResult, monitor: FeasibilityJumpMonitor) => monitor.onBetterProposal(result)
@@ -90,7 +90,7 @@ final class PortfolioSolverMonitor(monitors: immutable.Seq[SolverMonitoring[?]])
     }
 
     def onObjectiveTightened(result: Result, x: AnyVariable) = {
-        for (monitor <- monitors) {
+        for monitor <- monitors do {
             (result, monitor) match {
                 case (result: AnnealingResult, monitor: AnnealingMonitor) => monitor.onObjectiveTightened(result, x)
                 case (result: FeasibilityJumpResult, monitor: FeasibilityJumpMonitor) => monitor.onObjectiveTightened(result, x)
@@ -102,7 +102,7 @@ final class PortfolioSolverMonitor(monitors: immutable.Seq[SolverMonitoring[?]])
     }
 
     def onNextRound(result: Result) = {
-        for (monitor <- monitors) {
+        for monitor <- monitors do {
             (result, monitor) match {
                 case (result: AnnealingResult, monitor: AnnealingMonitor) => monitor.onNextRound(result)
                 case (result: FeasibilityJumpResult, monitor: FeasibilityJumpMonitor) => monitor.onNextRound(result)
@@ -113,7 +113,7 @@ final class PortfolioSolverMonitor(monitors: immutable.Seq[SolverMonitoring[?]])
     }
 
     def onReheatingStarted(result: AnnealingResult) = {
-        for (monitor <- monitors) {
+        for monitor <- monitors do {
             monitor match {
                 case annealingMonitor: AnnealingMonitor => annealingMonitor.onReheatingStarted(result)
                 case _ =>
@@ -122,7 +122,7 @@ final class PortfolioSolverMonitor(monitors: immutable.Seq[SolverMonitoring[?]])
     }
 
     def onReheatingFinished(result: AnnealingResult) = {
-        for (monitor <- monitors) {
+        for monitor <- monitors do {
             monitor match {
                 case annealingMonitor: AnnealingMonitor => annealingMonitor.onReheatingFinished(result)
                 case _ =>
@@ -131,7 +131,7 @@ final class PortfolioSolverMonitor(monitors: immutable.Seq[SolverMonitoring[?]])
     }
 
     def onScheduleRestarted(result: AnnealingResult) = {
-        for (monitor <- monitors) {
+        for monitor <- monitors do {
             monitor match {
                 case annealingMonitor: AnnealingMonitor => annealingMonitor.onScheduleRestarted(result)
                 case _ =>
@@ -140,7 +140,7 @@ final class PortfolioSolverMonitor(monitors: immutable.Seq[SolverMonitoring[?]])
     }
 
     def onPerturbation(result: FeasibilityJumpResult) = {
-        for (monitor <- monitors) {
+        for monitor <- monitors do {
             monitor match {
                 case feasibilityJumpMonitor: FeasibilityJumpMonitor => feasibilityJumpMonitor.onPerturbation(result)
                 case _ =>

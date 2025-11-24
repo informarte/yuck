@@ -20,10 +20,10 @@ final class BooleanIncreasing
     override def toString = "increasing([%s], %s)".format(xs.mkString(", "), costs)
 
     override protected def maybeSmallestFeasibleValue(x: BooleanVariable, maybePreviousValue: Option[BooleanValue]) = {
-        if (maybePreviousValue.isDefined) {
+        if maybePreviousValue.isDefined then {
             val a = maybePreviousValue.get
             val d = x.domain.diff(if a == True then FalseDomain else EmptyBooleanDomain)
-            if (d.isEmpty) None else Some(d.ub)
+            if d.isEmpty then None else Some(d.ub)
         } else {
             Some(x.domain.ub)
         }
@@ -36,7 +36,7 @@ final class BooleanIncreasing
         createHotSpotDistribution: IndexedSeq[AnyVariable] => Option[Distribution],
         maybeFairVariableChoiceRate: Option[Probability]) =
     {
-        if (solve(space)) {
+        if solve(space) then {
             val xs1 = deduplicated(xs).toVector
             Some(new BooleanIncreasingNeighbourhood(space, xs1, randomGenerator, moveSizeDistribution))
         } else {

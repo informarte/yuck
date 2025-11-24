@@ -60,27 +60,32 @@ final class Disjunction
     override def initialize(now: SearchState) = {
         sum = 0
         trueCount = 0
-        for (x <- xs) {
+        for x <- xs do {
             val a = now.value(x).violation
             sum = safeAdd(sum, a)
-            if (a == 0) trueCount += 1
+            if a == 0 then {
+                trueCount += 1
+            }
         }
-        effect.a = if (trueCount > 0) True else if (n == 0) False else BooleanValue(sum / n)
+        effect.a = if trueCount > 0 then True else if n == 0 then False else BooleanValue(sum / n)
         effect
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         futureSum = sum
         futureTrueCount = trueCount
-        for (x <- move) {
+        for x <- move do {
             val y = x.asInstanceOf[BooleanVariable]
             val a = before.value(y).violation
             val b = after.value(y).violation
             futureSum = safeAdd(futureSum, safeSub(b, a))
-            if (a == 0 && b > 0) futureTrueCount -= 1
-            else if (a > 0 && b == 0) futureTrueCount += 1
+            if a == 0 && b > 0 then {
+                futureTrueCount -= 1
+            } else if a > 0 && b == 0 then {
+                futureTrueCount += 1
+            }
         }
-        effect.a = if (futureTrueCount > 0) True else BooleanValue(futureSum / n)
+        effect.a = if futureTrueCount > 0 then True else BooleanValue(futureSum / n)
         effect
     }
 

@@ -13,7 +13,7 @@ final class FenwickTreeTest extends UnitTest {
         val n = 256
         val ft = new FenwickTree(n)
         var sum = 0
-        for (i <- 1 to n) {
+        for i <- 1 to n do {
             val delta = i % 8
             sum += delta
             ft.addDelta(i, delta)
@@ -24,7 +24,7 @@ final class FenwickTreeTest extends UnitTest {
             assertEq(sum, ft.rangeSum(1, n))
             assertEq(delta, ft.rangeSum(i, n))
         }
-        for (i <- 1 to n) {
+        for i <- 1 to n do {
             val delta = i % 8
             sum -= delta
             ft.addDelta(i, -delta)

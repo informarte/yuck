@@ -63,6 +63,6 @@ final case class ZincTestTask(
     additionalMonitors: Seq[SolverMonitoring[?]] = Nil)
 {
     require(sourceFormat != SourceFormat.FlatZinc || directoryLayout == TestDataDirectoryLayout.MiniZincExamplesLayout)
-    def effectiveInstanceName: String = if (instanceName.isEmpty) problemName else instanceName
+    def effectiveInstanceName: String = if instanceName.isEmpty then problemName else instanceName
     override def toString = "%s:%s:%s".format(problemName, modelName, instanceName)
 }

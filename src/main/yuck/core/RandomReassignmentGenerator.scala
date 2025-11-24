@@ -60,23 +60,23 @@ final class RandomReassignmentGenerator
             maybeHotSpotDistribution.isEmpty ||
                 maybeHotSpotDistribution.get.volume == 0 ||
                 (maybeFairVariableChoiceRate.isDefined && randomGenerator.nextDecision(maybeFairVariableChoiceRate.get))
-        val priorityDistribution = if (useUniformDistribution) uniformDistribution else maybeHotSpotDistribution.get
+        val priorityDistribution = if useUniformDistribution then uniformDistribution else maybeHotSpotDistribution.get
         val m = min(moveSizeDistribution.nextIndex(randomGenerator), priorityDistribution.numberOfAlternatives)
         assert(m > 0)
         effects.clear()
-        if (useUniformDistribution && m < 4) {
+        if useUniformDistribution && m < 4 then {
             val i = randomGenerator.nextInt(n)
             addEffect(xs(i))
-            if (m > 1) {
+            if m > 1 then {
                 val j = {
                     val k = randomGenerator.nextInt(n - 1)
-                    if (k < i) k else k + 1
+                    if k < i then k else k + 1
                 }
                 addEffect(xs(j))
-                if (m > 2) {
+                if m > 2 then {
                     val k = {
                         val l = randomGenerator.nextInt(n - 2)
-                        if (l < min(i, j)) l else if (l > max(i, j) - 2) l + 2 else l + 1
+                        if l < min(i, j) then l else if l > max(i, j) - 2 then l + 2 else l + 1
                     }
                     addEffect(xs(k))
                 }
@@ -90,8 +90,8 @@ final class RandomReassignmentGenerator
 
     override def perturb(perturbationProbability: Probability) = {
         val move = new BulkMove(space.nextMoveId())
-        for (x <- xs) {
-            if (randomGenerator.nextDecision(perturbationProbability)) {
+        for x <- xs do {
+            if randomGenerator.nextDecision(perturbationProbability) then {
                 move += x.nextRandomMoveEffect(space, randomGenerator)
             }
         }

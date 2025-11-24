@@ -25,7 +25,7 @@ trait ConstraintTestTooling extends YuckAssert {
     protected def runScenario(scenario: TestScenario): Unit = {
         scenario.space.searchVariables.foreach(scenario.space.registerObjectiveVariable)
         scenario.space.channelVariables.foreach(scenario.space.registerObjectiveVariable)
-        for (step <- scenario.steps) {
+        for step <- scenario.steps do {
             step.run(scenario.space)
         }
     }
@@ -45,7 +45,7 @@ trait ConstraintTestTooling extends YuckAssert {
     {
         override def perform() = x.pruneDomain(dx)
         override def check() = {
-            if (x.domain != dx) {
+            if x.domain != dx then {
                 Assert.fail("Domain of %s is %s, but expected %s".format(x, x.domain, dx))
             }
         }
@@ -65,8 +65,8 @@ trait ConstraintTestTooling extends YuckAssert {
         }
         logger.log("  Result: %s".format(postconditions.map(r => "(%s, %s)".format(r.x, r.x.domain)).mkString(", ")))
         postconditions.foreach(_.check())
-        for (x <- otherVariables) {
-            if (x.domain != initialDomains(x)) {
+        for x <- otherVariables do {
+            if x.domain != initialDomains(x) then {
                 Assert.fail("Domain of %s is %s, but expected %s".format(x, x.domain, initialDomains(x)))
             }
         }
@@ -117,18 +117,18 @@ trait ConstraintTestTooling extends YuckAssert {
         logger.log("Expected: %s".format(postconditions.mkString(", ")))
         logger.log("  Result: %s".format(postconditions.map(effect => "(%s, %s)".format(effect.x, after.value(effect.x))).mkString(", ")))
         val effects = preconditions.concat(postconditions)
-        for (effect <- effects) {
+        for effect <- effects do {
             val a = after.value(effect.x)
-            if (a != effect.a) {
+            if a != effect.a then {
                 Assert.fail("Value of %s is %s, but expected %s".format(effect.x, a, effect.a))
             }
         }
         val checkedVariables = effects.view.map(_.x).toSet
         val otherVariables = before.mappedVariables.diff(checkedVariables)
-        for (x <- otherVariables) {
+        for x <- otherVariables do {
             val a = after.value(x)
             val b = before.value(x)
-            if (a != b) {
+            if a != b then {
                 Assert.fail("Value of %s is %s, but expected %s".format(x, a, b))
             }
         }

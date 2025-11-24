@@ -32,24 +32,26 @@ final class IfThenElse
     private def propagate1(effects: PropagationEffects): PropagationEffects = {
         // identify impossible cases
         def identifyImpossibleCase(i: Int): BooleanDomain =
-            if (xs(i).domain.intersects(y.domain)) cs(i).domain else cs(i).domain.intersect(FalseDomain)
+            if xs(i).domain.intersects(y.domain) then cs(i).domain else cs(i).domain.intersect(FalseDomain)
         val cds = (0 until n).iterator.map(identifyImpossibleCase).toBuffer
         // make sure we have a default case
         @tailrec
         def findDefaultCase(i: Int): Int =
-            if (i < 0) i
+            if i < 0
+            then i
             else {
                 cds.update(i, cds(i).intersect(TrueDomain))
-                if (cds(i).isSingleton) i else findDefaultCase(i - 1)
+                if cds(i).isSingleton then i else findDefaultCase(i - 1)
             }
         findDefaultCase(n - 1)
         // prune the domains of the c[i] up to the first c[j] which could become true
         @tailrec
         def findFeasibleCase(i: Int): Int =
-            if (i == n) i
+            if i == n
+            then i
             else {
                 effects.pruneDomain(cs(i), cds(i))
-                if (cs(i).domain.contains(True)) i else findFeasibleCase(i + 1)
+                if cs(i).domain.contains(True) then i else findFeasibleCase(i + 1)
             }
         findFeasibleCase(0)
         effects
@@ -58,17 +60,17 @@ final class IfThenElse
     // propagate from the c[i] to the x[i] and y
     @tailrec
     private def propagate2(effects: PropagationEffects, i: Int): PropagationEffects = {
-        if (i == n) {
+        if i == n then {
             effects
-        } else if (cs(i).domain.isSingleton) {
-            if (cs(i).domain.singleValue.truthValue) {
+        } else if cs(i).domain.isSingleton then {
+            if cs(i).domain.singleValue.truthValue then {
                 // y = xs(i)
                 effects.pruneDomains(xs(i), y.domain, y, xs(i).domain)
             } else {
                 // skip impossible case
                 propagate2(effects, i + 1)
             }
-        } else if (valueTraits.domainCapabilities.union) {
+        } else if valueTraits.domainCapabilities.union then {
             // constructive disjunction: propagate the union of the x[j] domains, j > i, to y
             effects.pruneDomain(
                 y,
@@ -87,7 +89,7 @@ final class IfThenElse
 
     override def initialize(now: SearchState) = {
         var i = 0
-        while (i < n && ! (i == n - 1 || now.value(cs(i)).truthValue)) {
+        while i < n && ! (i == n - 1 || now.value(cs(i)).truthValue) do {
             i += 1
         }
         y.reuseableEffect.a = now.value(xs(i))

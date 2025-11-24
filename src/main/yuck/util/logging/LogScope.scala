@@ -13,13 +13,13 @@ final class LogScope(logger: LazyLogger, indentation: Int = 1) extends ManagedRe
     require(indentation >= 0)
 
     override def open() = {
-        for (i <- 1 to indentation) {
+        for i <- 1 to indentation do {
             logger.increaseIndentation()
         }
     }
 
     override def close() = {
-        for (i <- 1 to indentation) {
+        for i <- 1 to indentation do {
             logger.decreaseIndentation()
         }
     }

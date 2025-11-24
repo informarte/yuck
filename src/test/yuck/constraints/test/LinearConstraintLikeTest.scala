@@ -61,15 +61,15 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
     def testPropagation(): Unit = {
         setupValueTraits()
         // We simulate a propagation process where the first call to propagate computes a fixed point.
-        val lhs0 = for (i <- axs.indices) yield (axs(i).a, axs(i).x.domain)
+        val lhs0 = for i <- axs.indices yield (axs(i).a, axs(i).x.domain)
         val dy0 = baseValueTraits.completeDomain
         val dz0 = z.domain
-        val lhs1 = for ((a, dx) <- lhs0) yield (a, nonEmptyRandomSubdomain(dx))
+        val lhs1 = for (a, dx) <- lhs0 yield (a, nonEmptyRandomSubdomain(dx))
         val dy1 = nonEmptyRandomSubdomain(baseDomain)
         val dz1 = nonEmptyRandomSubdomain(dz0)
         when(domainPruner.linEqRule(lhs0, dy0)).thenReturn((lhs1.iterator.map(_._2), dy1))
         when(domainPruner.linEqRule(lhs1, dy1)).thenReturn((lhs1.iterator.map(_._2), dy1))
-        if (costsDomain == TrueDomain) relation match {
+        if costsDomain == TrueDomain then relation match {
             case EqRelation =>
                 when(domainPruner.eqRule(dy1, dz0)).thenReturn((dy1, dz1))
                 when(domainPruner.eqRule(dy1, dz1)).thenReturn((dy1, dz1))
@@ -83,7 +83,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
                 when(domainPruner.leRule(dy1, dz0)).thenReturn((dy1, dz1))
                 when(domainPruner.leRule(dy1, dz1)).thenReturn((dy1, dz1))
         }
-        else if (costsDomain == FalseDomain) relation match {
+        else if costsDomain == FalseDomain then relation match {
             case EqRelation =>
                 when(domainPruner.neRule(dy1, dz0)).thenReturn((dy1, dz1))
                 when(domainPruner.neRule(dy1, dz1)).thenReturn((dy1, dz1))
@@ -96,7 +96,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
             case LeRelation =>
                 when(domainPruner.ltRule(dz0, dy1)).thenReturn((dz1, dy1))
                 when(domainPruner.ltRule(dz1, dy1)).thenReturn((dz1, dy1))
-        } else if (costsDomain == CompleteBooleanDomain) relation match {
+        } else if costsDomain == CompleteBooleanDomain then relation match {
             case EqRelation =>
                 when(domainPruner.eqRule(dy1, dz0)).thenReturn((dy1, dz1))
                 when(domainPruner.neRule(dy1, dz0)).thenReturn((dy1, dz1))
@@ -112,8 +112,8 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
         }
         space.post(createConstraint)
         space.propagate()
-        if (costsDomain.isSingleton) {
-            for (i <- axs.indices) {
+        if costsDomain.isSingleton then {
+            for i <- axs.indices do {
                 assertEq(axs(i).x.domain, lhs1(i)._2)
             }
             assertEq(z.domain, dz1)
@@ -130,7 +130,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
         setupValueTraits()
         val maxViolation = 10
         space.post(createConstraint)
-        for (ax <- axs) {
+        for ax <- axs do {
             val x = ax.x
             space.setValue(x, x.domain.randomValue(randomGenerator))
             space.registerObjectiveVariable(x)
@@ -138,7 +138,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
         space.setValue(z, z.domain.randomValue(randomGenerator))
         space.registerObjectiveVariable(z)
         val now = space.searchState
-        if (true) {
+        if true then {
             val a = axs.map(ax => ax.a * now.value(ax.x)).sum(using baseValueTraits.numericalOperations)
             val b = now.value(z)
             val c = randomGenerator.nextInt(maxViolation).toLong
@@ -151,7 +151,7 @@ abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest
             space.initialize()
             assertEq(now.value(costs).violation, c)
         }
-        if (true) {
+        if true then {
             val move =
                 new ChangeValues(
                     space.nextMoveId(),

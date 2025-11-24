@@ -22,13 +22,13 @@ final class ObjectiveFactory
         cc.ast.solveGoal match {
             case Satisfy(_) =>
                 val maybeGoalHierarchy = cc.ast.solveGoal.annotations.find(_.term.id == "goal_hierarchy")
-                if (maybeGoalHierarchy.isDefined) {
+                if maybeGoalHierarchy.isDefined then {
                     val List(ArrayConst(goals)) = maybeGoalHierarchy.get.term.params: @unchecked
-                    for ((goal, i) <- goals.zipWithIndex) {
+                    for (goal, i) <- goals.zipWithIndex do {
                         val goalCfg =
                             cc.cfg.copy(
                                 useProgressiveTightening = cc.cfg.useProgressiveTightening && goals.size < 2,
-                                maybeTargetObjectiveValue = if (i == 0) cc.cfg.maybeTargetObjectiveValue else None)
+                                maybeTargetObjectiveValue = if i == 0 then cc.cfg.maybeTargetObjectiveValue else None)
                         goal match {
                             case Term("sat_goal", Seq(a)) =>
                                 objectives.append(createSatisfactionObjective(goalCfg, compileBoolExpr(a)))
@@ -80,7 +80,7 @@ final class ObjectiveFactory
     {
         val dx = x.domain
         val maybeY =
-            if (cc.space.isDanglingVariable(x)) {
+            if cc.space.isDanglingVariable(x) then {
                 val lb =
                     dx.maybeLb.getOrElse(
                         cfg.maybeTargetObjectiveValue.map(IntegerValue.apply).getOrElse(
@@ -89,7 +89,7 @@ final class ObjectiveFactory
                 cc.space.setValue(x, lb)
                 None
             }
-            else if (cfg.useProgressiveTightening && dx.maybeUb.isDefined) {
+            else if cfg.useProgressiveTightening && dx.maybeUb.isDefined then {
                 cc.logger.log("Objective variable %s has upper bound, setting up for progressive tightening".format(x))
                 val dy = IntegerRange(dx.lb + One, maybeBound.getOrElse(dx.ub) + One)
                 val y = new IntegerVariable(cc.space.nextVariableId(), "_YUCK_UB", dy)
@@ -113,7 +113,7 @@ final class ObjectiveFactory
     {
         val dx = x.domain
         val maybeY =
-            if (cc.space.isDanglingVariable(x)) {
+            if cc.space.isDanglingVariable(x) then {
                 val ub =
                     dx.maybeUb.getOrElse(
                         cfg.maybeTargetObjectiveValue.map(IntegerValue.apply).getOrElse(
@@ -122,7 +122,7 @@ final class ObjectiveFactory
                 cc.space.setValue(x, ub)
                 None
             }
-            else if (cfg.useProgressiveTightening && dx.maybeLb.isDefined) {
+            else if cfg.useProgressiveTightening && dx.maybeLb.isDefined then {
                 cc.logger.log("Objective variable %s has lower bound, setting up for progressive tightening".format(x))
                 val dy = IntegerRange(maybeBound.getOrElse(dx.lb) - One, dx.ub - One)
                 val y = new IntegerVariable(cc.space.nextVariableId(), "_YUCK_LB", dy)

@@ -17,8 +17,8 @@ final class FlatZincResultFormatter(ast: FlatZincAst) extends (FlatZincResult =>
         require(compilerResult.ast.eq(ast))
         val searchState = result.searchState
         val sortedMap = new mutable.TreeMap[String, String]() // id -> value
-        for (decl <- outputVarDecls) {
-            for (annotation <- decl.annotations) {
+        for decl <- outputVarDecls do {
+            for annotation <- decl.annotations do {
                 annotation match {
                     case Annotation(Term("output_var", Nil)) =>
                         val x = compilerResult.vars(decl.id)
@@ -28,23 +28,24 @@ final class FlatZincResultFormatter(ast: FlatZincAst) extends (FlatZincResult =>
                         val a =
                             "array%dd(%s, [%s])".format(
                                 dimensions.size,
-                                (for (case IntSetConst(IntRange(lb, ub)) <- dimensions.iterator) yield
+                                (for case IntSetConst(IntRange(lb, ub)) <- dimensions.iterator yield
                                     "%d..%d".format(lb, ub)).mkString(", "),
-                                (for (idx <- (1 to n.toInt).iterator) yield
-                                    value(searchState, compilerResult.arrays(decl.id)(idx - 1)).toString)
-                                    .mkString(", "))
+                                (1 to n.toInt).iterator
+                                    .map(idx => value(searchState, compilerResult.arrays(decl.id)(idx - 1)).toString)
+                                    .mkString(", ")
+                            )
                         sortedMap += (decl.id -> a)
                     case _ =>
                 }
             }
         }
         val lines = mutable.ArrayBuffer[String]()
-        for ((id, value) <- sortedMap) lines += "%s = %s;".format(id, value)
+        for (id, value) <- sortedMap do lines += "%s = %s;".format(id, value)
         val objective = compilerResult.objective
         val costs = objective.costs(result.searchState)
-        if (objective.isSolution(costs)) {
+        if objective.isSolution(costs) then {
             lines += FlatZincSolutionSeparator
-            if (objective.isInstanceOf[HierarchicalObjective] && objective.isOptimal(costs)) {
+            if objective.isInstanceOf[HierarchicalObjective] && objective.isOptimal(costs) then {
                 lines += FlatZincBestSolutionFoundIndicator
             }
         } else {
@@ -56,7 +57,7 @@ final class FlatZincResultFormatter(ast: FlatZincAst) extends (FlatZincResult =>
     private def value(searchState: SearchState, x: AnyVariable): AnyValue = {
         val a = searchState.value(x)
         a match {
-            case b: BooleanValue => if (b.truthValue) True else False
+            case b: BooleanValue => if b.truthValue then True else False
             case _ => a
         }
     }

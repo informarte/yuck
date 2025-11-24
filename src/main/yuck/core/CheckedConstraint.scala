@@ -26,8 +26,8 @@ final class CheckedConstraint(constraint: Constraint) extends Constraint(constra
         val stateAfterInitialization =
             new MoveSimulator(after, new BulkMove(move.id) ++= constraint.initialize(after))
         var buggy = false
-        for (x <- constraint.outVariables) {
-            if (stateAfterConsultation.value(x) != stateAfterInitialization.value(x)) {
+        for x <- constraint.outVariables do {
+            if stateAfterConsultation.value(x) != stateAfterInitialization.value(x) then {
                 println(
                     "%s: consultation computed %s, initialization computed %s".format(
                         x,
@@ -36,7 +36,7 @@ final class CheckedConstraint(constraint: Constraint) extends Constraint(constra
                 buggy = true
             }
         }
-        if (buggy) {
+        if buggy then {
             // replay and console output for debugging
             println("before = %s".format(before))
             println("after = %s".format(after))
@@ -50,7 +50,7 @@ final class CheckedConstraint(constraint: Constraint) extends Constraint(constra
                 .toList))
             println("constraint.initialize(after) = %s".format(constraint.initialize(after).toList))
         }
-        for (x <- constraint.outVariables) {
+        for x <- constraint.outVariables do {
             assert(
                 stateAfterConsultation.value(x) == stateAfterInitialization.value(x),
                 "Consultation failed for output variable %s of %s".format(x, constraint))
@@ -69,8 +69,8 @@ final class CheckedConstraint(constraint: Constraint) extends Constraint(constra
         val stateAfterInitialization =
             new MoveSimulator(after, new BulkMove(move.id) ++= constraint.initialize(after))
         var buggy = false
-        for (x <- constraint.outVariables) {
-            if (stateAfterCommitting.value(x) != stateAfterInitialization.value(x)) {
+        for x <- constraint.outVariables do {
+            if stateAfterCommitting.value(x) != stateAfterInitialization.value(x) then {
                 println(
                     "%s: committing computed %s, initialization computed %s".format(
                         x,
@@ -79,7 +79,7 @@ final class CheckedConstraint(constraint: Constraint) extends Constraint(constra
                 buggy = true
             }
         }
-        if (buggy) {
+        if buggy then {
             // replay and console output for debugging
             println("before = %s".format(before))
             println("after = %s".format(after))
@@ -90,7 +90,7 @@ final class CheckedConstraint(constraint: Constraint) extends Constraint(constra
             println("constraint.commit(before, after, move) = %s".format(constraint.commit(before, after, move).toList))
             println("constraint.initialize(after) = %s".format(constraint.initialize(after).toList))
         }
-        for (x <- constraint.outVariables) {
+        for x <- constraint.outVariables do {
             assert(
                 stateAfterCommitting.value(x) == stateAfterInitialization.value(x),
                 "Committing failed for output variable %s of %s".format(x, constraint))

@@ -58,10 +58,10 @@ final class FeasibilityJump
 
     override def hasFinished = objective.isGoodEnough(costsOfBestProposal)
 
-    override def call()  =
-        if (hasFinished) {
+    override def call() =
+        if hasFinished then {
             val result = createResult()
-            if (! wasStarted && maybeMonitor.isDefined) {
+            if ! wasStarted && maybeMonitor.isDefined then {
                 // The given, initial assignment is good enough and hence no search is necessary.
                 // In this case, notify the monitor about the initial assignment.
                 val monitor = maybeMonitor.get
@@ -70,16 +70,18 @@ final class FeasibilityJump
                 monitor.onSolverFinished(result)
             }
             result
+        } else if proposalBeforeSuspension.ne(null) then {
+            resume()
+        } else {
+            start()
         }
-        else if (proposalBeforeSuspension.ne(null)) resume()
-        else start()
 
     private def start(): FeasibilityJumpResult = {
         wasStarted = true
-        if (maybeMonitor.isDefined) {
+        if maybeMonitor.isDefined then {
             maybeMonitor.get.onSolverLaunched(createResult())
         }
-        if (objective.isSolution(currentProposal)) {
+        if objective.isSolution(currentProposal) then {
             // Sometimes the initial assignment is a solution.
             objective.findActualObjectiveValue(space)
             costsOfCurrentProposal = objective.costs(currentProposal)
@@ -92,7 +94,7 @@ final class FeasibilityJump
     private def resume(): FeasibilityJumpResult = {
         space.initialize(proposalBeforeSuspension)
         costsOfCurrentProposal = objective.costs(currentProposal)
-        if (maybeMonitor.isDefined) {
+        if maybeMonitor.isDefined then {
             maybeMonitor.get.onSolverResumed(createResult())
         }
         fj()
@@ -111,15 +113,15 @@ final class FeasibilityJump
         runtimeInMillis += (endTimeInMillis - startTimeInMillis)
 
         // revert to best assignment
-        if (objective.isLowerThan(costsOfBestProposal, costsOfCurrentProposal)) {
+        if objective.isLowerThan(costsOfBestProposal, costsOfCurrentProposal) then {
             space.initialize(bestProposal)
             costsOfCurrentProposal = objective.costs(currentProposal)
             assert(costsOfCurrentProposal == costsOfBestProposal)
         }
 
         // public relations
-        if (maybeMonitor.isDefined) {
-            if (hasFinished) {
+        if maybeMonitor.isDefined then {
+            if hasFinished then {
                 maybeMonitor.get.onSolverFinished(createResult())
             } else {
                 maybeMonitor.get.onSolverSuspended(createResult())
@@ -129,20 +131,20 @@ final class FeasibilityJump
     }
 
     private def ils(): Unit = {
-        while (! wasInterrupted && ! hasFinished) {
-            if (maybeMonitor.isDefined) {
+        while ! wasInterrupted && ! hasFinished do {
+            if maybeMonitor.isDefined then {
                 maybeMonitor.get.onNextRound(createResult())
             }
-            if (gls()) {
+            if gls() then {
                 numberOfSuccessiveFutileRounds = 0
             } else {
                 numberOfSuccessiveFutileRounds += 1
-                if (numberOfSuccessiveFutileRounds >= numberOfSuccessiveFutileRoundsUntilPerturbation) {
+                if numberOfSuccessiveFutileRounds >= numberOfSuccessiveFutileRoundsUntilPerturbation then {
                     perturb()
                     numberOfSuccessiveFutileRounds = 0
                 }
             }
-            if (ingestSharedBound()) {
+            if ingestSharedBound() then {
                 numberOfSuccessiveFutileRounds = 0
             }
         }
@@ -151,9 +153,9 @@ final class FeasibilityJump
     private def gls(): Boolean = {
         var numberOfRemainingMoves = numberOfMovesPerRound
         var bestProposalWasImproved = false
-        while (numberOfRemainingMoves > 0 && ! wasInterrupted && ! hasFinished) {
+        while numberOfRemainingMoves > 0 && ! wasInterrupted && ! hasFinished do {
             val move = neighbourhood.nextMove()
-            if (! move.isEmpty) {
+            if ! move.isEmpty then {
                 bestProposalWasImproved |= performMove(move)
                 neighbourhood.commit(move)
                 numberOfMoves += 1
@@ -166,7 +168,7 @@ final class FeasibilityJump
     private def perturb(): Unit = {
         neighbourhood.perturb(perturbationProbability)
         postprocessChange()
-        if (maybeMonitor.isDefined) {
+        if maybeMonitor.isDefined then {
             maybeMonitor.get.onPerturbation(createResult())
         }
         numberOfPerturbations += 1
@@ -182,13 +184,13 @@ final class FeasibilityJump
         objective.findActualObjectiveValue(space)
         costsOfCurrentProposal = objective.costs(currentProposal)
         val bestProposalWasImproved = objective.isLowerThan(costsOfCurrentProposal, costsOfBestProposal)
-        if (bestProposalWasImproved) {
+        if bestProposalWasImproved then {
             costsOfBestProposal = costsOfCurrentProposal
             bestProposal = currentProposal.clone
-            if (maybeMonitor.isDefined) {
+            if maybeMonitor.isDefined then {
                 maybeMonitor.get.onBetterProposal(createResult())
             }
-            if (objective.isSolution(costsOfBestProposal)) {
+            if objective.isSolution(costsOfBestProposal) then {
                 tightenObjective(costsOfBestProposal)
                 neighbourhood.onObjectiveTightened()
             }
@@ -197,12 +199,12 @@ final class FeasibilityJump
     }
 
     private def ingestSharedBound(): Boolean = {
-        if (maybeSharedBound.isDefined) {
+        if maybeSharedBound.isDefined then {
             val maybeBound = maybeSharedBound.get.maybeBound()
-            if (maybeBound.isDefined) {
+            if maybeBound.isDefined then {
                 val bound = maybeBound.get
-                if ((maybeLastSeenBound.isEmpty && objective.isLowerThan(bound, costsOfBestProposal)) ||
-                    (maybeLastSeenBound.isDefined && objective.isLowerThan(bound, maybeLastSeenBound.get)))
+                if (maybeLastSeenBound.isEmpty && objective.isLowerThan(bound, costsOfBestProposal)) ||
+                    (maybeLastSeenBound.isDefined && objective.isLowerThan(bound, maybeLastSeenBound.get)) then
                 {
                     tightenObjective(bound)
                     neighbourhood.onObjectiveTightened()
@@ -221,9 +223,9 @@ final class FeasibilityJump
 
     private def tightenObjective(bound: Costs): Unit = {
         val tightenedVariables = objective.tighten(space, bound)
-        if (maybeMonitor.isDefined) {
+        if maybeMonitor.isDefined then {
             val monitor = maybeMonitor.get
-            for (x <- tightenedVariables) {
+            for x <- tightenedVariables do {
                 monitor.onObjectiveTightened(createResult(), x)
             }
         }

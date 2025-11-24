@@ -7,7 +7,7 @@ package yuck.core
 final class JavaRandomGenerator(seed: Long = DefaultSeed) extends RandomGenerator {
     private val wrappee = new java.util.SplittableRandom(seed)
     // warm-up
-    for (i <- 1 until 8192) nextInt()
+    for i <- 1 until 8192 do nextInt()
     override def nextInt() = wrappee.nextInt()
     override def nextInt(limit: Int) = wrappee.nextInt(limit)
     override def nextLong() = wrappee.nextLong()

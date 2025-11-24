@@ -110,14 +110,14 @@ final class Delivery
         futureTourTravelTimes = new Array[Time](numberOfTours)
         currentTotalTravelTime = timeTraits.zero
         currentCosts = 0
-        for (i <- 0 until numberOfTours) {
+        for i <- 0 until numberOfTours do {
             var k = startNodes.lb.toInt + i - offset
             x2Tour.update(arrivalTimes(k), i)
             x2Tour.update(succ(k), i)
             var time = now.value(arrivalTimes(k))
             var j = now.value(succ(k))
             var tourTravelTime = timeTraits.zero
-            while (! startNodes.contains(j)) {
+            while ! startNodes.contains(j) do {
                 val l = j.toInt - offset
                 x2Tour.update(succ(l), i)
                 val x = arrivalTimes(l)
@@ -127,7 +127,7 @@ final class Delivery
                 time += travelTime
                 tourTravelTime += travelTime
                 currentTotalTravelTime += travelTime
-                if (withWaiting && dx.hasLb) {
+                if withWaiting && dx.hasLb then {
                     time = timeOps.max(dx.lb, time)
                 }
                 val effect = x.reuseableEffect
@@ -140,12 +140,12 @@ final class Delivery
             currentTourTravelTimes.update(i, tourTravelTime)
         }
         currentCosts = safeAdd(currentCosts, totalTravelTime.domain.distanceTo(currentTotalTravelTime).toLong)
-        if (true) {
+        if true then {
             val effect = totalTravelTime.reuseableEffect
             effect.a = currentTotalTravelTime
             effects += effect
         }
-        if (true) {
+        if true then {
             val effect = costs.reuseableEffect
             effect.a = BooleanValue(currentCosts)
             effects += effect
@@ -167,12 +167,12 @@ final class Delivery
         futureCosts = currentCosts
         affectedTours.clear()
         affectedTours ++= move.involvedVariables.map(x2Tour)
-        for (i <- affectedTours) {
+        for i <- affectedTours do {
             var k = startNodes.lb.toInt + i - offset
             var time = after.value(arrivalTimes(k))
             var j = after.value(succ(k))
             var tourTravelTime = timeTraits.zero
-            while (! startNodes.contains(j)) {
+            while ! startNodes.contains(j) do {
                 val l = j.toInt - offset
                 val x = arrivalTimes(l)
                 val dx = x.domain
@@ -180,11 +180,11 @@ final class Delivery
                 val travelTime = travelTimes(k, l)
                 time += travelTime
                 tourTravelTime += travelTime
-                if (withWaiting && dx.hasLb) {
+                if withWaiting && dx.hasLb then {
                     time = timeOps.max(dx.lb, time)
                 }
                 val previousArrivalTime = before.value(x)
-                if (time != previousArrivalTime) {
+                if time != previousArrivalTime then {
                     val effect = x.reuseableEffect
                     effect.a = time
                     effects += effect
@@ -198,12 +198,12 @@ final class Delivery
         }
         futureCosts =
             safeAdd(futureCosts, distanceDelta(totalTravelTime.domain, currentTotalTravelTime, futureTotalTravelTime))
-        if (futureTotalTravelTime != currentTotalTravelTime) {
+        if futureTotalTravelTime != currentTotalTravelTime then {
             val effect = totalTravelTime.reuseableEffect
             effect.a = futureTotalTravelTime
             effects += effect
         }
-        if (futureCosts != currentCosts) {
+        if futureCosts != currentCosts then {
             val effect = costs.reuseableEffect
             effect.a = BooleanValue(futureCosts)
             effects += effect
@@ -212,17 +212,17 @@ final class Delivery
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
-        if (true) {
+        if true then {
             val tmp = currentTourTravelTimes
             currentTourTravelTimes = futureTourTravelTimes
             futureTourTravelTimes = tmp
         }
         currentTotalTravelTime = futureTotalTravelTime
         currentCosts = futureCosts
-        for (i <- affectedTours) {
+        for i <- affectedTours do {
             var k = startNodes.lb.toInt + i - offset
             var j = after.value(succ(k))
-            while (! startNodes.contains(j)) {
+            while ! startNodes.contains(j) do {
                 val l = j.toInt - offset
                 x2Tour.update(succ(l), i)
                 k = l

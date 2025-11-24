@@ -16,21 +16,21 @@ final class BooleanDomainTest extends UnitTest {
     @Test
     def testBasics(): Unit = {
         val randomGenerator = new JavaRandomGenerator
-        for ((f, t) <- testData1) {
+        for (f, t) <- testData1 do {
             val d = new BooleanDomain(f, t)
             assertEq(f, d.containsFalse)
             assertEq(t, d.containsTrue)
             assertEq(d, BooleanDomain(f, t))
-            assertEq(d, BooleanDomain(if (t) True else False, if (f) False else True))
-            assertEq(d.toString, if (f && t) "{false, true}" else if (f) "{false}" else if (t) "{true}" else "{}")
-            assertEq(d.values, if (f && t) List(False, True) else if (f) List(False) else if (t) List(True) else Nil)
+            assertEq(d, BooleanDomain(if t then True else False, if f then False else True))
+            assertEq(d.toString, if f && t then "{false, true}" else if f then "{false}" else if t then "{true}" else "{}")
+            assertEq(d.values, if f && t then List(False, True) else if f then List(False) else if t then List(True) else Nil)
             assertEq(d.valuesIterator.toList, d.values)
             assertNe(d, "")
             assertEq(d, d)
             assertNe(d, new BooleanDomain(! f, t))
             assertNe(d, new BooleanDomain(f, ! t))
-            assert(if (f || t) (! d.isEmpty) else d.isEmpty)
-            assertEq(d.size, (if (f) 1 else 0) + (if (t) 1 else 0))
+            assert(if f || t then (! d.isEmpty) else d.isEmpty)
+            assertEq(d.size, (if f then 1 else 0) + (if t then 1 else 0))
             assertEq(d.size == 1, d.isSingleton)
             assert(d.isFinite)
             assertEq(f, d.contains(False))
@@ -42,13 +42,13 @@ final class BooleanDomainTest extends UnitTest {
             assertEq(d.maybeLb.get, d.lb)
             assertEq(d.maybeUb.get, d.ub)
             assertEq(d.hull, d)
-            if (d.isEmpty) {
+            if d.isEmpty then {
                 assertEx(d.singleValue)
                 assertEx(d.randomValue(randomGenerator))
                 assertEx(d.nextRandomValue(randomGenerator, False))
                 assertLt(d.ub, d.lb)
-            } else if (d.isSingleton) {
-                assertEq(d.singleValue, if (f) False else True)
+            } else if d.isSingleton then {
+                assertEq(d.singleValue, if f then False else True)
                 assertEq(d.randomValue(randomGenerator), d.singleValue)
                 assertEq(d.nextRandomValue(randomGenerator, False), d.singleValue)
                 assertEq(d.nextRandomValue(randomGenerator, True), d.singleValue)
@@ -68,14 +68,14 @@ final class BooleanDomainTest extends UnitTest {
     @Test
     def testEquality(): Unit = {
         helper.testEquality(testData2)
-        for (d <- testData2) {
+        for d <- testData2 do {
             val e = new BooleanDomain(d.containsFalse, d.containsTrue)
             assertEq(d, e)
             assertEq(e, d)
             assertNe(d, False)
             assertNe(False, d)
-            for (e <- testData2) {
-                assert(if (d.eq(e)) d == e else d != e)
+            for e <- testData2 do {
+                assert(if d.eq(e) then d == e else d != e)
             }
         }
     }
@@ -87,9 +87,9 @@ final class BooleanDomainTest extends UnitTest {
 
     @Test
     def testSetOperations(): Unit = {
-        for ((f1, t1) <- testData1) {
+        for (f1, t1) <- testData1 do {
             val d1 = new BooleanDomain(f1, t1)
-            for ((f2, t2) <- testData1) {
+            for (f2, t2) <- testData1 do {
                 val d2 = new BooleanDomain(f2, t2)
                 assertEq(d1.isSubsetOf(d2), (! f1 || f2) && (! t1 || t2))
                 assertEq(d1.intersects(d2), (f1 && f2) || (t1 && t2))
@@ -103,7 +103,7 @@ final class BooleanDomainTest extends UnitTest {
 
     @Test
     def testRandomSubdomainCreation(): Unit = {
-        for (a <- testData2) {
+        for a <- testData2 do {
             assertEx(a.randomSubdomain(randomGenerator), classOf[NotImplementedError])
         }
     }

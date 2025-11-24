@@ -94,7 +94,7 @@ final class Min
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = min(%s, %s)".format(z, x, y)
-    override def op(a: V, b: V) = if (a < b) a else b
+    override def op(a: V, b: V) = if a < b then a else b
     override def propagate() = {
         val (lhs1, dz1) = valueTraits.domainPruner.minRule(Seq(x.domain, y.domain), z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
@@ -110,7 +110,7 @@ final class Max
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = max(%s, %s)".format(z, x, y)
-    override def op(a: V, b: V) = if (a > b) a else b
+    override def op(a: V, b: V) = if a > b then a else b
     override def propagate() = {
         val (lhs1, dz1) = valueTraits.domainPruner.maxRule(Seq(x.domain, y.domain), z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq

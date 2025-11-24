@@ -32,7 +32,7 @@ final class Conjunction
 
     override def initialize(now: SearchState) = {
         var violation = 0L
-        for (x <- xs) {
+        for x <- xs do {
             violation = safeAdd(violation, now.value(x).violation)
         }
         sum = BooleanValue(violation)
@@ -43,7 +43,7 @@ final class Conjunction
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         effect.a = sum
         var violation = sum.violation
-        for (x0 <- move) {
+        for x0 <- move do {
             val x = x0.asInstanceOf[BooleanVariable]
             violation = safeSub(safeAdd(violation, after.value(x).violation), before.value(x).violation)
         }

@@ -17,8 +17,8 @@ final class VariableClassifier
     }
 
     private def classifyVars(): Unit = {
-        for (constraint <- cc.ast.constraints) {
-            for (annotation <- constraint.annotations) {
+        for constraint <- cc.ast.constraints do {
+            for annotation <- constraint.annotations do {
                 annotation match {
                     case Annotation(Term("defines_var", Seq(a))) => cc.definedVars += compileAnyExpr(a)
                     case Annotation(Term("yuck_defines_bool_vars" | "yuck_defines_int_vars" | "yuck_defines_set_vars", Seq(a))) =>
@@ -27,7 +27,7 @@ final class VariableClassifier
                 }
             }
         }
-        for (Annotation(expr) <- cc.ast.solveGoal.annotations) {
+        for Annotation(expr) <- cc.ast.solveGoal.annotations do {
             findSearchVars(expr)
         }
         // Sometimes the objective variable is declared as a search variable.
@@ -42,11 +42,11 @@ final class VariableClassifier
         cc.searchVars --= cc.definedVars
         // Sometimes a variable is tagged with "is_defined_var" but there is no corresponding "defines_var"
         // annotation.
-        for (varDecl <- cc.ast.varDecls) {
-            for (annotation <- varDecl.annotations) {
+        for varDecl <- cc.ast.varDecls do {
+            for annotation <- varDecl.annotations do {
                 annotation match {
                     case Annotation(Term("is_defined_var", Nil)) =>
-                        if (varDecl.valueType.isArrayType) {
+                        if varDecl.valueType.isArrayType then {
                             cc.searchVars --= compileAnyArray(Term(varDecl.id, Nil))
                         } else {
                             cc.searchVars -= compileAnyExpr(Term(varDecl.id, Nil))
@@ -61,15 +61,15 @@ final class VariableClassifier
         annotation match {
             case Term(search, ArrayConst(elems) :: _)
             if List("bool_search", "int_search", "set_search").contains(search) =>
-                for (elem <- elems if cc.declaredVars.contains(elem)) {
+                for elem <- elems if cc.declaredVars.contains(elem) do {
                     cc.searchVars += compileAnyExpr(elem)
                 }
             case Term(search, Term(id, Nil) :: _)
             if List("bool_search", "int_search", "set_search").contains(search) =>
-                if (cc.ast.varDeclsByName.contains(id)) {
+                if cc.ast.varDeclsByName.contains(id) then {
                     cc.ast.varDeclsByName(id).valueType match {
                         case ArrayType(Some(IntRange(1, n)), _) =>
-                            for (idx <- 1 to n.toInt) {
+                            for idx <- 1 to n.toInt do {
                                 cc.searchVars += compileAnyExpr(ArrayAccess(id, IntConst(idx)))
                             }
                     }

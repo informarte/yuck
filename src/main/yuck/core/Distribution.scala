@@ -35,12 +35,12 @@ abstract class Distribution {
 
     /** Implements the cumulative distribution function. */
     def cdf(i: Int): Long = {
-        if (i < 0 || i > size) {
+        if i < 0 || i > size then {
             throw new ArrayIndexOutOfBoundsException
         }
         var sum = 0L
         var j = 0
-        while (j <= i) {sum = safeAdd(sum, frequency(j)); j += 1}
+        while j <= i do {sum = safeAdd(sum, frequency(j)); j += 1}
         sum
     }
 
@@ -74,7 +74,7 @@ abstract class Distribution {
                 require(hasNext)
                 val i = nextIndex(randomGenerator)
                 m += 1
-                if (m < n) {
+                if m < n then {
                     frequencyRestorer.memorize(Distribution.this, i)
                     setFrequency(i, 0)
                 }
@@ -98,10 +98,8 @@ object Distribution {
      * For large distributions an implementation based on Fenwick trees will be provided,
      * for small distributions an array-based implementation will be used.
      */
-    def apply(n: Int): Distribution = {
-        if (n > 32) new FenwickTreeBackedDistribution(n)
-        else new ArrayBackedDistribution(n)
-    }
+    def apply(n: Int): Distribution =
+        if n > 32 then new FenwickTreeBackedDistribution(n) else new ArrayBackedDistribution(n)
 
     /**
      * Creates a distribution from the given frequencies such that the first
@@ -109,7 +107,7 @@ object Distribution {
      */
     def apply(indexBase: Int, frequencies: Seq[Int]): Distribution = {
         val result = apply(indexBase + frequencies.size)
-        for ((f, i) <- frequencies.view.zipWithIndex) {
+        for (f, i) <- frequencies.view.zipWithIndex do {
             result.setFrequency(indexBase + i, f)
         }
         result

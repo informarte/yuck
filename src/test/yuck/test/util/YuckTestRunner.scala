@@ -31,11 +31,11 @@ object YuckTestRunner {
     def main(args: Array[String]): Unit = {
         val parser = new CommandLineParser
         val maybeCl = parser.parse(args, new CommandLine)
-        if (maybeCl.isEmpty) {
+        if maybeCl.isEmpty then {
             System.exit(1)
         }
         val cl = maybeCl.get
-        if (cl.listTestMethods) {
+        if cl.listTestMethods then {
             System.exit(listTestMethods(cl))
         } else {
             System.exit(runTest(cl))
@@ -67,7 +67,7 @@ object YuckTestRunner {
         val listener = new TextListener(system)
         core.addListener(listener)
         val result = core.run(request)
-        if (result.wasSuccessful) 0 else 1
+        if result.wasSuccessful then 0 else 1
     }
 
 }

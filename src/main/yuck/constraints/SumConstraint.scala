@@ -29,8 +29,8 @@ final class SumConstraint
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         futureSum = currentSum
-        for (x0 <- move) {
-            if (x0 != z) {
+        for x0 <- move do {
+            if x0 != z then {
                 val x = valueTraits.safeDowncast(x0)
                 futureSum = futureSum.addAndSub(after.value(x), before.value(x))
             }

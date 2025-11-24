@@ -83,11 +83,11 @@ object Collections {
             val step = range.step
             val isInclusive = range.isInclusive
             var result = true
-            while (
+            while
                 result &&
                 (if step < 0
                  then if isInclusive then i >= end else i > end
-                 else if isInclusive then i <= end else i < end))
+                 else if isInclusive then i <= end else i < end) do
             {
                 result &= p(i)
                 i += step
@@ -101,11 +101,11 @@ object Collections {
             val step = range.step
             val isInclusive = range.isInclusive
             var result = false
-            while (
+            while
                 ! result &&
                 (if step < 0
                  then if isInclusive then i >= end else i > end
-                 else if isInclusive then i <= end else i < end))
+                 else if isInclusive then i <= end else i < end) do
             {
                 result |= p(i)
                 i += step
@@ -119,7 +119,7 @@ object Collections {
 
         inline def inlineForeach(inline f: T => Unit): Unit = {
             var i = array.length
-            while (i > 0) {
+            while i > 0 do {
                 i -= 1
                 f(array(i))
             }
@@ -127,7 +127,7 @@ object Collections {
 
         inline def inlineForeach(inline f: (Int, T) => Unit): Unit = {
             var i = array.length
-            while (i > 0) {
+            while i > 0 do {
                 i -= 1
                 f(i, array(i))
             }
@@ -136,7 +136,7 @@ object Collections {
         inline def inlineForall(inline p: T => Boolean): Boolean = {
             var i = array.length
             var result = true
-            while (result && i > 0) {
+            while result && i > 0 do {
                 i -= 1
                 result &= p(array(i))
             }
@@ -146,7 +146,7 @@ object Collections {
         inline def inlineExists(inline p: T => Boolean): Boolean = {
             var i = array.length
             var result = false
-            while (! result && i > 0) {
+            while ! result && i > 0 do {
                 i -= 1
                 result |= p(array(i))
             }
@@ -182,7 +182,7 @@ object Collections {
 
         inline def inlineForeach(inline f: T => Unit): Unit = {
             var i = array.size
-            while (i > 0) {
+            while i > 0 do {
                 i -= 1
                 f(array(i))
             }
@@ -190,7 +190,7 @@ object Collections {
 
         inline def inlineForeach(inline f: (Int, T) => Unit): Unit = {
             var i = array.size
-            while (i > 0) {
+            while i > 0 do {
                 i -= 1
                 f(i, array(i))
             }
@@ -199,7 +199,7 @@ object Collections {
         inline def inlineForall(inline p: T => Boolean): Boolean = {
             var i = array.length
             var result = true
-            while (result && i > 0) {
+            while result && i > 0 do {
                 i -= 1
                 result &= p(array(i))
             }
@@ -209,7 +209,7 @@ object Collections {
         inline def inlineExists(inline p: T => Boolean): Boolean = {
             var i = array.length
             var result = false
-            while (! result && i > 0) {
+            while ! result && i > 0 do {
                 i -= 1
                 result |= p(array(i))
             }

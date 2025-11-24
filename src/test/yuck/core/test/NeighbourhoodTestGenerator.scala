@@ -20,13 +20,14 @@ abstract class NeighbourhoodTestGenerator {
         List(10)
 
     private def configurations =
-        for (moveSizeDistribution <- moveSizeDistributions;
-             maybeHotSpotDistribution <- None +: hotSpotDistributions.map(Some(_));
-             fairVariableChoiceRate <- if (maybeHotSpotDistribution.isDefined) fairVariableChoiceRates else List(Probability(100));
-             numberOfVariables <- if (maybeHotSpotDistribution.isDefined) List(maybeHotSpotDistribution.get.size) else numbersOfVariables)
-            yield Vector(
-                    randomGenerator.nextGen(), moveSizeDistribution, maybeHotSpotDistribution, Some(fairVariableChoiceRate),
-                    numberOfVariables)
+        for moveSizeDistribution <- moveSizeDistributions
+            maybeHotSpotDistribution <- None +: hotSpotDistributions.map(Some(_))
+            fairVariableChoiceRate <- if maybeHotSpotDistribution.isDefined then fairVariableChoiceRates else List(Probability(100))
+            numberOfVariables <- if maybeHotSpotDistribution.isDefined then List(maybeHotSpotDistribution.get.size) else numbersOfVariables
+        yield
+            Vector(
+                randomGenerator.nextGen(), moveSizeDistribution, maybeHotSpotDistribution, Some(fairVariableChoiceRate),
+                numberOfVariables)
 
     @runners.Parameterized.Parameters(name = "{index}: {1}, {2}, {3}, {4}")
     def parameters = configurations.map(_.toArray).asJava

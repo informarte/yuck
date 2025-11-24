@@ -16,8 +16,8 @@ class OrderedValueTestHelper
         val helper = new OrderingTestHelper[V](randomGenerator)
         val ord = new OrderingFromOrdered[V]
         helper.testOrdering(testData, ord)
-        for (a <- testData) {
-            for (b <- testData) {
+        for a <- testData do {
+            for b <- testData do {
                 val cmp = ord.compare(a, b)
                 assertEq(cmp == 0, a == b)
                 assertEq(cmp != 0, a != b)

@@ -46,7 +46,7 @@ abstract class CompilationPhase extends Runnable {
 
     private final def tryGetAnyConst(a: Expr): Option[AnyValue] = {
         a match {
-            case BoolConst(a) => Some(if (a) True else False)
+            case BoolConst(a) => Some(if a then True else False)
             case IntConst(a) => Some(IntegerValue(a))
             case IntSetConst(IntRange(lb, ub)) => Some(new IntegerSetValue(IntegerRange(lb, ub)))
             case IntSetConst(IntSet(set)) => Some(new IntegerSetValue(IntegerDomain(set)))
@@ -83,11 +83,11 @@ abstract class CompilationPhase extends Runnable {
     protected final def intSetDomain(a: Expr): IntegerSetDomain = a match {
         case IntSetConst(IntRange(lb, ub)) =>
             val d0 = IntegerRange(lb, ub)
-            val d = if (d0.isSubsetOf(SixtyFourBitSet.ValueRange)) SixtyFourBitSet(lb, ub) else d0
+            val d = if d0.isSubsetOf(SixtyFourBitSet.ValueRange) then SixtyFourBitSet(lb, ub) else d0
             new SingletonIntegerSetDomain(d)
         case IntSetConst(IntSet(set)) =>
             val d0 = IntegerDomain(set)
-            val d = if (d0.isSubsetOf(SixtyFourBitSet.ValueRange)) SixtyFourBitSet(d0) else d0
+            val d = if d0.isSubsetOf(SixtyFourBitSet.ValueRange) then SixtyFourBitSet(d0) else d0
             new SingletonIntegerSetDomain(d)
         case _ => cc.domains(a).asInstanceOf[IntegerSetDomain]
     }
@@ -248,7 +248,8 @@ abstract class CompilationPhase extends Runnable {
         HighPriorityImplicits.compileIntExpr(IntConst(a.value))
 
     implicit protected final def compileConstant(a: IntegerDomain): IntegerSetVariable =
-        if (a.isFinite && ! a.hasGaps) HighPriorityImplicits.compileIntSetExpr(IntSetConst(IntRange(a.lb.value, a.ub.value)))
+        if a.isFinite && ! a.hasGaps
+        then HighPriorityImplicits.compileIntSetExpr(IntSetConst(IntRange(a.lb.value, a.ub.value)))
         else IntegerSetValueTraits.createVariable(cc.space, a.toString, new SingletonIntegerSetDomain(a))
 
     protected final def createChannel
@@ -338,7 +339,7 @@ abstract class CompilationPhase extends Runnable {
         (using valueTraits: NumericalValueTraits[V]):
         immutable.IndexedSeq[AX[V]] =
     {
-        for (x <- xs) yield new AX(valueTraits.one, x)
+        for x <- xs yield new AX(valueTraits.one, x)
     }
 
 }

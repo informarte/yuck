@@ -25,7 +25,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
         assertEq(objective.targetCosts, new PolymorphicListValue(List(baseDomain.lb, baseDomain.ub - One)))
         assertEq(objective.primitiveObjectives, Seq(mainObjective, subordinateObjective))
         assertEq(objective.objectiveVariables, Seq(x, y))
-        for (a <- x.domain.values; b <- y.domain.values) {
+        for a <- x.domain.values; b <- y.domain.values do {
             space.setValue(x, a).setValue(y, b)
             val ab = new PolymorphicListValue(List(a, b))
             assertEq(objective.costs(now), ab)
@@ -102,7 +102,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
             .post(new Le(space.nextConstraintId(), null, x, y, costs))
             .registerObjectiveVariable(y)
             .registerObjectiveVariable(costs)
-        for (a <- x.domain.values) {
+        for a <- x.domain.values do {
             space.setValue(x, a).setValue(y, y.domain.ub).initialize()
             objective.findActualObjectiveValue(space)
             assertEq(now.value(y), a)
@@ -123,14 +123,14 @@ final class HierarchicalObjectiveTest extends UnitTest {
         space
             .post(new Le(space.nextConstraintId(), null, x, y, costs))
             .setValue(z, z.domain.ub)
-        for (a <- x.domain.values; b <- y.domain.values) {
+        for a <- x.domain.values; b <- y.domain.values do {
             space.setValue(x, a).setValue(y, b).initialize()
             val tightenedVariables = objective.tighten(space)
             assertEq(now.value(x), a)
             assertEq(x.domain, baseDomain)
             assertEq(now.value(y), b)
             assertEq(y.domain, baseDomain)
-            if (objective.isSolution(now) && b > y.domain.lb) {
+            if objective.isSolution(now) && b > y.domain.lb then {
                 assertEq(tightenedVariables, Set(z))
                 assertEq(now.value(z), b)
                 assertEq(z.domain, IntegerRange(zd.lb, b))
@@ -155,7 +155,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
             .post(new Le(space.nextConstraintId(), null, y, x, costs))
             .registerObjectiveVariable(costs)
             .registerObjectiveVariable(y)
-        for (a <- x.domain.values) {
+        for a <- x.domain.values do {
             space.setValue(x, a).setValue(y, y.domain.lb).initialize()
             objective.findActualObjectiveValue(space)
             assertEq(now.value(y), a)
@@ -176,14 +176,14 @@ final class HierarchicalObjectiveTest extends UnitTest {
         space
             .post(new Le(space.nextConstraintId(), null, y, x, costs))
             .setValue(z, z.domain.lb)
-        for (a <- x.domain.values; b <- y.domain.values) {
+        for a <- x.domain.values; b <- y.domain.values do {
             space.setValue(x, a).setValue(y, b).initialize()
             val tightenedVariables = objective.tighten(space)
             assertEq(now.value(x), a)
             assertEq(x.domain, baseDomain)
             assertEq(now.value(y), b)
             assertEq(y.domain, baseDomain)
-            if (objective.isSolution(now) && b < y.domain.ub) {
+            if objective.isSolution(now) && b < y.domain.ub then {
                 assertEq(tightenedVariables, Set(z))
                 assertEq(now.value(z), b)
                 assertEq(z.domain, IntegerRange(b, zd.ub))

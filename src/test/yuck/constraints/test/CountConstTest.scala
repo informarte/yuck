@@ -13,7 +13,7 @@ final class CountConstTest extends UnitTest with ConstraintTestTooling {
     private val space = new Space(logger, sigint)
 
     private val baseDomain = IntegerRange(0, 9)
-    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
+    private val xs = for i <- 1 to 3 yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
     private val Seq(x1, x2, x3) = xs
     private val n = new IntegerVariable(space.nextVariableId(), "n", CompleteIntegerRange)
 
@@ -87,7 +87,7 @@ final class CountConstTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testNormalizationOfBooleanValuesInCounting(): Unit = {
-        val xs = for (i <- 1 to 3) yield new BooleanVariable(space.nextVariableId(), "x%d".format(i), CompleteBooleanDomain)
+        val xs = for i <- 1 to 3 yield new BooleanVariable(space.nextVariableId(), "x%d".format(i), CompleteBooleanDomain)
         val Seq(x1, x2, x3) = xs
         space.post(new CountConst(space.nextConstraintId(), null, xs, False, n))
         runScenario(

@@ -67,9 +67,9 @@ final class FlatZincSolverGenerator
                 // The initializer will respect existing value assignments, e.g. due to warm starting.
                 initializer.run()
             }
-            if (compilerResult.maybeNeighbourhood.isEmpty) {
+            if compilerResult.maybeNeighbourhood.isEmpty then {
                 new SolverForProblemWithoutNeighbourhood(solverName, compilerResult)
-            } else if (compilerResult.maybeNeighbourhood.get.isInstanceOf[FeasibilityJumpNeighbourhood]) {
+            } else if compilerResult.maybeNeighbourhood.get.isInstanceOf[FeasibilityJumpNeighbourhood] then {
                 logger.log("Using feasibility jump method")
                 val fjCfg = cfg.feasibilityJumpConfiguration
                 val neighbourhood = compilerResult.maybeNeighbourhood.get
@@ -118,13 +118,14 @@ final class FlatZincSolverGenerator
     override def call() = {
         val randomGenerator = new JavaRandomGenerator(cfg.seed)
         val solvers =
-            for (i <- 1 to cfg.numberOfSolvers) yield
+            for i <- 1 to cfg.numberOfSolvers yield
                 new OnDemandGeneratedSolver(
                     new BaseSolverGenerator(cfg, i, randomGenerator.nextGen()),
                     logger,
                     sigint)
         val solver =
-            if (solvers.size == 1) solvers.head
+            if solvers.size == 1
+            then solvers.head
             else new ParallelSolver(solvers, cfg.numberOfThreads, solverName, logger, sigint)
         solver
     }

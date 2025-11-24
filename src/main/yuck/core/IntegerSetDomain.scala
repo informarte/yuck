@@ -12,10 +12,14 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
     final override def hasUb = true
 
     final override def compare(that: OrderedDomain[IntegerSetValue]) =
-        if (this.lb < that.lb) -1
-        else if (this.lb > that.lb) +1
-        else if (this.ub < that.ub) -1
-        else if (this.ub > that.ub) +1
+        if this.lb < that.lb
+        then -1
+        else if this.lb > that.lb
+        then +1
+        else if this.ub < that.ub
+        then -1
+        else if this.ub > that.ub
+        then +1
         else 0
 
     final override def ==(that: Domain[IntegerSetValue]) = (this, that) match {

@@ -22,14 +22,14 @@ final class IntegerRangeTest extends UnitTest {
     def testEquality(): Unit = {
         val testData = helper.createRanges(baseRange, 32)
         helper.testEquality(testData)
-        for (d <- testData) {
-            for (e <- List(IntegerRange(d.lb, d.ub), IntegerRangeList(d))) {
+        for d <- testData do {
+            for e <- List(IntegerRange(d.lb, d.ub), IntegerRangeList(d)) do {
                 assertEq(d, e)
                 assertEq(e, d)
                 assertNe(d, False)
                 assertNe(False, d)
-                for (e <- testData) {
-                    assert(if (d.eq(e)) d == e else d != e)
+                for e <- testData do {
+                    assert(if d.eq(e) then d == e else d != e)
                 }
             }
         }

@@ -12,7 +12,7 @@ final case class IntSet(value: Set[Long]) extends ValueSet[Long] {
     override def toString =
         "{%s%s}".format(
             value.toBuffer.sorted.iterator.take(10).map(_.toString).mkString(", "),
-            if (value.size > 10) ", ..." else "")
+            if value.size > 10 then ", ..." else "")
 }
 // The representation of floats is left to the implementation by the Zinc specification.
 final case class FloatRange(lb: Double, ub: Double) extends ValueSet[Double] {
@@ -47,7 +47,7 @@ final case class StringConst(string: String) extends Expr {
 // In expressions, parameters and variables are represented as 0-ary terms.
 final case class Term(id: String, params: LinearSeq[Expr]) extends Expr {
     override def toString =
-        if (params.isEmpty) id else "%s(%s)".format(id, params.iterator.map(_.toString).mkString(", "))
+        if params.isEmpty then id else "%s(%s)".format(id, params.iterator.map(_.toString).mkString(", "))
 }
 
 abstract class Type {
@@ -110,9 +110,11 @@ final case class Annotation(term: Term) {
 final case class Constraint(id: String, params: LinearSeq[Expr], annotations: LinearSeq[Annotation]) {
     override def toString = {
         val tmp =
-            if (params.isEmpty) id
+            if params.isEmpty
+            then id
             else "%s(%s)".format(id, params.iterator.map(_.toString).mkString(", "))
-        if (annotations.isEmpty) tmp
+        if annotations.isEmpty
+        then tmp
         else "%s :: %s".format(tmp, annotations.iterator.map(_.toString).mkString(", "))
     }
 }
@@ -142,7 +144,7 @@ final case class FlatZincAst(
             elems
         case Term(id, Nil) if varDeclsByName.contains(id) =>
             val decl = varDeclsByName(id)
-            if (decl.optionalValue.isDefined) {
+            if decl.optionalValue.isDefined then {
                 val ArrayConst(elems) = decl.optionalValue.get: @unchecked
                 elems
             } else {
@@ -164,7 +166,7 @@ final case class FlatZincAst(
             elems.iterator.flatMap(involvedVariables).toSet
         case ArrayAccess(id, idx) if varDeclsByName.contains(id) =>
             val decl = varDeclsByName(id)
-            if (decl.optionalValue.isDefined) {
+            if decl.optionalValue.isDefined then {
                 findIndex(idx) match {
                     case Some(i) =>
                         val ArrayType(Some(IntRange(n, m)), _) = decl.valueType: @unchecked
@@ -179,7 +181,8 @@ final case class FlatZincAst(
         case ArrayAccess(id, _) if paramDeclsByName.contains(id) =>
             Set()
         case Term(id, Nil) if varDeclsByName.contains(id) =>
-            if (varDeclsByName(id).valueType.isArrayType) getArrayElems(expr).iterator.flatMap(involvedVariables).toSet
+            if varDeclsByName(id).valueType.isArrayType
+            then getArrayElems(expr).iterator.flatMap(involvedVariables).toSet
             else Set(expr)
         case Term(id, Nil) if paramDeclsByName.contains(id) =>
             Set()
@@ -190,7 +193,7 @@ final case class FlatZincAst(
             Some(safeToInt(i))
         case ArrayAccess(id, idx) if varDeclsByName.contains(id) =>
             val decl = varDeclsByName(id)
-            if (decl.optionalValue.isDefined) {
+            if decl.optionalValue.isDefined then {
                 findIndex(idx) match {
                     case Some(i) =>
                         val ArrayType(Some(IntRange(n, _)), _) = decl.valueType: @unchecked
@@ -214,7 +217,7 @@ final case class FlatZincAst(
             }
         case Term(id, Nil) if varDeclsByName.contains(id) =>
             val decl = varDeclsByName(id)
-            if (decl.optionalValue.isDefined) {
+            if decl.optionalValue.isDefined then {
                 findIndex(varDeclsByName(id).optionalValue.get)
             } else {
                 None

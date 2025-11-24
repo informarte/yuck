@@ -20,8 +20,8 @@ abstract class OrderedDomainTestHelper[V <: OrderedValue[V]] extends DomainTestH
         val helper = new OrderingTestHelper[OrderedDomain[V]](randomGenerator)
         val ord = new OrderingFromOrdered[OrderedDomain[V]]
         helper.testOrdering(testData, ord)
-        for (d <- testData) {
-            for (e <- testData) {
+        for d <- testData do {
+            for e <- testData do {
                 val cmp = ord.compare(d, e)
                 assertEq(cmp == 0, d == e)
                 assertEq(cmp != 0, d != e)

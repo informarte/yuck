@@ -32,7 +32,7 @@ final class LinearCombination
 
     override def initialize(now: SearchState) = {
         sum = valueTraits.zero
-        for ((_, ax) <- x2ax) {
+        for (_, ax) <- x2ax do {
             sum += ax.a * now.value(ax.x)
         }
         effect.a = sum
@@ -41,7 +41,7 @@ final class LinearCombination
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         effect.a = sum
-        for (x0 <- move) {
+        for x0 <- move do {
             val ax = x2ax(x0)
             val x = ax.x
             effect.a = effect.a.addAndSub(ax.a, after.value(x), before.value(x))

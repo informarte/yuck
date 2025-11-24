@@ -49,7 +49,8 @@ final class RoundLog(val roundIndex: Int) {
         traditionalAcceptanceRatio = numberOfAcceptedMoves.toDouble / numberOfMonteCarloAttempts
         val numberOfProposedUphillMoves = numberOfAcceptedUphillMoves + numberOfRejectedMoves
         uphillAcceptanceRatio =
-            if (numberOfProposedUphillMoves == 0) 1.0
+            if numberOfProposedUphillMoves == 0
+            then 1.0
             else numberOfAcceptedUphillMoves.toDouble / numberOfProposedUphillMoves.toDouble
     }
 }

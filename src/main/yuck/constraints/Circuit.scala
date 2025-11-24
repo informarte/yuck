@@ -31,7 +31,7 @@ final class Circuit
     override def toString = "circuit([%s], %d, %s)".format(succ.mkString(", "), offset, costs)
 
     override protected def computeCosts(cycleLengths: Iterable[Int]) =
-        BooleanValue(succ.size - (if (cycleLengths.isEmpty) 0 else cycleLengths.max))
+        BooleanValue(succ.size - (if cycleLengths.isEmpty then 0 else cycleLengths.max))
 
     override def isCandidateForImplicitSolving(space: Space) =
         succ.size > 2 &&
@@ -47,7 +47,7 @@ final class Circuit
         maybeFairVariableChoiceRate: Option[Probability] = None):
         Option[Neighbourhood] =
     {
-        if (isCandidateForImplicitSolving(space) && maxNumberOfGreedyHeuristicRuns > 0) {
+        if isCandidateForImplicitSolving(space) && maxNumberOfGreedyHeuristicRuns > 0 then {
             solve(
                 maxNumberOfGreedyHeuristicRuns - 1,
                 logger.withTimedLogScope("Trying deterministic greedy heuristic") {
@@ -66,11 +66,12 @@ final class Circuit
     private def solve
         (n: Int, result: HeuristicResult, heuristic: () => HeuristicResult):
         Option[Neighbourhood] =
-        if (n == 0) None
+        if n == 0
+        then None
         else result match {
             case UnsatisfiableInstance => None
             case HeuristicFailed =>
-                if (sigint.isSet) {
+                if sigint.isSet then {
                     logger.log("Interrupted")
                     None
                 } else solve(n - 1, heuristic(), heuristic)
@@ -103,13 +104,13 @@ final class Circuit
         var failed = false
         var unsatisfiable = false
 
-        for (i <- 0 until n if ! failed && succ(i).domain.isSingleton) {
+        for i <- 0 until n if ! failed && succ(i).domain.isSingleton do {
             val j = succ(i).domain.singleValue.toInt - offset
-            if (maybePredecessor(j).isDefined) {
+            if maybePredecessor(j).isDefined then {
                 logger.log("Detected a node with two incoming arcs")
                 failed = true
                 unsatisfiable = true
-            } else if (start(i) == j && length(i) < n - 1) {
+            } else if start(i) == j && length(i) < n - 1 then {
                 logger.log("Detected a subcircuit")
                 failed = true
                 unsatisfiable = true
@@ -124,7 +125,7 @@ final class Circuit
             }
         }
 
-        while (numSettledNodes < n && ! failed) {
+        while numSettledNodes < n && ! failed do {
             val i = strategy match {
                 case FirstFailStrategy =>
                     nodeRange.iterator.filterNot(nodeIsSettled).minBy(i => succ(i).domain.size)
@@ -140,10 +141,11 @@ final class Circuit
                     nodeRange.iterator.filter(isCandidate).minByOption(numRefs)
                 case RandomizedStrategy =>
                     val candidates = nodeRange.filter(isCandidate)
-                    if (candidates.isEmpty) None
+                    if candidates.isEmpty
+                    then None
                     else Some(candidates(randomGenerator.nextInt(candidates.size)))
             }
-            if (maybeJ.isDefined) {
+            if maybeJ.isDefined then {
                 val j = maybeJ.get
                 maybePredecessor(j) = Some(i)
                 maybeSuccessor(i) = Some(j)
@@ -156,15 +158,15 @@ final class Circuit
             }
         }
 
-        if (unsatisfiable) {
+        if unsatisfiable then {
             logger.log("Unsatisfiable")
             UnsatisfiableInstance
-        } else if (failed) {
+        } else if failed then {
             logger.log("Failed")
             HeuristicFailed
         } else {
             logger.log("Success")
-            for (i <- nodeRange) {
+            for i <- nodeRange do {
                 val x = succ(i)
                 val a = IntegerValue(maybeSuccessor(i).get + offset)
                 assert(x.domain.contains(a))

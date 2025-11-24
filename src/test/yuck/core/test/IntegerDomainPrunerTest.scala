@@ -13,7 +13,7 @@ class IntegerDomainPrunerTest extends UnitTest {
     @tailrec
     private def fixedPoint[State](f: State => State, u: State): State = {
         val v = f(u)
-        if (u == v) u else fixedPoint(f, v)
+        if u == v then u else fixedPoint(f, v)
     }
 
     import scala.language.implicitConversions
@@ -34,8 +34,8 @@ class IntegerDomainPrunerTest extends UnitTest {
 
     @Test
     def testEqRule(): Unit = {
-        for (d <- testData) {
-            for (e <- testData) {
+        for d <- testData do {
+            for e <- testData do {
                 testEqRule(d, e)
             }
         }
@@ -43,14 +43,14 @@ class IntegerDomainPrunerTest extends UnitTest {
 
     private def testNeRule(d: IntegerDomain, e: IntegerDomain): Unit = {
         val (f, g) = IntegerDomainPruner.neRule(d, e)
-        assertEq(f, if (e.isSingleton) d.diff(e) else d)
-        assertEq(g, if (d.isSingleton) e.diff(d) else e)
+        assertEq(f, if e.isSingleton then d.diff(e) else d)
+        assertEq(g, if d.isSingleton then e.diff(d) else e)
     }
 
     @Test
     def testNeRule(): Unit = {
-        for (d <- testData) {
-            for (e <- testData) {
+        for d <- testData do {
+            for e <- testData do {
                 testNeRule(d, e)
             }
         }
@@ -60,10 +60,10 @@ class IntegerDomainPrunerTest extends UnitTest {
         val (f, g) = IntegerDomainPruner.leRule(d, e)
         assert(f.isSubsetOf(d))
         assert(g.isSubsetOf(e))
-        if (d.isEmpty || e.isEmpty || e.precedes(d)) {
+        if d.isEmpty || e.isEmpty || e.precedes(d) then {
             assert(f.isEmpty)
             assert(g.isEmpty)
-        } else if (d.isFinite && e.isFinite) {
+        } else if d.isFinite && e.isFinite then {
             d.values.foreach(a => assertEq(e.values.exists(b => a <= b), f.contains(a)))
             e.values.foreach(b => assertEq(d.values.exists(a => a <= b), g.contains(b)))
         } else {
@@ -71,7 +71,7 @@ class IntegerDomainPrunerTest extends UnitTest {
             assert(! g.isEmpty)
             assertEq(f.lb, d.lb)
             assertEq(g.ub, e.ub)
-            if (d.endsAfter(e)) {
+            if d.endsAfter(e) then {
                 assert(! f.endsAfter(g))
                 // Check that not too many values were pruned from d.
                 // d.endsAfter(e) => e.ub is finite
@@ -81,7 +81,7 @@ class IntegerDomainPrunerTest extends UnitTest {
             } else {
                 assertEq(f.ub, d.ub)
             }
-            if (e.startsBefore(d)) {
+            if e.startsBefore(d) then {
                 assert(! g.startsBefore(f))
                 // Check that not too many values were pruned from e.
                 // e.startsBefore(d) => d.lb.isFinite
@@ -96,8 +96,8 @@ class IntegerDomainPrunerTest extends UnitTest {
 
     @Test
     def testLeRule(): Unit = {
-        for (d <- testData) {
-            for (e <- testData) {
+        for d <- testData do {
+            for e <- testData do {
                 testLeRule(d, e)
             }
         }
@@ -107,10 +107,10 @@ class IntegerDomainPrunerTest extends UnitTest {
         val (f, g) = IntegerDomainPruner.ltRule(d, e)
         assert(f.isSubsetOf(d))
         assert(g.isSubsetOf(e))
-        if (d.isFinite && e.isFinite) {
+        if d.isFinite && e.isFinite then {
             d.values.foreach(a => assertEq(e.values.exists(b => a < b), f.contains(a)))
             e.values.foreach(b => assertEq(d.values.exists(a => a < b), g.contains(b)))
-        } else if (d.isEmpty || e.isEmpty || (d.hasLb && e.hasUb && e.ub <= d.lb)) {
+        } else if d.isEmpty || e.isEmpty || (d.hasLb && e.hasUb && e.ub <= d.lb) then {
             assert(f.isEmpty)
             assert(g.isEmpty)
         } else {
@@ -118,24 +118,24 @@ class IntegerDomainPrunerTest extends UnitTest {
             assert(! g.isEmpty)
             assertEq(f.lb, d.lb)
             assertEq(g.ub, e.ub)
-            if (d.endsBefore(e) || ! e.hasUb) {
+            if d.endsBefore(e) || ! e.hasUb then {
                 assertEq(f.ub, d.ub)
             } else {
                 // e.ub is finite
                 assert(f.endsBefore(e))
                 // f.endsBefore(e) => f.ub is finite
-                if (f.ub < e.ub - One) {
+                if f.ub < e.ub - One then {
                     // Check that not too many values were pruned from d.
                     assert(IntegerRange(f.ub + One, e.ub - One).intersect(d).isEmpty)
                 }
             }
-            if (e.startsAfter(d) || ! d.hasLb) {
+            if e.startsAfter(d) || ! d.hasLb then {
                 assertEq(g.lb, e.lb)
             } else {
                 // d.lb is finite
                 assert(g.startsAfter(d))
                 // g.startsAfter(d) => g.lb is finite
-                if (g.lb > d.lb + One) {
+                if g.lb > d.lb + One then {
                     // Check that not too many values were pruned from e.
                     assert(IntegerRange(d.lb + One, g.lb - One).intersect(e).isEmpty)
                 }
@@ -145,8 +145,8 @@ class IntegerDomainPrunerTest extends UnitTest {
 
     @Test
     def testLtRule(): Unit = {
-        for (d <- testData) {
-            for (e <- testData) {
+        for d <- testData do {
+            for e <- testData do {
                 testLtRule(d, e)
             }
         }
@@ -229,12 +229,12 @@ class IntegerDomainPrunerTest extends UnitTest {
         assert(! (d.isFinite || e.isFinite) || (f.isFinite && g.isFinite))
         assert(g.intersect(NegativeIntegerRange).isEmpty)
         assertEq(g, f.intersect(NegativeIntegerRange).mirrored.union(f.intersect(NonNegativeIntegerRange)))
-        if (d.isFinite) {
+        if d.isFinite then {
             assert(d.valuesIterator.forall(a => f.contains(a) == e.contains(a.abs)))
         } else {
             assertEq(f, d.intersect(e.union(e.mirrored)))
         }
-        if (e.isFinite) {
+        if e.isFinite then {
             assert(e.valuesIterator.forall(a => g.contains(a) == (d.contains(a) || d.contains(a.negated))))
         } else {
             assertEq(g, e.intersect(d.union(d.mirrored)))
@@ -243,8 +243,8 @@ class IntegerDomainPrunerTest extends UnitTest {
 
     @Test
     def testAbsRule(): Unit = {
-        for (d <- testData) {
-            for (e <- testData) {
+        for d <- testData do {
+            for e <- testData do {
                 testAbsRule(d, e)
             }
         }

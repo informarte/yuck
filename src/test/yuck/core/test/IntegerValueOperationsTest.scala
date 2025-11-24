@@ -14,7 +14,7 @@ final class IntegerValueOperationsTest extends UnitTest with IntegerValueTestDat
 
     @Test
     def testValueFactory(): Unit = {
-        for (a <- testRange) {
+        for a <- testRange do {
             assertEq(num.fromInt(a).toInt, a)
         }
     }
@@ -37,12 +37,12 @@ final class IntegerValueOperationsTest extends UnitTest with IntegerValueTestDat
 
     @Test
     def testNumericalOperations(): Unit = {
-        for (a <- testData) {
-            for (b <- testData) {
+        for a <- testData do {
+            for b <- testData do {
                 assertEq(num.plus(a, b), a + b)
                 assertEq(num.minus(a, b), a - b)
                 assertEq(num.times(a, b), a * b)
-                if (b == Zero) {
+                if b == Zero then {
                     assertEx(num.quot(a, b), classOf[ArithmeticException])
                     assertEx(num.rem(a,  b), classOf[ArithmeticException])
                 } else {
@@ -50,7 +50,7 @@ final class IntegerValueOperationsTest extends UnitTest with IntegerValueTestDat
                     assertEq(num.rem(a, b), a % b)
                 }
             }
-            if (a.value < 0) {
+            if a.value < 0 then {
                 assertEq(num.abs(a), a.abs)
             } else {
                 assertEq(num.abs(a), a)

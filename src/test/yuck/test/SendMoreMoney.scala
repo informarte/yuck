@@ -81,7 +81,7 @@ final class SendMoreMoney(solvingMethod: SolvingMethod) extends HelloWorldTest {
             // propagate constraints
             costs.pruneDomain(TrueDomain)
             space.propagate()
-            if (! sigint.isSet) {
+            if ! sigint.isSet then {
                 assertEq(space.searchVariables, vars -- Set(M, O, S))
                 assertEq(delta.domain, TrueDomain)
                 assertEq(numberOfMissingValues.domain, TrueDomain)
@@ -126,7 +126,7 @@ final class SendMoreMoney(solvingMethod: SolvingMethod) extends HelloWorldTest {
                 i => new OnDemandGeneratedSolver(new SendMoreMoneyGenerator(i, randomGenerator.nextInt()), logger, sigint))
         val solver = new ParallelSolver(solvers, DefaultNumberOfThreads, "SendMoreMoney", logger, sigint)
         val result = solver.call()
-        if (result.isSolution) {
+        if result.isSolution then {
             val modelData = result.maybeUserData.get.asInstanceOf[ModelData]
             assertEq(
                 modelData.LHS.foldLeft(0){case (y, (a, x)) => y + a * result.bestProposal.value(x).toInt},

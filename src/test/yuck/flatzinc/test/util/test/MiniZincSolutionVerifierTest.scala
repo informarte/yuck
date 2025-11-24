@@ -50,7 +50,7 @@ class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean, verificationFrequ
                         maybeRuntimeLimitInSeconds = Some(10)),
                 throwWhenUnsolved = true,
                 verificationFrequency = verificationFrequency)
-        if (simulateBadSolver && verificationFrequency != NoVerification) {
+        if simulateBadSolver && verificationFrequency != NoVerification then {
             assertEx(solve(task), classOf[SolutionNotVerifiedException])
         } else {
             solve(task)
@@ -62,9 +62,10 @@ class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean, verificationFrequ
 object MiniZincSolutionVerifierTest {
 
     private def configurations =
-        for (simulateBadSolver <- List(false, true);
-             verificationFrequency <- List(NoVerification, VerifyOnlyLastSolution, VerifyEverySolution))
-        yield Vector(simulateBadSolver, verificationFrequency)
+        for simulateBadSolver <- List(false, true)
+            verificationFrequency <- List(NoVerification, VerifyOnlyLastSolution, VerifyEverySolution)
+        yield
+            Vector(simulateBadSolver, verificationFrequency)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
     def parameters = configurations.map(_.toArray).asJava

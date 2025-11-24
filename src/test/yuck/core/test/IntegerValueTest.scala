@@ -14,7 +14,7 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
 
     @Test
     def testConstruction(): Unit = {
-        for (a <- testRange) {
+        for a <- testRange do {
             assertEq(new IntegerValue(a).toInt, a)
         }
     }
@@ -37,7 +37,7 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
 
     @Test
     def testValueFactory(): Unit = {
-        for (a <- testRange) {
+        for a <- testRange do {
             assertEq(IntegerValue(a).toInt, a)
             assert(IntegerValue(a).eq(IntegerValue(a)))
         }
@@ -46,14 +46,14 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
     @Test
     def testEquality(): Unit = {
         helper.testEquality(testData)
-        for (a <- testData) {
+        for a <- testData do {
             val b = new IntegerValue(a.value)
             assertEq(a, b)
             assertEq(b, a)
             assertNe(a, False)
             assertNe(False, a)
-            for (b <- testData) {
-                assert(if (a.eq(b)) a == b else a != b)
+            for b <- testData do {
+                assert(if a.eq(b) then a == b else a != b)
             }
         }
     }
@@ -61,8 +61,8 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
     @Test
     def testOrdering(): Unit = {
         helper.testOrdering(testData)
-        for (a <- testData) {
-            for (b <- testData) {
+        for a <- testData do {
+            for b <- testData do {
                 assertEq(a.compare(b).sign, a.value.compare(b.value).sign)
             }
         }
@@ -72,31 +72,31 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
 
     @Test
     def testNumericalOperations(): Unit = {
-        for (a <- testData) {
-            for (b <- testData) {
+        for a <- testData do {
+            for b <- testData do {
                 assertEq((a + b).value, a.value + b.value)
                 assertEq((a - b).value, a.value - b.value)
                 assertEq((a * b).value, a.value * b.value)
-                if (b == Zero) {
+                if b == Zero then {
                     assertEx(a / b, classOf[ArithmeticException])
                     assertEx(a % b, classOf[ArithmeticException])
                 } else {
                     assertEq((a / b).value, a.value / b.value)
                     assertEq((a % b).value, a.value % b.value)
                 }
-                if (a == Zero && b < Zero) {
+                if a == Zero && b < Zero then {
                     assertEx(a ^ b, classOf[ArithmeticException])
                 } else {
                     assertEq((a ^ b).value, scala.math.pow(a.value.toDouble, b.value.toDouble).toLong)
                 }
-                for (c <- testData) {
+                for c <- testData do {
                     assertEq(a.addAndSub(b, c).value, a.value + b.value - c.value)
-                    for (d <- testData) {
+                    for d <- testData do {
                         assertEq(a.addAndSub(b, c, d).value, a.value + b.value * (c.value - d.value))
                     }
                 }
             }
-            if (a.value < 0) {
+            if a.value < 0 then {
                 assertEq(a.abs, IntegerValue(-a.value))
             } else {
                 assertEq(a.abs, a)

@@ -56,7 +56,7 @@ abstract class Disjoint
         rTree = SpatialSearches.rTree[RTreeEntry](rectBuilder)
         rTreeTransaction = new RTreeTransaction[RTreeEntry](rTree, rectBuilder)
         currentCosts = 0L
-        for (i <- 0 until n) {
+        for i <- 0 until n do {
             val newEntry = createRTreeEntry(i, now)
             rTree.intersects(
                 newEntry.bbox,
@@ -78,9 +78,10 @@ abstract class Disjoint
         rTreeTransaction.rollback()
         futureCosts = currentCosts
         val is =
-            if (move.size == 1) x2is(move.effects.head.x)
+            if move.size == 1
+            then x2is(move.effects.head.x)
             else move.involvedVariablesIterator.flatMap(x2is).to(mutable.Set)
-        for (i <- is) {
+        for i <- is do {
             val beforeEntry = createRTreeEntry(i, before)
             rTreeTransaction.remove(beforeEntry)
             rTreeTransaction.intersects(

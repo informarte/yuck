@@ -34,7 +34,7 @@ final class NeighbourhoodCollection
     extends Neighbourhood
 {
 
-    if (maybeSelectionSizeDistribution.isDefined) {
+    if maybeSelectionSizeDistribution.isDefined then {
         val distribution = maybeSelectionSizeDistribution.get
         require(distribution.frequency(0) == 0)
         require(distribution.numberOfAlternatives >= 1)
@@ -63,7 +63,7 @@ final class NeighbourhoodCollection
             then 1
             else min(maybeSelectionSizeDistribution.get.nextIndex(randomGenerator), priorityDistribution.numberOfAlternatives)
         lastProposals.clear()
-        if (m == 1) {
+        if m == 1 then {
             val i = priorityDistribution.nextIndex(randomGenerator)
             val neighbourhood = neighbourhoods(i)
             val move = neighbourhood.nextMove()
@@ -72,7 +72,7 @@ final class NeighbourhoodCollection
         } else {
             val result = new BulkMove(space.nextMoveId())
             scoped(frequencyRestorer) {
-                for (i <- priorityDistribution.nextIndices(randomGenerator, m, frequencyRestorer)) {
+                for i <- priorityDistribution.nextIndices(randomGenerator, m, frequencyRestorer) do {
                     val neighbourhood = neighbourhoods(i)
                     val move = neighbourhood.nextMove()
                     lastProposals.update(neighbourhood, move)
@@ -84,13 +84,13 @@ final class NeighbourhoodCollection
     }
 
     override def commit(move: Move) = {
-        for ((neighbourhood, move) <- lastProposals) {
+        for (neighbourhood, move) <- lastProposals do {
             neighbourhood.commit(move)
         }
     }
 
     final override def perturb(perturbationProbability: Probability) = {
-        for (neighbourhood <- neighbourhoods) {
+        for neighbourhood <- neighbourhoods do {
             neighbourhood.perturb(perturbationProbability)
         }
     }

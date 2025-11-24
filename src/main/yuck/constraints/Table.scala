@@ -56,7 +56,7 @@ final class Table
         costModel.eqViolation(a, b)
 
     override def propagate() = {
-        if (costs.domain == TrueDomain && valueTraits.domainCapabilities.createDomain) {
+        if costs.domain == TrueDomain && valueTraits.domainCapabilities.createDomain then {
             rows = rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(row(i))))
             val effects =
                 NoPropagationOccurred.pruneDomains(
@@ -64,7 +64,7 @@ final class Table
                         val feasibleValues = rows.iterator.map(row => row(i)).toSet
                         val x = xs(i)
                         (x, x.domain.intersect(valueTraits.createDomain(feasibleValues)))))
-            if (! effects.affectedVariables.isEmpty) {
+            if ! effects.affectedVariables.isEmpty then {
                 cols = null
             }
             effects
@@ -78,9 +78,9 @@ final class Table
         cols = rows.toVector.map(_.toVector).transpose
         currentDistances = new Array[Long](m)
         futureDistances = new Array[Long](m)
-        for (j <- 0 until m) {
+        for j <- 0 until m do {
             val row = rows(j)
-            for (i <- 0 until n) {
+            for i <- 0 until n do {
                 currentDistances(j) =
                     safeAdd(currentDistances(j), computeDistance(now.value(xs(i)), row(i)))
             }
@@ -90,18 +90,18 @@ final class Table
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
-        if (cols.eq(null)) {
+        if cols.eq(null) then {
             initialize(before)
         }
         Array.copy(currentDistances, 0, futureDistances, 0, rows.size)
-        if (hasDuplicateVariables) {
-            if (move.size == 1) {
+        if hasDuplicateVariables then {
+            if move.size == 1 then {
                 computeFutureDistances(move, before, after, x2is(move.effects.head.x).iterator)
             } else {
                 computeFutureDistances(move, before, after, move.involvedVariablesIterator.flatMap(x2is))
             }
         } else {
-            if (move.size == 1) {
+            if move.size == 1 then {
                 computeFutureDistances(move, before, after, x2i(move.effects.head.x))
             } else {
                 computeFutureDistances(move, before, after, move.involvedVariablesIterator.map(x2i))
@@ -119,7 +119,7 @@ final class Table
     }
 
     inline private def computeFutureDistances(move: Move, before: SearchState, after: SearchState, it: Iterator[Int]): Unit = {
-        while (it.hasNext) {
+        while it.hasNext do {
             computeFutureDistances(move, before, after, it.next())
         }
     }
@@ -132,7 +132,7 @@ final class Table
     private def computeFutureDistances(col: Vector[V], a: V, b: V): Unit = {
         var j = 0
         val m = col.size
-        while (j < m) {
+        while j < m do {
             val c = col(j)
             futureDistances(j) =
                 safeAdd(futureDistances(j), safeSub(computeDistance(b, c), computeDistance(a, c)))
@@ -144,7 +144,7 @@ final class Table
         var result = distances(0)
         var j = 1
         val m = rows.size
-        while (j < m) {
+        while j < m do {
             result = min(result, distances(j))
             j += 1
         }
@@ -166,18 +166,18 @@ final class Table
         maybeFairVariableChoiceRate: Option[Probability]):
         Option[Neighbourhood] =
     {
-        if (isCandidateForImplicitSolving(space)) {
+        if isCandidateForImplicitSolving(space) then {
             val xs1 = xs
             val rows1 = rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(row(i))))
-            if (rows1.size > 1) {
+            if rows1.size > 1 then {
                 val xs2 = xs.filterNot(_.domain.isSingleton)
                 val rows2 =
                     if xs2.size == xs1.size
                     then rows1
                     else rows1.map(row => row.view.zipWithIndex.filterNot((a, i) => xs(i).domain.isSingleton).map(_._1).toVector)
-                if (rows2(0).size > 1) {
+                if rows2(0).size > 1 then {
                     val row = rows1(randomGenerator.nextInt(rows1.size))
-                    for ((x, a) <- xs1.view.zip(row.iterator)) {
+                    for (x, a) <- xs1.view.zip(row.iterator) do {
                         space.setValue(x, a)
                     }
                     space.setValue(costs, True)

@@ -92,8 +92,8 @@ final class OnDemandGeneratedSolver(
 
     override def call() = {
         require(! hasFinished)
-        if (solver.eq(null)) {
-            if (sigint.isSet) {
+        if solver.eq(null) then {
+            if sigint.isSet then {
                 logger.loggg("Interrupted, not generating solver")
             } else {
                 logger.withTimedLogScope("Generating solver") {
@@ -107,14 +107,14 @@ final class OnDemandGeneratedSolver(
                 }
             }
         }
-        if (sigint.isSet) {
+        if sigint.isSet then {
             throw new SolverInterruptedException
         } else {
             val (result, _) =
                 logger.withTimedLogScope("Running solver") {
                     solver.call()
                 }
-            if (solver.hasFinished) {
+            if solver.hasFinished then {
                 // replace solver by mock to free memory
                 solver = FinishedSolver
             }
@@ -156,16 +156,16 @@ final class ParallelSolver(
 
     private class SolverRunner(child: Solver) extends Runnable {
         override def run() = {
-            if (! sigint.isSet) {
+            if ! sigint.isSet then {
                 scoped(new TransientThreadRenaming(Thread.currentThread, child.name)) {
                     scoped(new LogScope(logger, indentation)) {
                         logger.withTimedLogScope("Running child") {
                             try {
                                 val result = child.call()
                                 criticalSection(lock) {
-                                    if (maybeBestResult.isEmpty || result.isBetterThan(maybeBestResult.get)) {
+                                    if maybeBestResult.isEmpty || result.isBetterThan(maybeBestResult.get) then {
                                         maybeBestResult = Some(result)
-                                        if (maybeBestResult.get.isGoodEnough) {
+                                        if maybeBestResult.get.isGoodEnough then {
                                             sigint.set()
                                         }
                                     }
@@ -195,7 +195,7 @@ final class ParallelSolver(
 
     override def call() = {
         require(! hasFinished)
-        if (! sigint.isSet) {
+        if ! sigint.isSet then {
             val threadPool = Executors.newFixedThreadPool(threadPoolSize)
             scoped(new ManagedExecutorService(threadPool, logger)) {
                 val futureResults =
@@ -209,7 +209,7 @@ final class ParallelSolver(
                 }
             }
         }
-        if (maybeBestResult.isEmpty) {
+        if maybeBestResult.isEmpty then {
             throw new SolverInterruptedException
         }
         maybeBestResult.get

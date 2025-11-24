@@ -45,8 +45,8 @@ object Bool2CostsPropagator {
         val rhs1 =
             rhs0.intersect(
                 IntegerRange(
-                    if (lhs1.contains(True)) Zero else One,
-                    if (lhs1.contains(False)) null else Zero))
+                    if lhs1.contains(True) then Zero else One,
+                    if lhs1.contains(False) then null else Zero))
         (lhs1, rhs1)
     }
 

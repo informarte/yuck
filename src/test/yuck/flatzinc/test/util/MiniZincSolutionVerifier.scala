@@ -54,7 +54,7 @@ class MiniZincSolutionVerifier(
             actualLines.zip(expectedLines).forall((a, b) => a == b)
         })
         val verified = witnessFile.isDefined
-        if (verified) {
+        if verified then {
             logger.log("%s matches".format(witnessFile.get.getName))
         } else {
             logger.log("No expectation file matches")
@@ -82,9 +82,9 @@ class MiniZincSolutionVerifier(
     // by equality constraints because data files must not contain constraints.
     private def consultMiniZinc: Boolean = {
         val suitePath = task.suitePath
-        val suiteName = if (task.suiteName.isEmpty) new java.io.File(suitePath).getName else task.suiteName
+        val suiteName = if task.suiteName.isEmpty then new java.io.File(suitePath).getName else task.suiteName
         val problemName = task.problemName
-        val modelName = if (task.modelName.isEmpty) problemName else task.modelName
+        val modelName = if task.modelName.isEmpty then problemName else task.modelName
         val instanceName = task.instanceName
         val (includePath, modelFileName, dataFileName, outputDirectoryPath0) = task.directoryLayout match {
             case MiniZincExamplesLayout =>
@@ -97,7 +97,7 @@ class MiniZincSolutionVerifier(
                  "%s.mzn".format(modelName),
                  {
                      val dataFilePath = "%s/%s/%s.dzn".format(suitePath, problemName, instanceName)
-                     (if (new java.io.File(dataFilePath).exists()) "%s.dzn" else "%s.json").format(instanceName)
+                     (if new java.io.File(dataFilePath).exists() then "%s.dzn" else "%s.json").format(instanceName)
                  },
                  "tmp/%s/%s/%s/%s".format(suiteName, problemName, modelName, instanceName))
             case NonStandardMiniZincBenchmarksLayout =>
@@ -122,12 +122,12 @@ class MiniZincSolutionVerifier(
             else solutionFormatter(new FlatZincResult(result))
         assert(checkDelimiters(solution), "Issue with delimiters")
         val assignments = solution.takeWhile(_ != FlatZincSolutionSeparator)
-        for (assignment <- assignments) {
+        for assignment <- assignments do {
             solutionWriter.write("constraint %s\n".format(assignment))
         }
         // We include the MiniZinc model in the end because a few of them don't have a semicolon
         // after the last line.
-        if (task.verificationModelName.isEmpty) {
+        if task.verificationModelName.isEmpty then {
             solutionWriter.write("include \"%s\";\n".format(modelFileName))
         } else {
             solutionWriter.write("include \"%s.mzn\";\n".format(task.verificationModelName))
@@ -154,11 +154,11 @@ class MiniZincSolutionVerifier(
             "--statistics",
             // Verification should never take longer than solving.
             "--time-limit", (task.maybeRuntimeLimitInSeconds.getOrElse(DefaultRuntimeLimitInSeconds) * 1000L).toString)
-        for ((key, value) <- task.dataAssignments) {
+        for (key, value) <- task.dataAssignments do {
             miniZincCommand ++= List("-D", "%s=%s".format(key, value))
         }
         miniZincCommand += solutionFilePath
-        if (! dataFileName.isEmpty) {
+        if ! dataFileName.isEmpty then {
             miniZincCommand += "%s/%s".format(includePath, dataFileName)
         }
         val outputLines = new ProcessRunner(logger, miniZincCommand).call()
@@ -172,8 +172,8 @@ class MiniZincSolutionVerifier(
     private def checkDelimiters(outputLines: Seq[String]): Boolean = {
         val separatorIndex = outputLines.indexOf(FlatZincSolutionSeparator)
         val bestSolutionFoundIndicatorIndex = outputLines.indexOf(FlatZincBestSolutionFoundIndicator)
-        if (result.objective.isInstanceOf[HierarchicalObjective]) {
-            if (result.isOptimal) {
+        if result.objective.isInstanceOf[HierarchicalObjective] then {
+            if result.isOptimal then {
                 separatorIndex == outputLines.size - 2 &&
                 bestSolutionFoundIndicatorIndex == outputLines.size - 1
             } else {
@@ -208,11 +208,11 @@ class MiniZincSolutionVerifier(
     }
 
     private def checkObjective(outputLines: Seq[String], x: AnyVariable): Boolean = {
-        if (compilerResult.space.isSearchVariable(x)) {
+        if compilerResult.space.isSearchVariable(x) then {
             true
         } else {
             val expectation1 = "_objective = "
-            if (outputLines.exists(_.startsWith(expectation1))) {
+            if outputLines.exists(_.startsWith(expectation1)) then {
                 val expectation2 = "_objective = %s;".format(result.bestProposal.value(x))
                 outputLines.contains(expectation2)
             } else {

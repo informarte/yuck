@@ -13,7 +13,7 @@ final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
 
     @Test
     def testConstruction(): Unit = {
-        for (a <- baseData) {
+        for a <- baseData do {
             assertEq(new IntegerSetValue(a).set, a)
         }
     }
@@ -28,20 +28,21 @@ final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
     def testEquality(): Unit = {
         val testData = this.testData.distinct
         helper.testEquality(testData)
-        for (a <- testData) {
+        for a <- testData do {
             val b = new IntegerSetValue(a.set)
             assertEq(a, b)
             assertEq(b, a)
             assertNe(a, Zero)
             assertNe(Zero, a)
-            for (b <- testData) {
-                assert(if (a.eq(b)) a == b else a != b)
+            for b <- testData do {
+                assert(if a.eq(b) then a == b else a != b)
             }
         }
     }
 
     private def valuesIterator(range: IntegerRange): Iterator[IntegerValue] =
-        if (range.isFinite) range.valuesIterator
+        if range.isFinite
+        then range.valuesIterator
         else Iterator.from(range.lb.toInt).map(IntegerValue.apply)
 
     private def valuesIterator(ranges: Iterable[IntegerRange]): Iterator[IntegerValue] =
@@ -65,44 +66,44 @@ final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
     def testOrdering(): Unit = {
         helper.testOrdering(testData)
         // We test by comparing iterators over values.
-        for (a <- testData) {
-            for (b <- testData) {
+        for a <- testData do {
+            for b <- testData do {
                 val result = a.compare(b).sign
-                if (a.set == b.set) {
+                if a.set == b.set then {
                     // 1..2
                     // 1..2
                     assertEq(result, 0)
-                } else if (a.set.isEmpty) {
+                } else if a.set.isEmpty then {
                     // {}
                     // 1..2
                     assertEq(result, -1)
-                } else if (b.set.isEmpty) {
+                } else if b.set.isEmpty then {
                     // 1..2
                     // {}
                     assertEq(result, 1)
-                } else if (a.set.isFinite && b.set.isFinite) {
+                } else if a.set.isFinite && b.set.isFinite then {
                     // 1..2
                     // -4..2
                     assertEq(result, valuesIterator(a).compare(valuesIterator(b)).sign)
-                } else if (a.set.hasLb && b.set.hasLb) {
+                } else if a.set.hasLb && b.set.hasLb then {
                     // 1..2
                     // {0} union 3..+inf
                     assertEq(result, valuesIterator(a).compare(valuesIterator(b)).sign)
-                } else if (a.set.hasLb) {
+                } else if a.set.hasLb then {
                     // 1..2
                     // -inf..0 union 3..+inf
                     assertEq(result, 1)
-                } else if (b.set.hasLb) {
+                } else if b.set.hasLb then {
                     // -inf..0 union 3..+inf
                     // 1..2
                     assertEq(result, -1)
-                } else if (a.set.hasUb && b.set.hasUb) {
+                } else if a.set.hasUb && b.set.hasUb then {
                     // -inf..-1
                     // -inf..-5
                     assertEq(result, compareDomainsWithoutLowerBound(a.set, b.set).sign)
-                } else if (a.set.hasUb) {
-                    if (b.set.isComplete) {
-                        if (a.set.hasGaps) {
+                } else if a.set.hasUb then {
+                    if b.set.isComplete then {
+                        if a.set.hasGaps then {
                             // -inf..-5 union -2..-1
                             // -inf..+inf
                             assertEq(result, 1)
@@ -116,9 +117,9 @@ final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
                         // -inf..0 union 3..+inf
                         assertEq(result, compareDomainsWithoutLowerBound(a.set, b.set).sign)
                     }
-                } else if (b.set.hasUb) {
-                    if (a.set.isComplete) {
-                        if (b.set.hasGaps) {
+                } else if b.set.hasUb then {
+                    if a.set.isComplete then {
+                        if b.set.hasGaps then {
                             // -inf..+inf
                             // -inf..-5 union -2..-1
                             assertEq(result, -1)
@@ -132,11 +133,11 @@ final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
                         // -inf..-1
                         assertEq(result, compareDomainsWithoutLowerBound(a.set, b.set).sign)
                     }
-                } else if (a.set.isComplete) {
+                } else if a.set.isComplete then {
                     // -inf..+inf
                     // -inf..0 union 3..+inf
                     assertEq(result, -1)
-                } else if (b.set.isComplete) {
+                } else if b.set.isComplete then {
                     // -inf..0 union 3..+inf
                     // -inf..+inf
                     assertEq(result, 1)

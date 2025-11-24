@@ -29,7 +29,7 @@ final class SelfInverseNeighbourhood
         assert(a2.toInt - f.offset == i1)
         val i3 = {
             val i = randomGenerator.nextInt(n - 2)
-            if (i < min(i1, i2)) i else if (i > max(i1, i2) - 2) i + 2 else i + 1
+            if i < min(i1, i2) then i else if i > max(i1, i2) - 2 then i + 2 else i + 1
         }
         val x3 = f.xs(i3)
         val a3 = value(x3)

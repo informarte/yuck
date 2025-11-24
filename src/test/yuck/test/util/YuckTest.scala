@@ -34,7 +34,8 @@ abstract class YuckTest extends YuckAssert with YuckLogging {
         .around(new ManagedResourceAsTestRule(new yuck.util.arm.ManagedShutdownHook({})))
         .around(
             new ManagedResourceAsTestRule(
-                if (logToConsole) new yuck.util.logging.ManagedLogHandler(nativeLogger, consoleHandler)
+                if logToConsole
+                then new yuck.util.logging.ManagedLogHandler(nativeLogger, consoleHandler)
                 else DummyResource))
         .around(
             new ManagedResourceAsTestRule(

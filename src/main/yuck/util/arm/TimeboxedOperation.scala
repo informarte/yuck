@@ -28,7 +28,7 @@ final class TimeboxedOperation
             override def run() = {
                 val t0 = System.currentTimeMillis
                 try {
-                    if (remainingRuntimeInMillis > 0) {
+                    if remainingRuntimeInMillis > 0 then {
                         Thread.sleep(remainingRuntimeInMillis)
                     }
                 }
@@ -40,7 +40,7 @@ final class TimeboxedOperation
                     val t1 = System.currentTimeMillis
                     remainingRuntimeInMillis -= (t1 - t0)
                 }
-                if (remainingRuntimeInMillis <= 0) {
+                if remainingRuntimeInMillis <= 0 then {
                     logger.log("Out of time, asking %s to stop".format(operationName))
                     sigint.set()
                 }

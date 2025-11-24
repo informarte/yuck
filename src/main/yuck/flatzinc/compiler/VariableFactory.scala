@@ -58,19 +58,19 @@ final class VariableFactory
         (using valueTraits: ValueTraits[V]):
         Variable[V] =
     {
-        if (cc.sigint.isSet) {
+        if cc.sigint.isSet then {
             throw new FlatZincCompilerInterruptedException
         }
         def factory(key: Expr) =
             valueTraits.createVariable(cc.space, key.toString, valueTraits.safeDowncast(cc.domains(key)))
         val maybeEqualVars = cc.equalVars.get(key)
-        if (maybeEqualVars.isDefined) {
+        if maybeEqualVars.isDefined then {
             val representative = maybeEqualVars.get.head
-            if (! cc.vars.contains(representative)) {
+            if ! cc.vars.contains(representative) then {
                 cc.vars += representative -> factory(representative)
             }
             val x = valueTraits.safeDowncast(cc.vars(representative))
-            if (key != representative) {
+            if key != representative then {
                 cc.vars += key -> x
             }
             x

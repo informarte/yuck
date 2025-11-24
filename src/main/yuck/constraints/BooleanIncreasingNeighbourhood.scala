@@ -39,7 +39,7 @@ final class BooleanIncreasingNeighbourhood
 
     private def shiftLeft(move: BulkMove, m: Int): BulkMove = {
         var i = 0
-        while (i < m) {
+        while i < m do {
             val effect = xs(currentBoundary - i - 1).reuseableEffect
             effect.a = True
             move += effect
@@ -51,7 +51,7 @@ final class BooleanIncreasingNeighbourhood
 
     private def shiftRight(move: BulkMove, m: Int): BulkMove = {
         var i = 0
-        while (i < m) {
+        while i < m do {
             val effect = xs(currentBoundary + i).reuseableEffect
             effect.a = False
             move += effect

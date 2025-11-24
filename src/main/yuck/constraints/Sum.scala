@@ -31,7 +31,7 @@ final class Sum
 
     override def initialize(now: SearchState) = {
         sum = valueTraits.zero
-        for (x <- xs) {
+        for x <- xs do {
             sum += now.value(x)
         }
         effect.a = sum
@@ -40,7 +40,7 @@ final class Sum
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         effect.a = sum
-        for (x0 <- move) {
+        for x0 <- move do {
             val x = valueTraits.safeDowncast(x0)
             effect.a = effect.a.addAndSub(after.value(x), before.value(x))
         }

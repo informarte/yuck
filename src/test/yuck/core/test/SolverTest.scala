@@ -29,11 +29,11 @@ final class SolverTest extends UnitTest {
         override def hasFinished = finished
         override def call() = {
             require(! hasFinished)
-            if (wasInterrupted) {
+            if wasInterrupted then {
                 throw new SolverInterruptedException
             } else {
                 Thread.sleep(sleepTimeInMillis)
-                if (wasInterrupted) {
+                if wasInterrupted then {
                     throw new SolverInterruptedException
                 } else {
                     finished = true
@@ -139,7 +139,7 @@ final class SolverTest extends UnitTest {
         assertEq(result.costsOfBestProposal, Zero)
         assert(result.isSolution)
         assert(solvers(8).hasFinished)
-        for (i <- 16 until solvers.size) {
+        for i <- 16 until solvers.size do {
             val solver = solvers(i)
             assert(! solver.hasFinished)
         }
@@ -163,7 +163,7 @@ final class SolverTest extends UnitTest {
         val result = solver.call()
         assertEq(result.costsOfBestProposal, One)
         assert(! result.isSolution)
-        for (solver <- solvers) {
+        for solver <- solvers do {
             assert(solver.hasFinished)
         }
         assert(solver.hasFinished)
@@ -181,10 +181,10 @@ final class SolverTest extends UnitTest {
         val x = new IntegerVariable(space.nextVariableId(), "x", NonNegativeIntegerRange)
         val objective = new MinimizationObjective(x, Some(Zero), None)
         val results = (0 until 256).map(i => new TestResult(i.toString, objective, false))
-        val solvers = results.indices.map(i => if (i == 8) new BadSolver else new GoodSolver(results(i), 100, sigint))
+        val solvers = results.indices.map(i => if i == 8 then new BadSolver else new GoodSolver(results(i), 100, sigint))
         val solver = new ParallelSolver(solvers, 4, "Test", logger, sigint)
         assertEx(solver.call(), classOf[BadSolverException])
-        for (i <- 16 until solvers.size) {
+        for i <- 16 until solvers.size do {
             val solver = solvers(i)
             assert(! solver.hasFinished)
         }
@@ -220,7 +220,7 @@ final class SolverTest extends UnitTest {
         assertEq(result.costsOfBestProposal, Zero)
         assert(result.isSolution)
         assert(solvers(8).hasFinished)
-        for (i <- 16 until solvers.size) {
+        for i <- 16 until solvers.size do {
             val solver = solvers(i)
             assert(! solver.hasFinished)
         }

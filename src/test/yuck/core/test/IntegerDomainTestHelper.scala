@@ -23,7 +23,7 @@ final class IntegerDomainTestHelper
     }
 
     private def testSpatialRelations(d: IntegerDomain, e: IntegerDomain): Unit = {
-        if (d.isEmpty || e.isEmpty) {
+        if d.isEmpty || e.isEmpty then {
             assertEx(d.precedes(e))
             assertEx(d.precedesImmediately(e))
             assertEx(d.startsBefore(e))
@@ -45,7 +45,7 @@ final class IntegerDomainTestHelper
     // - If a function cannot be fully verified, issue a warning.
 
     private def testSetSize(d: IntegerDomain): Unit = {
-        if (d.isFinite) {
+        if d.isFinite then {
             assertEq(d.size, d.values.size)
         } else {
             assertEx(d.size)
@@ -53,7 +53,7 @@ final class IntegerDomainTestHelper
     }
 
     private def testIteration(d: IntegerDomain): Unit = {
-        if (d.isFinite) {
+        if d.isFinite then {
             assertEq(d.valuesIterator.toList, d.values.toList)
             assertEq(d.values.iterator.toList, d.values.toList)
         } else {
@@ -63,26 +63,26 @@ final class IntegerDomainTestHelper
 
     private def testSubsetRelation(d: IntegerDomain, e: IntegerDomain): Unit = {
         val result = d.isSubsetOf(e)
-        if (d.isEmpty) {
+        if d.isEmpty then {
             assert(result)
-        } else if (e.isEmpty) {
+        } else if e.isEmpty then {
             assert(! result)
-        } else if (d == e) {
+        } else if d == e then {
             assert(result)
-        } else if (d.isFinite && e.isFinite) {
+        } else if d.isFinite && e.isFinite then {
             assertEq(result, d.values.toSet.subsetOf(e.values.toSet))
-        } else if (! d.isFinite && e.isFinite) {
+        } else if ! d.isFinite && e.isFinite then {
             assert(! result)
-        } else if (e.isComplete) {
+        } else if e.isComplete then {
             assert(result)
-        } else if (d.isComplete) {
+        } else if d.isComplete then {
             assert(! result)
-        } else if (d.startsBefore(e) || d.endsAfter(e)) {
+        } else if d.startsBefore(e) || d.endsAfter(e) then {
             assert(! result)
-        } else if (! d.hasGaps && ! e.hasGaps && ! d.startsBefore(e) && ! d.endsAfter(e)) {
+        } else if ! d.hasGaps && ! e.hasGaps && ! d.startsBefore(e) && ! d.endsAfter(e) then {
             assert(result)
         } else {
-            if (d.isFinite) {
+            if d.isFinite then {
                 assertEq(result, d.values.forall(a => e.contains(a)))
                 // testSetContainment relies on intersects and testSetIntersectionRelation relies on isSubsetOf.
             }
@@ -93,23 +93,23 @@ final class IntegerDomainTestHelper
 
     private def testSetIntersectionRelation(d: IntegerDomain, e: IntegerDomain): Unit = {
         val result = d.intersects(e)
-        if (d.isEmpty || e.isEmpty) {
+        if d.isEmpty || e.isEmpty then {
             assert(! result)
-        } else if (d.precedes(e) || e.precedes(d)) {
+        } else if d.precedes(e) || e.precedes(d) then {
             assert(! result)
-        } else if (d.isSubsetOf(e) || e.isSubsetOf(d)) {
+        } else if d.isSubsetOf(e) || e.isSubsetOf(d) then {
             assert(result)
-        } else if (d.isFinite && e.isFinite) {
+        } else if d.isFinite && e.isFinite then {
             assertEq(result, d.values.toSet.intersect(e.values.toSet).nonEmpty)
-        } else if (d.isFinite) {
+        } else if d.isFinite then {
             assertEq(result, d.values.exists(a => e.contains(a)))
-        } else if (e.isFinite) {
+        } else if e.isFinite then {
             assertEq(result, e.values.exists(a => d.contains(a)))
-        } else if (d.isComplete || e.isComplete) {
+        } else if d.isComplete || e.isComplete then {
             assert(result)
-        } else if (
+        } else if
             Option(d.lb) == Option(e.lb) || Option(d.lb) == Option(e.ub) ||
-            Option(d.ub) == Option(e.lb) || Option(d.ub) == Option(e.ub))
+            Option(d.ub) == Option(e.lb) || Option(d.ub) == Option(e.ub) then
         {
             assert(result)
         } else {
@@ -123,29 +123,29 @@ final class IntegerDomainTestHelper
         assert(result.isSubsetOf(d))
         assert(result.isSubsetOf(e))
         assertEq(result.isFinite, maybeResultSize.isDefined)
-        if (result.isFinite) {
+        if result.isFinite then {
             assertEq(result.size, maybeResultSize.get)
         }
         assertEq(! result.isEmpty, d.intersects(e))
-        if (! result.isEmpty) {
-            if (d.isSubsetOf(e)) {
+        if ! result.isEmpty then {
+            if d.isSubsetOf(e) then {
                 assertEq(result, d)
-            } else if (e.isSubsetOf(d)) {
+            } else if e.isSubsetOf(d) then {
                 assertEq(result, e)
-            } else if (d.isFinite && e.isFinite) {
+            } else if d.isFinite && e.isFinite then {
                 assertEq(result.values.toSet, d.values.toSet.intersect(e.values.toSet))
-            } else if (d.isFinite) {
+            } else if d.isFinite then {
                 assertEq(result.values.toSet, d.values.filter(a => e.contains(a)).toSet)
-            } else if (e.isFinite) {
+            } else if e.isFinite then {
                 assertEq(result.values.toSet, e.values.filter(a => d.contains(a)).toSet)
-            } else if (d.isComplete) {
+            } else if d.isComplete then {
                 assertEq(result, e)
-            } else if (e.isComplete) {
+            } else if e.isComplete then {
                 assertEq(result, d)
-            } else if (d.hasUb && Option(d.ub) == Option(e.lb)) {
+            } else if d.hasUb && Option(d.ub) == Option(e.lb) then {
                 assert(result.isSingleton)
                 assertEq(result.singleValue, d.ub)
-            } else if (e.hasUb && Option(e.ub) == Option(d.lb)) {
+            } else if e.hasUb && Option(e.ub) == Option(d.lb) then {
                 assert(result.isSingleton)
                 assertEq(result.singleValue, e.ub)
             } else {
@@ -159,33 +159,33 @@ final class IntegerDomainTestHelper
         val result = d.union(e)
         assert(d.isSubsetOf(result))
         assert(e.isSubsetOf(result))
-        if (d.isSubsetOf(e)) {
+        if d.isSubsetOf(e) then {
             assertEq(result, e)
-        } else if (e.isSubsetOf(d)) {
+        } else if e.isSubsetOf(d) then {
             assertEq(result, d)
-        } else if (d.isFinite && e.isFinite) {
+        } else if d.isFinite && e.isFinite then {
             assertEq(d.union(e).values.toSet, d.values.toSet ++ e.values.toSet)
-        } else if (! d.hasGaps && ! e.hasGaps) {
-            if (d.intersects(e)) {
+        } else if ! d.hasGaps && ! e.hasGaps then {
+            if d.intersects(e) then {
                 assert(! result.hasGaps)
-                if (d.startsBefore(e)) {
+                if d.startsBefore(e) then {
                     assertEq(result.lb, d.lb)
                     assertEq(result.ub, e.ub)
                 } else {
                     assertEq(result.lb, e.lb)
                     assertEq(result.ub, d.ub)
                 }
-            } else if (d.precedesImmediately(e)) {
+            } else if d.precedesImmediately(e) then {
                 assert(! result.hasGaps)
                 assertEq(result.lb, d.lb)
                 assertEq(result.ub, e.ub)
-            } else if (d.precedes(e)) {
+            } else if d.precedes(e) then {
                 assert(result.intersect(IntegerRange(d.ub + One, e.lb - One)).isEmpty)
-            } else if (e.precedesImmediately(d)) {
+            } else if e.precedesImmediately(d) then {
                 assert(! result.hasGaps)
                 assertEq(result.lb, e.lb)
                 assertEq(result.ub, d.ub)
-            } else if (e.precedes(d)) {
+            } else if e.precedes(d) then {
                 assert(result.intersect(IntegerRange(e.ub + One, d.lb - One)).isEmpty)
             } else {
                 assert(false)
@@ -214,23 +214,23 @@ final class IntegerDomainTestHelper
         assert(result.isSubsetOf(d))
         assert(! result.intersects(e))
         assertEq(result.isFinite, maybeResultSize.isDefined)
-        if (result.isFinite) {
+        if result.isFinite then {
             assertEq(result.size, maybeResultSize.get)
         }
         val maybeExpectedResult = specialDifferenceCases.get((d, e))
-        if (maybeExpectedResult.isDefined) {
+        if maybeExpectedResult.isDefined then {
             assertEq(result, maybeExpectedResult.get)
-        } else if (! d.intersects(e)) {
+        } else if ! d.intersects(e) then {
             assertEq(result, d)
-        } else if (d.isSubsetOf(e)) {
+        } else if d.isSubsetOf(e) then {
             assert(result.isEmpty)
-        } else if (d.isFinite) {
+        } else if d.isFinite then {
             assertEq(result.values.toSet, d.values.filter(a => ! e.contains(a)).toSet)
-        } else if (d.isComplete && ! e.hasGaps) {
-            if (! e.hasLb) {
+        } else if d.isComplete && ! e.hasGaps then {
+            if ! e.hasLb then {
                 assertEq(result.lb, e.ub + One)
                 assertEq(result.ub, d.ub)
-            } else if (! e.hasUb) {
+            } else if ! e.hasUb then {
                 assertEq(result.lb, d.lb)
                 assertEq(result.ub, e.lb - One)
             } else {
@@ -248,7 +248,7 @@ final class IntegerDomainTestHelper
 
     private def testSetContainment(d: IntegerDomain, a: IntegerValue): Unit = {
         val result = d.contains(a)
-        if (d.isFinite) {
+        if d.isFinite then {
             assertEq(result, d.values.exists(_ == a))
         } else {
             assertEq(result, d.intersects(IntegerRange(a, a)))
@@ -256,17 +256,17 @@ final class IntegerDomainTestHelper
     }
 
     private def testDistanceToSet(d: IntegerDomain, a: IntegerValue): Unit = {
-        if (d.isEmpty) {
+        if d.isEmpty then {
             assertEx(d.distanceTo(a))
         } else {
             val result = d.distanceTo(a)
-            if (d.contains(a)) {
+            if d.contains(a) then {
                 assertEq(result, Zero)
-            } else if (d.isFinite) {
+            } else if d.isFinite then {
                 assertEq(result, d.valuesIterator.map(b => (a - b).abs).min)
-            } else if (d.hasLb && a < d.lb) {
+            } else if d.hasLb && a < d.lb then {
                 assertEq(result, d.lb - a)
-            } else if (d.hasUb && a > d.ub) {
+            } else if d.hasUb && a > d.ub then {
                 assertEq(result, a - d.ub)
             } else {
                 assert(d.contains(a + result) || d.contains(a - result))
@@ -278,25 +278,25 @@ final class IntegerDomainTestHelper
     private def testBounding(d: IntegerDomain, a: IntegerValue): Unit = {
         val d1 = d.boundFromBelow(a)
         val d2 = d.boundFromAbove(a)
-        if (! d1.isEmpty) {
+        if ! d1.isEmpty then {
             assertGe(d1.lb, a)
         }
-        if (! d2.isEmpty) {
+        if ! d2.isEmpty then {
             assertLe(d2.ub, a)
         }
-        if (d.contains(a)) {
+        if d.contains(a) then {
             assertEq(d1.union(IntegerRange(a, a)).union(d2), d)
-        } else if (d.maybeLb.isDefined && a < d.lb) {
+        } else if d.maybeLb.isDefined && a < d.lb then {
             assertEq(d1, d)
             assert(d2.isEmpty)
-        } else if (d.maybeUb.isDefined && a > d.ub) {
+        } else if d.maybeUb.isDefined && a > d.ub then {
             assert(d1.isEmpty)
             assertEq(d2, d)
         }
     }
 
     private def testBisecting(d: IntegerDomain): Unit = {
-        if (d.isEmpty || ! d.isFinite) {
+        if d.isEmpty || ! d.isFinite then {
             assertEx(d.bisect)
         } else {
             val (d1, d2) = d.bisect
@@ -304,12 +304,12 @@ final class IntegerDomainTestHelper
             assert(d2.isSubsetOf(d))
             assert(! d1.intersects(d2))
             assertEq(d1.union(d2), d)
-            if (d.size > 1) {
+            if d.size > 1 then {
                 assert(! d1.isEmpty)
                 assert(! d2.isEmpty)
                 assertLt(d1.ub, d2.lb)
             }
-            if (! d.hasGaps) {
+            if ! d.hasGaps then {
                 assertLe(scala.math.abs(d1.size - d2.size), 1)
             }
         }
@@ -317,15 +317,15 @@ final class IntegerDomainTestHelper
 
     private def testMirroring(d: IntegerDomain): Unit = {
         val e = d.mirrored
-        if (d.isFinite) {
+        if d.isFinite then {
             assert(e.isFinite)
             d.valuesIterator.forall(a => e.contains(a.negated))
             e.valuesIterator.forall(a => d.contains(a.negated))
         } else {
             d match {
                 case _: IntegerRange =>
-                    assertEq(e.lb, if (d.hasUb) d.ub.negated else null)
-                    assertEq(e.ub, if (d.hasLb) d.lb.negated else null)
+                    assertEq(e.lb, if d.hasUb then d.ub.negated else null)
+                    assertEq(e.ub, if d.hasLb then d.lb.negated else null)
                 case d: IntegerRangeList =>
                     assertEq(e, IntegerRangeList(d.ranges.reverseIterator.map(_.mirrored).toVector))
             }
@@ -561,31 +561,31 @@ final class IntegerDomainTestHelper
                 domains.foreach(d => logger.log(d.toString))
             }
         }
-        for (d <- domains) {
+        for d <- domains do {
             testEnsureRangeList(d)
             testSetSize(d)
             testIteration(d)
-            for (a <- values) {
+            for a <- values do {
                 testSetContainment(d, a)
                 testDistanceToSet(d, a)
             }
-            if (d.isEmpty) {
+            if d.isEmpty then {
                 assert(d.boundFromBelow(Zero).isEmpty)
                 assert(d.boundFromAbove(Zero).isEmpty)
             } else {
-                if (d.isFinite) {
+                if d.isFinite then {
                     testBounding(d, d.randomValue(randomGenerator))
                 }
-                if (d.hasLb) {
+                if d.hasLb then {
                     testBounding(d, d.lb)
                     testBounding(d, d.lb - One)
                 }
-                if (d.hasUb) {
+                if d.hasUb then {
                     testBounding(d, d.ub)
                     testBounding(d, d.ub + One)
                 }
-                if (d.isFinite) {
-                    if (d.isSingleton) {
+                if d.isFinite then {
+                    if d.isSingleton then {
                         assertEq(d.randomValue(randomGenerator), d.singleValue)
                         assertEq(d.nextRandomValue(randomGenerator, Zero), d.singleValue)
                     } else {
@@ -607,8 +607,8 @@ final class IntegerDomainTestHelper
                 domains.foreach(d => logger.log(d.toString))
             }
         }
-        for (d <- domains) {
-            for (e <- domains) {
+        for d <- domains do {
+            for e <- domains do {
                 testSpatialRelations(d, e)
                 testSubsetRelation(d, e)
                 testSetIntersectionRelation(d, e)
@@ -622,14 +622,14 @@ final class IntegerDomainTestHelper
 
     def testRandomSubrangeCreation(testData: Seq[IntegerDomain]): Unit = {
         logger.withRootLogLevel(FineLogLevel) {
-            for (d <- testData) {
+            for d <- testData do {
                 logger.log(d.toString)
-                if (d.isEmpty) {
+                if d.isEmpty then {
                     assert(d.randomSubdomain(randomGenerator).isEmpty)
-                } else if (d.isFinite) {
+                } else if d.isFinite then {
                     val sampleSize = ensureRangeList(d).ranges.iterator.map(r => r.size * (r.size + 1) / 2).sum
                     val sample = mutable.HashSet[IntegerDomain]()
-                    for (i <- 1 to sampleSize) {
+                    for i <- 1 to sampleSize do {
                         val e = d.randomSubrange(randomGenerator)
                         assert(! e.hasGaps)
                         assert(e.isSubsetOf(d))
@@ -645,14 +645,14 @@ final class IntegerDomainTestHelper
 
     def testRandomSubdomainCreation(testData: Seq[IntegerDomain]): Unit = {
         logger.withRootLogLevel(FineLogLevel) {
-            for (d <- testData) {
+            for d <- testData do {
                 logger.log(d.toString)
-                if (d.isEmpty) {
+                if d.isEmpty then {
                     assert(d.randomSubdomain(randomGenerator).isEmpty)
-                } else if (d.isFinite) {
+                } else if d.isFinite then {
                     val sampleSize = d.size * (d.size + 1) / 2
                     val sample = new mutable.HashSet[IntegerDomain]
-                    for (i <- 1 to sampleSize) {
+                    for i <- 1 to sampleSize do {
                         val e = d.randomSubdomain(randomGenerator)
                         assert(e.isSubsetOf(d))
                         sample += e
@@ -668,7 +668,7 @@ final class IntegerDomainTestHelper
     def createRanges(baseRange: IntegerRange, sampleSize: Int): Seq[IntegerRange] = {
         require(baseRange.isFinite)
         val singletonRanges = List(baseRange.lb, baseRange.ub).map(a => IntegerRange(a, a))
-        val randomFiniteRanges = for (i <- 1 to sampleSize) yield baseRange.randomSubrange(randomGenerator)
+        val randomFiniteRanges = for i <- 1 to sampleSize yield baseRange.randomSubrange(randomGenerator)
         val ranges =
             List(SpecialInfiniteRanges, List(EmptyIntegerRange, baseRange), singletonRanges, randomFiniteRanges)
                 .flatten.distinct
@@ -678,19 +678,19 @@ final class IntegerDomainTestHelper
     def createRangeLists(baseRange: IntegerRange, sampleSize: Int): Seq[IntegerRangeList] = {
         val ranges = createRanges(baseRange, sampleSize)
         val randomFiniteRanges = ranges.filter(_.isFinite)
-        val randomFiniteRangeLists = for (i <- 1 to sampleSize) yield ensureRangeList(baseRange.randomSubdomain(randomGenerator))
+        val randomFiniteRangeLists = for i <- 1 to sampleSize yield ensureRangeList(baseRange.randomSubdomain(randomGenerator))
         val randomFiniteIntegerDomains = randomFiniteRanges ++ randomFiniteRangeLists
         val randomInfiniteRangeLists =
-            for (infiniteRange <- SpecialInfiniteRanges;
+            for infiniteRange <- SpecialInfiniteRanges;
                  finiteDomain <- randomFiniteIntegerDomains;
-                 if infiniteRange.intersects(finiteDomain)) yield ensureRangeList(infiniteRange.diff(finiteDomain))
+                 if infiniteRange.intersects(finiteDomain) yield ensureRangeList(infiniteRange.diff(finiteDomain))
         val rangeLists = List(ranges.map(ensureRangeList), randomFiniteRangeLists, randomFiniteRangeLists).flatten.distinct
         rangeLists
     }
 
     def createBitSets(sampleSize: Int): Seq[SixtyFourBitSet] = {
         val singletonBitSets = List(SixtyFourBitSet.ValueRange.lb, SixtyFourBitSet.ValueRange.ub).map(a => SixtyFourBitSet(a, a))
-        val randomBitSets = for (i <- 1 to sampleSize) yield FullBitSet.randomSubdomain(randomGenerator)
+        val randomBitSets = for i <- 1 to sampleSize yield FullBitSet.randomSubdomain(randomGenerator)
         val bitSets = List(List(EmptyBitSet, FullBitSet), singletonBitSets, randomBitSets).flatten.distinct
         bitSets
     }

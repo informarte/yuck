@@ -72,11 +72,9 @@ package object arm {
         (operation: => Result):
         Result =
     {
-        if (maybeRuntimeLimitInSeconds.isDefined) {
-            new TimeboxedOperation(operation, maybeRuntimeLimitInSeconds.get, sigint, operationName, logger).call()
-        } else {
-            operation
-        }
+        if maybeRuntimeLimitInSeconds.isDefined
+        then new TimeboxedOperation(operation, maybeRuntimeLimitInSeconds.get, sigint, operationName, logger).call()
+        else operation
     }
 
     /** Runs the given operation and returns its result and its runtime. */

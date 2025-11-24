@@ -14,7 +14,7 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
 
     @Test
     def testConstruction(): Unit = {
-        for (a <- testRange) {
+        for a <- testRange do {
             assertEq(new BooleanValue(a).violation, a)
         }
         assertEx(new BooleanValue(-1))
@@ -39,7 +39,7 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
     def testValueFactory(): Unit = {
         assertEq(BooleanValue(false), False)
         assertEq(BooleanValue(true), True)
-        for (a <- testRange) {
+        for a <- testRange do {
             assertEq(BooleanValue(a).violation, a)
             assert(BooleanValue(a).eq(BooleanValue(a)))
         }
@@ -49,14 +49,14 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
     @Test
     def testEquality(): Unit = {
         helper.testEquality(testData)
-        for (a <- testData) {
+        for a <- testData do {
             val b = new BooleanValue(a.violation)
             assertEq(a, b)
             assertEq(b, a)
             assertNe(a, Zero)
             assertNe(Zero, a)
-            for (b <- testData) {
-                assert(if (a.eq(b)) a == b else a != b)
+            for b <- testData do {
+                assert(if a.eq(b) then a == b else a != b)
             }
         }
     }
@@ -64,8 +64,8 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
     @Test
     def testOrdering(): Unit = {
         helper.testOrdering(testData)
-        for (a <- testData) {
-            for (b <- testData) {
+        for a <- testData do {
+            for b <- testData do {
                 assertEq(a.compare(b).sign, a.violation.compare(b.violation).sign)
             }
         }

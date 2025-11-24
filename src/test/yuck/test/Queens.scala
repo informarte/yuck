@@ -27,7 +27,7 @@ final class Queens(val n: Int, solvingMethod: SolvingMethod) extends HelloWorldT
             val rows = new Array[IntegerVariable](n)
             val rowsMinusI = new Array[IntegerVariable](n)
             val rowsPlusI = new Array[IntegerVariable](n)
-            for (col <- 0 until n) {
+            for col <- 0 until n do {
                 rows.update(col, new IntegerVariable(space.nextVariableId(), "row[%s]".format(col) , d))
                 rowsMinusI.update(col, new IntegerVariable(space.nextVariableId(), "row[%s] - %s".format(col, col), CompleteIntegerRange))
                 rowsPlusI.update(col, new IntegerVariable(space.nextVariableId(), "row[%s] + %s".format(col, col), CompleteIntegerRange))
@@ -92,9 +92,10 @@ final class Queens(val n: Int, solvingMethod: SolvingMethod) extends HelloWorldT
 object Queens {
 
     private val configurations =
-        for (n <- List(8, 16, 32, 64, 128);
-             solvingMethod <- SolvingMethod.values)
-        yield Vector(n, solvingMethod)
+        for n <- List(8, 16, 32, 64, 128)
+            solvingMethod <- SolvingMethod.values
+        yield
+            Vector(n, solvingMethod)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
     def parameters = configurations.map(_.toArray).asJava

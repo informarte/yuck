@@ -19,9 +19,9 @@ abstract class DomainTestHelper[V <: Value[V]] extends YuckAssert {
         }
         val helper = new EqualityTestHelper[Domain[V]]
         helper.testEquality(testData)
-        for (d <- testData) {
-            for (e <- testData) {
-                assert(if (d.eq(e)) d == e else d != e)
+        for d <- testData do {
+            for e <- testData do {
+                assert(if d.eq(e) then d == e else d != e)
             }
         }
     }
@@ -31,7 +31,7 @@ abstract class DomainTestHelper[V <: Value[V]] extends YuckAssert {
         val sampleSize = 100000
         val maxError = 0.05
         def checkDistribution(f: Map[V, Int]): Unit = {
-            for (a <- d.values) {
+            for a <- d.values do {
                 import scala.math.Ordering.Double.TotalOrdering
                 assertGt(f.getOrElse(a, 0).toDouble, sampleSize / d.size * (1 - maxError))
                 assertLt(f.getOrElse(a, 0).toDouble, sampleSize / d.size * (1 + maxError))
@@ -39,7 +39,7 @@ abstract class DomainTestHelper[V <: Value[V]] extends YuckAssert {
         }
         val f1 = new mutable.HashMap[V, Int]
         val f2 = new mutable.HashMap[V, Int]
-        for (i <- 1 to sampleSize) {
+        for i <- 1 to sampleSize do {
             val a = d.randomValue(randomGenerator)
             assert(d.contains(a))
             f1.put(a, f1.getOrElse(a, 0) + 1)

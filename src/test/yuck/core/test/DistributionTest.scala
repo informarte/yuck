@@ -20,34 +20,38 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
         var volume = 0
         assertEq(d.volume, 0)
         assertEq(d.numberOfAlternatives, 0)
-        for (i <- 0 until n) {
+        for i <- 0 until n do {
             val delta = i % 8
             volume += delta
-            if (delta > 0) m += 1
+            if delta > 0 then {
+                m += 1
+            }
             d.addFrequencyDelta(i, delta)
             assertEq(d.frequency(i), delta)
             assertEq(d.cdf(i), volume)
             assertEq(d.cdf(n - 1), volume)
             assertEq(d.volume, volume)
             assertEq(d.numberOfAlternatives, m)
-            if (volume > 0) {
+            if volume > 0 then {
                 assertEq(d.probability(i).value, d.frequency(i).toDouble / d.volume.toDouble)
-                assertEq(d.inverseCdf(volume - 1), if (delta == 0) i - 1 else i)
+                assertEq(d.inverseCdf(volume - 1), if delta == 0 then i - 1 else i)
             }
         }
-        for (i <- 0 until n - 1) {
+        for i <- 0 until n - 1 do {
             val delta = i % 8
             volume -= delta
-            if (delta > 0) m -= 1
+            if delta > 0 then {
+                m -= 1
+            }
             d.setFrequency(i, 0)
             assertEq(d.frequency(i), 0)
             assertEq(d.cdf(i), 0)
             assertEq(d.cdf(n - 1), volume)
             assertEq(d.volume, volume)
             assertEq(d.numberOfAlternatives, m)
-            if (volume > 0) {
+            if volume > 0 then {
                 assertEq(d.probability(i).value, d.frequency(i).toDouble / volume.toDouble)
-                assertEq(d.inverseCdf(0), if ((i + 1) % 8 == 0) i + 2 else i + 1)
+                assertEq(d.inverseCdf(0), if (i + 1) % 8 == 0 then i + 2 else i + 1)
                 assertEq(d.inverseCdf(volume - 1), n - 1)
             }
         }
@@ -77,13 +81,13 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
     def testRandomIndexGeneration1(): Unit = {
         val n = 3
         val d = createDistribution(n)
-        for (i <- 0 until n) {
+        for i <- 0 until n do {
             d.setFrequency(i, i)
         }
         val randomGenerator = new JavaRandomGenerator
         val result = Array.ofDim[Int](n)
         val sampleSize = 1000
-        for (i <- 0 until sampleSize) {
+        for i <- 0 until sampleSize do {
             result(d.nextIndex(randomGenerator)) += 1
         }
         assertEq(result(0), 0)
@@ -96,23 +100,23 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
     def testRandomIndexGeneration2(): Unit = {
         val n = 3
         val d = createDistribution(n)
-        for (i <- 0 until n) {
+        for i <- 0 until n do {
             d.setFrequency(i, i)
         }
         val randomGenerator = new JavaRandomGenerator
         val result = Array.ofDim[Int](n, n)
         val frequencyRestorer = new FrequencyRestorer(n)
         val sampleSize = 1000
-        for (i <- 0 until sampleSize) {
+        for i <- 0 until sampleSize do {
             scoped(frequencyRestorer) {
                 val choices = d.nextIndices(randomGenerator, n, frequencyRestorer).toArray
                 assertEq(choices.size, n - 1)
                 assertEq(d.volume, 0)
-                for (i <- 0 until choices.size) {
+                for i <- 0 until choices.size do {
                     result(choices(i))(i) += 1
                 }
             }
-            for (i <- 0 until n) {
+            for i <- 0 until n do {
                 assertEq(d.frequency(i), i)
             }
         }

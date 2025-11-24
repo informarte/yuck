@@ -28,7 +28,7 @@ final class HashMapBackedAssignment(valDir: mutable.HashMap[AnyVariable, AnyValu
 
     /** Copies the value assignments from the given search state. */
     def setValues(searchState: SearchState): HashMapBackedAssignment = {
-        for (x <- searchState.mappedVariables) {
+        for x <- searchState.mappedVariables do {
             setValue(x, searchState.value(x))
         }
         this

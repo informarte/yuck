@@ -21,34 +21,34 @@ class LinearConstraintPerformanceTest(relation: OrderingRelation, withUnitCoeffi
     private val numberOfMoves = 1000
     private val numberOfIterations = numberOfMoves * 10000
     private val initialDomains =
-        for (i <- 0 until numberOfTerms) yield baseDomain.randomSubdomain(randomGenerator)
+        for i <- 0 until numberOfTerms yield baseDomain.randomSubdomain(randomGenerator)
     private val xs =
-        for (i <- 0 until numberOfTerms) yield
+        for i <- 0 until numberOfTerms yield
             new IntegerVariable(space.nextVariableId(), "x%d".format(i + 1), initialDomains(i))
     private val y = IntegerValueTraits.createChannel(space)
     private val z = new IntegerVariable(space.nextVariableId(), "z", baseDomain.randomSubdomain(randomGenerator))
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
-    private val axs = xs.map(AX(if (withUnitCoefficients) One else baseDomain.randomValue(randomGenerator), _))
+    private val axs = xs.map(AX(if withUnitCoefficients then One else baseDomain.randomValue(randomGenerator), _))
     private val constraint = new LinearConstraint(space.nextConstraintId(), null, axs, y, relation, z, costs)
-    private val moveSizeDistribution = Distribution(1, for (n <- numberOfTerms to 1 by -1) yield n)
+    private val moveSizeDistribution = Distribution(1, for n <- numberOfTerms to 1 by -1 yield n)
     private val neighbourhood = new RandomReassignmentGenerator(space, xs, randomGenerator, moveSizeDistribution, None, None)
-    for (x <- xs) {
+    for x <- xs do {
         space.setValue(x, x.domain.randomValue(randomGenerator))
     }
     space.setValue(z, z.domain.randomValue(randomGenerator))
     space.initialize()
-    private val moves = for (i <- 0 until numberOfMoves) yield {
+    private val moves = for i <- 0 until numberOfMoves yield {
         val move = neighbourhood.nextMove()
         val bulkMove = new BulkMove(space.nextMoveId())
         bulkMove ++= move.effects
     }
     private val now = space.searchState
-    private val afters = for (move <- moves) yield new MoveSimulator(now, move)
+    private val afters = for move <- moves yield new MoveSimulator(now, move)
 
     @Test
     def testConsult(): Unit = {
         var i = 0
-        while (i < numberOfIterations) {
+        while i < numberOfIterations do {
             val move = moves(i % numberOfMoves)
             val after = afters(i % numberOfMoves)
             constraint.consult(now, after, move)
@@ -61,9 +61,10 @@ class LinearConstraintPerformanceTest(relation: OrderingRelation, withUnitCoeffi
 object LinearConstraintPerformanceTest {
 
     private def configurations =
-        for (relation <- List(EqRelation, NeRelation, LtRelation, LeRelation);
-             withUnitCoefficients <- List(true, false))
-            yield Vector(relation, withUnitCoefficients)
+        for relation <- List(EqRelation, NeRelation, LtRelation, LeRelation)
+            withUnitCoefficients <- List(true, false)
+        yield
+            Vector(relation, withUnitCoefficients)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
     def parameters = configurations.map(_.toArray).asJava

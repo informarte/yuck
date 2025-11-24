@@ -38,10 +38,10 @@ class NeighbourhoodCollectionTest
         }
     }
 
-    private val domains = for (i <- 0 until numberOfVariables) yield IntegerRange(0, numberOfVariables - 1)
+    private val domains = for i <- 0 until numberOfVariables yield IntegerRange(0, numberOfVariables - 1)
     private val (space, xs) = NeighbourhoodTestHelper.createSpace(logger, sigint, randomGenerator, domains)
     val neighbourhoods =
-        for (i <- 0 until numberOfVariables) yield
+        for i <- 0 until numberOfVariables yield
             new CommitChecker(space, new SimpleRandomReassignmentGenerator(space, Vector(xs(i)), randomGenerator))
     val neighbourhood =
         new NeighbourhoodCollection(

@@ -38,7 +38,7 @@ final class Disjoint2Test(strict: Boolean) extends UnitTest with ConstraintTestT
 
     @Test
     def testRectangleMovement(): Unit = {
-        if (strict) {
+        if strict then {
             testRectangleMovementWithStrictSemantics()
         } else {
             testRectangleMovementWithNonstrictSemantics()
@@ -47,7 +47,7 @@ final class Disjoint2Test(strict: Boolean) extends UnitTest with ConstraintTestT
 
     @Test
     def testRectangleResizing(): Unit = {
-        if (strict) {
+        if strict then {
             testRectangleResizingWithStrictSemantics()
         } else {
             testRectangleResizingWithNonstrictSemantics()

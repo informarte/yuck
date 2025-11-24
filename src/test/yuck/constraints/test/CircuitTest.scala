@@ -28,7 +28,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
     private val now = space.searchState
 
     private val baseDomain = IntegerRange(invalidIndex1, invalidIndex2)
-    private val succ = for (i <- 1 to 5) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
+    private val succ = for i <- 1 to 5 yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain)
     private val Seq(x1, x2, x3, x4, x5) = succ
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
@@ -58,9 +58,10 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
                     "x1 -> x3",
                     List(x1 << IntegerDomain(three)),
                     succ.indices.map(i =>
-                        succ(i) <<
-                            (if (i == 0) IntegerDomain(three)
-                             else validIndexRange.diff(IntegerDomain(IntegerValue(offset + i), three)))))))
+                        succ(i) << (
+                            if i == 0
+                            then IntegerDomain(three)
+                            else validIndexRange.diff(IntegerDomain(IntegerValue(offset + i), three)))))))
     }
 
     @Test
@@ -73,7 +74,8 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
                     "root-node propagation",
                     List(costs << TrueDomain),
                     succ.indices.diff(List(4)).map(i =>
-                        if (i == 0) succ(0) << validIndexRange.diff(IntegerDomain(offset, offset + 4))
+                        if i == 0
+                        then succ(0) << validIndexRange.diff(IntegerDomain(offset, offset + 4))
                         else succ(i) << validIndexRange.diff(IntegerDomain(offset + i))))))
     }
 
@@ -135,7 +137,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 
     @Test
     def testHamiltonianCircuitTest(): Unit = {
-        for (i <- succ.indices) {
+        for i <- succ.indices do {
             space.setValue(succ(i), IntegerValue(offset + i + 1))
         }
         assert(! Circuit.isHamiltonianCircuit(succ, offset, now))

@@ -16,8 +16,8 @@ final class AllDifferentNeighbourhoodTest
 {
 
     private val xs =
-        for (i <- 0 until numberOfVariables) yield
-            new IntegerVariable(space.nextVariableId(), "x%d".format(i + 1), domainGenerator(i))
+        for i <- 0 until numberOfVariables
+        yield new IntegerVariable(space.nextVariableId(), "x%d".format(i + 1), domainGenerator(i))
 
     private val exceptedValues = if withException then Set(Zero) else Set()
 
@@ -28,7 +28,7 @@ final class AllDifferentNeighbourhoodTest
 
     override protected def checkSearchState(searchState: SearchState) = {
         assert(xs.forall(_.hasValidValue(searchState)))
-        if (withException) {
+        if withException then {
             assertEq(
                 xs.view.map(searchState.value).filter(_ != Zero).toSet.size +
                     xs.view.map(searchState.value).count(_ == Zero),
@@ -77,10 +77,11 @@ object AllDifferentNeighbourhoodTest {
         )
 
     private def configurations =
-        for (numberOfVariables <- List(100);
-             withException <- List(false, true);
-             domainGenerator <- domainGenerators(numberOfVariables, withException))
-        yield Vector(numberOfVariables, withException, domainGenerator)
+        for numberOfVariables <- List(100)
+            withException <- List(false, true)
+            domainGenerator <- domainGenerators(numberOfVariables, withException)
+        yield
+            Vector(numberOfVariables, withException, domainGenerator)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}, {2}")
     def parameters = configurations.map(_.toArray).asJava

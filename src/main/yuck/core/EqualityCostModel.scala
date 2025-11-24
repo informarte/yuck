@@ -6,9 +6,9 @@ package yuck.core
 abstract class EqualityCostModel[V <: Value[V]] {
 
     /** Basis for implementing equality constraints. */
-    def eqViolation(lhs: V, rhs: V): Long = if (lhs == rhs) 0 else 1
+    def eqViolation(lhs: V, rhs: V): Long = if lhs == rhs then 0 else 1
 
     /** Basis for implementing inequality constraints. */
-    def neViolation(lhs: V, rhs: V): Long = if (lhs != rhs) 0 else 1
+    def neViolation(lhs: V, rhs: V): Long = if lhs != rhs then 0 else 1
 
 }

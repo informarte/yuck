@@ -48,7 +48,7 @@ object FlatZincParser extends RegexParsers {
         "[" ~ repsep("int", ",") ~ "]" ^^^ None
     val int_set: Parser[IntSet] =
         "{" ~> repsep(int_const, ",") <~ "}" ^^ {
-            l => IntSet((for (IntConst(e) <- l) yield e).toSet)
+            l => IntSet((for IntConst(e) <- l yield e).toSet)
         }
     val float_range: Parser[FloatRange] =
         float_const ~ ".." ~ float_const ^^ {

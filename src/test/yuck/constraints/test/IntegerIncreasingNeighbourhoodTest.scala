@@ -17,7 +17,7 @@ final class IntegerIncreasingNeighbourhoodTest
 {
 
     private val xs =
-        for (i <- 0 until numberOfVariables) yield
+        for i <- 0 until numberOfVariables yield
             new IntegerVariable(space.nextVariableId(), "x%d".format(i + 1), domainGenerator(numberOfVariables, i))
 
     override protected def createConstraint() =
@@ -25,10 +25,10 @@ final class IntegerIncreasingNeighbourhoodTest
 
     override protected def checkSearchState(searchState: SearchState) = {
         assert(xs.forall(_.hasValidValue(searchState)))
-        for (i <- 0 until xs.size - 1) {
+        for i <- 0 until xs.size - 1 do {
             val a = searchState.value(xs(i))
             val b = searchState.value(xs(i + 1))
-            if (strict) {
+            if strict then {
                 assertLt(a, b)
             } else {
                 assertLe(a, b)
@@ -57,11 +57,12 @@ object IntegerIncreasingNeighbourhoodTest {
     )
 
     private def configurations =
-        for (numberOfVariables <- List(100);
-             holeGenerator <- holeGenerators;
-             strict <- List(false, true);
-             propagate <- List(false, true))
-        yield Vector(numberOfVariables, holeGenerator, strict, propagate)
+        for numberOfVariables <- List(100)
+            holeGenerator <- holeGenerators
+            strict <- List(false, true)
+            propagate <- List(false, true)
+        yield
+            Vector(numberOfVariables, holeGenerator, strict, propagate)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}, {2}, {3}")
     def parameters = configurations.map(_.toArray).asJava

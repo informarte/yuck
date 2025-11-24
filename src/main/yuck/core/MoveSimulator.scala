@@ -16,6 +16,6 @@ final class MoveSimulator(val before: SearchState, val move: Move) extends Searc
     }
     override def maybeValue(x: AnyVariable) = {
         val maybeA = move.maybeValue(x)
-        if (maybeA.isDefined) maybeA else before.maybeValue(x)
+        if maybeA.isDefined then maybeA else before.maybeValue(x)
     }
 }

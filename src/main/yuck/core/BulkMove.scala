@@ -22,7 +22,7 @@ final class BulkMove(id: Id[Move]) extends Move(id) {
 
     /** Adds the given effects. */
     inline def ++=(effects: Iterator[AnyMoveEffect]): BulkMove = {
-        while (effects.hasNext) {
+        while effects.hasNext do {
             this += effects.next()
         }
         this

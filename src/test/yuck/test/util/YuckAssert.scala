@@ -7,20 +7,20 @@ import org.junit.Assert
 trait YuckAssert {
 
     protected def assert(b: Boolean): Unit = {
-        if (! b) {
+        if ! b then {
             Assert.fail()
         }
     }
 
     protected def assert(message: => String, b: Boolean): Unit = {
-        if (! b) {
+        if ! b then {
             Assert.fail(message)
         }
     }
 
     protected def assertEq[T](a: T, b: T): Unit = {
         assert("%s (testee) != %s".format(a, b), a == b)
-        if (a != null && b != null) {
+        if a != null && b != null then {
             assert("%s.hashcode (testee) != %s.hashcode".format(a, b), a.hashCode == b.hashCode)
         }
     }
@@ -67,7 +67,7 @@ trait YuckAssert {
                     "Expected %s but got %s".format(expectedExceptionType, throwable.getClass),
                     findExceptionType(throwable, expectedExceptionType))
         }
-        if (! failed) {
+        if ! failed then {
             Assert.fail("Expected %s".format(expectedExceptionType))
         }
     }

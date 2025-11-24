@@ -21,10 +21,10 @@ final class Presolver
     private def reduceDomains(): Unit ={
 
         // require that all constraints hold
-        for (x <- cc.costVars) {
+        for x <- cc.costVars do {
             x.pruneDomain(TrueDomain)
         }
-        for (x <- cc.costVarsFromRedundantConstraints) {
+        for x <- cc.costVarsFromRedundantConstraints do {
             x.pruneDomain(TrueDomain)
         }
 

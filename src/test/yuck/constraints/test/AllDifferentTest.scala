@@ -16,7 +16,7 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
     private val randomGenerator = new JavaRandomGenerator
     private val space = new Space(logger, sigint)
 
-    private val xs = for (i <- 1 to 3) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(0, 9))
+    private val xs = for i <- 1 to 3 yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(0, 9))
     private val Seq(x1, x2, x3) = xs
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
@@ -25,7 +25,7 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
     @Test
     def testBasics(): Unit = {
         val constraint = new AllDifferent(space.nextConstraintId(), null, xs, exceptedValues, costs, logger)
-        if (withException) {
+        if withException then {
             assertEq(constraint.toString, "all_different_except([x1, x2, x3], {0}, costs)")
         } else {
             assertEq(constraint.toString, "all_different([x1, x2, x3], costs)")
@@ -75,7 +75,7 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
     @Test
     def testCostComputation(): Unit = {
         space.post(new AllDifferent(space.nextConstraintId(), null, xs, exceptedValues, costs, logger))
-        if (withException) {
+        if withException then {
             runScenario(
                 TestScenario(
                     space,
@@ -105,7 +105,7 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
     @Test
     def testHandlingOfDuplicateVariablesInCostComputation(): Unit = {
         space.post(new AllDifferent(space.nextConstraintId(), null, Vector(x1, x2, x2), exceptedValues, costs, logger))
-        if (withException) {
+        if withException then {
             runScenario(
                 TestScenario(
                     space,
@@ -184,7 +184,7 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
         assertEq(neighbourhood.getClass, classOf[AllDifferentNeighbourhood[?]])
         val now = space.searchState
         assert(xs.forall(x => x.domain.contains(now.value(x))))
-        if (withException) {
+        if withException then {
             assertEq(
                 xs.view.map(now.value).filter(_ != Zero).toSet.size +
                     xs.view.map(now.value).count(_ == Zero),

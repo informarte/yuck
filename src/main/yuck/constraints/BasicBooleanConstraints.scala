@@ -32,7 +32,8 @@ final class Or
 {
     override def toString = "%s = %s \\/ %s".format(z, x, y)
     override def op(a: BooleanValue, b: BooleanValue) =
-        if (a.truthValue || b.truthValue) True
+        if a.truthValue || b.truthValue
+        then True
         else BooleanValue(safeAdd(a.violation, b.violation) / 2)
     override def propagate() = {
         val lhs0 = Seq(x.domain, y.domain)
@@ -51,7 +52,7 @@ final class Not
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "%s = not(%s)".format(y, x)
-    override def op(a: BooleanValue) = if (a.truthValue) False else True
+    override def op(a: BooleanValue) = if a.truthValue then False else True
     override def propagate() = {
         val dx0 = x.domain
         val dy0 = y.domain

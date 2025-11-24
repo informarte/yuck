@@ -20,10 +20,12 @@ final class DotExporter(space: Space, dotWriter: java.io.FileWriter) extends Run
                 val tooltip = "%s: %s = %s".format(x, x.domain, space.searchState.value(x))
                 attrMap.put("tooltip", new DefaultAttribute(tooltip.take(MaxTooltipLength), AttributeType.STRING))
                 val maybeColor =
-                    if (space.isSearchVariable(x)) Some(Red)
-                    else if (space.isProblemParameter(x)) Some(Blue)
+                    if space.isSearchVariable(x)
+                    then Some(Red)
+                    else if space.isProblemParameter(x)
+                    then Some(Blue)
                     else None
-                if (maybeColor.isDefined) {
+                if maybeColor.isDefined then {
                     attrMap.put("fontcolor", maybeColor.get)
                 }
             case ConstraintVertex(constraint) =>
@@ -34,9 +36,10 @@ final class DotExporter(space: Space, dotWriter: java.io.FileWriter) extends Run
                     else constraint.toString
                 attrMap.put("tooltip", new DefaultAttribute(tooltip.take(MaxTooltipLength), AttributeType.STRING))
                 val maybeColor =
-                    if (space.isImplicitConstraint(constraint)) Some(Green)
+                    if space.isImplicitConstraint(constraint)
+                    then Some(Green)
                     else None
-                if (maybeColor.isDefined) {
+                if maybeColor.isDefined then {
                     attrMap.put("fontcolor", maybeColor.get)
                 }
         }
@@ -47,32 +50,32 @@ final class DotExporter(space: Space, dotWriter: java.io.FileWriter) extends Run
         val network = new DefaultDirectedGraph[Vertex, DefaultEdge](classOf[DefaultEdge])
         val variableVertices = new mutable.HashMap[AnyVariable, VariableVertex]
         val constraints = new mutable.HashSet[Constraint]
-        for (x <- space.searchVariables) {
+        for x <- space.searchVariables do {
             val v = VariableVertex(x)
             variableVertices += x -> v
             network.addVertex(v)
             constraints ++= space.directlyAffectedConstraints(x)
         }
-        for (x <- space.problemParameters) {
+        for x <- space.problemParameters do {
             val v = VariableVertex(x)
             variableVertices += x -> v
             network.addVertex(v)
             constraints ++= space.directlyAffectedConstraints(x)
         }
-        for (x <- space.channelVariables) {
+        for x <- space.channelVariables do {
             val v = VariableVertex(x)
             variableVertices += x -> v
             network.addVertex(v)
             constraints += space.definingConstraint(x) // include constraints with no inputs, e.g. and([])
             constraints ++= space.directlyAffectedConstraints(x)
         }
-        for (constraint <- constraints) {
+        for constraint <- constraints do {
             val v = ConstraintVertex(constraint)
             network.addVertex(v)
-            for (x <- constraint.inVariables) {
+            for x <- constraint.inVariables do {
                 network.addEdge(variableVertices(x), v)
             }
-            for (x <- constraint.outVariables) {
+            for x <- constraint.outVariables do {
                 network.addEdge(v, variableVertices(x))
             }
         }

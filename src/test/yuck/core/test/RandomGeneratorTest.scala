@@ -16,12 +16,14 @@ final class RandomGeneratorTest extends UnitTest {
         var data: IndexedSeq[Int] = mutable.ArrayBuffer.tabulate(m)(identity)
         val randomGenerator = new JavaRandomGenerator
         val numberOfChangedPositionsDistribution = new Array[Int](m + 1)
-        for (i <- 1 to n) {
+        for i <- 1 to n do {
             val shuffledData = shuffle(randomGenerator, data)
             assertEq(data.sorted, shuffledData.sorted)
             var numberOfChangedPositions = 0
-            for (j <- 0 until m) {
-                if (shuffledData(j) != data(j)) numberOfChangedPositions += 1
+            for j <- 0 until m do {
+                if shuffledData(j) != data(j) then {
+                    numberOfChangedPositions += 1
+                }
             }
             numberOfChangedPositionsDistribution(numberOfChangedPositions) += 1
             data = shuffledData

@@ -13,7 +13,7 @@ final class SelfInverseNeighbourhoodTest(fOffset: Int) extends InverseNeighbourh
     private val domainSize = 10
 
     private val fDomain = IntegerRange(fOffset, fOffset + domainSize - 1)
-    private val xs = for (i <- 1 to domainSize) yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), fDomain)
+    private val xs = for i <- 1 to domainSize yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), fDomain)
     override protected val f = new InverseFunction(xs, fOffset)
     override protected val g = f
 
