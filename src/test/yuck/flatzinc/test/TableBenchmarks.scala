@@ -2,8 +2,6 @@ package yuck.flatzinc.test
 
 import java.io.File
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.flatzinc.test.util.*
@@ -29,6 +27,6 @@ object TableBenchmarks extends MiniZincTestTaskFactory {
             .contains(file.getName)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")
-    def parameters = tasks.map(Array(_)).asJava
+    def parameters = tasks.map(Array(_)).toArray
 
 }

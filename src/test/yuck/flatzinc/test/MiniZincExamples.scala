@@ -1,6 +1,5 @@
 package yuck.flatzinc.test
 
-import scala.jdk.CollectionConverters.*
 import scala.language.implicitConversions
 
 import org.junit.*
@@ -349,7 +348,7 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
 object MiniZincExamples {
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")
-    def parameters = List(None, Some(SolvingMethod.SimulatedAnnealing), Some(SolvingMethod.FeasibilityJump)).asJava
+    def parameters = Array(None, Some(SolvingMethod.SimulatedAnnealing), Some(SolvingMethod.FeasibilityJump))
 
 }
 

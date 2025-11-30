@@ -1,7 +1,6 @@
 package yuck.flatzinc.test
 
 import scala.collection.immutable.{SortedMap, TreeMap}
-import scala.jdk.CollectionConverters.*
 
 import org.junit.*
 import spray.json.*
@@ -198,6 +197,6 @@ object MiniZincBenchmarks extends MiniZincTestTaskFactory {
     }
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")
-    def parameters = chosenTasksByProblemName.valuesIterator.flatten.map(amendTask).map(Array(_)).toVector.asJava
+    def parameters = chosenTasksByProblemName.valuesIterator.flatten.map(task => Array(amendTask(task))).toArray
 
 }

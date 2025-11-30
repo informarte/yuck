@@ -1,7 +1,5 @@
 package yuck.constraints.test
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.constraints.{GeneralInverseNeighbourhood, InverseFunction}
@@ -33,9 +31,9 @@ final class GeneralInverseNeighbourhoodTest(fOffset: Int, gOffset: Int) extends 
 object GeneralInverseNeighbourhoodTest {
 
     private def offsets = List(-1, 0, 1).map(Integer.valueOf)
-    private def configurations = for fOffset <- offsets; gOffset <- offsets yield Vector(fOffset, gOffset)
+    private def configurations = for fOffset <- offsets; gOffset <- offsets yield Array(fOffset, gOffset)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
-    def parameters = configurations.map(_.toArray).asJava
+    def parameters = configurations.toArray
 
 }

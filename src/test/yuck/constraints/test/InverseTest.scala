@@ -1,7 +1,5 @@
 package yuck.constraints.test
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.annealing.DefaultMoveSizeDistribution
@@ -278,9 +276,9 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 object InverseTest {
 
     private def offsets = List(-1, 0, 1).map(Integer.valueOf)
-    private def configurations = for fOffset <- offsets; gOffset <- offsets yield Vector(fOffset, gOffset)
+    private def configurations = for fOffset <- offsets; gOffset <- offsets yield Array(fOffset, gOffset)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
-    def parameters = configurations.map(_.toArray).asJava
+    def parameters = configurations.toArray
 
 }

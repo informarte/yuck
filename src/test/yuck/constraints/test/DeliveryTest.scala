@@ -1,6 +1,5 @@
 package yuck.constraints.test
 
-import scala.jdk.CollectionConverters.*
 import scala.language.implicitConversions
 import scala.ref.WeakReference
 
@@ -157,9 +156,9 @@ object DeliveryTest {
             withTimeWindows <- List(true, false)
             withWaiting <- List(true, false)
             if ! withWaiting || withTimeWindows
-        yield Vector(offset, withTimeWindows, withWaiting)
+        yield Array(offset, withTimeWindows, withWaiting)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}, {2}")
-    def parameters = configurations.map(_.toArray).asJava
+    def parameters = configurations.toArray
 
 }

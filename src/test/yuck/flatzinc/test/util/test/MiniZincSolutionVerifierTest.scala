@@ -1,7 +1,5 @@
 package yuck.flatzinc.test.util.test
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.SolvingMethod
@@ -65,9 +63,9 @@ object MiniZincSolutionVerifierTest {
         for simulateBadSolver <- List(false, true)
             verificationFrequency <- List(NoVerification, VerifyOnlyLastSolution, VerifyEverySolution)
         yield
-            Vector(simulateBadSolver, verificationFrequency)
+            Array(simulateBadSolver, verificationFrequency)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
-    def parameters = configurations.map(_.toArray).asJava
+    def parameters = configurations.toArray
 
 }

@@ -1,7 +1,6 @@
 package yuck.core.test
 
 import scala.collection.*
-import scala.jdk.CollectionConverters.*
 
 import org.junit.*
 
@@ -25,11 +24,11 @@ abstract class NeighbourhoodTestGenerator {
             fairVariableChoiceRate <- if maybeHotSpotDistribution.isDefined then fairVariableChoiceRates else List(Probability(100))
             numberOfVariables <- if maybeHotSpotDistribution.isDefined then List(maybeHotSpotDistribution.get.size) else numbersOfVariables
         yield
-            Vector(
+            Array(
                 randomGenerator.nextGen(), moveSizeDistribution, maybeHotSpotDistribution, Some(fairVariableChoiceRate),
                 numberOfVariables)
 
     @runners.Parameterized.Parameters(name = "{index}: {1}, {2}, {3}, {4}")
-    def parameters = configurations.map(_.toArray).asJava
+    def parameters = configurations.toArray
 
 }

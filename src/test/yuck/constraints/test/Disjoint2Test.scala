@@ -1,7 +1,5 @@
 package yuck.constraints.test
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.constraints.*
@@ -261,6 +259,6 @@ final class Disjoint2Test(strict: Boolean) extends UnitTest with ConstraintTestT
 object Disjoint2Test {
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")
-    def parameters = List(true, false).asJava
+    def parameters = Array(true, false).map(Boolean.box)
 
 }

@@ -1,7 +1,5 @@
 package yuck.constraints.test
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.constraints.{IntegerIncreasing, IntegerIncreasingNeighbourhood}
@@ -62,9 +60,9 @@ object IntegerIncreasingNeighbourhoodTest {
             strict <- List(false, true)
             propagate <- List(false, true)
         yield
-            Vector(numberOfVariables, holeGenerator, strict, propagate)
+            Array(numberOfVariables, holeGenerator, strict, propagate)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}, {2}, {3}")
-    def parameters = configurations.map(_.toArray).asJava
+    def parameters = configurations.toArray
 
 }

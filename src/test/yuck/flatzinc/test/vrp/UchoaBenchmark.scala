@@ -2,8 +2,6 @@ package yuck.flatzinc.test.vrp
 
 import java.io.File
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.flatzinc.test.util.*
@@ -74,6 +72,6 @@ object UchoaBenchmark extends VrpTestTaskFactory {
     private def verifyAgainstCpModel(task: ZincTestTask) = task.copy(verificationModelName = "cvrp_cp")
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")
-    def parameters = tasks.map(amendKnownBestResult).map(verifyAgainstCpModel).map(Array(_)).asJava
+    def parameters = tasks.map(task => Array(verifyAgainstCpModel(amendKnownBestResult(task)))).toArray
 
 }

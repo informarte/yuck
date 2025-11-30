@@ -1,7 +1,5 @@
 package yuck.core.test
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.core.*
@@ -141,9 +139,9 @@ object DistributionTest {
 
     @runners.Parameterized.Parameters
     def parameters =
-        List(
+        Array[AnyRef](
             Array(new ArrayBackedDistribution(_)),
             Array(new FenwickTreeBackedDistribution(_))
-        ).asJava
+        )
 
 }

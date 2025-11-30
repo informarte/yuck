@@ -1,7 +1,5 @@
 package yuck.constraints.test
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.annealing.DefaultMoveSizeDistribution
@@ -208,6 +206,6 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
 object AllDifferentTest {
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")
-    def parameters = List(true, false).asJava
+    def parameters = Array(true, false).map(Boolean.box)
 
 }

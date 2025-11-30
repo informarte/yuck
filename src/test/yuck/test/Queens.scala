@@ -1,7 +1,5 @@
 package yuck.test
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.constraints.*
@@ -95,9 +93,9 @@ object Queens {
         for n <- List(8, 16, 32, 64, 128)
             solvingMethod <- SolvingMethod.values
         yield
-            Vector(n, solvingMethod)
+            Array(n, solvingMethod)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
-    def parameters = configurations.map(_.toArray).asJava
+    def parameters = configurations.toArray
 
 }

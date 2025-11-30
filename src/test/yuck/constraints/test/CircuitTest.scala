@@ -1,7 +1,5 @@
 package yuck.constraints.test
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.annealing.DefaultMoveSizeDistribution
@@ -211,6 +209,6 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 object CircuitTest {
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")
-    def parameters = List(-1, 0, 1).asJava
+    def parameters = Array(-1, 0, 1).map(Int.box)
 
 }

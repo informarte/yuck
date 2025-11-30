@@ -1,7 +1,5 @@
 package yuck.constraints.test
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.constraints.*
@@ -32,9 +30,9 @@ object SumConstraintTest {
         for relation <- List(EqRelation, NeRelation, LtRelation, LeRelation)
             costsDomain <- List(TrueDomain, FalseDomain, CompleteBooleanDomain)
         yield
-            Vector(relation, costsDomain)
+            Array(relation, costsDomain)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
-    def parameters = configurations.map(_.toArray).asJava
+    def parameters = configurations.toArray
 
 }

@@ -1,7 +1,5 @@
 package yuck.constraints.test
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.annealing.DefaultMoveSizeDistribution
@@ -259,6 +257,5 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
 object IntegerIncreasingTest {
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")
-    def parameters = List(false, true).asJava
-
+    def parameters = Array(false, true).map(Boolean.box)
 }

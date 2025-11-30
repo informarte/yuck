@@ -1,7 +1,5 @@
 package yuck.constraints.test
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.constraints.{AllDifferent, AllDifferentNeighbourhood}
@@ -81,9 +79,9 @@ object AllDifferentNeighbourhoodTest {
             withException <- List(false, true)
             domainGenerator <- domainGenerators(numberOfVariables, withException)
         yield
-            Vector(numberOfVariables, withException, domainGenerator)
+            Array(numberOfVariables, withException, domainGenerator)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}, {2}")
-    def parameters = configurations.map(_.toArray).asJava
+    def parameters = configurations.toArray
 
 }

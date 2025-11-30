@@ -1,7 +1,5 @@
 package yuck.constraints.test
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.constraints.{Circuit, CircuitNeighbourhood}
@@ -33,6 +31,6 @@ final class CircuitNeighbourhoodTest(offset: Int) extends SpecialNeighbourhoodTe
 object CircuitNeighbourhoodTest {
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")
-    def parameters = List(-1, 0, 1).asJava
+    def parameters = Array(-1, 0, 1).map(Int.box)
 
 }

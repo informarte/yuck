@@ -1,7 +1,5 @@
 package yuck.constraints.test
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.constraints.*
@@ -64,9 +62,9 @@ object LinearConstraintPerformanceTest {
         for relation <- List(EqRelation, NeRelation, LtRelation, LeRelation)
             withUnitCoefficients <- List(true, false)
         yield
-            Vector(relation, withUnitCoefficients)
+            Array(relation, withUnitCoefficients)
 
     @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
-    def parameters = configurations.map(_.toArray).asJava
+    def parameters = configurations.toArray
 
 }

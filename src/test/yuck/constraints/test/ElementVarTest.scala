@@ -1,7 +1,5 @@
 package yuck.constraints.test
 
-import scala.jdk.CollectionConverters.*
-
 import org.junit.*
 
 import yuck.constraints.*
@@ -80,6 +78,6 @@ final class ElementVarTest(offset: Int) extends UnitTest with ConstraintTestTool
 object ElementVarTest {
 
     @runners.Parameterized.Parameters(name = "{index}: {0}")
-    def parameters = List(-1, 0, 1).asJava
+    def parameters = Array(-1, 0, 1).map(Int.box)
 
 }
