@@ -9,7 +9,7 @@ import yuck.test.util.UnitTest
 
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[runners.Parameterized])
-class LinearConstraintPerformanceTest(relation: OrderingRelation, withUnitCoefficients: Boolean) extends UnitTest {
+class LinearConstraintBenchmark(relation: OrderingRelation, withUnitCoefficients: Boolean) extends UnitTest {
 
     private val randomGenerator = new JavaRandomGenerator
     private val space = new Space(logger, sigint)
@@ -28,8 +28,9 @@ class LinearConstraintPerformanceTest(relation: OrderingRelation, withUnitCoeffi
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
     private val axs = xs.map(AX(if withUnitCoefficients then One else baseDomain.randomValue(randomGenerator), _))
     private val constraint = new LinearConstraint(space.nextConstraintId(), null, axs, y, relation, z, costs)
+    space.post(constraint)
     private val moveSizeDistribution = Distribution(1, for n <- numberOfTerms to 1 by -1 yield n)
-    private val neighbourhood = new RandomReassignmentGenerator(space, xs, randomGenerator, moveSizeDistribution, None, None)
+    private val neighbourhood = new RandomReassignmentGenerator(space, xs.filter(space.isSearchVariable), randomGenerator, moveSizeDistribution, None, None)
     for x <- xs do {
         space.setValue(x, x.domain.randomValue(randomGenerator))
     }
@@ -56,7 +57,7 @@ class LinearConstraintPerformanceTest(relation: OrderingRelation, withUnitCoeffi
 
 }
 
-object LinearConstraintPerformanceTest {
+object LinearConstraintBenchmark {
 
     private def configurations =
         for relation <- List(EqRelation, NeRelation, LtRelation, LeRelation)
