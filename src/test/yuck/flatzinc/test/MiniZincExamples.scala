@@ -114,15 +114,12 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
         solve("langford")
     }
 
-    // Runtime depends strongly on algorithmic details like choice of seed and random generator.
-    // Removing the symmetry breaker makes the problem even harder to solve.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
     def testLangford2(): Unit = {
         solve("langford2")
     }
 
-    // Runtime depends strongly on algorithmic details like choice of seed and random generator.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
     def testLatinSquares(): Unit = {
@@ -183,7 +180,7 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
     }
 
     // Another formulation for the perfect square problem that maximizes the sum of squares.
-    // FJ finds good solutions very fast but cannot find optimum.
+    // FJ finds good solutions very fast but cannot find the optimum.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MaximizationProblem]))
     def testPerfectSquares2(): Unit = {
@@ -197,7 +194,7 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
     }
 
     // Big domains!
-    // Solver finds good solutions fast but cannot find optimum.
+    // The solver finds good solutions fast but takes too long to find the optimum.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[MinimizationProblem]))
     def testProductFd(): Unit = {
@@ -244,21 +241,14 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
         solve("simple_sat")
     }
 
-    // Uses set decision variables and symmetry breaking on set variables.
-    // Symmetry breaking translates to set_le constraints.
-    // set_le is defined in terms of subset relation and symmetrical difference:
-    // a \subset b or min(a \symdiff b) \in a
-    // Gecode implements set_le via SRT_LQ (see gecode/set/dom.cpp and gecode/set/rel/rel-lq.hpp)
-    // in an unclear way.
-    // Do not implement set_le and set_lt as they have no obvious business value!
+    // Uses set decision variables.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
     def testSteinerTriples(): Unit = {
         solve(task.copy(problemName = "steiner-triples"))
     }
 
-    // Runtime depends strongly on algorithmic details like choice of seed and random generator.
-    // Has a lot of constants in all_different constraints that are used to prune domains up-front!
+    // Has a lot of constants in all_different constraints that are used to prune domains up-front.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
     def testSudoku(): Unit = {
@@ -329,7 +319,6 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
         solve(task.copy(problemName = "warehouses", maybeOptimum = Some(383)))
     }
 
-    // Runtime depends strongly on algorithmic details like choice of seed and random generator.
     // Has six variables declared as parameters by bool_eq constraints.
     @Test
     @Category(Array(classOf[EasyInstance], classOf[SatisfiabilityProblem]))
