@@ -7,7 +7,6 @@ import org.junit.runners.Suite.SuiteClasses
 /**
  * Runs the CVRP benchmarks
  */
-@Test
 @RunWith(classOf[runners.Suite])
 @SuiteClasses(
     Array(

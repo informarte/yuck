@@ -12,7 +12,6 @@ import yuck.test.util.ParallelParameterizedTestRunner
 /**
  * Runs the Solomon CVRPTW benchmark
  */
-@Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[ParallelParameterizedTestRunner])
 final class SolomonBenchmark(task: ZincTestTask) extends ZincBasedTest {

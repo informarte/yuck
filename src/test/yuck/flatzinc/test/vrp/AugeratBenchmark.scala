@@ -12,7 +12,6 @@ import yuck.test.util.ParallelParameterizedTestRunner
 /**
  * Runs the Augerat CVRP benchmark
  */
-@Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[ParallelParameterizedTestRunner])
 final class AugeratBenchmark(task: ZincTestTask) extends ZincBasedTest {

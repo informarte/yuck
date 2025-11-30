@@ -12,7 +12,6 @@ import yuck.test.util.ParallelParameterizedTestRunner
 /**
  * Runs the Gendreau TSPTW benchmark
  */
-@Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 @runner.RunWith(classOf[ParallelParameterizedTestRunner])
 final class GendreauBenchmark(task: ZincTestTask) extends ZincBasedTest {

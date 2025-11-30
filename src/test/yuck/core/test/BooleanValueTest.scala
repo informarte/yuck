@@ -5,7 +5,6 @@ import org.junit.*
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@Test
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class BooleanValueTest extends UnitTest with BooleanValueTestData {
 

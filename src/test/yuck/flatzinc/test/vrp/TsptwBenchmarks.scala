@@ -7,7 +7,6 @@ import org.junit.runners.Suite.SuiteClasses
 /**
  * Runs the TSPTW benchmarks
  */
-@Test
 @RunWith(classOf[runners.Suite])
 @SuiteClasses(
     Array(
