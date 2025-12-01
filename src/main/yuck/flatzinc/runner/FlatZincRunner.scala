@@ -231,17 +231,17 @@ object FlatZincRunner extends YuckLogging {
             logger.withTimedLogScope("Parsing FlatZinc file") {
                 new FlatZincParser(cl.fznFilePath, logger).call()
             }
-        summaryBuilder.addParserStatistics(parserRuntime)
+        summaryBuilder.addParserMetrics(parserRuntime)
         val md5Sum = SummaryBuilder.computeMd5Sum(cl.fznFilePath)
-        summaryBuilder.addFlatZincModelStatistics(ast, md5Sum)
+        summaryBuilder.addFlatZincModelMetrics(ast, md5Sum)
         val monitors = new ArrayBuffer[SolverMonitoring[?]]
         if cl.logLevel != yuck.util.logging.LogLevel.NoLogging then {
             monitors += new AnnealingEventLogger(logger)
             monitors += new FeasibilityJumpEventLogger(logger)
             monitors += new BestProposalLogger(logger)
         }
-        val statisticsCollector = new LocalSearchStatisticsCollector(logger)
-        monitors += statisticsCollector
+        val metricsCollector = new LocalSearchMetricsCollector(logger)
+        monitors += metricsCollector
         val resultPrinter = new FlatZincResultPrinter(ast, cl.outputThrottlingIntervalInMillis)
         val resultPrinterThread = new Thread(resultPrinter)
         if cl.printIntermediateSolutions then {
@@ -276,9 +276,9 @@ object FlatZincRunner extends YuckLogging {
             println(FlatZincNoSolutionFoundIndicator)
         }
         val space = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult].space
-        summaryBuilder.addYuckModelStatistics(space)
+        summaryBuilder.addYuckModelMetrics(space)
         summaryBuilder.addResult(result)
-        summaryBuilder.addSearchStatistics(statisticsCollector)
+        summaryBuilder.addSearchMetrics(metricsCollector)
         if cl.cfg.maybeSpaceProfilingMode.isDefined then {
             summaryBuilder.addSpacePerformanceMetrics(space.performanceMetricsBuilder.build())
         }

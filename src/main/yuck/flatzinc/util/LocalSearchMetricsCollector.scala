@@ -8,13 +8,13 @@ import yuck.util.DescriptiveStatistics.median
 import yuck.util.logging.LazyLogger
 
 /**
- * A monitor for collecting solver statistics.
+ * A monitor for collecting solver metrics.
  *
  * Assumes that the solver either terminates by itself or gets suspended due to a timeout.
  *
  * Does not support resumption.
  */
-final class LocalSearchStatisticsCollector(logger: LazyLogger) extends LocalSearchMonitor {
+final class LocalSearchMetricsCollector(logger: LazyLogger) extends LocalSearchMonitor {
 
     final case class ObjectiveImprovement(runtimeInMillis: Long, objectiveValue: NumericalValue[?])
 
@@ -39,19 +39,19 @@ final class LocalSearchStatisticsCollector(logger: LazyLogger) extends LocalSear
     private def currentObjectiveValue: NumericalValue[?] =
         costsOfBestProposal.asInstanceOf[PolymorphicListValue].value(1).asInstanceOf[NumericalValue[?]]
 
-    private class SolverStatistics(
+    private class SolverMetrics(
         val runtimeInSeconds: Double, val movesPerSecond: Double,
         val consultationsPerSecond: Double, val consultationsPerMove: Double,
         val commitmentsPerSecond: Double, val commitmentsPerMove: Double,
         val numberOfPerturbations: Int)
 
-    private val solverStatistics = new mutable.ArrayBuffer[SolverStatistics]
+    private val solverMetrics = new mutable.ArrayBuffer[SolverMetrics]
 
-    private def captureSolverStatistics(result: LocalSearchResult): Unit = {
+    private def captureSolverMetrics(result: LocalSearchResult): Unit = {
         if result.searchWasPerformed then {
             synchronized {
-                solverStatistics +=
-                    new SolverStatistics(
+                solverMetrics +=
+                    new SolverMetrics(
                         result.runtimeInSeconds, result.movesPerSecond,
                         result.consultationsPerSecond, result.consultationsPerMove,
                         result.commitmentsPerSecond, result.commitmentsPerMove,
@@ -77,7 +77,7 @@ final class LocalSearchStatisticsCollector(logger: LazyLogger) extends LocalSear
 
     override def onSolverSuspended(result: LocalSearchResult) = {
         // We assume that the solver timed out and that it will never be resumed.
-        captureSolverStatistics(result)
+        captureSolverMetrics(result)
     }
 
     override def onSolverResumed(result: LocalSearchResult) = {
@@ -85,7 +85,7 @@ final class LocalSearchStatisticsCollector(logger: LazyLogger) extends LocalSear
     }
 
     override def onSolverFinished(result: LocalSearchResult) = {
-        captureSolverStatistics(result)
+        captureSolverMetrics(result)
     }
 
     override def onBetterProposal(result: LocalSearchResult) = {
@@ -161,14 +161,14 @@ final class LocalSearchStatisticsCollector(logger: LazyLogger) extends LocalSear
         if areaTrackingState == AreaTrackingFinished then Some(objectiveStepFunction.toSeq) else None
 
     // Returns true iff search was required to achieve the objective.
-    def wasSearchRequired: Boolean = ! solverStatistics.isEmpty
+    def wasSearchRequired: Boolean = ! solverMetrics.isEmpty
 
     // Do not use the following methods when there was no search!
-    def movesPerSecond: Double = solverStatistics.map(_.movesPerSecond).median
-    def consultationsPerSecond: Double = solverStatistics.map(_.consultationsPerSecond).median
-    def consultationsPerMove: Double = solverStatistics.map(_.consultationsPerMove).median
-    def commitmentsPerSecond: Double = solverStatistics.map(_.commitmentsPerSecond).median
-    def commitmentsPerMove: Double = solverStatistics.map(_.commitmentsPerMove).median
-    def numberOfPerturbations: Double = solverStatistics.map(_.numberOfPerturbations.toDouble).median
+    def movesPerSecond: Double = solverMetrics.map(_.movesPerSecond).median
+    def consultationsPerSecond: Double = solverMetrics.map(_.consultationsPerSecond).median
+    def consultationsPerMove: Double = solverMetrics.map(_.consultationsPerMove).median
+    def commitmentsPerSecond: Double = solverMetrics.map(_.commitmentsPerSecond).median
+    def commitmentsPerMove: Double = solverMetrics.map(_.commitmentsPerMove).median
+    def numberOfPerturbations: Double = solverMetrics.map(_.numberOfPerturbations.toDouble).median
 
 }

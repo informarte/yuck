@@ -19,7 +19,7 @@ final class AnnealingEventLogger(logger: LazyLogger) extends AnnealingMonitor {
         } else {
             logger.criticalSection {
                 logger.log("Suspended solver in round %d".format(result.roundLogs.size))
-                logStatistics(result)
+                logMetrics(result)
             }
         }
     }
@@ -41,7 +41,7 @@ final class AnnealingEventLogger(logger: LazyLogger) extends AnnealingMonitor {
                     logger.log(
                         "Solver finished with proposal of quality %s in round %d".format(
                             result.costsOfBestProposal, result.roundLogs.size))
-                    logStatistics(result)
+                    logMetrics(result)
                 }
             }
         }
@@ -80,8 +80,8 @@ final class AnnealingEventLogger(logger: LazyLogger) extends AnnealingMonitor {
         logger.logg("Reduced domain of objective variable %s to %s".format(x, x.domain))
     }
 
-    private def logStatistics(result: AnnealingResult): Unit = {
-        logger.withLogScope("Solver statistics") {
+    private def logMetrics(result: AnnealingResult): Unit = {
+        logger.withLogScope("Solver metrics") {
             val roundLogs = result.roundLogs
             logger.log("Number of rounds: %d".format(result.roundLogs.size))
             logger.log("Moves per second: %f".format(result.movesPerSecond))

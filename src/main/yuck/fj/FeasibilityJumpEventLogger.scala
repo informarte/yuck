@@ -17,7 +17,7 @@ final class FeasibilityJumpEventLogger(logger: LazyLogger) extends FeasibilityJu
         if result.searchWasPerformed then {
             logger.criticalSection {
                 logger.log("Suspended solver")
-                logStatistics(result)
+                logMetrics(result)
             }
         } else {
             logger.log("Suspended solver before search")
@@ -36,7 +36,7 @@ final class FeasibilityJumpEventLogger(logger: LazyLogger) extends FeasibilityJu
         logger.criticalSection {
             logger.log("Solver finished with proposal of quality %s".format(result.costsOfBestProposal))
             if result.searchWasPerformed then {
-                logStatistics(result)
+                logMetrics(result)
             }
         }
     }
@@ -57,8 +57,8 @@ final class FeasibilityJumpEventLogger(logger: LazyLogger) extends FeasibilityJu
         logger.logg("Perturbed assignment")
     }
 
-    private def logStatistics(result: FeasibilityJumpResult): Unit = {
-        logger.withLogScope("Solver statistics") {
+    private def logMetrics(result: FeasibilityJumpResult): Unit = {
+        logger.withLogScope("Solver metrics") {
             logger.log("Moves per second: %f".format(result.movesPerSecond))
             logger.log("Consultations per second: %f".format(result.consultationsPerSecond))
             logger.log("Consultations per move: %f".format(result.consultationsPerMove))

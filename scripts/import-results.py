@@ -19,8 +19,9 @@
 
 import argparse
 import json
-from urllib.request import pathname2url
 import sqlite3
+from urllib.request import pathname2url
+
 
 def createDb(cursor):
     cursor.execute(
@@ -62,17 +63,17 @@ def createDb(cursor):
 def importResults(args, file, cursor):
     data = json.load(file)
     task = data.get('task')
-    flatZincModelStatistics = data.get('flatzinc-model-statistics')
-    yuckModelStatistics = data.get('yuck-model-statistics')
+    flatZincModelMetrics = data.get('flatzinc-model-metrics', data.get('flatzinc-model-statistics'))
+    yuckModelMetrics = data.get('yuck-model-metrics', data.get('yuck-model-statistics'))
     result = data.get('result')
     solver = data.get('solver')
-    parserStatistics = data.get('parser-statistics')
-    compilerStatistics = data.get('compiler-statistics')
-    searchStatistics = data.get('search-statistics', data.get('solver-statistics'))
+    parserMetrics = data.get('parser-metrics', data.get('parser-statistics'))
+    compilerMetrics = data.get('compiler-metrics', data.get('compiler-statistics'))
+    searchMetrics = data.get('search-metrics', data.get('search-statistics', data.get('solver-statistics')))
     if not task:
          print("No task (MiniZinc compiler error?)")
-    elif 'env' in data and 'yuck' in data['env'] and not yuckModelStatistics:
-        print("No model statistics (FlatZinc compiler error?)")
+    elif 'env' in data and 'yuck' in data['env'] and not yuckModelMetrics:
+        print("No model metrics (FlatZinc compiler error?)")
     else:
         cursor.execute(
             'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -86,24 +87,24 @@ def importResults(args, file, cursor):
              task['problem-type'],
              task.get('optimum'),
              task.get('high-score'),
-             flatZincModelStatistics.get('md5sum') if flatZincModelStatistics else None,
-             parserStatistics['runtime-in-seconds'] if parserStatistics else None,
-             compilerStatistics['runtime-in-seconds'] if compilerStatistics else None,
-             yuckModelStatistics['number-of-search-variables'] + yuckModelStatistics['number-of-channel-variables'] if yuckModelStatistics else None,
-             yuckModelStatistics['number-of-search-variables'] if yuckModelStatistics else None,
-             yuckModelStatistics['number-of-implicitly-constrained-search-variables'] if yuckModelStatistics else None,
-             yuckModelStatistics['number-of-channel-variables'] if yuckModelStatistics else None,
-             yuckModelStatistics['number-of-constraints'] if yuckModelStatistics else None,
-             yuckModelStatistics['number-of-implicit-constraints'] if yuckModelStatistics else None,
-             yuckModelStatistics.get('number-of-layers') if yuckModelStatistics else None,
-             searchStatistics.get('runtime-to-first-solution-in-seconds') if searchStatistics else None,
-             searchStatistics.get('runtime-to-best-solution-in-seconds') if searchStatistics else None,
-             searchStatistics.get('runtime-in-seconds') if searchStatistics else None,
-             searchStatistics.get('moves-per-second') if searchStatistics else None,
-             searchStatistics.get('consultations-per-move') if searchStatistics else None,
-             searchStatistics.get('commitments-per-move') if searchStatistics else None,
-             searchStatistics.get('number-of-perturbations') if searchStatistics else None,
-             searchStatistics.get('area') if searchStatistics else None,
+             flatZincModelMetrics.get('md5sum') if flatZincModelMetrics else None,
+             parserMetrics['runtime-in-seconds'] if parserMetrics else None,
+             compilerMetrics['runtime-in-seconds'] if compilerMetrics else None,
+             yuckModelMetrics['number-of-search-variables'] + yuckModelMetrics['number-of-channel-variables'] if yuckModelMetrics else None,
+             yuckModelMetrics['number-of-search-variables'] if yuckModelMetrics else None,
+             yuckModelMetrics['number-of-implicitly-constrained-search-variables'] if yuckModelMetrics else None,
+             yuckModelMetrics['number-of-channel-variables'] if yuckModelMetrics else None,
+             yuckModelMetrics['number-of-constraints'] if yuckModelMetrics else None,
+             yuckModelMetrics['number-of-implicit-constraints'] if yuckModelMetrics else None,
+             yuckModelMetrics.get('number-of-layers') if yuckModelMetrics else None,
+             searchMetrics.get('runtime-to-first-solution-in-seconds') if searchMetrics else None,
+             searchMetrics.get('runtime-to-best-solution-in-seconds') if searchMetrics else None,
+             searchMetrics.get('runtime-in-seconds') if searchMetrics else None,
+             searchMetrics.get('moves-per-second') if searchMetrics else None,
+             searchMetrics.get('consultations-per-move') if searchMetrics else None,
+             searchMetrics.get('commitments-per-move') if searchMetrics else None,
+             searchMetrics.get('number-of-perturbations') if searchMetrics else None,
+             searchMetrics.get('area') if searchMetrics else None,
              result['solved'] if result and 'solved' in result else False,
              result.get('violation') if result else None,
              result.get('objective-value', result.get('quality')) if result else None))

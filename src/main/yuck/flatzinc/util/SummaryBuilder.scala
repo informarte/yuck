@@ -124,9 +124,9 @@ final class SummaryBuilder {
         this
     }
 
-    def addFlatZincModelStatistics(ast: FlatZincAst, md5Sum: String): SummaryBuilder = {
+    def addFlatZincModelMetrics(ast: FlatZincAst, md5Sum: String): SummaryBuilder = {
         rootNode +=
-            "flatzinc-model-statistics" -> JsObjectBuilder(
+            "flatzinc-model-metrics" -> JsObjectBuilder(
                 "md5sum" -> JsString(md5Sum),
                 "number-of-predicate-declarations" -> JsNumber(ast.predDecls.size),
                 "number-of-parameter-declarations" -> JsNumber(ast.paramDecls.size),
@@ -136,9 +136,9 @@ final class SummaryBuilder {
         this
     }
 
-    def addYuckModelStatistics(space: Space): SummaryBuilder = {
+    def addYuckModelMetrics(space: Space): SummaryBuilder = {
         rootNode +=
-            "yuck-model-statistics" -> JsObjectBuilder(
+            "yuck-model-metrics" -> JsObjectBuilder(
                 "number-of-search-variables" -> JsNumber(space.searchVariables.size),
                 "number-of-implicitly-constrained-search-variables" ->
                     JsNumber(space.implicitlyConstrainedSearchVariables.size),
@@ -153,7 +153,7 @@ final class SummaryBuilder {
 
     def addResult(result: Result): SummaryBuilder = {
         val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
-        addCompilerStatistics(compilerResult)
+        addCompilerMetrics(compilerResult)
         val objectiveVariables = compilerResult.objective.objectiveVariables
         resultNode += "solved" -> JsBoolean(result.isSolution)
         if ! result.isSolution then {
@@ -174,23 +174,23 @@ final class SummaryBuilder {
         this
     }
 
-    def addParserStatistics(runtime: Duration): SummaryBuilder = {
-        rootNode += "parser-statistics" ->
+    def addParserMetrics(runtime: Duration): SummaryBuilder = {
+        rootNode += "parser-metrics" ->
             JsObjectBuilder(
                 "runtime-in-seconds" -> JsValueWrapper(JsNumber(runtime.toMillis / 1000.0))
             )
         this
     }
 
-    def addCompilerStatistics(compilerResult: FlatZincCompilerResult): SummaryBuilder = {
-        rootNode += "compiler-statistics" ->
+    def addCompilerMetrics(compilerResult: FlatZincCompilerResult): SummaryBuilder = {
+        rootNode += "compiler-metrics" ->
             JsObjectBuilder(
                 "runtime-in-seconds" -> JsValueWrapper(JsNumber(compilerResult.runtime.toMillis / 1000.0))
             )
         this
     }
 
-    def addSearchStatistics(monitor: LocalSearchStatisticsCollector): SummaryBuilder = {
+    def addSearchMetrics(monitor: LocalSearchMetricsCollector): SummaryBuilder = {
         val statsNode =
             if monitor.wasSearchRequired then {
                 JsObjectBuilder(
@@ -221,7 +221,7 @@ final class SummaryBuilder {
                         JsNumber(step.objectiveValue.asInstanceOf[IntegerValue].value)))
             statsNode += "objective-step-function" -> JsArray(array.toVector)
         }
-        rootNode += "search-statistics" -> statsNode
+        rootNode += "search-metrics" -> statsNode
         this
     }
 

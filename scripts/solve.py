@@ -159,7 +159,7 @@ def run(args):
             data['result']['objective-value'] = objectiveValue
             data['result']['optimal'] = objectiveValue and complete
             data['result']['objective-step-function'] = objectiveStepFunction
-        data['solver-statistics'] = {
+        data['search-metrics'] = {
             'runtime-in-seconds': runtimeInMillis / 1000
         }
     else:

@@ -34,8 +34,8 @@ final class FlatZincCompiler
         }
 
         logger.criticalSection {
-            logger.withLogScope("Yuck model statistics") {
-                logYuckModelStatistics(cc)
+            logger.withLogScope("Yuck model metrics") {
+                logYuckModelMetrics(cc)
             }
         }
 
@@ -133,7 +133,7 @@ final class FlatZincCompiler
         }
     }
 
-    private def logYuckModelStatistics(cc: CompilationContext) = {
+    private def logYuckModelMetrics(cc: CompilationContext) = {
         lazy val searchVariables = cc.space.searchVariables
         logger.logg("Search variables: %s".format(searchVariables.toList.sorted.mkString(", ")))
         logger.log("%d search variables".format(searchVariables.size))

@@ -138,8 +138,8 @@ class ZincBasedTest extends IntegrationTest {
         monitors += new AnnealingEventLogger(logger)
         monitors += new FeasibilityJumpEventLogger(logger)
         monitors += new BestProposalLogger(logger)
-        val statisticsCollector = new LocalSearchStatisticsCollector(logger)
-        monitors += statisticsCollector
+        val metricsCollector = new LocalSearchMetricsCollector(logger)
+        monitors += metricsCollector
         monitors += new SolverStateTracker
         if task.sourceFormat == MiniZinc && task.verificationFrequency == VerifyEverySolution then {
             monitors += new CorrectnessSentinel(task, spoilResult, logger)
@@ -156,9 +156,9 @@ class ZincBasedTest extends IntegrationTest {
                     new FlatZincParser(fznFilePath, logger).call()
                 }
             summaryBuilder.addTask(task, ast)
-            summaryBuilder.addParserStatistics(parserRuntime)
+            summaryBuilder.addParserMetrics(parserRuntime)
             val md5Sum = SummaryBuilder.computeMd5Sum(fznFilePath)
-            summaryBuilder.addFlatZincModelStatistics(ast, md5Sum)
+            summaryBuilder.addFlatZincModelMetrics(ast, md5Sum)
             logger.withTimedLogScope("Solving problem") {
                 scoped(monitor) {
                     val sharedBound = new SharedBound(sharedBoundHolder)
@@ -171,9 +171,9 @@ class ZincBasedTest extends IntegrationTest {
         logger.withLogScope("Best proposal") {
             new FlatZincResultFormatter(ast)(new FlatZincResult(result)).foreach(logger.log(_))
         }
-        summaryBuilder.addYuckModelStatistics(result.space)
+        summaryBuilder.addYuckModelMetrics(result.space)
         summaryBuilder.addResult(result)
-        summaryBuilder.addSearchStatistics(statisticsCollector)
+        summaryBuilder.addSearchMetrics(metricsCollector)
         if cfg.maybeSpaceProfilingMode.isDefined then {
             summaryBuilder.addSpacePerformanceMetrics(result.space.performanceMetricsBuilder.build())
         }
