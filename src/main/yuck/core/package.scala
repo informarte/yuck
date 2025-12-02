@@ -65,7 +65,7 @@ package object core {
     val EmptyIntegerSetValue = new IntegerSetValue(EmptyIntegerRange)
     val CompleteIntegerSetValue = new IntegerSetValue(CompleteIntegerRange)
 
-    val CompleteIntegerSetDomain = new IntegerPowersetDomain(CompleteIntegerRange)
+    val CompleteIntegerSetDomain = new IntegerPowerSetDomain(CompleteIntegerRange)
 
     given lexicographicOrderingForIterator[T](using ord: Ordering[T]): Ordering[Iterator[T]] with {
         override def compare(i: Iterator[T], j: Iterator[T]) = {

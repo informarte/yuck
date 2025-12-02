@@ -13,6 +13,6 @@ import org.junit.*
         classOf[IntegerRangeListTest],
         classOf[IntegerDomainPrunerTest],
         classOf[IntegerSetDomainTest],
-        classOf[IntegerPowersetDomainTest],
+        classOf[IntegerPowerSetDomainTest],
         classOf[SingletonIntegerSetDomainTest]))
 final class DomainTestSuite

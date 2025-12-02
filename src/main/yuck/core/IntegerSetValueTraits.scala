@@ -25,7 +25,7 @@ object IntegerSetValueTraits extends OrderedValueTraits[IntegerSetValue] {
         else if lb == ub
         then new SingletonIntegerSetDomain(lb.set)
         else if lb.set.isEmpty
-        then new IntegerPowersetDomain(ub.set)
+        then new IntegerPowerSetDomain(ub.set)
         else ???
     override val emptyDomain: IntegerSetDomain = EmptyIntegerSetDomain
     override val completeDomain: IntegerSetDomain = CompleteIntegerSetDomain

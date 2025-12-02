@@ -43,7 +43,7 @@ final class IntegerSetValueTraitsTest extends UnitTest {
     @Test
     def testVariableFactories(): Unit = {
         val space = new Space(logger, sigint)
-        val dx = new IntegerPowersetDomain(NonNegativeIntegerRange)
+        val dx = new IntegerPowerSetDomain(NonNegativeIntegerRange)
         val x = createVariable(space, "x", dx)
         val c = createChannel(space)
         assertEq(x.name, "x")
@@ -60,7 +60,7 @@ final class IntegerSetValueTraitsTest extends UnitTest {
     @Test
     def testDomainCasting(): Unit = {
         safeDowncast(new SingletonIntegerSetDomain(CompleteIntegerRange))
-        safeDowncast(new IntegerPowersetDomain(CompleteIntegerRange))
+        safeDowncast(new IntegerPowerSetDomain(CompleteIntegerRange))
         assertEx(safeDowncast(CompleteIntegerRange), classOf[ClassCastException])
     }
 
@@ -68,7 +68,7 @@ final class IntegerSetValueTraitsTest extends UnitTest {
     def testVariableCasting(): Unit = {
         val space = new Space(logger, sigint)
         val b = space.createVariable("b", CompleteBooleanDomain)
-        val s = space.createVariable("s", new IntegerPowersetDomain(CompleteIntegerRange))
+        val s = space.createVariable("s", new IntegerPowerSetDomain(CompleteIntegerRange))
         safeDowncast(s)
         assertEx(safeDowncast(b), classOf[ClassCastException])
     }

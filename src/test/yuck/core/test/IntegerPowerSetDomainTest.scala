@@ -8,17 +8,17 @@ import yuck.core.*
 import yuck.test.util.UnitTest
 
 @FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-final class IntegerPowersetDomainTest extends UnitTest {
+final class IntegerPowerSetDomainTest extends UnitTest {
 
     private val baseRange = IntegerRange(-5, 5)
 
     private val randomGenerator = new JavaRandomGenerator
     private val helper = new IntegerSetDomainTestHelper(randomGenerator, logger)
 
-    private def createTestData(sampleSize: Int): Seq[IntegerPowersetDomain] =
+    private def createTestData(sampleSize: Int): Seq[IntegerPowerSetDomain] =
         helper.createTestData(baseRange, sampleSize)
-            .filter(_.isInstanceOf[IntegerPowersetDomain])
-            .map(_.asInstanceOf[IntegerPowersetDomain])
+            .filter(_.isInstanceOf[IntegerPowerSetDomain])
+            .map(_.asInstanceOf[IntegerPowerSetDomain])
 
     @Test
     def testBasics(): Unit = {
@@ -34,11 +34,11 @@ final class IntegerPowersetDomainTest extends UnitTest {
         val bd02 = IntegerDomain(Set(0, 2))
 
         // set domains
-        val esd = new IntegerPowersetDomain(ebd)
-        val usd = new IntegerPowersetDomain(ubd)
-        val sd0 = new IntegerPowersetDomain(bd0)
-        val sd01 = new IntegerPowersetDomain(bd01)
-        val sd02 = new IntegerPowersetDomain(bd02)
+        val esd = new IntegerPowerSetDomain(ebd)
+        val usd = new IntegerPowerSetDomain(ubd)
+        val sd0 = new IntegerPowerSetDomain(bd0)
+        val sd01 = new IntegerPowerSetDomain(bd01)
+        val sd02 = new IntegerPowerSetDomain(bd02)
 
         // set values
         val es  = EmptyIntegerSetValue
@@ -180,7 +180,7 @@ final class IntegerPowersetDomainTest extends UnitTest {
         val testData = createTestData(16).distinct
         helper.testEquality(testData)
         for d <- testData do {
-            val e = IntegerPowersetDomain(d.base)
+            val e = IntegerPowerSetDomain(d.base)
             assertEq(d, e)
             assertEq(e, d)
             assertNe(d, False)

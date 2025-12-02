@@ -5,15 +5,15 @@ import scala.collection.*
 /**
  * Provides the power set of a given integer domain as immutable integer-set domain.
  */
-final class IntegerPowersetDomain
+final class IntegerPowerSetDomain
     (val base: IntegerDomain)
     extends IntegerSetDomain
 {
     override def hashCode = base.hashCode
     override def toString = "P(%s)".format(base.toString)
-    def ==(that: IntegerPowersetDomain): Boolean =
+    def ==(that: IntegerPowerSetDomain): Boolean =
         this.eq(that) || this.base.eq(that.base) || this.base == that.base
-    inline def !=(that: IntegerPowersetDomain): Boolean = ! (this == that)
+    inline def !=(that: IntegerPowerSetDomain): Boolean = ! (this == that)
     override def size = {
         require(base.size < 31)
         1 << base.size
@@ -43,14 +43,14 @@ final class IntegerPowersetDomain
         then new IntegerSetValue(currentValue.set.diff(IntegerRange(a, a)))
         else new IntegerSetValue(currentValue.set.union(IntegerRange(a, a)))
     }
-    inline def isSubsetOf(that: IntegerPowersetDomain): Boolean =
+    inline def isSubsetOf(that: IntegerPowerSetDomain): Boolean =
         this.base.isSubsetOf(that.base)
-    inline def intersects(that: IntegerPowersetDomain): Boolean =
+    inline def intersects(that: IntegerPowerSetDomain): Boolean =
         this.base.intersects(that.base)
-    inline def intersect(that: IntegerPowersetDomain): IntegerPowersetDomain =
-        new IntegerPowersetDomain(this.base.intersect(that.base))
-    inline def union(that: IntegerPowersetDomain): IntegerPowersetDomain =
+    inline def intersect(that: IntegerPowerSetDomain): IntegerPowerSetDomain =
+        new IntegerPowerSetDomain(this.base.intersect(that.base))
+    inline def union(that: IntegerPowerSetDomain): IntegerPowerSetDomain =
         ???
-    inline def diff(that: IntegerPowersetDomain): IntegerPowersetDomain =
-        new IntegerPowersetDomain(this.base.diff(that.base))
+    inline def diff(that: IntegerPowerSetDomain): IntegerPowerSetDomain =
+        new IntegerPowerSetDomain(this.base.diff(that.base))
 }

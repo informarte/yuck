@@ -27,9 +27,9 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         case (lhs: EmptyIntegerSetDomain.type, _) => false
         case (_, rhs: EmptyIntegerSetDomain.type) => false
         case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) => lhs == rhs
-        case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowersetDomain) => lhs.base.isEmpty && rhs.base.isEmpty
-        case (lhs: IntegerPowersetDomain, rhs: IntegerPowersetDomain) => lhs == rhs
-        case (lhs: IntegerPowersetDomain, rhs: SingletonIntegerSetDomain) => lhs.base.isEmpty && rhs.base.isEmpty
+        case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowerSetDomain) => lhs.base.isEmpty && rhs.base.isEmpty
+        case (lhs: IntegerPowerSetDomain, rhs: IntegerPowerSetDomain) => lhs == rhs
+        case (lhs: IntegerPowerSetDomain, rhs: SingletonIntegerSetDomain) => lhs.base.isEmpty && rhs.base.isEmpty
         case _ => ???
     }
 
@@ -39,9 +39,9 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         case (lhs: EmptyIntegerSetDomain.type, _) => true
         case (_, rhs: EmptyIntegerSetDomain.type) => false
         case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) => lhs.isSubsetOf(rhs)
-        case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowersetDomain) => lhs.base.isSubsetOf(rhs.base)
-        case (lhs: IntegerPowersetDomain, rhs: IntegerPowersetDomain) => lhs.isSubsetOf(rhs)
-        case (lhs: IntegerPowersetDomain, rhs: SingletonIntegerSetDomain) => lhs.base.isEmpty && rhs.base.isEmpty
+        case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowerSetDomain) => lhs.base.isSubsetOf(rhs.base)
+        case (lhs: IntegerPowerSetDomain, rhs: IntegerPowerSetDomain) => lhs.isSubsetOf(rhs)
+        case (lhs: IntegerPowerSetDomain, rhs: SingletonIntegerSetDomain) => lhs.base.isEmpty && rhs.base.isEmpty
         case _ => ???
     }
 
@@ -49,9 +49,9 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         case (lhs: EmptyIntegerSetDomain.type, _) => false
         case (_, rhs: EmptyIntegerSetDomain.type) => false
         case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) => lhs.intersects(rhs)
-        case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowersetDomain) => lhs.base.isSubsetOf(rhs.base)
-        case (lhs: IntegerPowersetDomain, rhs: IntegerPowersetDomain) => lhs.intersects(rhs)
-        case (lhs: IntegerPowersetDomain, rhs: SingletonIntegerSetDomain) => rhs.base.isSubsetOf(lhs.base)
+        case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowerSetDomain) => lhs.base.isSubsetOf(rhs.base)
+        case (lhs: IntegerPowerSetDomain, rhs: IntegerPowerSetDomain) => lhs.intersects(rhs)
+        case (lhs: IntegerPowerSetDomain, rhs: SingletonIntegerSetDomain) => rhs.base.isSubsetOf(lhs.base)
         case _ => ???
     }
 
@@ -60,11 +60,11 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         case (_, rhs: EmptyIntegerSetDomain.type) => rhs
         case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) =>
             if lhs == rhs then lhs else EmptyIntegerSetDomain
-        case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowersetDomain) =>
+        case (lhs: SingletonIntegerSetDomain, rhs: IntegerPowerSetDomain) =>
             if lhs.base.isSubsetOf(rhs.base) then lhs else EmptyIntegerSetDomain
-        case (lhs: IntegerPowersetDomain, rhs: IntegerPowersetDomain) =>
+        case (lhs: IntegerPowerSetDomain, rhs: IntegerPowerSetDomain) =>
             lhs.intersect(rhs)
-        case (lhs: IntegerPowersetDomain, rhs: SingletonIntegerSetDomain) =>
+        case (lhs: IntegerPowerSetDomain, rhs: SingletonIntegerSetDomain) =>
             if rhs.base.isSubsetOf(lhs.base) then rhs else EmptyIntegerSetDomain
         case _ => ???
     }

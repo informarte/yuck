@@ -291,11 +291,11 @@ final class DomainInitializer
         case IntSetType(Some(IntRange(lb, ub))) =>
             val d0 = IntegerRange(lb, ub)
             val d = if d0.isSubsetOf(SixtyFourBitSet.ValueRange) then SixtyFourBitSet(lb, ub) else d0
-            new IntegerPowersetDomain(d)
+            new IntegerPowerSetDomain(d)
         case IntSetType(Some(IntSet(set))) =>
             val d0 = IntegerDomain(set)
             val d = if d0.isSubsetOf(SixtyFourBitSet.ValueRange) then SixtyFourBitSet(d0) else d0
-            new IntegerPowersetDomain(d)
+            new IntegerPowerSetDomain(d)
         case other => throw new UnsupportedFlatZincTypeException(other)
     }
 
@@ -309,7 +309,7 @@ final class DomainInitializer
             keysToIntegerSetDomains.exists(cc.domains(_) match {
                 case _: EmptyIntegerSetDomain.type => false
                 case d: SingletonIntegerSetDomain => ! d.base.isInstanceOf[SixtyFourBitSet]
-                case d: IntegerPowersetDomain => ! d.base.isInstanceOf[SixtyFourBitSet]
+                case d: IntegerPowerSetDomain => ! d.base.isInstanceOf[SixtyFourBitSet]
             })
         if nonBitSetDomainExists then {
             for expr <- keysToIntegerSetDomains do cc.domains(expr) match {
@@ -318,9 +318,9 @@ final class DomainInitializer
                     if d.base.isInstanceOf[SixtyFourBitSet] then {
                          cc.domains.put(expr, new SingletonIntegerSetDomain(IntegerDomain(d.base.values)))
                     }
-                case d: IntegerPowersetDomain =>
+                case d: IntegerPowerSetDomain =>
                     if d.base.isInstanceOf[SixtyFourBitSet] then {
-                         cc.domains.put(expr, new IntegerPowersetDomain(IntegerDomain(d.base.values)))
+                         cc.domains.put(expr, new IntegerPowerSetDomain(IntegerDomain(d.base.values)))
                     }
             }
         }

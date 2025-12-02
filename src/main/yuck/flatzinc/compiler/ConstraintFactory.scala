@@ -484,7 +484,7 @@ final class ConstraintFactory
             def enforceDomain(x: IntegerSetVariable, y: IntegerVariable) = {
                 val (minCard, maxCard) = x.domain match {
                     case dx: SingletonIntegerSetDomain => (dx.base.size, dx.base.size)
-                    case dx: IntegerPowersetDomain => (0, dx.base.size)
+                    case dx: IntegerPowerSetDomain => (0, dx.base.size)
                 }
                 if IntegerRange(minCard, maxCard).isSubsetOf(y.domain) then Nil else enforceIntDomain(y)
             }
@@ -1303,7 +1303,7 @@ final class ConstraintFactory
             if cc.space.isChannelVariable(x) then {
                 val costs = createBoolChannel()
                 dx match {
-                    case dx: IntegerPowersetDomain =>
+                    case dx: IntegerPowerSetDomain =>
                         cc.post(new Subset(nextConstraintId(), Some(DomainEnforcementGoal), x, dx.base, costs))
                     case dx: SingletonIntegerSetDomain =>
                         cc.post(new Eq(nextConstraintId(), Some(DomainEnforcementGoal), x, dx.base, costs))

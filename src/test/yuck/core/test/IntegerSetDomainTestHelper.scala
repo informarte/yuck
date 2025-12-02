@@ -18,6 +18,6 @@ final class IntegerSetDomainTestHelper
                 // {{}} = P({}), so we keep only one of them to facilitate equality testing
                 if r.isEmpty
                 then List(new SingletonIntegerSetDomain(r))
-                else List(new SingletonIntegerSetDomain(r), new IntegerPowersetDomain(r)))
+                else List(new SingletonIntegerSetDomain(r), new IntegerPowerSetDomain(r)))
 
 }
