@@ -1,171 +1,271 @@
 package yuck.flatzinc.parser
 
-import scala.language.postfixOps
+import scala.annotation.{switch, tailrec}
+import scala.collection.*
 import scala.util.control.Exception
-import scala.util.matching.Regex
-import scala.util.parsing.combinator.RegexParsers
+
+import fastparse.*
+import fastparse.Implicits.Repeater
 
 import yuck.flatzinc.ast.*
 
-object FlatZincParser extends RegexParsers {
+/**
+ * @author Michael Marte
+ *
+ */
+object FlatZincParser {
 
-    // consider comments as whitespace
-    override val whiteSpace = new Regex("""(\s|%.*)+""")
+    // Whitespace handling (comments and whitespace)
+    // (copied from ScriptWhitespace with '#' replaced by '%')
+    // https://github.com/com-lihaoyi/fastparse/issues/336
+    // https://github.com/com-lihaoyi/fastparse/pull/337
+    implicit object whitespace extends Whitespace {
 
-    val bool_const: Parser[BoolConst] =
-        "true" ^^^ BoolConst(true) | "false" ^^^ BoolConst(false)
-    val identifier: Parser[String] =
-        regex(new Regex("_*[A-Za-z][A-Za-z0-9_]*"))
-    val int_const: Parser[IntConst] =
-        regex(new Regex("(\\+|-)?[0-9]+")) ^? (
-            new PartialFunction[String, IntConst]() {
-                override def isDefinedAt(s: String) =
-                    Exception.catching[Long](classOf[NumberFormatException]).opt{s.toLong}.isDefined
-                override def apply(s: String) =
-                    IntConst(s.toLong)
-            },
-            s => String.format("Invalid integer literal %s", s))
-    val float_const_with_fractional_part: Parser[String] =
-        regex(new Regex("(\\+|-)?[0-9]+\\.[0-9]+((e|E)(\\+|-)?[0-9]+)?"))
-    val float_const_without_fractional_part: Parser[String] =
-        regex(new Regex("(\\+|-)?[0-9]+(e|E)(\\+|-)?[0-9]+"))
-    val float_const: Parser[FloatConst] =
-        (float_const_without_fractional_part | float_const_with_fractional_part) ^? (
-            new PartialFunction[String, FloatConst]() {
-                override def isDefinedAt(s: String) =
-                    Exception.catching[Double](classOf[NumberFormatException]).opt{s.toDouble}
-                        .filterNot(_.isInfinity).isDefined
-                override def apply(s: String) =
-                    FloatConst(s.toDouble)
-            },
-            s => String.format("Invalid float literal %s", s))
-    val int_range: Parser[IntRange] =
-        int_const ~ ".." ~ int_const ^^ {
-            case IntConst(lb) ~ _ ~ IntConst(ub) => IntRange(lb, ub)
-        }
-    val index_set: Parser[Option[IntRange]] =
-        "[" ~> int_range <~ "]" ^^ (range => Some(range)) |
-        "[" ~ repsep("int", ",") ~ "]" ^^^ None
-    val int_set: Parser[IntSet] =
-        "{" ~> repsep(int_const, ",") <~ "}" ^^ {
-            l => IntSet((for IntConst(e) <- l yield e).toSet)
-        }
-    val float_range: Parser[FloatRange] =
-        float_const ~ ".." ~ float_const ^^ {
-            case FloatConst(lb) ~ _ ~ FloatConst(ub) => FloatRange(lb, ub)
-        }
-    val int_set_const: Parser[IntSetConst] =
-        int_range ^^ (r => IntSetConst(r)) |
-        int_set ^^ (s => IntSetConst(s))
-    val array_const: Parser[ArrayConst] =
-        "[" ~> repsep(expr, ",") <~ "]" ^^ (elems => ArrayConst(elems.toVector))
-    val array_access: Parser[ArrayAccess] =
-        identifier ~ ("[" ~> expr <~ "]") ^^ {
-            case id ~ idx => ArrayAccess(id, idx)
-        }
-    // limited string parsing only
-    val string_const: Parser[StringConst] =
-        "\"" ~> identifier <~ "\"" ^^ StringConst.apply
-    val term: Parser[Term] =
-        identifier ~ (("(" ~> rep1sep(expr, ",") <~ ")")?) ^^ {
-            case id ~ optionalParams => Term(id, optionalParams.getOrElse(Nil))
-        }
-    val expr: Parser[Expr] =
-        (bool_const | float_const | int_set_const | int_const | array_const | array_access | string_const | term)
+        import fastparse.internal.Msgs
 
-    // type parsing
-    // According to the FlatZinc grammar, not every type applies in every context.
-    // I ignore these restrictions here because I think that the type checker is the
-    // better place to implement them.
-    val param_base_type: Parser[BaseType] =
-        "bool" ^^^ BoolType |||
-        "int" ^^^ IntType(None) |||
-        "float" ^^^ FloatType(None) |||
-        int_range ^^ (r => IntType(Some(r))) |||
-        int_set ^^ (s => IntType(Some(s))) |||
-        float_range ^^ (r => FloatType(Some(r))) |||
-        "set" ~> "of" ~>
-            (int_range ^^ (r => IntSetType(Some(r))) |||
-             int_set ^^ (s => IntSetType(Some(s))) |||
-             "int" ^^^ IntSetType(None))
-    val param_array_type: Parser[ArrayType] =
-        array_type(param_base_type)
-    val param_type: Parser[Type] =
-        param_base_type | param_array_type
-    val var_base_type: Parser[BaseType] =
-        "var" ~> param_base_type
-    val var_array_type: Parser[ArrayType] =
-        array_type(var_base_type)
-    val var_type: Parser[Type] =
-        var_base_type | var_array_type
-    def array_type(baseTypeParser: Parser[BaseType]): Parser[ArrayType] =
-        ("array" ~> index_set) ~ ("of" ~> baseTypeParser) ^^ {
-            case indexSet ~ baseType => ArrayType(indexSet, baseType)
-        }
+        def apply(ctx: ParsingRun[?]) = {
+            val input = ctx.input
 
-    val pred_param_type: Parser[Type] =
-        param_type | var_type
-    val pred_param: Parser[PredParam] =
-        (pred_param_type <~ ":") ~ identifier ~ rep(annotation) ^^ {
-            case paramType ~ id ~ annotations => PredParam(id, paramType, annotations)
-        }
-    val pred_decl: Parser[PredDecl] =
-        "predicate" ~> identifier ~ ("(" ~> repsep(pred_param, ",") <~ ")") <~ ";" ^^ {
-            case id ~ params=> PredDecl(id, params)
-        }
+            @tailrec def rec(current: Int, state: Int): ParsingRun[Unit] = {
+                if !input.isReachable(current) then {
+                    if ctx.verboseFailures then {
+                        ctx.reportTerminalMsg(current, Msgs.empty)
+                    }
+                    ctx.freshSuccessUnit(current)
+                }
+                else {
+                    val currentChar = input(current)
+                    (state: @switch) match {
+                        case 0 =>
+                            (currentChar: @switch) match {
+                                case ' ' | '\t' | '\n' | '\r' => rec(current + 1, state)
+                                case '%' => rec(current + 1, state = 1)
+                                case _ =>
+                                    if ctx.verboseFailures then {
+                                        ctx.reportTerminalMsg(current, Msgs.empty)
+                                    }
+                                    ctx.freshSuccessUnit(current)
+                            }
+                        case 1 => rec(current + 1, state = if currentChar == '\n' then 0 else state)
+                    }
+                }
+            }
 
-    val param_decl: Parser[ParamDecl] =
-        (param_type <~ ":") ~ identifier ~ ("=" ~> expr) <~ ";" ^^ {
-            case paramType ~ id ~ value => ParamDecl(id, paramType, value)
+            rec(current = ctx.index, state = 0)
         }
+    }
 
-    val var_decl: Parser[VarDecl] =
-        (var_type <~ ":") ~ identifier ~ rep(annotation) ~ (("=" ~> expr)?) <~ ";" ^^ {
-            case paramType ~ id ~ annotations ~ optionalValue => VarDecl(id, paramType, optionalValue, annotations)
+    // The default builder of fastparse creates an immutable list.
+    private val exprVectorBuilder = new Repeater[Expr, Vector[Expr]] {
+        type Acc = mutable.Buffer[Expr]
+        def initial = mutable.Buffer.empty[Expr]
+        def accumulate(t: Expr, acc: mutable.Buffer[Expr]) = acc += t
+        def result(acc: mutable.Buffer[Expr]) = acc.toVector
+    }
+
+    def bool_const[$: P]: P[BoolConst] =
+        P("true".map(_ => BoolConst(true)) | "false".map(_ => BoolConst(false)))
+
+    def identifier[$: P]: P[String] =
+        P((CharIn("_").rep ~ CharIn("A-Za-z") ~ CharIn("A-Za-z0-9_").rep).!)
+
+    // Throws when the integer literal cannot be represented as a Long.
+    def int_const[$: P]: P[IntConst] =
+        P((CharIn("+\\-").? ~ CharIn("0-9").rep(1)).!.map(s => IntConst(s.toLong)))
+
+    // Rejects integer literals that cannot be represented as a Long.
+    // Slower than int_const due the double boxing caused by Catch.opt.
+    def int_const_strict[$: P]: P[IntConst] = P(
+        (CharIn("+\\-").? ~ CharIn("0-9").rep(1)).!
+            .map(s => Exception.catching(classOf[NumberFormatException]).opt(s.toLong))
+            .filter(maybeLong => maybeLong.isDefined)
+            .map(maybeLong => IntConst(maybeLong.get))
+    )
+
+    def float_const_with_fractional_part[$: P]: P[String] =
+        P((CharIn("+\\-").? ~ CharIn("0-9").rep(1) ~ "." ~ CharIn("0-9").rep(1) ~
+            (CharIn("eE") ~ CharIn("+\\-").? ~ CharIn("0-9").rep(1)).?).!)
+
+    def float_const_without_fractional_part[$: P]: P[String] =
+        P((CharIn("+\\-").? ~ CharIn("0-9").rep(1) ~ CharIn("eE") ~ CharIn("+\\-").? ~ CharIn("0-9").rep(1)).!)
+
+    // Throws when the float literal cannot be represented as a Double.
+    def float_const[$: P]: P[FloatConst] = P(
+        (float_const_without_fractional_part | float_const_with_fractional_part).map(s => {
+            val n = s.toDouble
+            if n.isInfinity then throw new NumberFormatException("%s is out of range")
+            else FloatConst(n)
+        })
+    )
+
+    // Rejects float literals that cannot be represented as a Double.
+    // Slower than float_const due the double boxing caused by Catch.opt.
+    def float_const_strict[$: P]: P[FloatConst] = P(
+        (float_const_without_fractional_part | float_const_with_fractional_part)
+            .map(s => Exception.catching(classOf[NumberFormatException]).opt(s.toDouble))
+            .filter(maybeDouble => maybeDouble.filterNot(_.isInfinity).isDefined)
+            .map(maybeDouble => FloatConst(maybeDouble.get))
+    )
+
+    def int_range[$: P]: P[IntRange] = P(
+        (int_const ~ ".." ~ int_const).map {
+            case (IntConst(lb), IntConst(ub)) => IntRange(lb, ub)
         }
+    )
 
-    val annotation: Parser[Annotation] =
-        "::" ~> term ^^ Annotation.apply
+    def index_set[$: P]: P[Option[IntRange]] =
+        P(("[" ~ int_range ~ "]").map(Some(_)) | P("[" ~ "int".rep(sep = ",") ~ "]").map(_ => None))
 
-    val constraint: Parser[Constraint] =
-        "constraint" ~> identifier ~ ("(" ~> rep1sep(expr, ",") <~ ")") ~ rep(annotation) <~ ";" ^^ {
-            case id ~ params ~ annotations => Constraint(id, params, annotations)
+    def int_set[$: P]: P[IntSet] =
+        P(("{" ~ int_const.rep(sep = ",") ~ "}").map(l => IntSet(l.view.map(_.value).toSet)))
+
+    def float_range[$: P]: P[FloatRange] = P(
+        (float_const ~ ".." ~ float_const).map {
+            case (FloatConst(lb), FloatConst(ub)) => FloatRange(lb, ub)
         }
+    )
 
-    val solve_goal: Parser[SolveGoal] =
-        "solve" ~> (
-            rep(annotation) <~ "satisfy" ^^ Satisfy.apply |
-            rep(annotation) ~ ("minimize" ~> expr) ^^ {
-                case annotations ~ expr => Minimize(expr, annotations)
+    def int_set_const[$: P]: P[IntSetConst] =
+        P((int_range.map(r => IntSetConst(r)) | int_set.map(s => IntSetConst(s))))
+
+    def array_const[$: P]: P[ArrayConst] =
+        P(("[" ~ expr.rep(sep = ",")(using exprVectorBuilder) ~ "]").map(ArrayConst.apply))
+
+    def array_access[$: P]: P[ArrayAccess] = P(
+        (identifier ~ "[" ~ expr ~ "]").map {
+            case (id, idx) => ArrayAccess(id, idx)
+        }
+    )
+
+    def string_const[$: P]: P[StringConst] =
+        P(("\"" ~ identifier ~ "\"").map(StringConst.apply))
+
+    def term[$: P]: P[Term] = P(
+        (identifier ~ ("(" ~ expr.rep(1, sep = ",") ~ ")").?).map {
+            case (id, optionalParams) => Term(id, optionalParams.getOrElse(Nil).toList)
+        }
+    )
+
+    def expr[$: P]: P[Expr] =
+        P(bool_const | float_const | int_set_const | int_const | array_const | array_access | string_const | term)
+
+    def param_base_type[$: P]: P[BaseType] = P(
+        "bool".map(_ => BoolType) |
+        "int".map(_ => IntType(None)) |
+        "float".map(_ => FloatType(None)) |
+        int_range.map(r => IntType(Some(r))) |
+        int_set.map(s => IntType(Some(s))) |
+        float_range.map(r => FloatType(Some(r))) |
+        ("set" ~ "of" ~ (
+            int_range.map(r => IntSetType(Some(r))) |
+                int_set.map(s => IntSetType(Some(s))) |
+                "int".map(_ => IntSetType(None))
+            )
+        )
+    )
+
+    def param_array_type[$: P]: P[ArrayType] =
+        P(array_type(param_base_type))
+
+    def param_type[$: P]: P[Type] =
+        P(param_base_type | param_array_type)
+
+    def var_base_type[$: P]: P[BaseType] =
+        P("var" ~ param_base_type)
+
+    def var_array_type[$: P]: P[ArrayType] =
+        P(array_type(var_base_type))
+
+    def var_type[$: P]: P[Type] =
+        P(var_base_type | var_array_type)
+
+    def array_type[$: P](baseTypeParser: => P[BaseType]): P[ArrayType] = P(
+        ("array" ~ index_set ~ "of" ~ baseTypeParser).map {
+            case (indexSet, baseType) => ArrayType(indexSet, baseType)
+        }
+    )
+
+    def pred_param_type[$: P]: P[Type] =
+        P(param_type | var_type)
+
+    def pred_param[$: P]: P[PredParam] = P(
+        (pred_param_type ~ ":" ~ identifier ~ annotation.rep).map {
+            case (paramType, id, annotations) => PredParam(id, paramType, annotations.toList)
+        }
+    )
+
+    def pred_decl[$: P]: P[PredDecl] = P(
+        ("predicate" ~/ identifier ~ "(" ~ pred_param.rep(sep = ",") ~ ")" ~ ";").map {
+            case (id, params) => PredDecl(id, params.toList)
+        }
+    )
+
+    def param_decl[$: P]: P[ParamDecl] = P(
+        (param_type ~ ":" ~/ identifier ~ "=" ~ expr ~ ";").map {
+            case (paramType, id, value) => ParamDecl(id, paramType, value)
+        }
+    )
+
+    def var_decl[$: P]: P[VarDecl] = P(
+        (var_type ~ ":" ~/ identifier ~ annotation.rep ~ ("=" ~ expr).? ~ ";").map {
+            case (paramType, id, annotations, optionalValue) =>
+                VarDecl(id, paramType, optionalValue, annotations.toList)
+        }
+    )
+
+    def annotation[$: P]: P[Annotation] =
+        P(("::" ~ term).map(Annotation.apply))
+
+    def constraint[$: P]: P[Constraint] = P(
+        ("constraint" ~/ identifier ~ "(" ~ expr.rep(1, sep = ",") ~ ")" ~ annotation.rep ~ ";").map {
+            case (id, params, annotations) => Constraint(id, params.toList, annotations.toList)
+        }
+    )
+
+    def solve_goal[$: P]: P[SolveGoal] = P(
+        "solve" ~/ (
+            (annotation.rep ~ "satisfy")./.map {
+                case annotations => Satisfy(annotations.toList)
             } |
-            rep(annotation) ~ ("maximize" ~> expr) ^^ {
-                case annotations ~ expr => Maximize(expr, annotations)
-            }) <~ ";"
+            (annotation.rep ~ "minimize" ~/ expr).map {
+                case (annotations, expr) => Minimize(expr, annotations.toList)
+            } |
+            (annotation.rep ~ "maximize" ~/ expr).map {
+                case (annotations, expr) => Maximize(expr, annotations.toList)
+            }
+        ) ~ ";"
+    )
 
-    val flatzinc_model: Parser[FlatZincAst] =
-        rep(pred_decl) ~ rep(param_decl) ~ rep(var_decl) ~ rep(constraint) ~ solve_goal ^^ {
-            case predDecls ~ paramDecls ~ varDecls ~ constraints ~ solveGoal =>
+    def flatzinc_model[$: P]: P[FlatZincAst] = P(
+        // Whitespace is only skipped by ~, so we begin parsing with Start.
+        (Start ~/ pred_decl.rep ~/ param_decl.rep ~/ var_decl.rep ~/ constraint.rep ~/ solve_goal).map {
+            case (predDecls, paramDecls, varDecls, constraints, solveGoal) =>
                 FlatZincAst(
-                    predDecls,
-                    predDecls.map(decl => (decl.id -> decl)).toMap,
-                    paramDecls,
-                    paramDecls.map(decl => (decl.id -> decl)).toMap,
-                    varDecls,
-                    varDecls.map(decl => (decl.id -> decl)).toMap,
-                    constraints,
+                    predDecls.toList,
+                    predDecls.map(decl => decl.id -> decl).toMap,
+                    paramDecls.toList,
+                    paramDecls.map(decl => decl.id -> decl).toMap,
+                    varDecls.toList,
+                    varDecls.map(decl => decl.id -> decl).toMap,
+                    constraints.toList,
                     solveGoal)
         }
+    )
 
-    def parse(input: java.lang.CharSequence): FlatZincAst =
-        processParsingResult(FlatZincParser.parseAll(FlatZincParser.flatzinc_model, input))
+    // Reports error location in terms of line and column.
+    def parse(input: String): FlatZincAst =
+        fastparse.parse(input, flatzinc_model(using _)) match {
+            case Parsed.Success(ast, successIndex) => ast
+            case failure @ Parsed.Failure(label, index, extra) =>
+                throw new FlatZincParserException(failure.msg)
+        }
 
-    def parse(reader: java.io.InputStreamReader): FlatZincAst =
-        processParsingResult(FlatZincParser.parseAll(FlatZincParser.flatzinc_model, reader))
-
-    private def processParsingResult(result: ParseResult[FlatZincAst]): FlatZincAst = (result: @unchecked) match {
-        case FlatZincParser.Success(ast, _) => ast
-        case FlatZincParser.NoSuccess(msg, rest) =>
-            throw new FlatZincParserException(rest.pos.line, rest.pos.column, msg)
-    }
+    // Reports error location in terms of its index.
+    def parse(input: java.io.FileInputStream): FlatZincAst =
+        fastparse.parse(input, flatzinc_model(using _)) match {
+            case Parsed.Success(ast, successIndex) => ast
+            case failure @ Parsed.Failure(label, index, extra) =>
+                throw new FlatZincParserException(failure.msg)
+        }
 
 }

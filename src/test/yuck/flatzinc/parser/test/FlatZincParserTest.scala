@@ -1,8 +1,8 @@
 package yuck.flatzinc.parser.test
 
-import java.io.{File, FileInputStream, InputStreamReader}
-
-import org.junit.jupiter.api.{Assertions, Test}
+import fastparse.*
+import org.junit.jupiter.api.Assertions.{assertEquals, fail}
+import org.junit.jupiter.api.Test
 
 import yuck.flatzinc.ast.*
 import yuck.flatzinc.parser.*
@@ -10,24 +10,35 @@ import yuck.test.util.UnitTest
 
 final class FlatZincParserTest extends UnitTest {
 
-    import FlatZincParser.*
-
-    private def expectSuccess[Result](parser: Parser[Result], input: String, expectation: Result): Unit = {
-        parseAll(parser, input) match {
-            case FlatZincParser.Success(result, rest) =>
-                Assertions.assertEquals(expectation, result)
+    private def expectSuccess[Result](parser: P[?] => P[Result], input: String, expectation: Result): Unit = {
+        fastparse.parse(input, parser) match {
+            case Parsed.Success(result, rest) =>
+                assertEquals(expectation, result)
             case _ =>
-                Assertions.fail("Failed to parse '%s'".format(input))
+                fail("Failed to parse '%s'".format(input))
         }
     }
 
-    private def expectFailure[Result](parser: Parser[Result], input: String): Unit = {
-        parseAll(parser, input) match {
-            case FlatZincParser.Success(result, rest) =>
-                Assertions.fail("'%s' was parsed unexpectedly".format(input))
+    import fastparse.*
+
+    private def expectFailure[Result](parser: P[?] => P[Result], input: String): Unit = {
+        fastparse.parse(input, parser) match {
+            case Parsed.Success(result, rest) =>
+                if rest >= input.size then {
+                    fail("'%s' was parsed unexpectedly to %s".format(input, result))
+                }
             case _ =>
         }
     }
+
+    private val expr = FlatZincParser.expr(using _)
+    private val var_type = FlatZincParser.var_type(using _)
+    private val param_type = FlatZincParser.param_type(using _)
+    private val pred_decl = FlatZincParser.pred_decl(using _)
+    private val param_decl = FlatZincParser.param_decl(using _)
+    private val var_decl = FlatZincParser.var_decl(using _)
+    private val constraint = FlatZincParser.constraint(using _)
+    private val solve_goal = FlatZincParser.solve_goal(using _)
 
     @Test
     def testBool(): Unit = {
@@ -42,10 +53,10 @@ final class FlatZincParserTest extends UnitTest {
         expectFailure(expr, "++1")
         expectFailure(expr, "+-1")
         expectSuccess(expr, "+1", IntConst(1))
-        expectFailure(expr, "-9223372036854775809")
+        assertEx(expectFailure(expr, "-9223372036854775809"), classOf[NumberFormatException])
         expectSuccess(expr, Long.MinValue.toString(), IntConst(Long.MinValue))
         expectSuccess(expr, Long.MaxValue.toString(), IntConst(Long.MaxValue))
-        expectFailure(expr, "9223372036854775808")
+        assertEx(expectFailure(expr, "9223372036854775808"), classOf[NumberFormatException])
     }
 
     @Test
@@ -72,7 +83,7 @@ final class FlatZincParserTest extends UnitTest {
         expectSuccess(expr, "+1e-2", FloatConst(0.01))
         expectSuccess(expr, "-1e-2", FloatConst(-0.01))
         expectSuccess(expr, "-1.56734454885781264827637856876e-178", FloatConst(-1.56734454885781264827637856876e-178))
-        expectFailure(expr, "1e+309")
+        assertEx(expectFailure(expr, "1e+309"), classOf[NumberFormatException])
     }
 
     @Test
@@ -195,15 +206,6 @@ final class FlatZincParserTest extends UnitTest {
             solve_goal,
             "solve :: int_search(first_fail, indomain_max) satisfy;",
             Satisfy(List(Annotation(Term("int_search", List(Term("first_fail", Nil), Term("indomain_max", Nil)))))))
-    }
-
-    private def parseFlatZincFile(file: File): Boolean = {
-          logger.log("Parsing %s".format(file))
-          val reader = new InputStreamReader(new FileInputStream(file))
-          FlatZincParser.parse(FlatZincParser.flatzinc_model, reader) match {
-              case FlatZincParser.Success(f, rest) => true
-              case f@_ => logger.log(f.toString); false
-          }
     }
 
 }
