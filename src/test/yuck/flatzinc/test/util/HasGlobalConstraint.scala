@@ -8,6 +8,7 @@ trait HasAtLeastConstraint extends HasGlobalConstraint
 trait HasAtMostConstraint extends HasGlobalConstraint
 trait HasBinPackingConstraint extends HasGlobalConstraint
 trait HasCircuitConstraint extends HasGlobalConstraint
+trait HasConnectedConstraint extends HasGlobalConstraint
 trait HasCountConstraint extends HasGlobalConstraint
 trait HasCumulativeConstraint extends HasGlobalConstraint
 trait HasDecreasingConstraint extends HasGlobalConstraint
