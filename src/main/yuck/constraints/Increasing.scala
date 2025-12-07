@@ -21,8 +21,6 @@ abstract class Increasing
 
     protected val n = xs.size
 
-    require(n > 1)
-
     override def inVariables = xs
     override def outVariables = List(costs)
 
