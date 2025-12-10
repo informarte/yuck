@@ -5,8 +5,6 @@ import org.junit.*
 @runner.RunWith(classOf[runners.Suite])
 @runners.Suite.SuiteClasses(
     Array(
-        classOf[SimpleRandomReassignmentGeneratorTest],
         classOf[RandomReassignmentGeneratorTest],
-        classOf[RandomCircularSwapGeneratorTest],
         classOf[NeighbourhoodCollectionTest]))
 final class NeighbourhoodTestSuite

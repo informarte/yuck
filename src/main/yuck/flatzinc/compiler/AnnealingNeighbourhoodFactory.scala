@@ -260,8 +260,7 @@ final class AnnealingNeighbourhoodFactory
                     }
                     cc.logger.log("%s contributes a neighbourhood over %s".format(constraint, xs))
                         neighbourhoods +=
-                            new RandomReassignmentGenerator(
-                                cc.space, xs, randomGenerator, moveSizeDistribution, None, None)
+                            new RandomReassignmentGenerator(cc.space, xs, randomGenerator, moveSizeDistribution)
                     if neighbourhoods.size < 2 then {
                         neighbourhoods.headOption
                     } else {
@@ -295,7 +294,7 @@ final class AnnealingNeighbourhoodFactory
                 cc.logger.logg("Adding a neighbourhood over %s".format(xs))
                 val hotSpotDistribution = createHotSpotDistribution(mode, weights)
                 Some(new RandomReassignmentGenerator(
-                    cc.space, xs, randomGenerator, moveSizeDistribution, Some(hotSpotDistribution), None))
+                    cc.space, xs, randomGenerator, moveSizeDistribution, Some(hotSpotDistribution)))
             }
         } else {
             val weightedNeighbourhoods = new mutable.ArrayBuffer[(AX[V], Neighbourhood)]
@@ -312,7 +311,7 @@ final class AnnealingNeighbourhoodFactory
                     then neighbourhoodsFromImplicitConstraints.find(_.searchVariables.contains(ax.x))
                     else {
                         cc.logger.logg("Adding a neighbourhood over %s".format(ax.x))
-                        Some(new SimpleRandomReassignmentGenerator(cc.space, Vector(ax.x), randomGenerator))
+                        Some(new RandomReassignmentGenerator(cc.space, Vector(ax.x), randomGenerator))
                     }
                 if maybeNeighbourhood.isDefined then {
                     weightedNeighbourhoods += ax -> maybeNeighbourhood.get
@@ -345,7 +344,7 @@ final class AnnealingNeighbourhoodFactory
         else {
             cc.logger.logg("Adding a neighbourhood over %s".format(xs))
             Some(new RandomReassignmentGenerator(
-                cc.space, xs.toBuffer.sorted.toVector, randomGenerator, moveSizeDistribution, None, None))
+                cc.space, xs.toBuffer.sorted.toVector, randomGenerator, moveSizeDistribution))
         }
     }
 

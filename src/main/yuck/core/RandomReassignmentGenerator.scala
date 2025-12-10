@@ -27,9 +27,9 @@ final class RandomReassignmentGenerator
     (override protected val space: Space,
      xs: immutable.IndexedSeq[AnyVariable],
      randomGenerator: RandomGenerator,
-     moveSizeDistribution: Distribution,
-     maybeHotSpotDistribution: Option[Distribution],
-     maybeFairVariableChoiceRate: Option[Probability])
+     moveSizeDistribution: Distribution = Distribution(1, List(1)),
+     maybeHotSpotDistribution: Option[Distribution] = None,
+     maybeFairVariableChoiceRate: Option[Probability] = None)
     extends Neighbourhood
 {
 

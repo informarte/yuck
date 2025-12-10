@@ -110,7 +110,7 @@ final class SendMostMoney(solvingMethod: SolvingMethod) extends HelloWorldTest {
             val solver = solvingMethod match {
                 case SolvingMethod.SimulatedAnnealing =>
                     val neighbourhood =
-                        new SimpleRandomReassignmentGenerator(space, xs, randomGenerator.nextGen())
+                        new RandomReassignmentGenerator(space, xs, randomGenerator.nextGen())
                     createSimulatedAnnealingSolver(
                         solverName, space, objective, neighbourhood, randomGenerator.nextGen(), Some(new ModelData(LHS, RHS)))
                 case SolvingMethod.FeasibilityJump =>

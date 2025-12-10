@@ -30,7 +30,7 @@ class LinearConstraintBenchmark(relation: OrderingRelation, withUnitCoefficients
     private val constraint = new LinearConstraint(space.nextConstraintId(), null, axs, y, relation, z, costs)
     space.post(constraint)
     private val moveSizeDistribution = Distribution(1, for n <- numberOfTerms to 1 by -1 yield n)
-    private val neighbourhood = new RandomReassignmentGenerator(space, xs.filter(space.isSearchVariable), randomGenerator, moveSizeDistribution, None, None)
+    private val neighbourhood = new RandomReassignmentGenerator(space, xs.filter(space.isSearchVariable), randomGenerator, moveSizeDistribution)
     for x <- xs do {
         space.setValue(x, x.domain.randomValue(randomGenerator))
     }

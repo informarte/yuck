@@ -42,7 +42,7 @@ class NeighbourhoodCollectionTest
     private val (space, xs) = NeighbourhoodTestHelper.createSpace(logger, sigint, randomGenerator, domains)
     val neighbourhoods =
         for i <- 0 until numberOfVariables yield
-            new CommitChecker(space, new SimpleRandomReassignmentGenerator(space, Vector(xs(i)), randomGenerator))
+            new CommitChecker(space, new RandomReassignmentGenerator(space, Vector(xs(i)), randomGenerator))
     val neighbourhood =
         new NeighbourhoodCollection(
             space, neighbourhoods, randomGenerator, Some(moveSizeDistribution), maybeHotSpotDistribution, maybeFairChoiceRate)
