@@ -1,14 +1,18 @@
 package yuck.constraints.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.{Execution, ExecutionMode}
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.constraints.*
 import yuck.constraints.OrderingRelation.*
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
+@Execution(ExecutionMode.CONCURRENT)
 class LinearConstraintBenchmark(relation: OrderingRelation, withUnitCoefficients: Boolean) extends UnitTest {
 
     private val randomGenerator = new JavaRandomGenerator
@@ -65,7 +69,6 @@ object LinearConstraintBenchmark {
         yield
             Array(relation, withUnitCoefficients)
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
     def parameters = configurations.toArray
 
 }

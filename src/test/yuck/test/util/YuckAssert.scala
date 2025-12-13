@@ -2,60 +2,60 @@ package yuck.test.util
 
 import scala.annotation.tailrec
 
-import org.junit.Assert
+import org.junit.jupiter.api.Assertions
 
 trait YuckAssert {
 
-    protected def assert(b: Boolean): Unit = {
+    protected inline final def assert(b: Boolean): Unit = {
         if ! b then {
-            Assert.fail()
+            Assertions.fail()
         }
     }
 
-    protected def assert(message: => String, b: Boolean): Unit = {
+    protected inline final def assert(message: => String, b: Boolean): Unit = {
         if ! b then {
-            Assert.fail(message)
+            Assertions.fail(message)
         }
     }
 
-    protected def assertEq[T](a: T, b: T): Unit = {
+    protected final def assertEq[T](a: T, b: T): Unit = {
         assert("%s (testee) != %s".format(a, b), a == b)
         if a != null && b != null then {
             assert("%s.hashcode (testee) != %s.hashcode".format(a, b), a.hashCode == b.hashCode)
         }
     }
 
-    protected def assertNe[T](a: T, b: T): Unit = {
+    protected inline final def assertNe[T](a: T, b: T): Unit = {
         assert("%s (testee) == %s".format(a, b), a != b)
     }
 
-    protected def assertLe[T](a: T, b: T)(using ord: Ordering[T]): Unit = {
+    protected inline final def assertLe[T](a: T, b: T)(using ord: Ordering[T]): Unit = {
         assert("%s (testee) > %s".format(a, b), ord.compare(a, b) <= 0)
     }
 
-    protected def assertLt[T](a: T, b: T)(using ord: Ordering[T]): Unit = {
+    protected inline final def assertLt[T](a: T, b: T)(using ord: Ordering[T]): Unit = {
         assert("%s (testee) >= %s".format(a, b), ord.compare(a, b) < 0)
     }
 
-    protected def assertGe[T](a: T, b: T)(using ord: Ordering[T]): Unit = {
+    protected inline final def assertGe[T](a: T, b: T)(using ord: Ordering[T]): Unit = {
         assert("%s (testee) < %s".format(a, b), ord.compare(a, b) >= 0)
     }
 
-    protected def assertGt[T](a: T, b: T)(using ord: Ordering[T]): Unit = {
+    protected inline final def assertGt[T](a: T, b: T)(using ord: Ordering[T]): Unit = {
         assert("%s (testee) <= %s".format(a, b), ord.compare(a, b) > 0)
     }
 
     /** Expects an IllegalArgumentException. */
-    protected def assertEx(operation: => Unit): Unit = {
+    protected inline final def assertEx(operation: => Unit): Unit = {
         assertEx(operation, classOf[IllegalArgumentException])
     }
 
     /** Expects a NotImplementedError. */
-    protected def assertNie(operation: => Unit): Unit = {
+    protected inline final def assertNie(operation: => Unit): Unit = {
         assertEx(operation, classOf[NotImplementedError])
     }
 
-    protected def assertEx(operation: => Unit, expectedExceptionType: Class[? <: Throwable]): Unit = {
+    protected final def assertEx(operation: => Unit, expectedExceptionType: Class[? <: Throwable]): Unit = {
         var failed = true
         try {
             operation
@@ -68,7 +68,7 @@ trait YuckAssert {
                     findExceptionType(throwable, expectedExceptionType))
         }
         if ! failed then {
-            Assert.fail("Expected %s".format(expectedExceptionType))
+            Assertions.fail("Expected %s".format(expectedExceptionType))
         }
     }
 

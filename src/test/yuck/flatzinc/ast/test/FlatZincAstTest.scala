@@ -1,6 +1,6 @@
 package yuck.flatzinc.ast.test
 
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 import yuck.flatzinc.ast.*
 import yuck.test.util.UnitTest

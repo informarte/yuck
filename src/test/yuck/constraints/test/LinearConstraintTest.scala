@@ -1,13 +1,14 @@
 package yuck.constraints.test
 
-import org.junit.*
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.constraints.*
 import yuck.constraints.OrderingRelation.*
 import yuck.core.*
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class LinearConstraintTest
     (override protected val relation: OrderingRelation,
      override protected val costsDomain: BooleanDomain)
@@ -32,7 +33,6 @@ object LinearConstraintTest {
         yield
             Array(relation, costsDomain)
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
     def parameters = configurations.toArray
 
 }

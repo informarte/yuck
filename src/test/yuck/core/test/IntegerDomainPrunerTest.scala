@@ -2,12 +2,13 @@ package yuck.core.test
 
 import scala.annotation.tailrec
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.{Execution, ExecutionMode}
 
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(org.junit.runners.MethodSorters.NAME_ASCENDING)
+@Execution(ExecutionMode.CONCURRENT)
 class IntegerDomainPrunerTest extends UnitTest {
 
     @tailrec

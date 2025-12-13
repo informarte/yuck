@@ -1,6 +1,8 @@
 package yuck.constraints.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.*
@@ -8,8 +10,8 @@ import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with ConstraintTestTooling {
 
     private val randomGenerator = new JavaRandomGenerator
@@ -278,7 +280,6 @@ object InverseTest {
     private def offsets = List(-1, 0, 1).map(Integer.valueOf)
     private def configurations = for fOffset <- offsets; gOffset <- offsets yield Array(fOffset, gOffset)
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
     def parameters = configurations.toArray
 
 }

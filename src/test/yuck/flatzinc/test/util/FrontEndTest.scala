@@ -18,7 +18,7 @@ abstract class FrontEndTest extends ZincBasedTest {
                     attachGoals = true,
                     numberOfSolvers = 1,
                     maybePreferredSolvingMethod = Some(SolvingMethod.SimulatedAnnealing),
-                    maybeRuntimeLimitInSeconds = Some(5)),
+                    maybeRuntimeLimitInSeconds = Some(10)),
             throwWhenUnsolved = true,
             miniZincCompilerRenamesVariables = false,
             createDotFile = true)

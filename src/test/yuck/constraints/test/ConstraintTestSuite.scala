@@ -1,11 +1,11 @@
 package yuck.constraints.test
 
-import org.junit.*
+import org.junit.platform.suite.api.{SelectClasses, Suite}
 
 import yuck.constraints.test.util.test.ConstraintTestToolingTest
 
-@runner.RunWith(classOf[runners.Suite])
-@runners.Suite.SuiteClasses(
+@Suite
+@SelectClasses(
     Array(
         classOf[ConstraintTestToolingTest],
         classOf[BasicNumericalConstraintsTest],

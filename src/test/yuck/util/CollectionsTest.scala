@@ -1,11 +1,10 @@
 package yuck.util
 
-import org.junit.*
+import org.junit.jupiter.api.Test
 
 import yuck.test.util.UnitTest
 import yuck.util.Collections.*
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class CollectionsTest extends UnitTest {
 
     @Test

@@ -2,7 +2,7 @@ package yuck.flatzinc.parser.test
 
 import java.io.{File, FileInputStream, InputStreamReader}
 
-import org.junit.{Assert, Test}
+import org.junit.jupiter.api.{Assertions, Test}
 
 import yuck.flatzinc.ast.*
 import yuck.flatzinc.parser.*
@@ -15,16 +15,16 @@ final class FlatZincParserTest extends UnitTest {
     private def expectSuccess[Result](parser: Parser[Result], input: String, expectation: Result): Unit = {
         parseAll(parser, input) match {
             case FlatZincParser.Success(result, rest) =>
-                Assert.assertEquals(expectation, result)
+                Assertions.assertEquals(expectation, result)
             case _ =>
-                Assert.fail("Failed to parse '%s'".format(input))
+                Assertions.fail("Failed to parse '%s'".format(input))
         }
     }
 
     private def expectFailure[Result](parser: Parser[Result], input: String): Unit = {
         parseAll(parser, input) match {
             case FlatZincParser.Success(result, rest) =>
-                Assert.fail("'%s' was parsed unexpectedly".format(input))
+                Assertions.fail("'%s' was parsed unexpectedly".format(input))
             case _ =>
         }
     }

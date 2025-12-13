@@ -1,11 +1,12 @@
 package yuck.core.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.{Execution, ExecutionMode}
 
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
+@Execution(ExecutionMode.CONCURRENT)
 final class IntegerSetDomainTest extends UnitTest {
 
     // Test strategy:

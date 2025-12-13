@@ -1,17 +1,16 @@
 package yuck.test
 
-import org.junit.*
+import org.junit.platform.suite.api.{SelectClasses, Suite}
 
 import yuck.constraints.test.*
 import yuck.core.test.*
 import yuck.flatzinc.ast.test.*
 import yuck.flatzinc.parser.test.*
-import yuck.test.util.ParallelTestSuiteRunner
 import yuck.util.CollectionsTest
 import yuck.util.alg.rtree.test.*
 
-@runner.RunWith(classOf[ParallelTestSuiteRunner])
-@runners.Suite.SuiteClasses(
+@Suite
+@SelectClasses(
     Array(
         classOf[CollectionsTest],
         classOf[ProbabilityTest],

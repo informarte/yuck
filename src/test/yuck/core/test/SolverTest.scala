@@ -1,13 +1,11 @@
 package yuck.core.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
 
 import yuck.core.*
 import yuck.test.util.UnitTest
 import yuck.util.arm.{RevocableSigint, Sigint}
 
-
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class SolverTest extends UnitTest {
 
     private class TestResult(

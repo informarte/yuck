@@ -1,6 +1,9 @@
 package yuck.test
 
-import org.junit.*
+
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.constraints.*
 import yuck.core.*
@@ -10,10 +13,9 @@ import yuck.{SolvingMethod, annealing}
 /**
  * The classic n-queens problem
  */
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class Queens(val n: Int, solvingMethod: SolvingMethod) extends HelloWorldTest {
-
-    override protected val logToConsole = false
 
     private final class QueensGenerator(n: Int, i: Int, seed: Int) extends SolverGenerator {
         override def solverName = "%s-%d".format(solvingMethod, i)
@@ -95,7 +97,6 @@ object Queens {
         yield
             Array(n, solvingMethod)
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
     def parameters = configurations.toArray
 
 }

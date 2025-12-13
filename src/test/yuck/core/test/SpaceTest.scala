@@ -2,12 +2,11 @@ package yuck.core.test
 
 import scala.collection.*
 
-import org.junit.*
+import org.junit.jupiter.api.Test
 
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class SpaceTest extends UnitTest {
 
     @Test

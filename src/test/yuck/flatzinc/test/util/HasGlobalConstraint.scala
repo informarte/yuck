@@ -1,36 +1,36 @@
 package yuck.flatzinc.test.util
 
-trait HasGlobalConstraint
-
-trait HasAllDifferentConstraint extends HasGlobalConstraint
-trait HasAllDifferentExceptConstraint extends HasGlobalConstraint
-trait HasAtLeastConstraint extends HasGlobalConstraint
-trait HasAtMostConstraint extends HasGlobalConstraint
-trait HasBinPackingConstraint extends HasGlobalConstraint
-trait HasCircuitConstraint extends HasGlobalConstraint
-trait HasConnectedConstraint extends HasGlobalConstraint
-trait HasCountConstraint extends HasGlobalConstraint
-trait HasCumulativeConstraint extends HasGlobalConstraint
-trait HasDecreasingConstraint extends HasGlobalConstraint
-trait HasDeliveryConstraint extends HasGlobalConstraint
-trait HasDiffnConstraint extends HasGlobalConstraint
-trait HasDisjunctiveConstraint extends HasGlobalConstraint
-trait HasElementConstraint extends HasGlobalConstraint
-trait HasExactlyConstraint extends HasGlobalConstraint
-trait HasGlobalCardinalityConstraint extends HasGlobalConstraint
-trait HasIncreasingConstraint extends HasGlobalConstraint
-trait HasInverseConstraint extends HasGlobalConstraint
-trait HasKnapsackConstraint extends HasGlobalConstraint
-trait HasLexLessConstraint extends HasGlobalConstraint
-trait HasLexLessEqConstraint extends HasGlobalConstraint
-trait HasMaximumConstraint extends HasGlobalConstraint
-trait HasMemberConstraint extends HasGlobalConstraint
-trait HasNetworkFlowCostConstraint extends HasGlobalConstraint
-trait HasMinimumConstraint extends HasGlobalConstraint
-trait HasNValueConstraint extends HasGlobalConstraint
-trait HasRegularConstraint extends HasGlobalConstraint
-trait HasSlidingSumConstraint extends HasGlobalConstraint
-trait HasSubcircuitConstraint extends HasGlobalConstraint
-trait HasTableConstraint extends HasGlobalConstraint
-trait HasValuePrecedeConstraint extends HasGlobalConstraint
-trait HasValuePrecedeChainConstraint extends HasGlobalConstraint
+object HasGlobalConstraint {
+    final val HasAllDifferentConstraint = "HasAllDifferentConstraint"
+    final val HasAllDifferentExceptConstraint = "HasAllDifferentExceptConstraint"
+    final val HasAtLeastConstraint = "HasAtLeastConstraint"
+    final val HasAtMostConstraint = "HasAtMostConstraint"
+    final val HasBinPackingConstraint = "HasBinPackingConstraint"
+    final val HasCircuitConstraint = "HasCircuitConstraint"
+    final val HasConnectedConstraint = "HasConnectedConstraint"
+    final val HasCountConstraint = "HasCountConstraint"
+    final val HasCumulativeConstraint = "HasCumulativeConstraint"
+    final val HasDecreasingConstraint = "HasDecreasingConstraint"
+    final val HasDeliveryConstraint = "HasDeliveryConstraint"
+    final val HasDiffnConstraint = "HasDiffnConstraint"
+    final val HasDisjunctiveConstraint = "HasDisjunctiveConstraint"
+    final val HasElementConstraint = "HasElementConstraint"
+    final val HasExactlyConstraint = "HasExactlyConstraint"
+    final val HasGlobalCardinalityConstraint = "HasGlobalCardinalityConstraint"
+    final val HasIncreasingConstraint = "HasIncreasingConstraint"
+    final val HasInverseConstraint = "HasInverseConstraint"
+    final val HasKnapsackConstraint = "HasKnapsackConstraint"
+    final val HasLexLessConstraint = "HasLexLessConstraint"
+    final val HasLexLessEqConstraint = "HasLexLessEqConstraint"
+    final val HasMaximumConstraint = "HasMaximumConstraint"
+    final val HasMemberConstraint = "HasMemberConstraint"
+    final val HasNetworkFlowCostConstraint = "HasNetworkFlowCostConstraint"
+    final val HasMinimumConstraint = "HasMinimumConstraint"
+    final val HasNValueConstraint = "HasNValueConstraint"
+    final val HasRegularConstraint = "HasRegularConstraint"
+    final val HasSlidingSumConstraint = "HasSlidingSumConstraint"
+    final val HasSubcircuitConstraint = "HasSubcircuitConstraint"
+    final val HasTableConstraint = "HasTableConstraint"
+    final val HasValuePrecedeConstraint = "HasValuePrecedeConstraint"
+    final val HasValuePrecedeChainConstraint = "HasValuePrecedeChainConstraint"
+}

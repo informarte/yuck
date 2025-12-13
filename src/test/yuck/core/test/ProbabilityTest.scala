@@ -1,12 +1,11 @@
 package yuck.core.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
 
 import yuck.core.Probability
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class ProbabilityTest extends UnitTest {
+final class ProbabilityTest extends UnitTest {
 
     @Test
     def testCreationFromFloatValue(): Unit = {

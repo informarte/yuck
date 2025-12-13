@@ -2,12 +2,11 @@ package yuck.util.alg.rtree.test
 
 import com.conversantmedia.util.collection.geometry.Rect2d
 import com.conversantmedia.util.collection.spatial.SpatialSearches
-import org.junit.*
+import org.junit.jupiter.api.Test
 
 import yuck.test.util.UnitTest
 import yuck.util.alg.rtree.RTreeTransaction
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class RTreeTransactionTest extends UnitTest {
 
     private val rectBuilder = new Rect2d.Builder

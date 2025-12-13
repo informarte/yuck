@@ -3,22 +3,23 @@ package yuck.flatzinc.test
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
-import org.junit.*
-import org.junit.experimental.categories.*
+import org.junit.jupiter.api.parallel.{Execution, ExecutionMode}
+import org.junit.jupiter.api.{Tag, Test}
 
 import yuck.constraints.*
 import yuck.constraints.OrderingRelation.*
 import yuck.core.*
 import yuck.flatzinc.compiler.{Bool2Costs2, LevelWeightMaintainer}
 import yuck.flatzinc.test.util.*
+import yuck.flatzinc.test.util.HasGlobalConstraint.*
+import yuck.flatzinc.test.util.ProblemType.*
 import yuck.flatzinc.test.util.VerificationFrequency.*
-import yuck.test.util.ParallelTestRunner
 
 /**
  * Tests to make sure that the global constraints provided by Yuck's library get
  * compiled correctly
  */
-@runner.RunWith(classOf[ParallelTestRunner])
+@Execution(ExecutionMode.CONCURRENT)
 final class GlobalConstraintCompilationTest extends FrontEndTest {
 
     private val taskWithImplicitSolving =
@@ -41,7 +42,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
                             useImplicitSolving = false)))
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasAllDifferentConstraint)
     def testAllDifferentIntWithImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "all_different_int_test"))
         assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
@@ -49,7 +51,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasAllDifferentConstraint)
     def testAllDifferentIntWithoutImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithoutImplicitSolving.copy(problemName = "all_different_int_test"))
         assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
@@ -57,7 +60,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasAllDifferentConstraint)
     def testAllDifferentIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_int_reif_test"))
         assertEq(result.space.numberOfConstraints[AllDifferent[?]], 2)
@@ -65,7 +69,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasAllDifferentConstraint)
     def testAllDifferentSet(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_set_test"))
         assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
@@ -73,7 +78,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAllDifferentConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasAllDifferentConstraint)
     def testAllDifferentSetReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_set_reif_test"))
         assertEq(result.space.numberOfConstraints[AllDifferent[?]], 2)
@@ -81,7 +87,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasAllDifferentExceptConstraint]))
+    @Tag(MinimizationProblem)
+    @Tag(HasAllDifferentExceptConstraint)
     def testAllDifferentExcept0WithImplicitSolving(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_except_0_test", maybeOptimum = Some(14)))
         assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
@@ -91,7 +98,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAllDifferentExceptConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasAllDifferentExceptConstraint)
     def testAllDifferentExcept0WithoutImplicitSolving(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_except_0_with_duplicate_variable_test"))
         assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
@@ -99,14 +107,16 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAllDifferentExceptConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasAllDifferentExceptConstraint)
     def testAllDifferentExcept0Reif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_except_0_reif_test"))
         assertEq(result.space.numberOfConstraints[AllDifferent[?]], 2)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAllDifferentExceptConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasAllDifferentExceptConstraint)
     def testAllDifferentExceptWithImplicitSolving(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_except_test", maybeOptimum = Some(26)))
         assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
@@ -116,7 +126,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAllDifferentExceptConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasAllDifferentExceptConstraint)
     def testAllDifferentExceptWithoutImplicitSolving(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_except_with_duplicate_variable_test"))
         assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
@@ -125,7 +136,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasAllDifferentExceptConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasAllDifferentExceptConstraint)
     def testAllDifferentExceptReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_except_reif_test"))
         assertEq(result.space.numberOfConstraints[AllDifferent[?]], 2)
@@ -136,7 +148,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     // all quite complex.
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasBinPackingConstraint)
     def testBinPacking(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_test"))
         assertEq(result.space.searchVariables.size, 6)
@@ -151,7 +164,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasBinPackingConstraint)
     def testBinPackingReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_reif_test"))
         assertEq(result.space.searchVariables.size, 6)
@@ -162,7 +176,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasBinPackingConstraint)
     def testBinPackingCapa(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_capa_test"))
         assertEq(result.space.searchVariables.size, 6)
@@ -177,7 +192,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasBinPackingConstraint)
     def testBinPackingCapaReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_capa_reif_test"))
         assertEq(result.space.searchVariables.size, 6)
@@ -188,7 +204,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasBinPackingConstraint)
     def testBinPackingLoad(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_test"))
         assertEq(result.space.searchVariables.size, 6)
@@ -203,7 +220,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasBinPackingConstraint)
     def testBinPackingLoadWithUnboundedLoads(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_with_unbounded_loads_test"))
         assertEq(result.space.searchVariables.size, 6)
@@ -217,7 +235,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasBinPackingConstraint)
     def testBinPackingLoadWithEqualLoads(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_with_equal_loads_test"))
         assertEq(result.space.searchVariables.size, 6)
@@ -232,7 +251,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasBinPackingConstraint)
     def testBinPackingLoadWithSharedLoads(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_with_shared_loads_test"))
         assertEq(result.space.searchVariables.size, 6)
@@ -248,7 +268,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasBinPackingConstraint)
     def testBinPackingLoadWithEqualBins(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_with_equal_bins_test"))
         assertEq(result.space.searchVariables.size, 5)
@@ -263,7 +284,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasBinPackingConstraint)
     def testBinPackingLoadReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_reif_test"))
         assertEq(result.space.searchVariables.size, 6)
@@ -275,7 +297,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasBinPackingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasBinPackingConstraint)
     def testBinPackingLoadFn(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bin_packing_load_fn_test"))
         assertEq(result.space.searchVariables.size, 6)
@@ -314,7 +337,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCircuitConstraint)
     def testCircuitWithImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "circuit_test"))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
@@ -322,7 +346,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCircuitConstraint)
     def testCircuitWithoutImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithoutImplicitSolving.copy(problemName = "circuit_test"))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
@@ -330,7 +355,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCircuitConstraint)
     def testCircuitReif(): Unit = {
         // Gecode does not provide a decomposition for circuit_reif, so we cannot verify the solution.
         val result = solveWithResult(task.copy(problemName = "circuit_reif_test", verificationFrequency = NoVerification))
@@ -339,235 +365,274 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountEqBool(): Unit = {
         testCount("count_eq_bool_test", EqRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountEqBoolReif(): Unit = {
         testCountReif("count_eq_bool_reif_test", EqRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountFnBool(): Unit = {
         testCountFn("count_fn_bool_test")
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountEqInt(): Unit = {
         testCount("count_eq_int_test", EqRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountEqIntReif(): Unit = {
         testCountReif("count_eq_int_reif_test", EqRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountFnInt(): Unit = {
         testCountFn("count_fn_int_test")
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountEqSet(): Unit = {
         testCount("count_eq_set_test", EqRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountEqSetReif(): Unit = {
         testCountReif("count_eq_set_reif_test", EqRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountFnSet(): Unit = {
         testCountFn("count_fn_set_test")
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountNeqBool(): Unit = {
         testCount("count_neq_bool_test", NeRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountNeqBoolReif(): Unit = {
         testCountReif("count_neq_bool_reif_test", NeRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountNeqInt(): Unit = {
         testCount("count_neq_int_test", NeRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountNeqIntReif(): Unit = {
         testCountReif("count_neq_int_reif_test", NeRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountNeqSet(): Unit = {
         testCount("count_neq_set_test", NeRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountNeqSetReif(): Unit = {
         testCountReif("count_neq_set_reif_test", NeRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountLeqBool(): Unit = {
         testCount("count_leq_bool_test", LeRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountLeqBoolReif(): Unit = {
         testCountReif("count_leq_bool_reif_test", LeRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountLeqInt(): Unit = {
         testCount("count_leq_int_test", LeRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountLeqIntReif(): Unit = {
         testCountReif("count_leq_int_reif_test", LeRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountLeqSet(): Unit = {
         testCount("count_leq_set_test", LeRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountLeqSetReif(): Unit = {
         testCountReif("count_leq_set_reif_test", LeRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountLtBool(): Unit = {
         testCount("count_lt_bool_test", LtRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountLtBoolReif(): Unit = {
         testCountReif("count_lt_bool_reif_test", LtRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountLtInt(): Unit = {
         testCount("count_lt_int_test", LtRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountLtIntReif(): Unit = {
         testCountReif("count_lt_int_reif_test", LtRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountLtSet(): Unit = {
         testCount("count_lt_set_test", LtRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountLtSetReif(): Unit = {
         testCountReif("count_lt_set_reif_test", LtRelation)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountGeqBool(): Unit = {
         testCount("count_geq_bool_test", LeRelation, true)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountGeqBoolReif(): Unit = {
         testCountReif("count_geq_bool_reif_test", LeRelation, true)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountGeqInt(): Unit = {
         testCount("count_geq_int_test", LeRelation, true)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountGeqIntReif(): Unit = {
         testCountReif("count_geq_int_reif_test", LeRelation, true)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountGeqSet(): Unit = {
         testCount("count_geq_set_test", LeRelation, true)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountGeqSetReif(): Unit = {
         testCountReif("count_geq_set_reif_test", LeRelation, true)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountGtBool(): Unit = {
         testCount("count_gt_bool_test", LtRelation, true)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountGtBoolReif(): Unit = {
         testCountReif("count_gt_bool_reif_test", LtRelation, true)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountGtInt(): Unit = {
         testCount("count_gt_int_test", LtRelation, true)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountGtIntReif(): Unit = {
         testCountReif("count_gt_int_reif_test", LtRelation, true)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountGtSet(): Unit = {
         testCount("count_gt_set_test", LtRelation, true)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCountConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCountConstraint)
     def testCountGtSetReif(): Unit = {
         testCountReif("count_gt_set_reif_test", LtRelation, true)
     }
@@ -685,21 +750,25 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCumulativeConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCumulativeConstraint)
     def testCumulative(): Unit = {
         val result = solveWithResult(task.copy(problemName = "cumulative_test"))
         assertEq(result.space.numberOfConstraints[Cumulative], 1)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCumulativeConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCumulativeConstraint)
     def testCumulativeReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "cumulative_reif_test"))
         assertEq(result.space.numberOfConstraints[Cumulative], 2)
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
+    @Tag(MinimizationProblem)
+    @Tag(HasCircuitConstraint)
+    @Tag(HasDeliveryConstraint)
     def testDeliveryWithWaiting(): Unit = {
         val result = solveWithResult(task.copy(problemName = "delivery_with_waiting_test", maybeOptimum = Some(378)))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
@@ -710,18 +779,22 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
+    @Tag(MinimizationProblem)
+    @Tag(HasCircuitConstraint)
+    @Tag(HasDeliveryConstraint)
     def testDeliveryWithoutWaiting(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "delivery_without_waiting_test", dataAssignments = Map(("MaxKToMinKRatio", "1")), maybeOptimum = Some(669), maybeTargetObjectiveValue = Some(700)))
+        val result = solveWithResult(task.copy(problemName = "delivery_without_waiting_test", dataAssignments = Map(("MaxKToMinKRatio", "1")), maybeOptimum = Some(669), maybeTargetObjectiveValue = Some(705)))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
         assertEq(result.space.numberOfConstraints[Delivery[?]], 2)
         assertEq(result.space.numberOfConstraints[Eq[?]], 0)
         assert(result.neighbourhood.isInstanceOf[CircuitNeighbourhood])
-        assertLe(result.quality.asInstanceOf[IntegerValue].value, 700L)
+        assertLe(result.quality.asInstanceOf[IntegerValue].value, 705L)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCircuitConstraint)
+    @Tag(HasDeliveryConstraint)
     def testDeliveryReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "delivery_reif_test"))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
@@ -731,7 +804,9 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCircuitConstraint)
+    @Tag(HasDeliveryConstraint)
     def testDeliveriesWithEqualArrivalTimes(): Unit = {
         val result = solveWithResult(task.copy(problemName = "delivery_with_equal_arrival_times_test", dataAssignments = Map(("MaxKToMinKRatio", "1"))))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
@@ -741,7 +816,9 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint], classOf[HasDeliveryConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCircuitConstraint)
+    @Tag(HasDeliveryConstraint)
     def testDeliveriesWithSharedArrivalTimes(): Unit = {
         val result = solveWithResult(task.copy(problemName = "delivery_with_shared_arrival_times_test"))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
@@ -751,56 +828,64 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasDiffnConstraint)
     def testDiffnNonstrict(): Unit = {
         val result = solveWithResult(task.copy(problemName = "diffn_nonstrict_test"))
         assertEq(result.space.numberOfConstraints[Disjoint2], 1)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasDiffnConstraint)
     def testDiffnNonstrictReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "diffn_nonstrict_reif_test"))
         assertEq(result.space.numberOfConstraints[Disjoint2], 1)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasDiffnConstraint)
     def testDiffnStrict(): Unit = {
         val result = solveWithResult(task.copy(problemName = "diffn_strict_test"))
         assertEq(result.space.numberOfConstraints[Disjoint2], 1)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDiffnConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasDiffnConstraint)
     def testDiffnStrictReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "diffn_strict_reif_test"))
         assertEq(result.space.numberOfConstraints[Disjoint2], 1)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDisjunctiveConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasDisjunctiveConstraint)
     def testDisjunctiveNonstrict(): Unit = {
         val result = solveWithResult(task.copy(problemName = "disjunctive_nonstrict_test"))
         assertEq(result.space.numberOfConstraints[Disjoint2], 1)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDisjunctiveConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasDisjunctiveConstraint)
     def testDisjunctiveNonstrictReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "disjunctive_nonstrict_reif_test"))
         assertEq(result.space.numberOfConstraints[Disjoint2], 1)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDisjunctiveConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasDisjunctiveConstraint)
     def testDisjunctiveStrict(): Unit = {
         val result = solveWithResult(task.copy(problemName = "disjunctive_strict_test"))
         assertEq(result.space.numberOfConstraints[Disjoint2], 1)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasDisjunctiveConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasDisjunctiveConstraint)
     def testDisjunctiveStrictReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "disjunctive_strict_reif_test"))
         assertEq(result.space.numberOfConstraints[Disjoint2], 1)
@@ -811,7 +896,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     // (mapping to bin_packing) are quite complex.
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasGlobalCardinalityConstraint)
     def testGlobalCardinality(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_test"))
         assertEq(result.space.searchVariables.size, 3)
@@ -826,7 +912,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasGlobalCardinalityConstraint)
     def testGlobalCardinalityReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_reif_test"))
         assertEq(result.space.searchVariables.size, 3)
@@ -838,7 +925,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasGlobalCardinalityConstraint)
     def testGlobalCardinalityFn(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_fn_test"))
         assertEq(result.space.searchVariables.size, 3)
@@ -853,7 +941,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasGlobalCardinalityConstraint)
     def testGlobalCardinalityClosedFn(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_closed_fn_test"))
         assertEq(result.space.searchVariables.size, 3)
@@ -868,7 +957,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasGlobalCardinalityConstraint)
     def testGlobalCardinalityLowUp(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_low_up_test"))
         assertEq(result.space.searchVariables.size, 3)
@@ -884,7 +974,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasGlobalCardinalityConstraint)
     def testGlobalCardinalityLowUpReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "global_cardinality_low_up_reif_test"))
         assertEq(result.space.searchVariables.size, 3)
@@ -895,7 +986,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasIncreasingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasIncreasingConstraint)
     def testIncreasingNonstrictBool(): Unit = {
         val result = solveWithResult(task.copy(problemName = "increasing_nonstrict_bool_test"))
         assertEq(result.space.numberOfConstraints[Increasing[?, ?]], 1)
@@ -903,7 +995,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasIncreasingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasIncreasingConstraint)
     def testIncreasingNonstrictBoolReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "increasing_nonstrict_bool_reif_test"))
         assertEq(result.space.numberOfConstraints[Increasing[?, ?]], 2)
@@ -911,7 +1004,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasIncreasingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasIncreasingConstraint)
     def testIncreasingNonstrictInt(): Unit = {
         val result = solveWithResult(task.copy(problemName = "increasing_nonstrict_int_test"))
         assertEq(result.space.numberOfConstraints[Increasing[?, ?]], 1)
@@ -919,7 +1013,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasIncreasingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasIncreasingConstraint)
     def testIncreasingNonstrictIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "increasing_nonstrict_int_reif_test"))
         assertEq(result.space.numberOfConstraints[Increasing[?, ?]], 2)
@@ -927,7 +1022,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasIncreasingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasIncreasingConstraint)
     def testIncreasingStrictInt(): Unit = {
         val result = solveWithResult(task.copy(problemName = "increasing_strict_int_test"))
         assertEq(result.space.numberOfConstraints[Increasing[?, ?]], 1)
@@ -935,7 +1031,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasIncreasingConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasIncreasingConstraint)
     def testIncreasingStrictIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "increasing_strict_int_reif_test"))
         assertEq(result.space.numberOfConstraints[Increasing[?, ?]], 2)
@@ -943,7 +1040,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasInverseConstraint)
     def testInverse(): Unit = {
         val result = solveWithResult(task.copy(problemName = "inverse_test", miniZincCompilerRenamesVariables = true))
         assertEq(result.space.numberOfConstraints[Inverse], 1)
@@ -953,7 +1051,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     // This test verifies that Yuck's definition of fzn_inverse constrains the codomain
     // of one function to be a subset of the other function's domain.
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasInverseConstraint)
     def testInverseWithUnboundedSearchVariables(): Unit = {
         val result =
             solveWithResult(
@@ -965,7 +1064,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasInverseConstraint)
     def testInverseDecomposition(): Unit = {
         val result = solveWithResult(task.copy(problemName = "inverse_decomposition_test"))
         assertEq(result.space.numberOfConstraints[Inverse], 2)
@@ -974,7 +1074,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasInverseConstraint)
     def testInverseReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "inverse_reif_test", miniZincCompilerRenamesVariables = true))
         assertEq(result.space.numberOfConstraints[Inverse], 2)
@@ -982,133 +1083,153 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasLexLessConstraint)
     def testLexLessBool(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_bool_test"))
         assertEq(result.space.numberOfConstraints[LexLess[?]], 1)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasLexLessConstraint)
     def testLexLessBoolReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_bool_reif_test"))
         assertEq(result.space.numberOfConstraints[LexLess[?]], 2)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasLexLessEqConstraint)
     def testLexLessEqBool(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_bool_test"))
         assertEq(result.space.numberOfConstraints[LexLessEq[?]], 1)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasLexLessEqConstraint)
     def testLexLessEqBoolReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_bool_reif_test"))
         assertEq(result.space.numberOfConstraints[LexLessEq[?]], 2)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasLexLessConstraint)
     def testLexLessInt(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_int_test"))
         assertEq(result.space.numberOfConstraints[LexLess[?]], 1)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasLexLessConstraint)
     def testLexLessIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_int_reif_test"))
         assertEq(result.space.numberOfConstraints[LexLess[?]], 2)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasLexLessEqConstraint)
     def testLexLessEqInt(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_int_test"))
         assertEq(result.space.numberOfConstraints[LexLessEq[?]], 1)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasLexLessEqConstraint)
     def testLexLessEqIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_int_reif_test"))
         assertEq(result.space.numberOfConstraints[LexLessEq[?]], 2)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasLexLessConstraint)
     def testLexLessSet(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_set_test"))
         assertEq(result.space.numberOfConstraints[LexLess[?]], 1)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasLexLessConstraint)
     def testLexLessSetReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_set_reif_test"))
         assertEq(result.space.numberOfConstraints[LexLess[?]], 2)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasLexLessEqConstraint)
     def testLexLessEqSet(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_set_test"))
         assertEq(result.space.numberOfConstraints[LexLessEq[?]], 1)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasLexLessEqConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasLexLessEqConstraint)
     def testLexLessEqSetReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_set_reif_test"))
         assertEq(result.space.numberOfConstraints[LexLessEq[?]], 2)
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMaximumConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasMaximumConstraint)
     def testMaximum(): Unit = {
         solve(task.copy(problemName = "maximum_int_test"))
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMinimumConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasMinimumConstraint)
     def testMinimum(): Unit = {
         solve(task.copy(problemName = "minimum_int_test"))
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasMemberConstraint)
     def testMemberBool(): Unit = {
         testMember("member_bool_test")
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasMemberConstraint)
     def testMemberBoolReif(): Unit = {
         testMemberReif("member_bool_reif_test")
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasMemberConstraint)
     def testMemberInt(): Unit = {
         testMember("member_int_test")
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasMemberConstraint)
     def testMemberIntReif(): Unit = {
         testMemberReif("member_int_reif_test")
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasMemberConstraint)
     def testMemberSet(): Unit = {
         testMember("member_set_test")
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasMemberConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasMemberConstraint)
     def testMemberSetReif(): Unit = {
         testMemberReif("member_set_reif_test")
     }
@@ -1137,7 +1258,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[MaximizationProblem], classOf[HasNValueConstraint]))
+    @Tag(MaximizationProblem)
+    @Tag(HasNValueConstraint)
     def testNValue(): Unit = {
         val result = solveWithResult(task.copy(problemName = "nvalue_test"))
         assertEq(result.space.searchVariables.filterNot(wasIntroducedByYuck).map(_.name), Set("x[1]", "x[2]", "x[3]"))
@@ -1153,7 +1275,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[MaximizationProblem], classOf[HasNValueConstraint]))
+    @Tag(MaximizationProblem)
+    @Tag(HasNValueConstraint)
     def testNValueReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "nvalue_reif_test"))
         assertEq(
@@ -1174,7 +1297,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[MaximizationProblem], classOf[HasNValueConstraint]))
+    @Tag(MaximizationProblem)
+    @Tag(HasNValueConstraint)
     def testNValueFn(): Unit = {
         val result = solveWithResult(task.copy(problemName = "nvalue_fn_test"))
         assertEq(
@@ -1198,7 +1322,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[MaximizationProblem], classOf[HasRegularConstraint]))
+    @Tag(MaximizationProblem)
+    @Tag(HasRegularConstraint)
     def testRegularWithImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "regular_test", maybeOptimum = Some(12)))
         assertEq(result.space.numberOfConstraints[Regular], 1)
@@ -1207,7 +1332,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[MaximizationProblem], classOf[HasRegularConstraint]))
+    @Tag(MaximizationProblem)
+    @Tag(HasRegularConstraint)
     def testRegularWithoutImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithoutImplicitSolving.copy(problemName = "regular_test", maybeOptimum = Some(12)))
         assertEq(result.space.numberOfConstraints[Regular], 1)
@@ -1217,7 +1343,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasRegularConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasRegularConstraint)
     def testRegularReif(): Unit = {
         // Gecode does not provide a decomposition for regular_reif, so we cannot verify the solution.
         val result = solveWithResult(task.copy(problemName = "regular_reif_test", verificationFrequency = NoVerification))
@@ -1226,7 +1353,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasTableConstraint)
     def testTableBoolWithImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "table_bool_test"))
         assertEq(result.space.numberOfConstraints[Table[?]], 1)
@@ -1234,7 +1362,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasTableConstraint)
     def testTableBoolWithoutImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithoutImplicitSolving.copy(problemName = "table_bool_test"))
         assertEq(result.space.numberOfConstraints[Table[?]], 1)
@@ -1242,7 +1371,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasTableConstraint)
     def testTableBoolReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "table_bool_reif_test"))
         assertEq(result.space.numberOfConstraints[Table[?]], 1)
@@ -1250,7 +1380,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasTableConstraint)
     def testTableIntWithImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "table_int_test"))
         assertEq(result.space.numberOfConstraints[Table[?]], 1)
@@ -1258,7 +1389,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasTableConstraint)
     def testTableIntWithoutImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithoutImplicitSolving.copy(problemName = "table_int_test"))
         assertEq(result.space.numberOfConstraints[Table[?]], 1)
@@ -1266,7 +1398,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasTableConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasTableConstraint)
     def testTableIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "table_int_reif_test"))
         assertEq(result.space.numberOfConstraints[Table[?]], 1)

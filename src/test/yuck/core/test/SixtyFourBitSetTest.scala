@@ -1,11 +1,10 @@
 package yuck.core.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
 
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(org.junit.runners.MethodSorters.NAME_ASCENDING)
 final class SixtyFourBitSetTest extends UnitTest {
 
     private val baseRange = SixtyFourBitSet.ValueRange

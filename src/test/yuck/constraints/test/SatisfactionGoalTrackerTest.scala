@@ -1,14 +1,13 @@
 package yuck.constraints.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
 
 import yuck.constraints.*
 import yuck.core.*
 import yuck.test.util.UnitTest
 import yuck.util.Collections.*
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-class SatisfactionGoalTrackerTest extends UnitTest {
+final class SatisfactionGoalTrackerTest extends UnitTest {
 
     @Test
     def testTracking(): Unit = {

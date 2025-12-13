@@ -1,12 +1,12 @@
 package yuck.flatzinc.test
 
-import org.junit.*
+import org.junit.platform.suite.api.{SelectClasses, Suite}
 
 /**
  * Test suite that exercises Yuck's FlatZinc front end
  */
-@runner.RunWith(classOf[runners.Suite])
-@runners.Suite.SuiteClasses(
+@Suite
+@SelectClasses(
     Array(
         classOf[FlatZincBaseTest],
         classOf[FlatZincExtensionTest],

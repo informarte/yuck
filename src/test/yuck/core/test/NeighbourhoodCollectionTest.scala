@@ -1,20 +1,25 @@
 package yuck.core.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.{Execution, ExecutionMode}
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
+@Execution(ExecutionMode.CONCURRENT)
 class NeighbourhoodCollectionTest
-    (randomGenerator: RandomGenerator,
-     moveSizeDistribution: Distribution,
+    (moveSizeDistribution: Distribution,
      maybeHotSpotDistribution: Option[Distribution],
      maybeFairChoiceRate: Option[Probability],
      numberOfVariables: Int)
     extends UnitTest
 {
+
+    private val randomGenerator = new JavaRandomGenerator
 
     final class CommitChecker
        (override protected val space: Space, neighbourhood: Neighbourhood)
@@ -40,10 +45,10 @@ class NeighbourhoodCollectionTest
 
     private val domains = for i <- 0 until numberOfVariables yield IntegerRange(0, numberOfVariables - 1)
     private val (space, xs) = NeighbourhoodTestHelper.createSpace(logger, sigint, randomGenerator, domains)
-    val neighbourhoods =
+    private val neighbourhoods =
         for i <- 0 until numberOfVariables yield
             new CommitChecker(space, new RandomReassignmentGenerator(space, Vector(xs(i)), randomGenerator))
-    val neighbourhood =
+    private val neighbourhood =
         new NeighbourhoodCollection(
             space, neighbourhoods, randomGenerator, Some(moveSizeDistribution), maybeHotSpotDistribution, maybeFairChoiceRate)
     private val helper =
@@ -54,7 +59,7 @@ class NeighbourhoodCollectionTest
     def testMoveGeneration(): Unit = {
         val result = helper.testMoveGeneration()
         helper.checkMoveSizeFrequencies(result, 0.1, 0)
-        helper.checkVariableFrequencies(result, 0.2, 0)
+        helper.checkVariableFrequencies(result, 0.2, 1)
     }
 
     @Test

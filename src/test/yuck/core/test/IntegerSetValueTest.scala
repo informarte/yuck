@@ -1,11 +1,10 @@
 package yuck.core.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
 
 import yuck.core.{*, given}
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
 
     override protected val randomGenerator = new JavaRandomGenerator

@@ -1,6 +1,8 @@
 package yuck.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.SolvingMethod
 import yuck.annealing.*
@@ -11,10 +13,9 @@ import yuck.test.util.DefaultNumberOfThreads
 /**
  * The classic send-more-money problem
  */
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class SendMoreMoney(solvingMethod: SolvingMethod) extends HelloWorldTest {
-
-    override protected val logToConsole = false
 
     private val monitor = new AnnealingEventLogger(logger)
 
@@ -139,7 +140,6 @@ final class SendMoreMoney(solvingMethod: SolvingMethod) extends HelloWorldTest {
 
 object SendMoreMoney {
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}")
     def parameters = SolvingMethod.values
 
 }

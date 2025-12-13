@@ -1,11 +1,13 @@
 package yuck.constraints.test
 
-import org.junit.*
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.constraints.{IntegerIncreasing, IntegerIncreasingNeighbourhood}
 import yuck.core.*
 
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class IntegerIncreasingNeighbourhoodTest
     (numberOfVariables: Int,
      domainGenerator: (Int, Int) => IntegerDomain,
@@ -62,7 +64,6 @@ object IntegerIncreasingNeighbourhoodTest {
         yield
             Array(numberOfVariables, holeGenerator, strict, propagate)
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}, {1}, {2}, {3}")
     def parameters = configurations.toArray
 
 }

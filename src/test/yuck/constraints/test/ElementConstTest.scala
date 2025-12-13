@@ -1,6 +1,8 @@
 package yuck.constraints.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.constraints.*
 import yuck.constraints.test.util.ConstraintTestTooling
@@ -8,8 +10,8 @@ import yuck.core.*
 import yuck.test.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class ElementConstTest(offset: Int) extends UnitTest with ConstraintTestTooling {
 
     private val values = Vector(Four, Seven, Two)
@@ -62,7 +64,6 @@ final class ElementConstTest(offset: Int) extends UnitTest with ConstraintTestTo
 
 object ElementConstTest {
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}")
     def parameters = Array(-1, 0, 1).map(Int.box)
 
 }

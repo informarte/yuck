@@ -2,7 +2,9 @@ package yuck.flatzinc.test
 
 import scala.collection.immutable.{SortedMap, TreeMap}
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 import spray.json.*
 
 import yuck.SolvingMethod
@@ -18,9 +20,11 @@ import yuck.flatzinc.test.util.*
  * If a problem has less than five satisfiable instances, then unsatisfiable instances are added
  * to test flattening, parsing, and compilation, but search will not be started on them.
  */
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class MiniZincBenchmarks(task: ZincTestTask) extends ZincBasedTest {
+
+    override protected val logToConsole = true
 
     @Test
     def solve(): Unit = {
@@ -196,7 +200,6 @@ object MiniZincBenchmarks extends MiniZincTestTaskFactory {
         else task
     }
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}")
     def parameters = chosenTasksByProblemName.valuesIterator.flatten.map(task => Array(amendTask(task))).toArray
 
 }

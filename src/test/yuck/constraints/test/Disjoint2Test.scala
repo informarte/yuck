@@ -1,13 +1,16 @@
 package yuck.constraints.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.constraints.*
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class Disjoint2Test(strict: Boolean) extends UnitTest with ConstraintTestTooling {
 
     private val space = new Space(logger, sigint)
@@ -258,7 +261,6 @@ final class Disjoint2Test(strict: Boolean) extends UnitTest with ConstraintTestT
 
 object Disjoint2Test {
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}")
     def parameters = Array(true, false).map(Boolean.box)
 
 }

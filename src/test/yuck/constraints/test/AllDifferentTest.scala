@@ -1,6 +1,8 @@
 package yuck.constraints.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.test.util.ConstraintTestTooling
@@ -8,7 +10,8 @@ import yuck.constraints.{AllDifferent, AllDifferentNeighbourhood}
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class AllDifferentTest(withException: Boolean) extends UnitTest with ConstraintTestTooling {
 
     private val randomGenerator = new JavaRandomGenerator
@@ -205,7 +208,6 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
 
 object AllDifferentTest {
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}")
     def parameters = Array(true, false).map(Boolean.box)
 
 }

@@ -1,27 +1,24 @@
 package yuck.flatzinc.test
 
-import org.junit.*
-import org.junit.experimental.categories.*
+import org.junit.jupiter.api.parallel.{Execution, ExecutionMode}
+import org.junit.jupiter.api.{Tag, Test}
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.SolvingMethod
 import yuck.flatzinc.test.util.*
+import yuck.flatzinc.test.util.HasGlobalConstraint.*
+import yuck.flatzinc.test.util.ProblemType.*
 import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 import yuck.flatzinc.test.util.VerificationFrequency.*
-import yuck.test.util.ParallelParameterizedTestRunner
 
 /**
  * Test cases taken from the MiniZinc challenge submission procedure
- *
- * This suite runs on one thread per parameter value.
- *
- * Unexpectedly, IntelliJ IDEA 2024.3.4 aggregates the runtimes, reporting 0 for all parameters except one.
- * After some digging and debugging, it seems that the issue is caused by IDEA's JUnit 4 integration.
  */
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-@runner.RunWith(classOf[ParallelParameterizedTestRunner])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
+@Execution(ExecutionMode.CONCURRENT)
 class MiniZincChallengeIntakeTests(preferredSolvingMethod: SolvingMethod) extends ZincBasedTest {
-
-    override protected val logToConsole = false
 
     private val task =
         ZincTestTask(
@@ -39,157 +36,176 @@ class MiniZincChallengeIntakeTests(preferredSolvingMethod: SolvingMethod) extend
             createDotFile = true)
 
     @Test
-    @Category(Array(classOf[MinimizationProblem]))
+    @Tag(MinimizationProblem)
     def testBasic(): Unit = {
         solve(task.copy(problemName = "test_basic", modelName = "basic", maybeOptimum = Some(1)))
     }
 
     @Test
-    @Category(Array(classOf[MaximizationProblem]))
+    @Tag(MaximizationProblem)
     def testBasic2Large(): Unit = {
         solve(task.copy(directoryLayout = StandardMiniZincBenchmarksLayout, problemName = "test_basic2", modelName = "basic2", instanceName = "large", maybeOptimum = Some(2500)))
     }
 
     @Test
-    @Category(Array(classOf[MaximizationProblem]))
+    @Tag(MaximizationProblem)
     def testBasic2Small(): Unit = {
         solve(task.copy(directoryLayout = StandardMiniZincBenchmarksLayout, problemName = "test_basic2", modelName = "basic2", instanceName = "small", maybeOptimum = Some(19)))
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasAllDifferentConstraint]))
+    @Tag(MinimizationProblem)
+    @Tag(HasAllDifferentConstraint)
     def testAllDifferent(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_all_different", maybeOptimum = Some(1)))
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasAllDifferentExceptConstraint]))
+    @Tag(MinimizationProblem)
+    @Tag(HasAllDifferentExceptConstraint)
     def testAllDifferentExcept0(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_all_different_except_0", maybeOptimum = Some(10)))
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem]))
+    @Tag(MinimizationProblem)
     def testAllDisjoint(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_all_disjoint", maybeOptimum = Some(0)))
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem]))
+    @Tag(MinimizationProblem)
     def testAllEqual(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_all_equal", maybeOptimum = Some(10)))
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCircuitConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCircuitConstraint)
     def testCircuit(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_circuit"))
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasCumulativeConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasCumulativeConstraint)
     def testCumulative(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_cumulative"))
     }
 
     @Test
-    @Category(Array(classOf[MaximizationProblem], classOf[HasCumulativeConstraint]))
+    @Tag(MaximizationProblem)
+    @Tag(HasCumulativeConstraint)
     def testCumulativeOpt(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_cumulative_opt", maybeOptimum = Some(3)))
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasDecreasingConstraint]))
+    @Tag(MinimizationProblem)
+    @Tag(HasDecreasingConstraint)
     def testDecreasing(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_decreasing", maybeOptimum = Some(13)))
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasDiffnConstraint]))
+    @Tag(MinimizationProblem)
+    @Tag(HasDiffnConstraint)
     def testDiffn(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_diffn", maybeOptimum = Some(44)))
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasDisjunctiveConstraint]))
+    @Tag(MinimizationProblem)
+    @Tag(HasDisjunctiveConstraint)
     def testDisjunctive(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_disjunctive", maybeOptimum = Some(6)))
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasDisjunctiveConstraint]))
+    @Tag(MinimizationProblem)
+    @Tag(HasDisjunctiveConstraint)
     def testDisjunctiveOpt(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_disjunctive_opt", maybeOptimum = Some(5)))
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasDisjunctiveConstraint]))
+    @Tag(MinimizationProblem)
+    @Tag(HasDisjunctiveConstraint)
     def testDisjunctiveStrict(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_disjunctive_strict", maybeOptimum = Some(7)))
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasDisjunctiveConstraint]))
+    @Tag(MinimizationProblem)
+    @Tag(HasDisjunctiveConstraint)
     def testDisjunctiveStrictOpt(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_disjunctive_strict_opt", maybeOptimum = Some(6)))
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasGlobalCardinalityConstraint)
     def testGlobalCardinality(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_global_cardinality"))
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasGlobalCardinalityConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasGlobalCardinalityConstraint)
     def testGlobalCardinalityLowUp(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_global_cardinality_low_up"))
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasIncreasingConstraint]))
+    @Tag(MinimizationProblem)
+    @Tag(HasIncreasingConstraint)
     def testIncreasing(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_increasing", maybeOptimum = Some(13)))
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasInverseConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasInverseConstraint)
     def testInverse(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_inverse"))
     }
 
     @Test
-    @Category(Array(classOf[MinimizationProblem], classOf[HasLexLessEqConstraint]))
+    @Tag(MinimizationProblem)
+    @Tag(HasLexLessEqConstraint)
     def testLexLessEq(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_lex_lesseq", maybeOptimum = Some(0)))
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasRegularConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasRegularConstraint)
     def testRegular(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_regular"))
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasValuePrecedeConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasValuePrecedeConstraint)
     def testValuePrecede(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_value_precede"))
     }
 
     @Test
-    @Category(Array(classOf[SatisfiabilityProblem], classOf[HasValuePrecedeChainConstraint]))
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasValuePrecedeChainConstraint)
     def testValuePrecedeChain(): Unit = {
         solve(task.copy(problemName = "test_globals", modelName = "test_value_precede_chain"))
     }
 
     @Test
-    @Category(Array(classOf[MaximizationProblem]))
+    @Tag(MaximizationProblem)
     def testVarSet1(): Unit = {
         solve(task.copy(problemName = "test_var_set", modelName = "var_set_1", maybeOptimum = Some(2)))
     }
 
     @Test
-    @Category(Array(classOf[MaximizationProblem]))
+    @Tag(MaximizationProblem)
     def testVarSet2(): Unit = {
         solve(task.copy(problemName = "test_var_set", modelName = "var_set_2", maybeOptimum = Some(97)))
     }
@@ -198,7 +214,6 @@ class MiniZincChallengeIntakeTests(preferredSolvingMethod: SolvingMethod) extend
 
 object MiniZincChallengeIntakeTests {
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}")
     def parameters = SolvingMethod.values
 
 }

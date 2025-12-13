@@ -1,6 +1,6 @@
 package yuck.constraints.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
 
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.*
@@ -8,7 +8,6 @@ import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class RegularTest extends UnitTest with ConstraintTestTooling {
 
     private val randomGenerator = new JavaRandomGenerator

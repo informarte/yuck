@@ -1,6 +1,6 @@
 package yuck.constraints.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
 import org.mockito.AdditionalAnswers.*
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
@@ -10,8 +10,6 @@ import yuck.constraints.OrderingRelation.*
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-@runner.RunWith(classOf[runners.Parameterized])
 abstract class LinearConstraintLikeTest[V <: NumericalValue[V]] extends UnitTest {
 
     protected val baseValueTraits: NumericalValueTraits[V]

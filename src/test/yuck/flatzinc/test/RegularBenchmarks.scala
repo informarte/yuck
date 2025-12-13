@@ -2,12 +2,15 @@ package yuck.flatzinc.test
 
 import java.io.File
 
-import org.junit.*
+import org.junit.jupiter.api.{MethodOrderer, Test, TestMethodOrder}
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.flatzinc.test.util.*
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-@runner.RunWith(classOf[runners.Parameterized])
+@TestMethodOrder(classOf[MethodOrderer.MethodName])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class RegularBenchmarks(task: ZincTestTask) extends ZincBasedTest {
 
     @Test
@@ -26,7 +29,6 @@ object RegularBenchmarks extends MiniZincTestTaskFactory {
         List("generalized-peacable-queens", "peaceable_queens", "rotating-workforce-scheduling", "traveling-tppv")
             .contains(file.getName)
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}")
     def parameters = tasks.map(Array(_)).toArray
 
 }

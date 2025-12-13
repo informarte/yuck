@@ -1,18 +1,14 @@
 package yuck.flatzinc.test
 
-import org.junit.*
-import org.junit.experimental.categories.Categories
-import org.junit.experimental.categories.Categories.IncludeCategory
-import org.junit.runner.RunWith
-import org.junit.runners.Suite.SuiteClasses
+import org.junit.platform.suite.api.{IncludeTags, SelectClasses, Suite}
 
-import yuck.flatzinc.test.util.*
+import yuck.flatzinc.test.util.HasGlobalConstraint.*
 
 /**
  * Big integration test suite
  */
-@runner.RunWith(classOf[runners.Suite])
-@runners.Suite.SuiteClasses(
+@Suite
+@SelectClasses(
     Array(
         classOf[MiniZincExamples],
         classOf[MiniZincChallengeIntakeTests],
@@ -22,32 +18,31 @@ class MiniZincTestSuites
 /**
  * Challenge problems with all_different constraints
  */
-@RunWith(classOf[Categories])
-@IncludeCategory(Array(classOf[HasAllDifferentConstraint]))
-@SuiteClasses(Array(classOf[MiniZincChallenges]))
+@Suite
+@SelectClasses(Array(classOf[MiniZincChallenges]))
+@IncludeTags(Array(HasAllDifferentConstraint))
 class AllDifferentChallenges
 
 /**
  * Challenge problems with all_different_except constraints
  */
-@RunWith(classOf[Categories])
-@IncludeCategory(Array(classOf[HasAllDifferentExceptConstraint]))
-@SuiteClasses(Array(classOf[MiniZincChallenges]))
+@Suite
+@SelectClasses(Array(classOf[MiniZincChallenges]))
+@IncludeTags(Array(HasAllDifferentExceptConstraint))
 class AllDifferentExceptChallenges
 
 /**
  * Challenge problems with inverse constraints
  */
-@RunWith(classOf[Categories])
-@IncludeCategory(Array(classOf[HasInverseConstraint]))
-@SuiteClasses(Array(classOf[MiniZincChallenges]))
+@Suite
+@SelectClasses(Array(classOf[MiniZincChallenges]))
+@IncludeTags(Array(HasInverseConstraint))
 class InverseChallenges
-
 
 /**
  * Challenge problems with regular constraints
  */
-@RunWith(classOf[Categories])
-@IncludeCategory(Array(classOf[HasRegularConstraint]))
-@SuiteClasses(Array(classOf[MiniZincChallenges]))
+@Suite
+@SelectClasses(Array(classOf[MiniZincChallenges]))
+@IncludeTags(Array(HasRegularConstraint))
 class RegularChallenges

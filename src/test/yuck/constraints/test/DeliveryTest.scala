@@ -3,15 +3,17 @@ package yuck.constraints.test
 import scala.language.implicitConversions
 import scala.ref.WeakReference
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.{Circuit, Delivery}
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boolean) extends UnitTest {
 
     private val numberOfCities = 15
@@ -158,7 +160,6 @@ object DeliveryTest {
             if ! withWaiting || withTimeWindows
         yield Array(offset, withTimeWindows, withWaiting)
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}, {1}, {2}")
     def parameters = configurations.toArray
 
 }

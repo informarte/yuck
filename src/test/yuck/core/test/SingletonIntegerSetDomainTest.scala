@@ -2,12 +2,13 @@ package yuck.core.test
 
 import scala.collection.*
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.{Execution, ExecutionMode}
 
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
+@Execution(ExecutionMode.CONCURRENT)
 final class SingletonIntegerSetDomainTest extends UnitTest {
 
     private val baseRange = IntegerRange(-5, 5)

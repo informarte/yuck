@@ -1,6 +1,6 @@
 package yuck.constraints.test.util
 
-import org.junit.Assert
+import org.junit.jupiter.api.Assertions
 
 import yuck.core.*
 import yuck.test.util.YuckAssert
@@ -46,7 +46,7 @@ trait ConstraintTestTooling extends YuckAssert {
         override def perform() = x.pruneDomain(dx)
         override def check() = {
             if x.domain != dx then {
-                Assert.fail("Domain of %s is %s, but expected %s".format(x, x.domain, dx))
+                Assertions.fail("Domain of %s is %s, but expected %s".format(x, x.domain, dx))
             }
         }
     }
@@ -67,7 +67,7 @@ trait ConstraintTestTooling extends YuckAssert {
         postconditions.foreach(_.check())
         for x <- otherVariables do {
             if x.domain != initialDomains(x) then {
-                Assert.fail("Domain of %s is %s, but expected %s".format(x, x.domain, initialDomains(x)))
+                Assertions.fail("Domain of %s is %s, but expected %s".format(x, x.domain, initialDomains(x)))
             }
         }
     }
@@ -120,7 +120,7 @@ trait ConstraintTestTooling extends YuckAssert {
         for effect <- effects do {
             val a = after.value(effect.x)
             if a != effect.a then {
-                Assert.fail("Value of %s is %s, but expected %s".format(effect.x, a, effect.a))
+                Assertions.fail("Value of %s is %s, but expected %s".format(effect.x, a, effect.a))
             }
         }
         val checkedVariables = effects.view.map(_.x).toSet
@@ -129,7 +129,7 @@ trait ConstraintTestTooling extends YuckAssert {
             val a = after.value(x)
             val b = before.value(x)
             if a != b then {
-                Assert.fail("Value of %s is %s, but expected %s".format(x, a, b))
+                Assertions.fail("Value of %s is %s, but expected %s".format(x, a, b))
             }
         }
     }

@@ -2,14 +2,13 @@ package yuck.constraints.test
 
 import scala.collection.*
 
-import org.junit.*
+import org.junit.jupiter.api.Test
 
 import yuck.constraints.*
 import yuck.core.*
 import yuck.test.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class BasicNumericalConstraintsTest extends UnitTest {
 
     @Test

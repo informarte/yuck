@@ -1,6 +1,8 @@
 package yuck.flatzinc.test.util.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.SolvingMethod
 import yuck.core.*
@@ -10,10 +12,9 @@ import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 import yuck.flatzinc.test.util.VerificationFrequency.*
 import yuck.test.*
 
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean, verificationFrequency: VerificationFrequency) extends ZincBasedTest {
-
-    override protected val logToConsole = false
 
     final class SpoiledResult(result: Result) extends Result {
         override val maybeUserData = result.maybeUserData
@@ -65,7 +66,6 @@ object MiniZincSolutionVerifierTest {
         yield
             Array(simulateBadSolver, verificationFrequency)
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}, {1}")
     def parameters = configurations.toArray
 
 }

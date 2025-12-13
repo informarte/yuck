@@ -95,7 +95,7 @@ abstract class Increasing
 
     protected def maybeSmallestFeasibleValue(x: X, maybePreviousValue: Option[V]): Option[V]
 
-    final protected def solve(space: Space): Boolean = {
+    protected final def solve(space: Space): Boolean = {
         if isCandidateForImplicitSolving(space) then {
             type Assignments = List[(Variable[V], Option[V])]
             val assignments: Assignments = xs.foldLeft(Nil: Assignments) {

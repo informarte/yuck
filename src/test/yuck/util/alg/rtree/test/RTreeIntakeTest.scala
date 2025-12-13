@@ -2,11 +2,10 @@ package yuck.util.alg.rtree.test
 
 import com.conversantmedia.util.collection.geometry.Rect2d
 import com.conversantmedia.util.collection.spatial.SpatialSearches
-import org.junit.*
+import org.junit.jupiter.api.Test
 
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class RTreeIntakeTest extends UnitTest {
 
     private val rTree = SpatialSearches.rTree[Rect2d](new Rect2d.Builder)

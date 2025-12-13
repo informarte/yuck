@@ -1,11 +1,10 @@
 package yuck.core.test
 
-import org.junit.{FixMethodOrder, Test}
+import org.junit.jupiter.api.Test
 
 import yuck.core.FenwickTree
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(org.junit.runners.MethodSorters.NAME_ASCENDING)
 final class FenwickTreeTest extends UnitTest {
 
     @Test

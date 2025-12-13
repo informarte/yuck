@@ -1,20 +1,25 @@
 package yuck.core.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.{Execution, ExecutionMode}
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
+@Execution(ExecutionMode.CONCURRENT)
 final class RandomReassignmentGeneratorTest
-    (randomGenerator: RandomGenerator,
-     moveSizeDistribution: Distribution,
+    (moveSizeDistribution: Distribution,
      maybeHotSpotDistribution: Option[Distribution],
      maybeFairVariableChoiceRate: Option[Probability],
      numberOfVariables: Int)
     extends UnitTest
 {
+
+    private val randomGenerator = new JavaRandomGenerator
 
     private val domains = for i <- 0 until numberOfVariables yield IntegerRange(0, numberOfVariables - 1)
     private val (space, xs) = NeighbourhoodTestHelper.createSpace(logger, sigint, randomGenerator, domains)

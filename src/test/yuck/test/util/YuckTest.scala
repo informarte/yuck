@@ -1,7 +1,7 @@
 package yuck.test.util
 
-import org.junit.*
-import org.junit.rules.{RuleChain, TestName}
+import org.junit.jupiter.api.Order
+import org.junit.jupiter.api.extension.RegisterExtension
 
 import yuck.util.arm.DummyResource
 import yuck.util.logging.YuckLogging
@@ -15,32 +15,39 @@ abstract class YuckTest extends YuckAssert with YuckLogging {
     consoleHandler.setFormatter(formatter)
     logger.setThresholdLogLevel(yuck.util.logging.LogLevel.InfoLogLevel)
 
-    // By default, don't log to console when the test is run in parallel to other tests.
-    protected val logToConsole = Thread.currentThread.getName == "main"
-
-    protected val testName = new TestName
+    protected val logToConsole = false
 
     protected val sigint = new yuck.util.arm.SettableSigint
 
-    @Rule
-    def environmentManagement =
-        RuleChain
-        .outerRule(testName)
-        // For the case that the test method under execution initiates a shutdown upon interrupt,
-        // we deploy an empty, managed shutdown hook to enforce the completion of the shutdown.
-        // (Without it, the JVM would already exit after running the test method's JVM shutdown hook(s).)
-        // However, as a side effect, test methods without interrupt handling (e.g. typical unit tests)
-        // will ignore interrupts.
-        .around(new ManagedResourceAsTestRule(new yuck.util.arm.ManagedShutdownHook({})))
-        .around(
-            new ManagedResourceAsTestRule(
-                if logToConsole
-                then new yuck.util.logging.ManagedLogHandler(nativeLogger, consoleHandler)
-                else DummyResource))
-        .around(
-            new ManagedResourceAsTestRule(
-                new yuck.util.logging.DurationLogger(
-                    logger, "Running %s.%s".format(getClass.getSimpleName, testName.getMethodName))))
-        .around(new ManagedResourceAsTestRule(new yuck.util.logging.LogScope(logger)))
+    @RegisterExtension
+    @Order(1)
+    val logScope = new ManagedResourceAsExtension(_ => new yuck.util.logging.LogScope(logger))
+
+    @RegisterExtension
+    @Order(2)
+    val logHandler = new ManagedResourceAsExtension(_ =>
+        if logToConsole
+        then new yuck.util.logging.ManagedLogHandler(nativeLogger, consoleHandler)
+        else DummyResource
+    )
+
+    @RegisterExtension
+    @Order(3)
+    val durationLogger = new ManagedResourceAsExtension(context =>
+        new yuck.util.logging.DurationLogger(
+            logger,
+            "Running %s.%s".format(
+                context.getTestClass.map(_.getSimpleName).orElse("unknown"),
+                context.getTestMethod.map(_.getName).orElse("unknown")))
+    )
+
+    // For the case that the test method under execution initiates a shutdown upon interrupt,
+    // we deploy an empty, managed shutdown hook to enforce the completion of the shutdown.
+    // (Without it, the JVM would already exit after running the test method's JVM shutdown hook(s).)
+    // However, as a side effect, test methods without interrupt handling (e.g. typical unit tests)
+    // will ignore interrupts.
+    @RegisterExtension
+    @Order(4)
+    private val shutdownHook = new ManagedResourceAsExtension(_ => new yuck.util.arm.ManagedShutdownHook({}))
 
 }

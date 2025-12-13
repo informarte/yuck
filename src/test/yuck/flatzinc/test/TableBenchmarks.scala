@@ -2,12 +2,15 @@ package yuck.flatzinc.test
 
 import java.io.File
 
-import org.junit.*
+import org.junit.jupiter.api.{MethodOrderer, Test, TestMethodOrder}
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.flatzinc.test.util.*
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-@runner.RunWith(classOf[runners.Parameterized])
+@TestMethodOrder(classOf[MethodOrderer.MethodName])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class TableBenchmarks(task: ZincTestTask) extends ZincBasedTest {
 
     @Test
@@ -26,7 +29,6 @@ object TableBenchmarks extends MiniZincTestTaskFactory {
         List("black-hole", "code-generator", "groupsplitter", "is", "opt-cryptanalysis", "proteindesign12", "spot5")
             .contains(file.getName)
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}")
     def parameters = tasks.map(Array(_)).toArray
 
 }

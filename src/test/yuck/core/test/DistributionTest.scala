@@ -1,13 +1,15 @@
 package yuck.core.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.core.*
 import yuck.test.util.UnitTest
 import yuck.util.arm.scoped
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class DistributionTest(createDistribution: Int => Distribution) extends UnitTest {
 
     @Test
@@ -137,7 +139,6 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
 
 object DistributionTest {
 
-    @runners.Parameterized.Parameters
     def parameters =
         Array[AnyRef](
             Array(new ArrayBackedDistribution(_)),

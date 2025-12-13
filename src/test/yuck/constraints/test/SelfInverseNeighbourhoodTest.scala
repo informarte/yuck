@@ -1,11 +1,13 @@
 package yuck.constraints.test
 
-import org.junit.*
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.constraints.{InverseFunction, SelfInverseNeighbourhood}
 import yuck.core.*
 
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class SelfInverseNeighbourhoodTest(fOffset: Int) extends InverseNeighbourhoodTest {
 
     private val domainSize = 10
@@ -21,7 +23,6 @@ final class SelfInverseNeighbourhoodTest(fOffset: Int) extends InverseNeighbourh
 
 object SelfInverseNeighbourhoodTest {
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}")
     def parameters = Array(-1, 0, 1).map(Int.box)
 
 }

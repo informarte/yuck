@@ -2,14 +2,13 @@ package yuck.constraints.test
 
 import scala.language.implicitConversions
 
-import org.junit.*
+import org.junit.jupiter.api.Test
 
 import yuck.constraints.*
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class BinPackingTest extends UnitTest with ConstraintTestTooling {
 
     private val space = new Space(logger, sigint)

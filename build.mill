@@ -46,7 +46,10 @@ object yuck extends ScalaModule with BuildInfo with ScalafixModule {
         mvn"org.scala-lang.modules::scala-parser-combinators:2.4.0"
     )
 
-    val basicJvmConfiguration = Seq("-Djava.lang.Integer.IntegerCache.high=10000", "-XX:+UseParallelGC")
+    val basicJvmConfiguration = Seq(
+        "-Djava.lang.Integer.IntegerCache.high=10000",
+        "-Djava.util.logging.manager=yuck.util.logging.LogManager",
+        "-XX:+UseParallelGC")
     val jvmHeapSize = Option(System.getenv("YUCK_HEAP_SIZE")).getOrElse("2G")
     val jvmConfiguration = Seq("-Xmx%s".format(jvmHeapSize)) ++ basicJvmConfiguration
     override def forkArgs = jvmConfiguration
@@ -62,16 +65,38 @@ object yuck extends ScalaModule with BuildInfo with ScalafixModule {
         override def resources = Task { Seq.empty[PathRef] }
         override def sources = Task.Sources {moduleDir / "src" / "test"}
 
+        val junitJupiterVersion = "5.14.1"
+        val junitPlatformVersion = "1.14.1"
+
         override def mvnDeps = Seq(
-            mvn"junit:junit:4.13.2",
             mvn"org.jgrapht:jgrapht-io:1.5.2",
+            mvn"org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion",
+            mvn"org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion",
+            mvn"org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion",
+            mvn"org.junit.platform:junit-platform-launcher:$junitPlatformVersion",
+            mvn"org.junit.platform:junit-platform-suite-api:$junitPlatformVersion",
+            mvn"org.junit.platform:junit-platform-suite-engine:$junitPlatformVersion",
             mvn"org.mockito:mockito-core:3.12.4"
         )
 
         override def testFramework = "com.novocode.junit.JUnitFramework"
 
         val jvmHeapSize = Option(System.getenv("YUCK_TEST_HEAP_SIZE")).getOrElse("2G")
-        val jvmConfiguration = Seq("-Xmx%s".format(jvmHeapSize), "-XX:+AggressiveHeap") ++ basicJvmConfiguration
+        val jvmConfiguration =
+            Seq(
+                "-Xmx%s".format(jvmHeapSize),
+                "-XX:+AggressiveHeap",
+                "-Djunit.jupiter.testinstance.lifecycle.default=per_method",
+                "-Djunit.jupiter.execution.parallel.enabled=true",
+                "-Djunit.jupiter.execution.parallel.mode.default=same_thread",
+                "-Djunit.jupiter.execution.parallel.mode.classes.default=concurrent",
+                "-Djunit.jupiter.execution.parallel.config.strategy=fixed",
+                "-Djunit.jupiter.execution.parallel.config.fixed.parallelism=%d".format(
+                    Option(System.getenv("YUCK_TEST_NUMBER_OF_THREADS"))
+                        .map(_.toInt)
+                        .getOrElse(Runtime.getRuntime.availableProcessors))
+            ) ++
+            basicJvmConfiguration
         override def forkArgs = jvmConfiguration
 
         override def mainClass = Some("yuck.test.util.YuckTestRunner")

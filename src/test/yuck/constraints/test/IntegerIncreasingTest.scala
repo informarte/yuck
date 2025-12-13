@@ -1,6 +1,8 @@
 package yuck.constraints.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.annealing.DefaultMoveSizeDistribution
 import yuck.constraints.test.util.ConstraintTestTooling
@@ -8,8 +10,8 @@ import yuck.constraints.{IntegerIncreasing, IntegerIncreasingNeighbourhood}
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with ConstraintTestTooling {
 
     private val randomGenerator = new JavaRandomGenerator
@@ -256,6 +258,5 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
 
 object IntegerIncreasingTest {
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}")
     def parameters = Array(false, true).map(Boolean.box)
 }

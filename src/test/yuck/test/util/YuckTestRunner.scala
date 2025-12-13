@@ -1,9 +1,14 @@
 package yuck.test.util
 
-import org.junit.Test
-import org.junit.internal.{RealSystem, TextListener}
-import org.junit.runner.{JUnitCore, Request}
+import java.io.PrintWriter
+
+import org.junit.jupiter.api.Test
+import org.junit.platform.engine.discovery.DiscoverySelectors
+import org.junit.platform.launcher.core.{LauncherDiscoveryRequestBuilder, LauncherFactory}
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener
 import scopt.*
+
+import yuck.util.arm.{StopWatch, scoped}
 
 /**
  * Runs an entire test class or a single test method.
@@ -58,16 +63,36 @@ object YuckTestRunner {
     private def runTest(cl: CommandLine): Int = {
         val components = cl.testee.split("#").toList
         val request = components match {
-            case List(className) => Request.aClass(Class.forName(className))
-            case List(className, method) => Request.method(Class.forName(className), method)
-            case _ => throw new IllegalArgumentException("Invalid testee")
+            case List(className) => LauncherDiscoveryRequestBuilder
+                .request
+                .selectors(DiscoverySelectors.selectClass(className))
+                .build()
+            case List(className, methodName) => LauncherDiscoveryRequestBuilder
+                .request
+                .selectors(DiscoverySelectors.selectMethod(className, methodName))
+                .build()
+            case _ =>
+                throw new IllegalArgumentException("Invalid testee")
         }
-        val core = new JUnitCore
-        val system = new RealSystem
-        val listener = new TextListener(system)
-        core.addListener(listener)
-        val result = core.run(request)
-        if result.wasSuccessful then 0 else 1
+        val launcher = LauncherFactory.create
+        val summaryGeneratingListener = new SummaryGeneratingListener()
+        launcher.registerTestExecutionListeners(summaryGeneratingListener, new DotReporter())
+        val stopWatch = new StopWatch
+        scoped(stopWatch) {
+            launcher.execute(request)
+        }
+        println("Time: %s".format(stopWatch.duration.toMillis / 1000.0))
+        val summary = summaryGeneratingListener.getSummary
+        if summary.getTestsFailedCount == 0 then {
+            println
+            println("OK (%d tests)".format(summary.getTestsSucceededCount))
+            0
+        } else {
+            summary.printFailuresTo(new PrintWriter(System.out, true), 8)
+            println
+            println("FAILED (%d/%d tests)".format(summary.getTestsFailedCount, summary.getTestsFoundCount))
+            1
+        }
     }
 
 }

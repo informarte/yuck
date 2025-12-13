@@ -1,11 +1,13 @@
 package yuck.constraints.test
 
-import org.junit.*
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.constraints.{Circuit, CircuitNeighbourhood}
 import yuck.core.*
 
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class CircuitNeighbourhoodTest(offset: Int) extends SpecialNeighbourhoodTest {
 
     private val numberOfNodes = 10
@@ -30,7 +32,6 @@ final class CircuitNeighbourhoodTest(offset: Int) extends SpecialNeighbourhoodTe
 
 object CircuitNeighbourhoodTest {
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}")
     def parameters = Array(-1, 0, 1).map(Int.box)
 
 }

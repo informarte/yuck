@@ -1,14 +1,12 @@
 package yuck.flatzinc.test.vrp
 
-import org.junit.*
-import org.junit.runner.RunWith
-import org.junit.runners.Suite.SuiteClasses
+import org.junit.platform.suite.api.{SelectClasses, Suite}
 
 /**
  * Runs the CVRP benchmarks
  */
-@RunWith(classOf[runners.Suite])
-@SuiteClasses(
+@Suite
+@SelectClasses(
     Array(
         classOf[AugeratBenchmark],
         classOf[UchoaBenchmark]))

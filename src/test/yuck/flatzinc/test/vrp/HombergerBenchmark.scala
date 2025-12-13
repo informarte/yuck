@@ -2,16 +2,19 @@ package yuck.flatzinc.test.vrp
 
 import java.io.File
 
-import org.junit.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.{Execution, ExecutionMode}
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.flatzinc.test.util.*
-import yuck.test.util.ParallelParameterizedTestRunner
 
 /**
  * Runs the Homberger CVRPTW benchmark
  */
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
-@runner.RunWith(classOf[ParallelParameterizedTestRunner])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
+@Execution(ExecutionMode.CONCURRENT)
 final class HombergerBenchmark(task: ZincTestTask) extends ZincBasedTest {
 
     @Test
@@ -136,7 +139,6 @@ object HombergerBenchmark extends VrpTestTaskFactory {
     // keep models aligned
     private def verifyAgainstCpModel(task: ZincTestTask) = task.copy(verificationModelName = "cvrptw_cp")
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}")
     def parameters = tasks.map(task => Array(verifyAgainstCpModel(amendKnownBestResult(task)))).toArray
 
 }

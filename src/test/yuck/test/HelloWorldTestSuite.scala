@@ -1,12 +1,12 @@
 package yuck.test
 
-import org.junit.*
+import org.junit.platform.suite.api.{SelectClasses, Suite}
 
 /**
  * A suite of rather simple integration test
  */
-@runner.RunWith(classOf[runners.Suite])
-@runners.Suite.SuiteClasses(
+@Suite
+@SelectClasses(
     Array(
         classOf[Queens],
         classOf[SendMoreMoney],

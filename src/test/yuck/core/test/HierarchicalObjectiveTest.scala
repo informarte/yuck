@@ -1,13 +1,12 @@
 package yuck.core.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
 
 import yuck.constraints.Le
 import yuck.core.*
 import yuck.test.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class HierarchicalObjectiveTest extends UnitTest {
 
     private val space = new Space(logger, sigint)

@@ -1,9 +1,9 @@
 package yuck.core.test
 
-import org.junit.*
+import org.junit.platform.suite.api.{SelectClasses, Suite}
 
-@runner.RunWith(classOf[runners.Suite])
-@runners.Suite.SuiteClasses(
+@Suite
+@SelectClasses(
     Array(
         classOf[BooleanValueOrderingTest],
         classOf[BooleanValueOrderingCostModelTest],

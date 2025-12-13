@@ -1,10 +1,12 @@
 package yuck.constraints.test
 
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.{Execution, ExecutionMode}
 
 import yuck.core.*
 import yuck.test.util.UnitTest
 
+@Execution(ExecutionMode.CONCURRENT)
 abstract class SpecialNeighbourhoodTest extends UnitTest {
 
     protected val randomGenerator = new JavaRandomGenerator

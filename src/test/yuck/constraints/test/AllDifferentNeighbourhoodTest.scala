@@ -1,11 +1,13 @@
 package yuck.constraints.test
 
-import org.junit.*
+import org.junit.jupiter.params.ParameterizedClass
+import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.constraints.{AllDifferent, AllDifferentNeighbourhood}
 import yuck.core.*
 
-@runner.RunWith(classOf[runners.Parameterized])
+@ParameterizedClass
+@MethodSource(Array("parameters"))
 final class AllDifferentNeighbourhoodTest
     (numberOfVariables: Int,
      withException: Boolean,
@@ -81,7 +83,6 @@ object AllDifferentNeighbourhoodTest {
         yield
             Array(numberOfVariables, withException, domainGenerator)
 
-    @runners.Parameterized.Parameters(name = "{index}: {0}, {1}, {2}")
     def parameters = configurations.toArray
 
 }

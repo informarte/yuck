@@ -1,13 +1,12 @@
 package yuck.constraints.test.util.test
 
-import org.junit.*
+import org.junit.jupiter.api.Test
 
 import yuck.constraints.test.util.ConstraintTestTooling
 import yuck.core.*
 import yuck.test.*
 import yuck.test.util.UnitTest
 
-@FixMethodOrder(runners.MethodSorters.NAME_ASCENDING)
 final class ConstraintTestToolingTest extends UnitTest with ConstraintTestTooling {
 
     private val space = new Space(logger, sigint)

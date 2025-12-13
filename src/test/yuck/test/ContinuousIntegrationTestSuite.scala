@@ -1,6 +1,6 @@
 package yuck.test
 
-import org.junit.*
+import org.junit.platform.suite.api.{SelectClasses, Suite}
 
 import yuck.flatzinc.test.*
 import yuck.flatzinc.test.util.test.MiniZincSolutionVerifierTest
@@ -8,8 +8,8 @@ import yuck.flatzinc.test.util.test.MiniZincSolutionVerifierTest
 /**
  * Test suite for CI runs
  */
-@runner.RunWith(classOf[runners.Suite])
-@runners.Suite.SuiteClasses(
+@Suite
+@SelectClasses(
     Array(
         classOf[UnitTestSuite],
         classOf[HelloWorldTestSuite],

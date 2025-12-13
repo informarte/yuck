@@ -1,18 +1,12 @@
 package yuck.core.test
 
-import scala.collection.*
-
-import org.junit.*
-
 import yuck.core.*
 
 abstract class NeighbourhoodTestGenerator {
 
-    private val randomGenerator = new JavaRandomGenerator
-
     protected val moveSizeDistributions: Seq[Distribution]
-    protected val hotSpotDistributions: Seq[Distribution] =
-        List(List(25, 0, 5, 25, 50, 0, 15, 20, 0, 10)).map(Distribution(0, _))
+    protected val hotSpotDistributions: Seq[Seq[Int]] =
+        List(List(25, 0, 5, 25, 50, 0, 15, 20, 0, 10))
     protected val fairVariableChoiceRates: Seq[Probability] =
         List(0, 10, 50, 100).map(Probability.apply)
     protected val numbersOfVariables: Seq[Int] =
@@ -24,11 +18,8 @@ abstract class NeighbourhoodTestGenerator {
             fairVariableChoiceRate <- if maybeHotSpotDistribution.isDefined then fairVariableChoiceRates else List(Probability(100))
             numberOfVariables <- if maybeHotSpotDistribution.isDefined then List(maybeHotSpotDistribution.get.size) else numbersOfVariables
         yield
-            Array(
-                randomGenerator.nextGen(), moveSizeDistribution, maybeHotSpotDistribution, Some(fairVariableChoiceRate),
-                numberOfVariables)
+            Array(moveSizeDistribution, maybeHotSpotDistribution.map(Distribution(0, _)), Some(fairVariableChoiceRate), numberOfVariables)
 
-    @runners.Parameterized.Parameters(name = "{index}: {1}, {2}, {3}, {4}")
     def parameters = configurations.toArray
 
 }
