@@ -65,17 +65,16 @@ object yuck extends ScalaModule with BuildInfo with ScalafixModule {
         override def resources = Task { Seq.empty[PathRef] }
         override def sources = Task.Sources {moduleDir / "src" / "test"}
 
-        val junitJupiterVersion = "5.14.1"
-        val junitPlatformVersion = "1.14.1"
+        val junitVersion = "6.0.1"
 
         override def mvnDeps = Seq(
             mvn"org.jgrapht:jgrapht-io:1.5.2",
-            mvn"org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion",
-            mvn"org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion",
-            mvn"org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion",
-            mvn"org.junit.platform:junit-platform-launcher:$junitPlatformVersion",
-            mvn"org.junit.platform:junit-platform-suite-api:$junitPlatformVersion",
-            mvn"org.junit.platform:junit-platform-suite-engine:$junitPlatformVersion",
+            mvn"org.junit.jupiter:junit-jupiter-api:$junitVersion",
+            mvn"org.junit.jupiter:junit-jupiter-engine:$junitVersion",
+            mvn"org.junit.jupiter:junit-jupiter-params:$junitVersion",
+            mvn"org.junit.platform:junit-platform-launcher:$junitVersion",
+            mvn"org.junit.platform:junit-platform-suite-api:$junitVersion",
+            mvn"org.junit.platform:junit-platform-suite-engine:$junitVersion",
             mvn"org.mockito:mockito-core:3.12.4"
         )
 

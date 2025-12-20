@@ -426,7 +426,7 @@ Notice that compilation requires a proper Git working copy.
 
 ### Testing
 
-Yuck tests are based on [JUnit 5](http://junit.org/) and
+Yuck tests are based on [JUnit 6](http://junit.org/) and
 [MiniZinc 2.9.3](http://www.minizinc.org/software.html).
 
 * `make unit-tests` builds and runs all unit tests.
