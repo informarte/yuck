@@ -5,23 +5,22 @@ import org.junit.jupiter.api.Test
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-final class SixtyFourBitSetTest extends UnitTest {
+final class SixtyFourBitSetTest extends UnitTest with IntegerDomainTestTooling {
 
     private val baseRange = SixtyFourBitSet.ValueRange
 
-    private val randomGenerator = new JavaRandomGenerator
-    private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
+    override protected val randomGenerator = new JavaRandomGenerator
 
     @Test
     def testRepresentation(): Unit = {
-        helper.testFiniteRangeRepresentation((a, b) => SixtyFourBitSet(a, b))
-        helper.testFiniteRepresentationWithGaps(values => SixtyFourBitSet(IntegerDomain(values)))
+        testFiniteRangeRepresentation((a, b) => SixtyFourBitSet(a, b))
+        testFiniteRepresentationWithGaps(values => SixtyFourBitSet(IntegerDomain(values)))
     }
 
     @Test
     def testEquality(): Unit = {
-        val testData = helper.createBitSets(32)
-        helper.testEquality(testData)
+        val testData = createBitSets(32)
+        testEquality(testData)
         for d <- testData do {
             for e <- List(SixtyFourBitSet(d.set), IntegerDomain(d.values)) do {
                 assertEq(d, e)
@@ -37,16 +36,16 @@ final class SixtyFourBitSetTest extends UnitTest {
 
     @Test
     def testOrdering(): Unit = {
-        val testData = helper.createBitSets(32)
-        helper.testOrdering(testData)
+        val testData = createBitSets(32)
+        testOrdering(testData)
     }
 
     @Test
     def testOperations(): Unit = {
-        val testDomains = helper.createBitSets(16)
+        val testDomains = createBitSets(16)
         val testValues = IntegerRange(baseRange.lb - One, baseRange.ub + One).values.toSeq
-        helper.testUnaryOperations(testDomains, testValues)
-        helper.testBinaryOperations(testDomains)
+        testUnaryOperations(testDomains, testValues)
+        testBinaryOperations(testDomains)
         for d <- testDomains do {
             assert(d.intersect(d).isInstanceOf[SixtyFourBitSet])
             assert(d.intersect(baseRange).isInstanceOf[SixtyFourBitSet])
@@ -61,9 +60,9 @@ final class SixtyFourBitSetTest extends UnitTest {
 
     @Test
     def testRandomSubdomainCreation(): Unit = {
-        val testData = helper.createBitSets(16)
-        helper.testRandomSubrangeCreation(testData)
-        helper.testRandomSubdomainCreation(testData)
+        val testData = createBitSets(16)
+        testRandomSubrangeCreation(testData)
+        testRandomSubdomainCreation(testData)
     }
 
     @Test

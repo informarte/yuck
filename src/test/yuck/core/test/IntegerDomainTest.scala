@@ -10,17 +10,16 @@ import yuck.test.*
 import yuck.test.util.UnitTest
 
 @Execution(ExecutionMode.CONCURRENT)
-final class IntegerDomainTest extends UnitTest {
+final class IntegerDomainTest extends UnitTest with IntegerDomainTestTooling {
 
     private val baseRange = IntegerRange(-5, 5)
 
-    private val randomGenerator = new JavaRandomGenerator
-    private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
+    override protected val randomGenerator = new JavaRandomGenerator
 
     @Test
     def testEquality(): Unit = {
-        val testData = helper.createTestData(baseRange, 16).distinct
-        helper.testEquality(testData)
+        val testData = createTestData(baseRange, 16).distinct
+        testEquality(testData)
         for d <- testData do {
             for e <- testData do {
                 assert(if d.eq(e) then d == e else d != e)
@@ -35,14 +34,14 @@ final class IntegerDomainTest extends UnitTest {
 
     @Test
     def testOrdering(): Unit = {
-        val testData = helper.createTestData(baseRange, 16)
-        helper.testOrdering(testData)
+        val testData = createTestData(baseRange, 16)
+        testOrdering(testData)
     }
 
     @Test
     def testOperations(): Unit = {
-        val testData = helper.createTestData(baseRange, 8)
-        helper.testBinaryOperations(testData)
+        val testData = createTestData(baseRange, 8)
+        testBinaryOperations(testData)
     }
 
     @Test

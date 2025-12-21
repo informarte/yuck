@@ -4,19 +4,23 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.{Execution, ExecutionMode}
 
 import yuck.core.*
+import yuck.core.test.util.{OrderingTestTooling, RandomValueSelectionTestTooling}
 import yuck.test.util.UnitTest
 
 @Execution(ExecutionMode.CONCURRENT)
-final class BooleanDomainTest extends UnitTest {
+final class BooleanDomainTest
+    extends UnitTest
+       with OrderingTestTooling[OrderedDomain[BooleanValue]]
+       with RandomValueSelectionTestTooling[BooleanValue]
+{
 
-    private val randomGenerator = new JavaRandomGenerator
-    private val helper = new BooleanDomainTestHelper(randomGenerator, logger)
     private val testData1 = List((false, false), (true, false), (false, true), (true, true))
     private val testData2 = List(EmptyBooleanDomain, FalseDomain, TrueDomain, CompleteBooleanDomain)
 
+    override protected val randomGenerator = new JavaRandomGenerator
+
     @Test
     def testBasics(): Unit = {
-        val randomGenerator = new JavaRandomGenerator
         for (f, t) <- testData1 do {
             val d = new BooleanDomain(f, t)
             assertEq(f, d.containsFalse)
@@ -59,7 +63,7 @@ final class BooleanDomainTest extends UnitTest {
                 assertEx(d.singleValue)
                 assertEq(d.nextRandomValue(randomGenerator, False), True)
                 assertEq(d.nextRandomValue(randomGenerator, True), False)
-                helper.testUniformityOfDistribution(randomGenerator, d)
+                testUniformityOfDistribution(d)
                 assertEq(d.lb, True)
                 assertEq(d.ub, False)
             }
@@ -68,7 +72,7 @@ final class BooleanDomainTest extends UnitTest {
 
     @Test
     def testEquality(): Unit = {
-        helper.testEquality(testData2)
+        testEquality(testData2)
         for d <- testData2 do {
             val e = new BooleanDomain(d.containsFalse, d.containsTrue)
             assertEq(d, e)
@@ -83,7 +87,7 @@ final class BooleanDomainTest extends UnitTest {
 
     @Test
     def testOrdering(): Unit = {
-        helper.testOrdering(testData2)
+        testOrdering(testData2)
     }
 
     @Test

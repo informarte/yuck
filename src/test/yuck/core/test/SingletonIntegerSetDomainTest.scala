@@ -6,18 +6,23 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.{Execution, ExecutionMode}
 
 import yuck.core.*
+import yuck.core.test.util.{OrderingTestTooling, RandomValueSelectionTestTooling}
 import yuck.test.util.UnitTest
 
 @Execution(ExecutionMode.CONCURRENT)
-final class SingletonIntegerSetDomainTest extends UnitTest {
+final class SingletonIntegerSetDomainTest
+    extends UnitTest
+       with OrderingTestTooling[OrderedDomain[IntegerSetValue]]
+       with RandomValueSelectionTestTooling[IntegerSetValue]
+       with IntegerSetDomainTestDataFactory
+{
 
     private val baseRange = IntegerRange(-5, 5)
 
-    private val randomGenerator = new JavaRandomGenerator
-    private val helper = new IntegerSetDomainTestHelper(randomGenerator, logger)
+    override protected val randomGenerator = new JavaRandomGenerator
 
     private def createTestData(sampleSize: Int): Seq[SingletonIntegerSetDomain] =
-        helper.createTestData(baseRange, sampleSize)
+        createTestData(baseRange, sampleSize)
             .filter(_.isInstanceOf[SingletonIntegerSetDomain])
             .map(_.asInstanceOf[SingletonIntegerSetDomain])
 
@@ -95,7 +100,7 @@ final class SingletonIntegerSetDomainTest extends UnitTest {
     @Test
     def testEquality(): Unit = {
         val testData = createTestData(16).distinct
-        helper.testEquality(testData)
+        testEquality(testData)
         for d <- testData do {
             val e = SingletonIntegerSetDomain(d.base)
             assertEq(d, e)
@@ -111,7 +116,7 @@ final class SingletonIntegerSetDomainTest extends UnitTest {
     @Test
     def testOrdering(): Unit = {
         val testData = createTestData(8)
-        helper.testOrdering(testData)
+        testOrdering(testData)
     }
 
     @Test

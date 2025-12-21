@@ -2,13 +2,17 @@ package yuck.core.test
 
 import org.junit.jupiter.api.Test
 
+import yuck.core.test.util.OrderingTestTooling
 import yuck.core.{*, given}
 import yuck.test.util.UnitTest
 
-final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
+final class IntegerSetValueTest
+    extends UnitTest
+       with OrderingTestTooling[IntegerSetValue]
+       with IntegerSetValueTestData
+{
 
     override protected val randomGenerator = new JavaRandomGenerator
-    private val helper = new OrderedValueTestHelper[IntegerSetValue](randomGenerator)
 
     @Test
     def testConstruction(): Unit = {
@@ -26,7 +30,7 @@ final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
     @Test
     def testEquality(): Unit = {
         val testData = this.testData.distinct
-        helper.testEquality(testData)
+        testEquality(testData)
         for a <- testData do {
             val b = new IntegerSetValue(a.set)
             assertEq(a, b)
@@ -63,7 +67,7 @@ final class IntegerSetValueTest extends UnitTest with IntegerSetValueTestData {
 
     @Test
     def testOrdering(): Unit = {
-        helper.testOrdering(testData)
+        testOrdering(testData)
         // We test by comparing iterators over values.
         for a <- testData do {
             for b <- testData do {

@@ -3,13 +3,17 @@ package yuck.core.test
 import org.junit.jupiter.api.Test
 
 import yuck.core.*
+import yuck.core.test.util.OrderingTestTooling
 import yuck.test.*
 import yuck.test.util.UnitTest
 
-final class IntegerValueTest extends UnitTest with IntegerValueTestData {
+final class IntegerValueTest
+    extends UnitTest
+       with OrderingTestTooling[IntegerValue]
+       with IntegerValueTestData
+{
 
-    private val randomGenerator = new JavaRandomGenerator
-    private val helper = new OrderedValueTestHelper[IntegerValue](randomGenerator)
+    override protected val randomGenerator = new JavaRandomGenerator
 
     @Test
     def testConstruction(): Unit = {
@@ -44,7 +48,7 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
 
     @Test
     def testEquality(): Unit = {
-        helper.testEquality(testData)
+        testEquality(testData)
         for a <- testData do {
             val b = new IntegerValue(a.value)
             assertEq(a, b)
@@ -59,7 +63,7 @@ final class IntegerValueTest extends UnitTest with IntegerValueTestData {
 
     @Test
     def testOrdering(): Unit = {
-        helper.testOrdering(testData)
+        testOrdering(testData)
         for a <- testData do {
             for b <- testData do {
                 assertEq(a.compare(b).sign, a.value.compare(b.value).sign)

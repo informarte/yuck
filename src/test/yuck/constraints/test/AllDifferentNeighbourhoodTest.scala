@@ -12,7 +12,7 @@ final class AllDifferentNeighbourhoodTest
     (numberOfVariables: Int,
      withException: Boolean,
      domainGenerator: Int => IntegerDomain)
-    extends SpecialNeighbourhoodTest
+    extends SpecificNeighbourhoodTest
 {
 
     private val xs =
@@ -21,7 +21,7 @@ final class AllDifferentNeighbourhoodTest
 
     private val exceptedValues = if withException then Set(Zero) else Set()
 
-    override protected def createConstraint() =
+    override protected lazy val constraint =
         new AllDifferent(space.nextConstraintId(), null, xs, exceptedValues, costs, logger)
 
     override protected val expectedNeighbourhoodClass = classOf[AllDifferentNeighbourhood[?]]

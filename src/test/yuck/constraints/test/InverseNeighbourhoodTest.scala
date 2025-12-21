@@ -3,14 +3,13 @@ package yuck.constraints.test
 import yuck.constraints.{Inverse, InverseFunction, InverseNeighbourhood}
 import yuck.core.*
 
-abstract class InverseNeighbourhoodTest extends SpecialNeighbourhoodTest {
+abstract class InverseNeighbourhoodTest extends SpecificNeighbourhoodTest {
 
     protected val f: InverseFunction
     protected val g: InverseFunction
 
-    final override protected def createConstraint() = {
+    override protected lazy val constraint =
         new Inverse(space.nextConstraintId(), null, f, g, costs, logger)
-    }
 
     override protected val expectedNeighbourhoodClass: Class[? <: InverseNeighbourhood]
 

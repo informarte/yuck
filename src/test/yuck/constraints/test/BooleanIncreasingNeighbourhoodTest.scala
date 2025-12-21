@@ -3,7 +3,7 @@ package yuck.constraints.test
 import yuck.constraints.{BooleanIncreasing, BooleanIncreasingNeighbourhood}
 import yuck.core.*
 
-final class BooleanIncreasingNeighbourhoodTest extends SpecialNeighbourhoodTest {
+final class BooleanIncreasingNeighbourhoodTest extends SpecificNeighbourhoodTest {
 
     private val numberOfVariables = 100
 
@@ -11,7 +11,7 @@ final class BooleanIncreasingNeighbourhoodTest extends SpecialNeighbourhoodTest 
         for i <- 0 until numberOfVariables yield
             new BooleanVariable(space.nextVariableId(), "x%d".format(i + 1), CompleteBooleanDomain)
 
-    override protected def createConstraint() =
+    override protected lazy val constraint =
         new BooleanIncreasing(space.nextConstraintId(), null, xs, costs)
 
     override protected def checkSearchState(searchState: SearchState): Unit = {

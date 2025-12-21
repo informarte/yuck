@@ -3,13 +3,19 @@ package yuck.core.test
 import org.junit.jupiter.api.Test
 
 import yuck.core.*
+import yuck.core.test.util.OrderingTestTooling
 import yuck.test.*
-import yuck.test.util.{OrderingTestHelper, UnitTest}
+import yuck.test.util.UnitTest
 
-final class IntegerValueOperationsTest extends UnitTest with IntegerValueTestData {
+final class IntegerValueOperationsTest
+    extends UnitTest
+       with OrderingTestTooling[IntegerValue]
+       with IntegerValueTestData
+{
 
     private val num = IntegerValueOperations
-    private val randomGenerator = new JavaRandomGenerator
+
+    override protected val randomGenerator = new JavaRandomGenerator
 
     @Test
     def testValueFactory(): Unit = {
@@ -26,8 +32,7 @@ final class IntegerValueOperationsTest extends UnitTest with IntegerValueTestDat
 
     @Test
     def testOrdering(): Unit = {
-        val helper = new OrderingTestHelper[IntegerValue](randomGenerator)
-        helper.testOrdering(testData, num)
+        testOrdering(testData, num)
         val ord = new Ordering[IntegerValue] {
             override def compare(a: IntegerValue, b: IntegerValue) = a.compare(b)
         }

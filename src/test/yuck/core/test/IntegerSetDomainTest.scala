@@ -4,10 +4,16 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.{Execution, ExecutionMode}
 
 import yuck.core.*
+import yuck.core.test.util.{OrderingTestTooling, RandomValueSelectionTestTooling}
 import yuck.test.util.UnitTest
 
 @Execution(ExecutionMode.CONCURRENT)
-final class IntegerSetDomainTest extends UnitTest {
+final class IntegerSetDomainTest
+    extends UnitTest
+       with OrderingTestTooling[OrderedDomain[IntegerSetValue]]
+       with RandomValueSelectionTestTooling[IntegerSetValue]
+       with IntegerSetDomainTestDataFactory
+{
 
     // Test strategy:
     // * Test the type-based dispatching in IntegerSetDomain.
@@ -18,14 +24,13 @@ final class IntegerSetDomainTest extends UnitTest {
 
     private val baseRange = IntegerRange(-5, 5)
 
-    private val randomGenerator = new JavaRandomGenerator
-    private val helper = new IntegerSetDomainTestHelper(randomGenerator, logger)
+    override protected val randomGenerator = new JavaRandomGenerator
 
     @Test
     def testEquality(): Unit = {
         assertEq(new SingletonIntegerSetDomain(EmptyIntegerRange), new IntegerPowerSetDomain(EmptyIntegerRange))
-        val testData = helper.createTestData(baseRange, 16).distinct
-        helper.testEquality(testData)
+        val testData = createTestData(baseRange, 16).distinct
+        testEquality(testData)
         for d <- testData do {
             for e <- testData do {
                 assert(if d.eq(e) then d == e else d != e)
@@ -37,8 +42,8 @@ final class IntegerSetDomainTest extends UnitTest {
     // so we test the ordering only once and here.
     @Test
     def testOrdering(): Unit = {
-        val testData = helper.createTestData(baseRange, 8)
-        helper.testOrdering(testData)
+        val testData = createTestData(baseRange, 8)
+        testOrdering(testData)
     }
 
     @Test
@@ -116,7 +121,7 @@ final class IntegerSetDomainTest extends UnitTest {
 
     @Test
     def testRandomSubdomainCreation(): Unit = {
-        val testData = helper.createTestData(baseRange, 8)
+        val testData = createTestData(baseRange, 8)
         for a <- testData do {
             assertEx(a.randomSubdomain(randomGenerator), classOf[NotImplementedError])
         }

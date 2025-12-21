@@ -2,7 +2,7 @@ package yuck.core.test
 
 import yuck.core.*
 
-abstract class NeighbourhoodTestGenerator {
+abstract class GeneralNeighbourhoodTestParameterFactory {
 
     protected val moveSizeDistributions: Seq[Distribution]
     protected val hotSpotDistributions: Seq[Seq[Int]] =
@@ -18,6 +18,7 @@ abstract class NeighbourhoodTestGenerator {
             fairVariableChoiceRate <- if maybeHotSpotDistribution.isDefined then fairVariableChoiceRates else List(Probability(100))
             numberOfVariables <- if maybeHotSpotDistribution.isDefined then List(maybeHotSpotDistribution.get.size) else numbersOfVariables
         yield
+            // To enable parallel execution, each test-class instance is provided with its own hot-spot distribution.
             Array(moveSizeDistribution, maybeHotSpotDistribution.map(Distribution(0, _)), Some(fairVariableChoiceRate), numberOfVariables)
 
     def parameters = configurations.toArray

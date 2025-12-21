@@ -2,46 +2,87 @@ package yuck.core.test
 
 import scala.collection.*
 
-import yuck.core.*
-import yuck.test.util.YuckAssert
-import yuck.util.arm.Sigint
-import yuck.util.logging.LazyLogger
+import org.junit.jupiter.api.{BeforeEach, Test}
 
-final class NeighbourhoodTestHelper
+import yuck.core.*
+import yuck.test.util.UnitTest
+
+abstract class GeneralNeighbourhoodTest
     [V <: Value[V]]
-    (space: Space,
-     neighbourhood: Neighbourhood,
-     xs: IndexedSeq[Variable[V]],
-     moveSizeDistribution: Distribution,
-     maybeHotSpotDistribution: Option[Distribution], // goes together with xs
-     maybeFairVariableChoiceRate: Option[Probability],
-     logger: LazyLogger)
     (using valueTraits: ValueTraits[V])
-    extends YuckAssert
+    extends UnitTest
 {
 
-    require(! xs.isEmpty)
-    require(xs.toSet.size == xs.size)
-    require(xs.toSet == neighbourhood.searchVariables)
-    require(moveSizeDistribution.frequency(0) == 0)
-    require(moveSizeDistribution.volume > 0)
-    require(maybeHotSpotDistribution.isEmpty || maybeHotSpotDistribution.get.size == xs.size)
-    private val fairVariableChoiceRate =
-        maybeFairVariableChoiceRate.getOrElse(Probability(1.0)).value
-    require(fairVariableChoiceRate >= 0 && fairVariableChoiceRate <= 1)
-    require(maybeHotSpotDistribution.isDefined || fairVariableChoiceRate == 1)
+    protected val randomGenerator = new JavaRandomGenerator
+    protected val space = new Space(logger, sigint)
+
+    protected val xs: immutable.IndexedSeq[Variable[V]]
+    protected val moveSizeDistribution: Distribution
+    protected val maybeHotSpotDistribution: Option[Distribution] // goes together with xs
+    protected val maybeFairChoiceRate: Option[Probability]
+    private lazy val fairChoiceRate = maybeFairChoiceRate.getOrElse(Probability(1.0)).value
+    protected lazy val neighbourhood: Neighbourhood
+
+    @BeforeEach
+    def setup(): Unit = {
+        require(! xs.isEmpty)
+        require(xs.toSet.size == xs.size)
+        for x <- xs do {
+            space.setValue(x, x.domain.randomValue(randomGenerator))
+        }
+        space.post(new DummyConstraint(space.nextConstraintId(), xs, Nil))
+        space.initialize()
+        require(xs.toSet == neighbourhood.searchVariables)
+        require(moveSizeDistribution.frequency(0) == 0)
+        require(moveSizeDistribution.volume > 0)
+        require(maybeHotSpotDistribution.isEmpty || maybeHotSpotDistribution.get.size == xs.size)
+        val fairChoiceRate = maybeFairChoiceRate.getOrElse(Probability(1.0)).value
+        require(fairChoiceRate >= 0 && fairChoiceRate <= 1)
+        require(maybeHotSpotDistribution.isDefined || fairChoiceRate == 1)
+    }
 
     final class MeasurementResult {
         val moveSizeFrequencies = new Array[Int](moveSizeDistribution.size)
-        val variableFrequencies = new mutable.HashMap[Variable[V], Int] ++ xs.map(_ -> 0)
+        val variableFrequencies = mutable.HashMap.from(xs.map(_ -> 0))
     }
 
-    private val sampleSize = 10000
+    final class AcceptableDeviation(val tolerance: Double, val maxFailureRate: Double)
 
-    def testMoveGeneration(): MeasurementResult = {
-        require(neighbourhood.searchVariables == xs.toSet)
+    protected val numberOfMoves = 10000
+    protected val acceptableMoveSizeFrequencyDeviation: AcceptableDeviation
+    protected val acceptableVariableFrequencyDeviation: AcceptableDeviation
+
+    @Test
+    def testMoveGeneration(): Unit = {
+        val result = observeMoveGeneration()
+        checkMoveSizeFrequencies(
+            result,
+            acceptableMoveSizeFrequencyDeviation.tolerance, acceptableMoveSizeFrequencyDeviation.maxFailureRate)
+        checkVariableFrequencies(
+            result,
+            acceptableVariableFrequencyDeviation.tolerance, acceptableVariableFrequencyDeviation.maxFailureRate)
+    }
+
+    protected val numberOfPerturbations = 1000
+    protected val perturbationProbability = Probability(0.5)
+
+    @Test
+    def testPerturbation(): Unit = {
+        val now = space.searchState
+        val numbersOfChangedAssignments = new mutable.ArrayBuffer[Int](numberOfPerturbations)
+        for i <- 0 until numberOfPerturbations do {
+            val before = now.clone()
+            neighbourhood.perturb(perturbationProbability)
+            numbersOfChangedAssignments += xs.count(x => before.value(x) != now.value(x))
+        }
+        val avg = numbersOfChangedAssignments.sum.toDouble / numberOfPerturbations
+        assertGt(avg, xs.size * perturbationProbability.value * 0.9)
+        assertLt(avg, xs.size * perturbationProbability.value * 1.1)
+    }
+
+    private def observeMoveGeneration(): MeasurementResult = {
         val result = new MeasurementResult
-        for i <- 1 to sampleSize do {
+        for i <- 1 to numberOfMoves do {
             val move = neighbourhood.nextMove()
             result.moveSizeFrequencies(move.size) += 1
             val ys = move.involvedVariablesIterator.map(valueTraits.safeDowncast).toVector
@@ -55,12 +96,12 @@ final class NeighbourhoodTestHelper
         result
     }
 
-    def checkMoveSizeFrequencies(result: MeasurementResult, tolerance: Double, maxFailureRate: Double): Unit = {
+    private def checkMoveSizeFrequencies(result: MeasurementResult, tolerance: Double, maxFailureRate: Double): Unit = {
         // checkMoveSizeFrequency(n) is true iff the observed frequency of moves of size n does not differ widely
         // from the frequency stipulated by moveSizeDistribution.
         def checkMoveSizeFrequency(n: Int): Boolean = {
             val observation = result.moveSizeFrequencies(n).toDouble
-            val expectation = sampleSize * moveSizeDistribution.probability(n).value
+            val expectation = numberOfMoves * moveSizeDistribution.probability(n).value
             val ok = observation >= expectation * (1 - tolerance) && observation <= expectation * (1 + tolerance)
             if ! ok then {
                 logger.log("moveSizeFrequencies = %s".format(result.moveSizeFrequencies.toVector))
@@ -76,7 +117,7 @@ final class NeighbourhoodTestHelper
         assertLe(failureCount.toDouble, moveSizeDistribution.size * maxFailureRate)
     }
 
-    def checkVariableFrequencies(result: MeasurementResult, tolerance: Double, maxFailureRate: Double): Unit = {
+    private def checkVariableFrequencies(result: MeasurementResult, tolerance: Double, maxFailureRate: Double): Unit = {
         lazy val hotSpotDistribution = maybeHotSpotDistribution.get
         // checkVariableFrequency(i) is true iff the observed frequency of xs(i) does not differ widely
         // from the frequency stipulated by hotSpotDistribution.
@@ -118,8 +159,8 @@ final class NeighbourhoodTestHelper
                         xs.indices.iterator.map(Q).sum
                     }
                 val p =
-                    (if fairVariableChoiceRate > 0 then fairVariableChoiceRate * h(1, xs.size, 1, n) else 0) +
-                        (if fairVariableChoiceRate < 1 then (1 - fairVariableChoiceRate) * P(0) else 0)
+                    (if fairChoiceRate > 0 then fairChoiceRate * h(1, xs.size, 1, n) else 0) +
+                        (if fairChoiceRate < 1 then (1 - fairChoiceRate) * P(0) else 0)
                 result.moveSizeFrequencies(n) * p
             }
             val observation = result.variableFrequencies(xs(i))
@@ -143,42 +184,6 @@ final class NeighbourhoodTestHelper
         val failureCount = xs.indices.iterator.map(checkVariableFrequency).count(! _)
         import scala.math.Ordering.Double.TotalOrdering
         assertLe(failureCount.toDouble, xs.size * maxFailureRate)
-    }
-
-    private val numberOfPerturbations = 1000
-    private val perturbationProbability = Probability(0.5)
-
-    def testPerturbation(): Unit = {
-        val now = space.searchState
-        val numbersOfChangedAssignments = new mutable.ArrayBuffer[Int](numberOfPerturbations)
-        for i <- 0 until numberOfPerturbations do {
-            val before = now.clone()
-            neighbourhood.perturb(perturbationProbability)
-            numbersOfChangedAssignments += xs.count(x => before.value(x) != now.value(x))
-        }
-        val avg = numbersOfChangedAssignments.sum.toDouble / numberOfPerturbations
-        assertGt(avg, xs.size * perturbationProbability.value * 0.9)
-        assertLt(avg, xs.size * perturbationProbability.value * 1.1)
-    }
-
-}
-
-object NeighbourhoodTestHelper {
-
-    def createSpace
-        (logger: LazyLogger, sigint: Sigint, randomGenerator: RandomGenerator, domains: Seq[IntegerDomain]):
-        (Space, immutable.IndexedSeq[IntegerVariable]) =
-    {
-        val space = new Space(logger, sigint)
-        val xs =
-            for (i, domain) <- domains.indices.zip(domains) yield {
-                val x = new IntegerVariable(space.nextVariableId(), "x%d".format(i), domain)
-                space.setValue(x, x.domain.randomValue(randomGenerator))
-                x
-            }
-        space.post(new DummyConstraint(space.nextConstraintId(), xs, Nil))
-        space.initialize()
-        (space, xs)
     }
 
 }

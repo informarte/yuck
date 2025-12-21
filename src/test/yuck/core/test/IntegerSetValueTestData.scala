@@ -1,18 +1,18 @@
 package yuck.core.test
 
 import yuck.core.*
-import yuck.util.logging.LazyLogger
 
 trait IntegerSetValueTestData {
 
     protected val randomGenerator: RandomGenerator
-    protected val logger: LazyLogger
 
-    private lazy val helper = new IntegerDomainTestHelper(randomGenerator, logger)
+    private class BaseDataFactory extends IntegerDomainTestDataFactory {
+        override protected val randomGenerator = IntegerSetValueTestData.this.randomGenerator
+    }
 
     protected val baseRange = IntegerRange(-5, 5)
     protected val sampleSize = 16
-    protected lazy val baseData = helper.createTestData(baseRange, sampleSize)
+    protected lazy val baseData = new BaseDataFactory().createTestData(baseRange, sampleSize)
     protected lazy val testData = baseData.map(new IntegerSetValue(_))
 
 }

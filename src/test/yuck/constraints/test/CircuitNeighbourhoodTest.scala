@@ -8,7 +8,7 @@ import yuck.core.*
 
 @ParameterizedClass
 @MethodSource(Array("parameters"))
-final class CircuitNeighbourhoodTest(offset: Int) extends SpecialNeighbourhoodTest {
+final class CircuitNeighbourhoodTest(offset: Int) extends SpecificNeighbourhoodTest {
 
     private val numberOfNodes = 10
     private val baseDomain = IntegerRange(offset, offset + numberOfNodes - 1)
@@ -16,9 +16,8 @@ final class CircuitNeighbourhoodTest(offset: Int) extends SpecialNeighbourhoodTe
         for i <- 1 to numberOfNodes yield
             new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain.randomSubdomain(randomGenerator))
 
-    override protected def createConstraint() = {
+    override protected lazy val constraint =
         new Circuit(space.nextConstraintId(), null, succ, offset, costs, logger, sigint)
-    }
 
     override protected val expectedNeighbourhoodClass = classOf[CircuitNeighbourhood]
 

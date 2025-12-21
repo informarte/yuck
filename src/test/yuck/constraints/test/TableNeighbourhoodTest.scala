@@ -3,7 +3,7 @@ package yuck.constraints.test
 import yuck.constraints.{Table, TableNeighbourhood}
 import yuck.core.*
 
-final class TableNeighbourhoodTest extends SpecialNeighbourhoodTest {
+final class TableNeighbourhoodTest extends SpecificNeighbourhoodTest {
 
     private val xs = Vector("s", "t").map(new IntegerVariable(space.nextVariableId(), _, IntegerRange(0, 9)))
 
@@ -11,9 +11,8 @@ final class TableNeighbourhoodTest extends SpecialNeighbourhoodTest {
         elems.toVector.map(IntegerValue.apply).grouped(m).toVector
     private val rows = createTable(2)(0, 1, 0, 7, 1, 1, 1, 5, 3, 3, 5, 1, 5, 9, 8, 2, 8, 3, 9, 9)
 
-    override protected def createConstraint() = {
+    override protected lazy val constraint =
         new Table(space.nextConstraintId(), null, xs, rows, costs)
-    }
 
     override protected val expectedNeighbourhoodClass = classOf[TableNeighbourhood[?]]
 

@@ -9,13 +9,15 @@ import yuck.core.*
 import yuck.test.util.UnitTest
 
 @Execution(ExecutionMode.CONCURRENT)
-class IntegerDomainPrunerTest extends UnitTest {
+class IntegerDomainPrunerTest extends UnitTest with IntegerDomainTestDataFactory {
 
     @tailrec
     private def fixedPoint[State](f: State => State, u: State): State = {
         val v = f(u)
         if u == v then u else fixedPoint(f, v)
     }
+
+    override protected val randomGenerator = new JavaRandomGenerator
 
     import scala.language.implicitConversions
     implicit def toIntegerValue(i: Int): IntegerValue = IntegerValue(i)
@@ -25,9 +27,7 @@ class IntegerDomainPrunerTest extends UnitTest {
         IntegerRange(r.start, r.end)
     }
 
-    private val randomGenerator = new JavaRandomGenerator
-    private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
-    private val testData = helper.createTestData(-5 to 5, 32)
+    private val testData = createTestData(-5 to 5, 32)
 
     private def testEqRule(d: IntegerDomain, e: IntegerDomain): Unit = {
         assertEq(IntegerDomainPruner.eqRule(d, e), (d.intersect(e), d.intersect(e)))

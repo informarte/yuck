@@ -1,10 +1,31 @@
-package yuck.test.util
+package yuck.core.test.util
 
 import scala.collection.*
 
 import yuck.core.RandomGenerator
+import yuck.util.OrderingFromOrdered
 
-class OrderingTestHelper[T](randomGenerator: RandomGenerator) extends EqualityTestHelper[T] {
+trait OrderingTestTooling[T <: Ordered[T]] extends EqualityTestTooling[T] {
+
+    protected val randomGenerator: RandomGenerator
+
+    def testOrdering(testData: Seq[T]): Unit = {
+        val ord = new OrderingFromOrdered[T]
+        testOrdering(testData, ord)
+        for a <- testData do {
+            for b <- testData do {
+                // other methods of Ordered trait are in line with compare
+                val cmp = ord.compare(a, b)
+                assertEq(cmp == 0, a == b)
+                assertEq(cmp != 0, a != b)
+                assertEq(cmp < 0, a < b)
+                assertEq(cmp <= 0, a <= b)
+                assertEq(cmp > 0, a > b)
+                assertEq(cmp >= 0, a >= b)
+                assertEq(cmp, a.compareTo(b))
+            }
+        }
+    }
 
     // compare induces a couple of relations: =, <=, >=, <, >
     // We check that:

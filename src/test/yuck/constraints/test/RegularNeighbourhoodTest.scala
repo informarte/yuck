@@ -3,7 +3,7 @@ package yuck.constraints.test
 import yuck.constraints.{Regular, RegularDfa, RegularNeighbourhood}
 import yuck.core.*
 
-final class RegularNeighbourhoodTest extends SpecialNeighbourhoodTest {
+final class RegularNeighbourhoodTest extends SpecificNeighbourhoodTest {
 
     private val xs = for i <- 1 to 10 yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(1, 3))
     private val Seq(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) = xs
@@ -15,7 +15,7 @@ final class RegularNeighbourhoodTest extends SpecialNeighbourhoodTest {
     private val F = IntegerRange(6, 6)
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
-    override protected def createConstraint() =
+    override protected lazy val constraint =
         new Regular(space.nextConstraintId(), null, new RegularDfa(xs, Q, S, delta, q0, F), costs, logger)
 
     override protected def checkSearchState(searchState: SearchState) = {

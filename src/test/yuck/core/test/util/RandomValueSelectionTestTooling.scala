@@ -1,33 +1,16 @@
-package yuck.core.test
+package yuck.core.test.util
 
-import scala.collection.*
+import scala.collection.{Map, mutable}
 
-import yuck.core.*
-import yuck.test.util.{EqualityTestHelper, YuckAssert}
-import yuck.util.logging.LazyLogger
-import yuck.util.logging.LogLevel.FineLogLevel
+import yuck.core.{Domain, RandomGenerator, Value}
+import yuck.test.util.YuckAssert
 
-abstract class DomainTestHelper[V <: Value[V]] extends YuckAssert {
+trait RandomValueSelectionTestTooling[V <: Value[V]] extends YuckAssert {
 
-    protected val logger: LazyLogger
-
-    def testEquality(testData: Seq[Domain[V]]): Unit = {
-        logger.withRootLogLevel(FineLogLevel) {
-            logger.withLogScope("Test data") {
-                testData.foreach(item => logger.log(item.toString))
-            }
-        }
-        val helper = new EqualityTestHelper[Domain[V]]
-        helper.testEquality(testData)
-        for d <- testData do {
-            for e <- testData do {
-                assert(if d.eq(e) then d == e else d != e)
-            }
-        }
-    }
+    protected val randomGenerator: RandomGenerator
 
     // Checks that values are chosen uniformly from the given domain.
-    def testUniformityOfDistribution(randomGenerator: RandomGenerator, d: Domain[V]): Unit = {
+    def testUniformityOfDistribution(d: Domain[V]): Unit = {
         val sampleSize = 100000
         val maxError = 0.05
         def checkDistribution(f: Map[V, Int]): Unit = {

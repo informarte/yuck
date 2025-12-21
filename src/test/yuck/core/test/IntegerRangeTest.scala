@@ -7,22 +7,21 @@ import yuck.core.*
 import yuck.test.util.UnitTest
 
 @Execution(ExecutionMode.CONCURRENT)
-final class IntegerRangeTest extends UnitTest {
+final class IntegerRangeTest extends UnitTest with IntegerDomainTestTooling {
 
     private val baseRange = IntegerRange(-5, 5)
 
-    private val randomGenerator = new JavaRandomGenerator
-    private val helper = new IntegerDomainTestHelper(randomGenerator, logger)
+    override protected val randomGenerator = new JavaRandomGenerator
 
     @Test
     def testRepresentation(): Unit = {
-        helper.testRangeRepresentation((a, b) => IntegerRange(a, b))
+        testRangeRepresentation((a, b) => IntegerRange(a, b))
     }
 
     @Test
     def testEquality(): Unit = {
-        val testData = helper.createRanges(baseRange, 32)
-        helper.testEquality(testData)
+        val testData = createRanges(baseRange, 32)
+        testEquality(testData)
         for d <- testData do {
             for e <- List(IntegerRange(d.lb, d.ub), IntegerRangeList(d)) do {
                 assertEq(d, e)
@@ -38,23 +37,23 @@ final class IntegerRangeTest extends UnitTest {
 
     @Test
     def testOrdering(): Unit = {
-        val testData = helper.createRanges(baseRange, 32)
-        helper.testOrdering(testData)
+        val testData = createRanges(baseRange, 32)
+        testOrdering(testData)
     }
 
     @Test
     def testOperations(): Unit = {
-        val testDomains = helper.createRanges(baseRange, 16)
+        val testDomains = createRanges(baseRange, 16)
         val testValues = IntegerRange(baseRange.lb - One, baseRange.ub + One).values.toSeq
-        helper.testUnaryOperations(testDomains, testValues)
-        helper.testBinaryOperations(testDomains)
+        testUnaryOperations(testDomains, testValues)
+        testBinaryOperations(testDomains)
     }
 
     @Test
     def testRandomSubdomainCreation(): Unit = {
-        val testData = helper.createRanges(baseRange, 16)
-        helper.testRandomSubrangeCreation(testData)
-        helper.testRandomSubdomainCreation(testData)
+        val testData = createRanges(baseRange, 16)
+        testRandomSubrangeCreation(testData)
+        testRandomSubdomainCreation(testData)
     }
 
     @Test

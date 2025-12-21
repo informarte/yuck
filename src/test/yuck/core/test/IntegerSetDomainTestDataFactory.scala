@@ -3,16 +3,17 @@ package yuck.core.test
 import scala.collection.Seq
 
 import yuck.core.*
-import yuck.util.logging.LazyLogger
 
-final class IntegerSetDomainTestHelper
-    (override protected val randomGenerator: RandomGenerator,
-     override protected val logger: LazyLogger)
-    extends OrderedDomainTestHelper[IntegerSetValue]
-{
+trait IntegerSetDomainTestDataFactory {
+
+    protected val randomGenerator: RandomGenerator
+
+    private class BaseDataFactory extends IntegerDomainTestDataFactory {
+        override protected val randomGenerator = IntegerSetDomainTestDataFactory.this.randomGenerator
+    }
 
     def createTestData(baseRange: IntegerRange, sampleSize: Int): Seq[IntegerSetDomain] =
-        new IntegerDomainTestHelper(randomGenerator, logger)
+        new BaseDataFactory()
             .createTestData(baseRange, sampleSize)
             .flatMap(r =>
                 // {{}} = P({}), so we keep only one of them to facilitate equality testing

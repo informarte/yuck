@@ -13,14 +13,14 @@ final class IntegerIncreasingNeighbourhoodTest
      domainGenerator: (Int, Int) => IntegerDomain,
      strict: Boolean,
      override protected val propagate: Boolean)
-    extends SpecialNeighbourhoodTest
+    extends SpecificNeighbourhoodTest
 {
 
     private val xs =
         for i <- 0 until numberOfVariables yield
             new IntegerVariable(space.nextVariableId(), "x%d".format(i + 1), domainGenerator(numberOfVariables, i))
 
-    override protected def createConstraint() =
+    override protected lazy val constraint =
         new IntegerIncreasing(space.nextConstraintId(), null, xs, strict, costs)
 
     override protected def checkSearchState(searchState: SearchState) = {

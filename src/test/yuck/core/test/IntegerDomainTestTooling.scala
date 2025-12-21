@@ -4,17 +4,18 @@ import scala.collection.*
 
 import yuck.core.*
 import yuck.core.IntegerDomain.ensureRangeList
+import yuck.core.test.util.{OrderingTestTooling, RandomValueSelectionTestTooling}
 import yuck.test.*
 import yuck.util.logging.LazyLogger
 import yuck.util.logging.LogLevel.FineLogLevel
 
-final class IntegerDomainTestHelper
-    (override protected val randomGenerator: RandomGenerator,
-     override protected val logger: LazyLogger)
-    extends OrderedDomainTestHelper[IntegerValue]
+trait IntegerDomainTestTooling
+    extends OrderingTestTooling[OrderedDomain[IntegerValue]]
+       with RandomValueSelectionTestTooling[IntegerValue]
+       with IntegerDomainTestDataFactory
 {
 
-    import IntegerDomainTestHelper.SpecialInfiniteRanges
+    protected val logger: LazyLogger
 
     private def testEnsureRangeList(d: IntegerDomain): Unit = {
         val e = IntegerDomain.ensureRangeList(d)
@@ -589,7 +590,7 @@ final class IntegerDomainTestHelper
                         assertEq(d.randomValue(randomGenerator), d.singleValue)
                         assertEq(d.nextRandomValue(randomGenerator, Zero), d.singleValue)
                     } else {
-                        testUniformityOfDistribution(randomGenerator, d)
+                        testUniformityOfDistribution(d)
                     }
                 } else {
                     assertEx(d.randomValue(randomGenerator))
@@ -664,49 +665,5 @@ final class IntegerDomainTestHelper
             }
         }
     }
-
-    def createRanges(baseRange: IntegerRange, sampleSize: Int): Seq[IntegerRange] = {
-        require(baseRange.isFinite)
-        val singletonRanges = List(baseRange.lb, baseRange.ub).map(a => IntegerRange(a, a))
-        val randomFiniteRanges = for i <- 1 to sampleSize yield baseRange.randomSubrange(randomGenerator)
-        val ranges =
-            List(SpecialInfiniteRanges, List(EmptyIntegerRange, baseRange), singletonRanges, randomFiniteRanges)
-                .flatten.distinct
-        ranges
-    }
-
-    def createRangeLists(baseRange: IntegerRange, sampleSize: Int): Seq[IntegerRangeList] = {
-        val ranges = createRanges(baseRange, sampleSize)
-        val randomFiniteRanges = ranges.filter(_.isFinite)
-        val randomFiniteRangeLists = for i <- 1 to sampleSize yield ensureRangeList(baseRange.randomSubdomain(randomGenerator))
-        val randomFiniteIntegerDomains = randomFiniteRanges ++ randomFiniteRangeLists
-        val randomInfiniteRangeLists =
-            for infiniteRange <- SpecialInfiniteRanges;
-                 finiteDomain <- randomFiniteIntegerDomains;
-                 if infiniteRange.intersects(finiteDomain) yield ensureRangeList(infiniteRange.diff(finiteDomain))
-        val rangeLists = List(ranges.map(ensureRangeList), randomFiniteRangeLists, randomFiniteRangeLists).flatten.distinct
-        rangeLists
-    }
-
-    def createBitSets(sampleSize: Int): Seq[SixtyFourBitSet] = {
-        val singletonBitSets = List(SixtyFourBitSet.ValueRange.lb, SixtyFourBitSet.ValueRange.ub).map(a => SixtyFourBitSet(a, a))
-        val randomBitSets = for i <- 1 to sampleSize yield FullBitSet.randomSubdomain(randomGenerator)
-        val bitSets = List(List(EmptyBitSet, FullBitSet), singletonBitSets, randomBitSets).flatten.distinct
-        bitSets
-    }
-
-    def createTestData(baseRange: IntegerRange, sampleSize: Int): Seq[IntegerDomain] =
-        createRanges(baseRange, sampleSize) ++
-        createRangeLists(baseRange, sampleSize) ++
-        createBitSets(sampleSize)
-
-}
-
-object IntegerDomainTestHelper {
-
-    private val SpecialInfiniteRanges = List(
-        CompleteIntegerRange,
-        NegativeIntegerRange, NonNegativeIntegerRange,
-        PositiveIntegerRange, NonPositiveIntegerRange)
 
 }

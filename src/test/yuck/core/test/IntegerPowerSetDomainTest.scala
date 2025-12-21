@@ -6,18 +6,23 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.{Execution, ExecutionMode}
 
 import yuck.core.*
+import yuck.core.test.util.{OrderingTestTooling, RandomValueSelectionTestTooling}
 import yuck.test.util.UnitTest
 
 @Execution(ExecutionMode.CONCURRENT)
-final class IntegerPowerSetDomainTest extends UnitTest {
+final class IntegerPowerSetDomainTest
+    extends UnitTest
+       with OrderingTestTooling[OrderedDomain[IntegerSetValue]]
+       with RandomValueSelectionTestTooling[IntegerSetValue]
+       with IntegerSetDomainTestDataFactory
+{
 
     private val baseRange = IntegerRange(-5, 5)
 
-    private val randomGenerator = new JavaRandomGenerator
-    private val helper = new IntegerSetDomainTestHelper(randomGenerator, logger)
+    override protected val randomGenerator = new JavaRandomGenerator
 
     private def createTestData(sampleSize: Int): Seq[IntegerPowerSetDomain] =
-        helper.createTestData(baseRange, sampleSize)
+        createTestData(baseRange, sampleSize)
             .filter(_.isInstanceOf[IntegerPowerSetDomain])
             .map(_.asInstanceOf[IntegerPowerSetDomain])
 
@@ -100,7 +105,7 @@ final class IntegerPowerSetDomainTest extends UnitTest {
         assertEq(sd0.lb, es)
         assertEq(sd0.ub, s0)
         assertEq(sd0.hull, sd0)
-        helper.testUniformityOfDistribution(randomGenerator, sd0)
+        testUniformityOfDistribution(sd0)
 
         // {0, 1}
         List(esd, sd0).foreach(s => assertNe(sd01, s))
@@ -124,7 +129,7 @@ final class IntegerPowerSetDomainTest extends UnitTest {
         assertEq(sd01.lb, es)
         assertEq(sd01.ub, s01)
         assertEq(sd01.hull, sd01)
-        helper.testUniformityOfDistribution(randomGenerator, sd01)
+        testUniformityOfDistribution(sd01)
 
         // {0, 2}
         List(esd, sd0, sd01).foreach(s => assertNe(sd02, s))
@@ -148,7 +153,7 @@ final class IntegerPowerSetDomainTest extends UnitTest {
         assertEq(sd02.lb, es)
         assertEq(sd02.ub, s02)
         assertEq(sd02.hull, sd02)
-        helper.testUniformityOfDistribution(randomGenerator, sd02)
+        testUniformityOfDistribution(sd02)
 
         // infinite domain
         List(esd, sd0, sd01, sd02).foreach(s => assertNe(usd, s))
@@ -179,7 +184,7 @@ final class IntegerPowerSetDomainTest extends UnitTest {
     @Test
     def testEquality(): Unit = {
         val testData = createTestData(16).distinct
-        helper.testEquality(testData)
+        testEquality(testData)
         for d <- testData do {
             val e = IntegerPowerSetDomain(d.base)
             assertEq(d, e)
@@ -195,7 +200,7 @@ final class IntegerPowerSetDomainTest extends UnitTest {
     @Test
     def testOrdering(): Unit = {
         val testData = createTestData(8)
-        helper.testOrdering(testData)
+        testOrdering(testData)
     }
 
     @Test

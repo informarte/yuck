@@ -3,12 +3,16 @@ package yuck.core.test
 import org.junit.jupiter.api.Test
 
 import yuck.core.*
+import yuck.core.test.util.OrderingTestTooling
 import yuck.test.util.UnitTest
 
-final class BooleanValueTest extends UnitTest with BooleanValueTestData {
+final class BooleanValueTest
+    extends UnitTest
+       with OrderingTestTooling[BooleanValue]
+       with BooleanValueTestData
+{
 
-    private val randomGenerator = new JavaRandomGenerator
-    private val helper = new OrderedValueTestHelper[BooleanValue](randomGenerator)
+    override protected val randomGenerator = new JavaRandomGenerator
 
     @Test
     def testConstruction(): Unit = {
@@ -46,7 +50,7 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
 
     @Test
     def testEquality(): Unit = {
-        helper.testEquality(testData)
+        testEquality(testData)
         for a <- testData do {
             val b = new BooleanValue(a.violation)
             assertEq(a, b)
@@ -61,7 +65,7 @@ final class BooleanValueTest extends UnitTest with BooleanValueTestData {
 
     @Test
     def testOrdering(): Unit = {
-        helper.testOrdering(testData)
+        testOrdering(testData)
         for a <- testData do {
             for b <- testData do {
                 assertEq(a.compare(b).sign, a.violation.compare(b.violation).sign)

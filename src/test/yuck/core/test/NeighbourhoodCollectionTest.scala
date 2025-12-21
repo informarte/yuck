@@ -1,25 +1,21 @@
 package yuck.core.test
 
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.{Execution, ExecutionMode}
 import org.junit.jupiter.params.ParameterizedClass
 import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.core.*
-import yuck.test.util.UnitTest
 
 @ParameterizedClass
 @MethodSource(Array("parameters"))
 @Execution(ExecutionMode.CONCURRENT)
 class NeighbourhoodCollectionTest
-    (moveSizeDistribution: Distribution,
-     maybeHotSpotDistribution: Option[Distribution],
-     maybeFairChoiceRate: Option[Probability],
+    (override protected val moveSizeDistribution: Distribution,
+     override protected val maybeHotSpotDistribution: Option[Distribution],
+     override protected val maybeFairChoiceRate: Option[Probability],
      numberOfVariables: Int)
-    extends UnitTest
+    extends GeneralNeighbourhoodTest[IntegerValue]
 {
-
-    private val randomGenerator = new JavaRandomGenerator
 
     final class CommitChecker
        (override protected val space: Space, neighbourhood: Neighbourhood)
@@ -43,33 +39,24 @@ class NeighbourhoodCollectionTest
         }
     }
 
-    private val domains = for i <- 0 until numberOfVariables yield IntegerRange(0, numberOfVariables - 1)
-    private val (space, xs) = NeighbourhoodTestHelper.createSpace(logger, sigint, randomGenerator, domains)
-    private val neighbourhoods =
+    override protected val xs =
+        for i <- 0 until numberOfVariables yield
+            new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(0, numberOfVariables - 1))
+
+    private lazy val neighbourhoods =
         for i <- 0 until numberOfVariables yield
             new CommitChecker(space, new RandomReassignmentGenerator(space, Vector(xs(i)), randomGenerator))
-    private val neighbourhood =
+
+    override protected lazy val neighbourhood =
         new NeighbourhoodCollection(
             space, neighbourhoods, randomGenerator, Some(moveSizeDistribution), maybeHotSpotDistribution, maybeFairChoiceRate)
-    private val helper =
-        new NeighbourhoodTestHelper(
-            space, neighbourhood, xs, moveSizeDistribution, maybeHotSpotDistribution, maybeFairChoiceRate, logger)
 
-    @Test
-    def testMoveGeneration(): Unit = {
-        val result = helper.testMoveGeneration()
-        helper.checkMoveSizeFrequencies(result, 0.1, 0)
-        helper.checkVariableFrequencies(result, 0.2, 1)
-    }
-
-    @Test
-    def testPerturbation(): Unit = {
-        helper.testPerturbation()
-    }
+    override protected val acceptableMoveSizeFrequencyDeviation = new AcceptableDeviation(0.1, 0)
+    override protected val acceptableVariableFrequencyDeviation = new AcceptableDeviation(0.2, 1)
 
 }
 
-object NeighbourhoodCollectionTest extends NeighbourhoodTestGenerator {
+object NeighbourhoodCollectionTest extends GeneralNeighbourhoodTestParameterFactory {
 
     override protected val moveSizeDistributions =
         List(List(100), List(90, 10), List(50, 35, 15), List(50, 25, 15, 10)).map(Distribution(1, _))

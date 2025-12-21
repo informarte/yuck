@@ -7,7 +7,7 @@ import yuck.core.*
 import yuck.test.util.UnitTest
 
 @Execution(ExecutionMode.CONCURRENT)
-abstract class SpecialNeighbourhoodTest extends UnitTest {
+abstract class SpecificNeighbourhoodTest extends UnitTest {
 
     protected val randomGenerator = new JavaRandomGenerator
     protected val space = new Space(logger, sigint)
@@ -15,7 +15,7 @@ abstract class SpecialNeighbourhoodTest extends UnitTest {
 
     protected val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
-    protected def createConstraint(): Constraint
+    protected lazy val constraint: Constraint
 
     protected val propagate = false
 
@@ -59,7 +59,6 @@ abstract class SpecialNeighbourhoodTest extends UnitTest {
     }
 
     private def createNeighbourhood(): Neighbourhood = {
-        val constraint = createConstraint()
         space.post(constraint)
         if propagate then {
             space.propagate()
