@@ -18,12 +18,13 @@ abstract class PropagationEffects {
     def rescheduleStep: Boolean
 
     /** Prunes the domain of the given variable and records the event. */
-    def pruneDomain[V <: Value[V]](x: Variable[V], dx: Domain[V]): PropagationEffects
+    def pruneDomain[A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]](x: X, dx: D): PropagationEffects
 
     /** Prunes the domains of the given variables and records the events. */
     def pruneDomains
-        [Value1 <: Value[Value1], Value2 <: Value[Value2]]
-        (x: Variable[Value1], dx: Domain[Value1], y: Variable[Value2], dy: Domain[Value2]):
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X],
+         B <: Value[B], E <: Domain[B, E], Y <: Variable[B, E, Y]]
+        (x: X, dx: D, y: Y, dy: E):
         PropagationEffects =
     {
         pruneDomain(x, dx).pruneDomain(y, dy)
@@ -31,8 +32,10 @@ abstract class PropagationEffects {
 
     /** Prunes the domains of the given variables and records the events. */
     def pruneDomains
-        [Value1 <: Value[Value1], Value2 <: Value[Value2], Value3 <: Value[Value3]]
-        (x: Variable[Value1], dx: Domain[Value1], y: Variable[Value2], dy: Domain[Value2], z: Variable[Value3], dz: Domain[Value3]):
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X],
+         B <: Value[B], E <: Domain[B, E], Y <: Variable[B, E, Y],
+         C <: Value[C], F <: Domain[C, F], Z <: Variable[C, F, Z]]
+        (x: X, dx: D, y: Y, dy: E, z: Z, dz: F):
         PropagationEffects =
     {
         pruneDomain(x, dx).pruneDomain(y, dy).pruneDomain(z, dz)
@@ -40,8 +43,8 @@ abstract class PropagationEffects {
 
     /** Prunes the domains of the given variables and records the events. */
     def pruneDomains
-        [V <: Value[V]]
-        (xds: Iterator[(Variable[V], Domain[V])]):
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
+        (xds: Iterator[(X, D)]):
         PropagationEffects =
     {
         xds.foldLeft(this){case (result, (x, dx)) => result.pruneDomain(x, dx)}
@@ -49,8 +52,8 @@ abstract class PropagationEffects {
 
     /** Prunes the domains of the given variables and records the events. */
     def pruneDomains
-        [V <: Value[V]]
-        (xds: Iterable[(Variable[V], Domain[V])]):
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
+        (xds: Iterable[(X, D)]):
         PropagationEffects =
     {
         xds.foldLeft(this){case (result, (x, dx)) => result.pruneDomain(x, dx)}
@@ -64,7 +67,7 @@ abstract class PropagationEffects {
 case object NoPropagationOccurred extends PropagationEffects {
     override val affectedVariables = Nil
     override def rescheduleStep = false
-    override def pruneDomain[V <: Value[V]](x: Variable[V], dx: Domain[V]) = {
+    override def pruneDomain[A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]](x: X, dx: D) = {
         val pruned = x.pruneDomain(dx)
         if pruned then {
             val xs = new mutable.HashSet[AnyVariable]
@@ -85,7 +88,7 @@ final case class ReschedulePropagationStep
 {
     require(! affectedVariables.isEmpty)
     override def rescheduleStep = true
-    override def pruneDomain[V <: Value[V]](x: Variable[V], dx: Domain[V]) = {
+    override def pruneDomain[A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]](x: X, dx: D) = {
         val pruned = x.pruneDomain(dx)
         if pruned then {
             affectedVariables += x

@@ -5,8 +5,8 @@ package yuck.core
   *
   * Values are immutable and hence we do not define += and similar operators.
   */
-abstract class IntegralValue[V] extends NumericalValue[V] {
-    def /(that: V): V
-    def %(that: V): V
+abstract class IntegralValue[A] extends NumericalValue[A] {
+    def /(that: A): A
+    def %(that: A): A
     def isEven: Boolean
 }

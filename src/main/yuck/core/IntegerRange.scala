@@ -199,7 +199,7 @@ final class IntegerRange
                 EmptyIntegerRange
             } else if ! this.contains(Zero) && c < Zero && Zero < d then {
                 // case 3
-                val e = IntegerValueTraits.valueOrdering.max(a.abs, b.abs)
+                val e = IntegerTypeTraits.valueOrdering.max(a.abs, b.abs)
                 IntegerRange(MinusOne * e, e)
             } else if ! this.contains(Zero) && c < Zero && d == Zero then {
                 // case 4a

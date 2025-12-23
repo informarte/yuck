@@ -44,7 +44,7 @@ final class FlatZincExtensionTest extends FrontEndTest {
     @Tag(HasBinPackingConstraint)
     def testIntMaxGoal(): Unit = {
         val result = solveWithResult(task.copy(problemName = "int_max_goal_test", verificationFrequency = NoVerification))
-        assertEq(result.space.numberOfConstraints[BinPacking[?]], 1)
+        assertEq(result.space.numberOfConstraints[BinPacking[?, ?, ?]], 1)
         assertEq(result.quality(0), True)
         assertEq(result.quality(1), Ten)
         assertEq(result.quality(2), Eight)
@@ -56,7 +56,7 @@ final class FlatZincExtensionTest extends FrontEndTest {
     @Tag(HasBinPackingConstraint)
     def testIntMinGoal(): Unit = {
         val result = solveWithResult(task.copy(problemName = "int_min_goal_test", verificationFrequency = NoVerification))
-        assertEq(result.space.numberOfConstraints[BinPacking[?]], 1)
+        assertEq(result.space.numberOfConstraints[BinPacking[?, ?, ?]], 1)
         assertEq(result.quality(0), True)
         assertEq(result.quality(1), Three)
         assertEq(result.quality(2), Eight)
@@ -68,7 +68,7 @@ final class FlatZincExtensionTest extends FrontEndTest {
     @Tag(HasAllDifferentConstraint)
     def testSatGoal(): Unit = {
         val result = solveWithResult(task.copy(problemName = "sat_goal_test", verificationFrequency = NoVerification))
-        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?, ?, ?]], 1)
         assertEq(result.quality(0), True)
         assertEq(result.quality(1), False)
     }

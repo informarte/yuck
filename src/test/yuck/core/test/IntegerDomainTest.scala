@@ -97,7 +97,7 @@ final class IntegerDomainTest extends UnitTest with IntegerDomainTestTooling {
     @Test
     def testConfiguration(): Unit = {
         import IntegerDomain.given
-        def testOrdering()(using ordering: Ordering[OrderedDomain[IntegerValue]]) = {
+        def testOrdering()(using ordering: Ordering[IntegerDomain]) = {
             assertEq(ordering, IntegerDomainOrdering)
         }
         testOrdering()

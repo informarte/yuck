@@ -166,12 +166,12 @@ final class Space(
 
     /** Convenience method for creating variables. */
     def createVariable
-        [V <: Value[V]]
-        (name: String, domain: Domain[V])
-        (using valueTraits: ValueTraits[V]):
-        Variable[V] =
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
+        (name: String, domain: D)
+        (using typeTraits: TypeTraits[A, D, X]):
+        X =
     {
-        valueTraits.createVariable(this, name, domain)
+        typeTraits.createVariable(this, name, domain)
     }
 
     private val objectiveVariables = new mutable.HashSet[AnyVariable]
@@ -195,7 +195,7 @@ final class Space(
         objectiveVariables.contains(x)
 
     /** Assigns the given value to the given variable. */
-    def setValue[V <: Value[V]](x: Variable[V], a: V): Space = {
+    def setValue[A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]](x: X, a: A): Space = {
         if checkAssignmentsToNonChannelVariables && (isProblemParameter(x) || isSearchVariable(x)) then {
             require(
                 x.domain.contains(a),

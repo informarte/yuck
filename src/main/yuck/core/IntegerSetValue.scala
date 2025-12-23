@@ -24,7 +24,7 @@ final class IntegerSetValue(val set: IntegerDomain) extends OrderedValue[Integer
 object IntegerSetValue {
 
     given Ordering[IntegerSetValue] = IntegerSetValueOrdering
-    given OrderedValueTraits[IntegerSetValue] = IntegerSetValueTraits
+    given OrderedTypeTraits[IntegerSetValue, IntegerSetDomain, IntegerSetVariable] = IntegerSetTypeTraits
 
     @tailrec
     private def compareRangeLists(lhs: IndexedSeq[IntegerRange], rhs: IndexedSeq[IntegerRange], i: Int): Int =

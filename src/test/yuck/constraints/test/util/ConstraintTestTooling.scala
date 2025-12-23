@@ -39,8 +39,8 @@ trait ConstraintTestTooling extends YuckAssert {
     }
 
     protected final class DomainReduction
-        [V <: Value[V]]
-        (override val x: Variable[V], override val dx: Domain[V])
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
+        (override val x: X, override val dx: D)
         extends AnyDomainReduction
     {
         override def perform() = x.pruneDomain(dx)
@@ -208,17 +208,20 @@ trait ConstraintTestTooling extends YuckAssert {
             ConsultAndCommit(comment, effects.take(effects.size - 1), List(effects.last))
     }
 
-    extension [V <: Value[V]](x: Variable[V]) {
-        def <<(dx: Domain[V]): DomainReduction[V] = DomainReduction(x, dx)
-        def <<(values: Iterable[V])(using valueTraits: ValueTraits[V]): DomainReduction[V] =
-            DomainReduction(x, valueTraits.createDomain(values.toSet))
-        def <<(a: V): MoveEffect[V] = ImmutableMoveEffect(x, a)
+    extension [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]](x: X) {
+        def <<(dx: D): DomainReduction[A, D, X] = DomainReduction(x, dx)
+        def <<(values: Iterable[A])(using typeTraits: TypeTraits[A, D, X]): DomainReduction[A, D, X] =
+            DomainReduction(x, typeTraits.createDomain(values.toSet))
+        def <<(a: A): MoveEffect[A, D, X] = ImmutableMoveEffect(x, a)
     }
 
     extension (x: IntegerVariable) {
-        def <<(range: (Int, Int)): DomainReduction[IntegerValue] = DomainReduction(x, IntegerRange(range._1, range._2))
-        def <<(values: Iterable[Int]): DomainReduction[IntegerValue] = DomainReduction(x, IntegerDomain(values))
-        def <<(a: Int): MoveEffect[IntegerValue] = ImmutableMoveEffect(x, IntegerValue(a))
+        def <<(range: (Int, Int)): DomainReduction[IntegerValue, IntegerDomain, IntegerVariable] =
+            DomainReduction(x, IntegerRange(range._1, range._2))
+        def <<(values: Iterable[Int]): DomainReduction[IntegerValue, IntegerDomain, IntegerVariable] =
+            DomainReduction(x, IntegerDomain(values))
+        def <<(a: Int): MoveEffect[IntegerValue, IntegerDomain, IntegerVariable] =
+            ImmutableMoveEffect(x, IntegerValue(a))
     }
 
 }

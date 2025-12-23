@@ -3,116 +3,116 @@ package yuck.constraints
 import yuck.core.*
 
 final class Eq
-    [V <: Value[V]]
+    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: Variable[V], y: Variable[V], z: BooleanVariable)
-    (using valueTraits: ValueTraits[V])
+     x: X, y: X, z: BooleanVariable)
+    (using typeTraits: TypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
-    with ReifiedBinaryConstraintPropagator[Domain[V], Domain[V]]
+    with ReifiedBinaryConstraintPropagator[D, D]
 {
     override def toString = "eq(%s, %s, %s)".format(x, y, z)
-    override def op(a: V, b: V) = BooleanValue(valueTraits.costModel.eqViolation(a, b))
+    override def op(a: A, b: A) = BooleanValue(typeTraits.costModel.eqViolation(a, b))
     override def propagate() = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
-    override protected def enforce(lhs: Domain[V], rhs: Domain[V]) =
-        valueTraits.domainPruner.eqRule(lhs, rhs)
-    override protected def prohibit(lhs: Domain[V], rhs: Domain[V]) =
-        valueTraits.domainPruner.neRule(lhs, rhs)
+    override protected def enforce(lhs: D, rhs: D) =
+        typeTraits.domainPruner.eqRule(lhs, rhs)
+    override protected def prohibit(lhs: D, rhs: D) =
+        typeTraits.domainPruner.neRule(lhs, rhs)
 }
 
 final class Ne
-    [V <: Value[V]]
+    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: Variable[V], y: Variable[V], z: BooleanVariable)
-    (using valueTraits: ValueTraits[V])
+     x: X, y: X, z: BooleanVariable)
+    (using typeTraits: TypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
-    with ReifiedBinaryConstraintPropagator[Domain[V], Domain[V]]
+    with ReifiedBinaryConstraintPropagator[D, D]
 {
     override def toString = "ne(%s, %s, %s)".format(x, y, z)
-    override def op(a: V, b: V) = BooleanValue(valueTraits.costModel.neViolation(a, b))
+    override def op(a: A, b: A) = BooleanValue(typeTraits.costModel.neViolation(a, b))
     override def propagate() = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
-    override protected def enforce(lhs: Domain[V], rhs: Domain[V]) =
-        valueTraits.domainPruner.neRule(lhs, rhs)
-    override protected def prohibit(lhs: Domain[V], rhs: Domain[V]) =
-        valueTraits.domainPruner.eqRule(lhs, rhs)
+    override protected def enforce(lhs: D, rhs: D) =
+        typeTraits.domainPruner.neRule(lhs, rhs)
+    override protected def prohibit(lhs: D, rhs: D) =
+        typeTraits.domainPruner.eqRule(lhs, rhs)
 }
 
 final class Lt
-    [V <: OrderedValue[V]]
+    [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: OrderedVariable[V], y: OrderedVariable[V], z: BooleanVariable)
-    (using valueTraits: OrderedValueTraits[V])
+     x: X, y: X, z: BooleanVariable)
+    (using typeTraits: OrderedTypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
-    with ReifiedBinaryConstraintPropagator[OrderedDomain[V], OrderedDomain[V]]
+    with ReifiedBinaryConstraintPropagator[D, D]
 {
     override def toString = "lt(%s, %s, %s)".format(x, y, z)
-    override def op(a: V, b: V) = BooleanValue(valueTraits.costModel.ltViolation(a, b))
+    override def op(a: A, b: A) = BooleanValue(typeTraits.costModel.ltViolation(a, b))
     override def propagate() = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
-    override protected def enforce(lhs: OrderedDomain[V], rhs: OrderedDomain[V]) =
-        valueTraits.domainPruner.ltRule(lhs, rhs)
-    override protected def prohibit(lhs0: OrderedDomain[V], rhs0: OrderedDomain[V]) = {
-        val (rhs1, lhs1) = valueTraits.domainPruner.leRule(rhs0, lhs0)
+    override protected def enforce(lhs: D, rhs: D) =
+        typeTraits.domainPruner.ltRule(lhs, rhs)
+    override protected def prohibit(lhs0: D, rhs0: D) = {
+        val (rhs1, lhs1) = typeTraits.domainPruner.leRule(rhs0, lhs0)
         (lhs1, rhs1)
     }
 }
 
 final class Le
-    [V <: OrderedValue[V]]
+    [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: OrderedVariable[V], y: OrderedVariable[V], z: BooleanVariable)
-    (using valueTraits: OrderedValueTraits[V])
+     x: X, y: X, z: BooleanVariable)
+    (using typeTraits: OrderedTypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
-    with ReifiedBinaryConstraintPropagator[OrderedDomain[V], OrderedDomain[V]]
+    with ReifiedBinaryConstraintPropagator[D, D]
 {
     override def toString = "le(%s, %s, %s)".format(x, y, z)
-    override def op(a: V, b: V) = BooleanValue(valueTraits.costModel.leViolation(a, b))
+    override def op(a: A, b: A) = BooleanValue(typeTraits.costModel.leViolation(a, b))
     override def propagate() = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
-    override protected def enforce(lhs: OrderedDomain[V], rhs: OrderedDomain[V]) =
-        valueTraits.domainPruner.leRule(lhs, rhs)
-    override protected def prohibit(lhs0: OrderedDomain[V], rhs0: OrderedDomain[V]) = {
-        val (rhs1, lhs1) = valueTraits.domainPruner.ltRule(rhs0, lhs0)
+    override protected def enforce(lhs: D, rhs: D) =
+        typeTraits.domainPruner.leRule(lhs, rhs)
+    override protected def prohibit(lhs0: D, rhs0: D) = {
+        val (rhs1, lhs1) = typeTraits.domainPruner.ltRule(rhs0, lhs0)
         (lhs1, rhs1)
     }
 }
 
 final class Min
-    [V <: OrderedValue[V]]
+    [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: OrderedVariable[V], y: OrderedVariable[V], z: OrderedVariable[V])
-    (using valueTraits: OrderedValueTraits[V])
+     x: X, y: X, z: X)
+    (using typeTraits: OrderedTypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = min(%s, %s)".format(z, x, y)
-    override def op(a: V, b: V) = if a < b then a else b
+    override def op(a: A, b: A) = if a < b then a else b
     override def propagate() = {
-        val (lhs1, dz1) = valueTraits.domainPruner.minRule(Seq(x.domain, y.domain), z.domain)
+        val (lhs1, dz1) = typeTraits.domainPruner.minRule(Seq(x.domain, y.domain), z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
 }
 
 final class Max
-    [V <: OrderedValue[V]]
+    [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: OrderedVariable[V], y: OrderedVariable[V], z: OrderedVariable[V])
-    (using valueTraits: OrderedValueTraits[V])
+     x: X, y: X, z: X)
+    (using typeTraits: OrderedTypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = max(%s, %s)".format(z, x, y)
-    override def op(a: V, b: V) = if a > b then a else b
+    override def op(a: A, b: A) = if a > b then a else b
     override def propagate() = {
-        val (lhs1, dz1) = valueTraits.domainPruner.maxRule(Seq(x.domain, y.domain), z.domain)
+        val (lhs1, dz1) = typeTraits.domainPruner.maxRule(Seq(x.domain, y.domain), z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }

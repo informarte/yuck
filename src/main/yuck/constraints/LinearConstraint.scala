@@ -10,15 +10,15 @@ import yuck.core.*
  * y is a helper variable for propagation: Conceptually, sum a(i) * x(i) = y /\ y R z.
  */
 final class LinearConstraint
-    [V <: NumericalValue[V]]
+    [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     axs: immutable.IndexedSeq[AX[V]],
-     override protected val y: NumericalVariable[V],
+     axs: immutable.IndexedSeq[AX[A, D, X]],
+     override protected val y: X,
      override protected val relation: OrderingRelation,
-     override protected val z: NumericalVariable[V],
+     override protected val z: X,
      override protected val costs: BooleanVariable)
-    (using override protected val valueTraits: NumericalValueTraits[V])
-    extends LinearConstraintLike[V](id)
+    (using override protected val typeTraits: NumericalTypeTraits[A, D, X])
+    extends LinearConstraintLike[A, D, X](id)
 {
 
     require(axs.iterator.map(_.x).toSet.size == axs.size)
@@ -27,7 +27,7 @@ final class LinearConstraint
     override protected def a(i: Int) = axs(i).a
     override protected def x(i: Int) = axs(i).x
 
-    private val x2ax: HashMap[AnyVariable, AX[V]] = axs.view.map(ax => ax.x -> ax).to(HashMap)
+    private val x2ax: HashMap[AnyVariable, AX[A, D, X]] = axs.view.map(ax => ax.x -> ax).to(HashMap)
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         futureSum = currentSum

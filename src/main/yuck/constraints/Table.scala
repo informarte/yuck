@@ -12,13 +12,13 @@ import yuck.core.*
  * @see [[yuck.Notation Notation]]
  */
 final class Table
-    [V <: OrderedValue[V]]
+    [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.IndexedSeq[Variable[V]],
-     private var rows: immutable.IndexedSeq[immutable.IndexedSeq[V]],
+     xs: immutable.IndexedSeq[X],
+     private var rows: immutable.IndexedSeq[immutable.IndexedSeq[A]],
      costs: BooleanVariable,
      forceImplicitSolving: Boolean = false)
-    (using valueTraits: OrderedValueTraits[V])
+    (using typeTraits: OrderedTypeTraits[A, D, X])
     extends Constraint(id)
 {
 
@@ -36,7 +36,7 @@ final class Table
     override def inVariables = xs
     override def outVariables = List(costs)
 
-    private var cols: Vector[Vector[V]] = null // columns improve data locality
+    private var cols: Vector[Vector[A]] = null // columns improve data locality
 
     private var currentDistances: Array[Long] = null // for each row
     protected var futureDistances: Array[Long] = null // for each row
@@ -50,20 +50,20 @@ final class Table
 
     private val effect = costs.reuseableEffect
 
-    private val costModel = valueTraits.costModel
+    private val costModel = typeTraits.costModel
 
-    inline private def computeDistance(a: V, b: V): Long =
+    inline private def computeDistance(a: A, b: A): Long =
         costModel.eqViolation(a, b)
 
     override def propagate() = {
-        if costs.domain == TrueDomain && valueTraits.domainCapabilities.createDomain then {
+        if costs.domain == TrueDomain && typeTraits.domainCapabilities.createDomain then {
             rows = rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(row(i))))
             val effects =
                 NoPropagationOccurred.pruneDomains(
                     (0 until n).iterator.map(i =>
                         val feasibleValues = rows.iterator.map(row => row(i)).toSet
                         val x = xs(i)
-                        (x, x.domain.intersect(valueTraits.createDomain(feasibleValues)))))
+                        (x, x.domain.intersect(typeTraits.createDomain(feasibleValues)))))
             if ! effects.affectedVariables.isEmpty then {
                 cols = null
             }
@@ -129,7 +129,7 @@ final class Table
         computeFutureDistances(cols(i), before.value(x), after.value(x))
     }
 
-    private def computeFutureDistances(col: Vector[V], a: V, b: V): Unit = {
+    private def computeFutureDistances(col: Vector[A], a: A, b: A): Unit = {
         var j = 0
         val m = col.size
         while j < m do {

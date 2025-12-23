@@ -13,7 +13,8 @@ final class BooleanIncreasing
      override val maybeGoal: Option[Goal],
      override protected val xs: immutable.IndexedSeq[BooleanVariable],
      override protected val costs: BooleanVariable)
-    extends Increasing[BooleanValue, BooleanVariable](id) {
+    extends Increasing(id)(using BooleanTypeTraits)
+{
 
     override protected val strict = false
 

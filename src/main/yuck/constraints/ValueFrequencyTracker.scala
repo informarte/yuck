@@ -11,35 +11,38 @@ import yuck.core.*
  * The given (immutable) map serves as a factory for the value registry.
  */
 abstract class ValueFrequencyTracker
-    [V <: Value[V], Result <: Value[Result]]
+    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X],
+     Result <: Value[Result],
+     ResultDomain <: Domain[Result, ResultDomain],
+     ResultVariable <: Variable[Result, ResultDomain, ResultVariable]]
     (id: Id[Constraint])
     extends Constraint(id)
 {
 
-    protected val xs: immutable.Seq[Variable[V]]
-    protected val result: Variable[Result]
-    protected val valueTraits: ValueTraits[V]
+    protected val xs: immutable.Seq[X]
+    protected val result: ResultVariable
+    protected val typeTraits: TypeTraits[A, D, X]
 
     override def inVariables = xs
     override def outVariables = List(result)
 
-    type VariableRegistry = immutable.Map[AnyVariable, Int]
+    private type VariableRegistry = immutable.Map[AnyVariable, Int]
     protected def createVariableRegistry(): VariableRegistry = TreeMap[AnyVariable, Int]()
     private def registerVariable(registry: VariableRegistry, x: AnyVariable) =
         registry + (x -> (registry.getOrElse(x, 0) + 1))
     private val variableRegistry =
         xs.foldLeft(createVariableRegistry())(registerVariable)
 
-    type ValueRegistry = immutable.Map[V, Int]
-    protected def createValueRegistry(): ValueRegistry = HashMap[V, Int]()
+    type ValueRegistry = immutable.Map[A, Int]
+    protected def createValueRegistry(): ValueRegistry = HashMap[A, Int]()
     private var valueRegistry: ValueRegistry = null
     private var futureValueRegistry: ValueRegistry = null
-    inline private def registerValue(valueRegistry: ValueRegistry, a0: V, n: Int): ValueRegistry = {
-        val a = valueTraits.normalizedValue(a0)
+    inline private def registerValue(valueRegistry: ValueRegistry, a0: A, n: Int): ValueRegistry = {
+        val a = typeTraits.normalizedValue(a0)
         valueRegistry + (a -> safeAdd(valueRegistry.getOrElse(a, 0), n))
     }
-    inline private def deregisterValue(valueRegistry: ValueRegistry, a0: V, n: Int): ValueRegistry = {
-        val a = valueTraits.normalizedValue(a0)
+    inline private def deregisterValue(valueRegistry: ValueRegistry, a0: A, n: Int): ValueRegistry = {
+        val a = typeTraits.normalizedValue(a0)
         val occurenceCount = valueRegistry(a) - n
         if occurenceCount == 0 then valueRegistry - a else valueRegistry + (a -> occurenceCount)
     }
@@ -60,7 +63,7 @@ abstract class ValueFrequencyTracker
         val it = todo(move).iterator
         while it.hasNext do {
             val x0 = it.next()
-            val x = valueTraits.safeDowncast(x0)
+            val x = typeTraits.safeDowncast(x0)
             val n = variableRegistry(x0)
             futureValueRegistry =
                 registerValue(deregisterValue(futureValueRegistry, before.value(x), n), after.value(x), n)

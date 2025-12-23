@@ -10,8 +10,8 @@ import yuck.test.util.UnitTest
 @Execution(ExecutionMode.CONCURRENT)
 final class IntegerSetDomainTest
     extends UnitTest
-       with OrderingTestTooling[OrderedDomain[IntegerSetValue]]
-       with RandomValueSelectionTestTooling[IntegerSetValue]
+       with OrderingTestTooling[IntegerSetDomain]
+       with RandomValueSelectionTestTooling[IntegerSetValue, IntegerSetDomain]
        with IntegerSetDomainTestDataFactory
 {
 
@@ -130,7 +130,7 @@ final class IntegerSetDomainTest
     @Test
     def testConfiguration(): Unit = {
         import IntegerSetDomain.given
-        def testOrdering()(using ordering: Ordering[OrderedDomain[IntegerSetValue]]) = {
+        def testOrdering()(using ordering: Ordering[IntegerSetDomain]) = {
             assertEq(ordering, IntegerSetDomainOrdering)
         }
         testOrdering()

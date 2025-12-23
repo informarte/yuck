@@ -40,7 +40,7 @@ final class ConstraintNetworkPruner
     private def isUseless(isImportant: AnyVariable => Boolean, constraint: Constraint): Boolean = {
         constraint match {
             case _: LevelWeightMaintainer => false
-            case _: OptimizationGoalTracker[_] => false
+            case _: OptimizationGoalTracker[?, ?, ?] => false
             case _: SatisfactionGoalTracker => false
             case _ =>
                 ! cc.space.isImplicitConstraint(constraint) &&

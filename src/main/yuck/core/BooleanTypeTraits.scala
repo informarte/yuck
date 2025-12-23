@@ -2,11 +2,10 @@ package yuck.core
 
 import scala.collection.*
 
-/**
- * Provides traits of Boolean values.
- */
-object BooleanValueTraits extends OrderedValueTraits[BooleanValue] {
-    override val valueType = classOf[BooleanValue]
+object BooleanTypeTraits extends OrderedTypeTraits[BooleanValue, BooleanDomain, BooleanVariable] {
+    override val valueClass = classOf[BooleanValue]
+    override val domainClass = classOf[BooleanDomain]
+    override val variableClass = classOf[BooleanVariable]
     override val domainCapabilities = DomainCapabilities()
     override def normalizedValue(a: BooleanValue) = if a.truthValue then True else False
     override val valueOrdering = BooleanValueOrdering
@@ -21,11 +20,11 @@ object BooleanValueTraits extends OrderedValueTraits[BooleanValue] {
     override val completeDomain = CompleteBooleanDomain
     override val domainOrdering = BooleanDomainOrdering
     override val domainPruner = BooleanDomainPruner
-    override def createVariable(space: Space, name: String, domain: Domain[BooleanValue]): BooleanVariable =
-        new BooleanVariable(space.nextVariableId(), name, safeDowncast(domain))
-    override def createChannel(space: Space): BooleanVariable =
+    override def createVariable(space: Space, name: String, domain: BooleanDomain) =
+        new BooleanVariable(space.nextVariableId(), name, domain)
+    override def createChannel(space: Space) =
         new BooleanVariable(space.nextVariableId(), "", CompleteBooleanDomain)
-    override def safeDowncast(a: AnyValue): BooleanValue = a.asInstanceOf[BooleanValue]
-    override def safeDowncast(x: AnyDomain): BooleanDomain = x.asInstanceOf[BooleanDomain]
-    override def safeDowncast(x: AnyVariable): BooleanVariable = x.asInstanceOf[BooleanVariable]
+    override def safeDowncast(a: AnyValue) = a.asInstanceOf[BooleanValue]
+    override def safeDowncast(x: AnyDomain) = x.asInstanceOf[BooleanDomain]
+    override def safeDowncast(x: AnyVariable) = x.asInstanceOf[BooleanVariable]
 }

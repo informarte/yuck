@@ -12,10 +12,10 @@ import yuck.core.*
  * to take a valid value.)
  */
 final class ElementVar
-    [V <: Value[V]]
+    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     val xs: immutable.IndexedSeq[Variable[V]], val i: IntegerVariable, val y: Variable[V], val offset: Int)
-    (using valueTraits: ValueTraits[V])
+     val xs: immutable.IndexedSeq[X], val i: IntegerVariable, val y: X, val offset: Int)
+    (using typeTraits: TypeTraits[A, D, X])
     extends Constraint(id)
 {
 
@@ -36,12 +36,12 @@ final class ElementVar
     }
 
     override def propagate() = {
-        if valueTraits.domainCapabilities.union then {
+        if typeTraits.domainCapabilities.union then {
             val di1 =
                 i.domain.intersect(IntegerRange(offset, safeDec(safeAdd(xs.size, offset))))
             val dy1 =
                 y.domain.intersect(
-                    di1.valuesIterator.foldLeft(valueTraits.emptyDomain)((u, i) => u.union(xs(i.toInt - offset).domain)))
+                    di1.valuesIterator.foldLeft(typeTraits.emptyDomain)((u, i) => u.union(xs(i.toInt - offset).domain)))
             val di2 =
                 IntegerDomain(
                     di1.valuesIterator.filter(i => xs(i.toInt - offset).domain.intersects(dy1)).toSet)

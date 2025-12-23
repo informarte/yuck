@@ -5,14 +5,14 @@ import scala.collection.*
 import yuck.core.*
 
 final class CountConst
-    [V <: Value[V]]
+    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: Seq[Variable[V]], a: V, n: IntegerVariable)
-    (using valueTraits: ValueTraits[V])
+     xs: Seq[X], a: A, n: IntegerVariable)
+    (using typeTraits: TypeTraits[A, D, X])
     extends Constraint(id)
 {
 
-    require(valueTraits.normalizedValue(a) == a)
+    require(typeTraits.normalizedValue(a) == a)
 
     override def toString = "%s = count(%s, [%s])".format(n, a, xs.mkString(", "))
 
@@ -32,11 +32,11 @@ final class CountConst
     }
 
     private def propagate2(effects: PropagationEffects): PropagationEffects = {
-        if valueTraits.domainCapabilities.createDomain &&
+        if typeTraits.domainCapabilities.createDomain &&
                n.domain.isSingleton &&
                xs.count(_.domain.contains(a)) == n.domain.singleValue.value
         then {
-            val dx = valueTraits.createDomain(Set(a))
+            val dx = typeTraits.createDomain(Set(a))
             xs.iterator.filter(_.domain.contains(a)).foldLeft(effects)((effects, x) => effects.pruneDomain(x, dx))
         } else {
             effects
@@ -48,7 +48,7 @@ final class CountConst
     }
 
     override def initialize(now: SearchState) = {
-        count = xs.count(x => valueTraits.normalizedValue(now.value(x)) == a)
+        count = xs.count(x => typeTraits.normalizedValue(now.value(x)) == a)
         effect.a = IntegerValue(count)
         effect
     }
@@ -66,8 +66,8 @@ final class CountConst
     private def computeDelta(before: SearchState, after: SearchState, move: Move): Int = {
         var delta = 0
         for x <- move do {
-            val valueBefore = valueTraits.normalizedValue(valueTraits.safeDowncast(before.value(x)))
-            val valueAfter = valueTraits.normalizedValue(valueTraits.safeDowncast(after.value(x)))
+            val valueBefore = typeTraits.normalizedValue(typeTraits.safeDowncast(before.value(x)))
+            val valueAfter = typeTraits.normalizedValue(typeTraits.safeDowncast(after.value(x)))
             if valueBefore == a && valueAfter != a then {
                 delta -= x2n.getOrElse(x, 1)
             } else if valueBefore != a && valueAfter == a then {

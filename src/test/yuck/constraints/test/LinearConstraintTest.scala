@@ -12,17 +12,17 @@ import yuck.core.*
 final class LinearConstraintTest
     (override protected val relation: OrderingRelation,
      override protected val costsDomain: BooleanDomain)
-    extends LinearConstraintLikeTest[IntegerValue]
+    extends LinearConstraintLikeTest[IntegerValue, IntegerDomain, IntegerVariable]
 {
     private val numberOfTerms = 3
-    override protected val baseValueTraits = IntegerValueTraits
+    override protected val baseTypeTraits = IntegerTypeTraits
     override protected val baseDomain: IntegerRange = IntegerRange(0, 9)
     override protected val axs =
         for i <- 1 to numberOfTerms yield AX(
             baseDomain.randomValue(randomGenerator),
             new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain.randomSubdomain(randomGenerator)))
-    override protected def createConstraint(using valueTraits: NumericalValueTraits[IntegerValue]) =
-        new LinearConstraint(space.nextConstraintId(), null, axs, y, relation, z, costs)(using valueTraits)
+    override protected lazy val constraint =
+        new LinearConstraint(space.nextConstraintId(), null, axs, y, relation, z, costs)(using typeTraits)
 }
 
 object LinearConstraintTest {

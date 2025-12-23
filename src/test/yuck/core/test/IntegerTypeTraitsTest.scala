@@ -6,9 +6,9 @@ import yuck.core.*
 import yuck.test.*
 import yuck.test.util.UnitTest
 
-final class IntegerValueTraitsTest extends UnitTest {
+final class IntegerTypeTraitsTest extends UnitTest {
 
-    import IntegerValueTraits.*
+    import IntegerTypeTraits.*
 
     @Test
     def testDomainCapabilities(): Unit = {
@@ -85,7 +85,9 @@ final class IntegerValueTraitsTest extends UnitTest {
 
     @Test
     def testConfiguration(): Unit = {
-        assertEq(valueType, classOf[IntegerValue])
+        assertEq(valueClass, classOf[IntegerValue])
+        assertEq(domainClass, classOf[IntegerDomain])
+        assertEq(variableClass, classOf[IntegerVariable])
         assertEq(valueOrdering, IntegerValueOperations)
         assertEq(numericalOperations, IntegerValueOperations)
         assertEq(costModel, IntegerValueOrderingCostModel)

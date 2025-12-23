@@ -182,7 +182,7 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
         space.post(constraint)
         assert(constraint.isCandidateForImplicitSolving(space))
         val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution).get
-        assertEq(neighbourhood.getClass, classOf[AllDifferentNeighbourhood[?]])
+        assertEq(neighbourhood.getClass, classOf[AllDifferentNeighbourhood[?, ?, ?]])
         val now = space.searchState
         assert(xs.forall(x => x.domain.contains(now.value(x))))
         if withException then {

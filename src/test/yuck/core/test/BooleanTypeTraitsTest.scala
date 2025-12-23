@@ -5,9 +5,9 @@ import org.junit.jupiter.api.Test
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-final class BooleanValueTraitsTest extends UnitTest {
+final class BooleanTypeTraitsTest extends UnitTest {
 
-    import BooleanValueTraits.*
+    import BooleanTypeTraits.*
 
     @Test
     def testDomainCapabilities(): Unit = {
@@ -77,7 +77,9 @@ final class BooleanValueTraitsTest extends UnitTest {
 
     @Test
     def testConfiguration(): Unit = {
-        assertEq(valueType, classOf[BooleanValue])
+        assertEq(valueClass, classOf[BooleanValue])
+        assertEq(domainClass, classOf[BooleanDomain])
+        assertEq(variableClass, classOf[BooleanVariable])
         assertEq(valueOrdering, BooleanValueOrdering)
         assertEq(costModel, BooleanValueOrderingCostModel)
         assertEq(domainOrdering, BooleanDomainOrdering)

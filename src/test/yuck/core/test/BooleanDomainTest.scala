@@ -10,8 +10,8 @@ import yuck.test.util.UnitTest
 @Execution(ExecutionMode.CONCURRENT)
 final class BooleanDomainTest
     extends UnitTest
-       with OrderingTestTooling[OrderedDomain[BooleanValue]]
-       with RandomValueSelectionTestTooling[BooleanValue]
+       with OrderingTestTooling[BooleanDomain]
+       with RandomValueSelectionTestTooling[BooleanValue, BooleanDomain]
 {
 
     private val testData1 = List((false, false), (true, false), (false, true), (true, true))
@@ -116,7 +116,7 @@ final class BooleanDomainTest
     @Test
     def testConfiguration(): Unit = {
         import BooleanDomain.given
-        def testOrdering()(using ordering: Ordering[OrderedDomain[BooleanValue]]) = {
+        def testOrdering()(using ordering: Ordering[BooleanDomain]) = {
             assertEq(ordering, BooleanDomainOrdering)
         }
         testOrdering()

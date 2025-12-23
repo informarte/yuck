@@ -8,7 +8,7 @@ package yuck.core
  *
  * Null bounds imply infinity.
  */
-abstract class OrderedDomain[V <: OrderedValue[V]] extends Domain[V] with Ordered[OrderedDomain[V]] {
+abstract class OrderedDomain[A <: OrderedValue[A], D <: OrderedDomain[A, D]] extends Domain[A, D] with Ordered[D] {
 
     /** Returns true iff the domain has a lower or an upper bound. */
     def isBounded: Boolean
@@ -20,26 +20,18 @@ abstract class OrderedDomain[V <: OrderedValue[V]] extends Domain[V] with Ordere
     def hasUb: Boolean = ub.ne(null)
 
     /** Provides the domain's lower bound as Option instance. */
-    def maybeLb: Option[V] = Option(lb)
+    def maybeLb: Option[A] = Option(lb)
 
     /** Provides the domain's upper bound as Option instance. */
-    def maybeUb: Option[V] = Option(ub)
+    def maybeUb: Option[A] = Option(ub)
 
     /** Returns the domain's lower bound when it exists and null otherwise. */
-    def lb: V = maybeLb.getOrElse(null.asInstanceOf[V])
+    def lb: A = maybeLb.getOrElse(null.asInstanceOf[A])
 
     /** Returns the domain's upper bound when it exists and null otherwise. */
-    def ub: V = maybeUb.getOrElse(null.asInstanceOf[V])
+    def ub: A = maybeUb.getOrElse(null.asInstanceOf[A])
 
     /** Returns [lb, ub]. */
-    def hull: OrderedDomain[V]
-
-    override def randomSubdomain(randomGenerator: RandomGenerator): OrderedDomain[V]
-
-    override def intersect(that: Domain[V]): OrderedDomain[V]
-    override def union(that: Domain[V]): OrderedDomain[V]
-    override def diff(that: Domain[V]): OrderedDomain[V]
-    override def symdiff(that: Domain[V]): OrderedDomain[V] =
-        super.symdiff(that).asInstanceOf[OrderedDomain[V]]
+    def hull: D
 
 }

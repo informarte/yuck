@@ -3,12 +3,12 @@ package yuck.core
 /**
  * Provides a cost model for ordering constraints.
  */
-abstract class OrderingCostModel[V <: OrderedValue[V]] extends EqualityCostModel[V] {
+abstract class OrderingCostModel[A <: OrderedValue[A]] extends EqualityCostModel[A] {
 
     /** Basis for implementing less-than constraints. */
-    def ltViolation(lhs: V, rhs: V): Long = if lhs < rhs then 0 else 1
+    def ltViolation(lhs: A, rhs: A): Long = if lhs < rhs then 0 else 1
 
     /** Basis for implementing less-than-or-equal constraints. */
-    def leViolation(lhs: V, rhs: V): Long = if lhs <= rhs then 0 else 1
+    def leViolation(lhs: A, rhs: A): Long = if lhs <= rhs then 0 else 1
 
 }

@@ -76,7 +76,7 @@ final class ObjectiveFactory
 
     private def createMinimizationObjective
         (cfg: FlatZincSolverConfiguration, x: IntegerVariable, maybeBound: Option[IntegerValue]):
-        MinimizationObjective[IntegerValue] =
+        MinimizationObjective[IntegerValue, IntegerDomain, IntegerVariable] =
     {
         val dx = x.domain
         val maybeY =
@@ -84,7 +84,7 @@ final class ObjectiveFactory
                 val lb =
                     dx.maybeLb.getOrElse(
                         cfg.maybeTargetObjectiveValue.map(IntegerValue.apply).getOrElse(
-                            IntegerValueTraits.minValue))
+                            IntegerTypeTraits.minValue))
                 cc.logger.log("Objective variable %s is dangling, assigning %s to it".format(x, lb))
                 cc.space.setValue(x, lb)
                 None
@@ -104,12 +104,12 @@ final class ObjectiveFactory
                 None
             }
         cc.space.registerObjectiveVariable(x)
-        new MinimizationObjective[IntegerValue](x, cfg.maybeTargetObjectiveValue.map(IntegerValue.apply), maybeY)
+        new MinimizationObjective(x, cfg.maybeTargetObjectiveValue.map(IntegerValue.apply), maybeY)
     }
 
     private def createMaximizationObjective
         (cfg: FlatZincSolverConfiguration, x: IntegerVariable, maybeBound: Option[IntegerValue]):
-        MaximizationObjective[IntegerValue] =
+        MaximizationObjective[IntegerValue, IntegerDomain, IntegerVariable] =
     {
         val dx = x.domain
         val maybeY =
@@ -117,7 +117,7 @@ final class ObjectiveFactory
                 val ub =
                     dx.maybeUb.getOrElse(
                         cfg.maybeTargetObjectiveValue.map(IntegerValue.apply).getOrElse(
-                            IntegerValueTraits.maxValue))
+                            IntegerTypeTraits.maxValue))
                 cc.logger.log("Objective variable %s is dangling, assigning %s to it".format(x, ub))
                 cc.space.setValue(x, ub)
                 None
@@ -137,7 +137,7 @@ final class ObjectiveFactory
                 None
             }
         cc.space.registerObjectiveVariable(x)
-        new MaximizationObjective[IntegerValue](x, cfg.maybeTargetObjectiveValue.map(IntegerValue.apply), maybeY)
+        new MaximizationObjective(x, cfg.maybeTargetObjectiveValue.map(IntegerValue.apply), maybeY)
     }
 
 }

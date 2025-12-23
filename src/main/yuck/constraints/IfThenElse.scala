@@ -11,10 +11,10 @@ import yuck.core.*
  * Ignores the value of the last element of cs and assumes it to be true.
  */
 final class IfThenElse
-    [V <: Value[V]]
+    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     cs: immutable.IndexedSeq[BooleanVariable], xs: immutable.IndexedSeq[Variable[V]], y: Variable[V])
-    (using valueTraits: ValueTraits[V])
+     cs: immutable.IndexedSeq[BooleanVariable], xs: immutable.IndexedSeq[X], y: X)
+    (using typeTraits: TypeTraits[A, D, X])
     extends Constraint(id)
 {
 
@@ -70,14 +70,14 @@ final class IfThenElse
                 // skip impossible case
                 propagate2(effects, i + 1)
             }
-        } else if valueTraits.domainCapabilities.union then {
+        } else if typeTraits.domainCapabilities.union then {
             // constructive disjunction: propagate the union of the x[j] domains, j > i, to y
             effects.pruneDomain(
                 y,
                 (i until n)
                     .iterator
                     .filter(i => cs(i).domain != FalseDomain)
-                    .foldLeft(valueTraits.emptyDomain)((u, i) => u.union(xs(i).domain)))
+                    .foldLeft(typeTraits.emptyDomain)((u, i) => u.union(xs(i).domain)))
         } else {
             effects
         }

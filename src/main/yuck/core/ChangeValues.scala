@@ -12,18 +12,17 @@ final class ChangeAnyValues
  * Turns the given effects into a move.
  */
 final class ChangeValues
-    [V <: Value[V]]
+    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
     (id: Id[Move],
-     override val effects: Iterable[MoveEffect[V]])
+     override val effects: Iterable[MoveEffect[A, D, X]])
     extends Move(id)
 
 /**
  * Turns the given (variable, value) pair into a move.
  */
 final class ChangeValue
-    [V <: Value[V]]
-    (id: Id[Move],
-     x: Variable[V], a: V)
+    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
+    (id: Id[Move], x: X, a: A)
     extends Move(id)
 {
     override val effects = List(new ImmutableMoveEffect(x, a))

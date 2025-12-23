@@ -3,15 +3,17 @@ package yuck.constraints
 import yuck.core.*
 
 abstract class BinaryConstraint
-    [In <: Value[In], Out <: Value[Out]]
+    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X],
+     B <: Value[B], E <: Domain[B, E], Y <: Variable[B, E, Y]]
     (id: Id[Constraint],
-     protected val x: Variable[In], protected val y: Variable[Out])
+     protected val x: X,
+     protected val y: Y)
     extends Constraint(id)
 {
     override def inVariables = List(x)
     override def outVariables = List(y)
     private val effect = y.reuseableEffect
-    def op(a: In): Out
+    def op(a: A): B
     override def initialize(now: SearchState) = {
         effect.a = op(now.value(x))
         effect

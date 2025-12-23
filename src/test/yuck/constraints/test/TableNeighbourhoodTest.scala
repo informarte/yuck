@@ -14,7 +14,7 @@ final class TableNeighbourhoodTest extends SpecificNeighbourhoodTest {
     override protected lazy val constraint =
         new Table(space.nextConstraintId(), null, xs, rows, costs)
 
-    override protected val expectedNeighbourhoodClass = classOf[TableNeighbourhood[?]]
+    override protected val expectedNeighbourhoodClass = classOf[TableNeighbourhood[?, ?, ?]]
 
     override protected def checkSearchState(searchState: SearchState) = {
         assert(xs.forall(_.hasValidValue(searchState)))

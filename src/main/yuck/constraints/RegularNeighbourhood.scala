@@ -18,7 +18,8 @@ class RegularNeighbourhood
      xs: immutable.IndexedSeq[IntegerVariable],
      randomGenerator: RandomGenerator,
      moveSizeDistribution: Distribution,
-     maybeHotSpotDistribution: Option[Distribution], maybeFairVariableChoiceRate: Option[Probability],
+     maybeHotSpotDistribution: Option[Distribution],
+     maybeFairVariableChoiceRate: Option[Probability],
      graph: RegularGraph,
      initialPath: IndexedSeq[Transition])
     extends Neighbourhood

@@ -3,14 +3,18 @@ package yuck.constraints
 import yuck.core.*
 
 abstract class TernaryConstraint
-    [In1 <: Value[In1], In2 <: Value[In2], Out <: Value[Out]]
+    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X],
+     B <: Value[B], E <: Domain[B, E], Y <: Variable[B, E, Y],
+     C <: Value[C], F <: Domain[C, F], Z <: Variable[C, F, Z]]
     (id: Id[Constraint],
-     protected val x: Variable[In1], protected val y: Variable[In2], protected val z: Variable[Out])
+     protected val x: X,
+     protected val y: Y,
+     protected val z: Z)
     extends Constraint(id)
 {
     final override def inVariables = List(x, y)
     final override def outVariables = List(z)
-    protected def op(a: In1, b: In2): Out
+    protected def op(a: A, b: B): C
     private val effect = z.reuseableEffect
     final override def initialize(now: SearchState) = {
         effect.a = op(now.value(x), now.value(y))

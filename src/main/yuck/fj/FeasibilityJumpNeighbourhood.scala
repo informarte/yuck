@@ -280,8 +280,8 @@ final class FeasibilityJumpNeighbourhood
                 case y: BooleanVariable => findJumpCandidate(acc, y, xi)
                 case y: IntegerVariable =>
                     if useConvexArgMin
-                    then findJumpCandidate(acc, y, xi)
-                    else findJumpCandidate(acc, y.asInstanceOf[Variable[IntegerValue]], xi)
+                    then findJumpCandidateUsingConvexArgMin(acc, y, xi)
+                    else findJumpCandidate(acc, y, xi)
                 case y: IntegerSetVariable => findJumpCandidate(acc, y, xi)
             }
             if useJumpValueCache && jumpCandidate.changes.size == 1 && (useConvexArgMin || cacheJumpValuesFor(x)) then {
@@ -294,7 +294,11 @@ final class FeasibilityJumpNeighbourhood
         }
     }
 
-    private def findJumpCandidate[V <: Value[V]](acc: JumpCandidate, x: Variable[V], xi: Int): JumpCandidate = {
+    private def findJumpCandidate
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
+        (acc: JumpCandidate, x: X, xi: Int):
+        JumpCandidate =
+    {
         val a = space.searchState.value(x)
         if cacheJumpValuesFor(x)
         then {
@@ -303,7 +307,7 @@ final class FeasibilityJumpNeighbourhood
                 .map(b => computeScore(acc, x, xi, b))
                 .minBy(_.score)
         } else {
-            val values = new ArrayBuffer[V](x.domain.size - 1)
+            val values = new ArrayBuffer[A](x.domain.size - 1)
             values ++= x.domain.valuesIterator.filter(_ != a)
             randomGenerator
                 .lazyShuffleInPlace(values)
@@ -322,7 +326,7 @@ final class FeasibilityJumpNeighbourhood
     // We don't exclude the current value from search because splitting the domain might double the effort.
     // Should the current value be found to be the best, then its score would be 0, implying all other values
     // having worse scores. So we won't miss any jump candidate.
-    private def findJumpCandidate(acc: JumpCandidate, x: IntegerVariable, xi: Int): JumpCandidate =
+    private def findJumpCandidateUsingConvexArgMin(acc: JumpCandidate, x: IntegerVariable, xi: Int): JumpCandidate =
         x.domain match {
             case range: IntegerRange =>
                 convexArgMin(acc, x, xi, range)
@@ -366,7 +370,11 @@ final class FeasibilityJumpNeighbourhood
     }
 
     // The work done by this method dominates everything else, so no need for code tuning in other places.
-    private def computeScore[V <: Value[V]](acc: JumpCandidate, x: Variable[V], xi: Int, a: V): JumpCandidate = {
+    private def computeScore
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
+        (acc: JumpCandidate, x: X, xi: Int, a: A):
+        JumpCandidate =
+    {
         val move = new BulkMove(space.nextMoveId())
         move ++= acc.changes
         move += new ImmutableMoveEffect(x, a)

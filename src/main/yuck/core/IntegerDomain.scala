@@ -6,7 +6,7 @@ import scala.collection.*
 /**
  * Provides an interface for working with integer domains.
  */
-abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
+abstract class IntegerDomain extends NumericalDomain[IntegerValue, IntegerDomain] {
 
     import IntegerDomain.*
 
@@ -16,12 +16,12 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
         (3 * (3 + (if isEmpty || lb.eq(null) then 0 else lb.hashCode)) +
             (if isEmpty || ub.eq(null) then 0 else ub.hashCode))
 
-    final override def compare(that: OrderedDomain[IntegerValue]) = (this, that) match {
+    final override def compare(that: IntegerDomain) = (this, that) match {
         case (lhs: IntegerRange, rhs: IntegerRange) => RangeOrdering.compare(lhs, rhs)
         case _ => RangeListOrdering.compare(ensureRangeList(this), ensureRangeList(that))
     }
 
-    final override def ==(that: Domain[IntegerValue]) = (this, that) match {
+    final override def ==(that: IntegerDomain) = (this, that) match {
         case (lhs: IntegerRange, rhs: IntegerRange) =>
             lhs == rhs
         case (lhs: IntegerRange, rhs: IntegerRangeList) =>
@@ -51,19 +51,19 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
     /** Return true iff the domain has at least one gap. */
     def hasGaps: Boolean
 
-    final override def isSubsetOf(that: Domain[IntegerValue]): Boolean = (this, that) match {
+    final override def isSubsetOf(that: IntegerDomain): Boolean = (this, that) match {
         case (lhs: SixtyFourBitSet, rhs: SixtyFourBitSet) => lhs.isSubsetOf(rhs)
         case (lhs: IntegerRange, rhs: IntegerRange) => lhs.isSubsetOf(rhs)
         case _ => ensureRangeList(this).isSubsetOf(ensureRangeList(that))
     }
 
-    final override def intersects(that: Domain[IntegerValue]): Boolean = (this, that) match {
+    final override def intersects(that: IntegerDomain): Boolean = (this, that) match {
         case (lhs: SixtyFourBitSet, rhs: SixtyFourBitSet) => lhs.intersects(rhs)
         case (lhs: IntegerRange, rhs: IntegerRange) => lhs.intersects(rhs)
         case _ => ensureRangeList(this).intersects(ensureRangeList(that))
     }
 
-    final override def intersect(that: Domain[IntegerValue]): IntegerDomain = (this, that) match {
+    final override def intersect(that: IntegerDomain): IntegerDomain = (this, that) match {
         case (lhs: SixtyFourBitSet, rhs: SixtyFourBitSet) => lhs.intersect(rhs)
         case (lhs: SixtyFourBitSet, rhs: IntegerDomain) =>
             lhs.intersect(SixtyFourBitSet(rhs.intersect(SixtyFourBitSet.ValueRange)))
@@ -72,7 +72,7 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
         case _ => ensureRangeList(this).intersect(ensureRangeList(that))
     }
 
-    final override def union(that: Domain[IntegerValue]): IntegerDomain = (this, that) match {
+    final override def union(that: IntegerDomain): IntegerDomain = (this, that) match {
         case (lhs: SixtyFourBitSet, rhs: SixtyFourBitSet) => lhs.union(rhs)
         case (lhs: SixtyFourBitSet, rhs: IntegerDomain) if rhs.isSubsetOf(SixtyFourBitSet.ValueRange) =>
             lhs.union(SixtyFourBitSet(rhs))
@@ -80,7 +80,7 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
         case _ => ensureRangeList(this).union(ensureRangeList(that))
     }
 
-    final override def diff(that: Domain[IntegerValue]): IntegerDomain = (this, that) match {
+    final override def diff(that: IntegerDomain): IntegerDomain = (this, that) match {
         case (lhs: SixtyFourBitSet, rhs: SixtyFourBitSet) => lhs.diff(rhs)
         case (lhs: SixtyFourBitSet, rhs: IntegerDomain) =>
             lhs.diff(SixtyFourBitSet(rhs.intersect(SixtyFourBitSet.ValueRange)))
@@ -204,7 +204,7 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue] {
 
 object IntegerDomain {
 
-    given Ordering[OrderedDomain[IntegerValue]] = IntegerDomainOrdering
+    given Ordering[IntegerDomain] = IntegerDomainOrdering
 
     private def rangeLessThan(lhs: IntegerRange, rhs: IntegerRange) =
         ! rhs.isSubsetOf(lhs) && (lhs.isSubsetOf(rhs) || lhs.startsBefore(rhs))
@@ -222,7 +222,7 @@ object IntegerDomain {
     }
 
     /** Turns the given integer domain into a range list, if necessary. */
-    def ensureRangeList(domain: Domain[IntegerValue]): IntegerRangeList = domain match {
+    def ensureRangeList(domain: IntegerDomain): IntegerRangeList = domain match {
         case range: IntegerRange => if range.isEmpty then EmptyIntegerRangeList else IntegerRangeList(range)
         case rangeList: IntegerRangeList => rangeList
         case bitSet: SixtyFourBitSet => ensureRangeList(IntegerDomain(bitSet.valuesIterator))

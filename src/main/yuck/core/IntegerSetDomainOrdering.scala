@@ -7,4 +7,4 @@ import yuck.util.OrderingFromOrdered
  *
  * (There is currently no implementation of IntegerSetDomain that allows for holes.)
  */
-object IntegerSetDomainOrdering extends OrderingFromOrdered[OrderedDomain[IntegerSetValue]]
+object IntegerSetDomainOrdering extends OrderingFromOrdered[IntegerSetDomain]

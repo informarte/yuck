@@ -9,11 +9,11 @@ import yuck.core.*
  * Implements the ''lex_less_int'' constraint as specified by MiniZinc.
  */
 final class LexLess
-    [V <: OrderedValue[V]]
+    [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.IndexedSeq[OrderedVariable[V]], ys: immutable.IndexedSeq[OrderedVariable[V]],
+     xs: immutable.IndexedSeq[X], ys: immutable.IndexedSeq[X],
      costs: BooleanVariable)
-    (using ord: Ordering[V])
+    (using ord: Ordering[A])
     extends Constraint(id)
 {
 

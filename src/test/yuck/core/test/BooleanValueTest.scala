@@ -80,8 +80,8 @@ final class BooleanValueTest
             assertEq(ordering, BooleanValueOrdering)
         }
         testOrdering()
-        def testTraits()(using traits: OrderedValueTraits[BooleanValue]) = {
-            assertEq(traits, BooleanValueTraits)
+        def testTraits()(using traits: OrderedTypeTraits[BooleanValue, BooleanDomain, BooleanVariable]) = {
+            assertEq(traits, BooleanTypeTraits)
         }
         testTraits()
     }

@@ -4,8 +4,8 @@ package yuck.core
  * Represents a scalar-variable pair for use in linear combinations.
  */
 final case class AX
-    [V <: NumericalValue[V]]
-    (a: V, x: NumericalVariable[V])
+    [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
+    (a: A, x: X)
 {
     override def toString = "%s * %s".format(a, x)
 }
@@ -19,10 +19,13 @@ object AX {
      * Interprets the given sequence of scalar-variable pairs as linear combination
      * and transforms it into an equivalent linear combination of minimal size.
      */
-    def normalize[V <: NumericalValue[V]](axs: Iterable[AX[V]]): List[AX[V]] =
-        axs.toSeq.sortBy(_.x).foldLeft(Nil: List[AX[V]]) {
+    def normalize
+        [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
+        (axs: Iterable[AX[A, D, X]]):
+        List[AX[A, D, X]] =
+        axs.toSeq.sortBy(_.x).foldLeft(Nil: List[AX[A, D, X]]) {
             case (Nil, ax) => ax :: Nil
-            case (h :: t, ax) if h.x == ax.x => new AX[V](h.a + ax.a, h.x) :: t
+            case (h :: t, ax) if h.x == ax.x => new AX[A, D, X](h.a + ax.a, h.x) :: t
             case (h :: t, ax) => ax :: h :: t
         }
 

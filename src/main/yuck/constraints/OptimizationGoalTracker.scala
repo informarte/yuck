@@ -11,11 +11,11 @@ import yuck.core.*
  * a[i] * x[i] and its lower or upper bound, respectively, depending on the optimization mode.
  */
 final class OptimizationGoalTracker
-    [V <: NumericalValue[V]]
+    [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      mode: OptimizationMode,
-     axs: immutable.IndexedSeq[AX[V]], distribution: Distribution)
-    (using valueTraits: NumericalValueTraits[V])
+     axs: immutable.IndexedSeq[AX[A, D, X]], distribution: Distribution)
+    (using typeTraits: NumericalTypeTraits[A, D, X])
     extends Constraint(id)
 {
 
@@ -27,7 +27,7 @@ final class OptimizationGoalTracker
     override def inVariables = axs.view.map(_.x)
     override def outVariables = Nil
 
-    private val indexMap: HashMap[AnyVariable, (Int, AX[V])] =
+    private val indexMap: HashMap[AnyVariable, (Int, AX[A, D, X])] =
         axs.indices.view.map(i => (axs(i).x, (i, axs(i)))).to(HashMap)
 
     override def initialize(now: SearchState) = {
@@ -49,17 +49,17 @@ final class OptimizationGoalTracker
         Nil
     }
 
-    private def computeFrequency(ax: AX[V], searchState: SearchState): Long = {
+    private def computeFrequency(ax: AX[A, D, X], searchState: SearchState): Long = {
         val a = ax.a.toLong
         val b = searchState.value(ax.x).toLong
         val dx = ax.x.domain
         val delta = mode match {
             case OptimizationMode.Min =>
-                if ax.a < valueTraits.zero
+                if ax.a < typeTraits.zero
                 then safeMul(-a, safeSub(dx.ub.toLong, b)) // minimize -a * (dx.ub - x)
                 else safeMul(a, safeSub(b, dx.lb.toLong)) // minimize a * (x - dx.lb)
             case OptimizationMode.Max =>
-                if ax.a < valueTraits.zero
+                if ax.a < typeTraits.zero
                 then safeMul(-a, safeSub(b, dx.lb.toLong)) // minimize -a * (x - dx.lb)
                 else safeMul(a, safeSub(dx.ub.toLong, b)) // minimize a * (dx.ub - x)
         }

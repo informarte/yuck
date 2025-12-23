@@ -27,24 +27,26 @@ import yuck.core.*
  * @see [[yuck.constraints.Circuit Circuit]]
  */
 final class Delivery
-    [Time <: NumericalValue[Time]]
+    [Time <: NumericalValue[Time],
+     TimeDomain <: NumericalDomain[Time, TimeDomain],
+     TimeVariable <: NumericalVariable[Time, TimeDomain, TimeVariable]]
     (space: WeakReference[Space],
      id: Id[Constraint], override val maybeGoal: Option[Goal],
      startNodes: IntegerDomain,
      endNodes: IntegerDomain,
      succ: immutable.IndexedSeq[IntegerVariable], offset: Int,
-     arrivalTimes: immutable.IndexedSeq[NumericalVariable[Time]],
+     arrivalTimes: immutable.IndexedSeq[TimeVariable],
      serviceTimes: Int => Time,
      travelTimes: (Int, Int) => Time,
      withWaiting: Boolean,
-     totalTravelTime: NumericalVariable[Time],
+     totalTravelTime: TimeVariable,
      costs: BooleanVariable)
-    (using timeTraits: NumericalValueTraits[Time])
+    (using timeTraits: NumericalTypeTraits[Time, TimeDomain, TimeVariable])
     extends Constraint(id)
 {
 
     private val timeOps = timeTraits.numericalOperations
-    private given timeClassTag: ClassTag[Time] = ClassTag[Time](timeTraits.valueType)
+    private given timeClassTag: ClassTag[Time] = ClassTag[Time](timeTraits.valueClass)
 
     private val nodes = IntegerRange(offset, offset + succ.size - 1)
     require(! startNodes.isEmpty)
@@ -55,7 +57,7 @@ final class Delivery
     require(endNodes.values.forall(i => succ(i.toInt - offset).domain.isSingleton))
     require(
         endNodes.values
-            .foldLeft(IntegerValueTraits.emptyDomain)((acc, i) => acc.union(succ(i.toInt - offset).domain)) ==
+            .foldLeft(IntegerTypeTraits.emptyDomain)((acc, i) => acc.union(succ(i.toInt - offset).domain)) ==
             startNodes)
     require(succ.forall(_.domain.isSubsetOf(nodes)))
     require(arrivalTimes.size == nodes.size)
@@ -157,7 +159,7 @@ final class Delivery
     private val affectedTours = new mutable.HashSet[Int]
 
     inline private def distanceDelta
-        (dx: NumericalDomain[Time], beforeValue: Time, afterValue: Time): Long =
+        (dx: NumericalDomain[Time, TimeDomain], beforeValue: Time, afterValue: Time): Long =
         safeSub(dx.distanceTo(afterValue).toLong, dx.distanceTo(beforeValue).toLong)
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {

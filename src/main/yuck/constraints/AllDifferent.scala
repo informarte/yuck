@@ -19,15 +19,15 @@ import yuck.util.logging.LazyLogger
  * @see [[yuck.Notation Notation]]
  */
 final class AllDifferent
-    [V <: Value[V]]
+    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
     (id: Id[Constraint],
      override val maybeGoal: Option[Goal],
-     override protected val xs: immutable.IndexedSeq[Variable[V]],
-     exceptedValues: immutable.Set[V],
+     override protected val xs: immutable.IndexedSeq[X],
+     exceptedValues: immutable.Set[A],
      override protected val result: BooleanVariable,
      logger: LazyLogger)
-    (using override protected val valueTraits: ValueTraits[V])
-    extends ValueFrequencyTracker[V, BooleanValue](id)
+    (using override protected val typeTraits: TypeTraits[A, D, X])
+    extends ValueFrequencyTracker[A, D, X, BooleanValue, BooleanDomain, BooleanVariable](id)
 {
 
     override def toString =
@@ -36,7 +36,7 @@ final class AllDifferent
         else "all_different_except([%s], {%s}, %s)".format(xs.mkString(", "), exceptedValues.mkString(", "), result)
 
     override def propagate() = {
-        if result.domain == TrueDomain && valueTraits.domainCapabilities.diff then {
+        if result.domain == TrueDomain && typeTraits.domainCapabilities.diff then {
             NoPropagationOccurred.pruneDomains(
                 for x <- xs.iterator if x.domain.isSingleton && ! exceptedValues.contains(x.domain.singleValue)
                     y <- xs.iterator if y != x && y.domain.contains(x.domain.singleValue)
@@ -62,9 +62,9 @@ final class AllDifferent
     override def isCandidateForImplicitSolving(space: Space) = {
         val (ys, xs) = this.xs.partition(_.domain.isSingleton)
         val as = ys.iterator.map(_.domain.singleValue).toSet
-        valueTraits.domainCapabilities.createDomain &&
-            valueTraits.domainCapabilities.diff &&
-            valueTraits.domainCapabilities.union &&
+        typeTraits.domainCapabilities.createDomain &&
+            typeTraits.domainCapabilities.diff &&
+            typeTraits.domainCapabilities.union &&
             xs.size > 1 &&
             xs.toSet.size == xs.size &&
             ! xs.exists(space.isChannelVariable) &&
@@ -83,15 +83,15 @@ final class AllDifferent
     {
         if isCandidateForImplicitSolving(space) then {
             abstract class Vertex
-            case class VariableVertex(x: Variable[V]) extends Vertex
-            case class ValueVertex(a: V) extends Vertex
-            case class ExceptedValueVertex(x: Variable[V], a: V) extends Vertex
-            case class Edge(x: Variable[V], a: V)
+            case class VariableVertex(x: X) extends Vertex
+            case class ValueVertex(a: A) extends Vertex
+            case class ExceptedValueVertex(x: X, a: A) extends Vertex
+            case class Edge(x: X, a: A)
             val graph =
                 if exceptedValues.isEmpty
                 then new DefaultUndirectedGraph[Vertex, Edge](classOf[Edge])
                 else new DefaultUndirectedWeightedGraph[Vertex, Edge](classOf[Edge])
-            val as = xs.foldLeft(valueTraits.emptyDomain)((u, x) => u.union(x.domain)).values
+            val as = xs.foldLeft(typeTraits.emptyDomain)((u, x) => u.union(x.domain)).values
             val variableVertices = xs.iterator.map(x => (x, VariableVertex(x))).toMap
             val valueVertices = as.iterator.filterNot(exceptedValues.contains).map(a => (a, ValueVertex(a))).toMap
             val exceptedValueVertices = new mutable.ArrayBuffer[Vertex]

@@ -30,12 +30,12 @@ final class ArrayAccessOptimizer
     }
 
     private def optimizeVarArrayAccess(layer: Set[yuck.core.Constraint]): Unit = {
-        val elementVarConstraints: Map[(immutable.IndexedSeq[Variable[?]], Int), Vector[ElementVar[?]]] =
+        val elementVarConstraints: Map[(immutable.IndexedSeq[Variable[?, ?, ?]], Int), Vector[ElementVar[?, ?, ?]]] =
             layer.view
-                .filter(_.isInstanceOf[ElementVar[?]])
-                .map(_.asInstanceOf[ElementVar[?]])
+                .filter(_.isInstanceOf[ElementVar[?, ?, ?]])
+                .map(_.asInstanceOf[ElementVar[?, ?, ?]])
                 .filterNot(constraint => constraint.xs.contains(constraint.i))
-                .groupBy(constraint => (constraint.xs, constraint.offset))
+                .groupBy(constraint => (constraint.xs.asInstanceOf[immutable.IndexedSeq[Variable[?, ?, ?]]], constraint.offset))
                 .view
                 .mapValues(_.toVector)
                 .toMap
@@ -58,11 +58,16 @@ final class ArrayAccessOptimizer
                 constraints.foreach(cc.space.retract)
                 val is = constraints.map(_.i)
                 val ys = constraints.map(_.y)
-                inline def postConstraint[V <: Value[V]]()(using valueTraits: ValueTraits[V]): Unit = {
+                inline def postConstraint
+                    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
+                    ()
+                    (using typeTraits: TypeTraits[A, D, X]):
+                    Unit =
+                {
                     val (xs1, offset1) =
                         uselessInputsRemoved(
-                            xs.asInstanceOf[immutable.IndexedSeq[Variable[V]]],
-                            is.foldLeft(IntegerValueTraits.emptyDomain)((u, i) => u.union(i.domain)),
+                            xs.asInstanceOf[immutable.IndexedSeq[X]],
+                            is.foldLeft(IntegerTypeTraits.emptyDomain)((u, i) => u.union(i.domain)),
                             offset)
                     if xs1 != xs then {
                         cc.logger.log(
@@ -72,35 +77,40 @@ final class ArrayAccessOptimizer
                         new ElementsVar(
                             constraints.head.id,
                             constraints.head.maybeGoal,
-                            xs1.asInstanceOf[immutable.IndexedSeq[Variable[V]]],
+                            xs1.asInstanceOf[immutable.IndexedSeq[X]],
                             is,
-                            ys.asInstanceOf[immutable.IndexedSeq[Variable[V]]],
+                            ys.asInstanceOf[immutable.IndexedSeq[X]],
                             offset1))
                 }
                 xs.head.match {
-                    case _: BooleanVariable => postConstraint[BooleanValue]()
-                    case _: IntegerVariable => postConstraint[IntegerValue]()
-                    case _: IntegerSetVariable => postConstraint[IntegerSetValue]()
+                    case _: BooleanVariable => postConstraint()(using BooleanTypeTraits)
+                    case _: IntegerVariable => postConstraint()(using IntegerTypeTraits)
+                    case _: IntegerSetVariable => postConstraint()(using IntegerSetTypeTraits)
                 }
             } else for constraint <- constraints do {
                 val (xs1, offset1) = uselessInputsRemoved(constraint.xs, constraint.i.domain, constraint.offset)
-                inline def postConstraint[V <: Value[V]]()(using valueTraits: ValueTraits[V]): Unit = {
+                inline def postConstraint
+                    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
+                    ()
+                    (using typeTraits: TypeTraits[A, D, X]):
+                    Unit =
+                {
                     cc.post(
                         new ElementVar(
                             constraint.id,
                             constraint.maybeGoal,
-                            xs1.asInstanceOf[immutable.IndexedSeq[Variable[V]]],
+                            xs1.asInstanceOf[immutable.IndexedSeq[X]],
                             constraint.i,
-                            constraint.y.asInstanceOf[Variable[V]],
+                            constraint.y.asInstanceOf[X],
                             offset1))
                 }
                 if xs1 != xs then {
                     cc.logger.log("Dropping %d inputs from ElementVar constraint".format(xs.size - xs1.size))
                     cc.space.retract(constraint)
                     xs.head.match {
-                        case _: BooleanVariable => postConstraint[BooleanValue]()
-                        case _: IntegerVariable => postConstraint[IntegerValue]()
-                        case _: IntegerSetVariable => postConstraint[IntegerSetValue]()
+                        case _: BooleanVariable => postConstraint()(using BooleanTypeTraits)
+                        case _: IntegerVariable => postConstraint()(using IntegerTypeTraits)
+                        case _: IntegerSetVariable => postConstraint()(using IntegerSetTypeTraits)
                     }
                 }
             }
@@ -113,9 +123,9 @@ final class ArrayAccessOptimizer
     This way we remove an useless arc from the constraint network.
     */
     private def uselessInputsRemoved
-        [V <: Value[V]]
-        (xs: IndexedSeq[Variable[V]], indices: IntegerDomain, offset: Int):
-        (Vector[Variable[V]], Int) =
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
+        (xs: IndexedSeq[X], indices: IntegerDomain, offset: Int):
+        (Vector[X], Int) =
     {
         val indexRange = IntegerRange(offset, offset + xs.size - 1)
         val indexRange1 = indexRange.intersect(indices.hull)

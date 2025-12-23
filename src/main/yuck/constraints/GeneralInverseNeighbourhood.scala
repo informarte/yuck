@@ -18,7 +18,7 @@ final class GeneralInverseNeighbourhood
     require(f.xs.forall(x => x.domain.isSubsetOf(g.indexDomain)))
     require(g.xs.forall(x => x.domain.isSubsetOf(f.indexDomain)))
 
-    private val effects = Vector.fill(4)(new ReusableMoveEffect[IntegerValue])
+    private val effects = Vector.fill(4)(new ReusableMoveEffect[IntegerValue, IntegerDomain, IntegerVariable])
     private val candidates1 =
         f.xs.indices.iterator
         .filter(i => f.xs(i).domain.size > 1 && g.xs(rawValue(f.xs(i)) - g.offset).domain.size > 1)
@@ -26,7 +26,7 @@ final class GeneralInverseNeighbourhood
 
     override def nextMove() = {
         if candidates1.isEmpty then {
-            new ChangeValues[IntegerValue](space.nextMoveId(), Nil)
+            new ChangeValues[IntegerValue, IntegerDomain, IntegerVariable](space.nextMoveId(), Nil)
         } else {
             val i1 = candidates1(randomGenerator.nextInt(candidates1.size))
             val x1 = f.xs(i1)
@@ -54,7 +54,7 @@ final class GeneralInverseNeighbourhood
                     })
                 .toVector
             if candidates2.isEmpty then {
-                new ChangeValues[IntegerValue](space.nextMoveId(), Nil)
+                new ChangeValues[IntegerValue, IntegerDomain, IntegerVariable](space.nextMoveId(), Nil)
             } else {
                 val i2 = candidates2(randomGenerator.nextInt(candidates2.size))
                 val x2 = f.xs(i2)

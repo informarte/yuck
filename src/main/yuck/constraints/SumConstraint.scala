@@ -10,28 +10,28 @@ import yuck.core.*
  * y is a helper channel for propagation: Conceptually, sum a(i) * x(i) = y /\ y R z.
  */
 final class SumConstraint
-    [V <: NumericalValue[V]]
+    [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.IndexedSeq[NumericalVariable[V]],
-     override protected val y: NumericalVariable[V],
+     xs: immutable.IndexedSeq[X],
+     override protected val y: X,
      override protected val relation: OrderingRelation,
-     override protected val z: NumericalVariable[V],
+     override protected val z: X,
      override protected val costs: BooleanVariable)
-    (using override protected val valueTraits: NumericalValueTraits[V])
-    extends LinearConstraintLike[V](id)
+    (using override protected val typeTraits: NumericalTypeTraits[A, D, X])
+    extends LinearConstraintLike[A, D, X](id)
 {
 
     require(xs.toSet.size == xs.size)
 
     override protected val n = xs.size
-    override protected def a(i: Int) = valueTraits.one
+    override protected def a(i: Int) = typeTraits.one
     override protected def x(i: Int) = xs(i)
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         futureSum = currentSum
         for x0 <- move do {
             if x0 != z then {
-                val x = valueTraits.safeDowncast(x0)
+                val x = typeTraits.safeDowncast(x0)
                 futureSum = futureSum.addAndSub(after.value(x), before.value(x))
             }
         }

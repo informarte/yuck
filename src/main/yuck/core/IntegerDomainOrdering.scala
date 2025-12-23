@@ -5,4 +5,4 @@ import yuck.util.OrderingFromOrdered
 /**
  * A total ordering on integer domains.
  */
-object IntegerDomainOrdering extends OrderingFromOrdered[OrderedDomain[IntegerValue]]
+object IntegerDomainOrdering extends OrderingFromOrdered[IntegerDomain]

@@ -5,17 +5,17 @@ package yuck.core
  *
  * Values are immutable and hence we do not define += and similar operators.
  */
-abstract class NumericalValue[V] extends OrderedValue[V] {
-    def +(that: V): V
-    def -(that: V): V
-    def *(that: V): V
+abstract class NumericalValue[A] extends OrderedValue[A] {
+    def +(that: A): A
+    def -(that: A): A
+    def *(that: A): A
     /** Computes this + a - b. */
-    def addAndSub(a: V, b: V): V
+    def addAndSub(a: A, b: A): A
     /** Computes this + s * a - s * b. */
-    def addAndSub(s: V, a: V, b: V): V
-    def ^(that: V): V
-    def abs: V
-    def negated: V
+    def addAndSub(s: A, a: A, b: A): A
+    def ^(that: A): A
+    def abs: A
+    def negated: A
     def toInt: Int
     def toLong: Long
     def toFloat: Float

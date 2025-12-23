@@ -144,8 +144,8 @@ final class IntegerValueTest
             assertEq(operations, IntegerValueOperations)
         }
         testOperations()
-        def testTraits()(using traits: IntegralValueTraits[IntegerValue]) = {
-            assertEq(traits, IntegerValueTraits)
+        def testTraits()(using traits: IntegralTypeTraits[IntegerValue, IntegerDomain, IntegerVariable]) = {
+            assertEq(traits, IntegerTypeTraits)
         }
         testTraits()
     }

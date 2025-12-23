@@ -26,7 +26,7 @@ final class NumberOfDistinctValuesTest extends UnitTest with ConstraintTestTooli
 
     @Test
     def testPropagationWithEmptyXs(): Unit = {
-        space.post(new NumberOfDistinctValues[IntegerValue](space.nextConstraintId(), null, Seq(), n))
+        space.post(new NumberOfDistinctValues[IntegerValue, IntegerDomain, IntegerVariable](space.nextConstraintId(), null, Seq(), n))
         runScenario(
             TestScenario(
                 space,

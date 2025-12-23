@@ -5,9 +5,9 @@ import org.junit.jupiter.api.Test
 import yuck.core.*
 import yuck.test.util.UnitTest
 
-final class IntegerSetValueTraitsTest extends UnitTest {
+final class IntegerSetTypeTraitsTest extends UnitTest {
 
-    import IntegerSetValueTraits.*
+    import IntegerSetTypeTraits.*
 
     @Test
     def testDomainCapabilities(): Unit = {
@@ -74,7 +74,9 @@ final class IntegerSetValueTraitsTest extends UnitTest {
 
     @Test
     def testConfiguration(): Unit = {
-        assertEq(valueType, classOf[IntegerSetValue])
+        assertEq(valueClass, classOf[IntegerSetValue])
+        assertEq(domainClass, classOf[IntegerSetDomain])
+        assertEq(variableClass, classOf[IntegerSetVariable])
         assertEq(valueOrdering, IntegerSetValueOrdering)
         assertEq(costModel, IntegerSetValueOrderingCostModel)
         assertEq(domainOrdering, IntegerSetDomainOrdering)

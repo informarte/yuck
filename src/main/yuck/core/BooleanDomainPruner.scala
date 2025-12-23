@@ -7,34 +7,30 @@ package yuck.core
  * This is correct because, for pruning, there is no need to distinguish different levels
  * of violation.
  */
-object BooleanDomainPruner extends OrderedDomainPruner[BooleanValue] {
+object BooleanDomainPruner extends OrderedDomainPruner[BooleanValue, BooleanDomain] {
 
-    override protected val valueTraits = BooleanValueTraits
+    override protected val typeTraits = BooleanTypeTraits
 
     // iff
     override def eqRule
-        (lhs0: Domain[BooleanValue], rhs0: Domain[BooleanValue]):
+        (lhs: BooleanDomain, rhs: BooleanDomain):
         (BooleanDomain, BooleanDomain) =
     {
-        val lhs1 = lhs0.asInstanceOf[BooleanDomain]
-        val rhs1 = rhs0.asInstanceOf[BooleanDomain]
-        val intersection = lhs1.intersect(rhs1)
+        val intersection = lhs.intersect(rhs)
         (intersection, intersection)
     }
 
     // negation
     override def neRule
-        (lhs0: Domain[BooleanValue], rhs0: Domain[BooleanValue]):
+        (lhs: BooleanDomain, rhs: BooleanDomain):
         (BooleanDomain, BooleanDomain) =
     {
-        val lhs1 = lhs0.asInstanceOf[BooleanDomain]
-        val rhs1 = rhs0.asInstanceOf[BooleanDomain]
-        (if rhs1.isSingleton then lhs1.diff(rhs1) else lhs1,
-         if lhs1.isSingleton then rhs1.diff(lhs1) else rhs1)
+        (if rhs.isSingleton then lhs.diff(rhs) else lhs,
+         if lhs.isSingleton then rhs.diff(lhs) else rhs)
     }
 
     override def ltRule
-        (lhs: OrderedDomain[BooleanValue], rhs: OrderedDomain[BooleanValue]):
+        (lhs: BooleanDomain, rhs: BooleanDomain):
         (BooleanDomain, BooleanDomain) =
     {
         (FalseDomain.intersect(lhs), TrueDomain.intersect(rhs))
@@ -42,26 +38,14 @@ object BooleanDomainPruner extends OrderedDomainPruner[BooleanValue] {
 
     // implication
     override def leRule
-        (lhs0: OrderedDomain[BooleanValue], rhs0: OrderedDomain[BooleanValue]):
+        (lhs: BooleanDomain, rhs: BooleanDomain):
         (BooleanDomain, BooleanDomain) =
     {
-        val lhs1 = lhs0.asInstanceOf[BooleanDomain]
-        val rhs1 = rhs0.asInstanceOf[BooleanDomain]
-        (if rhs1.isSingleton && rhs1.singleValue == False then BooleanDomain(lhs1.contains(False), false) else lhs1,
-         if lhs1.isSingleton && lhs1.singleValue == True then BooleanDomain(false, rhs1.contains(True)) else rhs1)
+        (if rhs.isSingleton && rhs.singleValue == False then BooleanDomain(lhs.contains(False), false) else lhs,
+         if lhs.isSingleton && lhs.singleValue == True then BooleanDomain(false, rhs.contains(True)) else rhs)
     }
 
     def conjunctionRule
-        (lhs0: Iterable[OrderedDomain[BooleanValue]], rhs0: OrderedDomain[BooleanValue]):
-        (Iterator[BooleanDomain], BooleanDomain) =
-    {
-        val lhs1 = lhs0.view.map(_.asInstanceOf[BooleanDomain])
-        val rhs1 = rhs0.asInstanceOf[BooleanDomain]
-        val (lhs2, rhs2) = conjunctionRule(lhs1, rhs1)
-        (lhs2, rhs2)
-    }
-
-    private def conjunctionRule
         (lhs0: Iterable[BooleanDomain], rhs0: BooleanDomain):
         (Iterator[BooleanDomain], BooleanDomain) =
     {
@@ -88,16 +72,6 @@ object BooleanDomainPruner extends OrderedDomainPruner[BooleanValue] {
     }
 
     def disjunctionRule
-        (lhs0: Iterable[OrderedDomain[BooleanValue]], rhs0: OrderedDomain[BooleanValue]):
-        (Iterator[BooleanDomain], BooleanDomain) =
-    {
-        val lhs1 = lhs0.view.map(_.asInstanceOf[BooleanDomain])
-        val rhs1 = rhs0.asInstanceOf[BooleanDomain]
-        val (lhs2, rhs2) = disjunctionRule(lhs1, rhs1)
-        (lhs2, rhs2)
-    }
-
-    private def disjunctionRule
         (lhs0: Iterable[BooleanDomain], rhs0: BooleanDomain):
         (Iterator[BooleanDomain], BooleanDomain) =
     {

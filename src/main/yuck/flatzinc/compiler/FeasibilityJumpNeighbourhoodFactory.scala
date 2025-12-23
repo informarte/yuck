@@ -21,7 +21,7 @@ final class FeasibilityJumpNeighbourhoodFactory
                 createNeighbourhood(objective)
             case hierarchicalObjective: HierarchicalObjective =>
                 hierarchicalObjective.primitiveObjectives match {
-                    case List(mainObjective: SatisfactionObjective, _: NumericalObjective[?]) =>
+                    case List(mainObjective: SatisfactionObjective, _: NumericalObjective[?, ?, ?]) =>
                         createNeighbourhood(mainObjective)
                     case _ =>
                         None

@@ -30,7 +30,7 @@ final class ArrayBackedAssignment private
     inline override def maybeValue(x: AnyVariable) = Option(values(x.id.rawId))
 
     /** Assigns the given value to the given variable. */
-    inline def setValue[V <: Value[V]](x: Variable[V], a: V): ArrayBackedAssignment = {
+    inline def setValue[A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]](x: X, a: A): ArrayBackedAssignment = {
         setValueUnsafe(x, a)
         this
     }

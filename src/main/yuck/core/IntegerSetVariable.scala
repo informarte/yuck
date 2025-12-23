@@ -5,10 +5,10 @@ package yuck.core
  */
 final class IntegerSetVariable
     (id: Id[AnyVariable], name: String, var currentDomain: IntegerSetDomain)
-    extends OrderedVariable[IntegerSetValue](id, name)
+    extends OrderedVariable[IntegerSetValue, IntegerSetDomain, IntegerSetVariable](id, name)
 {
     inline override def domain: IntegerSetDomain = currentDomain
-    override protected def setDomain(domain: Domain[IntegerSetValue]) = {
-        currentDomain = domain.asInstanceOf[IntegerSetDomain]
+    override protected def setDomain(domain: IntegerSetDomain) = {
+        currentDomain = domain
     }
 }

@@ -12,8 +12,8 @@ import yuck.test.util.UnitTest
 @Execution(ExecutionMode.CONCURRENT)
 final class SingletonIntegerSetDomainTest
     extends UnitTest
-       with OrderingTestTooling[OrderedDomain[IntegerSetValue]]
-       with RandomValueSelectionTestTooling[IntegerSetValue]
+       with OrderingTestTooling[IntegerSetDomain]
+       with RandomValueSelectionTestTooling[IntegerSetValue, IntegerSetDomain]
        with IntegerSetDomainTestDataFactory
 {
 

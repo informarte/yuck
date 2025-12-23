@@ -100,8 +100,8 @@ final class AnnealingNeighbourhoodFactory
         val constraintHardness: Map[Class[? <: Constraint], Int] = Map(
             (classOf[BooleanIncreasing], 3), (classOf[Circuit], 3), (classOf[IntegerIncreasing], 3), (classOf[Inverse], 3),
             (classOf[Regular], 3),
-            (classOf[AllDifferent[?]], 2),
-            (classOf[Table[?]], 1))
+            (classOf[AllDifferent[?, ?, ?]], 2),
+            (classOf[Table[?, ?, ?]], 1))
         def constraintRanking(constraint: Constraint): Int =
             -(constraintHardness(constraint.getClass) * constraint.inVariables.size)
         for constraint <- randomGenerator.shuffle(candidatesForImplicitSolving).sortBy(constraintRanking) do {
@@ -171,9 +171,9 @@ final class AnnealingNeighbourhoodFactory
     }
 
     protected def createMinimizationNeighbourhood
-        [V <: NumericalValue[V]]
-        (levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
-        (using valueTraits: NumericalValueTraits[V]):
+        [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
+        (levelCfg: FlatZincLevelConfiguration, x: X)
+        (using typeTraits: NumericalTypeTraits[A, D, X]):
         Option[Neighbourhood] =
     {
         if levelCfg.guideOptimization
@@ -182,9 +182,9 @@ final class AnnealingNeighbourhoodFactory
     }
 
     protected def createMaximizationNeighbourhood
-        [V <: NumericalValue[V]]
-        (levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
-        (using valueTraits: NumericalValueTraits[V]):
+        [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
+        (levelCfg: FlatZincLevelConfiguration, x: X)
+        (using typeTraits: NumericalTypeTraits[A, D, X]):
         Option[Neighbourhood] =
     {
         if levelCfg.guideOptimization
@@ -193,9 +193,9 @@ final class AnnealingNeighbourhoodFactory
     }
 
     private def createNeighbourhood
-        [V <: NumericalValue[V]]
-        (mode: OptimizationMode, levelCfg: FlatZincLevelConfiguration, x: NumericalVariable[V])
-        (using valueTraits: NumericalValueTraits[V]):
+        [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
+        (mode: OptimizationMode, levelCfg: FlatZincLevelConfiguration, x: X)
+        (using typeTraits: NumericalTypeTraits[A, D, X]):
         Option[Neighbourhood] =
     {
         cc.space.registerObjectiveVariable(x)
@@ -225,24 +225,24 @@ final class AnnealingNeighbourhoodFactory
     }
 
     private def createNeighbourhood
-        [V <: NumericalValue[V]]
+        [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
         (mode: OptimizationMode, levelCfg: FlatZincLevelConfiguration, constraint: yuck.core.Constraint)
-        (using valueTraits: NumericalValueTraits[V]):
+        (using typeTraits: NumericalTypeTraits[A, D, X]):
         Option[Neighbourhood] =
     {
         (mode, constraint) match {
-            case (OptimizationMode.Min, lc: LinearCombination[V @ unchecked])
-            if lc.axs.forall(ax => if ax.a < valueTraits.zero then ax.x.domain.hasUb else ax.x.domain.hasLb) =>
+            case (OptimizationMode.Min, lc: LinearCombination[A @ unchecked, D @ unchecked, X @ unchecked])
+            if lc.axs.forall(ax => if ax.a < typeTraits.zero then ax.x.domain.hasUb else ax.x.domain.hasLb) =>
                 createNeighbourhood(mode, levelCfg, lc.axs)
-            case (OptimizationMode.Max, lc: LinearCombination[V @ unchecked])
-            if lc.axs.forall(ax => if ax.a < valueTraits.zero then ax.x.domain.hasLb else ax.x.domain.hasUb) =>
+            case (OptimizationMode.Max, lc: LinearCombination[A @ unchecked, D @ unchecked, X @ unchecked])
+            if lc.axs.forall(ax => if ax.a < typeTraits.zero then ax.x.domain.hasLb else ax.x.domain.hasUb) =>
                 createNeighbourhood(mode, levelCfg, lc.axs)
-            case (OptimizationMode.Min, sum: Sum[V @ unchecked])
+            case (OptimizationMode.Min, sum: Sum[A @ unchecked, D @ unchecked, X @ unchecked])
             if sum.xs.forall(x => x.domain.hasLb) =>
-                createNeighbourhood(mode, levelCfg, sum.xs.map(new AX(valueTraits.one, _)))
-            case (OptimizationMode.Max, sum: Sum[V @ unchecked])
+                createNeighbourhood(mode, levelCfg, sum.xs.map(new AX(typeTraits.one, _)))
+            case (OptimizationMode.Max, sum: Sum[A @ unchecked, D @ unchecked, X @ unchecked])
             if sum.xs.forall(x => x.domain.hasUb) =>
-                createNeighbourhood(mode, levelCfg, sum.xs.map(new AX(valueTraits.one, _)))
+                createNeighbourhood(mode, levelCfg, sum.xs.map(new AX(typeTraits.one, _)))
             case (OptimizationMode.Min, bool2Costs: Bool2Costs1) =>
                 createSatisfactionNeighbourhood(levelCfg, bool2Costs.inVariables.head.asInstanceOf[BooleanVariable])
             case _ =>
@@ -274,9 +274,9 @@ final class AnnealingNeighbourhoodFactory
     }
 
     private def createNeighbourhood
-        [V <: NumericalValue[V]]
-        (mode: OptimizationMode, levelCfg: FlatZincLevelConfiguration, axs0: Seq[AX[V]])
-        (using valueTraits: NumericalValueTraits[V]):
+        [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
+        (mode: OptimizationMode, levelCfg: FlatZincLevelConfiguration, axs0: Seq[AX[A, D, X]])
+        (using typeTraits: NumericalTypeTraits[A, D, X]):
         Option[Neighbourhood] =
     {
         val axs = axs0.sortBy(_.x)
@@ -297,7 +297,7 @@ final class AnnealingNeighbourhoodFactory
                     cc.space, xs, randomGenerator, moveSizeDistribution, Some(hotSpotDistribution)))
             }
         } else {
-            val weightedNeighbourhoods = new mutable.ArrayBuffer[(AX[V], Neighbourhood)]
+            val weightedNeighbourhoods = new mutable.ArrayBuffer[(AX[A, D, X], Neighbourhood)]
             for ax <- axs do {
                 if cc.sigint.isSet then {
                     throw new FlatZincCompilerInterruptedException
@@ -381,9 +381,9 @@ final class AnnealingNeighbourhoodFactory
     }
 
     private def createHotSpotDistribution
-        [V <: NumericalValue[V]]
-        (mode: OptimizationMode, weights: Seq[AX[V]])
-        (using valueTraits: NumericalValueTraits[V]):
+        [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
+        (mode: OptimizationMode, weights: Seq[AX[A, D, X]])
+        (using typeTraits: NumericalTypeTraits[A, D, X]):
         Distribution =
     {
         val hotSpotDistribution = Distribution(weights.size)

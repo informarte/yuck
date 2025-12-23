@@ -3,53 +3,14 @@ package yuck.core
 /**
  * Domain pruner interface for use by generic constraints.
  */
-abstract class NumericalDomainPruner[V <: NumericalValue[V]] extends OrderedDomainPruner[V] {
+abstract class NumericalDomainPruner[A <: NumericalValue[A], D <: NumericalDomain[A, D]] extends OrderedDomainPruner[A, D] {
 
-    override protected val valueTraits: NumericalValueTraits[V]
+    override protected val typeTraits: NumericalTypeTraits[A, D, ?]
 
-    override def eqRule
-        (lhs: Domain[V], rhs: Domain[V]):
-        (NumericalDomain[V], NumericalDomain[V]) =
-        (valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
+    def absRule(lhs: D, rhs: D): (D, D) = (lhs, rhs)
 
-    override def neRule
-        (lhs: Domain[V], rhs: Domain[V]):
-        (NumericalDomain[V], NumericalDomain[V]) =
-        (valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
+    def linEqRule(lhs: Iterable[(A, D)], rhs: D): (Iterator[D], D) = (lhs.iterator.map(_._2), rhs)
 
-    override def ltRule
-        (lhs: OrderedDomain[V], rhs: OrderedDomain[V]):
-        (NumericalDomain[V], NumericalDomain[V]) =
-        (valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
-
-    override def leRule
-        (lhs: OrderedDomain[V], rhs: OrderedDomain[V]):
-        (NumericalDomain[V], NumericalDomain[V]) =
-        (valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
-
-    override def minRule
-        (lhs: Iterable[OrderedDomain[V]], rhs: OrderedDomain[V]):
-        (Iterator[NumericalDomain[V]], NumericalDomain[V]) =
-        (lhs.iterator.map(valueTraits.safeDowncast), valueTraits.safeDowncast(rhs))
-
-    override def maxRule
-        (lhs: Iterable[OrderedDomain[V]], rhs: OrderedDomain[V]):
-        (Iterator[NumericalDomain[V]], NumericalDomain[V]) =
-        (lhs.iterator.map(valueTraits.safeDowncast), valueTraits.safeDowncast(rhs))
-
-    def absRule
-        (lhs: NumericalDomain[V], rhs: NumericalDomain[V]):
-        (NumericalDomain[V], NumericalDomain[V]) =
-        (lhs, rhs)
-
-    def linEqRule
-        (lhs: Iterable[(V, NumericalDomain[V])], rhs: NumericalDomain[V]):
-        (Iterator[NumericalDomain[V]], NumericalDomain[V]) =
-        (lhs.iterator.map(_._2), rhs)
-
-    def timesRule
-        (dx: NumericalDomain[V], dy: NumericalDomain[V], dz: NumericalDomain[V]):
-        (NumericalDomain[V], NumericalDomain[V], NumericalDomain[V])  =
-        (dx, dy, dz)
+    def timesRule(dx: D, dy: D, dz: D): (D, D, D) = (dx, dy, dz)
 
 }

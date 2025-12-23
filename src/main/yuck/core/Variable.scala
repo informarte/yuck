@@ -4,14 +4,14 @@ package yuck.core
  * Provides an interface for working with variables of known type.
  */
 abstract class Variable
-    [V <: Value[V]]
+    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
     (id: Id[AnyVariable], name: String)
     extends AnyVariable(id, name)
 {
 
-    override def domain: Domain[V]
+    override def domain: D
 
-    protected def setDomain(domain: Domain[V]): Unit
+    protected def setDomain(domain: D): Unit
 
     /**
      * Intersects the variable's domain with the given domain.
@@ -21,7 +21,7 @@ abstract class Variable
      * Throws a [[yuck.core.DomainWipeOutException DomainWipeOutException]]
      * when the variable's domain became empty.
      */
-    final def pruneDomain(restriction: Domain[V]): Boolean = {
+    final def pruneDomain(restriction: D): Boolean = {
         if restriction != domain then {
             // We try to avoid useless and expensive intersections.
             if domain.isSubsetOf(restriction) then {
@@ -49,7 +49,7 @@ abstract class Variable
      *
      * Throws when the new domain is not a superset of the current domain.
      */
-    final def relaxDomain(relaxation: Domain[V]): Boolean = {
+    final def relaxDomain(relaxation: D): Boolean = {
         if relaxation != domain then {
             require(
                 domain.isSubsetOf(relaxation),
@@ -70,17 +70,17 @@ abstract class Variable
     }
 
     final override def hasValidValue(searchState: SearchState) =
-        domain.contains(searchState.value(this))
+        domain.contains(searchState.value(this.asInstanceOf[X]))
 
-    val reuseableEffect = new ReusableMoveEffectWithFixedVariable[V](this)
+    val reuseableEffect = new ReusableMoveEffectWithFixedVariable[A, D, X](this.asInstanceOf[X])
 
     final override def randomMoveEffect(randomGenerator: RandomGenerator) = {
         reuseableEffect.a = if domain.isSingleton then domain.singleValue else domain.randomValue(randomGenerator)
         reuseableEffect
     }
 
-    final override def nextRandomMoveEffect(space: Space, randomGenerator: RandomGenerator): MoveEffect[V] = {
-        reuseableEffect.a = domain.nextRandomValue(randomGenerator, space.searchState.value(this))
+    final override def nextRandomMoveEffect(space: Space, randomGenerator: RandomGenerator): MoveEffect[A, D, X] = {
+        reuseableEffect.a = domain.nextRandomValue(randomGenerator, space.searchState.value(this.asInstanceOf[X]))
         reuseableEffect
     }
 

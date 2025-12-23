@@ -3,18 +3,12 @@ package yuck.core
 /**
  * Domain pruner interface for use by generic constraints.
  */
-abstract class DomainPruner[V <: Value[V]] {
+abstract class DomainPruner[A <: Value[A], D <: Domain[A, D]] {
 
-    protected val valueTraits: ValueTraits[V]
+    protected val typeTraits: TypeTraits[A, D, ?]
 
-    def eqRule
-        (lhs: Domain[V], rhs: Domain[V]):
-        (Domain[V], Domain[V]) =
-        (lhs, rhs)
+    def eqRule(lhs: D, rhs: D): (D, D) = (lhs, rhs)
 
-    def neRule
-        (lhs: Domain[V], rhs: Domain[V]):
-        (Domain[V], Domain[V]) =
-        (lhs, rhs)
+    def neRule(lhs: D, rhs: D): (D, D) = (lhs, rhs)
 
 }

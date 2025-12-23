@@ -4,9 +4,9 @@ package yuck.core
  * Provides an interface for working with variables that have an ordered domain.
  */
 abstract class OrderedVariable
-    [V <: OrderedValue[V]]
+    [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
     (id: Id[AnyVariable], name: String)
-    extends Variable[V](id, name)
+    extends Variable[A, D, X](id, name)
 {
-    override def domain: OrderedDomain[V]
+    override def domain: D
 }

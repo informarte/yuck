@@ -17,10 +17,9 @@ class BooleanDomainPrunerTest extends UnitTest {
         if u == v then u else fixedPoint(f, v)
     }
 
-    private def testPruning
-        [InputDomain >: BooleanDomain <: Domain[BooleanValue]]
-        (prune: (InputDomain, InputDomain) => (BooleanDomain, BooleanDomain),
-         predicate: (BooleanValue, BooleanValue) => Boolean): Unit =
+    private def testPruning(
+        prune: (BooleanDomain, BooleanDomain) => (BooleanDomain, BooleanDomain),
+        predicate: (BooleanValue, BooleanValue) => Boolean): Unit =
     {
         val testData = List(EmptyBooleanDomain, FalseDomain, TrueDomain, CompleteBooleanDomain)
         for d <- testData do {

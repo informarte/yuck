@@ -27,7 +27,7 @@ class LinearConstraintBenchmark(relation: OrderingRelation, withUnitCoefficients
     private val xs =
         for i <- 0 until numberOfTerms yield
             new IntegerVariable(space.nextVariableId(), "x%d".format(i + 1), initialDomains(i))
-    private val y = IntegerValueTraits.createChannel(space)
+    private val y = IntegerTypeTraits.createChannel(space)
     private val z = new IntegerVariable(space.nextVariableId(), "z", baseDomain.randomSubdomain(randomGenerator))
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
     private val axs = xs.map(AX(if withUnitCoefficients then One else baseDomain.randomValue(randomGenerator), _))

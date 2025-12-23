@@ -6,28 +6,28 @@ import scala.annotation.tailrec
  * Objective for optimizing the value of a numerical variable.
  */
 abstract class NumericalObjective
-    [V <: NumericalValue[V]]
-    (using valueTraits: NumericalValueTraits[V])
+    [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
+    (using typeTraits: NumericalTypeTraits[A, D, X])
     extends PrimitiveObjective
 {
 
-    override val x: NumericalVariable[V]
-    val maybeY: Option[NumericalVariable[V]]
+    override val x: X
+    val maybeY: Option[X]
 
-    final override def costs(searchState: SearchState): NumericalValue[V] = searchState.value(x)
+    final override def costs(searchState: SearchState): NumericalValue[A] = searchState.value(x)
     final override def isSolution(costs: Costs) = isGoodEnough(costs)
 
     final override def findActualObjectiveValue(space: Space, rootObjective: AnyObjective) = {
         val minimize = optimizationMode == OptimizationMode.Min
         val costsOnEntry = rootObjective.costs(space.searchState)
-        def isFeasibleObjectiveValue(a: V): Boolean = {
+        def isFeasibleObjectiveValue(a: A): Boolean = {
             val move = new ChangeValue(space.nextMoveId(), x, a)
             val after = space.consult(move)
             val costsAfterMove = rootObjective.costs(after)
             (! rootObjective.isHigherThan(costsAfterMove, costsOnEntry))
         }
         @tailrec
-        def search(dx: NumericalDomain[V]): Option[V] =
+        def search(dx: D): Option[A] =
             if dx.isEmpty
             then None
             else if dx.isSingleton
@@ -64,9 +64,9 @@ abstract class NumericalObjective
     }
 
     final override def tighten(space: Space, bound: AnyValue) =
-        tighten(space, bound.asInstanceOf[V])
+        tighten(space, bound.asInstanceOf[A])
 
-    private def tighten(space: Space, bound: V): Set[AnyVariable] = {
+    private def tighten(space: Space, bound: A): Set[AnyVariable] = {
         if maybeY.isDefined then {
             val y = maybeY.get
             assert(! space.isChannelVariable(y))

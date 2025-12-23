@@ -29,11 +29,11 @@ final class VariableFactory
     private def createVariable(decl: PlaceholderDecl): Unit = {
         decl.valueType match {
             case BoolType =>
-                createVariable[BooleanValue](Term(decl.id, Nil))
+                createVariable(Term(decl.id, Nil))(using BooleanTypeTraits)
             case IntType(_) =>
-                createVariable[IntegerValue](Term(decl.id, Nil))
+                createVariable(Term(decl.id, Nil))(using IntegerTypeTraits)
             case IntSetType(_) =>
-                createVariable[IntegerSetValue](Term(decl.id, Nil))
+                createVariable(Term(decl.id, Nil))(using IntegerSetTypeTraits)
             case other =>
                 throw new UnsupportedFlatZincTypeException(other)
         }
@@ -42,34 +42,34 @@ final class VariableFactory
     private def createVariables(decl: PlaceholderDecl): Unit = {
         decl.valueType match {
             case ArrayType(Some(IntRange(1, n)), BoolType) =>
-                cc.arrays += Term(decl.id, Nil) -> createArray[BooleanValue](decl, n.toInt)
+                cc.arrays += Term(decl.id, Nil) -> createArray(decl, n.toInt)(using BooleanTypeTraits)
             case ArrayType(Some(IntRange(1, n)), IntType(_)) =>
-                cc.arrays += Term(decl.id, Nil) -> createArray[IntegerValue](decl, n.toInt)
+                cc.arrays += Term(decl.id, Nil) -> createArray(decl, n.toInt)(using IntegerTypeTraits)
             case ArrayType(Some(IntRange(1, n)), IntSetType(_)) =>
-                cc.arrays += Term(decl.id, Nil) -> createArray[IntegerSetValue](decl, n.toInt)
+                cc.arrays += Term(decl.id, Nil) -> createArray(decl, n.toInt)(using IntegerSetTypeTraits)
             case other =>
                 throw new UnsupportedFlatZincTypeException(other)
         }
     }
 
     private def createVariable
-        [V <: Value[V]]
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
         (key: Expr)
-        (using valueTraits: ValueTraits[V]):
-        Variable[V] =
+        (using typeTraits: TypeTraits[A, D, X]):
+        X =
     {
         if cc.sigint.isSet then {
             throw new FlatZincCompilerInterruptedException
         }
         def factory(key: Expr) =
-            valueTraits.createVariable(cc.space, key.toString, valueTraits.safeDowncast(cc.domains(key)))
+            typeTraits.createVariable(cc.space, key.toString, typeTraits.safeDowncast(cc.domains(key)))
         val maybeEqualVars = cc.equalVars.get(key)
         if maybeEqualVars.isDefined then {
             val representative = maybeEqualVars.get.head
             if ! cc.vars.contains(representative) then {
                 cc.vars += representative -> factory(representative)
             }
-            val x = valueTraits.safeDowncast(cc.vars(representative))
+            val x = typeTraits.safeDowncast(cc.vars(representative))
             if key != representative then {
                 cc.vars += key -> x
             }
@@ -83,10 +83,10 @@ final class VariableFactory
     }
 
     private def createArray
-        [V <: Value[V]]
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
         (decl: PlaceholderDecl, n: Int)
-        (using valueTraits: ValueTraits[V]):
-        immutable.IndexedSeq[Variable[V]] =
+        (using typeTraits: TypeTraits[A, D, X]):
+        immutable.IndexedSeq[X] =
     {
         Vector.tabulate(n)(idx => createVariable(ArrayAccess(decl.id, IntConst(idx + 1))))
     }

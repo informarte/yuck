@@ -5,10 +5,10 @@ import scala.collection.*
 import yuck.core.*
 
 final class LinearCombination
-    [V <: NumericalValue[V]]
+    [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     val axs: immutable.Seq[AX[V]], y: NumericalVariable[V])
-    (using valueTraits: NumericalValueTraits[V])
+     val axs: immutable.Seq[AX[A, D, X]], y: X)
+    (using typeTraits: NumericalTypeTraits[A, D, X])
     extends Constraint(id)
 {
 
@@ -19,19 +19,19 @@ final class LinearCombination
     override def inVariables = axs.view.map(_.x)
     override def outVariables = List(y)
 
-    private val x2ax: HashMap[AnyVariable, AX[V]] = axs.view.map(ax => ax.x -> ax).to(HashMap)
-    private var sum = valueTraits.zero
+    private val x2ax: HashMap[AnyVariable, AX[A, D, X]] = axs.view.map(ax => ax.x -> ax).to(HashMap)
+    private var sum = typeTraits.zero
     private val effect = y.reuseableEffect
 
     override def propagate() = {
         val lhs0 = axs.view.map(ax => (ax.a, ax.x.domain))
         val rhs0 = y.domain
-        val (lhs1, rhs1) = valueTraits.domainPruner.linEqRule(lhs0, rhs0)
+        val (lhs1, rhs1) = typeTraits.domainPruner.linEqRule(lhs0, rhs0)
         NoPropagationOccurred.pruneDomains(axs.iterator.map(_.x).zip(lhs1)).pruneDomain(y, rhs1)
     }
 
     override def initialize(now: SearchState) = {
-        sum = valueTraits.zero
+        sum = typeTraits.zero
         for (_, ax) <- x2ax do {
             sum += ax.a * now.value(ax.x)
         }

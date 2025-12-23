@@ -5,7 +5,7 @@ package yuck.core
  */
 final class BooleanDomain
     (val containsFalse: Boolean, val containsTrue: Boolean)
-    extends OrderedDomain[BooleanValue]
+    extends OrderedDomain[BooleanValue, BooleanDomain]
 {
 
     override def valueType = classOf[BooleanValue]
@@ -13,9 +13,9 @@ final class BooleanDomain
     override def hashCode = 3 * (3 + containsFalse.hashCode) + containsTrue.hashCode
 
     /** {}  < {false} < {true} < {false, true} */
-    override def compare(that: OrderedDomain[BooleanValue]) = {
+    override def compare(that: BooleanDomain) = {
         val lhs = this
-        val rhs = that.asInstanceOf[BooleanDomain]
+        val rhs = that
         if lhs == rhs
         then 0
         else if lhs.isEmpty
@@ -27,10 +27,8 @@ final class BooleanDomain
         else +1
     }
 
-    inline override def ==(that: Domain[BooleanValue]): Boolean = this == that.asInstanceOf[BooleanDomain]
-    inline def ==(that: BooleanDomain): Boolean =
+    inline override def ==(that: BooleanDomain): Boolean =
         this.eq(that) || (this.containsFalse == that.containsFalse && this.containsTrue == that.containsTrue)
-    inline def !=(that: BooleanDomain): Boolean = ! (this == that)
 
     override def size = (if containsFalse then 1 else 0) + (if containsTrue then 1 else 0)
     override def isComplete = false
@@ -76,28 +74,22 @@ final class BooleanDomain
 
     override def randomSubdomain(randomGenerator: RandomGenerator): BooleanDomain = ???
 
-    override def isSubsetOf(that: Domain[BooleanValue]): Boolean = this.isSubsetOf(that.asInstanceOf[BooleanDomain])
-    override def intersects(that: Domain[BooleanValue]): Boolean = this.intersects(that.asInstanceOf[BooleanDomain])
-    override def intersect(that: Domain[BooleanValue]): BooleanDomain = this.intersect(that.asInstanceOf[BooleanDomain])
-    override def union(that: Domain[BooleanValue]): BooleanDomain = this.union(that.asInstanceOf[BooleanDomain])
-    override def diff(that: Domain[BooleanValue]): BooleanDomain = this.diff(that.asInstanceOf[BooleanDomain])
-
-    def isSubsetOf(that: BooleanDomain): Boolean =
+    override def isSubsetOf(that: BooleanDomain): Boolean =
         (! this.containsFalse || that.containsFalse) && (! this.containsTrue || that.containsTrue)
-    def intersects(that: BooleanDomain): Boolean =
+    override def intersects(that: BooleanDomain): Boolean =
         (this.containsFalse && that.containsFalse) || (this.containsTrue && that.containsTrue)
-    def intersect(that: BooleanDomain): BooleanDomain =
+    override def intersect(that: BooleanDomain): BooleanDomain =
         BooleanDomain(this.containsFalse && that.containsFalse, this.containsTrue && that.containsTrue)
-    def union(that: BooleanDomain): BooleanDomain =
+    override def union(that: BooleanDomain): BooleanDomain =
         BooleanDomain(this.containsFalse || that.containsFalse, this.containsTrue || that.containsTrue)
-    def diff(that: BooleanDomain): BooleanDomain =
+    override def diff(that: BooleanDomain): BooleanDomain =
         BooleanDomain(this.containsFalse && ! that.containsFalse, this.containsTrue && ! that.containsTrue)
 
 }
 
 object BooleanDomain {
 
-    given Ordering[OrderedDomain[BooleanValue]] = BooleanDomainOrdering
+    given Ordering[BooleanDomain] = BooleanDomainOrdering
 
     private val ListWithFalseAndTrue = List(False, True)
     private val ListWithFalse = List(False)

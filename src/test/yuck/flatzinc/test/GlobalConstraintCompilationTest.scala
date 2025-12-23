@@ -46,8 +46,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasAllDifferentConstraint)
     def testAllDifferentIntWithImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "all_different_int_test"))
-        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
-        assert(result.neighbourhood.isInstanceOf[AllDifferentNeighbourhood[?]])
+        assertEq(result.space.numberOfConstraints[AllDifferent[?, ?, ?]], 1)
+        assert(result.neighbourhood.isInstanceOf[AllDifferentNeighbourhood[?, ?, ?]])
     }
 
     @Test
@@ -55,7 +55,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasAllDifferentConstraint)
     def testAllDifferentIntWithoutImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithoutImplicitSolving.copy(problemName = "all_different_int_test"))
-        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?, ?, ?]], 1)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -64,7 +64,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasAllDifferentConstraint)
     def testAllDifferentIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_int_reif_test"))
-        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 2)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?, ?, ?]], 2)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -73,7 +73,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasAllDifferentConstraint)
     def testAllDifferentSet(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_set_test"))
-        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?, ?, ?]], 1)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -82,7 +82,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasAllDifferentConstraint)
     def testAllDifferentSetReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_set_reif_test"))
-        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 2)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?, ?, ?]], 2)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -91,9 +91,9 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasAllDifferentExceptConstraint)
     def testAllDifferentExcept0WithImplicitSolving(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_except_0_test", maybeOptimum = Some(14)))
-        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?, ?, ?]], 1)
         assert(result.neighbourhood.isInstanceOf[NeighbourhoodCollection])
-        assert(result.neighbourhood.asInstanceOf[NeighbourhoodCollection].children.head.isInstanceOf[AllDifferentNeighbourhood[?]])
+        assert(result.neighbourhood.asInstanceOf[NeighbourhoodCollection].children.head.isInstanceOf[AllDifferentNeighbourhood[?, ?, ?]])
         assert(result.searchWasPerformed)
     }
 
@@ -102,7 +102,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasAllDifferentExceptConstraint)
     def testAllDifferentExcept0WithoutImplicitSolving(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_except_0_with_duplicate_variable_test"))
-        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?, ?, ?]], 1)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -111,7 +111,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasAllDifferentExceptConstraint)
     def testAllDifferentExcept0Reif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_except_0_reif_test"))
-        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 2)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?, ?, ?]], 2)
     }
 
     @Test
@@ -119,9 +119,9 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasAllDifferentExceptConstraint)
     def testAllDifferentExceptWithImplicitSolving(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_except_test", maybeOptimum = Some(26)))
-        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?, ?, ?]], 1)
         assert(result.neighbourhood.isInstanceOf[NeighbourhoodCollection])
-        assert(result.neighbourhood.asInstanceOf[NeighbourhoodCollection].children.head.isInstanceOf[AllDifferentNeighbourhood[?]])
+        assert(result.neighbourhood.asInstanceOf[NeighbourhoodCollection].children.head.isInstanceOf[AllDifferentNeighbourhood[?, ?, ?]])
         assert(result.searchWasPerformed)
     }
 
@@ -130,7 +130,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasAllDifferentExceptConstraint)
     def testAllDifferentExceptWithoutImplicitSolving(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_except_with_duplicate_variable_test"))
-        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 1)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?, ?, ?]], 1)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
@@ -140,7 +140,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasAllDifferentExceptConstraint)
     def testAllDifferentExceptReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "all_different_except_reif_test"))
-        assertEq(result.space.numberOfConstraints[AllDifferent[?]], 2)
+        assertEq(result.space.numberOfConstraints[AllDifferent[?, ?, ?]], 2)
     }
 
     // We test the bin_packing constraints very thoroughly because the Yuck bindings,
@@ -157,7 +157,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 3)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
         assertEq(result.space.numberOfConstraints, 6)
-        assertEq(result.space.numberOfConstraints[BinPacking[?]], 1)
+        assertEq(result.space.numberOfConstraints[BinPacking[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[Contains], 3)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
@@ -172,7 +172,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.size, 9)
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 7)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 2)
-        checkBinPackingReifConstraintNetwork[Le[?]](result)
+        checkBinPackingReifConstraintNetwork[Le[?, ?, ?]](result)
     }
 
     @Test
@@ -185,7 +185,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 3)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
         assertEq(result.space.numberOfConstraints, 6)
-        assertEq(result.space.numberOfConstraints[BinPacking[?]], 1)
+        assertEq(result.space.numberOfConstraints[BinPacking[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[Contains], 3)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
@@ -200,7 +200,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.size, 9)
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 7)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 2)
-        checkBinPackingReifConstraintNetwork[Le[?]](result)
+        checkBinPackingReifConstraintNetwork[Le[?, ?, ?]](result)
     }
 
     @Test
@@ -213,7 +213,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(isUserDefined), 3)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
         assertEq(result.space.numberOfConstraints, 6)
-        assertEq(result.space.numberOfConstraints[BinPacking[?]], 1)
+        assertEq(result.space.numberOfConstraints[BinPacking[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[Contains], 3)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
@@ -229,7 +229,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(isUserDefined), 3)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 1)
         assertEq(result.space.numberOfConstraints, 2)
-        assertEq(result.space.numberOfConstraints[BinPacking[?]], 1)
+        assertEq(result.space.numberOfConstraints[BinPacking[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints(constraint => constraint.isInstanceOf[Conjunction] && constraint.inVariables.isEmpty), 1)
     }
@@ -244,9 +244,9 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(isUserDefined), 1)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
         assertEq(result.space.numberOfConstraints, 5)
-        assertEq(result.space.numberOfConstraints[BinPacking[?]], 1)
+        assertEq(result.space.numberOfConstraints[BinPacking[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[Eq[?]], 2)
+        assertEq(result.space.numberOfConstraints[Eq[?, ?, ?]], 2)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
@@ -260,10 +260,10 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(isUserDefined), 3)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 10)
         assertEq(result.space.numberOfConstraints, 10)
-        assertEq(result.space.numberOfConstraints[BinPacking[?]], 2)
+        assertEq(result.space.numberOfConstraints[BinPacking[?, ?, ?]], 2)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[Contains], 3)
-        assertEq(result.space.numberOfConstraints[Eq[?]], 3)
+        assertEq(result.space.numberOfConstraints[Eq[?, ?, ?]], 3)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
@@ -277,7 +277,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(isUserDefined), 3)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
         assertEq(result.space.numberOfConstraints, 6)
-        assertEq(result.space.numberOfConstraints[BinPacking[?]], 1)
+        assertEq(result.space.numberOfConstraints[BinPacking[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[Contains], 3)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
@@ -306,15 +306,15 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(isUserDefined), 1)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
         assertEq(result.space.numberOfConstraints, 5)
-        assertEq(result.space.numberOfConstraints[BinPacking[?]], 1)
+        assertEq(result.space.numberOfConstraints[BinPacking[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[Eq[?]], 2)
+        assertEq(result.space.numberOfConstraints[Eq[?, ?, ?]], 2)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
     private def checkBinPackingReifConstraintNetwork[T <: Constraint](result: Result)(using classTag: ClassTag[T]): Unit = {
         assertEq(result.space.numberOfConstraints, 8)
-        assertEq(result.space.numberOfConstraints[BinPacking[?]], 1)
+        assertEq(result.space.numberOfConstraints[BinPacking[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[Bool2Costs2], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 2)
         assertEq(
@@ -652,14 +652,14 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
             assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
         }
         assertEq(result.space.numberOfConstraints, 6)
-        assertEq(result.space.numberOfConstraints[CountConst[?]], 1)
-        assertEq(result.space.numberOfConstraints[CountVar[?]], 1)
+        assertEq(result.space.numberOfConstraints[CountConst[?, ?, ?]], 1)
+        assertEq(result.space.numberOfConstraints[CountVar[?, ?, ?]], 1)
         relation match {
             case EqRelation => assertEq(result.space.numberOfConstraints[Contains], 1)
-                               assertEq(result.space.numberOfConstraints[Eq[?]], 1)
-            case NeRelation => assertEq(result.space.numberOfConstraints[Ne[?]], 2)
-            case LeRelation => assertEq(result.space.numberOfConstraints[Le[?]], 2)
-            case LtRelation => assertEq(result.space.numberOfConstraints[Lt[?]], 2)
+                               assertEq(result.space.numberOfConstraints[Eq[?, ?, ?]], 1)
+            case NeRelation => assertEq(result.space.numberOfConstraints[Ne[?, ?, ?]], 2)
+            case LeRelation => assertEq(result.space.numberOfConstraints[Le[?, ?, ?]], 2)
+            case LtRelation => assertEq(result.space.numberOfConstraints[Lt[?, ?, ?]], 2)
         }
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
@@ -687,13 +687,13 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.filter(isUserDefined).map(_.name), Set("b[1]", "b[2]"))
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 4)
         assertEq(result.space.numberOfConstraints, 7)
-        assertEq(result.space.numberOfConstraints[CountConst[?]], 1)
-        assertEq(result.space.numberOfConstraints[CountVar[?]], 1)
+        assertEq(result.space.numberOfConstraints[CountConst[?, ?, ?]], 1)
+        assertEq(result.space.numberOfConstraints[CountVar[?, ?, ?]], 1)
         relation match {
-            case EqRelation => assertEq(result.space.numberOfConstraints[Eq[?]], 2)
-            case NeRelation => assertEq(result.space.numberOfConstraints[Ne[?]], 2)
-            case LeRelation => assertEq(result.space.numberOfConstraints[Le[?]], 2)
-            case LtRelation => assertEq(result.space.numberOfConstraints[Lt[?]], 2)
+            case EqRelation => assertEq(result.space.numberOfConstraints[Eq[?, ?, ?]], 2)
+            case NeRelation => assertEq(result.space.numberOfConstraints[Ne[?, ?, ?]], 2)
+            case LeRelation => assertEq(result.space.numberOfConstraints[Le[?, ?, ?]], 2)
+            case LtRelation => assertEq(result.space.numberOfConstraints[Lt[?, ?, ?]], 2)
         }
         assertEq(result.space.numberOfConstraints[Or], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
@@ -730,12 +730,12 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         val result = solveWithResult(task.copy(problemName = problemName, verificationFrequency = NoVerification))
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 0)
         assertEq(result.space.numberOfConstraints, 9)
-        assertEq(result.space.numberOfConstraints[CountConst[?]], 2)
-        assertEq(result.space.numberOfConstraints[CountVar[?]], 2)
+        assertEq(result.space.numberOfConstraints[CountConst[?, ?, ?]], 2)
+        assertEq(result.space.numberOfConstraints[CountVar[?, ?, ?]], 2)
         assertEq(result.space.numberOfConstraints[Contains], 2)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
-        assertEq(result.space.numberOfConstraints[SumConstraint[?]], 1)
+        assertEq(result.space.numberOfConstraints[SumConstraint[?, ?, ?]], 1)
         val xs = result.compilerResult.arrays("x")
         val ys = result.compilerResult.arrays("y")
         val cs = result.compilerResult.arrays("c")
@@ -772,8 +772,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testDeliveryWithWaiting(): Unit = {
         val result = solveWithResult(task.copy(problemName = "delivery_with_waiting_test", maybeOptimum = Some(378)))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
-        assertEq(result.space.numberOfConstraints[Delivery[?]], 1)
-        assertEq(result.space.numberOfConstraints[Eq[?]], 0)
+        assertEq(result.space.numberOfConstraints[Delivery[?, ?, ?]], 1)
+        assertEq(result.space.numberOfConstraints[Eq[?, ?, ?]], 0)
         assert(result.neighbourhood.isInstanceOf[CircuitNeighbourhood])
         assertEq(result.quality.asInstanceOf[IntegerValue].value, 378)
     }
@@ -785,8 +785,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testDeliveryWithoutWaiting(): Unit = {
         val result = solveWithResult(task.copy(problemName = "delivery_without_waiting_test", dataAssignments = Map(("MaxKToMinKRatio", "1")), maybeOptimum = Some(669), maybeTargetObjectiveValue = Some(705)))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
-        assertEq(result.space.numberOfConstraints[Delivery[?]], 2)
-        assertEq(result.space.numberOfConstraints[Eq[?]], 0)
+        assertEq(result.space.numberOfConstraints[Delivery[?, ?, ?]], 2)
+        assertEq(result.space.numberOfConstraints[Eq[?, ?, ?]], 0)
         assert(result.neighbourhood.isInstanceOf[CircuitNeighbourhood])
         assertLe(result.quality.asInstanceOf[IntegerValue].value, 705L)
     }
@@ -798,8 +798,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testDeliveryReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "delivery_reif_test"))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
-        assertEq(result.space.numberOfConstraints[Delivery[?]], 1)
-        assertEq(result.space.numberOfConstraints[Eq[?]], 0)
+        assertEq(result.space.numberOfConstraints[Delivery[?, ?, ?]], 1)
+        assertEq(result.space.numberOfConstraints[Eq[?, ?, ?]], 0)
         assert(result.neighbourhood.isInstanceOf[CircuitNeighbourhood])
     }
 
@@ -810,8 +810,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testDeliveriesWithEqualArrivalTimes(): Unit = {
         val result = solveWithResult(task.copy(problemName = "delivery_with_equal_arrival_times_test", dataAssignments = Map(("MaxKToMinKRatio", "1"))))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
-        assertEq(result.space.numberOfConstraints[Delivery[?]], 2)
-        assertEq(result.space.numberOfConstraints[Eq[?]], 1)
+        assertEq(result.space.numberOfConstraints[Delivery[?, ?, ?]], 2)
+        assertEq(result.space.numberOfConstraints[Eq[?, ?, ?]], 1)
         assert(result.neighbourhood.isInstanceOf[CircuitNeighbourhood])
     }
 
@@ -822,8 +822,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     def testDeliveriesWithSharedArrivalTimes(): Unit = {
         val result = solveWithResult(task.copy(problemName = "delivery_with_shared_arrival_times_test"))
         assertEq(result.space.numberOfConstraints[Circuit], 1)
-        assertEq(result.space.numberOfConstraints[Delivery[?]], 2)
-        assertEq(result.space.numberOfConstraints[Eq[?]], 23)
+        assertEq(result.space.numberOfConstraints[Delivery[?, ?, ?]], 2)
+        assertEq(result.space.numberOfConstraints[Eq[?, ?, ?]], 23)
         assert(result.neighbourhood.isInstanceOf[CircuitNeighbourhood])
     }
 
@@ -905,9 +905,9 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(isUserDefined), 1)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 7)
         assertEq(result.space.numberOfConstraints, 6)
-        assertEq(result.space.numberOfConstraints[BinPacking[?]], 1)
+        assertEq(result.space.numberOfConstraints[BinPacking[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[Eq[?]], 3)
+        assertEq(result.space.numberOfConstraints[Eq[?, ?, ?]], 3)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
@@ -921,7 +921,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(isUserDefined), 1)
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 1)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 8)
-        checkBinPackingReifConstraintNetwork[Eq[?]](result)
+        checkBinPackingReifConstraintNetwork[Eq[?, ?, ?]](result)
     }
 
     @Test
@@ -934,9 +934,9 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(isUserDefined), 1)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 7)
         assertEq(result.space.numberOfConstraints, 6)
-        assertEq(result.space.numberOfConstraints[BinPacking[?]], 1)
+        assertEq(result.space.numberOfConstraints[BinPacking[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[Eq[?]], 3)
+        assertEq(result.space.numberOfConstraints[Eq[?, ?, ?]], 3)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
@@ -950,9 +950,9 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(isUserDefined), 1)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 7)
         assertEq(result.space.numberOfConstraints, 6)
-        assertEq(result.space.numberOfConstraints[BinPacking[?]], 1)
+        assertEq(result.space.numberOfConstraints[BinPacking[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
-        assertEq(result.space.numberOfConstraints[Eq[?]], 3)
+        assertEq(result.space.numberOfConstraints[Eq[?, ?, ?]], 3)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
@@ -966,10 +966,10 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 2)
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
         assertEq(result.space.numberOfConstraints, 6)
-        assertEq(result.space.numberOfConstraints[BinPacking[?]], 1)
+        assertEq(result.space.numberOfConstraints[BinPacking[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[Contains], 2)
-        assertEq(result.space.numberOfConstraints[Eq[?]], 1)
+        assertEq(result.space.numberOfConstraints[Eq[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
@@ -990,7 +990,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasIncreasingConstraint)
     def testIncreasingNonstrictBool(): Unit = {
         val result = solveWithResult(task.copy(problemName = "increasing_nonstrict_bool_test"))
-        assertEq(result.space.numberOfConstraints[Increasing[?, ?]], 1)
+        assertEq(result.space.numberOfConstraints[Increasing[?, ?, ?]], 1)
         assert(result.neighbourhood.isInstanceOf[BooleanIncreasingNeighbourhood])
     }
 
@@ -999,7 +999,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasIncreasingConstraint)
     def testIncreasingNonstrictBoolReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "increasing_nonstrict_bool_reif_test"))
-        assertEq(result.space.numberOfConstraints[Increasing[?, ?]], 2)
+        assertEq(result.space.numberOfConstraints[Increasing[?, ?, ?]], 2)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -1008,7 +1008,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasIncreasingConstraint)
     def testIncreasingNonstrictInt(): Unit = {
         val result = solveWithResult(task.copy(problemName = "increasing_nonstrict_int_test"))
-        assertEq(result.space.numberOfConstraints[Increasing[?, ?]], 1)
+        assertEq(result.space.numberOfConstraints[Increasing[?, ?, ?]], 1)
         assert(result.neighbourhood.isInstanceOf[IntegerIncreasingNeighbourhood])
     }
 
@@ -1017,7 +1017,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasIncreasingConstraint)
     def testIncreasingNonstrictIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "increasing_nonstrict_int_reif_test"))
-        assertEq(result.space.numberOfConstraints[Increasing[?, ?]], 2)
+        assertEq(result.space.numberOfConstraints[Increasing[?, ?, ?]], 2)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -1026,7 +1026,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasIncreasingConstraint)
     def testIncreasingStrictInt(): Unit = {
         val result = solveWithResult(task.copy(problemName = "increasing_strict_int_test"))
-        assertEq(result.space.numberOfConstraints[Increasing[?, ?]], 1)
+        assertEq(result.space.numberOfConstraints[Increasing[?, ?, ?]], 1)
         assert(result.neighbourhood.isInstanceOf[IntegerIncreasingNeighbourhood])
     }
 
@@ -1035,7 +1035,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasIncreasingConstraint)
     def testIncreasingStrictIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "increasing_strict_int_reif_test"))
-        assertEq(result.space.numberOfConstraints[Increasing[?, ?]], 2)
+        assertEq(result.space.numberOfConstraints[Increasing[?, ?, ?]], 2)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -1087,7 +1087,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasLexLessConstraint)
     def testLexLessBool(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_bool_test"))
-        assertEq(result.space.numberOfConstraints[LexLess[?]], 1)
+        assertEq(result.space.numberOfConstraints[LexLess[?, ?, ?]], 1)
     }
 
     @Test
@@ -1095,7 +1095,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasLexLessConstraint)
     def testLexLessBoolReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_bool_reif_test"))
-        assertEq(result.space.numberOfConstraints[LexLess[?]], 2)
+        assertEq(result.space.numberOfConstraints[LexLess[?, ?, ?]], 2)
     }
 
     @Test
@@ -1103,7 +1103,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasLexLessEqConstraint)
     def testLexLessEqBool(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_bool_test"))
-        assertEq(result.space.numberOfConstraints[LexLessEq[?]], 1)
+        assertEq(result.space.numberOfConstraints[LexLessEq[?, ?, ?]], 1)
     }
 
     @Test
@@ -1111,7 +1111,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasLexLessEqConstraint)
     def testLexLessEqBoolReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_bool_reif_test"))
-        assertEq(result.space.numberOfConstraints[LexLessEq[?]], 2)
+        assertEq(result.space.numberOfConstraints[LexLessEq[?, ?, ?]], 2)
     }
 
     @Test
@@ -1119,7 +1119,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasLexLessConstraint)
     def testLexLessInt(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_int_test"))
-        assertEq(result.space.numberOfConstraints[LexLess[?]], 1)
+        assertEq(result.space.numberOfConstraints[LexLess[?, ?, ?]], 1)
     }
 
     @Test
@@ -1127,7 +1127,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasLexLessConstraint)
     def testLexLessIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_int_reif_test"))
-        assertEq(result.space.numberOfConstraints[LexLess[?]], 2)
+        assertEq(result.space.numberOfConstraints[LexLess[?, ?, ?]], 2)
     }
 
     @Test
@@ -1135,7 +1135,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasLexLessEqConstraint)
     def testLexLessEqInt(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_int_test"))
-        assertEq(result.space.numberOfConstraints[LexLessEq[?]], 1)
+        assertEq(result.space.numberOfConstraints[LexLessEq[?, ?, ?]], 1)
     }
 
     @Test
@@ -1143,7 +1143,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasLexLessEqConstraint)
     def testLexLessEqIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_int_reif_test"))
-        assertEq(result.space.numberOfConstraints[LexLessEq[?]], 2)
+        assertEq(result.space.numberOfConstraints[LexLessEq[?, ?, ?]], 2)
     }
 
     @Test
@@ -1151,7 +1151,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasLexLessConstraint)
     def testLexLessSet(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_set_test"))
-        assertEq(result.space.numberOfConstraints[LexLess[?]], 1)
+        assertEq(result.space.numberOfConstraints[LexLess[?, ?, ?]], 1)
     }
 
     @Test
@@ -1159,7 +1159,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasLexLessConstraint)
     def testLexLessSetReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_less_set_reif_test"))
-        assertEq(result.space.numberOfConstraints[LexLess[?]], 2)
+        assertEq(result.space.numberOfConstraints[LexLess[?, ?, ?]], 2)
     }
 
     @Test
@@ -1167,7 +1167,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasLexLessEqConstraint)
     def testLexLessEqSet(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_set_test"))
-        assertEq(result.space.numberOfConstraints[LexLessEq[?]], 1)
+        assertEq(result.space.numberOfConstraints[LexLessEq[?, ?, ?]], 1)
     }
 
     @Test
@@ -1175,7 +1175,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasLexLessEqConstraint)
     def testLexLessEqSetReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "lex_lesseq_set_reif_test"))
-        assertEq(result.space.numberOfConstraints[LexLessEq[?]], 2)
+        assertEq(result.space.numberOfConstraints[LexLessEq[?, ?, ?]], 2)
     }
 
     @Test
@@ -1238,9 +1238,9 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         val result = solveWithResult(task.copy(problemName = problemName))
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 0)
         assertEq(result.space.numberOfConstraints, 6)
-        assertEq(result.space.numberOfConstraints[CountConst[?]], 1)
-        assertEq(result.space.numberOfConstraints[CountVar[?]], 1)
-        assertEq(result.space.numberOfConstraints[Le[?]], 2)
+        assertEq(result.space.numberOfConstraints[CountConst[?, ?, ?]], 1)
+        assertEq(result.space.numberOfConstraints[CountVar[?, ?, ?]], 1)
+        assertEq(result.space.numberOfConstraints[Le[?, ?, ?]], 2)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
@@ -1249,9 +1249,9 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         val result = solveWithResult(task.copy(problemName = problemName))
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 0)
         assertEq(result.space.numberOfConstraints, 7)
-        assertEq(result.space.numberOfConstraints[CountConst[?]], 1)
-        assertEq(result.space.numberOfConstraints[CountVar[?]], 1)
-        assertEq(result.space.numberOfConstraints[Le[?]], 2)
+        assertEq(result.space.numberOfConstraints[CountConst[?, ?, ?]], 1)
+        assertEq(result.space.numberOfConstraints[CountVar[?, ?, ?]], 1)
+        assertEq(result.space.numberOfConstraints[Le[?, ?, ?]], 2)
         assertEq(result.space.numberOfConstraints[Or], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
@@ -1269,8 +1269,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.numberOfConstraints, 5)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[LevelWeightMaintainer], 1)
-        assertEq(result.space.numberOfConstraints[Lt[?]], 1)
-        assertEq(result.space.numberOfConstraints[NumberOfDistinctValues[?]], 1)
+        assertEq(result.space.numberOfConstraints[Lt[?, ?, ?]], 1)
+        assertEq(result.space.numberOfConstraints[NumberOfDistinctValues[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
@@ -1288,10 +1288,10 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.channelVariables.count(wasIntroducedByYuck), 5)
         assertEq(result.space.numberOfConstraints, 10)
         assertEq(result.space.numberOfConstraints[Conjunction], 3)
-        assertEq(result.space.numberOfConstraints[Eq[?]], 1)
+        assertEq(result.space.numberOfConstraints[Eq[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[LevelWeightMaintainer], 1)
-        assertEq(result.space.numberOfConstraints[Lt[?]], 1)
-        assertEq(result.space.numberOfConstraints[NumberOfDistinctValues[?]], 2)
+        assertEq(result.space.numberOfConstraints[Lt[?, ?, ?]], 1)
+        assertEq(result.space.numberOfConstraints[NumberOfDistinctValues[?, ?, ?]], 2)
         assertEq(result.space.numberOfConstraints[Or], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
@@ -1315,9 +1315,9 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
                 constraint => constraint.isInstanceOf[Contains] && constraint.inVariables.count(_.name == "m") == 1),
             1)
         assertEq(result.space.numberOfConstraints[LevelWeightMaintainer], 1)
-        assertEq(result.space.numberOfConstraints[Lt[?]], 1)
-        assertEq(result.space.numberOfConstraints[NumberOfDistinctValues[?]], 2)
-        assertEq(result.space.numberOfConstraints[Plus[?]], 1)
+        assertEq(result.space.numberOfConstraints[Lt[?, ?, ?]], 1)
+        assertEq(result.space.numberOfConstraints[NumberOfDistinctValues[?, ?, ?]], 2)
+        assertEq(result.space.numberOfConstraints[Plus[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
     }
 
@@ -1357,8 +1357,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasTableConstraint)
     def testTableBoolWithImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "table_bool_test"))
-        assertEq(result.space.numberOfConstraints[Table[?]], 1)
-        assert(result.neighbourhood.isInstanceOf[TableNeighbourhood[?]])
+        assertEq(result.space.numberOfConstraints[Table[?, ?, ?]], 1)
+        assert(result.neighbourhood.isInstanceOf[TableNeighbourhood[?, ?, ?]])
     }
 
     @Test
@@ -1366,7 +1366,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasTableConstraint)
     def testTableBoolWithoutImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithoutImplicitSolving.copy(problemName = "table_bool_test"))
-        assertEq(result.space.numberOfConstraints[Table[?]], 1)
+        assertEq(result.space.numberOfConstraints[Table[?, ?, ?]], 1)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -1375,7 +1375,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasTableConstraint)
     def testTableBoolReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "table_bool_reif_test"))
-        assertEq(result.space.numberOfConstraints[Table[?]], 1)
+        assertEq(result.space.numberOfConstraints[Table[?, ?, ?]], 1)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -1384,8 +1384,8 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasTableConstraint)
     def testTableIntWithImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithImplicitSolving.copy(problemName = "table_int_test"))
-        assertEq(result.space.numberOfConstraints[Table[?]], 1)
-        assert(result.neighbourhood.isInstanceOf[TableNeighbourhood[?]])
+        assertEq(result.space.numberOfConstraints[Table[?, ?, ?]], 1)
+        assert(result.neighbourhood.isInstanceOf[TableNeighbourhood[?, ?, ?]])
     }
 
     @Test
@@ -1393,7 +1393,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasTableConstraint)
     def testTableIntWithoutImplicitSolving(): Unit = {
         val result = solveWithResult(taskWithoutImplicitSolving.copy(problemName = "table_int_test"))
-        assertEq(result.space.numberOfConstraints[Table[?]], 1)
+        assertEq(result.space.numberOfConstraints[Table[?, ?, ?]], 1)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 
@@ -1402,7 +1402,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(HasTableConstraint)
     def testTableIntReif(): Unit = {
         val result = solveWithResult(task.copy(problemName = "table_int_reif_test"))
-        assertEq(result.space.numberOfConstraints[Table[?]], 1)
+        assertEq(result.space.numberOfConstraints[Table[?, ?, ?]], 1)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
 

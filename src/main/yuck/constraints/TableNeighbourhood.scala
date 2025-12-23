@@ -5,10 +5,10 @@ import scala.collection.immutable
 import yuck.core.*
 
 final class TableNeighbourhood
-    [V <: Value[V]]
+    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
     (override protected val space: Space,
-     xs: immutable.IndexedSeq[Variable[V]],
-     rows: immutable.IndexedSeq[immutable.IndexedSeq[V]],
+     xs: immutable.IndexedSeq[X],
+     rows: immutable.IndexedSeq[immutable.IndexedSeq[A]],
      randomGenerator: RandomGenerator)
     extends Neighbourhood
 {

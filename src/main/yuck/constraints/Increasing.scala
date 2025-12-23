@@ -9,9 +9,9 @@ import yuck.core.*
  * Base class for the family of increasing constraints.
  */
 abstract class Increasing
-    [V <: OrderedValue[V], X <: OrderedVariable[V]]
+    [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
     (id: Id[Constraint])
-    (implicit valueTraits: OrderedValueTraits[V])
+    (implicit typeTraits: OrderedTypeTraits[A, D, X])
     extends Constraint(id)
 {
 
@@ -55,8 +55,8 @@ abstract class Increasing
         val y = xs(i + 1)
         val (dx1, dy1) =
             if strict
-            then valueTraits.domainPruner.ltRule(x.domain, y.domain)
-            else valueTraits.domainPruner.leRule(x.domain, y.domain)
+            then typeTraits.domainPruner.ltRule(x.domain, y.domain)
+            else typeTraits.domainPruner.leRule(x.domain, y.domain)
         effects.pruneDomains(x, dx1, y, dy1)
     }
 
@@ -93,11 +93,11 @@ abstract class Increasing
          then xs.toSet.size == n
          else deduplicated(xs).toSet.size == deduplicated(xs).size)
 
-    protected def maybeSmallestFeasibleValue(x: X, maybePreviousValue: Option[V]): Option[V]
+    protected def maybeSmallestFeasibleValue(x: X, maybePreviousValue: Option[A]): Option[A]
 
     protected final def solve(space: Space): Boolean = {
         if isCandidateForImplicitSolving(space) then {
-            type Assignments = List[(Variable[V], Option[V])]
+            type Assignments = List[(X, Option[A])]
             val assignments: Assignments = xs.foldLeft(Nil: Assignments) {
                 case (acc@(_, None) :: _, _) => acc
                 case (Nil, x) => (x, maybeSmallestFeasibleValue(x, None)) :: Nil
@@ -117,10 +117,10 @@ abstract class Increasing
         }
     }
 
-    private def computeCosts(a: V, b: V): Long =
+    private def computeCosts(a: A, b: A): Long =
         if strict
-        then valueTraits.costModel.ltViolation(a, b)
-        else valueTraits.costModel.leViolation(a, b)
+        then typeTraits.costModel.ltViolation(a, b)
+        else typeTraits.costModel.leViolation(a, b)
 
 }
 

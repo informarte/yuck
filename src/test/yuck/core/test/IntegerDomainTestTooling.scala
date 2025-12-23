@@ -10,8 +10,8 @@ import yuck.util.logging.LazyLogger
 import yuck.util.logging.LogLevel.FineLogLevel
 
 trait IntegerDomainTestTooling
-    extends OrderingTestTooling[OrderedDomain[IntegerValue]]
-       with RandomValueSelectionTestTooling[IntegerValue]
+    extends OrderingTestTooling[IntegerDomain]
+       with RandomValueSelectionTestTooling[IntegerValue, IntegerDomain]
        with IntegerDomainTestDataFactory
 {
 

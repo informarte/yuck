@@ -119,9 +119,9 @@ final class DomainInitializer
     }
 
     private def propagateAssignment
-        [V <: Value[V], D <: Domain[V]]
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
         (a: Expr, b: Expr, domainFactory: Expr => D)
-        (using valueTraits: ValueTraits[V]):
+        (using typeTraits: TypeTraits[A, D, X]):
         Unit =
     {
         if b.isConst then {
@@ -169,9 +169,9 @@ final class DomainInitializer
     }
 
     private def propagateEqualityConstraint
-        [V <: Value[V]]
-        (constraint: yuck.flatzinc.ast.Constraint, domain: Expr => Domain[V])
-        (using valueTraits: ValueTraits[V]):
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
+        (constraint: yuck.flatzinc.ast.Constraint, domain: Expr => D)
+        (using typeTraits: TypeTraits[A, D, X]):
         Unit =
     {
         val Seq(a, b) = constraint.params: @unchecked
@@ -187,9 +187,9 @@ final class DomainInitializer
     }
 
     private def propagateElementConstraint
-        [V <: Value[V]]
-        (constraint: yuck.flatzinc.ast.Constraint, domain: Expr => Domain[V])
-        (using valueTraits: ValueTraits[V]):
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
+        (constraint: yuck.flatzinc.ast.Constraint, domain: Expr => D)
+        (using typeTraits: TypeTraits[A, D, X]):
         Unit =
     {
         val Seq(IntConst(offset), b, as, c) =
@@ -207,9 +207,9 @@ final class DomainInitializer
     }
 
     private def propagateEquality
-        [V <: Value[V]]
-        (a: Expr, b: Expr, d: Domain[V])
-        (using valueTraits: ValueTraits[V]):
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
+        (a: Expr, b: Expr, d: D)
+        (using typeTraits: TypeTraits[A, D, X]):
         Unit =
     {
         if cc.sigint.isSet then {
@@ -234,9 +234,9 @@ final class DomainInitializer
     }
 
     private def propagateEquality
-        [V <: Value[V]]
-        (a: Expr, d: Domain[V])
-        (using valueTraits: ValueTraits[V]):
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
+        (a: Expr, d: D)
+        (using typeTraits: TypeTraits[A, D, X]):
         Unit =
     {
         if cc.sigint.isSet then {
@@ -250,9 +250,9 @@ final class DomainInitializer
     }
 
     private def reduceDomain
-        [V <: Value[V]]
-        (a: Expr, d: Domain[V])
-        (using valueTraits: ValueTraits[V]):
+        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
+        (a: Expr, d: D)
+        (using typeTraits: TypeTraits[A, D, X]):
         Unit =
     {
         if cc.sigint.isSet then {
@@ -261,7 +261,7 @@ final class DomainInitializer
         if d.isEmpty then {
             throw new yuck.flatzinc.compiler.DomainWipeOutException(a)
         }
-        assert(d.isSubsetOf(valueTraits.safeDowncast(cc.domains(a))))
+        assert(d.isSubsetOf(typeTraits.safeDowncast(cc.domains(a))))
         cc.domains += a -> d
     }
 

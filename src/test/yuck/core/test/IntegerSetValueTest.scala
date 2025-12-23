@@ -160,8 +160,8 @@ final class IntegerSetValueTest
             assertEq(ordering, IntegerSetValueOrdering)
         }
         testOrdering()
-        def testTraits()(using traits: OrderedValueTraits[IntegerSetValue]) = {
-            assertEq(traits, IntegerSetValueTraits)
+        def testTraits()(using traits: OrderedTypeTraits[IntegerSetValue, IntegerSetDomain, IntegerSetVariable]) = {
+            assertEq(traits, IntegerSetTypeTraits)
         }
         testTraits()
     }

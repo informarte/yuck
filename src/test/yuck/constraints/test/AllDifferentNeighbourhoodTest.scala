@@ -24,7 +24,7 @@ final class AllDifferentNeighbourhoodTest
     override protected lazy val constraint =
         new AllDifferent(space.nextConstraintId(), null, xs, exceptedValues, costs, logger)
 
-    override protected val expectedNeighbourhoodClass = classOf[AllDifferentNeighbourhood[?]]
+    override protected val expectedNeighbourhoodClass = classOf[AllDifferentNeighbourhood[?, ?, ?]]
 
     override protected def checkSearchState(searchState: SearchState) = {
         assert(xs.forall(_.hasValidValue(searchState)))

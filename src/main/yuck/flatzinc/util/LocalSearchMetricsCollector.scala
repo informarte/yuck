@@ -111,7 +111,7 @@ final class LocalSearchMetricsCollector(logger: LazyLogger) extends LocalSearchM
         val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
         val maybeOptimizationMode = compilerResult.objective match {
             case hierarchicalObjective: HierarchicalObjective => hierarchicalObjective.primitiveObjectives(1) match {
-                case numericalObjective: NumericalObjective[_] => Some(numericalObjective.optimizationMode)
+                case numericalObjective: NumericalObjective[?, ?, ?] => Some(numericalObjective.optimizationMode)
                 case _ => None
             }
             case _ => None

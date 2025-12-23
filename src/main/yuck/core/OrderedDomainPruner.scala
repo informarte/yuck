@@ -3,38 +3,16 @@ package yuck.core
 /**
  * Domain pruner interface for use by generic constraints.
  */
-abstract class OrderedDomainPruner[V <: OrderedValue[V]] extends DomainPruner[V] {
+abstract class OrderedDomainPruner[A <: OrderedValue[A], D <: OrderedDomain[A, D]] extends DomainPruner[A, D] {
 
-    override protected val valueTraits: OrderedValueTraits[V]
+    override protected val typeTraits: OrderedTypeTraits[A, D, ?]
 
-    override def eqRule
-        (lhs: Domain[V], rhs: Domain[V]):
-        (OrderedDomain[V], OrderedDomain[V]) =
-        (valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
+    def ltRule(lhs: D, rhs: D): (D, D) = (lhs, rhs)
 
-    override def neRule
-        (lhs: Domain[V], rhs: Domain[V]):
-        (OrderedDomain[V], OrderedDomain[V]) =
-        (valueTraits.safeDowncast(lhs), valueTraits.safeDowncast(rhs))
+    def leRule(lhs: D, rhs: D): (D, D) = (lhs, rhs)
 
-    def ltRule
-        (lhs: OrderedDomain[V], rhs: OrderedDomain[V]):
-        (OrderedDomain[V], OrderedDomain[V]) =
-        (lhs, rhs)
+    def minRule(lhs: Iterable[D], rhs: D): (Iterator[D], D) = (lhs.iterator, rhs)
 
-    def leRule
-        (lhs: OrderedDomain[V], rhs: OrderedDomain[V]):
-        (OrderedDomain[V], OrderedDomain[V]) =
-        (lhs, rhs)
-
-    def minRule
-        (lhs: Iterable[OrderedDomain[V]], rhs: OrderedDomain[V]):
-        (Iterator[OrderedDomain[V]], OrderedDomain[V]) =
-        (lhs.iterator, rhs)
-
-    def maxRule
-        (lhs: Iterable[OrderedDomain[V]], rhs: OrderedDomain[V]):
-        (Iterator[OrderedDomain[V]], OrderedDomain[V]) =
-        (lhs.iterator, rhs)
+    def maxRule(lhs: Iterable[D], rhs: D): (Iterator[D], D) = (lhs.iterator, rhs)
 
 }

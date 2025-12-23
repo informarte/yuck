@@ -3,12 +3,12 @@ package yuck.core
 /**
  * Provides a cost model for equality and inequality constraints.
  */
-abstract class EqualityCostModel[V <: Value[V]] {
+abstract class EqualityCostModel[A <: Value[A]] {
 
     /** Basis for implementing equality constraints. */
-    def eqViolation(lhs: V, rhs: V): Long = if lhs == rhs then 0 else 1
+    def eqViolation(lhs: A, rhs: A): Long = if lhs == rhs then 0 else 1
 
     /** Basis for implementing inequality constraints. */
-    def neViolation(lhs: V, rhs: V): Long = if lhs != rhs then 0 else 1
+    def neViolation(lhs: A, rhs: A): Long = if lhs != rhs then 0 else 1
 
 }

@@ -11,20 +11,20 @@ import yuck.core.*
  * y is a helper channel for propagation: Conceptually, sum a(i) * x(i) = y /\ y R z.
  */
 abstract class LinearConstraintLike
-    [V <: NumericalValue[V]]
+    [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
     (id: Id[Constraint])
     extends Constraint(id)
 {
 
-    protected val valueTraits: NumericalValueTraits[V]
+    protected val typeTraits: NumericalTypeTraits[A, D, X]
 
     protected val n: Int
-    protected val y: NumericalVariable[V]
+    protected val y: X
     protected val relation: OrderingRelation
-    protected val z: NumericalVariable[V]
+    protected val z: X
     protected val costs: BooleanVariable
-    protected def a(i: Int): V
-    protected def x(i: Int): NumericalVariable[V]
+    protected def a(i: Int): A
+    protected def x(i: Int): X
 
     override def toString =
         "sum([%s], %s, %s, %s)".format(
@@ -34,36 +34,35 @@ abstract class LinearConstraintLike
     override def inVariables = (0 until n).view.map(x) :+ z
     override def outVariables = List(costs)
 
-    protected var currentSum = valueTraits.zero
-    protected var futureSum = valueTraits.zero
+    protected var currentSum = typeTraits.zero
+    protected var futureSum = typeTraits.zero
     protected val effect = costs.reuseableEffect
 
     // Propagates sum a(i) * x(i) = y.
     private def propagate1(effects: PropagationEffects): PropagationEffects = {
         // An Iterable does not compare to other sequences, so we have to use a Seq to facilitate mocking.
-        val lhs0 = new Seq[(V, NumericalDomain[V])] {
+        val lhs0 = new Seq[(A, D)] {
             override def iterator = (0 until n).iterator.map(apply)
             override def length = n
             override def apply(i: Int) = (a(i), x(i).domain)
         }
         val rhs0 = y.domain
-        val (lhs1, rhs1) = valueTraits.domainPruner.linEqRule(lhs0, rhs0)
+        val (lhs1, rhs1) = typeTraits.domainPruner.linEqRule(lhs0, rhs0)
         effects.pruneDomains((0 until n).iterator.map(x).zip(lhs1)).pruneDomain(y, rhs1)
     }
 
     // Propagates y relation z.
     private def propagate2(effects: PropagationEffects): PropagationEffects = {
-        type Domain = NumericalDomain[V]
-        val domainPruner = valueTraits.domainPruner
-        val propagator = new ReifiedBinaryConstraintPropagator[Domain, Domain] {
-            override protected def enforce(lhs: Domain, rhs: Domain) =
+        val domainPruner = typeTraits.domainPruner
+        val propagator = new ReifiedBinaryConstraintPropagator[D, D] {
+            override protected def enforce(lhs: D, rhs: D) =
                 relation match {
                     case EqRelation => domainPruner.eqRule(lhs, rhs)
                     case NeRelation => domainPruner.neRule(lhs, rhs)
                     case LtRelation => domainPruner.ltRule(lhs, rhs)
                     case LeRelation => domainPruner.leRule(lhs, rhs)
                 }
-            override protected def prohibit(lhs0: Domain, rhs0: Domain) =
+            override protected def prohibit(lhs0: D, rhs0: D) =
                 relation match {
                     case EqRelation => domainPruner.neRule(lhs0, rhs0)
                     case NeRelation => domainPruner.eqRule(lhs0, rhs0)
@@ -80,18 +79,18 @@ abstract class LinearConstraintLike
         propagate2(propagate1(NoPropagationOccurred))
     }
 
-    protected final def computeCosts(a: V, b: V): BooleanValue = {
+    protected final def computeCosts(a: A, b: A): BooleanValue = {
         val violation = relation match {
-            case EqRelation => valueTraits.costModel.eqViolation(a, b)
-            case NeRelation => valueTraits.costModel.neViolation(a, b)
-            case LtRelation => valueTraits.costModel.ltViolation(a, b)
-            case LeRelation => valueTraits.costModel.leViolation(a, b)
+            case EqRelation => typeTraits.costModel.eqViolation(a, b)
+            case NeRelation => typeTraits.costModel.neViolation(a, b)
+            case LtRelation => typeTraits.costModel.ltViolation(a, b)
+            case LeRelation => typeTraits.costModel.leViolation(a, b)
         }
         BooleanValue(violation)
     }
 
     final override def initialize(now: SearchState) = {
-        currentSum = valueTraits.zero
+        currentSum = typeTraits.zero
         for i <- 0 until n do {
             currentSum += a(i) * now.value(x(i))
         }

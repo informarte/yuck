@@ -3,123 +3,123 @@ package yuck.constraints
 import yuck.core.*
 
 final class Plus
-    [V <: NumericalValue[V]]
+    [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: NumericalVariable[V], y: NumericalVariable[V], z: NumericalVariable[V])
-    (using valueTraits: NumericalValueTraits[V])
+     x: X, y: X, z: X)
+    (using typeTraits: NumericalTypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s + %s".format(z, x, y)
-    override def op(a: V, b: V) = a + b
+    override def op(a: A, b: A) = a + b
     override def propagate() = {
-        import valueTraits.one
+        import typeTraits.one
         val lhs0 = Seq((one, x.domain), (one, y.domain))
-        val (lhs1, dz1) = valueTraits.domainPruner.linEqRule(lhs0, z.domain)
+        val (lhs1, dz1) = typeTraits.domainPruner.linEqRule(lhs0, z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
 }
 
 final class Minus
-    [V <: NumericalValue[V]]
+    [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: NumericalVariable[V], y: NumericalVariable[V], z: NumericalVariable[V])
-    (using valueTraits: NumericalValueTraits[V])
+     x: X, y: X, z: X)
+    (using typeTraits: NumericalTypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s - %s".format(z, x, y)
-    override def op(a: V, b: V) = a - b
+    override def op(a: A, b: A) = a - b
     override def propagate() = {
-        import valueTraits.{one, zero}
+        import typeTraits.{one, zero}
         val lhs0 = Seq((one, x.domain), (zero - one, y.domain))
-        val (lhs1, dz1) = valueTraits.domainPruner.linEqRule(lhs0, z.domain)
+        val (lhs1, dz1) = typeTraits.domainPruner.linEqRule(lhs0, z.domain)
         val Seq(dx1, dy1) = lhs1.toSeq
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
 }
 
 final class Times
-    [V <: NumericalValue[V]]
+    [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: NumericalVariable[V], y: NumericalVariable[V], z: NumericalVariable[V])
-    (using valueTraits: NumericalValueTraits[V])
-    extends TernaryConstraint[V, V, V](id, x, y, z)
+     x: X, y: X, z: X)
+    (using typeTraits: NumericalTypeTraits[A, D, X])
+    extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s * %s".format(z, x, y)
-    override def op(a: V, b: V) = a * b
+    override def op(a: A, b: A) = a * b
     override def propagate() = {
-        val (dx1, dy1, dz1) = valueTraits.domainPruner.timesRule(x.domain, y.domain, z.domain)
+        val (dx1, dy1, dz1) = typeTraits.domainPruner.timesRule(x.domain, y.domain, z.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1, z, dz1)
     }
 }
 
 final class Div
-    [V <: IntegralValue[V]]
+    [A <: IntegralValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: NumericalVariable[V], y: NumericalVariable[V], z: NumericalVariable[V])
-    (using valueTraits: NumericalValueTraits[V])
+     x: X, y: X, z: X)
+    (using typeTraits: NumericalTypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s / %s".format(z, x, y)
     override def propagate() =
-        NoPropagationOccurred.pruneDomain(y, y.domain.diff(valueTraits.createDomain(Set(valueTraits.zero))))
-    override def op(a: V, b: V) =
+        NoPropagationOccurred.pruneDomain(y, y.domain.diff(typeTraits.createDomain(Set(typeTraits.zero))))
+    override def op(a: A, b: A) =
         // When y is a channel variable, b may be zero!
         // Nevertheless, we have to provide some value for z.
-       if b == valueTraits.zero then a else a / b
+       if b == typeTraits.zero then a else a / b
 }
 
 final class Mod
-    [V <: IntegralValue[V]]
+    [A <: IntegralValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: NumericalVariable[V], y: NumericalVariable[V], z: NumericalVariable[V])
+     x: X, y: X, z: X)
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s %% %s".format(z, x, y)
-    override def op(a: V, b: V) = a % b
+    override def op(a: A, b: A) = a % b
 }
 
 final class Power
-    [V <: NumericalValue[V]]
+    [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: NumericalVariable[V], y: NumericalVariable[V], z: NumericalVariable[V])
+     x: X, y: X, z: X)
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s ^ %s".format(z, x, y)
-    override def op(a: V, b: V) = a ^ b
+    override def op(a: A, b: A) = a ^ b
 }
 
 final class Abs
-    [V <: NumericalValue[V]]
+    [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: NumericalVariable[V], y: NumericalVariable[V])
-    (using valueTraits: NumericalValueTraits[V])
+     x: X, y: X)
+    (using typeTraits: NumericalTypeTraits[A, D, X])
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "%s = abs(%s)".format(y, x)
-    override def op(a: V) = a.abs
+    override def op(a: A) = a.abs
     override def propagate() = {
-        val (dx1, dy1) = valueTraits.domainPruner.absRule(x.domain, y.domain)
+        val (dx1, dy1) = typeTraits.domainPruner.absRule(x.domain, y.domain)
         NoPropagationOccurred.pruneDomains(x, dx1, y, dy1)
     }
 }
 
 final class Even
-    [V <: IntegralValue[V]]
+    [A <: IntegralValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: NumericalVariable[V], y: BooleanVariable)
+     x: X, y: BooleanVariable)
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "even(%s, %s)".format(x, y)
-    override def op(a: V) = if a.isEven then True else False
+    override def op(a: A) = if a.isEven then True else False
 }
 
 final class Uneven
-    [V <: IntegralValue[V]]
+    [A <: IntegralValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: NumericalVariable[V], y: BooleanVariable)
+     x: X, y: BooleanVariable)
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "uneven(%s, %s)".format(x, y)
-    override def op(a: V) = if a.isEven then False else True
+    override def op(a: A) = if a.isEven then False else True
 }

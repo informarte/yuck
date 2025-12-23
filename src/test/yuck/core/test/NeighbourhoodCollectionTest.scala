@@ -14,7 +14,7 @@ class NeighbourhoodCollectionTest
      override protected val maybeHotSpotDistribution: Option[Distribution],
      override protected val maybeFairChoiceRate: Option[Probability],
      numberOfVariables: Int)
-    extends GeneralNeighbourhoodTest[IntegerValue]
+    extends GeneralNeighbourhoodTest[IntegerValue, IntegerDomain, IntegerVariable]
 {
 
     final class CommitChecker
@@ -38,6 +38,8 @@ class NeighbourhoodCollectionTest
             neighbourhood.perturb(perturbationProbability)
         }
     }
+
+    override protected val typeTraits = IntegerTypeTraits
 
     override protected val xs =
         for i <- 0 until numberOfVariables yield

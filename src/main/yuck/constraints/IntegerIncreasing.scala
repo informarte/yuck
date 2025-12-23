@@ -14,7 +14,8 @@ final class IntegerIncreasing
      override protected val xs: immutable.IndexedSeq[IntegerVariable],
      override protected val strict: Boolean,
      override protected val costs: BooleanVariable)
-    extends Increasing[IntegerValue, IntegerVariable](id) {
+    extends Increasing(id)(using IntegerTypeTraits)
+{
 
     override def toString = "increasing([%s], %s, %s)".format(xs.mkString(", "), strict, costs)
 

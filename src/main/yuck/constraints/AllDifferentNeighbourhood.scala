@@ -9,23 +9,23 @@ import yuck.util.arm.scoped
  * This neighbourhood can be used to maintain constraints like ''all_different'' and ''all_different_except_0''.
  */
 final class AllDifferentNeighbourhood
-    [V <: Value[V]]
+    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
     (override protected val space: Space,
-     xs: immutable.IndexedSeq[Variable[V]],
-     exceptedValues: immutable.Set[V],
+     xs: immutable.IndexedSeq[X],
+     exceptedValues: immutable.Set[A],
      randomGenerator: RandomGenerator,
      moveSizeDistribution: Distribution,
      maybeHotSpotDistribution: Option[Distribution],
      maybeFairVariableChoiceRate: Option[Probability])
-    (using valueTraits: ValueTraits[V])
+    (using typeTraits: TypeTraits[A, D, X])
     extends Neighbourhood
 {
 
-    require(valueTraits.domainCapabilities.createDomain)
-    require(valueTraits.domainCapabilities.diff)
+    require(typeTraits.domainCapabilities.createDomain)
+    require(typeTraits.domainCapabilities.diff)
 
     private val n = xs.size
-    private def value(x: Variable[V]) = space.searchState.value(x)
+    private def value(x: X) = space.searchState.value(x)
 
     require(n > 1)
     require(xs.toSet.size == n)
@@ -45,10 +45,10 @@ final class AllDifferentNeighbourhood
     private val probabilityOfSwappingInValues = moveSizeDistribution.probability(1)
     private val variablesHaveTheSameDomain = xs.forall(x => x.domain == xs.head.domain)
     private val swappingInValuesIsPossible = xs.iterator.flatMap(_.domain.valuesIterator).toSet.size > n
-    private val effects = Vector.fill(3)(new ReusableMoveEffect[V])
+    private val effects = Vector.fill(3)(new ReusableMoveEffect[A, D, X])
     private val swaps = Vector.tabulate(3)(i => effects.take(i + 1))
-    private def succeed(n: Int): Move = new ChangeValues[V](space.nextMoveId(), swaps(n - 1))
-    private def fail(): Move = new ChangeValues[V](space.nextMoveId(), Nil)
+    private def succeed(n: Int): Move = new ChangeValues[A, D, X](space.nextMoveId(), swaps(n - 1))
+    private def fail(): Move = new ChangeValues[A, D, X](space.nextMoveId(), Nil)
 
     override def searchVariables = xs.toSet
 
@@ -149,7 +149,7 @@ final class AllDifferentNeighbourhood
     }
 
     private def swapInAValue(m: Int, useUniformDistribution: Boolean): Move = {
-        val usedValues = valueTraits.createDomain(xs.view.map(value).filterNot(exceptedValues.contains).toSet)
+        val usedValues = typeTraits.createDomain(xs.view.map(value).filterNot(exceptedValues.contains).toSet)
         if m == 1 then {
             val (i, unusedValues) = scoped(frequencyRestorer) {
                 xiIterator(useUniformDistribution)

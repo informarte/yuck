@@ -46,7 +46,7 @@ final class CircuitNeighbourhood
         cycle
     }
 
-    private val effects = new mutable.ArrayBuffer[MoveEffect[IntegerValue]](3) {
+    private val effects = new mutable.ArrayBuffer[MoveEffect[IntegerValue, IntegerDomain, IntegerVariable]](3) {
         override def clear() = {
             // No need to clear the underlying array!
             size0 = 0

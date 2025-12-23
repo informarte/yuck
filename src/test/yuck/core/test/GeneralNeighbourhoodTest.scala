@@ -8,15 +8,15 @@ import yuck.core.*
 import yuck.test.util.UnitTest
 
 abstract class GeneralNeighbourhoodTest
-    [V <: Value[V]]
-    (using valueTraits: ValueTraits[V])
+    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
     extends UnitTest
 {
 
     protected val randomGenerator = new JavaRandomGenerator
     protected val space = new Space(logger, sigint)
 
-    protected val xs: immutable.IndexedSeq[Variable[V]]
+    protected val typeTraits: TypeTraits[A, D, X]
+    protected val xs: immutable.IndexedSeq[X]
     protected val moveSizeDistribution: Distribution
     protected val maybeHotSpotDistribution: Option[Distribution] // goes together with xs
     protected val maybeFairChoiceRate: Option[Probability]
@@ -85,7 +85,7 @@ abstract class GeneralNeighbourhoodTest
         for i <- 1 to numberOfMoves do {
             val move = neighbourhood.nextMove()
             result.moveSizeFrequencies(move.size) += 1
-            val ys = move.involvedVariablesIterator.map(valueTraits.safeDowncast).toVector
+            val ys = move.involvedVariablesIterator.map(typeTraits.safeDowncast).toVector
             assertEq(ys.size, ys.toSet.size)
             assert(ys.forall(xs.contains))
             for y <- ys do {

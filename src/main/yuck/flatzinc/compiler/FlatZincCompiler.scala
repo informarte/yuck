@@ -70,7 +70,7 @@ final class FlatZincCompiler
             case _: SatisfactionObjective => true
             case hierarchicalObjective: HierarchicalObjective =>
                 hierarchicalObjective.primitiveObjectives match {
-                    case List(_: SatisfactionObjective, numericalObjective: NumericalObjective[?]) =>
+                    case List(_: SatisfactionObjective, numericalObjective: NumericalObjective[?, ?, ?]) =>
                         numericalObjective.maybeY.isDefined
                     case _ => false
                 }
@@ -81,7 +81,7 @@ final class FlatZincCompiler
             cc.space.searchVariables.iterator.exists(_.isInstanceOf[IntegerSetVariable]) ||
             // Delivery requires the circuit to be maintained by a neighbourhood.
             cc.costVars.exists(costs =>
-                cc.space.maybeDefiningConstraint(costs).map(_.isInstanceOf[Delivery[?]]).getOrElse(false)) then
+                cc.space.maybeDefiningConstraint(costs).map(_.isInstanceOf[Delivery[?, ?, ?]]).getOrElse(false)) then
         {
             run(new AnnealingNeighbourhoodFactory(cc, randomGenerator.nextGen()))
         } else {

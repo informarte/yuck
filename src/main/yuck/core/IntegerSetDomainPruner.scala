@@ -3,15 +3,15 @@ package yuck.core
 /**
  * Provides methods for pruning integer-set domains.
  */
-object IntegerSetDomainPruner extends OrderedDomainPruner[IntegerSetValue] {
+object IntegerSetDomainPruner extends OrderedDomainPruner[IntegerSetValue, IntegerSetDomain] {
 
-    override protected val valueTraits = IntegerSetValueTraits
+    override protected val typeTraits = IntegerSetTypeTraits
 
     override def eqRule
-        (lhs: Domain[IntegerSetValue], rhs: Domain[IntegerSetValue]):
+        (lhs: IntegerSetDomain, rhs: IntegerSetDomain):
         (IntegerSetDomain, IntegerSetDomain) =
     {
-        val intersection = lhs.asInstanceOf[IntegerSetDomain].intersect(rhs)
+        val intersection = lhs.intersect(rhs)
         (intersection, intersection)
     }
 

@@ -270,7 +270,7 @@ final class SpaceTest extends UnitTest {
                 override def iterator = xs.iterator.map(x => (One, x.domain))
             }
             val rhs0 = sum.domain
-            val (lhs1, rhs1) = IntegerValueTraits.domainPruner.linEqRule(lhs0, rhs0)
+            val (lhs1, rhs1) = IntegerTypeTraits.domainPruner.linEqRule(lhs0, rhs0)
             NoPropagationOccurred.pruneDomains(xs.iterator.zip(lhs1)).pruneDomain(sum, rhs1)
         }
 
@@ -294,7 +294,7 @@ final class SpaceTest extends UnitTest {
 
         private def checkContract(before: SearchState, after: SearchState, move: Move): Unit = {
             for x <- move.involvedVariables do {
-                assert(xs.contains(IntegerValueTraits.safeDowncast(x)))
+                assert(xs.contains(IntegerTypeTraits.safeDowncast(x)))
                 assertNe(before.value(x), after.value(x))
                 assertEq(after.value(x), move.value(x))
             }

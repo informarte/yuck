@@ -4,14 +4,14 @@ package yuck.core
  * Provides an interface for working with domains that contain integer
  * sets as elements.
  */
-abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
+abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue, IntegerSetDomain] {
 
     final override def valueType = classOf[IntegerSetValue]
 
     final override def hasLb = true
     final override def hasUb = true
 
-    final override def compare(that: OrderedDomain[IntegerSetValue]) =
+    final override def compare(that: IntegerSetDomain) =
         if this.lb < that.lb
         then -1
         else if this.lb > that.lb
@@ -22,7 +22,7 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         then +1
         else 0
 
-    final override def ==(that: Domain[IntegerSetValue]) = (this, that) match {
+    final override def ==(that: IntegerSetDomain) = (this, that) match {
         case (lhs: EmptyIntegerSetDomain.type, rhs: EmptyIntegerSetDomain.type) => true
         case (lhs: EmptyIntegerSetDomain.type, _) => false
         case (_, rhs: EmptyIntegerSetDomain.type) => false
@@ -35,7 +35,7 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
 
     final override def randomSubdomain(randomGenerator: RandomGenerator): IntegerSetDomain = ???
 
-    final override def isSubsetOf(that: Domain[IntegerSetValue]): Boolean = (this, that) match {
+    final override def isSubsetOf(that: IntegerSetDomain): Boolean = (this, that) match {
         case (lhs: EmptyIntegerSetDomain.type, _) => true
         case (_, rhs: EmptyIntegerSetDomain.type) => false
         case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) => lhs.isSubsetOf(rhs)
@@ -45,7 +45,7 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         case _ => ???
     }
 
-    final override def intersects(that: Domain[IntegerSetValue]): Boolean = (this, that) match {
+    final override def intersects(that: IntegerSetDomain): Boolean = (this, that) match {
         case (lhs: EmptyIntegerSetDomain.type, _) => false
         case (_, rhs: EmptyIntegerSetDomain.type) => false
         case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) => lhs.intersects(rhs)
@@ -55,7 +55,7 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         case _ => ???
     }
 
-    final override def intersect(that: Domain[IntegerSetValue]): IntegerSetDomain = (this, that) match {
+    final override def intersect(that: IntegerSetDomain): IntegerSetDomain = (this, that) match {
         case (lhs: EmptyIntegerSetDomain.type, _) => lhs
         case (_, rhs: EmptyIntegerSetDomain.type) => rhs
         case (lhs: SingletonIntegerSetDomain, rhs: SingletonIntegerSetDomain) =>
@@ -69,13 +69,13 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
         case _ => ???
     }
 
-    final override def union(that: Domain[IntegerSetValue]): IntegerSetDomain = (this, that) match {
+    final override def union(that: IntegerSetDomain): IntegerSetDomain = (this, that) match {
         case (lhs: EmptyIntegerSetDomain.type, rhs: IntegerSetDomain) => rhs
         case (lhs, rhs: EmptyIntegerSetDomain.type) => lhs
         case _ => ???
     }
 
-    final override def diff(that: Domain[IntegerSetValue]): IntegerSetDomain = (this, that) match {
+    final override def diff(that: IntegerSetDomain): IntegerSetDomain = (this, that) match {
         case (lhs: EmptyIntegerSetDomain.type, _) => lhs
         case (lhs, rhs: EmptyIntegerSetDomain.type) => lhs
         case _ => ???
@@ -85,6 +85,6 @@ abstract class IntegerSetDomain extends OrderedDomain[IntegerSetValue] {
 
 object IntegerSetDomain {
 
-    given Ordering[OrderedDomain[IntegerSetValue]] = IntegerSetDomainOrdering
+    given Ordering[IntegerSetDomain] = IntegerSetDomainOrdering
 
 }

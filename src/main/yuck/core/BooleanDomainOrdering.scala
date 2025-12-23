@@ -5,4 +5,4 @@ import yuck.util.OrderingFromOrdered
 /**
  * A total ordering on Boolean domains.
  */
-object BooleanDomainOrdering extends OrderingFromOrdered[OrderedDomain[BooleanValue]]
+object BooleanDomainOrdering extends OrderingFromOrdered[BooleanDomain]

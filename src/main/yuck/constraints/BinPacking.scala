@@ -19,18 +19,20 @@ final class BinPackingItem
  * Ignores tasks assigned to bins other than the given bins.
  */
 final class BinPacking
-    [Load <: NumericalValue[Load]]
+    [Load <: NumericalValue[Load],
+     LoadDomain <: NumericalDomain[Load, LoadDomain],
+     LoadVariable <: NumericalVariable[Load, LoadDomain, LoadVariable]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
      items: immutable.Seq[BinPackingItem[Load]],
      // In generic code, scalac translates == to BoxesRunTime.equals, which incurs overhead to
      // properly compare numbers of different types.
      // We avoid this overhead by using IntegerValue instead of int.
-     loads: immutable.Map[IntegerValue, Variable[Load]]) // bin -> load
-    (using valueTraits: NumericalValueTraits[Load])
+     loads: immutable.Map[IntegerValue, LoadVariable]) // bin -> load
+    (using typeTraits: NumericalTypeTraits[Load, LoadDomain, LoadVariable])
     extends Constraint(id)
 {
 
-    require(items.forall(_.weight >= valueTraits.zero))
+    require(items.forall(_.weight >= typeTraits.zero))
     require(loads.valuesIterator.toSet.size == loads.size)
     require(items.iterator.map(_.bin).toSet.size == items.size)
 
@@ -39,7 +41,7 @@ final class BinPacking
             items.mkString(", "),
             loads.iterator.map(item => "(%s, %s)".format(item._1, item._2)).mkString(", "))
 
-    override def inVariables = items.view.filter(_.weight > valueTraits.zero).map(_.bin)
+    override def inVariables = items.view.filter(_.weight > typeTraits.zero).map(_.bin)
     override def outVariables = loads.view.values
 
     private val x2Item = items.view.map(item => (item.bin: AnyVariable) -> item).to(immutable.HashMap)
@@ -50,7 +52,7 @@ final class BinPacking
     override def initialize(now: SearchState) = {
         currentLoads.clear()
         for i <- loads.keysIterator do {
-            currentLoads(i) = valueTraits.zero
+            currentLoads(i) = typeTraits.zero
         }
         for item <- items do {
             val i = now.value(item.bin)
@@ -72,10 +74,10 @@ final class BinPacking
            val j = before.value(item.bin)
            val k = after.value(item.bin)
            if effects.contains(j) then {
-               loadDeltas += j -> (loadDeltas.getOrElse(j, valueTraits.zero) - item.weight)
+               loadDeltas += j -> (loadDeltas.getOrElse(j, typeTraits.zero) - item.weight)
            }
            if effects.contains(k) then {
-               loadDeltas += k -> (loadDeltas.getOrElse(k, valueTraits.zero) + item.weight)
+               loadDeltas += k -> (loadDeltas.getOrElse(k, typeTraits.zero) + item.weight)
            }
        }
        for (j, loadDelta) <- loadDeltas do {

@@ -8,14 +8,14 @@ import org.junit.platform.suite.api.{SelectClasses, Suite}
         classOf[BooleanValueOrderingTest],
         classOf[BooleanValueOrderingCostModelTest],
         classOf[BooleanValueTest],
-        classOf[BooleanValueTraitsTest],
+        classOf[BooleanTypeTraitsTest],
         classOf[IntegerValueOperationsTest],
         classOf[IntegerValueOrderingCostModelTest],
         classOf[IntegerValueTest],
-        classOf[IntegerValueTraitsTest],
+        classOf[IntegerTypeTraitsTest],
         classOf[IntegerSetValueOrderingTest],
         classOf[IntegerSetValueOrderingCostModelTest],
         classOf[IntegerSetValueTest],
-        classOf[IntegerSetValueTraitsTest],
+        classOf[IntegerSetTypeTraitsTest],
         classOf[PolymorphicListValueTest]))
 final class ValueTestSuite

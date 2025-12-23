@@ -12,11 +12,13 @@ import yuck.core.*
  * to take a valid value.)
  */
 final class ElementsVar
-    [V <: Value[V]]
+    [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
     (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.IndexedSeq[Variable[V]], is: immutable.IndexedSeq[IntegerVariable], ys: immutable.IndexedSeq[Variable[V]],
+     xs: immutable.IndexedSeq[X],
+     is: immutable.IndexedSeq[IntegerVariable],
+     ys: immutable.IndexedSeq[X],
      offset: Int)
-    (using valueTraits: ValueTraits[V])
+    (using typeTraits: TypeTraits[A, D, X])
     extends Constraint(id)
 {
 
@@ -36,37 +38,37 @@ final class ElementsVar
     override def inVariables = xs.view.appendedAll(is)
     override def outVariables = ys
 
-    private val i2ys: HashMap[AnyVariable, Vector[Variable[V]]] =
+    private val i2ys: HashMap[AnyVariable, Vector[X]] =
         is.view.zip(ys).groupBy(_._1).view.mapValues(_.map(_._2).toVector).to(HashMap)
-    private val y2Effect = new mutable.TreeMap[Variable[V], AnyMoveEffect]
+    private val y2Effect = new mutable.TreeMap[X, AnyMoveEffect]
     private val effects = y2Effect.values
-    private val x2ys: HashMap[AnyVariable, mutable.TreeSet[Variable[V]]] =
-        HashMap.newBuilder.addAll(xs.view.map((_, new mutable.TreeSet[Variable[V]]))).result()
+    private val x2ys: HashMap[AnyVariable, mutable.TreeSet[X]] =
+        HashMap.newBuilder.addAll(xs.view.map((_, new mutable.TreeSet[X]))).result()
 
     // When i is the value of a channel variable, i may be out-of-bounds!
     // Nevertheless, we have to provide some valid index.
     inline private def safeIndex(i: IntegerValue): Int = min(max(0, safeSub(i.toInt, offset)), n - 1)
 
-    inline private def addEffect(y: Variable[V], a: V): Unit = {
+    inline private def addEffect(y: X, a: A): Unit = {
         val effect = y.reuseableEffect
         effect.a = a
         y2Effect.addOne(y, effect)
     }
 
     override def propagate() = {
-        if valueTraits.domainCapabilities.union
+        if typeTraits.domainCapabilities.union
         then is.view.zip(ys).foldLeft(NoPropagationOccurred: PropagationEffects)(propagate)
         else NoPropagationOccurred
     }
 
-    private def propagate(effects: PropagationEffects, iy: (IntegerVariable, Variable[V])) = {
+    private def propagate(effects: PropagationEffects, iy: (IntegerVariable, X)) = {
         val i = iy._1
         val y = iy._2
         val di1 =
             i.domain.intersect(IntegerRange(offset, safeDec(safeAdd(xs.size, offset))))
         val dy1 =
             y.domain.intersect(
-                di1.valuesIterator.foldLeft(valueTraits.emptyDomain)((u, i) => u.union(xs(i.toInt - offset).domain)))
+                di1.valuesIterator.foldLeft(typeTraits.emptyDomain)((u, i) => u.union(xs(i.toInt - offset).domain)))
         val di2 =
             IntegerDomain(
                 di1.valuesIterator.filter(i => xs(i.toInt - offset).domain.intersects(dy1)).toSet)
@@ -89,9 +91,9 @@ final class ElementsVar
         for effect <- move.effectsIterator do {
             val ys = i2ys.getOrElse(effect.x, Vector.empty)
             if ys.isEmpty then {
-                for y <- x2ys(effect.x.asInstanceOf[Variable[V]]) do {
+                for y <- x2ys(effect.x.asInstanceOf[X]) do {
                     if ! y2Effect.contains(y) then {
-                        addEffect(y, effect.a.asInstanceOf[V])
+                        addEffect(y, effect.a.asInstanceOf[A])
                     }
                 }
             } else {
