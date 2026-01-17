@@ -21,7 +21,7 @@ final class ElementConstTest(offset: Int) extends UnitTest with ConstraintTestTo
     private val indexRange = IntegerRange(offset, offset + 2)
     private val i = new IntegerVariable(space.nextVariableId(), "i", CompleteIntegerRange)
     private val y = new IntegerVariable(space.nextVariableId(), "y", CompleteIntegerRange)
-    private val constraint = new ElementConst(space.nextConstraintId(), null, values, i, y, offset)
+    private val constraint = new ElementConst(space.nextConstraintId(), values, i, y, offset)
 
     @Test
     def testBasics(): Unit = {

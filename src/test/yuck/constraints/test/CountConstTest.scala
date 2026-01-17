@@ -18,7 +18,7 @@ final class CountConstTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new CountConst(space.nextConstraintId(), null, xs, One, n)
+        val constraint = new CountConst(space.nextConstraintId(), xs, One, n)
         assertEq(constraint.toString, "n = count(1, [x1, x2, x3])")
         assertEq(constraint.inVariables.size, xs.size)
         assertEq(constraint.inVariables.toSet, xs.toSet)
@@ -28,7 +28,7 @@ final class CountConstTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testPropagation(): Unit = {
-        space.post(new CountConst(space.nextConstraintId(), null, xs, One, n))
+        space.post(new CountConst(space.nextConstraintId(), xs, One, n))
         runScenario(
             TestScenario(
                 space,
@@ -42,7 +42,7 @@ final class CountConstTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfDuplicateVariablesInPropagation(): Unit = {
-        space.post(new CountConst(space.nextConstraintId(), null, List(x1, x1, x2, x3), One, n))
+        space.post(new CountConst(space.nextConstraintId(), List(x1, x1, x2, x3), One, n))
         runScenario(
             TestScenario(
                 space,
@@ -56,7 +56,7 @@ final class CountConstTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testCounting(): Unit = {
-        space.post(new CountConst(space.nextConstraintId(), null, xs, One, n))
+        space.post(new CountConst(space.nextConstraintId(), xs, One, n))
         runScenario(
             TestScenario(
                 space,
@@ -71,7 +71,7 @@ final class CountConstTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfDuplicateVariablesInCounting(): Unit = {
-        space.post(new CountConst(space.nextConstraintId(), null, List(x1, x1, x2, x3), One, n))
+        space.post(new CountConst(space.nextConstraintId(), List(x1, x1, x2, x3), One, n))
         runScenario(
             TestScenario(
                 space,
@@ -88,7 +88,7 @@ final class CountConstTest extends UnitTest with ConstraintTestTooling {
     def testNormalizationOfBooleanValuesInCounting(): Unit = {
         val xs = for i <- 1 to 3 yield new BooleanVariable(space.nextVariableId(), "x%d".format(i), CompleteBooleanDomain)
         val Seq(x1, x2, x3) = xs
-        space.post(new CountConst(space.nextConstraintId(), null, xs, False, n))
+        space.post(new CountConst(space.nextConstraintId(), xs, False, n))
         runScenario(
             TestScenario(
                 space,

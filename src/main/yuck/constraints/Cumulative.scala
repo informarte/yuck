@@ -35,7 +35,7 @@ final class CumulativeTask
  * Ignores tasks with negative duration or consumption.
  */
 final class Cumulative
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
+    (id: Id[Constraint],
      tasks: immutable.IndexedSeq[CumulativeTask], capacity: IntegerVariable,
      costs: BooleanVariable)
     extends Constraint(id)

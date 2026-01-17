@@ -29,7 +29,7 @@ final class ElementsVarTest(offset: Int) extends UnitTest with ConstraintTestToo
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new ElementsVar(space.nextConstraintId(), null, xs, is, Vector(y1, y2), offset)
+        val constraint = new ElementsVar(space.nextConstraintId(), xs, is, Vector(y1, y2), offset)
         assertEq(constraint.toString, "[y1, y2] = elements([x1, x2, x3], [i1, i2], %d)".format(offset))
         assertEq(constraint.inVariables.size, 5)
         assertEq(constraint.inVariables.toSet, Set(x1, x2, x3, i1, i2))
@@ -39,7 +39,7 @@ final class ElementsVarTest(offset: Int) extends UnitTest with ConstraintTestToo
 
     @Test
     def testPropagation(): Unit = {
-        val constraint = new ElementsVar(space.nextConstraintId(), null, xs, is, Vector(y1, y2), offset)
+        val constraint = new ElementsVar(space.nextConstraintId(), xs, is, Vector(y1, y2), offset)
         space.post(constraint)
         runScenario(
             TestScenario(
@@ -70,7 +70,7 @@ final class ElementsVarTest(offset: Int) extends UnitTest with ConstraintTestToo
 
     @Test
     def testHandlingOfDuplicateVariablesInPropagation(): Unit = {
-        val constraint = new ElementsVar(space.nextConstraintId(), null, Vector(x1, x2, x1, x3), Vector(i1, i2, i1), Vector(y1, y2, y3), offset)
+        val constraint = new ElementsVar(space.nextConstraintId(), Vector(x1, x2, x1, x3), Vector(i1, i2, i1), Vector(y1, y2, y3), offset)
         space.post(constraint)
         runScenario(
             TestScenario(
@@ -101,7 +101,7 @@ final class ElementsVarTest(offset: Int) extends UnitTest with ConstraintTestToo
 
     @Test
     def testCostComputation(): Unit = {
-        val constraint = new ElementsVar(space.nextConstraintId(), null, xs, is, Vector(y1, y2), offset)
+        val constraint = new ElementsVar(space.nextConstraintId(), xs, is, Vector(y1, y2), offset)
         space.post(constraint)
         runScenario(
             TestScenario(
@@ -125,7 +125,7 @@ final class ElementsVarTest(offset: Int) extends UnitTest with ConstraintTestToo
 
     @Test
     def testHandlingOfDuplicateVariablesInCostComputation(): Unit = {
-        val constraint = new ElementsVar(space.nextConstraintId(), null, Vector(x1, x2, x1, x3), Vector(i1, i2, i1), Vector(y1, y2, y3), offset)
+        val constraint = new ElementsVar(space.nextConstraintId(), Vector(x1, x2, x1, x3), Vector(i1, i2, i1), Vector(y1, y2, y3), offset)
         space.post(constraint)
         runScenario(
             TestScenario(

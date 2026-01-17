@@ -12,8 +12,7 @@ import yuck.core.*
  */
 final class IfThenElse
     [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     cs: immutable.IndexedSeq[BooleanVariable], xs: immutable.IndexedSeq[X], y: X)
+    (id: Id[Constraint], cs: immutable.IndexedSeq[BooleanVariable], xs: immutable.IndexedSeq[X], y: X)
     (using typeTraits: TypeTraits[A, D, X])
     extends Constraint(id)
 {

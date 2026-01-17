@@ -17,7 +17,7 @@ import yuck.util.logging.LazyLogger
  * @see [[yuck.Notation Notation]]
  */
 final class Circuit
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
+    (id: Id[Constraint],
      succ: immutable.IndexedSeq[IntegerVariable], offset: Int, costs: BooleanVariable,
      logger: LazyLogger, sigint: Sigint)
     extends CircuitTracker(id, succ, offset, costs)

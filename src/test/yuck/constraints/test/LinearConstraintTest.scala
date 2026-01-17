@@ -22,7 +22,7 @@ final class LinearConstraintTest
             baseDomain.randomValue(randomGenerator),
             new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain.randomSubdomain(randomGenerator)))
     override protected lazy val constraint =
-        new LinearConstraint(space.nextConstraintId(), null, axs, y, relation, z, costs)(using typeTraits)
+        new LinearConstraint(space.nextConstraintId(), axs, y, relation, z, costs)(using typeTraits)
 }
 
 object LinearConstraintTest {

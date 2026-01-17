@@ -12,9 +12,7 @@ import yuck.core.*
  */
 final class OptimizationGoalTracker
     [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     mode: OptimizationMode,
-     axs: immutable.IndexedSeq[AX[A, D, X]], distribution: Distribution)
+    (id: Id[Constraint], mode: OptimizationMode, axs: immutable.IndexedSeq[AX[A, D, X]], distribution: Distribution)
     (using typeTraits: NumericalTypeTraits[A, D, X])
     extends Constraint(id)
 {

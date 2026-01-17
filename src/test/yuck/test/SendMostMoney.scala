@@ -55,7 +55,7 @@ final class SendMostMoney(solvingMethod: SolvingMethod) extends HelloWorldTest {
             val numberOfMissingValues = new BooleanVariable(space.nextVariableId(), "numberOfMissingValues", CompleteBooleanDomain)
             space.post(
                 new AllDifferent(
-                    space.nextConstraintId(), null,
+                    space.nextConstraintId(),
                     Set(S, E, N, D, M, O, S, T, M, O, N, E, Y).toVector, Set(), numberOfMissingValues, logger))
             val LHS = List((1000, S), (100, E), (10, N), (1, D), (1000, M), (100, O), (10, S), (1, T))
             val RHS = List((10000, M), (1000, O), (100, N), (10, E), (1, Y))
@@ -63,20 +63,18 @@ final class SendMostMoney(solvingMethod: SolvingMethod) extends HelloWorldTest {
             space.post(
                 new LinearCombination(
                     space.nextConstraintId(),
-                    null,
                     AX.normalize(LHS.map((a, x) => new AX(new IntegerValue(a), x))),
                     lhs))
             val rhs = new IntegerVariable(space.nextVariableId(), "rhs", CompleteIntegerRange)
             space.post(
                 new LinearCombination(
                     space.nextConstraintId(),
-                    null,
                     AX.normalize(RHS.map((a, x) => new AX(new IntegerValue(a), x))),
                     rhs))
             val delta = new BooleanVariable(space.nextVariableId(), "delta", CompleteBooleanDomain)
-            space.post(new Eq(space.nextConstraintId(), null, lhs, rhs, delta))
+            space.post(new Eq(space.nextConstraintId(), lhs, rhs, delta))
             val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
-            space.post(new Conjunction(space.nextConstraintId(), null, List(numberOfMissingValues, delta), costs))
+            space.post(new Conjunction(space.nextConstraintId(), List(numberOfMissingValues, delta), costs))
             space.registerObjectiveVariable(costs)
             assertEq(space.searchVariables, vars)
 

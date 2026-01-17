@@ -8,8 +8,7 @@ import yuck.core.*
  * Implements n-ary conjunction on cost level (where 0 is true).
  */
 final class Conjunction
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     val xs: immutable.Seq[BooleanVariable], y: BooleanVariable)
+    (id: Id[Constraint], val xs: immutable.Seq[BooleanVariable], y: BooleanVariable)
     extends Constraint(id)
 {
 

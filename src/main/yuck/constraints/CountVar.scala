@@ -7,7 +7,6 @@ import yuck.core.*
 final class CountVar
     [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
     (id: Id[Constraint],
-     override val maybeGoal: Option[Goal],
      override protected val xs: immutable.Seq[X],
      y: X,
      override protected val result: IntegerVariable)

@@ -23,7 +23,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new IntegerIncreasing(space.nextConstraintId(), null, xs, strict, costs)
+        val constraint = new IntegerIncreasing(space.nextConstraintId(), xs, strict, costs)
         assertEq(constraint.toString, "increasing([x1, x2, x3, x4], %s, costs)".format(strict))
         assertEq(constraint.inVariables.size, 4)
         assertEq(constraint.inVariables.toSet, xs.toSet)
@@ -33,7 +33,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
 
     @Test
     def testPropagation(): Unit = {
-        space.post(new IntegerIncreasing(space.nextConstraintId(), null, xs, strict, costs))
+        space.post(new IntegerIncreasing(space.nextConstraintId(), xs, strict, costs))
         if strict then {
             runScenario(
                 TestScenario(
@@ -58,7 +58,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
 
     @Test
     def testHandlingOfConsecutiveDuplicateVariablesInPropagation(): Unit = {
-        space.post(new IntegerIncreasing(space.nextConstraintId(), null, Vector(x1, x2, x2, x4), strict, costs))
+        space.post(new IntegerIncreasing(space.nextConstraintId(), Vector(x1, x2, x2, x4), strict, costs))
         if strict then {
             runScenario(
                 TestScenario(
@@ -79,7 +79,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
 
     @Test
     def testHandlingOfNonConsecutiveDuplicateVariablesInPropagation(): Unit = {
-        space.post(new IntegerIncreasing(space.nextConstraintId(), null, Vector(x1, x2, x1, x4), strict, costs))
+        space.post(new IntegerIncreasing(space.nextConstraintId(), Vector(x1, x2, x1, x4), strict, costs))
         if strict then {
             runScenario(
                 TestScenario(
@@ -100,7 +100,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
 
     @Test
     def testCostComputation(): Unit = {
-        space.post(new IntegerIncreasing(space.nextConstraintId(), null, xs, strict, costs))
+        space.post(new IntegerIncreasing(space.nextConstraintId(), xs, strict, costs))
         if strict then {
             runScenario(
                 TestScenario(
@@ -128,7 +128,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
 
     @Test
     def testHandlingOfConsecutiveDuplicateVariablesInCostComputation(): Unit = {
-        space.post(new IntegerIncreasing(space.nextConstraintId(), null, Vector(x1, x2, x2, x4), strict, costs))
+        space.post(new IntegerIncreasing(space.nextConstraintId(), Vector(x1, x2, x2, x4), strict, costs))
         if strict then {
             runScenario(
                 TestScenario(
@@ -152,7 +152,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
 
     @Test
     def testHandlingOfNonConsecutiveDuplicateVariablesInCostComputation(): Unit = {
-        space.post(new IntegerIncreasing(space.nextConstraintId(), null, Vector(x1, x2, x1, x4), strict, costs))
+        space.post(new IntegerIncreasing(space.nextConstraintId(), Vector(x1, x2, x1, x4), strict, costs))
         if strict then {
             runScenario(
                 TestScenario(
@@ -199,7 +199,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
     @Test
     def testHandlingOfChannelVariablesInNeighbourhoodGeneration(): Unit = {
         import yuck.constraints.Plus
-        space.post(new Plus(space.nextConstraintId(), null, x1, x2, x3))
+        space.post(new Plus(space.nextConstraintId(), x1, x2, x3))
         assertNoNeighbourhood(xs)
     }
 
@@ -227,7 +227,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
     }
 
     private def assertNeighbourhood(xs: IndexedSeq[IntegerVariable]): Unit = {
-        val constraint = new IntegerIncreasing(space.nextConstraintId(), null, xs, strict, costs)
+        val constraint = new IntegerIncreasing(space.nextConstraintId(), xs, strict, costs)
         space.post(constraint)
         assert(constraint.isCandidateForImplicitSolving(space))
         val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution).get
@@ -248,7 +248,7 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
     }
 
     private def assertNoNeighbourhood(xs: IndexedSeq[IntegerVariable], isCandidate: Boolean = false): Unit = {
-        val constraint = new IntegerIncreasing(space.nextConstraintId(), null, xs, strict, costs)
+        val constraint = new IntegerIncreasing(space.nextConstraintId(), xs, strict, costs)
         space.post(constraint)
         assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
         assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution), None)

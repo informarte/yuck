@@ -11,7 +11,7 @@ import yuck.core.*
  */
 final class LinearConstraint
     [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
+    (id: Id[Constraint],
      axs: immutable.IndexedSeq[AX[A, D, X]],
      override protected val y: X,
      override protected val relation: OrderingRelation,

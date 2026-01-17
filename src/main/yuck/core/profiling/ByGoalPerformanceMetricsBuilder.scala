@@ -31,7 +31,9 @@ final class ByGoalPerformanceMetricsBuilder(val space: Space) extends SpacePerfo
         val constraints = constraintPerformanceMetricsBuilders.keySet
 
         val constraintsByGoal: immutable.Map[Goal, mutable.Set[Constraint]] =
-            constraints.view.filter(_.maybeGoal.isDefined).to(mutable.Set).groupBy(_.maybeGoal.get)
+            constraints.view
+                .flatMap(constraint => space.goals(constraint).view.map(goal => (goal, mutable.Set(constraint))))
+                .groupMapReduce(_._1)(_._2)((lhs, rhs) => lhs ++ rhs)
 
         for goal <- constraintsByGoal.keys do {
             for constraint <- constraintsByGoal(goal).clone() do {

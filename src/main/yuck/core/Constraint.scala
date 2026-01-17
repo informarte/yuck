@@ -20,9 +20,6 @@ abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
     private[core] var layer: Int = -1
     private[core] var after: MoveSimulator = null
 
-    /** The optimization goal this constraint contributes to. */
-    val maybeGoal: Option[Goal] = None
-
     final override def hashCode = id.rawId
 
     inline final override def compare(that: Constraint) = this.id.rawId - that.id.rawId

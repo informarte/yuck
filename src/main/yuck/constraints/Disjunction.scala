@@ -29,10 +29,7 @@ import yuck.core.*
  * @see [[yuck.Notation Notation]]
  */
 final class Disjunction
-    (id: Id[Constraint],
-     override val maybeGoal: Option[Goal],
-     xs: immutable.Seq[BooleanVariable],
-     y: BooleanVariable)
+    (id: Id[Constraint], xs: immutable.Seq[BooleanVariable], y: BooleanVariable)
     extends Constraint(id)
 {
 

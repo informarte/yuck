@@ -31,7 +31,7 @@ final class BinPackingTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new BinPacking(space.nextConstraintId(), null, items.values.toVector, loads)
+        val constraint = new BinPacking(space.nextConstraintId(), items.values.toVector, loads)
         assertEq(
             constraint.toString,
             "bin_packing([(bin1, 1), (bin2, 2), (bin3, 3), (bin4, 4), (bin5, 5)], [(1, load1), (2, load2), (3, load3)])")
@@ -44,7 +44,7 @@ final class BinPackingTest extends UnitTest with ConstraintTestTooling {
     @Test
     def testCostComputation(): Unit = {
         val loads = this.loads.map((bin, load) => (bin.toInt, load))
-        space.post(new BinPacking(space.nextConstraintId(), null, items.values.toVector, this.loads))
+        space.post(new BinPacking(space.nextConstraintId(), items.values.toVector, this.loads))
         runScenario(
             TestScenario(
                 space,

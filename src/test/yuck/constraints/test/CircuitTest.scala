@@ -34,7 +34,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new Circuit(space.nextConstraintId(), null, succ, offset, costs, logger, sigint)
+        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint)
         assertEq(constraint.toString, "circuit([%s], %d, %s)".format(succ.mkString(", "), offset, costs))
         assertEq(constraint.inVariables.size, succ.size)
         assertEq(constraint.inVariables.toSet, succ.toSet)
@@ -44,7 +44,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 
     @Test
     def testPropagation(): Unit = {
-        space.post(new Circuit(space.nextConstraintId(), null, succ, offset, costs, logger, sigint))
+        space.post(new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint))
         runScenario(
             TestScenario(
                 space,
@@ -66,7 +66,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 
     @Test
     def testHandlingOfDuplicateVariablesInPropagation(): Unit = {
-        space.post(new Circuit(space.nextConstraintId(), null, Vector(x1, x2, x3, x4, x1), offset, costs, logger, sigint))
+        space.post(new Circuit(space.nextConstraintId(), Vector(x1, x2, x3, x4, x1), offset, costs, logger, sigint))
         runScenario(
             TestScenario(
                 space,
@@ -81,7 +81,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 
     @Test
     def testCostComputation(): Unit = {
-        space.post(new Circuit(space.nextConstraintId(), null, succ, offset, costs, logger, sigint))
+        space.post(new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint))
         runScenario(
             TestScenario(
                 space,
@@ -108,7 +108,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 
     @Test
     def testHandlingOfDuplicateVariablesInCostComputation(): Unit = {
-        space.post(new Circuit(space.nextConstraintId(), null, Vector(x1, x2, x3, x4, x1), offset, costs, logger, sigint))
+        space.post(new Circuit(space.nextConstraintId(), Vector(x1, x2, x3, x4, x1), offset, costs, logger, sigint))
         runScenario(
             TestScenario(
                 space,
@@ -122,7 +122,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 
     @Test
     def testHandlingOfInvalidNodeReferencesInCostComputation(): Unit = {
-        val constraint = new Circuit(space.nextConstraintId(), null, succ, offset, costs, logger, sigint)
+        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint)
         space.post(constraint)
         runScenario(
             TestScenario(
@@ -162,7 +162,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
     @Test
     def testHandlingOfChannelVariablesInNeighbourhoodGeneration(): Unit = {
         import yuck.constraints.Plus
-        space.post(new Plus(space.nextConstraintId(), null, x1, x2, x3))
+        space.post(new Plus(space.nextConstraintId(), x1, x2, x3))
         assertNoNeighbourhood(succ)
     }
 
@@ -188,7 +188,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
     }
 
     private def assertNeighbourhood(succ: IndexedSeq[IntegerVariable]): Unit = {
-        val constraint = new Circuit(space.nextConstraintId(), null, succ, offset, costs, logger, sigint)
+        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint)
         space.post(constraint)
         assert(constraint.isCandidateForImplicitSolving(space))
         val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution).get
@@ -200,7 +200,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
     }
 
     private def assertNoNeighbourhood(succ: IndexedSeq[IntegerVariable], isCandidate: Boolean = false): Unit = {
-        val constraint = new Circuit(space.nextConstraintId(), null, succ, offset, costs, logger, sigint)
+        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint)
         space.post(constraint)
         assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
         assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution), None)

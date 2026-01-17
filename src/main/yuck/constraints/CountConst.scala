@@ -6,8 +6,7 @@ import yuck.core.*
 
 final class CountConst
     [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: Seq[X], a: A, n: IntegerVariable)
+    (id: Id[Constraint], xs: Seq[X], a: A, n: IntegerVariable)
     (using typeTraits: TypeTraits[A, D, X])
     extends Constraint(id)
 {

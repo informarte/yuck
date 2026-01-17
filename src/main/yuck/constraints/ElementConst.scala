@@ -13,8 +13,7 @@ import yuck.core.*
  */
 final class ElementConst
     [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     as: immutable.IndexedSeq[A], i: IntegerVariable, y: X, offset: Int)
+    (id: Id[Constraint], as: immutable.IndexedSeq[A], i: IntegerVariable, y: X, offset: Int)
     (using typeTraits: TypeTraits[A, D, X])
     extends Constraint(id)
 {

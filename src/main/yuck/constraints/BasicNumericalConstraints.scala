@@ -4,8 +4,7 @@ import yuck.core.*
 
 final class Plus
     [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: X, y: X, z: X)
+    (id: Id[Constraint], x: X, y: X, z: X)
     (using typeTraits: NumericalTypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
 {
@@ -22,8 +21,7 @@ final class Plus
 
 final class Minus
     [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: X, y: X, z: X)
+    (id: Id[Constraint], x: X, y: X, z: X)
     (using typeTraits: NumericalTypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
 {
@@ -40,8 +38,7 @@ final class Minus
 
 final class Times
     [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: X, y: X, z: X)
+    (id: Id[Constraint], x: X, y: X, z: X)
     (using typeTraits: NumericalTypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
 {
@@ -55,8 +52,7 @@ final class Times
 
 final class Div
     [A <: IntegralValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: X, y: X, z: X)
+    (id: Id[Constraint], x: X, y: X, z: X)
     (using typeTraits: NumericalTypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
 {
@@ -71,8 +67,7 @@ final class Div
 
 final class Mod
     [A <: IntegralValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: X, y: X, z: X)
+    (id: Id[Constraint], x: X, y: X, z: X)
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s %% %s".format(z, x, y)
@@ -81,8 +76,7 @@ final class Mod
 
 final class Power
     [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: X, y: X, z: X)
+    (id: Id[Constraint], x: X, y: X, z: X)
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s ^ %s".format(z, x, y)
@@ -91,8 +85,7 @@ final class Power
 
 final class Abs
     [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: X, y: X)
+    (id: Id[Constraint], x: X, y: X)
     (using typeTraits: NumericalTypeTraits[A, D, X])
     extends BinaryConstraint(id, x, y)
 {
@@ -106,8 +99,7 @@ final class Abs
 
 final class Even
     [A <: IntegralValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: X, y: BooleanVariable)
+    (id: Id[Constraint], x: X, y: BooleanVariable)
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "even(%s, %s)".format(x, y)
@@ -116,8 +108,7 @@ final class Even
 
 final class Uneven
     [A <: IntegralValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: X, y: BooleanVariable)
+    (id: Id[Constraint], x: X, y: BooleanVariable)
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "uneven(%s, %s)".format(x, y)

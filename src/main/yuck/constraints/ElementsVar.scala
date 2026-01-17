@@ -13,7 +13,7 @@ import yuck.core.*
  */
 final class ElementsVar
     [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
+    (id: Id[Constraint],
      xs: immutable.IndexedSeq[X],
      is: immutable.IndexedSeq[IntegerVariable],
      ys: immutable.IndexedSeq[X],

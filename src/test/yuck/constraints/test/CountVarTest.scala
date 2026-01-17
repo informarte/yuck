@@ -19,7 +19,7 @@ final class CountVarTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new CountVar(space.nextConstraintId(), null, xs, y, n)
+        val constraint = new CountVar(space.nextConstraintId(), xs, y, n)
         assertEq(constraint.toString, "n = count(y, [x1, x2, x3])")
         assertEq(constraint.inVariables.size, xs.size + 1)
         assertEq(constraint.inVariables.toSet, Set(y).concat(xs))
@@ -29,7 +29,7 @@ final class CountVarTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testCounting(): Unit = {
-        space.post(new CountVar(space.nextConstraintId(), null, xs, y, n))
+        space.post(new CountVar(space.nextConstraintId(), xs, y, n))
         runScenario(
             TestScenario(
                 space,
@@ -45,7 +45,7 @@ final class CountVarTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfDuplicateVariablesInCounting(): Unit = {
-        space.post(new CountVar(space.nextConstraintId(), null, List(x1, x1, x2, x3), y, n))
+        space.post(new CountVar(space.nextConstraintId(), List(x1, x1, x2, x3), y, n))
         runScenario(
             TestScenario(
                 space,
@@ -64,7 +64,7 @@ final class CountVarTest extends UnitTest with ConstraintTestTooling {
         val xs = for i <- 1 to 3 yield new BooleanVariable(space.nextVariableId(), "x%d".format(i), CompleteBooleanDomain)
         val Seq(x1, x2, x3) = xs
         val y = new BooleanVariable(space.nextVariableId(), "y", CompleteBooleanDomain)
-        space.post(new CountVar(space.nextConstraintId(), null, xs, y, n))
+        space.post(new CountVar(space.nextConstraintId(), xs, y, n))
         runScenario(
             TestScenario(
                 space,

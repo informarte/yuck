@@ -17,7 +17,7 @@ final class NumberOfDistinctValuesTest extends UnitTest with ConstraintTestTooli
 
     @Test
     def testPropagation(): Unit = {
-        space.post(new NumberOfDistinctValues(space.nextConstraintId(), null, xs, n))
+        space.post(new NumberOfDistinctValues(space.nextConstraintId(), xs, n))
         runScenario(
             TestScenario(
                 space,
@@ -26,7 +26,7 @@ final class NumberOfDistinctValuesTest extends UnitTest with ConstraintTestTooli
 
     @Test
     def testPropagationWithEmptyXs(): Unit = {
-        space.post(new NumberOfDistinctValues[IntegerValue, IntegerDomain, IntegerVariable](space.nextConstraintId(), null, Seq(), n))
+        space.post(new NumberOfDistinctValues[IntegerValue, IntegerDomain, IntegerVariable](space.nextConstraintId(), Seq(), n))
         runScenario(
             TestScenario(
                 space,
@@ -34,7 +34,7 @@ final class NumberOfDistinctValuesTest extends UnitTest with ConstraintTestTooli
     }
 
     private def testCounting(xs: Seq[IntegerVariable]): Unit = {
-        space.post(new NumberOfDistinctValues(space.nextConstraintId(), null, xs, n))
+        space.post(new NumberOfDistinctValues(space.nextConstraintId(), xs, n))
         runScenario(
             TestScenario(
                 space,

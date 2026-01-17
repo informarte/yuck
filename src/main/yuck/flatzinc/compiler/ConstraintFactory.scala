@@ -79,17 +79,17 @@ final class ConstraintFactory
             case _=> false
         }
 
-    private def createGoal(constraint: yuck.flatzinc.ast.Constraint): Option[Goal] =
+    private def findGoals(constraint: yuck.flatzinc.ast.Constraint): immutable.Set[Goal] =
         val userDefinedGoals =
             constraint.annotations.flatMap {
                 case Annotation(Term("goal", Seq(StringConst(name)))) => List(name)
                 case _ => Nil
             }
         if ! userDefinedGoals.isEmpty
-        then Option(UserDefinedGoal(userDefinedGoals.head))
+        then userDefinedGoals.view.map(UserDefinedGoal.apply).toSet
         else if cc.cfg.attachGoals
-        then Some(FlatZincGoal(constraint))
-        else None
+        then immutable.Set(FlatZincGoal(constraint))
+        else immutable.Set.empty
 
     private def compileConstraint
         (constraint: yuck.flatzinc.ast.Constraint,
@@ -127,7 +127,7 @@ final class ConstraintFactory
     override def run() = {
         cc.costVars ++=
             cc.ast.constraints.iterator
-                .flatMap(constraint => compileConstraint(createGoal(constraint), constraint, None))
+                .flatMap(constraint => compileConstraint(findGoals(constraint), constraint, None))
         optimizeIntDomainEnforcement()
     }
 
@@ -137,7 +137,7 @@ final class ConstraintFactory
     // Otherwise, the caller must deal with the result by use of a Conjunction constraint.
     // (maybeCosts is for use by compileReifiedConstraint.)
     private def compileConstraint
-        (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint, maybeCosts: Option[BooleanVariable] = None):
+        (goals: immutable.Set[Goal], constraint: yuck.flatzinc.ast.Constraint, maybeCosts: Option[BooleanVariable] = None):
         Iterable[BooleanVariable] =
     {
         if cc.sigint.isSet then {
@@ -150,7 +150,7 @@ final class ConstraintFactory
             cc.logger.log("Compiling %s".format(constraint))
             scoped(new LogScope(cc.logger)) {
                 // toList enforces constraint generation in this log scope
-                compileNonImplicitConstraint(maybeGoal, constraint, maybeCosts).toList
+                compileNonImplicitConstraint(goals, constraint, maybeCosts).toList
             }
         }
     }
@@ -158,76 +158,76 @@ final class ConstraintFactory
     import HighPriorityImplicits.*
 
     private def compileNonImplicitConstraint
-        (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint, maybeCosts: Option[BooleanVariable]):
+        (goals: immutable.Set[Goal], constraint: yuck.flatzinc.ast.Constraint, maybeCosts: Option[BooleanVariable]):
         Iterable[BooleanVariable] =
         (constraint: @unchecked) match
     {
         case Constraint(Reif(_), _, _) =>
             require(maybeCosts.isEmpty)
-            compileReifiedConstraint(maybeGoal, constraint)
+            compileReifiedConstraint(goals, constraint)
         case Constraint("bool2int", Seq(a, b), _) =>
             val x = compileBoolExpr(a)
             val y = compileIntExpr(b)
             def functionalCase = {
-                cc.post(new Bool2Int1(nextConstraintId(), maybeGoal, x, y))
+                cc.post(goals, new Bool2Int1(nextConstraintId(), x, y))
                 if IntegerRange(0, 1).diff(y.domain).isEmpty
                 then Nil
                 else enforceIntDomain(y)
             }
             def generalCase = {
                 val costs = createBoolChannel()
-                cc.post(new Bool2Int2(nextConstraintId(), maybeGoal, x, y, costs))
+                cc.post(goals, new Bool2Int2(nextConstraintId(), x, y, costs))
                 List(costs)
             }
             compileConstraint(constraint, List(y), functionalCase, generalCase)
         case Constraint("bool2costs", Seq(a, b), _) =>
             def functionalCase = {
-                cc.post(new Bool2Costs1(nextConstraintId(), maybeGoal, a, b))
+                cc.post(goals, new Bool2Costs1(nextConstraintId(), a, b))
                 enforceIntDomain(b)
             }
             def generalCase = {
                 val costs = createBoolChannel()
-                cc.post(new Bool2Costs2(nextConstraintId(), maybeGoal, a, b, costs))
+                cc.post(goals, new Bool2Costs2(nextConstraintId(), a, b, costs))
                 List(costs)
             }
             compileConstraint(constraint, b, functionalCase, generalCase)
         case Constraint("bool_not", Seq(a, b), _) =>
             def functionalCase = {
-                cc.post(new Not(nextConstraintId(), maybeGoal, a, b))
+                cc.post(goals, new Not(nextConstraintId(), a, b))
                 enforceBoolDomain(b)
             }
             def generalCase = {
                 val costs = createBoolChannel()
-                cc.post(new Ne[BooleanValue, BooleanDomain, BooleanVariable](nextConstraintId(), maybeGoal, a, b, costs))
+                cc.post(goals, new Ne[BooleanValue, BooleanDomain, BooleanVariable](nextConstraintId(), a, b, costs))
                 List(costs)
             }
             compileConstraint(constraint, b, functionalCase, generalCase)
         case Constraint("bool_eq", _, _) =>
-            compileOrderingConstraint(maybeGoal, constraint, EqRelation, maybeCosts)(using BooleanCompilationHelper)
+            compileOrderingConstraint(goals, constraint, EqRelation, maybeCosts)(using BooleanCompilationHelper)
         case Constraint("bool_lt", _, _) =>
-            compileOrderingConstraint(maybeGoal, constraint, LtRelation, maybeCosts)(using BooleanCompilationHelper)
+            compileOrderingConstraint(goals, constraint, LtRelation, maybeCosts)(using BooleanCompilationHelper)
         case Constraint("bool_le", _, _) =>
-            compileOrderingConstraint(maybeGoal, constraint, LeRelation, maybeCosts)(using BooleanCompilationHelper)
+            compileOrderingConstraint(goals, constraint, LeRelation, maybeCosts)(using BooleanCompilationHelper)
         case Constraint("bool_and", _, _) =>
-            compileTernaryBoolConstraint(new And(_, _, _, _, _), (_, _, z) => enforceBoolDomain(z), maybeGoal, constraint)
+            compileTernaryBoolConstraint(new And(_, _, _, _), (_, _, z) => enforceBoolDomain(z), goals, constraint)
         case Constraint("bool_or", _, _) =>
-            compileTernaryBoolConstraint(new Or(_, _, _, _, _), (_, _, z) => enforceBoolDomain(z), maybeGoal, constraint)
+            compileTernaryBoolConstraint(new Or(_, _, _, _), (_, _, z) => enforceBoolDomain(z), goals, constraint)
         case Constraint("bool_xor", _, _) =>
-            compileTernaryBoolConstraint(new Ne(_, _, _, _, _), (_, _, z) => enforceBoolDomain(z), maybeGoal, constraint)
+            compileTernaryBoolConstraint(new Ne(_, _, _, _), (_, _, z) => enforceBoolDomain(z), goals, constraint)
         case Constraint("array_bool_and", Seq(as, b), _) =>
             val xs = compileBoolArray(as)
             val y = compileBoolExpr(b)
             def functionalCase = {
-                postConjunction(maybeGoal, xs, Some(y))
+                postConjunction(goals, xs, Some(y))
                 enforceBoolDomain(y)
             }
             def generalCase = {
                 if y.domain == TrueDomain then {
-                    List(postConjunction(maybeGoal, xs))
+                    List(postConjunction(goals, xs))
                 } else {
-                    val costs0 = postConjunction(maybeGoal, xs)
+                    val costs0 = postConjunction(goals, xs)
                     val costs = createBoolChannel()
-                    cc.post(new Eq(nextConstraintId(), maybeGoal, costs0, y, costs))
+                    cc.post(goals, new Eq(nextConstraintId(), costs0, y, costs))
                     List(costs)
                 }
             }
@@ -236,16 +236,16 @@ final class ConstraintFactory
             val xs = compileBoolArray(as)
             val y = compileBoolExpr(b)
             def functionalCase = {
-                postDisjunction(maybeGoal, xs, Some(y))
+                postDisjunction(goals, xs, Some(y))
                 enforceBoolDomain(y)
             }
             def generalCase = {
                 if y.domain == TrueDomain then {
-                    List(postDisjunction(maybeGoal, xs))
+                    List(postDisjunction(goals, xs))
                 } else {
-                    val costs0 = postDisjunction(maybeGoal, xs)
+                    val costs0 = postDisjunction(goals, xs)
                     val costs = createBoolChannel()
-                    cc.post(new Eq(nextConstraintId(), maybeGoal, costs0, y, costs))
+                    cc.post(goals, new Eq(nextConstraintId(), costs0, y, costs))
                     List(costs)
                 }
             }
@@ -260,18 +260,18 @@ final class ConstraintFactory
             if maybeY.isDefined then {
                 val y = maybeY.get
                 val trueCount = createNonNegativeIntChannel()
-                cc.post(new CountConst(nextConstraintId(), maybeGoal, xs.filter(_ != y), True, trueCount))
-                cc.post(new Even(nextConstraintId(), maybeGoal, trueCount, y))
+                cc.post(goals, new CountConst(nextConstraintId(), xs.filter(_ != y), True, trueCount))
+                cc.post(goals, new Even(nextConstraintId(), trueCount, y))
                 Nil
             } else {
                 val trueCount = createNonNegativeIntChannel()
-                cc.post(new CountConst(nextConstraintId(), maybeGoal, xs, True, trueCount))
+                cc.post(goals, new CountConst(nextConstraintId(), xs, True, trueCount))
                 val costs = createBoolChannel()
-                cc.post(new Uneven(nextConstraintId(), maybeGoal, trueCount, costs))
+                cc.post(goals, new Uneven(nextConstraintId(), trueCount, costs))
                 List(costs)
             }
         case Constraint("bool_clause", Seq(ArrayConst(IndexedSeq(a)), ArrayConst(IndexedSeq(b))), _) =>
-            compileConstraint(maybeGoal, Constraint("bool_le", List(b, a), Nil), maybeCosts)
+            compileConstraint(goals, Constraint("bool_le", List(b, a), Nil), maybeCosts)
         case Constraint("bool_clause", Seq(as, bs), _) =>
             // as are positive literals, bs are negative literals
             val xs = compileBoolArray(as).iterator.filterNot(_.domain == FalseDomain).toList
@@ -280,119 +280,119 @@ final class ConstraintFactory
                 case (Nil, Nil) =>
                     List(compileBoolExpr(BoolConst(false)))
                 case (Nil, _) =>
-                    val costs0 = postConjunction(maybeGoal, ys)
+                    val costs0 = postConjunction(goals, ys)
                     val costs = maybeCosts.getOrElse(createBoolChannel())
-                    cc.post(new Not(nextConstraintId(), maybeGoal, costs0, costs))
+                    cc.post(goals, new Not(nextConstraintId(), costs0, costs))
                     List(costs)
                 case (_, Nil) =>
-                    List(postDisjunction(maybeGoal, xs, maybeCosts))
+                    List(postDisjunction(goals, xs, maybeCosts))
                 case _ =>
-                    val costs0 = postDisjunction(maybeGoal, xs)
-                    val costs1 = postConjunction(maybeGoal, ys)
+                    val costs0 = postDisjunction(goals, xs)
+                    val costs1 = postConjunction(goals, ys)
                     val costs = maybeCosts.getOrElse(createBoolChannel())
-                    cc.post(new Le(nextConstraintId(), maybeGoal, costs1, costs0, costs))
+                    cc.post(goals, new Le(nextConstraintId(), costs1, costs0, costs))
                     List(costs)
             }
         case Constraint("int_eq", _, _) =>
-            compileOrderingConstraint(maybeGoal, constraint, EqRelation, maybeCosts)(using IntegerCompilationHelper)
+            compileOrderingConstraint(goals, constraint, EqRelation, maybeCosts)(using IntegerCompilationHelper)
         case Constraint("int_ne", _, _) =>
-            compileOrderingConstraint(maybeGoal, constraint, NeRelation, maybeCosts)(using IntegerCompilationHelper)
+            compileOrderingConstraint(goals, constraint, NeRelation, maybeCosts)(using IntegerCompilationHelper)
         case Constraint("int_lt", _, _) =>
-            compileOrderingConstraint(maybeGoal, constraint, LtRelation, maybeCosts)(using IntegerCompilationHelper)
+            compileOrderingConstraint(goals, constraint, LtRelation, maybeCosts)(using IntegerCompilationHelper)
         case Constraint("int_le", _, _) =>
-             compileOrderingConstraint(maybeGoal, constraint, LeRelation, maybeCosts)(using IntegerCompilationHelper)
+             compileOrderingConstraint(goals, constraint, LeRelation, maybeCosts)(using IntegerCompilationHelper)
         case Constraint("int_min", _, _) =>
             compileTernaryIntConstraint(
-                new Min(_, _, _, _, _),
+                new Min(_, _, _, _),
                 (x, y, z) =>
                     if IntegerDomainPruner.minRule(List(x.domain, y.domain), CompleteIntegerRange)._2.isSubsetOf(z.domain)
                     then Nil
                     else enforceIntDomain(z),
-                maybeGoal,
+                goals,
                 constraint)
         case Constraint("int_max", _, _) =>
             compileTernaryIntConstraint(
-                new Max(_, _, _, _, _),
+                new Max(_, _, _, _),
                 (x, y, z) =>
                     if IntegerDomainPruner.maxRule(List(x.domain, y.domain), CompleteIntegerRange)._2.isSubsetOf(z.domain)
                     then Nil
                     else enforceIntDomain(z),
-                maybeGoal,
+                goals,
                 constraint)
         case Constraint("int_plus", Seq(a, b, c), annotations) =>
             compileConstraint(
-                maybeGoal,
+                goals,
                 Constraint("int_lin_eq", List(ArrayConst(Vector(IntConst(1), IntConst(1))), ArrayConst(Vector(a, b)), c), annotations))
         case Constraint("int_minus", Seq(a, b, c), annotations) =>
             compileConstraint(
-                maybeGoal,
+                goals,
                 Constraint("int_lin_eq", List(ArrayConst(Vector(IntConst(1), IntConst(-1))), ArrayConst(Vector(a, b)), c), annotations))
         case Constraint("int_times", _, _) =>
             compileTernaryIntConstraint(
-                new Times(_, _, _, _, _),
+                new Times(_, _, _, _),
                 (x, y, z) =>
                     if IntegerDomainPruner.timesRule(x.domain, y.domain, CompleteIntegerRange)._2.isSubsetOf(z.domain)
                     then Nil
                     else enforceIntDomain(z),
-                maybeGoal,
+                goals,
                 constraint)
         case Constraint("int_div", _, _) =>
-            compileTernaryIntConstraint(new Div(_, _, _, _, _), (_, _, z) => enforceIntDomain(z), maybeGoal, constraint)
+            compileTernaryIntConstraint(new Div(_, _, _, _), (_, _, z) => enforceIntDomain(z), goals, constraint)
         case Constraint("int_mod", _, _) =>
-            compileTernaryIntConstraint(new Mod(_, _, _, _, _), (_, _, z) => enforceIntDomain(z), maybeGoal, constraint)
+            compileTernaryIntConstraint(new Mod(_, _, _, _), (_, _, z) => enforceIntDomain(z), goals, constraint)
         case Constraint("int_pow", _, _) =>
-            compileTernaryIntConstraint(new Power(_, _, _, _, _), (_, _, z) => enforceIntDomain(z), maybeGoal, constraint)
+            compileTernaryIntConstraint(new Power(_, _, _, _), (_, _, z) => enforceIntDomain(z), goals, constraint)
         case Constraint("int_abs", _, _) =>
             compileBinaryConstraint1
                 [IntegerValue, IntegerDomain, IntegerVariable, IntegerValue, IntegerDomain, IntegerVariable]
-                (new Abs(_, _, _, _),
+                (new Abs(_, _, _),
                  (x, y) =>
                      if IntegerDomainPruner.absRule(x.domain, CompleteIntegerRange)._2.isSubsetOf(y.domain)
                      then Nil
                      else enforceIntDomain(y),
-                 maybeGoal,
+                 goals,
                  constraint)
         // expansion of terms in parameters
         case Constraint(IntLin(_), (as@Term(_, _)) :: t, _) =>
-            compileConstraint(maybeGoal, constraint.copy(params = ArrayConst(getArrayElems(as)) :: t), maybeCosts)
+            compileConstraint(goals, constraint.copy(params = ArrayConst(getArrayElems(as)) :: t), maybeCosts)
         case Constraint(IntLin(_), as :: (bs@Term(_, _)) :: t, _) =>
-            compileConstraint(maybeGoal, constraint.copy(params = as :: ArrayConst(getArrayElems(bs)) :: t), maybeCosts)
+            compileConstraint(goals, constraint.copy(params = as :: ArrayConst(getArrayElems(bs)) :: t), maybeCosts)
         case Constraint(IntLin(_), as :: bs :: c :: t, _) if !c.isConst && compilesToConst(c) =>
             compileConstraint(
-                maybeGoal,
+                goals,
                 constraint.copy(params = as :: bs :: IntConst(compileConstIntExpr(c).value) :: t),
                 maybeCosts)
         // -1 * x <op> c -> 1 * x <op> -c where op in {==, !=}
         case Constraint(IntLin(name), ArrayConst(List(IntConst(-1))) :: bs :: IntConst(c) :: t, _)
             if name.startsWith("eq") || name.startsWith("ne") =>
             compileConstraint(
-                maybeGoal,
+                goals,
                 constraint.copy(params = ArrayConst(Vector(IntConst(1))) :: bs :: IntConst(-c) :: t),
                 maybeCosts)
         // 1 * x <op> c -> x <op> c
         case Constraint(IntLin(name), ArrayConst(List(IntConst(1))) :: ArrayConst(bs) :: c :: t, annotations) =>
-            compileConstraint(maybeGoal, Constraint("int_" + name, bs.head :: c :: t, annotations), maybeCosts)
+            compileConstraint(goals, Constraint("int_" + name, bs.head :: c :: t, annotations), maybeCosts)
         // -1 * x <op> c -> -c <op> x
         case Constraint(IntLin(name), ArrayConst(List(IntConst(-1))) :: ArrayConst(bs) :: IntConst(c) :: t, annotations) =>
-            compileConstraint(maybeGoal, Constraint("int_" + name, IntConst(-c) :: bs.head :: t, annotations), maybeCosts)
+            compileConstraint(goals, Constraint("int_" + name, IntConst(-c) :: bs.head :: t, annotations), maybeCosts)
         // -1 * x + 1 * y <op> c -> 1 * y + -1 * x <op> c
         case Constraint(IntLin(_), ArrayConst(Seq(IntConst(-1), IntConst(1))) :: ArrayConst(Seq(x, y)) :: c :: t, _) =>
             compileConstraint(
-                maybeGoal,
+                goals,
                 constraint.copy(params = ArrayConst(Vector(IntConst(1), IntConst(-1))) :: ArrayConst(Vector(y, x)) :: c :: t),
                 maybeCosts)
         // 1 * x + -1 * y <op> 0 -> x <op> y
         case Constraint(
             IntLin(name),
             ArrayConst(Seq(IntConst(1), IntConst(-1))) :: ArrayConst(Seq(x, y)) :: IntConst(0) :: t, annotations) =>
-            compileConstraint(maybeGoal, Constraint("int_" + name, x :: y :: t, annotations), maybeCosts)
+            compileConstraint(goals, Constraint("int_" + name, x :: y :: t, annotations), maybeCosts)
         // 1 * x + -1 * y <= -1 -> x < y
         case Constraint(
             IntLin(name),
             ArrayConst(Seq(IntConst(1), IntConst(-1))) :: ArrayConst(Seq(x, y)) :: IntConst(-1) :: t, annotations)
             if name.startsWith("le") =>
             compileConstraint(
-                maybeGoal,
+                goals,
                 Constraint("int_" + name.replace("le", "lt"), x :: y :: t, annotations),
                 maybeCosts)
         case Constraint("int_lin_eq", Seq(ArrayConst(as), ArrayConst(bs), c), annotations)
@@ -413,7 +413,7 @@ final class ConstraintFactory
                     // b1               = c - a2 b2 - ...
                     val (as1, bs1) = (for case (IntConst(a), b1) <- abs if b1 != b yield (IntConst(-a), b1)).unzip
                     compileConstraint(
-                        maybeGoal,
+                        goals,
                         Constraint("int_lin_eq", List(ArrayConst(IntConst(1) +: as1), ArrayConst(c +: bs1), b), annotations),
                         maybeCosts)
                 case IntConst(-1) =>
@@ -422,65 +422,65 @@ final class ConstraintFactory
                     //    b1               = -1 c + a2 b2 + ...
                     val bs1 = for b1 <- bs yield if b1 == b then c else b1
                     compileConstraint(
-                        maybeGoal,
+                        goals,
                         Constraint("int_lin_eq", List(ArrayConst(as), ArrayConst(bs1), b), annotations),
                         maybeCosts)
             }
         case Constraint("int_lin_eq", Seq(as, bs, c), _) =>
             def functionalCase = {
                 val y = compileIntExpr(c)
-                compileLinearCombination(maybeGoal, as, bs, Some(y))
+                compileLinearCombination(goals, as, bs, Some(y))
                 val lhs = compileIntArray(as).view.map(_.domain.singleValue).zip(compileIntArray(bs).view.map(_.domain))
                 if IntegerDomainPruner.linEqRule(lhs, CompleteIntegerRange)._2.isSubsetOf(y.domain)
                 then Nil
                 else enforceIntDomain(y)
             }
             def generalCase = {
-                List(compileLinearConstraint(maybeGoal, as, bs, EqRelation, c, maybeCosts)(using IntegerCompilationHelper))
+                List(compileLinearConstraint(goals, as, bs, EqRelation, c, maybeCosts)(using IntegerCompilationHelper))
             }
             compileConstraint(constraint, c, functionalCase, generalCase)
         case Constraint("int_lin_ne", Seq(as, bs, c), _) =>
-            List(compileLinearConstraint(maybeGoal, as, bs, NeRelation, c, maybeCosts)(using IntegerCompilationHelper))
+            List(compileLinearConstraint(goals, as, bs, NeRelation, c, maybeCosts)(using IntegerCompilationHelper))
         case Constraint("int_lin_le", Seq(as, bs, c), _) =>
-            List(compileLinearConstraint(maybeGoal, as, bs, LeRelation, c, maybeCosts)(using IntegerCompilationHelper))
+            List(compileLinearConstraint(goals, as, bs, LeRelation, c, maybeCosts)(using IntegerCompilationHelper))
         case Constraint("array_int_maximum", _, _) =>
             compileBinaryIntConstraint2(
-                new Maximum(_, _, _, _),
+                new Maximum(_, _, _),
                 (xs, y) =>
                     if IntegerDomainPruner.maxRule(xs.view.map(_.domain), CompleteIntegerRange)._2.isSubsetOf(y.domain)
                     then Nil
                     else enforceIntDomain(y),
-                maybeGoal,
+                goals,
                 constraint)
         case Constraint("array_int_minimum", _, _) =>
             compileBinaryIntConstraint2(
-                new Minimum(_, _, _, _),
+                new Minimum(_, _, _),
                 (xs, y) =>
                     if IntegerDomainPruner.minRule(xs.view.map(_.domain), CompleteIntegerRange)._2.isSubsetOf(y.domain)
                     then Nil
                     else enforceIntDomain(y),
-                maybeGoal,
+                goals,
                 constraint)
         case Constraint("array_var_bool_element" | "array_bool_element" | "yuck_array_bool_element" , _, _) =>
-            compileElementConstraint(maybeGoal, constraint)(using BooleanCompilationHelper)
+            compileElementConstraint(goals, constraint)(using BooleanCompilationHelper)
         case Constraint("array_var_int_element" | "array_int_element" | "yuck_array_int_element" , _, _) =>
-            compileElementConstraint(maybeGoal, constraint)(using IntegerCompilationHelper)
+            compileElementConstraint(goals, constraint)(using IntegerCompilationHelper)
         case Constraint("array_var_set_element" | "array_set_element" | "yuck_array_set_element" , _, _) =>
-            compileElementConstraint(maybeGoal, constraint)(using IntegerSetCompilationHelper)
+            compileElementConstraint(goals, constraint)(using IntegerSetCompilationHelper)
         case Constraint("yuck_if_then_else_var_bool" | "yuck_if_then_else_bool", _, _) =>
-            compileIfThenElseConstraint(maybeGoal, constraint)(using BooleanCompilationHelper)
+            compileIfThenElseConstraint(goals, constraint)(using BooleanCompilationHelper)
         case Constraint("yuck_if_then_else_var_int" | "yuck_if_then_else_int", _, _) =>
-            compileIfThenElseConstraint(maybeGoal, constraint)(using IntegerCompilationHelper)
+            compileIfThenElseConstraint(goals, constraint)(using IntegerCompilationHelper)
         case Constraint("yuck_if_then_else_var_set" | "yuck_if_then_else_set", _, _) =>
-            compileIfThenElseConstraint(maybeGoal, constraint)(using IntegerSetCompilationHelper)
+            compileIfThenElseConstraint(goals, constraint)(using IntegerSetCompilationHelper)
         case Constraint("set_eq", _, _) =>
-            compileOrderingConstraint(maybeGoal, constraint, EqRelation, maybeCosts)(using IntegerSetCompilationHelper)
+            compileOrderingConstraint(goals, constraint, EqRelation, maybeCosts)(using IntegerSetCompilationHelper)
         case Constraint("set_ne", _, _) =>
-            compileOrderingConstraint(maybeGoal, constraint, NeRelation, maybeCosts)(using IntegerSetCompilationHelper)
+            compileOrderingConstraint(goals, constraint, NeRelation, maybeCosts)(using IntegerSetCompilationHelper)
         case Constraint("set_lt", _, _) =>
-            compileOrderingConstraint(maybeGoal, constraint, LtRelation, maybeCosts)(using IntegerSetCompilationHelper)
+            compileOrderingConstraint(goals, constraint, LtRelation, maybeCosts)(using IntegerSetCompilationHelper)
         case Constraint("set_le", _, _) =>
-            compileOrderingConstraint(maybeGoal, constraint, LeRelation, maybeCosts)(using IntegerSetCompilationHelper)
+            compileOrderingConstraint(goals, constraint, LeRelation, maybeCosts)(using IntegerSetCompilationHelper)
         case Constraint("set_card", _, _) =>
             def enforceDomain(x: IntegerSetVariable, y: IntegerVariable) = {
                 val (minCard, maxCard) = x.domain match {
@@ -491,90 +491,90 @@ final class ConstraintFactory
             }
             compileBinaryConstraint1
                 [IntegerSetValue, IntegerSetDomain, IntegerSetVariable, IntegerValue, IntegerDomain, IntegerVariable]
-                (new SetCardinality(_, _, _, _), enforceDomain, maybeGoal, constraint)
+                (new SetCardinality(_, _, _), enforceDomain, goals, constraint)
         case Constraint("set_in", Seq(a, b), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(new Contains(nextConstraintId(), maybeGoal, a, b, costs))
+            cc.post(goals, new Contains(nextConstraintId(), a, b, costs))
             List(costs)
         case Constraint("set_subset", Seq(a, b), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(new Subset(nextConstraintId(), maybeGoal, a, b, costs))
+            cc.post(goals, new Subset(nextConstraintId(), a, b, costs))
             List(costs)
         case Constraint("set_intersect", _, _) =>
             compileTernaryIntSetConstraint(
-                new SetIntersection(_, _, _, _, _),
+                new SetIntersection(_, _, _, _),
                 (x, y, z) => if x.domain.intersect(y.domain).isSubsetOf(z.domain) then Nil else enforceIntSetDomain(z),
-                maybeGoal,
+                goals,
                 constraint)
         case Constraint("set_union", _, _) =>
             compileTernaryIntSetConstraint(
-                new SetUnion(_, _, _, _, _),
+                new SetUnion(_, _, _, _),
                 (x, y, z) =>
                     if x.domain.isSubsetOf(z.domain) && y.domain.isSubsetOf(z.domain)
                     then Nil
                     else enforceIntSetDomain(z),
-                maybeGoal,
+                goals,
                 constraint)
         case Constraint("set_diff", _, _) =>
             compileTernaryIntSetConstraint(
-                new SetDifference(_, _, _, _, _),
+                new SetDifference(_, _, _, _),
                 (x, _, z) => if x.domain.isSubsetOf(z.domain) then Nil else enforceIntSetDomain(z),
-                maybeGoal,
+                goals,
                 constraint)
         case Constraint("set_symdiff", _, _) =>
             compileTernaryIntSetConstraint(
-                new SymmetricalSetDifference(_, _, _, _, _),
+                new SymmetricalSetDifference(_, _, _, _),
                 (x, y, z) =>
                     if x.domain.isSubsetOf(z.domain) && y.domain.isSubsetOf(z.domain)
                     then Nil
                     else enforceIntSetDomain(z),
-                maybeGoal,
+                goals,
                 constraint)
         case Constraint("fzn_all_different_int", Seq(as), _) =>
             val xs = compileIntArray(as)
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(new AllDifferent(nextConstraintId(), maybeGoal, xs, immutable.Set(), costs, cc.logger)(using IntegerTypeTraits))
+            cc.post(goals, new AllDifferent(nextConstraintId(), xs, immutable.Set(), costs, cc.logger)(using IntegerTypeTraits))
             List(costs)
         case Constraint("fzn_all_different_set", Seq(as), _) =>
             val xs = compileIntSetArray(as)
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(new AllDifferent(nextConstraintId(), maybeGoal, xs, immutable.Set(), costs, cc.logger)(using IntegerSetTypeTraits))
+            cc.post(goals, new AllDifferent(nextConstraintId(), xs, immutable.Set(), costs, cc.logger)(using IntegerSetTypeTraits))
             List(costs)
         case Constraint("fzn_alldifferent_except", Seq(as, s), _) =>
             val xs = compileIntArray(as)
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(new AllDifferent(nextConstraintId(), maybeGoal, xs, s.set.values.toSet, costs, cc.logger)(using IntegerTypeTraits))
+            cc.post(goals, new AllDifferent(nextConstraintId(), xs, s.set.values.toSet, costs, cc.logger)(using IntegerTypeTraits))
             List(costs)
         case Constraint("fzn_alldifferent_except_0", Seq(as), _) =>
             val xs = compileIntArray(as)
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(new AllDifferent(nextConstraintId(), maybeGoal, xs, immutable.Set(Zero), costs, cc.logger)(using IntegerTypeTraits))
+            cc.post(goals, new AllDifferent(nextConstraintId(), xs, immutable.Set(Zero), costs, cc.logger)(using IntegerTypeTraits))
             List(costs)
         case Constraint("fzn_increasing_bool", Seq(as), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(new BooleanIncreasing(nextConstraintId(), maybeGoal, as, costs))
+            cc.post(goals, new BooleanIncreasing(nextConstraintId(), as, costs))
             List(costs)
         case Constraint("yuck_increasing_int", Seq(as, BoolConst(strict)), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(new IntegerIncreasing(nextConstraintId(), maybeGoal, as, strict, costs))
+            cc.post(goals, new IntegerIncreasing(nextConstraintId(), as, strict, costs))
             List(costs)
         case Constraint("fzn_nvalue", _, _) =>
             compileBinaryIntConstraint2(
-                new NumberOfDistinctValues(_, _, _, _),
+                new NumberOfDistinctValues(_, _, _),
                 (xs, y) => {
                     val countDomainApproximation = IntegerRange(
                         if xs.isEmpty then 0 else 1,
                         min(xs.size, xs.foldLeft(IntegerTypeTraits.emptyDomain)((u, x) => u.union(x.domain)).size))
                     if countDomainApproximation.isSubsetOf(y.domain) then Nil else enforceIntDomain(y)
                 },
-                maybeGoal,
+                goals,
                 constraint)
         case Constraint(Count(_, "bool"), _, _) =>
-            compileCountConstraint(maybeGoal, constraint, maybeCosts)(using BooleanCompilationHelper)
+            compileCountConstraint(goals, constraint, maybeCosts)(using BooleanCompilationHelper)
         case Constraint(Count(_, "int"), _, _) =>
-            compileCountConstraint(maybeGoal, constraint, maybeCosts)(using IntegerCompilationHelper)
+            compileCountConstraint(goals, constraint, maybeCosts)(using IntegerCompilationHelper)
         case Constraint(Count(_, "set"), _, _) =>
-            compileCountConstraint(maybeGoal, constraint, maybeCosts)(using IntegerSetCompilationHelper)
+            compileCountConstraint(goals, constraint, maybeCosts)(using IntegerSetCompilationHelper)
         case Constraint("fzn_cumulative", Seq(s, d, r, b), _) =>
             val xs = compileIntArray(s)
             val ys = compileIntArray(d)
@@ -583,7 +583,7 @@ final class ConstraintFactory
             assert(ys.size == zs.size)
             val tasks = for ((x, y), z) <- xs.zip(ys).zip(zs) yield new CumulativeTask(x, y, z)
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(new Cumulative(nextConstraintId(), maybeGoal, tasks, b, costs))
+            cc.post(goals, new Cumulative(nextConstraintId(), tasks, b, costs))
             List(costs)
         case Constraint("yuck_disjunctive", Seq(x, w, BoolConst(strict)), _) =>
             val xs = compileIntArray(x)
@@ -593,7 +593,7 @@ final class ConstraintFactory
             val h = compileConstant(One)
             val rects = Vector.tabulate(xs.size)(i => new Disjoint2Rect(xs(i), y, ws(i), h))
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(new Disjoint2(nextConstraintId(), maybeGoal, rects, strict, costs))
+            cc.post(goals, new Disjoint2(nextConstraintId(), rects, strict, costs))
             List(costs)
         case Constraint("yuck_diffn", Seq(x, y, w, h, BoolConst(strict)), _) =>
             val xs = compileIntArray(x)
@@ -605,39 +605,41 @@ final class ConstraintFactory
             assert(xs.size == hs.size)
             val rects = Vector.tabulate(xs.size)(i => new Disjoint2Rect(xs(i), ys(i), ws(i), hs(i)))
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(new Disjoint2(nextConstraintId(), maybeGoal, rects, strict, costs))
+            cc.post(goals, new Disjoint2(nextConstraintId(), rects, strict, costs))
             List(costs)
         case Constraint("yuck_table_bool", Seq(as, flatTable), _) =>
             val xs = compileBoolArray(as)
             val rows = compileBoolArray(flatTable).map(_.domain.singleValue).grouped(xs.size).toVector
             val costs = maybeCosts.getOrElse(createBoolChannel())
             val forceImplicitSolving = constraint.annotations.exists(forcesImplicitSolving)
-            cc.post(new Table(nextConstraintId(), maybeGoal, xs, rows, costs, forceImplicitSolving))
+            cc.post(goals, new Table(nextConstraintId(), xs, rows, costs, forceImplicitSolving))
             List(costs)
         case Constraint("yuck_table_int", Seq(as, flatTable), _) =>
             val xs = compileIntArray(as)
             val rows = compileIntArray(flatTable).map(_.domain.singleValue).grouped(xs.size).toVector
             val costs = maybeCosts.getOrElse(createBoolChannel())
             val forceImplicitSolving = constraint.annotations.exists(forcesImplicitSolving)
-            cc.post(new Table(nextConstraintId(), maybeGoal, xs, rows, costs, forceImplicitSolving))
+            cc.post(goals, new Table(nextConstraintId(), xs, rows, costs, forceImplicitSolving))
             List(costs)
         case Constraint("yuck_regular", Seq(xs, q, s, flatDelta, q0, f), _) =>
             val delta = compileIntArray(flatDelta).map(_.domain.singleValue.toInt).grouped(s.toInt).toVector
             val costs = maybeCosts.getOrElse(createBoolChannel())
             val dfa = new RegularDfa(xs, q.toInt, s.toInt, delta, q0.toInt, f.set)
-            cc.post(new Regular(nextConstraintId(), maybeGoal, dfa, costs, cc.logger))
+            cc.post(goals, new Regular(nextConstraintId(), dfa, costs, cc.logger))
             List(costs)
         case Constraint("yuck_circuit", Seq(succ, IntConst(offset)), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(new Circuit(nextConstraintId(), maybeGoal, succ, safeToInt(offset), costs, cc.logger, cc.sigint))
+            cc.post(goals, new Circuit(nextConstraintId(), succ, safeToInt(offset), costs, cc.logger, cc.sigint))
             List(costs)
         case Constraint("yuck_delivery", _, _) =>
-            compileDeliveryConstraint(maybeGoal, constraint)(using IntegerCompilationHelper)
+            compileDeliveryConstraint(goals, constraint)(using IntegerCompilationHelper)
         case Constraint("yuck_inverse", Seq(f, IntConst(fOffset), g, IntConst(gOffset)), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            val constraint = new Inverse(nextConstraintId(), maybeGoal, new InverseFunction(f, safeToInt(fOffset)), new InverseFunction(g, safeToInt(gOffset)), costs, cc.logger)
+            val constraint = new Inverse(nextConstraintId(), new InverseFunction(f, safeToInt(fOffset)), new InverseFunction(g, safeToInt(gOffset)), costs, cc.logger)
             val constraints = constraint.decompose(cc.space)
-            constraints.foreach(cc.post)
+            for (constraint <- constraints) {
+                cc.post(goals, constraint)
+            }
             constraints.view.flatMap(_.outVariables).map(_.asInstanceOf[BooleanVariable])
         case Constraint("yuck_bin_packing_load", Seq(loads0, bins0, weights0, IntConst(minLoadIndex0)), _) =>
             val bins = compileIntArray(bins0)
@@ -650,7 +652,7 @@ final class ConstraintFactory
             val items = itemGenerator.toVector
             val loads1 = compileIntArray(loads0)
             val loads = (minLoadIndex until minLoadIndex + loads1.size).iterator.map(IntegerValue.apply).zip(loads1.iterator).toMap
-            compileBinPackingConstraint(maybeGoal, constraint, items, loads)
+            compileBinPackingConstraint(goals, constraint, items, loads)
         case Constraint("fzn_global_cardinality", Seq(xs0, cover0, counts0), _) =>
             val xs = compileIntArray(xs0)
             val items = xs.map(new BinPackingItem(_, One))
@@ -658,19 +660,19 @@ final class ConstraintFactory
             val counts = compileIntArray(counts0)
             require(cover.size == counts.size)
             val loads = cover.iterator.map(IntegerValue.apply).zip(counts.iterator).toMap
-            compileBinPackingConstraint(maybeGoal, constraint, items, loads)
+            compileBinPackingConstraint(goals, constraint, items, loads)
         case Constraint("fzn_lex_less_int", Seq(as, bs), _) =>
-            compileLexLessConstraint(maybeGoal, constraint, LtRelation, maybeCosts)(using IntegerCompilationHelper)
+            compileLexLessConstraint(goals, constraint, LtRelation, maybeCosts)(using IntegerCompilationHelper)
         case Constraint("fzn_lex_less_bool", Seq(as, bs), _) =>
-            compileLexLessConstraint(maybeGoal, constraint, LtRelation, maybeCosts)(using BooleanCompilationHelper, FlatZincBooleanValueOrdering)
+            compileLexLessConstraint(goals, constraint, LtRelation, maybeCosts)(using BooleanCompilationHelper, FlatZincBooleanValueOrdering)
         case Constraint("fzn_lex_less_set", Seq(as, bs), _) =>
-            compileLexLessConstraint(maybeGoal, constraint, LtRelation, maybeCosts)(using IntegerSetCompilationHelper)
+            compileLexLessConstraint(goals, constraint, LtRelation, maybeCosts)(using IntegerSetCompilationHelper)
         case Constraint("fzn_lex_lesseq_int", Seq(as, bs), _) =>
-            compileLexLessConstraint(maybeGoal, constraint, LeRelation, maybeCosts)(using IntegerCompilationHelper)
+            compileLexLessConstraint(goals, constraint, LeRelation, maybeCosts)(using IntegerCompilationHelper)
         case Constraint("fzn_lex_lesseq_bool", Seq(as, bs), _) =>
-            compileLexLessConstraint(maybeGoal, constraint, LeRelation, maybeCosts)(using BooleanCompilationHelper, FlatZincBooleanValueOrdering)
+            compileLexLessConstraint(goals, constraint, LeRelation, maybeCosts)(using BooleanCompilationHelper, FlatZincBooleanValueOrdering)
         case Constraint("fzn_lex_lesseq_set", Seq(as, bs), _) =>
-            compileLexLessConstraint(maybeGoal, constraint, LeRelation, maybeCosts)(using IntegerSetCompilationHelper)
+            compileLexLessConstraint(goals, constraint, LeRelation, maybeCosts)(using IntegerSetCompilationHelper)
         case Constraint("redundant_constraint", Seq(b), _) =>
             cc.costVarsFromRedundantConstraints += b
             Nil
@@ -678,7 +680,7 @@ final class ConstraintFactory
 
     private def compileOrderingConstraint
         [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
-        (maybeGoal: Option[Goal],
+        (goals: immutable.Set[Goal],
          constraint: yuck.flatzinc.ast.Constraint,
          relation: OrderingRelation,
          maybeCosts: Option[BooleanVariable] = None)
@@ -691,10 +693,10 @@ final class ConstraintFactory
         val y = helper.compileExpr(b)
         val costs = maybeCosts.getOrElse(createBoolChannel())
         relation match {
-            case EqRelation => cc.post(new Eq(nextConstraintId(), maybeGoal, x, y, costs))
-            case NeRelation => cc.post(new Ne(nextConstraintId(), maybeGoal, x, y, costs))
-            case LtRelation => cc.post(new Lt(nextConstraintId(), maybeGoal, x, y, costs))
-            case LeRelation => cc.post(new Le(nextConstraintId(), maybeGoal, x, y, costs))
+            case EqRelation => cc.post(goals, new Eq(nextConstraintId(), x, y, costs))
+            case NeRelation => cc.post(goals, new Ne(nextConstraintId(), x, y, costs))
+            case LtRelation => cc.post(goals, new Lt(nextConstraintId(), x, y, costs))
+            case LeRelation => cc.post(goals, new Le(nextConstraintId(), x, y, costs))
         }
         List(costs)
     }
@@ -702,9 +704,9 @@ final class ConstraintFactory
     private def compileBinaryConstraint1
         [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X],
          B <: Value[B], E <: Domain[B, E], Y <: Variable[B, E, Y]]
-        (createConstraint: (Id[yuck.core.Constraint], Option[Goal], X, Y) => yuck.core.Constraint,
+        (createConstraint: (Id[yuck.core.Constraint], X, Y) => yuck.core.Constraint,
          enforceDomain: (X, Y) => Iterable[BooleanVariable],
-         maybeGoal: Option[Goal],
+         goals: immutable.Set[Goal],
          constraint: yuck.flatzinc.ast.Constraint)
         (using
          aHelper: CompilationHelper[A, D, X],
@@ -716,14 +718,14 @@ final class ConstraintFactory
         val x = aHelper.compileExpr(a)
         val y = bHelper.compileExpr(b)
         def functionalCase = {
-            cc.post(createConstraint(nextConstraintId(), maybeGoal, x, y))
+            cc.post(goals, createConstraint(nextConstraintId(), x, y))
             enforceDomain(x, y)
         }
         def generalCase = {
             val channel = bHelper.createChannel()
-            cc.post(createConstraint(nextConstraintId(), maybeGoal, x, channel))
+            cc.post(goals, createConstraint(nextConstraintId(), x, channel))
             val costs = createBoolChannel()
-            cc.post(new Eq(nextConstraintId(), maybeGoal, channel, y, costs))
+            cc.post(goals, new Eq(nextConstraintId(), channel, y, costs))
             List(costs)
         }
         compileConstraint(constraint, b, functionalCase, generalCase)
@@ -732,9 +734,9 @@ final class ConstraintFactory
     private def compileBinaryConstraint2
         [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X],
          B <: Value[B], E <: Domain[B, E], Y <: Variable[B, E, Y]]
-        (createConstraint: (Id[yuck.core.Constraint], Option[Goal], immutable.IndexedSeq[X], Y) => yuck.core.Constraint,
+        (createConstraint: (Id[yuck.core.Constraint], immutable.IndexedSeq[X], Y) => yuck.core.Constraint,
          enforceDomain: (Seq[X], Y) => Iterable[BooleanVariable],
-         maybeGoal: Option[Goal],
+         goals: immutable.Set[Goal],
          constraint: yuck.flatzinc.ast.Constraint)
         (using
          aHelper: CompilationHelper[A, D, X],
@@ -746,14 +748,14 @@ final class ConstraintFactory
         val xs = aHelper.compileArray(as)
         val y = bHelper.compileExpr(b)
         def functionalCase = {
-            cc.post(createConstraint(nextConstraintId(), maybeGoal, xs, y))
+            cc.post(goals, createConstraint(nextConstraintId(), xs, y))
             enforceDomain(xs, y)
         }
         def generalCase = {
             val channel = bHelper.createChannel()
-            cc.post(createConstraint(nextConstraintId(), maybeGoal, xs, channel))
+            cc.post(goals, createConstraint(nextConstraintId(), xs, channel))
             val costs = createBoolChannel()
-            cc.post(new Eq(nextConstraintId(), maybeGoal, channel, y, costs))
+            cc.post(goals, new Eq(nextConstraintId(), channel, y, costs))
             List(costs)
         }
         compileConstraint(constraint, b, functionalCase, generalCase)
@@ -768,9 +770,9 @@ final class ConstraintFactory
         [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X],
          B <: Value[B], E <: Domain[B, E], Y <: Variable[B, E, Y],
          C <: Value[C], F <: Domain[C, F], Z <: Variable[C, F, Z]]
-        (createConstraint: (Id[yuck.core.Constraint], Option[Goal], X, Y, Z) => yuck.core.Constraint,
+        (createConstraint: (Id[yuck.core.Constraint], X, Y, Z) => yuck.core.Constraint,
          enforceDomain: (X, Y, Z) => Iterable[BooleanVariable],
-         maybeGoal: Option[Goal],
+         goals: immutable.Set[Goal],
          constraint: yuck.flatzinc.ast.Constraint)
         (using
          aHelper: CompilationHelper[A, D, X],
@@ -784,19 +786,19 @@ final class ConstraintFactory
         val y = bHelper.compileExpr(b)
         val z = cHelper.compileExpr(c)
         def functionalCase = {
-            cc.post(createConstraint(nextConstraintId(), maybeGoal, x, y, z))
+            cc.post(goals, createConstraint(nextConstraintId(), x, y, z))
             enforceDomain(x, y, z)
         }
         def generalCase = {
             if z.isInstanceOf[BooleanVariable] && z.domain == TrueDomain then {
                 val costs = cHelper.createChannel()
-                cc.post(createConstraint(nextConstraintId(), maybeGoal, x, y, costs))
+                cc.post(goals, createConstraint(nextConstraintId(), x, y, costs))
                 List(costs.asInstanceOf[BooleanVariable])
             } else {
                 val channel = cHelper.createChannel()
-                cc.post(createConstraint(nextConstraintId(), maybeGoal, x, y, channel))
+                cc.post(goals, createConstraint(nextConstraintId(), x, y, channel))
                 val costs = createBoolChannel()
-                cc.post(new Eq(nextConstraintId(), maybeGoal, channel, z, costs))
+                cc.post(goals, new Eq(nextConstraintId(), channel, z, costs))
                 List(costs)
             }
         }
@@ -825,7 +827,7 @@ final class ConstraintFactory
         [Load <: NumericalValue[Load],
          LoadDomain <: NumericalDomain[Load, LoadDomain],
          LoadVariable <: NumericalVariable[Load, LoadDomain, LoadVariable]]
-        (maybeGoal: Option[Goal],
+        (goals: immutable.Set[Goal],
          constraint: yuck.flatzinc.ast.Constraint,
          items: immutable.Seq[BinPackingItem[Load]],
          loads: immutable.Map[IntegerValue, LoadVariable]) // bin -> load
@@ -847,7 +849,7 @@ final class ConstraintFactory
         def hasRedundantDomain(load: LoadVariable) =
             loadDomainApproximation.isSubsetOf(load.domain)
         def functionalCase = {
-            cc.post(new BinPacking(nextConstraintId(), maybeGoal, items1, loads)(using loadTraits))
+            cc.post(goals, new BinPacking(nextConstraintId(), items1, loads)(using loadTraits))
             loads.values.filterNot(hasRedundantDomain).flatMap(enforceDomain)
         }
         def generalCase = {
@@ -860,14 +862,14 @@ final class ConstraintFactory
                     }
                     else bin -> createNonNegativeChannel()(using loadTraits)
             }
-            cc.post(new BinPacking(nextConstraintId(), maybeGoal, items1, loads1)(using loadTraits))
+            cc.post(goals, new BinPacking(nextConstraintId(), items1, loads1)(using loadTraits))
             val deltas: Iterable[BooleanVariable] =
                 loads.flatMap((bin, load) =>
                     if load == loads1(bin)
                     then if hasRedundantDomain(load) then Nil else enforceDomain(load)
                     else {
                         val delta = createBoolChannel()
-                        cc.post(new Eq(nextConstraintId(), maybeGoal, load, loads1(bin), delta))
+                        cc.post(goals, new Eq(nextConstraintId(), load, loads1(bin), delta))
                         List(delta)
                     }
                 )
@@ -880,8 +882,7 @@ final class ConstraintFactory
         [Time <: NumericalValue[Time],
          TimeDomain <: NumericalDomain[Time, TimeDomain],
          TimeVariable <: NumericalVariable[Time, TimeDomain, TimeVariable]]
-        (maybeGoal: Option[Goal],
-         constraint: yuck.flatzinc.ast.Constraint)
+        (goals: immutable.Set[Goal], constraint: yuck.flatzinc.ast.Constraint)
         (using timeHelper: NumericalCompilationHelper[Time, TimeDomain, TimeVariable]):
         Iterable[BooleanVariable] =
     {
@@ -933,10 +934,10 @@ final class ConstraintFactory
             val delivery =
                 new Delivery
                     [Time, TimeDomain, TimeVariable]
-                    (WeakReference(cc.space), nextConstraintId(), maybeGoal,
+                    (WeakReference(cc.space), nextConstraintId(),
                      startNodes, endNodes, succ, safeToInt(offset), arrivalTimes, serviceTimes, travelTimes,
                      withWaiting, totalTravelTime, costs)
-            cc.post(delivery)
+            cc.post(goals, delivery)
             List(costs)
         }
         def generalCase = {
@@ -965,7 +966,7 @@ final class ConstraintFactory
             val delivery =
                 new Delivery
                     [Time, TimeDomain, TimeVariable]
-                    (WeakReference(cc.space), nextConstraintId(), maybeGoal,
+                    (WeakReference(cc.space), nextConstraintId(),
                      startNodes, endNodes, succ, safeToInt(offset), arrivalTimes1, serviceTimes, travelTimes,
                      withWaiting, totalTravelTime1, costs)
             cc.space.post(delivery)
@@ -976,7 +977,7 @@ final class ConstraintFactory
                         enforceDomain(x)
                     } else {
                         val delta = createBoolChannel()
-                        cc.post(new Eq(nextConstraintId(), maybeGoal, x, x1, delta))
+                        cc.post(goals, new Eq(nextConstraintId(), x, x1, delta))
                         List(delta)
                     }
                 )
@@ -990,7 +991,7 @@ final class ConstraintFactory
 
     private def compileLinearCombination
         [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
-        (maybeGoal: Option[Goal],
+        (goals: immutable.Set[Goal],
          as0: Expr, bs: Expr,
          maybeChannel: Option[X] = None)
         (using helper: NumericalCompilationHelper[A, D, X]):
@@ -1014,24 +1015,24 @@ final class ConstraintFactory
                 x
             case List(AX(`one`, x), AX(`minusOne`, y)) =>
                 val channel = maybeChannel.getOrElse(helper.createChannel())
-                cc.post(new Minus(nextConstraintId(), maybeGoal, x, y, channel))
+                cc.post(goals, new Minus(nextConstraintId(), x, y, channel))
                 channel
             case List(AX(`minusOne`, x), AX(`one`, y)) =>
                 val channel = maybeChannel.getOrElse(helper.createChannel())
-                cc.post(new Minus(nextConstraintId(), maybeGoal, y, x, channel))
+                cc.post(goals, new Minus(nextConstraintId(), y, x, channel))
                 channel
             case _ =>
                 val channel = maybeChannel.getOrElse(helper.createChannel())
                 if axs.forall(_.a == one) then {
                     if axs.size == 2 then {
                         val List(AX(_, x), AX(_, y)) = axs
-                        cc.post(new Plus(nextConstraintId(), maybeGoal, x, y, channel))
+                        cc.post(goals, new Plus(nextConstraintId(), x, y, channel))
                     } else {
                         val xs = axs.iterator.map(_.x).toVector
-                        cc.post(new Sum(nextConstraintId(), maybeGoal, xs , channel))
+                        cc.post(goals, new Sum(nextConstraintId(), xs , channel))
                     }
                 } else {
-                   cc.post(new LinearCombination(nextConstraintId(), maybeGoal, axs.toVector, channel))
+                   cc.post(goals, new LinearCombination(nextConstraintId(), axs.toVector, channel))
                 }
                 channel
         }
@@ -1039,7 +1040,7 @@ final class ConstraintFactory
 
     private def compileLinearConstraint
         [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
-        (maybeGoal: Option[Goal],
+        (goals: immutable.Set[Goal],
          as0: Expr, bs: Expr, relation: OrderingRelation, c: Expr,
          maybeCosts: Option[BooleanVariable] = None)
         (using helper: NumericalCompilationHelper[A, D, X]):
@@ -1060,16 +1061,16 @@ final class ConstraintFactory
         val z = helper.compileExpr(c)
         val costs = maybeCosts.getOrElse(createBoolChannel())
         if axs.forall(_.a == typeTraits.one) then {
-            cc.post(new SumConstraint(nextConstraintId(), maybeGoal, axs.map(_.x).toVector, y, relation, z, costs))
+            cc.post(goals, new SumConstraint(nextConstraintId(), axs.map(_.x).toVector, y, relation, z, costs))
         } else {
-            cc.post(new LinearConstraint(nextConstraintId(), maybeGoal, axs.toVector, y, relation, z, costs))
+            cc.post(goals, new LinearConstraint(nextConstraintId(), axs.toVector, y, relation, z, costs))
         }
         costs
     }
 
     private def compileCountConstraint
         [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
-        (maybeGoal: Option[Goal],
+        (goals: immutable.Set[Goal],
          constraint: yuck.flatzinc.ast.Constraint,
          maybeCosts: Option[BooleanVariable] = None)
         (using helper: CompilationHelper[A, D, X]):
@@ -1085,30 +1086,30 @@ final class ConstraintFactory
         val m = compileIntExpr(b)
         def functionalCase = {
             if y.domain.isSingleton then {
-                cc.post(new CountConst(nextConstraintId(), maybeGoal, xs, y.domain.singleValue, m))
+                cc.post(goals, new CountConst(nextConstraintId(), xs, y.domain.singleValue, m))
                 val minCount = xs.count(_.domain == y.domain)
                 val maxCount = xs.count(_.domain.intersects(y.domain))
                 if IntegerRange(minCount, maxCount).isSubsetOf(m.domain) then Nil else enforceIntDomain(m)
             } else {
-                cc.post(new CountVar(nextConstraintId(), maybeGoal, xs, y, m))
+                cc.post(goals, new CountVar(nextConstraintId(), xs, y, m))
                 if IntegerRange(0, xs.size).isSubsetOf(m.domain) then Nil else enforceIntDomain(m)
             }
         }
         def generalCase = {
             val n = createNonNegativeIntChannel()
             if y.domain.isSingleton then {
-                cc.post(new CountConst(nextConstraintId(), maybeGoal, xs, y.domain.singleValue, n))
+                cc.post(goals, new CountConst(nextConstraintId(), xs, y.domain.singleValue, n))
             } else {
-                cc.post(new CountVar(nextConstraintId(), maybeGoal, xs, y, n))
+                cc.post(goals, new CountVar(nextConstraintId(), xs, y, n))
             }
             val costs = maybeCosts.getOrElse(createBoolChannel())
             relation match {
-                case "eq" => cc.post(new Eq(nextConstraintId(), maybeGoal, m, n, costs))
-                case "neq" => cc.post(new Ne(nextConstraintId(), maybeGoal, m, n, costs))
-                case "leq" => cc.post(new Le(nextConstraintId(), maybeGoal, m, n, costs))
-                case "lt" => cc.post(new Lt(nextConstraintId(), maybeGoal, m, n, costs))
-                case "geq" => cc.post(new Le(nextConstraintId(), maybeGoal, n, m, costs))
-                case "gt" => cc.post(new Lt(nextConstraintId(), maybeGoal, n, m, costs))
+                case "eq" => cc.post(goals, new Eq(nextConstraintId(), m, n, costs))
+                case "neq" => cc.post(goals, new Ne(nextConstraintId(), m, n, costs))
+                case "leq" => cc.post(goals, new Le(nextConstraintId(), m, n, costs))
+                case "lt" => cc.post(goals, new Lt(nextConstraintId(), m, n, costs))
+                case "geq" => cc.post(goals, new Le(nextConstraintId(), n, m, costs))
+                case "gt" => cc.post(goals, new Lt(nextConstraintId(), n, m, costs))
              }
             List(costs)
         }
@@ -1121,7 +1122,7 @@ final class ConstraintFactory
 
     private def compileElementConstraint
         [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
-        (maybeGoal: Option[Goal], constraint: yuck.flatzinc.ast.Constraint)
+        (goals: immutable.Set[Goal], constraint: yuck.flatzinc.ast.Constraint)
         (using helper: CompilationHelper[A, D, X]):
         Iterable[BooleanVariable] =
     {
@@ -1141,9 +1142,9 @@ final class ConstraintFactory
         def post(y: X): X = {
             if xs.forall(_.domain.isSingleton) then {
                 val as = xs.map(_.domain.singleValue)
-                cc.post(new ElementConst(nextConstraintId(), maybeGoal, as, i, y, offset))
+                cc.post(goals, new ElementConst(nextConstraintId(), as, i, y, offset))
             } else {
-                cc.post(new ElementVar(nextConstraintId(), maybeGoal, xs, i, y, offset))
+                cc.post(goals, new ElementVar(nextConstraintId(), xs, i, y, offset))
             }
             y
         }
@@ -1154,7 +1155,7 @@ final class ConstraintFactory
         def generalCase = {
             val channel = post(helper.createChannel())
             val costs = createBoolChannel()
-            cc.post(new Eq(nextConstraintId(), maybeGoal, channel, y, costs))
+            cc.post(goals, new Eq(nextConstraintId(), channel, y, costs))
             List(costs)
         }
         compileConstraint(constraint, List(y), functionalCase, generalCase)
@@ -1162,8 +1163,7 @@ final class ConstraintFactory
 
     private def compileIfThenElseConstraint
         [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
-        (maybeGoal: Option[Goal],
-         constraint: yuck.flatzinc.ast.Constraint)
+        (goals: immutable.Set[Goal], constraint: yuck.flatzinc.ast.Constraint)
         (using helper: OrderedCompilationHelper[A, D, X]):
         Iterable[BooleanVariable] =
     {
@@ -1176,7 +1176,7 @@ final class ConstraintFactory
         require(cs.last.domain.isSingleton)
         require(cs.last.domain.singleValue == True)
         def post(y: X): X = {
-            cc.post(new IfThenElse(nextConstraintId(), maybeGoal, cs, xs, y))
+            cc.post(goals, new IfThenElse(nextConstraintId(), cs, xs, y))
             y
         }
         def functionalCase = {
@@ -1186,7 +1186,7 @@ final class ConstraintFactory
         def generalCase = {
             val channel = post(createOrdChannel()(using typeTraits))
             val costs = createBoolChannel()
-            cc.post(new Eq(nextConstraintId(), maybeGoal, channel, y, costs))
+            cc.post(goals, new Eq(nextConstraintId(), channel, y, costs))
             List(costs)
         }
         compileConstraint(constraint, List(y), functionalCase, generalCase)
@@ -1194,7 +1194,7 @@ final class ConstraintFactory
 
     private def compileLexLessConstraint
         [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
-        (maybeGoal: Option[Goal],
+        (goals: immutable.Set[Goal],
          constraint: yuck.flatzinc.ast.Constraint,
          relation: OrderingRelation,
          maybeCosts: Option[BooleanVariable] = None)
@@ -1206,14 +1206,14 @@ final class ConstraintFactory
         val ys = helper.compileArray(constraint.params(1))
         val costs = maybeCosts.getOrElse(createBoolChannel())
         (relation: @unchecked) match {
-            case LtRelation => cc.post(new LexLess(nextConstraintId(), maybeGoal, xs, ys, costs))
-            case LeRelation => cc.post(new LexLessEq(nextConstraintId(), maybeGoal, xs, ys, costs))
+            case LtRelation => cc.post(goals, new LexLess(nextConstraintId(), xs, ys, costs))
+            case LeRelation => cc.post(goals, new LexLessEq(nextConstraintId(), xs, ys, costs))
         }
         List(costs)
     }
 
     private def compileReifiedConstraint
-        (maybeGoal: Option[Goal],
+        (goals: immutable.Set[Goal],
          reifiedConstraint: yuck.flatzinc.ast.Constraint,
          maybeCosts: Option[BooleanVariable] = None):
         Iterable[BooleanVariable] =
@@ -1224,10 +1224,10 @@ final class ConstraintFactory
         if compilesToConst(params.last, True) then {
             if cc.impliedConstraints.contains(constraint)
             then Nil
-            else compileConstraint(maybeGoal, constraint)
+            else compileConstraint(goals, constraint)
         } else if cc.impliedConstraints.contains(constraint) then {
             def functionalCase = {
-                postConjunction(maybeGoal, Nil, Some(satisfied))
+                postConjunction(goals, Nil, Some(satisfied))
                 enforceBoolDomain(satisfied)
             }
             def generalCase = {
@@ -1236,20 +1236,20 @@ final class ConstraintFactory
             compileConstraint(reifiedConstraint, List(satisfied), functionalCase, generalCase)
         } else {
             def functionalCase = {
-                val costs0 = compileConstraint(maybeGoal, constraint, Some(satisfied)).toVector
+                val costs0 = compileConstraint(goals, constraint, Some(satisfied)).toVector
                 if costs0.size != 1 || costs0.head != satisfied then {
-                    postConjunction(maybeGoal, costs0, Some(satisfied))
+                    postConjunction(goals, costs0, Some(satisfied))
                 }
                 enforceBoolDomain(satisfied)
             }
             def generalCase = {
-                val costs0 = compileConstraint(maybeGoal, constraint, None).toVector
+                val costs0 = compileConstraint(goals, constraint, None).toVector
                 val costs = createBoolChannel()
                 if costs0.size == 1 then {
-                    cc.post(new Eq(nextConstraintId(), maybeGoal, costs0.head, satisfied, costs))
+                    cc.post(goals, new Eq(nextConstraintId(), costs0.head, satisfied, costs))
                 } else {
-                    val costs1 = postConjunction(maybeGoal, costs0)
-                    cc.post(new Eq(nextConstraintId(), maybeGoal, costs1, satisfied, costs))
+                    val costs1 = postConjunction(goals, costs0)
+                    cc.post(goals, new Eq(nextConstraintId(), costs1, satisfied, costs))
                 }
                 List(costs)
             }
@@ -1258,7 +1258,7 @@ final class ConstraintFactory
     }
 
     private def postDisjunction
-        (maybeGoal: Option[Goal], xs0: Seq[BooleanVariable], maybeY: Option[BooleanVariable] = None):
+        (goals: immutable.Set[Goal], xs0: Seq[BooleanVariable], maybeY: Option[BooleanVariable] = None):
         BooleanVariable =
     {
         val xs = xs0.iterator.filterNot(_.domain == FalseDomain).toSet.toVector
@@ -1267,16 +1267,16 @@ final class ConstraintFactory
         } else {
             val y = maybeY.getOrElse(createBoolChannel())
             if xs.size == 2 then {
-               cc.post(new Or(nextConstraintId(), maybeGoal, xs(0), xs(1), y))
+               cc.post(goals, new Or(nextConstraintId(), xs(0), xs(1), y))
             } else {
-                cc.post(new Disjunction(nextConstraintId(), maybeGoal, xs, y))
+                cc.post(goals, new Disjunction(nextConstraintId(), xs, y))
             }
             y
         }
     }
 
     private def postConjunction
-        (maybeGoal: Option[Goal], xs0: Seq[BooleanVariable], maybeY: Option[BooleanVariable] = None):
+        (goals: immutable.Set[Goal], xs0: Seq[BooleanVariable], maybeY: Option[BooleanVariable] = None):
         BooleanVariable =
     {
         val xs = xs0.iterator.filterNot(_.domain == TrueDomain).toSet.toVector
@@ -1285,9 +1285,9 @@ final class ConstraintFactory
         } else {
             val y = maybeY.getOrElse(createBoolChannel())
             if xs.size == 2 then {
-                cc.post(new And(nextConstraintId(), maybeGoal, xs(0), xs(1), y))
+                cc.post(goals, new And(nextConstraintId(), xs(0), xs(1), y))
             } else {
-                cc.post(new Conjunction(nextConstraintId(), maybeGoal, xs, y))
+                cc.post(goals, new Conjunction(nextConstraintId(), xs, y))
             }
             y
         }
@@ -1313,7 +1313,7 @@ final class ConstraintFactory
                     List(x)
                 } else {
                     val costs = createBoolChannel()
-                    cc.post(new Not(nextConstraintId(), Some(DomainEnforcementGoal), x, costs))
+                    cc.post(List(DomainEnforcementGoal), new Not(nextConstraintId(), x, costs))
                     List(costs)
                 }
             } else {
@@ -1330,7 +1330,7 @@ final class ConstraintFactory
         if dx.isBounded then {
             if cc.space.isChannelVariable(x) then {
                 val costs = createBoolChannel()
-                cc.post(new Contains(nextConstraintId(), Some(DomainEnforcementGoal), x, x.domain, costs))
+                cc.post(List(DomainEnforcementGoal), new Contains(nextConstraintId(), x, x.domain, costs))
                 List(costs)
             } else if dx.isSingleton then {
                 cc.space.setValue(x, dx.singleValue)
@@ -1350,9 +1350,9 @@ final class ConstraintFactory
                 val costs = createBoolChannel()
                 dx match {
                     case dx: IntegerPowerSetDomain =>
-                        cc.post(new Subset(nextConstraintId(), Some(DomainEnforcementGoal), x, dx.base, costs))
+                        cc.post(List(DomainEnforcementGoal), new Subset(nextConstraintId(), x, dx.base, costs))
                     case dx: SingletonIntegerSetDomain =>
-                        cc.post(new Eq(nextConstraintId(), Some(DomainEnforcementGoal), x, dx.base, costs))
+                        cc.post(List(DomainEnforcementGoal), new Eq(nextConstraintId(), x, dx.base, costs))
                 }
                 List(costs)
             } else if dx.isSingleton then {
@@ -1373,7 +1373,7 @@ final class ConstraintFactory
                 .filter(_.isDefined)
                 .map(_.get)
                 .filter(_.isInstanceOf[Contains])
-                .filter(_.maybeGoal.contains(DomainEnforcementGoal))
+                .filter(constraint => cc.space.goals(constraint).contains(DomainEnforcementGoal))
                 .toVector
         if intDomainEnforcementConstraints.size > 32 then {
             // When there are many integer channels, we enforce their domains using a single InDomain constraint.
@@ -1382,7 +1382,7 @@ final class ConstraintFactory
             cc.costVars --= intDomainEnforcementConstraints.iterator.map(_.outVariables.head.asInstanceOf[BooleanVariable])
             val xs = intDomainEnforcementConstraints.map(_.inVariables.head.asInstanceOf[IntegerVariable])
             val costs = createBoolChannel()
-            cc.post(new InDomain(nextConstraintId(), Some(DomainEnforcementGoal), xs, costs))
+            cc.post(List(DomainEnforcementGoal), new InDomain(nextConstraintId(), xs, costs))
             cc.costVars += costs
         } else {
             // InDomain comes with more overhead than Contains and, when there are only a few integer channels,

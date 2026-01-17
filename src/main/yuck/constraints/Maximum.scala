@@ -7,7 +7,6 @@ import yuck.core.*
 final class Maximum
     [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
     (id: Id[Constraint],
-     override val maybeGoal: Option[Goal],
      override protected val xs: immutable.Seq[X],
      override protected val result: X)
     (using override protected val typeTraits: OrderedTypeTraits[A, D, X])

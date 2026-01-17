@@ -21,7 +21,7 @@ final class ElementVarTest(offset: Int) extends UnitTest with ConstraintTestTool
     private val indexRange = IntegerRange(offset, offset + 2)
     private val i = new IntegerVariable(space.nextVariableId(), "i", CompleteIntegerRange)
     private val y = new IntegerVariable(space.nextVariableId(), "y", CompleteIntegerRange)
-    private val constraint = new ElementVar(space.nextConstraintId(), null, xs, i, y, offset)
+    private val constraint = new ElementVar(space.nextConstraintId(), xs, i, y, offset)
 
     @Test
     def testBasics(): Unit = {

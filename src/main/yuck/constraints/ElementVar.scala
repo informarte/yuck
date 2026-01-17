@@ -13,8 +13,7 @@ import yuck.core.*
  */
 final class ElementVar
     [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     val xs: immutable.IndexedSeq[X], val i: IntegerVariable, val y: X, val offset: Int)
+    (id: Id[Constraint], val xs: immutable.IndexedSeq[X], val i: IntegerVariable, val y: X, val offset: Int)
     (using typeTraits: TypeTraits[A, D, X])
     extends Constraint(id)
 {

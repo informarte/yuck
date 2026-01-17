@@ -10,7 +10,6 @@ import yuck.core.*
  */
 final class BooleanIncreasing
     (id: Id[Constraint],
-     override val maybeGoal: Option[Goal],
      override protected val xs: immutable.IndexedSeq[BooleanVariable],
      override protected val costs: BooleanVariable)
     extends Increasing(id)(using BooleanTypeTraits)

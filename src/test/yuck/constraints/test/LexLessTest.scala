@@ -20,7 +20,7 @@ final class LexLessTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new LexLess(space.nextConstraintId(), null, xs, ys, costs)
+        val constraint = new LexLess(space.nextConstraintId(), xs, ys, costs)
         assertEq(constraint.toString, "lex_less([x1, x2, x3], [y1, y2, y3])")
         assertEq(constraint.inVariables.size, 6)
         assertEq(constraint.inVariables.toSet, xs.toSet.union(ys.toSet))
@@ -30,7 +30,7 @@ final class LexLessTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testCostComputation23(): Unit = {
-        space.post(new LexLess(space.nextConstraintId(), null, Vector(x1, x2), ys, costs))
+        space.post(new LexLess(space.nextConstraintId(), Vector(x1, x2), ys, costs))
         runScenario(
             TestScenario(
                 space,
@@ -44,7 +44,7 @@ final class LexLessTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testCostComputation32(): Unit = {
-        space.post(new LexLess(space.nextConstraintId(), null, xs, Vector(y1, y2), costs))
+        space.post(new LexLess(space.nextConstraintId(), xs, Vector(y1, y2), costs))
         runScenario(
             TestScenario(
                 space,
@@ -58,7 +58,7 @@ final class LexLessTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testCostComputation33(): Unit = {
-        space.post(new LexLess(space.nextConstraintId(), null, xs, ys, costs))
+        space.post(new LexLess(space.nextConstraintId(), xs, ys, costs))
         runScenario(
             TestScenario(
                 space,

@@ -6,8 +6,7 @@ import yuck.core.*
  * Implements binary conjunction on cost level (where 0 is true).
  */
 final class And
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: BooleanVariable, y: BooleanVariable, z: BooleanVariable)
+    (id: Id[Constraint], x: BooleanVariable, y: BooleanVariable, z: BooleanVariable)
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s /\\ %s".format(z, x, y)
@@ -26,8 +25,7 @@ final class And
  * See [[yuck.constraints.Disjunction Disjunction]] for the cost model.
  */
 final class Or
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: BooleanVariable, y: BooleanVariable, z: BooleanVariable)
+    (id: Id[Constraint], x: BooleanVariable, y: BooleanVariable, z: BooleanVariable)
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s \\/ %s".format(z, x, y)
@@ -47,8 +45,7 @@ final class Or
  * Implements negation on cost level (where 0 is true).
  */
 final class Not
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: BooleanVariable, y: BooleanVariable)
+    (id: Id[Constraint], x: BooleanVariable, y: BooleanVariable)
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "%s = not(%s)".format(y, x)

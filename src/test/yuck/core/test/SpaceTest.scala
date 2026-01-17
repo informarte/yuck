@@ -244,6 +244,31 @@ final class SpaceTest extends UnitTest {
         assertEq(space.numberOfRetractions, 3)
     }
 
+    @Test
+    def testGoalManagement(): Unit = {
+        val space = new Space(logger, sigint)
+        val x = space.createVariable("x", CompleteIntegerRange)
+        val y = space.createVariable("y", CompleteIntegerRange)
+        val z = space.createVariable("y", CompleteIntegerRange)
+        val c = new DummyConstraint(space.nextConstraintId(), List(x), List(y))
+        val d = new DummyConstraint(space.nextConstraintId(), List(y), List(z))
+        class TestGoal(goal: String) extends Goal
+        val g = new TestGoal("G")
+        val h = new TestGoal("H")
+        space
+            .post(c)
+            .registerGoals(c, immutable.Set(g))
+            .post(d)
+            .registerGoals(d, immutable.Set(g, h))
+        assertEq(space.goals(c), immutable.Set(g))
+        assertEq(space.goals(d), immutable.Set(g, h))
+        space.retract(c)
+        assertEq(space.goals(c), immutable.Set())
+        assertEq(space.goals(d), immutable.Set(g, h))
+        space.retract(d)
+        assertEq(space.goals(d), immutable.Set())
+    }
+
     // A spy constraint maintains the sum of its input variables and,
     // on each call to consult and commit, checks that Space calls these methods
     // according to their contracts.

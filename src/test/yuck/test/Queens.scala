@@ -34,21 +34,20 @@ final class Queens(val n: Int, solvingMethod: SolvingMethod) extends HelloWorldT
                 val iVal = new IntegerValue(col)
                 val iVar = new IntegerVariable(space.nextVariableId(), col.toString, IntegerRange(iVal, iVal))
                 space.setValue(iVar, new IntegerValue(col))
-                space.post(new Minus(space.nextConstraintId(), null, rows(col), iVar, rowsMinusI(col)))
-                space.post(new Plus(space.nextConstraintId(), null, rows(col), iVar, rowsPlusI(col)))
+                space.post(new Minus(space.nextConstraintId(), rows(col), iVar, rowsMinusI(col)))
+                space.post(new Plus(space.nextConstraintId(), rows(col), iVar, rowsPlusI(col)))
             }
             val rowConflicts = new BooleanVariable(space.nextVariableId(), "rowConflicts", CompleteBooleanDomain)
-            val rowConstraint = new AllDifferent(space.nextConstraintId(), null, rows.toVector, Set(), rowConflicts, logger)
+            val rowConstraint = new AllDifferent(space.nextConstraintId(), rows.toVector, Set(), rowConflicts, logger)
             space.post(rowConstraint)
             val diagonalConflicts1 = new BooleanVariable(space.nextVariableId(), "diagonalConflicts1", CompleteBooleanDomain)
-            space.post(new AllDifferent(space.nextConstraintId(), null, rowsMinusI.toVector, Set(), diagonalConflicts1, logger))
+            space.post(new AllDifferent(space.nextConstraintId(), rowsMinusI.toVector, Set(), diagonalConflicts1, logger))
             val diagonalConflicts2 = new BooleanVariable(space.nextVariableId(), "diagonalConflicts2", CompleteBooleanDomain)
-            space.post(new AllDifferent(space.nextConstraintId(), null, rowsPlusI.toVector, Set(), diagonalConflicts2, logger))
+            space.post(new AllDifferent(space.nextConstraintId(), rowsPlusI.toVector, Set(), diagonalConflicts2, logger))
             val conflicts = new BooleanVariable(space.nextVariableId(), "conflicts", CompleteBooleanDomain)
             space.post(
                 new Conjunction(
                     space.nextConstraintId(),
-                    null,
                     List(rowConflicts, diagonalConflicts1, diagonalConflicts2),
                     conflicts))
             space.registerObjectiveVariable(conflicts)

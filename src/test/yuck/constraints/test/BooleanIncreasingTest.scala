@@ -21,7 +21,7 @@ final class BooleanIncreasingTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new BooleanIncreasing(space.nextConstraintId(), null, xs, costs)
+        val constraint = new BooleanIncreasing(space.nextConstraintId(), xs, costs)
         assertEq(constraint.toString, "increasing([x1, x2, x3, x4], costs)")
         assertEq(constraint.inVariables.size, 4)
         assertEq(constraint.inVariables.toSet, xs.toSet)
@@ -31,7 +31,7 @@ final class BooleanIncreasingTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testPropagation(): Unit = {
-        space.post(new BooleanIncreasing(space.nextConstraintId(), null, xs, costs))
+        space.post(new BooleanIncreasing(space.nextConstraintId(), xs, costs))
         runScenario(
             TestScenario(
                 space,
@@ -44,7 +44,7 @@ final class BooleanIncreasingTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfConsecutiveDuplicateVariablesInPropagation(): Unit = {
-        space.post(new BooleanIncreasing(space.nextConstraintId(), null, Vector(x1, x2, x2, x4), costs))
+        space.post(new BooleanIncreasing(space.nextConstraintId(), Vector(x1, x2, x2, x4), costs))
         runScenario(
             TestScenario(
                 space,
@@ -57,7 +57,7 @@ final class BooleanIncreasingTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfNonConsecutiveDuplicateVariablesInPropagation(): Unit = {
-        space.post(new BooleanIncreasing(space.nextConstraintId(), null, Vector(x1, x2, x1, x4), costs))
+        space.post(new BooleanIncreasing(space.nextConstraintId(), Vector(x1, x2, x1, x4), costs))
         runScenario(
             TestScenario(
                 space,
@@ -70,7 +70,7 @@ final class BooleanIncreasingTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testCostComputation(): Unit = {
-        space.post(new BooleanIncreasing(space.nextConstraintId(), null, xs, costs))
+        space.post(new BooleanIncreasing(space.nextConstraintId(), xs, costs))
         runScenario(
             TestScenario(
                 space,
@@ -85,7 +85,7 @@ final class BooleanIncreasingTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfConsecutiveDuplicateVariablesInCostComputation(): Unit = {
-        space.post(new BooleanIncreasing(space.nextConstraintId(), null, Vector(x1, x2, x2, x4), costs))
+        space.post(new BooleanIncreasing(space.nextConstraintId(), Vector(x1, x2, x2, x4), costs))
         runScenario(
             TestScenario(
                 space,
@@ -98,7 +98,7 @@ final class BooleanIncreasingTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfNonConsecutiveDuplicateVariablesInCostComputation(): Unit = {
-        space.post(new BooleanIncreasing(space.nextConstraintId(), null, Vector(x1, x2, x1, x4), costs))
+        space.post(new BooleanIncreasing(space.nextConstraintId(), Vector(x1, x2, x1, x4), costs))
         runScenario(
             TestScenario(
                 space,
@@ -130,7 +130,7 @@ final class BooleanIncreasingTest extends UnitTest with ConstraintTestTooling {
     @Test
     def testHandlingOfChannelVariablesInNeighbourhoodGeneration(): Unit = {
         import yuck.constraints.Or
-        space.post(new Or(space.nextConstraintId(), null, x1, x2, x3))
+        space.post(new Or(space.nextConstraintId(), x1, x2, x3))
         assertNoNeighbourhood(xs)
     }
 
@@ -154,7 +154,7 @@ final class BooleanIncreasingTest extends UnitTest with ConstraintTestTooling {
     }
 
     private def assertNeighbourhood(xs: IndexedSeq[BooleanVariable]): Unit = {
-        val constraint = new BooleanIncreasing(space.nextConstraintId(), null, xs, costs)
+        val constraint = new BooleanIncreasing(space.nextConstraintId(), xs, costs)
         space.post(constraint)
         assert(constraint.isCandidateForImplicitSolving(space))
         val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution).get
@@ -169,7 +169,7 @@ final class BooleanIncreasingTest extends UnitTest with ConstraintTestTooling {
     }
 
     private def assertNoNeighbourhood(xs: IndexedSeq[BooleanVariable], isCandidate: Boolean = false): Unit = {
-        val constraint = new BooleanIncreasing(space.nextConstraintId(), null, xs, costs)
+        val constraint = new BooleanIncreasing(space.nextConstraintId(), xs, costs)
         space.post(constraint)
         assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
         assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution), None)

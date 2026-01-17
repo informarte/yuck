@@ -351,7 +351,7 @@ final class AnnealingNeighbourhoodFactory
     private def createHotSpotDistribution(xs: IndexedSeq[AnyVariable], cs: Iterable[BooleanVariable]): Distribution = {
         val involvementMap = computeInvolvementMap(cc.space, xs, cs)
         val hotSpotDistribution = Distribution(xs.size)
-        cc.post(new SatisfactionGoalTracker(cc.space.nextConstraintId(), None, involvementMap, hotSpotDistribution))
+        cc.post(Nil, new SatisfactionGoalTracker(cc.space.nextConstraintId(), involvementMap, hotSpotDistribution))
         hotSpotDistribution
     }
 
@@ -364,7 +364,7 @@ final class AnnealingNeighbourhoodFactory
         }
         val involvementMap = cc.costVars.iterator.map(x => (x, involvedNeighbourhoods(x))).toMap
         val hotSpotDistribution = Distribution(neighbourhoods.size)
-        cc.post(new SatisfactionGoalTracker(cc.space.nextConstraintId(), None, involvementMap, hotSpotDistribution))
+        cc.post(Nil, new SatisfactionGoalTracker(cc.space.nextConstraintId(), involvementMap, hotSpotDistribution))
         hotSpotDistribution
     }
 
@@ -376,7 +376,7 @@ final class AnnealingNeighbourhoodFactory
         require(objectives.size > 1)
         require(objectives.size == neighbourhoods.size)
         val hotSpotDistribution = new ArrayBackedDistribution(objectives.size)
-        cc.post(new LevelWeightMaintainer(nextConstraintId(), objectives, hotSpotDistribution))
+        cc.post(Nil, new LevelWeightMaintainer(nextConstraintId(), objectives, hotSpotDistribution))
         new NeighbourhoodCollection(cc.space, neighbourhoods, randomGenerator, None, Some(hotSpotDistribution), None)
     }
 
@@ -387,7 +387,7 @@ final class AnnealingNeighbourhoodFactory
         Distribution =
     {
         val hotSpotDistribution = Distribution(weights.size)
-        cc.post(new OptimizationGoalTracker(nextConstraintId(), None, mode, weights.toVector, hotSpotDistribution))
+        cc.post(Nil, new OptimizationGoalTracker(nextConstraintId(), mode, weights.toVector, hotSpotDistribution))
         hotSpotDistribution
     }
 

@@ -34,6 +34,7 @@ final class CompilationContext(
     var objective: AnyObjective = null
     var maybeNeighbourhood: Option[Neighbourhood] = null
 
+/*
     def post(constraint: yuck.core.Constraint): CompilationContext = {
         if cfg.checkIncrementalCostUpdate(constraint) then {
             space.post(new CheckedConstraint(constraint))
@@ -42,5 +43,19 @@ final class CompilationContext(
         }
         this
     }
+
+*/
+    def post(goals: immutable.Set[Goal], constraint: yuck.core.Constraint): CompilationContext = {
+        if cfg.checkIncrementalCostUpdate(constraint) then {
+            space.post(new CheckedConstraint(constraint))
+        } else {
+            space.post(constraint)
+        }
+        space.registerGoals(constraint, goals)
+        this
+    }
+
+    def post(goals: immutable.Seq[Goal], constraint: yuck.core.Constraint): CompilationContext =
+        post(goals.toSet, constraint)
 
 }

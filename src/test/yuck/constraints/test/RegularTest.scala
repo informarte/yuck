@@ -28,7 +28,7 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new Regular(space.nextConstraintId(), null, dfa, costs, logger)
+        val constraint = new Regular(space.nextConstraintId(), dfa, costs, logger)
         assertEq(
             constraint.toString,
             "regular([%s], 6, 3, [[1, 2, 2], [3, 0, 0], [3, 4, 4], [0, 5, 5], [0, 6, 6], [6, 0, 0]], 1, {6}, costs)"
@@ -41,7 +41,7 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testCostComputation(): Unit = {
-        space.post(new Regular(space.nextConstraintId(), null, dfa, costs, logger))
+        space.post(new Regular(space.nextConstraintId(), dfa, costs, logger))
         runScenario(
             TestScenario(
                 space,
@@ -76,7 +76,7 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
 
     @Test
     def testHandlingOfInvalidInputsInCostComputation(): Unit = {
-        space.post(new Regular(space.nextConstraintId(), null, dfa, costs, logger))
+        space.post(new Regular(space.nextConstraintId(), dfa, costs, logger))
         runScenario(
             TestScenario(
                 space,
@@ -97,7 +97,7 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
     @Test
     def testHandlingOfDuplicateVariablesInCostComputation(): Unit = {
         val xs1 = xs.updated(4, x1).updated(9, x1)
-        space.post(new Regular(space.nextConstraintId(), null, new RegularDfa(xs1, Q, S, delta, q0, F), costs, logger))
+        space.post(new Regular(space.nextConstraintId(), new RegularDfa(xs1, Q, S, delta, q0, F), costs, logger))
         runScenario(
             TestScenario(
                 space,
@@ -126,7 +126,7 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
     @Test
     def testHandlingOfChannelVariablesInNeighbourhoodGeneration(): Unit = {
         import yuck.constraints.Plus
-        space.post(new Plus(space.nextConstraintId(), null, x1, x2, x3))
+        space.post(new Plus(space.nextConstraintId(), x1, x2, x3))
         assertNoNeighbourhood(xs)
     }
 
@@ -138,7 +138,7 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
     }
 
     private def assertNeighbourhood(xs: IndexedSeq[IntegerVariable]): Unit = {
-        val constraint = new Regular(space.nextConstraintId(), null, dfa, costs, logger)
+        val constraint = new Regular(space.nextConstraintId(), dfa, costs, logger)
         space.post(constraint)
         assert(constraint.isCandidateForImplicitSolving(space))
         val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution).get
@@ -154,7 +154,7 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
     }
 
     private def assertNoNeighbourhood(xs: IndexedSeq[IntegerVariable], isCandidate: Boolean = false): Unit = {
-        val constraint = new Regular(space.nextConstraintId(), null, new RegularDfa(xs, Q, S, delta, q0, F), costs, logger)
+        val constraint = new Regular(space.nextConstraintId(), new RegularDfa(xs, Q, S, delta, q0, F), costs, logger)
         space.post(constraint)
         assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
         assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution), None)

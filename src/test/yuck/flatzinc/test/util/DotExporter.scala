@@ -30,10 +30,11 @@ final class DotExporter(space: Space, dotWriter: java.io.FileWriter) extends Run
                 }
             case ConstraintVertex(constraint) =>
                 attrMap.put("label", new DefaultAttribute(constraint.getClass.getSimpleName, AttributeType.STRING))
+                val goals = space.goals(constraint)
                 val tooltip =
-                    if constraint.maybeGoal.isDefined
-                    then "%s\n[%s]".format(constraint, constraint.maybeGoal.get)
-                    else constraint.toString
+                    if goals.isEmpty
+                    then constraint.toString
+                    else "%s\n[%s]".format(constraint, goals.mkString(", "))
                 attrMap.put("tooltip", new DefaultAttribute(tooltip.take(MaxTooltipLength), AttributeType.STRING))
                 val maybeColor =
                     if space.isImplicitConstraint(constraint)

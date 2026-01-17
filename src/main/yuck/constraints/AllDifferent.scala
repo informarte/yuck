@@ -21,7 +21,6 @@ import yuck.util.logging.LazyLogger
 final class AllDifferent
     [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
     (id: Id[Constraint],
-     override val maybeGoal: Option[Goal],
      override protected val xs: immutable.IndexedSeq[X],
      exceptedValues: immutable.Set[A],
      override protected val result: BooleanVariable,

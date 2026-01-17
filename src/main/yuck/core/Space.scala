@@ -337,6 +337,20 @@ final class Space(
         }
     }
 
+    private val goalsByConstraint = new mutable.HashMap[Constraint, immutable.Set[Goal]]
+
+    /** Yields the set of goals registered for the given constraint. */
+    def goals(constraint: Constraint): immutable.Set[Goal] =
+        goalsByConstraint.getOrElse(constraint, immutable.Set())
+
+    /** Register the given goals for the given constraint. */
+    def registerGoals(constraint: Constraint, goals: immutable.Set[Goal]): Space = {
+        if ! goals.isEmpty then {
+            goalsByConstraint.put(constraint, goals)
+        }
+        this
+    }
+
     /**
      * Adds the given constraint to the constraint network.
      *
@@ -390,6 +404,7 @@ final class Space(
             implicitConstraints -= constraint
             inVariablesOfImplicitConstraints --= constraint.inVariables
         }
+        goalsByConstraint.remove(constraint)
         objectiveVariables --= constraint.outVariables
         initialized = false
         numberOfRetractions += 1

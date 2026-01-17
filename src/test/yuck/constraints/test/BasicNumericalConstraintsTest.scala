@@ -23,10 +23,10 @@ final class BasicNumericalConstraintsTest extends UnitTest {
         List(s, t, u, v, w).foreach(space.registerObjectiveVariable)
         // u = s + t
         space
-            .post(new Plus(space.nextConstraintId(), null, s, t, u))
+            .post(new Plus(space.nextConstraintId(), s, t, u))
             .setValue(s, One)
             .setValue(t, Two)
-            .post(new Plus(space.nextConstraintId(), null, u, v, w))
+            .post(new Plus(space.nextConstraintId(), u, v, w))
             .setValue(v, One)
             .initialize()
         assertEq(Set(s, t, v), space.searchVariables)

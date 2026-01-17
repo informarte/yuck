@@ -47,11 +47,7 @@ final class InverseFunction
  * @see [[yuck.Notation Notation]]
  */
 final class Inverse
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     f: InverseFunction,
-     g: InverseFunction,
-     costs: BooleanVariable,
-     logger: LazyLogger)
+    (id: Id[Constraint], f: InverseFunction, g: InverseFunction, costs: BooleanVariable, logger: LazyLogger)
     extends Constraint(id)
 {
 
@@ -328,7 +324,7 @@ final class Inverse
                 val offset = domain.lb.toInt
                 val costs = new BooleanVariable(space.nextVariableId(), "", CompleteBooleanDomain)
                 new Inverse(
-                    space.nextConstraintId(), maybeGoal,
+                    space.nextConstraintId(),
                     new InverseFunction(fPartitionByDomain(domain).toVector, offset),
                     new InverseFunction(gPartitionByDomain(domain).toVector, offset),
                     costs,

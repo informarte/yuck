@@ -17,7 +17,7 @@ final class SatisfactionGoalTrackerTest extends UnitTest {
         val m = Map(c1 -> IntArraySeq(0, 2), c2 -> IntArraySeq(2), c3 -> IntArraySeq(0, 1, 2))
         val d = new ArrayBackedDistribution(3)
         space
-            .post(new SatisfactionGoalTracker(space.nextConstraintId(), None, m, d))
+            .post(new SatisfactionGoalTracker(space.nextConstraintId(), m, d))
             .setValue(c1, True)
             .setValue(c2, True)
             .setValue(c3, True)

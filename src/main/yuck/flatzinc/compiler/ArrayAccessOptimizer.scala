@@ -55,6 +55,7 @@ final class ArrayAccessOptimizer
                 but does the job.)
                 */
                 cc.logger.log("Merging %d ElementVar constraints".format(constraints.size))
+                val goals = constraints.view.flatMap(cc.space.goals).toSet
                 constraints.foreach(cc.space.retract)
                 val is = constraints.map(_.i)
                 val ys = constraints.map(_.y)
@@ -74,9 +75,9 @@ final class ArrayAccessOptimizer
                             "Dropping %d inputs while merging ElementVar constraints".format(xs.size - xs1.size))
                     }
                     cc.post(
+                        goals,
                         new ElementsVar(
                             constraints.head.id,
-                            constraints.head.maybeGoal,
                             xs1.asInstanceOf[immutable.IndexedSeq[X]],
                             is,
                             ys.asInstanceOf[immutable.IndexedSeq[X]],
@@ -89,6 +90,7 @@ final class ArrayAccessOptimizer
                 }
             } else for constraint <- constraints do {
                 val (xs1, offset1) = uselessInputsRemoved(constraint.xs, constraint.i.domain, constraint.offset)
+                val goals = cc.space.goals(constraint)
                 inline def postConstraint
                     [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
                     ()
@@ -96,9 +98,9 @@ final class ArrayAccessOptimizer
                     Unit =
                 {
                     cc.post(
+                        goals,
                         new ElementVar(
                             constraint.id,
-                            constraint.maybeGoal,
                             xs1.asInstanceOf[immutable.IndexedSeq[X]],
                             constraint.i,
                             constraint.y.asInstanceOf[X],

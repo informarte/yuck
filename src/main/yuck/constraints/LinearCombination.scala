@@ -6,8 +6,7 @@ import yuck.core.*
 
 final class LinearCombination
     [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     val axs: immutable.Seq[AX[A, D, X]], y: X)
+    (id: Id[Constraint], val axs: immutable.Seq[AX[A, D, X]], y: X)
     (using typeTraits: NumericalTypeTraits[A, D, X])
     extends Constraint(id)
 {

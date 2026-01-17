@@ -16,7 +16,7 @@ final class LinearCombinationTest extends UnitTest with ConstraintTestTooling {
     private val Seq(x1, x2, x3) = xs
     private val y = new IntegerVariable(space.nextVariableId(), "y", CompleteIntegerRange)
     private val axs = List(AX(Two, x1), AX(Zero, x2), AX(One, x3))
-    private val constraint = new LinearCombination(space.nextConstraintId(), null, axs, y)
+    private val constraint = new LinearCombination(space.nextConstraintId(), axs, y)
 
     @Test
     def testBasics(): Unit = {

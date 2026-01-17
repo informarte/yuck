@@ -62,7 +62,7 @@ final class ObjectiveFactory
         SatisfactionObjective =
     {
         val costVar = createBoolChannel()
-        cc.post(new Conjunction(nextConstraintId(), None, costVars.toVector, costVar))
+        cc.post(Nil, new Conjunction(nextConstraintId(), costVars.toVector, costVar))
         createSatisfactionObjective(cfg, costVar)
     }
 
@@ -97,7 +97,7 @@ final class ObjectiveFactory
                 cc.implicitlyConstrainedVars += y
                 val costs = createBoolChannel()
                 cc.costVars += costs
-                cc.post(new Lt(nextConstraintId(), None, x, y, costs))
+                cc.post(Nil, new Lt(nextConstraintId(), x, y, costs))
                 Some(y)
             } else {
                 cc.logger.log("Objective variable %s has no upper bound, so progressive tightening is not possible".format(x))
@@ -130,7 +130,7 @@ final class ObjectiveFactory
                 cc.implicitlyConstrainedVars += y
                 val costs = createBoolChannel()
                 cc.costVars += costs
-                cc.post(new Lt(nextConstraintId(), None, y, x, costs))
+                cc.post(Nil, new Lt(nextConstraintId(), y, x, costs))
                 Some(y)
             } else {
                 cc.logger.log("Objective variable %s has no lower bound, so progressive tightening is not possible".format(x))

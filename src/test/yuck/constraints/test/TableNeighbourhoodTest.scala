@@ -12,7 +12,7 @@ final class TableNeighbourhoodTest extends SpecificNeighbourhoodTest {
     private val rows = createTable(2)(0, 1, 0, 7, 1, 1, 1, 5, 3, 3, 5, 1, 5, 9, 8, 2, 8, 3, 9, 9)
 
     override protected lazy val constraint =
-        new Table(space.nextConstraintId(), null, xs, rows, costs)
+        new Table(space.nextConstraintId(), xs, rows, costs)
 
     override protected val expectedNeighbourhoodClass = classOf[TableNeighbourhood[?, ?, ?]]
 

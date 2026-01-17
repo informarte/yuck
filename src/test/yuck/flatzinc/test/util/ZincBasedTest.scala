@@ -344,7 +344,12 @@ class ZincBasedTest extends IntegrationTest {
             val maybeConstraint = result.space.maybeDefiningConstraint(x)
             if maybeConstraint.isDefined then {
                 val constraint = maybeConstraint.get
-                logger.withLogScope("%s = %s computed by %s [%s]".format(x, a, constraint, constraint.maybeGoal)) {
+                val goals = result.space.goals(constraint)
+                val scope =
+                    if goals.isEmpty
+                    then "%s = %s computed by %s".format(x, a, constraint)
+                    else "%s = %s computed by %s [%s]".format(x, a, constraint, goals.mkString(", "))
+                logger.withLogScope(scope) {
                     for x <- constraint.inVariables do {
                         logViolatedConstraints(result, x, visited)
                     }

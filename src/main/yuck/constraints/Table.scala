@@ -13,7 +13,7 @@ import yuck.core.*
  */
 final class Table
     [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
+    (id: Id[Constraint],
      xs: immutable.IndexedSeq[X],
      private var rows: immutable.IndexedSeq[immutable.IndexedSeq[A]],
      costs: BooleanVariable,

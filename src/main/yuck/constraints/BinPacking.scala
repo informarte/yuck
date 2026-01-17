@@ -22,7 +22,7 @@ final class BinPacking
     [Load <: NumericalValue[Load],
      LoadDomain <: NumericalDomain[Load, LoadDomain],
      LoadVariable <: NumericalVariable[Load, LoadDomain, LoadVariable]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
+    (id: Id[Constraint],
      items: immutable.Seq[BinPackingItem[Load]],
      // In generic code, scalac translates == to BoxesRunTime.equals, which incurs overhead to
      // properly compare numbers of different types.

@@ -31,7 +31,7 @@ final class Delivery
      TimeDomain <: NumericalDomain[Time, TimeDomain],
      TimeVariable <: NumericalVariable[Time, TimeDomain, TimeVariable]]
     (space: WeakReference[Space],
-     id: Id[Constraint], override val maybeGoal: Option[Goal],
+     id: Id[Constraint],
      startNodes: IntegerDomain,
      endNodes: IntegerDomain,
      succ: immutable.IndexedSeq[IntegerVariable], offset: Int,

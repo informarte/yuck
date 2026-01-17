@@ -4,8 +4,7 @@ import yuck.core.*
 
 final class Eq
     [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: X, y: X, z: BooleanVariable)
+    (id: Id[Constraint], x: X, y: X, z: BooleanVariable)
     (using typeTraits: TypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[D, D]
@@ -24,8 +23,7 @@ final class Eq
 
 final class Ne
     [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: X, y: X, z: BooleanVariable)
+    (id: Id[Constraint], x: X, y: X, z: BooleanVariable)
     (using typeTraits: TypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[D, D]
@@ -44,8 +42,7 @@ final class Ne
 
 final class Lt
     [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: X, y: X, z: BooleanVariable)
+    (id: Id[Constraint], x: X, y: X, z: BooleanVariable)
     (using typeTraits: OrderedTypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[D, D]
@@ -66,8 +63,7 @@ final class Lt
 
 final class Le
     [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: X, y: X, z: BooleanVariable)
+    (id: Id[Constraint], x: X, y: X, z: BooleanVariable)
     (using typeTraits: OrderedTypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[D, D]
@@ -88,8 +84,7 @@ final class Le
 
 final class Min
     [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: X, y: X, z: X)
+    (id: Id[Constraint], x: X, y: X, z: X)
     (using typeTraits: OrderedTypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
 {
@@ -104,8 +99,7 @@ final class Min
 
 final class Max
     [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: X, y: X, z: X)
+    (id: Id[Constraint], x: X, y: X, z: X)
     (using typeTraits: OrderedTypeTraits[A, D, X])
     extends TernaryConstraint(id, x, y, z)
 {

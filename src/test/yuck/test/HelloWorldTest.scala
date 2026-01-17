@@ -52,7 +52,7 @@ abstract class HelloWorldTest extends IntegrationTest {
         cs.foreach(space.registerObjectiveVariable)
         val involvementMap = computeInvolvementMap(space, xs, cs)
         val hotSpotDistribution = Distribution(n)
-        space.post(new SatisfactionGoalTracker(space.nextConstraintId(), None, involvementMap, hotSpotDistribution))
+        space.post(new SatisfactionGoalTracker(space.nextConstraintId(), involvementMap, hotSpotDistribution))
         val neighbourhood = new FeasibilityJumpNeighbourhood(
             space,
             xs,

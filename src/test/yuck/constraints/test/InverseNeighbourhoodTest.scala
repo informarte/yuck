@@ -9,7 +9,7 @@ abstract class InverseNeighbourhoodTest extends SpecificNeighbourhoodTest {
     protected val g: InverseFunction
 
     override protected lazy val constraint =
-        new Inverse(space.nextConstraintId(), null, f, g, costs, logger)
+        new Inverse(space.nextConstraintId(), f, g, costs, logger)
 
     override protected val expectedNeighbourhoodClass: Class[? <: InverseNeighbourhood]
 

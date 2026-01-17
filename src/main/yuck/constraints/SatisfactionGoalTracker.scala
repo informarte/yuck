@@ -20,10 +20,7 @@ import yuck.util.Collections.*
  * @see [[yuck.Notation Notation]]
  */
 final class SatisfactionGoalTracker
-    (id: Id[Constraint],
-     override val maybeGoal: Option[Goal],
-     involvementMap: immutable.Map[BooleanVariable, IntArraySeq],
-     distribution: Distribution)
+    (id: Id[Constraint], involvementMap: immutable.Map[BooleanVariable, IntArraySeq], distribution: Distribution)
     extends Constraint(id)
 {
 

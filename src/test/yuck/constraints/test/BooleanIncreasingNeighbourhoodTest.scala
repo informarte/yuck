@@ -12,7 +12,7 @@ final class BooleanIncreasingNeighbourhoodTest extends SpecificNeighbourhoodTest
             new BooleanVariable(space.nextVariableId(), "x%d".format(i + 1), CompleteBooleanDomain)
 
     override protected lazy val constraint =
-        new BooleanIncreasing(space.nextConstraintId(), null, xs, costs)
+        new BooleanIncreasing(space.nextConstraintId(), xs, costs)
 
     override protected def checkSearchState(searchState: SearchState): Unit = {
         assert(xs.forall(_.hasValidValue(searchState)))

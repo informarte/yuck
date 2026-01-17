@@ -26,7 +26,7 @@ final class Disjoint2Rect
  * Ignores rectangles with negative width or height.
  */
 final class Disjoint2
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
+    (id: Id[Constraint],
      rects: immutable.IndexedSeq[Disjoint2Rect],
      strict: Boolean,
      costs: BooleanVariable)

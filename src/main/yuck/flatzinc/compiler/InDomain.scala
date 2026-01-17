@@ -8,8 +8,7 @@ import yuck.core.*
  * Equivalent to set_in(x, x.domain) for all x in xs.
  */
 final class InDomain
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     val xs: immutable.Iterable[IntegerVariable], costs: BooleanVariable)
+    (id: Id[Constraint], val xs: immutable.Iterable[IntegerVariable], costs: BooleanVariable)
     extends Constraint(id)
 {
 

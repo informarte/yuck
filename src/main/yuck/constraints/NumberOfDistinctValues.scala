@@ -7,7 +7,6 @@ import yuck.core.*
 class NumberOfDistinctValues
     [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
     (id: Id[Constraint],
-     override val maybeGoal: Option[Goal],
      override protected val xs: immutable.Seq[X],
      override protected val result: IntegerVariable)
     (using override protected val typeTraits: OrderedTypeTraits[A, D, X])

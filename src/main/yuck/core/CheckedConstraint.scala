@@ -7,8 +7,6 @@ final class CheckedConstraint(constraint: Constraint) extends Constraint(constra
 
     override def toString = constraint.toString
 
-    override val maybeGoal = constraint.maybeGoal
-
     override def inVariables = constraint.inVariables
     override def outVariables = constraint.outVariables
 

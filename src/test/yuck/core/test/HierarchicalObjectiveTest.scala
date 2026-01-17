@@ -98,7 +98,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
         val subordinateObjective = new MinimizationObjective(y, None, None)
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
         space
-            .post(new Le(space.nextConstraintId(), null, x, y, costs))
+            .post(new Le(space.nextConstraintId(), x, y, costs))
             .registerObjectiveVariable(y)
             .registerObjectiveVariable(costs)
         for a <- x.domain.values do {
@@ -120,7 +120,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
         val subordinateObjective = new MinimizationObjective(y, None, Some(z))
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
         space
-            .post(new Le(space.nextConstraintId(), null, x, y, costs))
+            .post(new Le(space.nextConstraintId(), x, y, costs))
             .setValue(z, z.domain.ub)
         for a <- x.domain.values; b <- y.domain.values do {
             space.setValue(x, a).setValue(y, b).initialize()
@@ -151,7 +151,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
         val subordinateObjective = new MaximizationObjective(y, None, None)
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
         space
-            .post(new Le(space.nextConstraintId(), null, y, x, costs))
+            .post(new Le(space.nextConstraintId(), y, x, costs))
             .registerObjectiveVariable(costs)
             .registerObjectiveVariable(y)
         for a <- x.domain.values do {
@@ -173,7 +173,7 @@ final class HierarchicalObjectiveTest extends UnitTest {
         val subordinateObjective = new MaximizationObjective(y, None, Some(z))
         val objective = new HierarchicalObjective(List(mainObjective, subordinateObjective), false, false)
         space
-            .post(new Le(space.nextConstraintId(), null, y, x, costs))
+            .post(new Le(space.nextConstraintId(), y, x, costs))
             .setValue(z, z.domain.lb)
         for a <- x.domain.values; b <- y.domain.values do {
             space.setValue(x, a).setValue(y, b).initialize()

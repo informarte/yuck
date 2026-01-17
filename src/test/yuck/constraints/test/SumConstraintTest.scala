@@ -22,7 +22,7 @@ final class SumConstraintTest
             One,
             new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain.randomSubdomain(randomGenerator)))
     override protected lazy val constraint =
-        new SumConstraint(space.nextConstraintId(), null, axs.map(_.x), y, relation, z, costs)(using typeTraits)
+        new SumConstraint(space.nextConstraintId(), axs.map(_.x), y, relation, z, costs)(using typeTraits)
 }
 
 object SumConstraintTest {

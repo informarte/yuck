@@ -10,9 +10,7 @@ import yuck.core.*
  */
 final class LexLess
     [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     xs: immutable.IndexedSeq[X], ys: immutable.IndexedSeq[X],
-     costs: BooleanVariable)
+    (id: Id[Constraint], xs: immutable.IndexedSeq[X], ys: immutable.IndexedSeq[X], costs: BooleanVariable)
     (using ord: Ordering[A])
     extends Constraint(id)
 {

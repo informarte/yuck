@@ -16,7 +16,7 @@ final class IfThenElseTest extends UnitTest with ConstraintTestTooling {
     private val xs = for i <- 1 to 3 yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), CompleteIntegerRange)
     private val Seq(x1, x2, x3) = xs
     private val y = new IntegerVariable(space.nextVariableId(), "y", CompleteIntegerRange)
-    private val constraint = new IfThenElse(space.nextConstraintId(), None, cs, xs, y)
+    private val constraint = new IfThenElse(space.nextConstraintId(), cs, xs, y)
 
     @Test
     def testBasics(): Unit = {

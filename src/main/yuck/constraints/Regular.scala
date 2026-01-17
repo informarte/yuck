@@ -21,10 +21,7 @@ import yuck.util.logging.LazyLogger
  * To compute d', we look for the latest state u from which an accepting state could presumably be reached.
  */
 final class Regular
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     dfa: RegularDfa,
-     costs: BooleanVariable,
-     logger: LazyLogger)
+    (id: Id[Constraint], dfa: RegularDfa, costs: BooleanVariable, logger: LazyLogger)
     extends Constraint(id)
 {
 

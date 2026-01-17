@@ -21,7 +21,7 @@ final class IntegerIncreasingNeighbourhoodTest
             new IntegerVariable(space.nextVariableId(), "x%d".format(i + 1), domainGenerator(numberOfVariables, i))
 
     override protected lazy val constraint =
-        new IntegerIncreasing(space.nextConstraintId(), null, xs, strict, costs)
+        new IntegerIncreasing(space.nextConstraintId(), xs, strict, costs)
 
     override protected def checkSearchState(searchState: SearchState) = {
         assert(xs.forall(_.hasValidValue(searchState)))

@@ -44,7 +44,7 @@ final class FeasibilityJumpNeighbourhoodFactory
             val cs = cc.costVars.toVector
             val involvementMap = computeInvolvementMap(cc.space, xs, cs)
             val hotSpotDistribution = Distribution(xs.size)
-            cc.post(new SatisfactionGoalTracker(cc.space.nextConstraintId(), None, involvementMap, hotSpotDistribution))
+            cc.post(Nil, new SatisfactionGoalTracker(cc.space.nextConstraintId(), involvementMap, hotSpotDistribution))
             val cfg = cc.cfg.feasibilityJumpConfiguration
             Some(new FeasibilityJumpNeighbourhood(
                 cc.space,

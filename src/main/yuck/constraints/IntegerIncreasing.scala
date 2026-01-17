@@ -10,7 +10,6 @@ import yuck.core.*
  */
 final class IntegerIncreasing
     (id: Id[Constraint],
-     override val maybeGoal: Option[Goal],
      override protected val xs: immutable.IndexedSeq[IntegerVariable],
      override protected val strict: Boolean,
      override protected val costs: BooleanVariable)

@@ -4,8 +4,7 @@ import yuck.constraints.{BinaryConstraint, ReifiedBinaryConstraintPropagator, Te
 import yuck.core.*
 
 final class Bool2Costs1
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: BooleanVariable, y: IntegerVariable)
+    (id: Id[Constraint], x: BooleanVariable, y: IntegerVariable)
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "%s = bool2costs(%s)".format(y, x)
@@ -17,8 +16,7 @@ final class Bool2Costs1
 }
 
 final class Bool2Costs2
-    (id: Id[Constraint], override val maybeGoal: Option[Goal],
-     x: BooleanVariable, y: IntegerVariable, z: BooleanVariable)
+    (id: Id[Constraint], x: BooleanVariable, y: IntegerVariable, z: BooleanVariable)
     extends TernaryConstraint(id, x, y, z)
     with ReifiedBinaryConstraintPropagator[BooleanDomain, IntegerDomain]
 {

@@ -25,7 +25,7 @@ final class CumulativeTest extends UnitTest with ConstraintTestTooling {
     def testBasics(): Unit = {
         val tasks = (1 to 2).map(createTask)
         val Seq(t1, t2) = tasks
-        val constraint = new Cumulative(space.nextConstraintId(), null, tasks, ub, costs)
+        val constraint = new Cumulative(space.nextConstraintId(), tasks, ub, costs)
         assertEq(constraint.toString, "cumulative([(s1, d1, c1), (s2, d2, c2)], ub, costs)")
         assertEq(constraint.inVariables.size, 7)
         assertEq(constraint.inVariables.toSet, Set(t1.s, t1.d, t1.c, t2.s, t2.d, t2.c, ub))
@@ -37,7 +37,7 @@ final class CumulativeTest extends UnitTest with ConstraintTestTooling {
     def testTaskMovement(): Unit = {
         val tasks = (1 to 2).map(createTask)
         val Seq(t1, t2) = tasks
-        space.post(new Cumulative(space.nextConstraintId(), null, tasks, ub, costs))
+        space.post(new Cumulative(space.nextConstraintId(), tasks, ub, costs))
         runScenario(
             TestScenario(
                 space,
@@ -54,7 +54,7 @@ final class CumulativeTest extends UnitTest with ConstraintTestTooling {
     def testTaskResizing(): Unit = {
         val tasks = (1 to 2).map(createTask)
         val Seq(t1, t2) = tasks
-        space.post(new Cumulative(space.nextConstraintId(), null, tasks, ub, costs))
+        space.post(new Cumulative(space.nextConstraintId(), tasks, ub, costs))
         runScenario(
             TestScenario(
                 space,
@@ -79,7 +79,7 @@ final class CumulativeTest extends UnitTest with ConstraintTestTooling {
     def testCapacityChanges(): Unit = {
         val tasks = (1 to 1).map(createTask)
         val Seq(t1) = tasks
-        space.post(new Cumulative(space.nextConstraintId(), null, tasks, ub, costs))
+        space.post(new Cumulative(space.nextConstraintId(), tasks, ub, costs))
         runScenario(
             TestScenario(
                 space,
@@ -99,7 +99,7 @@ final class CumulativeTest extends UnitTest with ConstraintTestTooling {
         val t1 = new CumulativeTask(ub, ub, ub)
         val t2 = new CumulativeTask(ub, ub, ub)
         val t3 = new CumulativeTask(s2, d2, c2)
-        space.post(new Cumulative(space.nextConstraintId(), null, Vector(t1, t2, t3), ub, costs))
+        space.post(new Cumulative(space.nextConstraintId(), Vector(t1, t2, t3), ub, costs))
         runScenario(
             TestScenario(
                 space,
@@ -115,7 +115,7 @@ final class CumulativeTest extends UnitTest with ConstraintTestTooling {
     def testConsultWithoutCommit(): Unit = {
         val tasks = (1 to 1).map(createTask)
         val Seq(t1) = tasks
-        space.post(new Cumulative(space.nextConstraintId(), null, tasks, ub, costs))
+        space.post(new Cumulative(space.nextConstraintId(), tasks, ub, costs))
         runScenario(
             TestScenario(
                 space,
@@ -131,7 +131,7 @@ final class CumulativeTest extends UnitTest with ConstraintTestTooling {
     def testComplexMoves(): Unit = {
         val tasks = (1 to 2).map(createTask)
         val Seq(t1, t2) = tasks
-        space.post(new Cumulative(space.nextConstraintId(), null, tasks, ub, costs))
+        space.post(new Cumulative(space.nextConstraintId(), tasks, ub, costs))
         runScenario(
             TestScenario(
                 space,
@@ -150,7 +150,7 @@ final class CumulativeTest extends UnitTest with ConstraintTestTooling {
     def testHandlingOfNegativeDurationAndConsumption(): Unit = {
         val tasks = (1 to 2).map(createTask)
         val Seq(t1, t2) = tasks
-        space.post(new Cumulative(space.nextConstraintId(), null, tasks, ub, costs))
+        space.post(new Cumulative(space.nextConstraintId(), tasks, ub, costs))
         runScenario(
             TestScenario(
                 space,
