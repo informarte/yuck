@@ -14,10 +14,10 @@ package object arm {
      * Opens the given resource, runs the given operation on the resource,
      * closes the resource, and returns the operation's result.
      */
-    def using
+    inline def using
         [Resource <: ManagedResource, Result]
         (resource: Resource)
-        (operation: Resource => Result):
+        (inline operation: Resource => Result):
         Result =
     {
         resource.open()
@@ -32,10 +32,10 @@ package object arm {
      * Opens the given resource, runs the given operation,
      * closes the resource, and returns the operation's result.
      */
-    def scoped
+    inline def scoped
         [Resource <: ManagedResource, Result]
         (resource: Resource)
-        (operation: => Result):
+        (inline operation: => Result):
         Result =
     {
         resource.open()
@@ -50,10 +50,10 @@ package object arm {
      * Locks the given Java lock, runs the given operation,
      * unlocks the lock, and returns the operation's result.
      */
-    def criticalSection
+    inline def criticalSection
         [Result]
         (lock: Lock)
-        (operation: => Result): Result =
+        (inline operation: => Result): Result =
     {
         scoped(new ManagedLock(lock))(operation)
     }
@@ -63,7 +63,7 @@ package object arm {
      * after reaching the runtime limit.
      * Otherwise just runs the operation.
      */
-    def maybeTimeboxed
+    inline def maybeTimeboxed
         [Result]
         (maybeRuntimeLimitInSeconds: Option[Int],
          sigint: SettableSigint,
@@ -78,9 +78,9 @@ package object arm {
     }
 
     /** Runs the given operation and returns its result and its runtime. */
-    def runtime
+    inline def runtime
         [Result]
-        (operation: => Result):
+        (inline operation: => Result):
         (Result, Duration) =
     {
         val stopWatch = new StopWatch

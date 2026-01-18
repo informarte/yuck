@@ -129,20 +129,20 @@ final class LazyLogger(logger: Logger) {
      * appear as title and the log messages of the given operation will be
      * indented one level more than the title.
      */
-    def withLogScope
+    inline def withLogScope
         [Result]
         (operationName: String)
-        (operation: => Result): Result =
+        (inline operation: => Result): Result =
     {
         log(operationName)
         scoped(new LogScope(this))(operation)
     }
 
     /** Like withLogScope but also logs the duration of the given operation. */
-    def withTimedLogScope
+    inline def withTimedLogScope
         [Result]
         (operationName: String)
-        (operation: => Result): (Result, Duration) =
+        (inline operation: => Result): (Result, Duration) =
     {
         val durationLogger = new DurationLogger(this, operationName)
         val result = scoped(durationLogger) {
@@ -157,10 +157,10 @@ final class LazyLogger(logger: Logger) {
      * Reduces the importance of all log messages from the given operation
      * such that InfoLogLevel maps to the given root log level.
      */
-    def withRootLogLevel
+    inline def withRootLogLevel
         [Result]
         (rootLogLevel: LogLevel)
-        (operation: => Result): Result =
+        (inline operation: => Result): Result =
     {
         scoped(new TransientLogLevelReduction(this, InfoLogLevel.intValue - rootLogLevel.intValue)) {
             operation
@@ -168,9 +168,9 @@ final class LazyLogger(logger: Logger) {
     }
 
     /** Provides exclusive access to this logger. */
-    def criticalSection
+    inline def criticalSection
         [Result]
-        (operation: => Result): Result =
+        (inline operation: => Result): Result =
     {
         yuck.util.arm.criticalSection(lock)(operation)
     }
