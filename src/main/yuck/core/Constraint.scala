@@ -17,7 +17,8 @@ import scala.collection.*
 abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
 
     // used by Space to improve data locality
-    private[core] var layer: Int = -1
+    private[core] var layer: Short = -1
+    private[core] var isImplicit: Boolean = false
     private[core] var after: MoveSimulator = null
 
     final override def hashCode = id.rawId

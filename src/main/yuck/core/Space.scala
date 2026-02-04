@@ -402,6 +402,7 @@ final class Space(
         constraints -= constraint
         if isImplicitConstraint(constraint) then {
             implicitConstraints -= constraint
+            constraint.isImplicit = false
             inVariablesOfImplicitConstraints --= constraint.inVariables
         }
         goalsByConstraint.remove(constraint)
@@ -445,6 +446,7 @@ final class Space(
                 constraint,
                 constraint.inVariables.filter(isImplicitlyConstrainedSearchVariable).mkString(", ")))
         implicitConstraints.add(constraint)
+        constraint.isImplicit = true
         inVariablesOfImplicitConstraints ++= constraint.inVariables
         initialized = false
         this
@@ -452,7 +454,7 @@ final class Space(
 
     /** Returns true iff the given constraint was registered as implicit. */
     inline def isImplicitConstraint(constraint: Constraint): Boolean =
-        implicitConstraints.contains(constraint)
+        constraint.isImplicit
 
     /** Returns the number of constraints that were posted and later registered as implicit. */
     def numberOfImplicitConstraints: Int = implicitConstraints.size
@@ -597,8 +599,9 @@ final class Space(
                 computeLayers()
             }
 
+            assert(layers.size <= Short.MaxValue)
             for i <- layers.indices; constraint <- layers(i) do {
-                constraint.layer = i
+                constraint.layer = i.toShort
                 constraint.after = null
                 if ! isImplicitConstraint(constraint) then {
                     for effect <- constraint.initialize(assignment) do {
