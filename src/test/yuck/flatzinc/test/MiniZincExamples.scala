@@ -9,7 +9,6 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.junit.platform.suite.api.{ExcludeTags, IncludeTags, SelectClasses, Suite}
 
 import yuck.SolvingMethod
-import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.compiler.VariableWithInfiniteDomainException
 import yuck.flatzinc.test.util.*
 import yuck.flatzinc.test.util.HasGlobalConstraint.*

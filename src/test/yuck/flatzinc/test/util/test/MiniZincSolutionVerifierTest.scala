@@ -6,7 +6,6 @@ import org.junit.jupiter.params.provider.MethodSource
 
 import yuck.SolvingMethod
 import yuck.core.*
-import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.test.util.*
 import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 import yuck.flatzinc.test.util.VerificationFrequency.*

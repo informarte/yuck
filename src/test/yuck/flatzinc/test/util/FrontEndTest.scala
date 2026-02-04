@@ -4,7 +4,6 @@ import scala.language.implicitConversions
 
 import yuck.SolvingMethod
 import yuck.core.*
-import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 
 abstract class FrontEndTest extends ZincBasedTest {
