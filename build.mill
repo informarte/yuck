@@ -1,5 +1,5 @@
-//| mill-version: 1.1.1-jvm
-//| mill-jvm-version: temurin:21
+//| mill-version: 1.1.1
+//| mill-jvm-version: temurin:25
 //| mvnDeps:
 //| - "com.lihaoyi::mill-contrib-buildinfo:$MILL_VERSION"
 //| - "com.goyeau::mill-scalafix::0.6.0"
@@ -50,8 +50,13 @@ object yuck extends ScalaModule with BuildInfo with ScalafixModule {
         "-Djava.lang.Integer.IntegerCache.high=10000",
         "-Djava.util.logging.manager=yuck.util.logging.LogManager",
         "-XX:+UseParallelGC")
+    val jvm25Configuration = Seq(
+        "--sun-misc-unsafe-memory-access=allow",
+        "-XX:+UseCompactObjectHeaders")
+
     val jvmHeapSize = Option(System.getenv("YUCK_HEAP_SIZE")).getOrElse("2G")
-    val jvmConfiguration = Seq("-Xmx%s".format(jvmHeapSize)) ++ basicJvmConfiguration
+    val jvmConfiguration = Seq("-Xmx%s".format(jvmHeapSize)) ++ basicJvmConfiguration ++ jvm25Configuration
+
     override def forkArgs = jvmConfiguration
 
     override def mainClass = Some("yuck.flatzinc.runner.FlatZincRunner")
@@ -95,7 +100,9 @@ object yuck extends ScalaModule with BuildInfo with ScalafixModule {
                         .map(_.toInt)
                         .getOrElse(Runtime.getRuntime.availableProcessors))
             ) ++
-            basicJvmConfiguration
+            basicJvmConfiguration ++
+            jvm25Configuration
+
         override def forkArgs = jvmConfiguration
 
         override def mainClass = Some("yuck.test.util.YuckTestRunner")
