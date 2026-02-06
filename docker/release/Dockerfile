@@ -7,7 +7,7 @@ LABEL homepage="https://github.com/informarte/yuck"
 RUN apt-get update
 
 # Install Java runtime
-RUN apt-get install -y openjdk-21-jre-headless && \
+RUN apt-get install -y openjdk-25-jre-headless && \
     apt-get clean && \
     java -version
 
