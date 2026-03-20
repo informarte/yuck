@@ -38,6 +38,7 @@ jobs:
         run: make ci-tests
 
       - name: Tar logs
+        if: always()
         run: tar cf logs.tar tmp/ --transform=s/^tmp/logs/
 
       - name: Upload logs
