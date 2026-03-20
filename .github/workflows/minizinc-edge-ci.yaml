@@ -69,11 +69,11 @@ jobs:
         run: make ci-tests
 
       - name: Tar logs
-        if: steps.edge.outputs.changed == 'true'
+        if: steps.edge.outputs.changed == 'true' && always()
         run: tar cf logs.tar tmp/ --transform=s/^tmp/logs/
 
       - name: Upload logs
-        if: steps.edge.outputs.changed == 'true'
+        if: steps.edge.outputs.changed == 'true' && always()
         uses: actions/upload-artifact@v6
         with:
           name: artifacts
