@@ -45,6 +45,8 @@ jobs:
 
       - name: Install MiniZinc
         if: steps.edge.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh release download edge --repo MiniZinc/MiniZincIDE --pattern "*bundle-linux-x86_64*.tgz" --dir .
           TARBALL=$(echo *bundle-linux-x86_64*.tgz)
