@@ -11,21 +11,36 @@ jobs:
   ci:
     runs-on: ubuntu-24.04
     steps:
-      - run: sudo apt install libegl1
-      - uses: actions/checkout@v3
-      - run: wget https://github.com/MiniZinc/MiniZincIDE/releases/download/$MINIZINC_VERSION/MiniZincIDE-$MINIZINC_VERSION-bundle-linux-x86_64.tgz
-      - run: tar xzf MiniZincIDE-$MINIZINC_VERSION-bundle-linux-x86_64.tgz
-      - run: ldd ./MiniZincIDE-$MINIZINC_VERSION-bundle-linux-x86_64/bin/minizinc
-      - run: ldd ./MiniZincIDE-$MINIZINC_VERSION-bundle-linux-x86_64/bin/fzn-gecode
-      - run: ldd ./MiniZincIDE-$MINIZINC_VERSION-bundle-linux-x86_64/bin/fzn-chuffed
-      - run: ./MiniZincIDE-$MINIZINC_VERSION-bundle-linux-x86_64/bin/minizinc --version
-      - run: echo "$PWD/MiniZincIDE-$MINIZINC_VERSION-bundle-linux-x86_64/bin" >> $GITHUB_PATH
-      - run: minizinc --version
-      - run: fzn-gecode -help
-      - run: fzn-chuffed --help
-      - run: make ci-tests
-      - run: tar cf logs.tar tmp/ --transform=s/^tmp/logs/
-      - name: Upload artifacts
+
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Install MiniZinc dependencies
+        run: sudo apt install libegl1
+
+      - name: Install MiniZinc
+        run: |
+          BUNDLE=MiniZincIDE-$MINIZINC_VERSION-bundle-linux-x86_64
+          wget https://github.com/MiniZinc/MiniZincIDE/releases/download/$MINIZINC_VERSION/$BUNDLE.tgz
+          tar xzf $BUNDLE.tgz
+          ldd ./$BUNDLE/bin/minizinc
+          ldd ./$BUNDLE/bin/fzn-gecode
+          ldd ./$BUNDLE/bin/fzn-chuffed
+          echo "$PWD/$BUNDLE/bin" >> $GITHUB_PATH
+
+      - name: Verify binaries
+        run: |
+          minizinc --version
+          fzn-gecode -help
+          fzn-chuffed --help
+
+      - name: Run CI tests
+        run: make ci-tests
+
+      - name: Tar logs
+        run: tar cf logs.tar tmp/ --transform=s/^tmp/logs/
+
+      - name: Upload logs
         uses: actions/upload-artifact@v4
         if: always()
         with:

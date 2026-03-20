@@ -1,0 +1,80 @@
+name: MiniZinc Edge CI
+
+
+on:
+  schedule:
+    - cron: "0 0 * * *"     # check at midnight UTC
+  workflow_dispatch:        # allow manual trigger
+
+env:
+  ACTIONS_RUNNER_DEBUG: true
+  ACTIONS_STEP_DEBUG: true
+
+jobs:
+  minizinc-edge-ci:
+    runs-on: ubuntu-24.04
+    steps:
+
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Restore last seen edge ID
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: .edge_id
+          key: minizinc-edge-id
+
+      - name: Query latest Minizinc edge release version and compare to previously tested version, if any
+        id: edge
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view edge -R MiniZinc/MiniZincIDE --json id,assets >edge.json
+          EDGE_ID=$(jq -r '.id' edge.json)
+          echo "edge_id=$EDGE_ID" >> $GITHUB_OUTPUT
+          if [[ -f .edge_id ]] && [[ "$(cat .edge_id)" == "$EDGE_ID" ]]; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "$EDGE_ID" > .edge_id
+          fi
+
+      - name: Install MiniZinc dependencies
+        if: steps.edge.outputs.changed == 'true'
+        run: sudo apt install libegl1
+
+      - name: Install MiniZinc
+        if: steps.edge.outputs.changed == 'true'
+        run: |
+          gh release download edge --repo MiniZinc/MiniZincIDE --pattern "*bundle-linux-x86_64*.tgz" --dir .
+          TARBALL=$(echo *bundle-linux-x86_64*.tgz)
+          tar xzf $TARBALL
+          BUNDLE=${TARBALL%.tgz}
+          ldd ./$BUNDLE/bin/minizinc
+          ldd ./$BUNDLE/bin/fzn-gecode
+          ldd ./$BUNDLE/bin/fzn-chuffed
+          echo "$PWD/$BUNDLE/bin" >> $GITHUB_PATH
+
+      - name: Verify binaries
+        if: steps.edge.outputs.changed == 'true'
+        run: |
+          minizinc --version
+          fzn-gecode -help
+          fzn-chuffed --help
+
+      - name: Run CI tests
+        if: steps.edge.outputs.changed == 'true'
+        run: make ci-tests
+
+      - name: Tar logs
+        if: steps.edge.outputs.changed == 'true'
+        run: tar cf logs.tar tmp/ --transform=s/^tmp/logs/
+
+      - name: Upload logs
+        if: steps.edge.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: artifacts
+          path: logs.tar
