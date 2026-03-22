@@ -1,0 +1,52 @@
+name: MiniZinc Edge CI
+
+on:
+  workflow_dispatch: # allow manual trigger
+
+env:
+  ACTIONS_RUNNER_DEBUG: true
+  ACTIONS_STEP_DEBUG: true
+
+jobs:
+  minizinc-edge-ci:
+    runs-on: ubuntu-24.04
+    steps:
+
+      - name: Check out repo
+        uses: actions/checkout@v5
+
+      - name: Install MiniZinc dependencies
+        run: sudo apt install libegl1
+
+      - name: Install MiniZinc
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download edge --repo MiniZinc/MiniZincIDE --pattern "*bundle-linux-x86_64*.tgz" --dir .
+          TARBALL=$(echo *bundle-linux-x86_64*.tgz)
+          tar xzf $TARBALL
+          BUNDLE=${TARBALL%.tgz}
+          ldd ./$BUNDLE/bin/minizinc
+          ldd ./$BUNDLE/bin/fzn-gecode
+          ldd ./$BUNDLE/bin/fzn-chuffed
+          echo "$PWD/$BUNDLE/bin" >> $GITHUB_PATH
+
+      - name: Verify binaries
+        run: |
+          minizinc --version
+          fzn-gecode -help
+          fzn-chuffed --help
+
+      - name: Run CI tests
+        run: make ci-tests
+
+      - name: Tar logs
+        if: always()
+        run: tar cf logs.tar tmp/ --transform=s/^tmp/logs/
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: artifacts
+          path: logs.tar
