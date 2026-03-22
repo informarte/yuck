@@ -1,9 +1,7 @@
 name: MiniZinc Edge CI
 
 on:
-  schedule:
-    - cron: "0 0 * * *"     # check at midnight UTC
-  workflow_dispatch:        # allow manual trigger
+  workflow_dispatch: # allow manual trigger
 
 env:
   ACTIONS_RUNNER_DEBUG: true
@@ -17,34 +15,10 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v5
 
-      - name: Restore last seen edge ID
-        id: cache
-        uses: actions/cache@v5
-        with:
-          path: .edge_id
-          key: minizinc-edge-id
-
-      - name: Query latest Minizinc edge release version and compare to previously tested version, if any
-        id: edge
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release view edge -R MiniZinc/MiniZincIDE --json id,assets >edge.json
-          EDGE_ID=$(jq -r '.id' edge.json)
-          echo "edge_id=$EDGE_ID" >> $GITHUB_OUTPUT
-          if [[ -f .edge_id ]] && [[ "$(cat .edge_id)" == "$EDGE_ID" ]]; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "$EDGE_ID" > .edge_id
-          fi
-
       - name: Install MiniZinc dependencies
-        if: steps.edge.outputs.changed == 'true'
         run: sudo apt install libegl1
 
       - name: Install MiniZinc
-        if: steps.edge.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -58,22 +32,20 @@ jobs:
           echo "$PWD/$BUNDLE/bin" >> $GITHUB_PATH
 
       - name: Verify binaries
-        if: steps.edge.outputs.changed == 'true'
         run: |
           minizinc --version
           fzn-gecode -help
           fzn-chuffed --help
 
       - name: Run CI tests
-        if: steps.edge.outputs.changed == 'true'
         run: make ci-tests
 
       - name: Tar logs
-        if: steps.edge.outputs.changed == 'true' && always()
+        if: always()
         run: tar cf logs.tar tmp/ --transform=s/^tmp/logs/
 
       - name: Upload logs
-        if: steps.edge.outputs.changed == 'true' && always()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: artifacts
