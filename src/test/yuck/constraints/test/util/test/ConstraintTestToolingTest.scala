@@ -97,7 +97,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
                     "x >= 0 and y <= 0 -> d(x) = {0} and d(y) = {0, 1}",
                     List(x << NonNegativeIntegerRange, y << NonPositiveIntegerRange),
                     List(x << IntegerRange(0, 0), y << IntegerRange(0, 1))))
-        assertEx(runScenario(scenario), classOf[AssertionError])
+        assertThrows(runScenario(scenario), classOf[AssertionError])
         checkState1()
     }
 
@@ -111,7 +111,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
                     "x = 0 and y <= 0",
                     List(x << IntegerRange(0, 0), y << NonPositiveIntegerRange),
                     Nil))
-        assertEx(runScenario(scenario), classOf[AssertionError])
+        assertThrows(runScenario(scenario), classOf[AssertionError])
         checkState1()
     }
 
@@ -141,7 +141,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
                     "x >= 0 and y <= 0 -> d(x) = {0} and d(y) = {0, 1}",
                     List(x << NonNegativeIntegerRange, y << NonPositiveIntegerRange),
                     List(x << IntegerRange(0, 0), y << IntegerRange(0, 1))))
-        assertEx(runScenario(scenario), classOf[AssertionError])
+        assertThrows(runScenario(scenario), classOf[AssertionError])
         checkState1()
     }
 
@@ -155,7 +155,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
                     "x = 0 and y <= 0",
                     List(x << IntegerRange(0, 0), y << NonPositiveIntegerRange),
                     Nil))
-        assertEx(runScenario(scenario), classOf[AssertionError])
+        assertThrows(runScenario(scenario), classOf[AssertionError])
         checkState1()
     }
 
@@ -209,7 +209,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     def testThatInitializeThrowsWhenExpectationIsNotMet(): Unit = {
         space.post(new ConstraintMock2(False, False, False))
         val scenario = TestScenario(space, Initialize("x = 0 -> y = True", List(x << Zero), List(z << True)))
-        assertEx(runScenario(scenario), classOf[AssertionError])
+        assertThrows(runScenario(scenario), classOf[AssertionError])
         checkState2(1, 0, 0, Zero, False)
     }
 
@@ -217,7 +217,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
     def testThatInitializeThrowsWhenUntestedVariableGotItsValueChanged(): Unit = {
         space.post(new ConstraintMock2(False, False, False)).setValue(z, True)
         val scenario = TestScenario(space, Initialize("x = 0", List(x << Zero), Nil))
-        assertEx(runScenario(scenario), classOf[AssertionError])
+        assertThrows(runScenario(scenario), classOf[AssertionError])
         checkState2(1, 0, 0, Zero, False)
     }
 
@@ -235,7 +235,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
         space.post(new ConstraintMock2(False, True, True)).setValue(x, Zero).initialize()
         assertEq(now.value(z), False)
         val scenario = TestScenario(space, Consult("x = 1 -> y = False", List(x << One), List(z << False)))
-        assertEx(runScenario(scenario), classOf[AssertionError])
+        assertThrows(runScenario(scenario), classOf[AssertionError])
         checkState2(1, 1, 0, Zero, False)
     }
 
@@ -244,7 +244,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
         space.post(new ConstraintMock2(False, True, True)).setValue(x, Zero).initialize()
         assertEq(now.value(z), False)
         val scenario = TestScenario(space, Consult("x = 1", List(x << One), Nil))
-        assertEx(runScenario(scenario), classOf[AssertionError])
+        assertThrows(runScenario(scenario), classOf[AssertionError])
         checkState2(1, 1, 0, Zero, False)
     }
 
@@ -262,7 +262,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
         space.post(new ConstraintMock2(True, True, False)).setValue(x, Zero).initialize()
         assertEq(now.value(z), True)
         val scenario = TestScenario(space, ConsultAndCommit("x = 1 -> y = False", List(x << One), List(z << False)))
-        assertEx(runScenario(scenario), classOf[AssertionError])
+        assertThrows(runScenario(scenario), classOf[AssertionError])
         checkState2(1, 1, 0, Zero, True)
     }
 
@@ -271,7 +271,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
         space.post(new ConstraintMock2(True, False, True)).setValue(x, Zero).initialize()
         assertEq(now.value(z), True)
         val scenario = TestScenario(space, ConsultAndCommit("x = 1 -> y = False", List(x << One), List(z << False)))
-        assertEx(runScenario(scenario), classOf[AssertionError])
+        assertThrows(runScenario(scenario), classOf[AssertionError])
         checkState2(1, 1, 1, One, True)
     }
 
@@ -280,7 +280,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
         space.post(new ConstraintMock2(True, False, False)).setValue(x, Zero).initialize()
         assertEq(now.value(z), True)
         val scenario = TestScenario(space, ConsultAndCommit("x = 1", List(x << One), Nil))
-        assertEx(runScenario(scenario), classOf[AssertionError])
+        assertThrows(runScenario(scenario), classOf[AssertionError])
         checkState2(1, 1, 0, Zero, True)
     }
 
@@ -289,7 +289,7 @@ final class ConstraintTestToolingTest extends UnitTest with ConstraintTestToolin
         space.post(new ConstraintMock2(True, True, False)).setValue(x, Zero).initialize()
         assertEq(now.value(z), True)
         val scenario = TestScenario(space, ConsultAndCommit("x = 1", List(x << One), Nil))
-        assertEx(runScenario(scenario), classOf[AssertionError])
+        assertThrows(runScenario(scenario), classOf[AssertionError])
         checkState2(1, 1, 1, One, False)
     }
 

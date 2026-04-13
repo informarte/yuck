@@ -19,7 +19,7 @@ final class BooleanValueTest
         for a <- testRange do {
             assertEq(new BooleanValue(a).violation, a)
         }
-        assertEx(new BooleanValue(-1))
+        assertThrows(new BooleanValue(-1))
     }
 
     @Test
@@ -45,7 +45,7 @@ final class BooleanValueTest
             assertEq(BooleanValue(a).violation, a)
             assert(BooleanValue(a).eq(BooleanValue(a)))
         }
-        assertEx(new BooleanValue(-1))
+        assertThrows(new BooleanValue(-1))
     }
 
     @Test

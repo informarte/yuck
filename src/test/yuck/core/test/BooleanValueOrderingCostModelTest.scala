@@ -24,13 +24,13 @@ final class BooleanValueOrderingCostModelTest extends UnitTest with BooleanValue
     @Test
     def testOverflowCheckingInCostComputation(): Unit = {
         costModel.eqViolation(True, BooleanValue(Long.MaxValue - 1))
-        assertEx(costModel.eqViolation(True, BooleanValue(Long.MaxValue)), classOf[ArithmeticException])
+        assertThrows(costModel.eqViolation(True, BooleanValue(Long.MaxValue)), classOf[ArithmeticException])
         costModel.neViolation(False, BooleanValue(Long.MaxValue - 1))
-        assertEx(costModel.neViolation(False, BooleanValue(Long.MaxValue)), classOf[ArithmeticException])
+        assertThrows(costModel.neViolation(False, BooleanValue(Long.MaxValue)), classOf[ArithmeticException])
         costModel.ltViolation(True, BooleanValue(Long.MaxValue - 1))
-        assertEx(costModel.ltViolation(True, BooleanValue(Long.MaxValue)), classOf[ArithmeticException])
+        assertThrows(costModel.ltViolation(True, BooleanValue(Long.MaxValue)), classOf[ArithmeticException])
         costModel.leViolation(True, BooleanValue(Long.MaxValue - 1))
-        assertEx(costModel.leViolation(True, BooleanValue(Long.MaxValue)), classOf[ArithmeticException])
+        assertThrows(costModel.leViolation(True, BooleanValue(Long.MaxValue)), classOf[ArithmeticException])
     }
 
 }

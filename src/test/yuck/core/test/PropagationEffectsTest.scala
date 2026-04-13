@@ -18,7 +18,7 @@ final class PropagationEffectsTest extends UnitTest {
         assertEq(effects2.affectedVariables, Set(x))
         assert(effects2.rescheduleStep)
         assertEq(NonNegativeIntegerRange, x.domain)
-        assertEx(NoPropagationOccurred.pruneDomain(x, NegativeIntegerRange), classOf[DomainWipeOutException])
+        assertThrows(NoPropagationOccurred.pruneDomain(x, NegativeIntegerRange), classOf[DomainWipeOutException])
     }
 
     @Test

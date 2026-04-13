@@ -39,7 +39,7 @@ final class FlatZincAstTest extends UnitTest {
         assertEq(
             ast.getArrayElems(Term(v.id, Nil)).toList,
             List(IntConst(0), Term(c.id, Nil), Term(x.id, Nil), ArrayAccess(u.id, IntConst(3))))
-        assertEx(
+        assertThrows(
             ast.getArrayElems(Term("blah", Nil)))
     }
 

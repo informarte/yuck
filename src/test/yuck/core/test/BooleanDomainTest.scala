@@ -48,9 +48,9 @@ final class BooleanDomainTest
             assertEq(d.maybeUb.get, d.ub)
             assertEq(d.hull, d)
             if d.isEmpty then {
-                assertEx(d.singleValue)
-                assertEx(d.randomValue(randomGenerator))
-                assertEx(d.nextRandomValue(randomGenerator, False))
+                assertThrows(d.singleValue)
+                assertThrows(d.randomValue(randomGenerator))
+                assertThrows(d.nextRandomValue(randomGenerator, False))
                 assertLt(d.ub, d.lb)
             } else if d.isSingleton then {
                 assertEq(d.singleValue, if f then False else True)
@@ -60,7 +60,7 @@ final class BooleanDomainTest
                 assertEq(d.lb, d.singleValue)
                 assertEq(d.ub, d.singleValue)
             } else {
-                assertEx(d.singleValue)
+                assertThrows(d.singleValue)
                 assertEq(d.nextRandomValue(randomGenerator, False), True)
                 assertEq(d.nextRandomValue(randomGenerator, True), False)
                 testUniformityOfDistribution(d)
@@ -109,7 +109,7 @@ final class BooleanDomainTest
     @Test
     def testRandomSubdomainCreation(): Unit = {
         for a <- testData2 do {
-            assertEx(a.randomSubdomain(randomGenerator), classOf[NotImplementedError])
+            assertThrows(a.randomSubdomain(randomGenerator), classOf[NotImplementedError])
         }
     }
 

@@ -37,7 +37,7 @@ final class BooleanTypeTraitsTest extends UnitTest {
         assertEq(createDomain(Set(False)), FalseDomain)
         assertEq(createDomain(Set(True)), TrueDomain)
         assertEq(createDomain(Set(False, True)), CompleteBooleanDomain)
-        assertEx(createDomain(Set(False, False2, True)))
+        assertThrows(createDomain(Set(False, False2, True)))
         assertEq(createDomain(False, False), FalseDomain)
         assertEq(createDomain(False, True), EmptyBooleanDomain)
         assertEq(createDomain(True, False), CompleteBooleanDomain)
@@ -57,13 +57,13 @@ final class BooleanTypeTraitsTest extends UnitTest {
     @Test
     def testValueCasting(): Unit = {
         safeDowncast(False)
-        assertEx(safeDowncast(Zero), classOf[ClassCastException])
+        assertThrows(safeDowncast(Zero), classOf[ClassCastException])
     }
 
     @Test
     def testDomainCasting(): Unit = {
         safeDowncast(CompleteBooleanDomain)
-        assertEx(safeDowncast(CompleteIntegerRange), classOf[ClassCastException])
+        assertThrows(safeDowncast(CompleteIntegerRange), classOf[ClassCastException])
     }
 
     @Test
@@ -72,7 +72,7 @@ final class BooleanTypeTraitsTest extends UnitTest {
         val b = space.createVariable("b", CompleteBooleanDomain)
         val i = space.createVariable("i", CompleteIntegerRange)
         safeDowncast(b)
-        assertEx(safeDowncast(i), classOf[ClassCastException])
+        assertThrows(safeDowncast(i), classOf[ClassCastException])
     }
 
     @Test

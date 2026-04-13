@@ -63,7 +63,7 @@ final class IntegerTypeTraitsTest extends UnitTest {
 
     @Test
     def testValueCasting(): Unit = {
-        assertEx(safeDowncast(False), classOf[ClassCastException])
+        assertThrows(safeDowncast(False), classOf[ClassCastException])
         safeDowncast(Zero)
     }
 
@@ -71,7 +71,7 @@ final class IntegerTypeTraitsTest extends UnitTest {
     def testDomainCasting(): Unit = {
         safeDowncast(EmptyIntegerRange)
         safeDowncast(EmptyIntegerRangeList)
-        assertEx(safeDowncast(EmptyBooleanDomain), classOf[ClassCastException])
+        assertThrows(safeDowncast(EmptyBooleanDomain), classOf[ClassCastException])
     }
 
     @Test
@@ -80,7 +80,7 @@ final class IntegerTypeTraitsTest extends UnitTest {
         val b = space.createVariable("b", CompleteBooleanDomain)
         val i = space.createVariable("i", CompleteIntegerRange)
         safeDowncast(i)
-        assertEx(safeDowncast(b), classOf[ClassCastException])
+        assertThrows(safeDowncast(b), classOf[ClassCastException])
     }
 
     @Test

@@ -26,7 +26,7 @@ final class VariableTest extends UnitTest {
         assert(! x.pruneDomain(CompleteIntegerRange))
         assert(x.pruneDomain(PositiveIntegerRange))
         assertEq(x.domain, PositiveIntegerRange)
-        assertEx(x.pruneDomain(NegativeIntegerRange), classOf[DomainWipeOutException])
+        assertThrows(x.pruneDomain(NegativeIntegerRange), classOf[DomainWipeOutException])
     }
 
     @Test

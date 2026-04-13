@@ -331,7 +331,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Tag(SatisfiabilityProblem)
     @Tag(HasTableConstraint)
     def testInconsistentProblem(): Unit = {
-        assertEx(
+        assertThrows(
             solve(task.copy(problemName = "empty_table_int_test")),
             classOf[InconsistentProblemException])
     }
@@ -420,7 +420,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Tag(SatisfiabilityProblem)
     def testProblemWithUnboundedDanglingVariable(): Unit = {
-        assertEx(
+        assertThrows(
             solve(task.copy(problemName = "unbounded_dangling_variable_test")),
             classOf[VariableWithInfiniteDomainException])
     }
@@ -439,7 +439,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Tag(SatisfiabilityProblem)
     def testProblemWithUnboundedIrrelevantSearchVariable(): Unit = {
-        assertEx(
+        assertThrows(
             solve(task.copy(problemName = "unbounded_irrelevant_search_variable_test")),
             classOf[VariableWithInfiniteDomainException])
     }
@@ -447,7 +447,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Tag(SatisfiabilityProblem)
     def testProblemWithUnboundedRelevantSearchVariable(): Unit = {
-        assertEx(
+        assertThrows(
             solve(task.copy(problemName = "unbounded_relevant_search_variable_test")),
             classOf[VariableWithInfiniteDomainException])
     }

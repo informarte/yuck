@@ -246,7 +246,7 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
     @Tag(MinimizationProblem)
     @Tag(EasyInstance)
     def testProductLp(): Unit = {
-        assertEx(
+        assertThrows(
             solve(task.copy(problemName = "product_lp", maybeOptimum = Some(37200))),
             classOf[VariableWithInfiniteDomainException])
     }

@@ -97,33 +97,61 @@ final class IntegerSetDomainTest
         assertEq(EmptyIntegerSetDomain.union(EmptyIntegerSetDomain), EmptyIntegerSetDomain)
         assertEq(EmptyIntegerSetDomain.union(CompleteIntegerSetDomain), CompleteIntegerSetDomain)
         assertEq(CompleteIntegerSetDomain.union(EmptyIntegerSetDomain), CompleteIntegerSetDomain)
-        assertNie(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].union(new SingletonIntegerSetDomain(EmptyIntegerRange)))
-        assertNie(new SingletonIntegerSetDomain(EmptyIntegerRange).union(CompleteIntegerSetDomain))
-        assertNie(new IntegerPowerSetDomain(NonPositiveIntegerRange).asInstanceOf[IntegerSetDomain].union(new IntegerPowerSetDomain(NonNegativeIntegerRange)))
-        assertNie(CompleteIntegerSetDomain.union(new SingletonIntegerSetDomain(EmptyIntegerRange)))
+        assertThrows(
+            new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain]
+                .union(new SingletonIntegerSetDomain(EmptyIntegerRange)),
+            classOf[NotImplementedError])
+        assertThrows(
+            new SingletonIntegerSetDomain(EmptyIntegerRange).union(CompleteIntegerSetDomain),
+            classOf[NotImplementedError])
+        assertThrows(
+            new IntegerPowerSetDomain(NonPositiveIntegerRange).asInstanceOf[IntegerSetDomain]
+                .union(new IntegerPowerSetDomain(NonNegativeIntegerRange)),
+            classOf[NotImplementedError])
+        assertThrows(
+            CompleteIntegerSetDomain.union(new SingletonIntegerSetDomain(EmptyIntegerRange)),
+            classOf[NotImplementedError])
     }
 
     @Test
     def testSetDifference(): Unit = {
-        assertNie(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].diff(new SingletonIntegerSetDomain(EmptyIntegerRange)))
-        assertNie(new SingletonIntegerSetDomain(EmptyIntegerRange).diff(CompleteIntegerSetDomain))
-        assertNie(CompleteIntegerSetDomain.asInstanceOf[IntegerSetDomain].diff(CompleteIntegerSetDomain))
-        assertNie(CompleteIntegerSetDomain.diff(new SingletonIntegerSetDomain(EmptyIntegerRange)))
+        assertThrows(
+            new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain]
+                .diff(new SingletonIntegerSetDomain(EmptyIntegerRange)),
+            classOf[NotImplementedError])
+        assertThrows(
+            new SingletonIntegerSetDomain(EmptyIntegerRange).diff(CompleteIntegerSetDomain),
+            classOf[NotImplementedError])
+        assertThrows(
+            CompleteIntegerSetDomain.asInstanceOf[IntegerSetDomain].diff(CompleteIntegerSetDomain),
+            classOf[NotImplementedError])
+        assertThrows(
+            CompleteIntegerSetDomain.diff(new SingletonIntegerSetDomain(EmptyIntegerRange)),
+            classOf[NotImplementedError])
     }
 
     @Test
     def testSymmetricalSetDifference(): Unit = {
-        assertNie(new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain].symdiff(new SingletonIntegerSetDomain(EmptyIntegerRange)))
-        assertNie(new SingletonIntegerSetDomain(EmptyIntegerRange).symdiff(CompleteIntegerSetDomain))
-        assertNie(CompleteIntegerSetDomain.asInstanceOf[IntegerSetDomain].symdiff(CompleteIntegerSetDomain))
-        assertNie(CompleteIntegerSetDomain.symdiff(new SingletonIntegerSetDomain(EmptyIntegerRange)))
+        assertThrows(
+            new SingletonIntegerSetDomain(EmptyIntegerRange).asInstanceOf[IntegerSetDomain]
+                .symdiff(new SingletonIntegerSetDomain(EmptyIntegerRange)),
+            classOf[NotImplementedError])
+        assertThrows(
+            new SingletonIntegerSetDomain(EmptyIntegerRange).symdiff(CompleteIntegerSetDomain),
+            classOf[NotImplementedError])
+        assertThrows(
+            CompleteIntegerSetDomain.asInstanceOf[IntegerSetDomain].symdiff(CompleteIntegerSetDomain),
+            classOf[NotImplementedError])
+        assertThrows(
+            CompleteIntegerSetDomain.symdiff(new SingletonIntegerSetDomain(EmptyIntegerRange)),
+            classOf[NotImplementedError])
     }
 
     @Test
     def testRandomSubdomainCreation(): Unit = {
         val testData = createTestData(baseRange, 8)
         for a <- testData do {
-            assertEx(a.randomSubdomain(randomGenerator), classOf[NotImplementedError])
+            assertThrows(a.randomSubdomain(randomGenerator), classOf[NotImplementedError])
         }
     }
 

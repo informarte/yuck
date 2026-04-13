@@ -49,7 +49,7 @@ class MiniZincSolutionVerifierTest(simulateBadSolver: Boolean, verificationFrequ
                 throwWhenUnsolved = true,
                 verificationFrequency = verificationFrequency)
         if simulateBadSolver && verificationFrequency != NoVerification then {
-            assertEx(solve(task), classOf[SolutionNotVerifiedException])
+            assertThrows(solve(task), classOf[SolutionNotVerifiedException])
         } else {
             solve(task)
         }

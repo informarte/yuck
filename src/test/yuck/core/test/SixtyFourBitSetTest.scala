@@ -72,20 +72,20 @@ final class SixtyFourBitSetTest extends UnitTest with IntegerDomainTestTooling {
         assert(SixtyFourBitSet(SixtyFourBitSet.MaxUInt).eq(FullBitSet))
         assertEq(SixtyFourBitSet(13L).set, 13L)
 
-        assertEx(SixtyFourBitSet(-1, 0))
-        assertEx(SixtyFourBitSet(0, 64))
+        assertThrows(SixtyFourBitSet(-1, 0))
+        assertThrows(SixtyFourBitSet(0, 64))
         assert(SixtyFourBitSet(1, 0).eq(EmptyBitSet))
         assert(SixtyFourBitSet(0, 63).eq(FullBitSet))
         assertEq(SixtyFourBitSet(0, 1).set, 3L)
 
         assert(SixtyFourBitSet(List[Long]()).eq(EmptyBitSet))
         assert(SixtyFourBitSet(0L to 63L).eq(FullBitSet))
-        assertEx(SixtyFourBitSet(List(-1L)).set)
-        assertEx(SixtyFourBitSet(List(64L)).set)
+        assertThrows(SixtyFourBitSet(List(-1L)).set)
+        assertThrows(SixtyFourBitSet(List(64L)).set)
         assertEq(SixtyFourBitSet(List(0L, 63L)).set, 0x8000000000000001L)
 
-        assertEx(SixtyFourBitSet(MinusOne, Zero))
-        assertEx(SixtyFourBitSet(Zero, IntegerValue(64)))
+        assertThrows(SixtyFourBitSet(MinusOne, Zero))
+        assertThrows(SixtyFourBitSet(Zero, IntegerValue(64)))
         assert(SixtyFourBitSet(One, Zero).eq(EmptyBitSet))
         assert(SixtyFourBitSet(Zero, IntegerValue(63)).eq(FullBitSet))
         assertEq(SixtyFourBitSet(Zero, One).set, 3L)
@@ -94,8 +94,8 @@ final class SixtyFourBitSetTest extends UnitTest with IntegerDomainTestTooling {
         assert(SixtyFourBitSet(EmptyIntegerRange).eq(EmptyBitSet))
         assert(SixtyFourBitSet(EmptyIntegerRangeList).eq(EmptyBitSet))
         assert(SixtyFourBitSet(IntegerRange(0, 63)).eq(FullBitSet))
-        assertEx(SixtyFourBitSet(IntegerDomain(-1)))
-        assertEx(SixtyFourBitSet(IntegerDomain(64)))
+        assertThrows(SixtyFourBitSet(IntegerDomain(-1)))
+        assertThrows(SixtyFourBitSet(IntegerDomain(64)))
         assertEq(SixtyFourBitSet(IntegerDomain(0, 63)).set, 0x8000000000000001L)
 
     }

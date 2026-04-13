@@ -47,8 +47,8 @@ final class IntegerValueOperationsTest
                 assertEq(num.minus(a, b), a - b)
                 assertEq(num.times(a, b), a * b)
                 if b == Zero then {
-                    assertEx(num.quot(a, b), classOf[ArithmeticException])
-                    assertEx(num.rem(a,  b), classOf[ArithmeticException])
+                    assertThrows(num.quot(a, b), classOf[ArithmeticException])
+                    assertThrows(num.rem(a,  b), classOf[ArithmeticException])
                 } else {
                     assertEq(num.quot(a, b), a / b)
                     assertEq(num.rem(a, b), a % b)
@@ -70,15 +70,15 @@ final class IntegerValueOperationsTest
     @Test
     def testOverflowCheckingInNumericalOperations(): Unit = {
         num.plus(IntegerValue(Long.MaxValue), Zero)
-        assertEx(num.plus(IntegerValue(Long.MaxValue), One), classOf[ArithmeticException])
+        assertThrows(num.plus(IntegerValue(Long.MaxValue), One), classOf[ArithmeticException])
         num.minus(IntegerValue(Long.MinValue), Zero)
-        assertEx(num.minus(IntegerValue(Long.MinValue), One), classOf[ArithmeticException])
+        assertThrows(num.minus(IntegerValue(Long.MinValue), One), classOf[ArithmeticException])
         num.times(IntegerValue(Long.MaxValue / 2), Two)
-        assertEx(num.times(IntegerValue(Long.MaxValue), Two), classOf[ArithmeticException])
+        assertThrows(num.times(IntegerValue(Long.MaxValue), Two), classOf[ArithmeticException])
         num.abs(IntegerValue(Long.MinValue + 1))
-        assertEx(num.abs(IntegerValue(Long.MinValue)), classOf[ArithmeticException])
+        assertThrows(num.abs(IntegerValue(Long.MinValue)), classOf[ArithmeticException])
         num.negate(IntegerValue(Long.MaxValue))
-        assertEx(num.negate(IntegerValue(Long.MinValue)), classOf[ArithmeticException])
+        assertThrows(num.negate(IntegerValue(Long.MinValue)), classOf[ArithmeticException])
     }
 
 }

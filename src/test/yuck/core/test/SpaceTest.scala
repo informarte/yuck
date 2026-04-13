@@ -29,7 +29,7 @@ final class SpaceTest extends UnitTest {
         val e = new DummyConstraint(space.nextConstraintId(), List(u, w, x), List(y))
         val f = new DummyConstraint(space.nextConstraintId(), List(s, t), List(x, y))
         space.post(c).post(d).post(e)
-        assertEx(space.post(f))
+        assertThrows(space.post(f))
         assertEq(space.numberOfConstraints, 3)
         assertEq(space.numberOfConstraints(_.isInstanceOf[DummyConstraint]), 3)
         assertEq(space.numberOfConstraints[DummyConstraint], 3)
@@ -77,7 +77,7 @@ final class SpaceTest extends UnitTest {
 
         for x <- vars do {
             if space.maybeDefiningConstraint(x).isEmpty then {
-                assertEx(space.definingConstraint(x), classOf[NoSuchElementException])
+                assertThrows(space.definingConstraint(x), classOf[NoSuchElementException])
             } else {
                 assertEq(space.definingConstraint(x), space.maybeDefiningConstraint(x).get)
             }
@@ -117,7 +117,7 @@ final class SpaceTest extends UnitTest {
         space.post(c)
         space.initialize()
         val d = new DummyConstraint(space.nextConstraintId(), List(y), List(z))
-        assertEx(space.post(d))
+        assertThrows(space.post(d))
         assertEq(space.numberOfConstraints, 1)
         space.checkConsistency()
     }
@@ -132,7 +132,7 @@ final class SpaceTest extends UnitTest {
         assert(space.wouldIntroduceCycle(c))
         assertEq(space.numberOfConstraints, 0)
         space.checkConsistency()
-        assertEx(space.post(c), classOf[IllegalArgumentException])
+        assertThrows(space.post(c), classOf[IllegalArgumentException])
         assertEq(space.numberOfConstraints, 0)
         space.checkConsistency()
         val d = new DummyConstraint(space.nextConstraintId(), List(x, y), List(z))
@@ -149,7 +149,7 @@ final class SpaceTest extends UnitTest {
         assert(space.wouldIntroduceCycle(e))
         assertEq(space.numberOfConstraints, 1)
         space.checkConsistency()
-        assertEx(space.post(e), classOf[IllegalArgumentException])
+        assertThrows(space.post(e), classOf[IllegalArgumentException])
         assertEq(space.numberOfConstraints, 1)
         space.checkConsistency()
         assert(! space.wouldIntroduceCycle(d))
@@ -169,7 +169,7 @@ final class SpaceTest extends UnitTest {
         space.post(d)
         assertEq(space.numberOfConstraints, 2)
         space.checkConsistency()
-        assertEx(space.initialize(), classOf[CyclicConstraintNetworkException])
+        assertThrows(space.initialize(), classOf[CyclicConstraintNetworkException])
     }
 
     @Test
@@ -181,7 +181,7 @@ final class SpaceTest extends UnitTest {
         space.post(c)
         space.initialize()
         val d = new DummyConstraint(space.nextConstraintId(), List(y), List(x))
-        assertEx(space.wouldIntroduceCycle(d))
+        assertThrows(space.wouldIntroduceCycle(d))
         assertEq(space.numberOfConstraints, 1)
         space.checkConsistency()
     }
@@ -554,7 +554,7 @@ final class SpaceTest extends UnitTest {
         val g = new Spy(space.nextConstraintId(), Set(x), z)
 
         // check book keeping and enforcement of invariants
-        assertEx(space.registerImplicitConstraint(c)) // because c was not yet posted
+        assertThrows(space.registerImplicitConstraint(c)) // because c was not yet posted
         space.post(c)
         assert(! space.isImplicitConstraint(c))
         space.post(d)
@@ -562,7 +562,7 @@ final class SpaceTest extends UnitTest {
         assertEq(space.numberOfImplicitConstraints, 0)
         space.registerImplicitConstraint(c)
         space.registerImplicitConstraint(d)
-        assertEx(space.registerImplicitConstraint(e)) // because u and v are already implicitly constrained by d
+        assertThrows(space.registerImplicitConstraint(e)) // because u and v are already implicitly constrained by d
         assertEq(space.numberOfImplicitConstraints, 2)
         assert(space.isImplicitConstraint(c))
         assert(space.isImplicitConstraint(d))
@@ -573,9 +573,9 @@ final class SpaceTest extends UnitTest {
                 space.implicitlyConstrainedSearchVariables.contains(x),
                 space.isImplicitlyConstrainedSearchVariable(x))
         }
-        assertEx(space.post(f)) // because u is already implicitly constrained by d
+        assertThrows(space.post(f)) // because u is already implicitly constrained by d
         space.post(g)
-        assertEx(space.registerImplicitConstraint(g)) // because x is an out-variable of d
+        assertThrows(space.registerImplicitConstraint(g)) // because x is an out-variable of d
 
         // check that implicit constraints are propagated and that domains of implicitly constrained variables
         // get restored after propagation

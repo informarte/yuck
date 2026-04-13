@@ -46,16 +46,11 @@ trait YuckAssert {
     }
 
     /** Expects an IllegalArgumentException. */
-    protected inline final def assertEx(operation: => Unit): Unit = {
-        assertEx(operation, classOf[IllegalArgumentException])
+    protected inline final def assertThrows(operation: => Unit): Unit = {
+        assertThrows(operation, classOf[IllegalArgumentException])
     }
 
-    /** Expects a NotImplementedError. */
-    protected inline final def assertNie(operation: => Unit): Unit = {
-        assertEx(operation, classOf[NotImplementedError])
-    }
-
-    protected final def assertEx(operation: => Unit, expectedExceptionType: Class[? <: Throwable]): Unit = {
+    protected final def assertThrows(operation: => Unit, expectedExceptionType: Class[? <: Throwable]): Unit = {
         var failed = true
         try {
             operation

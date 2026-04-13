@@ -25,12 +25,12 @@ trait IntegerDomainTestTooling
 
     private def testSpatialRelations(d: IntegerDomain, e: IntegerDomain): Unit = {
         if d.isEmpty || e.isEmpty then {
-            assertEx(d.precedes(e))
-            assertEx(d.precedesImmediately(e))
-            assertEx(d.startsBefore(e))
-            assertEx(d.startsAfter(e))
-            assertEx(d.endsBefore(e))
-            assertEx(d.endsAfter(e))
+            assertThrows(d.precedes(e))
+            assertThrows(d.precedesImmediately(e))
+            assertThrows(d.startsBefore(e))
+            assertThrows(d.startsAfter(e))
+            assertThrows(d.endsBefore(e))
+            assertThrows(d.endsAfter(e))
         } else {
             assertEq(d.precedes(e), d.hasUb && e.hasLb && d.ub < e.lb)
             assertEq(d.precedesImmediately(e), d.precedes(e) && d.ub + One == e.lb)
@@ -49,7 +49,7 @@ trait IntegerDomainTestTooling
         if d.isFinite then {
             assertEq(d.size, d.values.size)
         } else {
-            assertEx(d.size)
+            assertThrows(d.size)
         }
     }
 
@@ -58,7 +58,7 @@ trait IntegerDomainTestTooling
             assertEq(d.valuesIterator.toList, d.values.toList)
             assertEq(d.values.iterator.toList, d.values.toList)
         } else {
-            assertEx(d.valuesIterator)
+            assertThrows(d.valuesIterator)
         }
     }
 
@@ -258,7 +258,7 @@ trait IntegerDomainTestTooling
 
     private def testDistanceToSet(d: IntegerDomain, a: IntegerValue): Unit = {
         if d.isEmpty then {
-            assertEx(d.distanceTo(a))
+            assertThrows(d.distanceTo(a))
         } else {
             val result = d.distanceTo(a)
             if d.contains(a) then {
@@ -298,7 +298,7 @@ trait IntegerDomainTestTooling
 
     private def testBisecting(d: IntegerDomain): Unit = {
         if d.isEmpty || ! d.isFinite then {
-            assertEx(d.bisect)
+            assertThrows(d.bisect)
         } else {
             val (d1, d2) = d.bisect
             assert(d1.isSubsetOf(d))
@@ -344,7 +344,7 @@ trait IntegerDomainTestTooling
         assert(a.isFinite)
         assert(! a.isSingleton)
         assert(! a.contains(Zero))
-        assertEx(a.singleValue)
+        assertThrows(a.singleValue)
         assertEq(a.values.toList, Nil)
         assert(a.isBounded)
         assert(a.hasLb)
@@ -393,7 +393,7 @@ trait IntegerDomainTestTooling
         assert(! c.contains(MinusOne))
         (0 to 9).foreach(i => assert(c.contains(IntegerValue(i))))
         assert(! c.contains(Ten))
-        assertEx(c.singleValue)
+        assertThrows(c.singleValue)
         assertEq(c.values.size, 10)
         assertEq(c.values.toList, List(Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine))
         assert(c.isBounded)
@@ -416,13 +416,13 @@ trait IntegerDomainTestTooling
         val d = createRange(null, null)
         assertEq(d.toString, "-inf..+inf")
         assert(! d.isEmpty)
-        assertEx(d.size)
+        assertThrows(d.size)
         assert(d.isComplete)
         assert(! d.isFinite)
         assert(! d.isSingleton)
         assert(d.contains(Zero))
-        assertEx(d.singleValue)
-        assertEx(d.values)
+        assertThrows(d.singleValue)
+        assertThrows(d.values)
         assert(! d.isBounded)
         assert(! d.hasLb)
         assert(! d.hasUb)
@@ -436,15 +436,15 @@ trait IntegerDomainTestTooling
         val e = createRange(null, Zero)
         assertEq(e.toString, "-inf..0")
         assert(! e.isEmpty)
-        assertEx(e.size)
+        assertThrows(e.size)
         assert(! e.isComplete)
         assert(! e.isFinite)
         assert(! e.isSingleton)
         assert(e.contains(MinusOne))
         assert(e.contains(Zero))
         assert(! e.contains(One))
-        assertEx(e.singleValue)
-        assertEx(e.values)
+        assertThrows(e.singleValue)
+        assertThrows(e.values)
         assert(e.isBounded)
         assert(! e.hasLb)
         assert(e.hasUb)
@@ -458,15 +458,15 @@ trait IntegerDomainTestTooling
         val f = createRange(Zero, null)
         assertEq(f.toString, "0..+inf")
         assert(! f.isEmpty)
-        assertEx(f.size)
+        assertThrows(f.size)
         assert(! f.isComplete)
         assert(! f.isFinite)
         assert(! f.isSingleton)
         assert(! f.contains(MinusOne))
         assert(f.contains(Zero))
         assert(f.contains(One))
-        assertEx(f.singleValue)
-        assertEx(f.values)
+        assertThrows(f.singleValue)
+        assertThrows(f.values)
         assert(f.isBounded)
         assert(f.hasLb)
         assert(! f.hasUb)
@@ -593,8 +593,8 @@ trait IntegerDomainTestTooling
                         testUniformityOfDistribution(d)
                     }
                 } else {
-                    assertEx(d.randomValue(randomGenerator))
-                    assertEx(d.nextRandomValue(randomGenerator, Zero))
+                    assertThrows(d.randomValue(randomGenerator))
+                    assertThrows(d.nextRandomValue(randomGenerator, Zero))
                 }
             }
             testBisecting(d)
@@ -638,7 +638,7 @@ trait IntegerDomainTestTooling
                     }
                     assertGe(sample.size, sampleSize / 2)
                 } else {
-                    assertEx(d.randomSubdomain(randomGenerator))
+                    assertThrows(d.randomSubdomain(randomGenerator))
                 }
             }
         }
@@ -660,7 +660,7 @@ trait IntegerDomainTestTooling
                     }
                     assertGe(sample.size, sampleSize / 2)
                 } else {
-                    assertEx(d.randomSubdomain(randomGenerator))
+                    assertThrows(d.randomSubdomain(randomGenerator))
                 }
             }
         }

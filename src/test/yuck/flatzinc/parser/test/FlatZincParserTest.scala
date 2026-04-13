@@ -53,10 +53,10 @@ final class FlatZincParserTest extends UnitTest {
         expectFailure(expr, "++1")
         expectFailure(expr, "+-1")
         expectSuccess(expr, "+1", IntConst(1))
-        assertEx(expectFailure(expr, "-9223372036854775809"), classOf[NumberFormatException])
+        assertThrows(expectFailure(expr, "-9223372036854775809"), classOf[NumberFormatException])
         expectSuccess(expr, Long.MinValue.toString(), IntConst(Long.MinValue))
         expectSuccess(expr, Long.MaxValue.toString(), IntConst(Long.MaxValue))
-        assertEx(expectFailure(expr, "9223372036854775808"), classOf[NumberFormatException])
+        assertThrows(expectFailure(expr, "9223372036854775808"), classOf[NumberFormatException])
     }
 
     @Test
@@ -83,7 +83,7 @@ final class FlatZincParserTest extends UnitTest {
         expectSuccess(expr, "+1e-2", FloatConst(0.01))
         expectSuccess(expr, "-1e-2", FloatConst(-0.01))
         expectSuccess(expr, "-1.56734454885781264827637856876e-178", FloatConst(-1.56734454885781264827637856876e-178))
-        assertEx(expectFailure(expr, "1e+309"), classOf[NumberFormatException])
+        assertThrows(expectFailure(expr, "1e+309"), classOf[NumberFormatException])
     }
 
     @Test

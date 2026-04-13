@@ -33,7 +33,7 @@ final class IntegerSetTypeTraitsTest extends UnitTest {
     @Test
     def testDomainFactories(): Unit = {
         assertEq(createDomain(Set()), EmptyIntegerSetDomain)
-        assertNie(createDomain(Set(EmptyIntegerSetValue)))
+        assertThrows(createDomain(Set(EmptyIntegerSetValue)), classOf[NotImplementedError])
         assertEq(createDomain(CompleteIntegerSetValue, EmptyIntegerSetValue), EmptyIntegerSetDomain)
         assertEq(createDomain(CompleteIntegerSetValue, CompleteIntegerSetValue), new SingletonIntegerSetDomain(CompleteIntegerRange))
         assertEq(createDomain(EmptyIntegerSetValue, CompleteIntegerSetValue), CompleteIntegerSetDomain)
@@ -52,7 +52,7 @@ final class IntegerSetTypeTraitsTest extends UnitTest {
 
     @Test
     def testValueCasting(): Unit = {
-        assertEx(safeDowncast(Zero), classOf[ClassCastException])
+        assertThrows(safeDowncast(Zero), classOf[ClassCastException])
         safeDowncast(new IntegerSetValue(CompleteIntegerRange))
     }
 
@@ -60,7 +60,7 @@ final class IntegerSetTypeTraitsTest extends UnitTest {
     def testDomainCasting(): Unit = {
         safeDowncast(new SingletonIntegerSetDomain(CompleteIntegerRange))
         safeDowncast(new IntegerPowerSetDomain(CompleteIntegerRange))
-        assertEx(safeDowncast(CompleteIntegerRange), classOf[ClassCastException])
+        assertThrows(safeDowncast(CompleteIntegerRange), classOf[ClassCastException])
     }
 
     @Test
@@ -69,7 +69,7 @@ final class IntegerSetTypeTraitsTest extends UnitTest {
         val b = space.createVariable("b", CompleteBooleanDomain)
         val s = space.createVariable("s", new IntegerPowerSetDomain(CompleteIntegerRange))
         safeDowncast(s)
-        assertEx(safeDowncast(b), classOf[ClassCastException])
+        assertThrows(safeDowncast(b), classOf[ClassCastException])
     }
 
     @Test

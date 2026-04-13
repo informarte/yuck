@@ -81,14 +81,14 @@ final class IntegerValueTest
                 assertEq((a - b).value, a.value - b.value)
                 assertEq((a * b).value, a.value * b.value)
                 if b == Zero then {
-                    assertEx(a / b, classOf[ArithmeticException])
-                    assertEx(a % b, classOf[ArithmeticException])
+                    assertThrows(a / b, classOf[ArithmeticException])
+                    assertThrows(a % b, classOf[ArithmeticException])
                 } else {
                     assertEq((a / b).value, a.value / b.value)
                     assertEq((a % b).value, a.value % b.value)
                 }
                 if a == Zero && b < Zero then {
-                    assertEx(a ^ b, classOf[ArithmeticException])
+                    assertThrows(a ^ b, classOf[ArithmeticException])
                 } else {
                     assertEq((a ^ b).value, scala.math.pow(a.value.toDouble, b.value.toDouble).toLong)
                 }
@@ -116,25 +116,25 @@ final class IntegerValueTest
     @Test
     def testOverflowCheckingInNumericalOperations(): Unit = {
         IntegerValue(Long.MaxValue) + Zero
-        assertEx(IntegerValue(Long.MaxValue) + One, classOf[ArithmeticException])
+        assertThrows(IntegerValue(Long.MaxValue) + One, classOf[ArithmeticException])
         IntegerValue(Long.MinValue) - Zero
-        assertEx(IntegerValue(Long.MinValue) - One, classOf[ArithmeticException])
+        assertThrows(IntegerValue(Long.MinValue) - One, classOf[ArithmeticException])
         IntegerValue(Long.MaxValue / 2) * Two
-        assertEx(IntegerValue(Long.MaxValue) * Two, classOf[ArithmeticException])
+        assertThrows(IntegerValue(Long.MaxValue) * Two, classOf[ArithmeticException])
         IntegerValue(Long.MaxValue - 1).addAndSub(One, Zero)
         One.addAndSub(IntegerValue(Long.MaxValue), IntegerValue(Long.MaxValue - 1))
         IntegerValue(Long.MaxValue - 1).addAndSub(One, One, Zero)
         One.addAndSub(One, IntegerValue(Long.MaxValue), IntegerValue(Long.MaxValue - 1))
-        assertEx(IntegerValue(Long.MaxValue).addAndSub(One, One, Zero), classOf[ArithmeticException])
+        assertThrows(IntegerValue(Long.MaxValue).addAndSub(One, One, Zero), classOf[ArithmeticException])
         assertEq(IntegerValue(Long.MinValue + 1).abs.value, Long.MaxValue)
-        assertEx(IntegerValue(Long.MinValue).abs, classOf[ArithmeticException])
+        assertThrows(IntegerValue(Long.MinValue).abs, classOf[ArithmeticException])
         assertEq(IntegerValue(Long.MaxValue).negated.value, Long.MinValue + 1)
-        assertEx(IntegerValue(Long.MinValue).negated, classOf[ArithmeticException])
+        assertThrows(IntegerValue(Long.MinValue).negated, classOf[ArithmeticException])
         assertEq((IntegerValue(-2) ^ IntegerValue(63)).value, Long.MinValue)
-        assertEx(IntegerValue(-2) ^ IntegerValue(64), classOf[ArithmeticException])
+        assertThrows(IntegerValue(-2) ^ IntegerValue(64), classOf[ArithmeticException])
         assertEq((Two ^ IntegerValue(63)).value, Long.MaxValue)
-        assertEx(Two ^ IntegerValue(64), classOf[ArithmeticException])
-        assertEx(IntegerValue(Long.MaxValue) ^ IntegerValue(Long.MaxValue), classOf[ArithmeticException])
+        assertThrows(Two ^ IntegerValue(64), classOf[ArithmeticException])
+        assertThrows(IntegerValue(Long.MaxValue) ^ IntegerValue(Long.MaxValue), classOf[ArithmeticException])
     }
 
     @Test

@@ -12,8 +12,8 @@ final class ProbabilityTest extends UnitTest {
         assertEq(Probability(0.0).value, 0.0)
         assertEq(Probability(0.5).value, 0.5)
         assertEq(Probability(1.0).value, 1.0)
-        assertEx(Probability(-0.1))
-        assertEx(Probability(1.1))
+        assertThrows(Probability(-0.1))
+        assertThrows(Probability(1.1))
     }
 
     @Test
@@ -21,8 +21,8 @@ final class ProbabilityTest extends UnitTest {
         assertEq(Probability(0).value, 0.0)
         assertEq(Probability(50).value, 0.5)
         assertEq(Probability(100).value, 1.0)
-        assertEx(Probability(-1))
-        assertEx(Probability(101))
+        assertThrows(Probability(-1))
+        assertThrows(Probability(101))
     }
 
 }
