@@ -62,10 +62,12 @@ nameTranslationTable = {
     'MZNC_connect': 'connect',
     'javarouting': 'java-routing',
     'l2p': 'linear-to-program',
-    'hoist-benchmark-for-minizinc': 'hoist-scheduling',
+    'hoist-benchmark': 'hoist-scheduling',
     'p1f-pjs': 'p1f',
     'peacable_queens': 'peaceable-queens',
-    'tower_challenge': 'tower'
+    'tower_challenge': 'tower',
+    'anneal_k1': 'anneal',
+    'kr-vs-kp-k2': 'kr-vs-kp'
 }
 
 def normalizeName(name):

@@ -9,7 +9,7 @@ import yuck.flatzinc.test.util.TestDataDirectoryLayout.*
 import yuck.flatzinc.test.util.VerificationFrequency.*
 
 /**
- * A collection of problems from the MiniZinc challenges 2012 - 2023
+ * A collection of problems from the MiniZinc challenges 2012 - 2025
  *
  * Goals of this test suite:
  * <ul>
@@ -19,7 +19,7 @@ import yuck.flatzinc.test.util.VerificationFrequency.*
  *
  * Rules for choosing instances for a given problem:
  * <ul>
- *   <li>From the solvable instances, choose a long-running and big instance.</li>
+ *   <li>From the solvable instances, choose a long-running and big instance which was used in a challenge.</li>
  *   <li>If all solvable instances are very easy to solve, add a solvable and an unsolvable instance.</li>
  *   <li>If there is no solvable instance, choose an easy one - easy according to the official challenge results.</li>
  * </ul>
@@ -491,8 +491,8 @@ final class MiniZincChallenges extends ZincBasedTest {
 
     @Test
     @Tag(MinimizationProblem)
-    def league_105_18_14(): Unit = {
-        solve(task.copy(problemName = "league", instanceName = "model105-18-14", maybeHighScore = Some(349909)))
+    def league_15_4_3(): Unit = {
+        solve(task.copy(problemName = "league", modelName = "league_mznc2013", instanceName = "model15-4-3", maybeOptimum = Some(292)))
     }
 
     @Test
@@ -602,8 +602,8 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Test
     @Tag(MinimizationProblem)
     @Tag(HasCumulativeConstraint)
-    def mspsp_hard_08(): Unit = {
-        solve(task.copy(problemName = "mspsp", instanceName = "hard_08", maybeOptimum = Some(31)))
+    def mspsp_hard_03(): Unit = {
+        solve(task.copy(problemName = "mspsp", instanceName = "hard_03", maybeOptimum = Some(30)))
     }
 
     @Test
@@ -732,14 +732,14 @@ final class MiniZincChallenges extends ZincBasedTest {
 
     @Test
     @Tag(MaximizationProblem)
-    def pattern_set_mining_k1_vehicle(): Unit = {
-        solve(task.copy(problemName = "pattern-set-mining", modelName = "pattern_set_mining_k1", instanceName = "vehicle", maybeHighScore = Some(148)))
+    def pattern_set_mining_k1_anneal(): Unit = {
+        solve(task.copy(problemName = "pattern-set-mining", modelName = "pattern_set_mining_k1", instanceName = "anneal", maybeHighScore = Some(494)))
     }
 
     @Test
     @Tag(MaximizationProblem)
-    def pattern_set_mining_k2_audiology(): Unit = {
-        solve(task.copy(problemName = "pattern-set-mining", modelName = "pattern_set_mining_k2", instanceName = "audiology", maybeOptimum = Some(54)))
+    def pattern_set_mining_k2_kr_vs_kp(): Unit = {
+        solve(task.copy(problemName = "pattern-set-mining", modelName = "pattern_set_mining_k2", instanceName = "kr-vs-kp", maybeOptimum = Some(1488)))
     }
 
     @Test
