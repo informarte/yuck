@@ -37,6 +37,11 @@ object MiniZincBenchmarks extends MiniZincTestTaskFactory {
 
     override protected val suitePath = "resources/mzn/tests/minizinc-benchmarks"
 
+    override protected val baseTask =
+        ZincTestTask(
+            // We disable bound sharing to avoid that thread scheduling affects search trajectories.
+            solverConfiguration = ZincTestTask().solverConfiguration.copy(shareBounds = false))
+
     private val numberOfInstancesPerProblem = 5
 
     private val problemBlacklist = List(

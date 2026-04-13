@@ -33,6 +33,8 @@ final class MiniZincChallenges extends ZincBasedTest {
             directoryLayout = StandardMiniZincBenchmarksLayout,
             suitePath = "resources/mzn/tests/minizinc-benchmarks",
             suiteName = "minizinc-challenges",
+            // We disable bound sharing to avoid that thread scheduling affects search trajectories.
+            solverConfiguration = ZincTestTask().solverConfiguration.copy(shareBounds = false),
             maybeRuntimeLimitInSeconds = Some(150),
             reusePreviousTestResult = true)
 
