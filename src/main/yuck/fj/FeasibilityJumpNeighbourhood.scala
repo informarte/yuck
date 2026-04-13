@@ -2,6 +2,7 @@ package yuck.fj
 
 import java.util.Arrays
 
+import scala.annotation.tailrec
 import scala.collection.*
 import scala.collection.mutable.ArrayBuffer
 
@@ -340,6 +341,7 @@ final class FeasibilityJumpNeighbourhood
     }
 
     // Assuming a convex cost function, convexArgMin uses ternary search to compute the jump value of x.
+    @tailrec
     private def convexArgMin
         (acc: JumpCandidate,
          x: IntegerVariable, xi: Int,

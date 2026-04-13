@@ -12,7 +12,7 @@ import yuck.util.arm.Sigint
  * Terminates when the given objective is reached or when the optional round limit
  * is reached.
  *
- * When the schedules freezes up, the current assignment is perturbed and the schedule
+ * When the schedule freezes up, the current assignment is perturbed and the schedule
  * is restarted with the given restart temperature.
  *
  * Keeps track of the best proposal and restores it upon interruption or termination.

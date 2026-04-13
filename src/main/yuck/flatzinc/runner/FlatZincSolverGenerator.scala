@@ -104,7 +104,7 @@ final class FlatZincSolverGenerator
                     schedule,
                     startTemperature,
                     saCfg.startTemperature,
-                    saCfg.perturbationProbability,
+                    saCfg.restartPerturbationProbability,
                     if cfg.shareBounds then Some(sharedBound) else None,
                     randomGenerator.nextGen(),
                     saCfg.maybeRoundLimit,

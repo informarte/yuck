@@ -81,7 +81,7 @@ final class FlatZincCompiler
             cc.space.searchVariables.iterator.exists(_.isInstanceOf[IntegerSetVariable]) ||
             // Delivery requires the circuit to be maintained by a neighbourhood.
             cc.costVars.exists(costs =>
-                cc.space.maybeDefiningConstraint(costs).map(_.isInstanceOf[Delivery[?, ?, ?]]).getOrElse(false)) then
+                cc.space.maybeDefiningConstraint(costs).exists(_.isInstanceOf[Delivery[?, ?, ?]])) then
         {
             run(new AnnealingNeighbourhoodFactory(cc, randomGenerator.nextGen()))
         } else {
@@ -133,7 +133,7 @@ final class FlatZincCompiler
         }
     }
 
-    private def logYuckModelMetrics(cc: CompilationContext) = {
+    private def logYuckModelMetrics(cc: CompilationContext): Unit = {
         lazy val searchVariables = cc.space.searchVariables
         logger.logg("Search variables: %s".format(searchVariables.toList.sorted.mkString(", ")))
         logger.log("%d search variables".format(searchVariables.size))

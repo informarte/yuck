@@ -18,7 +18,7 @@ final case class AnnealingConfiguration(
     useImplicitSolving: Boolean = true,
     startTemperature: Double = annealing.DefaultStartTemperature,
     warmStartTemperature: Double = annealing.DefaultWarmStartTemperature,
-    perturbationProbability: Probability = annealing.DefaultPerturbationProbability,
+    restartPerturbationProbability: Probability = annealing.DefaultRestartPerturbationProbability,
     moveSizeDistribution: Distribution = annealing.DefaultMoveSizeDistribution,
     topLevelConfiguration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(true, true, Some(Probability(9))),
     subordinateLevelConfiguration: FlatZincLevelConfiguration = FlatZincLevelConfiguration(false, true, Some(Probability(13))))

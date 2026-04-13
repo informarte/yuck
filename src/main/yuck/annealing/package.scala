@@ -13,6 +13,6 @@ package object annealing {
     val DefaultMinimumUphillAcceptanceRatio = 0.0001
     val DefaultHeatingRate = 1.2
     val DefaultCoolingRate = 0.95
-    val DefaultPerturbationProbability = Probability(0.5)
+    val DefaultRestartPerturbationProbability = Probability(0.5)
 
 }

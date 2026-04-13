@@ -29,7 +29,7 @@ abstract class HelloWorldTest extends IntegrationTest {
             schedule,
             annealing.DefaultStartTemperature,
             annealing.DefaultStartTemperature,
-            annealing.DefaultPerturbationProbability,
+            annealing.DefaultRestartPerturbationProbability,
             None,
             randomGenerator.nextGen(),
             None,
