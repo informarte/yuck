@@ -11,29 +11,37 @@ final class AnnealingScheduleFactory
 
     require(numberOfSearchVariables > 0)
 
-    private def createAnnealingSchedule(n: Int, m: Int): AnnealingSchedule = {
+    private def createAnnealingSchedule(n: Int, m: Int, performWarmStart: Boolean): AnnealingSchedule = {
         val numberOfMovesPerRound =
             if numberOfSearchVariables == 1
             then n
             else (n * numberOfSearchVariables / ld(numberOfSearchVariables)).round.toInt
         assert(numberOfMovesPerRound > 0)
-        new AnnealingScheduleLoop(
-            new AnnealingScheduleSequence(
-                Vector(
-                    new GeometricHeatingSchedule(
-                        DefaultMaximumUphillAcceptanceRatio, DefaultHeatingRate,
-                        numberOfMovesPerRound),
-                    new AdaptiveCoolingSchedule(
-                        DefaultFinalTemperature, DefaultMinimumUphillAcceptanceRatio, DefaultCoolingRate,
-                        numberOfMovesPerRound, m))),
-            m)
+        val heatingSchedule =
+            new GeometricHeatingSchedule(
+                DefaultMaximumUphillAcceptanceRatio, DefaultHeatingRate,
+                numberOfMovesPerRound)
+        val coolingSchedule =
+            new AdaptiveCoolingSchedule(
+                DefaultFinalTemperature, DefaultMinimumUphillAcceptanceRatio, DefaultCoolingRate,
+                numberOfMovesPerRound, m)
+        val loop =
+            new AnnealingScheduleLoop(
+                new AnnealingScheduleSequence(Vector(heatingSchedule, coolingSchedule)),
+                m)
+        if performWarmStart
+        then new AnnealingScheduleSequence(Vector(coolingSchedule, loop))
+        else loop
     }
 
-    def createFastSchedule(): AnnealingSchedule = createAnnealingSchedule(128, 2)
+    def createFastSchedule(performWarmStart: Boolean = false): AnnealingSchedule =
+        createAnnealingSchedule(128, 2, performWarmStart)
 
-    def createSlowSchedule(): AnnealingSchedule = createAnnealingSchedule(256, 4)
+    def createSlowSchedule(performWarmStart: Boolean = false): AnnealingSchedule =
+        createAnnealingSchedule(256, 4, performWarmStart)
 
-    def createHybridSchedule(): AnnealingSchedule =
-        new AnnealingScheduleSequence(Vector(createFastSchedule(), createSlowSchedule()))
+    def createHybridSchedule(performWarmStart: Boolean = false): AnnealingSchedule =
+        new AnnealingScheduleSequence(
+            Vector(createFastSchedule(performWarmStart), createSlowSchedule(performWarmStart)))
 
 }

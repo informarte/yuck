@@ -92,7 +92,7 @@ final class FlatZincSolverGenerator
                 val neighbourhood = compilerResult.maybeNeighbourhood.get
                 val scheduleFactory =
                     new AnnealingScheduleFactory(neighbourhood.searchVariables.size, randomGenerator.nextGen())
-                val schedule = scheduleFactory.createHybridSchedule()
+                val schedule = scheduleFactory.createHybridSchedule(compilerResult.performWarmStart)
                 val startTemperature =
                     if compilerResult.performWarmStart then saCfg.warmStartTemperature else saCfg.startTemperature
                 logger.log("Start temperature: %s".format(startTemperature))
