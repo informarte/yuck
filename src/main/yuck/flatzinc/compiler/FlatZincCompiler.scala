@@ -1,5 +1,6 @@
 package yuck.flatzinc.compiler
 
+import java.time.Duration
 import java.util.concurrent.Callable
 
 import yuck.SolvingMethod
@@ -8,7 +9,7 @@ import yuck.core.*
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.FlatZincAst
 import yuck.util.arm.Sigint
-import yuck.util.logging.LazyLogger
+import yuck.util.logging.{LazyLogger, LogLevel}
 
 /**
  * This class orchestrates the various compiler stages.
@@ -29,9 +30,11 @@ final class FlatZincCompiler
 
     override def call() = {
 
-        val (cc, runtime) = logger.withTimedLogScope("Compiling problem") {
+        val (result, runtime) = logger.withTimedLogScope("Compiling problem") {
             compile()
         }
+
+        val (cc, stageRuntimes) = result
 
         logger.criticalSection {
             logger.withLogScope("Yuck model metrics") {
@@ -43,29 +46,27 @@ final class FlatZincCompiler
         val arrays = (for (key, array) <- cc.arrays yield key.toString -> array).toMap
         new FlatZincCompilerResult(
             cc.ast, cc.space, vars, arrays, cc.objective, cc.maybeNeighbourhood, ! cc.warmStartAssignment.isEmpty,
-            runtime)
+            runtime, stageRuntimes)
 
     }
 
-    private def compile(): CompilationContext = {
+    private def compile(): (CompilationContext, FlatZincCompilerStageRuntimes) = {
 
         val cc = new CompilationContext(ast, cfg, sharedBound, logger, sigint)
 
         randomGenerator.nextGen()
-        run(new DomainInitializer(cc))
+        val domainInitializerRuntime = run(new DomainInitializer(cc))
         randomGenerator.nextGen()
-        run(new VariableFactory(cc))
+        val variableFactoryRuntime = run(new VariableFactory(cc))
         randomGenerator.nextGen()
-        run(new VariableClassifier(cc))
+        val variableClassifierRuntime = run(new VariableClassifier(cc))
         randomGenerator.nextGen()
-        run(new ConstraintFactory(cc))
+        val constraintFactoryRuntime = run(new ConstraintFactory(cc))
         randomGenerator.nextGen()
         randomGenerator.nextGen()
-        run(new ObjectiveFactory(cc))
+        val objectiveFactoryRuntime = run(new ObjectiveFactory(cc))
         randomGenerator.nextGen()
-        if cfg.runPresolver then {
-            run(new Presolver(cc))
-        }
+        val presolverRuntime = if cfg.runPresolver then run(new Presolver(cc)) else Duration.ofMillis(0)
         val objectiveIsSuitableForFj = cc.objective match {
             case _: SatisfactionObjective => true
             case hierarchicalObjective: HierarchicalObjective =>
@@ -76,41 +77,47 @@ final class FlatZincCompiler
                 }
             case _ => false
         }
-        if cfg.maybePreferredSolvingMethod.getOrElse(SolvingMethod.SimulatedAnnealing) == SolvingMethod.SimulatedAnnealing ||
+        val useAnnealing =
+            cfg.maybePreferredSolvingMethod.getOrElse(SolvingMethod.SimulatedAnnealing) == SolvingMethod.SimulatedAnnealing ||
             ! objectiveIsSuitableForFj ||
             cc.space.searchVariables.iterator.exists(_.isInstanceOf[IntegerSetVariable]) ||
             // Delivery requires the circuit to be maintained by a neighbourhood.
             cc.costVars.exists(costs =>
-                cc.space.maybeDefiningConstraint(costs).exists(_.isInstanceOf[Delivery[?, ?, ?]])) then
-        {
-            run(new AnnealingNeighbourhoodFactory(cc, randomGenerator.nextGen()))
-        } else {
-            run(new FeasibilityJumpNeighbourhoodFactory(cc, randomGenerator.nextGen()))
-        }
-        if cfg.pruneConstraintNetwork then {
-            run(new ConstraintNetworkPruner(cc))
-        }
-        if cfg.optimizeArrayAccess then {
-            run(new ArrayAccessOptimizer(cc))
-        }
-        run(new WarmStartAnnotationParser(cc))
+                cc.space.maybeDefiningConstraint(costs).exists(_.isInstanceOf[Delivery[?, ?, ?]]))
+        val neighbourhoodFactoryRuntime =
+            if useAnnealing
+            then run(new AnnealingNeighbourhoodFactory(cc, randomGenerator.nextGen()))
+            else run(new FeasibilityJumpNeighbourhoodFactory(cc, randomGenerator.nextGen()))
+        val constraintNetworkPrunerRuntime =
+            if cfg.pruneConstraintNetwork then run(new ConstraintNetworkPruner(cc)) else Duration.ofMillis(0)
+        val arrayAccessOptimizerRuntime =
+            if cfg.optimizeArrayAccess then run(new ArrayAccessOptimizer(cc)) else Duration.ofMillis(0)
+        val warmStartAnnotationParserRuntime = run(new WarmStartAnnotationParser(cc))
 
         checkSearchVariableDomains(cc)
         assignValuesToDanglingVariables(cc)
 
-        cc
+        val stageRuntimes = FlatZincCompilerStageRuntimes(
+            domainInitializerRuntime, variableFactoryRuntime, variableClassifierRuntime, constraintFactoryRuntime,
+            objectiveFactoryRuntime, presolverRuntime, neighbourhoodFactoryRuntime, constraintNetworkPrunerRuntime,
+            arrayAccessOptimizerRuntime, warmStartAnnotationParserRuntime)
+
+        (cc, stageRuntimes)
+
     }
 
     // Use the optional root log level to focus on a particular compilation phase.
-    private def run(phase: CompilationPhase, rootLogLevel: yuck.util.logging.LogLevel = yuck.util.logging.LogLevel.FineLogLevel): Unit = {
+    private def run(phase: CompilationPhase, rootLogLevel: LogLevel = LogLevel.FineLogLevel): Duration = {
         if sigint.isSet then {
             throw new FlatZincCompilerInterruptedException
         }
-        logger.withRootLogLevel(rootLogLevel) {
-            logger.withTimedLogScope("Running %s".format(phase.getClass.getSimpleName)) {
-                phase.run()
+        val (_, duration) =
+            logger.withRootLogLevel(rootLogLevel) {
+                logger.withTimedLogScope("Running %s".format(phase.getClass.getSimpleName)) {
+                    phase.run()
+                }
             }
-        }
+        duration
     }
 
     private def checkSearchVariableDomains(cc: CompilationContext): Unit = {

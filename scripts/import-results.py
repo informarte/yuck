@@ -39,6 +39,16 @@ def createDb(cursor):
         'flatzinc_model_md5sum TEXT, '\
         'parser_runtime_in_seconds DOUBLE CONSTRAINT result_parser_runtime_in_seconds_constraint CHECK (parser_runtime_in_seconds >= 0), '\
         'compiler_runtime_in_seconds DOUBLE CONSTRAINT result_compiler_runtime_in_seconds_constraint CHECK (compiler_runtime_in_seconds >= 0), '\
+        'domain_initializer_runtime_in_seconds DOUBLE CONSTRAINT result_domain_initializer_runtime_in_seconds_constraint CHECK (domain_initializer_runtime_in_seconds >= 0), '\
+        'variable_factory_runtime_in_seconds DOUBLE CONSTRAINT result_variable_factory_runtime_in_seconds_constraint CHECK (variable_factory_runtime_in_seconds >= 0), '\
+        'variable_classifier_runtime_in_seconds DOUBLE CONSTRAINT result_variable_classifier_runtime_in_seconds_constraint CHECK (variable_classifier_runtime_in_seconds >= 0), '\
+        'constraint_factory_runtime_in_seconds DOUBLE CONSTRAINT result_constraint_factory_runtime_in_seconds_constraint CHECK (constraint_factory_runtime_in_seconds >= 0), '\
+        'objective_factory_runtime_in_seconds DOUBLE CONSTRAINT result_objective_factory_runtime_in_seconds_constraint CHECK (objective_factory_runtime_in_seconds >= 0), '\
+        'presolver_runtime_in_seconds DOUBLE CONSTRAINT result_presolver_runtime_in_seconds_constraint CHECK (presolver_runtime_in_seconds >= 0), '\
+        'neighbourhood_factory_runtime_in_seconds DOUBLE CONSTRAINT result_neighbourhood_factory_runtime_in_seconds_constraint CHECK (neighbourhood_factory_runtime_in_seconds >= 0), '\
+        'constraint_network_pruner_runtime_in_seconds DOUBLE CONSTRAINT result_constraint_network_pruner_runtime_in_seconds_constraint CHECK (constraint_network_pruner_runtime_in_seconds >= 0), '\
+        'array_access_optimizer_runtime_in_seconds DOUBLE CONSTRAINT result_array_access_optimizer_runtime_in_seconds_constraint CHECK (array_access_optimizer_runtime_in_seconds >= 0), '\
+        'warm_start_annotation_parser_runtime DOUBLE CONSTRAINT result_warm_start_annotation_parser_runtime_constraint CHECK (warm_start_annotation_parser_runtime >= 0), '\
         'number_of_variables INT CONSTRAINT result_number_of_variables_constraint CHECK (number_of_variables >= 0), '\
         'number_of_search_variables INT CONSTRAINT result_number_of_search_variables_constraint CHECK (number_of_search_variables >= 0), '\
         'number_of_implicitly_constrained_search_variables INT CONSTRAINT result_number_of_implicitly_constrained_search_variables_constraint CHECK (number_of_implicitly_constrained_search_variables >= 0), '\
@@ -76,7 +86,7 @@ def importResults(args, file, cursor):
         print("No model metrics (FlatZinc compiler error?)")
     else:
         cursor.execute(
-            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             (args.run,
              solver['name'] if solver else None,
              solver['version'] if solver else None,
@@ -90,6 +100,16 @@ def importResults(args, file, cursor):
              flatZincModelMetrics.get('md5sum') if flatZincModelMetrics else None,
              parserMetrics['runtime-in-seconds'] if parserMetrics else None,
              compilerMetrics['runtime-in-seconds'] if compilerMetrics else None,
+             compilerMetrics.get('domain-initializer-runtime-in-seconds') if compilerMetrics else None,
+             compilerMetrics.get('variable-factory-runtime-in-seconds') if compilerMetrics else None,
+             compilerMetrics.get('variable-classifier-runtime-in-seconds') if compilerMetrics else None,
+             compilerMetrics.get('constraint-factory-runtime-in-seconds') if compilerMetrics else None,
+             compilerMetrics.get('objective-factory-runtime-in-seconds') if compilerMetrics else None,
+             compilerMetrics.get('presolver-runtime-in-seconds') if compilerMetrics else None,
+             compilerMetrics.get('neighbourhood-factory-runtime-in-seconds') if compilerMetrics else None,
+             compilerMetrics.get('constraint-network-pruner-runtime-in-seconds') if compilerMetrics else None,
+             compilerMetrics.get('array-access-optimizer-runtime-in-seconds') if compilerMetrics else None,
+             compilerMetrics.get('warm-start-annotation-parser-runtime') if compilerMetrics else None,
              yuckModelMetrics['number-of-search-variables'] + yuckModelMetrics['number-of-channel-variables'] if yuckModelMetrics else None,
              yuckModelMetrics['number-of-search-variables'] if yuckModelMetrics else None,
              yuckModelMetrics['number-of-implicitly-constrained-search-variables'] if yuckModelMetrics else None,

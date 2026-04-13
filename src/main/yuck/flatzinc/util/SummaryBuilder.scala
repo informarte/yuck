@@ -183,9 +183,20 @@ final class SummaryBuilder {
     }
 
     def addCompilerMetrics(compilerResult: FlatZincCompilerResult): SummaryBuilder = {
+        val stageRuntimes = compilerResult.stageRuntimes
         rootNode += "compiler-metrics" ->
             JsObjectBuilder(
-                "runtime-in-seconds" -> JsValueWrapper(JsNumber(compilerResult.runtime.toMillis / 1000.0))
+                "runtime-in-seconds" -> toSeconds(compilerResult.runtime),
+                "domain-initializer-runtime-in-seconds" -> toSeconds(stageRuntimes.domainInitializerRuntime),
+                "variable-factory-runtime-in-seconds" -> toSeconds(stageRuntimes.variableFactoryRuntime),
+                "variable-classifier-runtime-in-seconds" -> toSeconds(stageRuntimes.variableClassifierRuntime),
+                "constraint-factory-runtime-in-seconds" -> toSeconds(stageRuntimes.constraintFactoryRuntime),
+                "objective-factory-runtime-in-seconds" -> toSeconds(stageRuntimes.objectiveFactoryRuntime),
+                "presolver-runtime-in-seconds" -> toSeconds(stageRuntimes.presolverRuntime),
+                "neighbourhood-factory-runtime-in-seconds" -> toSeconds(stageRuntimes.neighbourhoodFactoryRuntime),
+                "constraint-network-pruner-runtime-in-seconds" -> toSeconds(stageRuntimes.constraintNetworkPrunerRuntime),
+                "array-access-optimizer-runtime-in-seconds" -> toSeconds(stageRuntimes.arrayAccessOptimizerRuntime),
+                "warm-start-annotation-parser-runtime" -> toSeconds(stageRuntimes.warmStartAnnotationParserRuntime)
             )
         this
     }
@@ -230,9 +241,9 @@ final class SummaryBuilder {
         val metricsNode =
             JsObjectBuilder(
                 "number-of-consultations" -> JsNumber(metrics.numberOfConsultations),
-                "consultation-effort-in-seconds" -> convertDuration(metrics.consultationEffort),
+                "consultation-effort-in-seconds" -> toSeconds(metrics.consultationEffort),
                 "number-of-commitments" -> JsNumber(metrics.numberOfCommitments),
-                "commitment-effort-in-seconds" -> convertDuration(metrics.commitmentEffort),
+                "commitment-effort-in-seconds" -> toSeconds(metrics.commitmentEffort),
                 "by-constraint" -> byConstraintNode
             )
         if metrics.maybePerformanceMetricsByGoalAndConstraint.isDefined then {
@@ -318,12 +329,12 @@ object SummaryBuilder {
     private def convertConstraintPerformanceMetrics(metrics: ConstraintPerformanceMetrics): JsValueBuilder =
         JsObjectBuilder(
             "number-of-consultations" -> JsNumber(metrics.numberOfConsultations),
-            "consultation-effort-in-seconds" -> convertDuration(metrics.consultationEffort),
+            "consultation-effort-in-seconds" -> toSeconds(metrics.consultationEffort),
             "number-of-commitments" -> JsNumber(metrics.numberOfCommitments),
-            "commitment-effort-in-seconds" -> convertDuration(metrics.commitmentEffort)
+            "commitment-effort-in-seconds" -> toSeconds(metrics.commitmentEffort)
         )
 
-    private def convertDuration(duration: Duration): JsNumber =
+    private def toSeconds(duration: Duration): JsNumber =
         JsNumber(duration.getSeconds + duration.getNano / 1e9)
 
 }

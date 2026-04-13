@@ -7,6 +7,19 @@ import scala.collection.*
 import yuck.core.*
 import yuck.flatzinc.ast.FlatZincAst
 
+final class FlatZincCompilerStageRuntimes(
+    val domainInitializerRuntime: Duration,
+    val variableFactoryRuntime: Duration,
+    val variableClassifierRuntime: Duration,
+    val constraintFactoryRuntime: Duration,
+    val objectiveFactoryRuntime: Duration,
+    val presolverRuntime: Duration,
+    val neighbourhoodFactoryRuntime: Duration,
+    val constraintNetworkPrunerRuntime: Duration,
+    val arrayAccessOptimizerRuntime: Duration,
+    val warmStartAnnotationParserRuntime: Duration
+)
+
 final class FlatZincCompilerResult(
     val ast: FlatZincAst,
     val space: Space,
@@ -15,5 +28,6 @@ final class FlatZincCompilerResult(
     val objective: AnyObjective,
     val maybeNeighbourhood: Option[Neighbourhood],
     val performWarmStart: Boolean,
-    val runtime: Duration
+    val runtime: Duration,
+    val stageRuntimes: FlatZincCompilerStageRuntimes
 )
