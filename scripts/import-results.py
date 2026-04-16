@@ -37,6 +37,7 @@ def createDb(cursor):
         'optimum INT, '\
         'high_score INT, '\
         'flatzinc_model_md5sum TEXT, '\
+        'flattener_runtime_in_seconds DOUBLE CONSTRAINT result_flattener_runtime_in_seconds_constraint CHECK (flattener_runtime_in_seconds >= 0), '\
         'parser_runtime_in_seconds DOUBLE CONSTRAINT result_parser_runtime_in_seconds_constraint CHECK (parser_runtime_in_seconds >= 0), '\
         'compiler_runtime_in_seconds DOUBLE CONSTRAINT result_compiler_runtime_in_seconds_constraint CHECK (compiler_runtime_in_seconds >= 0), '\
         'domain_initializer_runtime_in_seconds DOUBLE CONSTRAINT result_domain_initializer_runtime_in_seconds_constraint CHECK (domain_initializer_runtime_in_seconds >= 0), '\
@@ -73,20 +74,21 @@ def createDb(cursor):
 def importResults(args, file, cursor):
     data = json.load(file)
     task = data.get('task')
+    flattenerMetrics = data.get('flattener-metrics')
     flatZincModelMetrics = data.get('flatzinc-model-metrics', data.get('flatzinc-model-statistics'))
     yuckModelMetrics = data.get('yuck-model-metrics', data.get('yuck-model-statistics'))
-    result = data.get('result')
-    solver = data.get('solver')
     parserMetrics = data.get('parser-metrics', data.get('parser-statistics'))
     compilerMetrics = data.get('compiler-metrics', data.get('compiler-statistics'))
     searchMetrics = data.get('search-metrics', data.get('search-statistics', data.get('solver-statistics')))
+    result = data.get('result')
+    solver = data.get('solver')
     if not task:
          print("No task (MiniZinc compiler error?)")
     elif 'env' in data and 'yuck' in data['env'] and not yuckModelMetrics:
         print("No model metrics (FlatZinc compiler error?)")
     else:
         cursor.execute(
-            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             (args.run,
              solver['name'] if solver else None,
              solver['version'] if solver else None,
@@ -98,6 +100,7 @@ def importResults(args, file, cursor):
              task.get('optimum'),
              task.get('high-score'),
              flatZincModelMetrics.get('md5sum') if flatZincModelMetrics else None,
+             flattenerMetrics['runtime-in-seconds'] if flattenerMetrics else None,
              parserMetrics['runtime-in-seconds'] if parserMetrics else None,
              compilerMetrics['runtime-in-seconds'] if compilerMetrics else None,
              compilerMetrics.get('domain-initializer-runtime-in-seconds') if compilerMetrics else None,

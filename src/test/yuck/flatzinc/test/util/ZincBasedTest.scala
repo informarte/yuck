@@ -241,13 +241,14 @@ class ZincBasedTest extends IntegrationTest {
         if ! dataFilePath.isEmpty then {
             miniZincCommand += dataFilePath
         }
-        val (outputLines, _) =
+        val (outputLines, runtime) =
             logger.withTimedLogScope("Flattening MiniZinc model") {
                 logger.withRootLogLevel(FineLogLevel) {
                     new ProcessRunner(logger, miniZincCommand).call()
                 }
             }
         summaryBuilder.addMiniZincVersion(outputLines.head)
+        summaryBuilder.addFlattenerMetrics(runtime)
         fznFilePath
     }
 

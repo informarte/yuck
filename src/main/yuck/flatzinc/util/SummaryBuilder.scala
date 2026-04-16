@@ -174,6 +174,14 @@ final class SummaryBuilder {
         this
     }
 
+    def addFlattenerMetrics(runtime: Duration): SummaryBuilder = {
+        rootNode += "flattener-metrics" ->
+            JsObjectBuilder(
+                "runtime-in-seconds" -> JsValueWrapper(JsNumber(runtime.toMillis / 1000.0))
+            )
+        this
+    }
+
     def addParserMetrics(runtime: Duration): SummaryBuilder = {
         rootNode += "parser-metrics" ->
             JsObjectBuilder(
