@@ -5,15 +5,17 @@ import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.test.util.{DefaultNumberOfThreads, DefaultRuntimeLimitInSeconds}
 import yuck.util.logging.LogLevel
 
+enum OptimizationLevel {
+    case O1
+    case O2
+    case O3
+    case O4
+    case O5
+}
+
 enum SourceFormat {
     case FlatZinc
     case MiniZinc
-}
-
-enum VerificationFrequency {
-    case NoVerification
-    case VerifyOnlyLastSolution
-    case VerifyEverySolution
 }
 
 enum TestDataDirectoryLayout {
@@ -23,6 +25,12 @@ enum TestDataDirectoryLayout {
     case StandardMiniZincBenchmarksLayout
     // several model (mzn) files in one folder, models contain data
     case NonStandardMiniZincBenchmarksLayout
+}
+
+enum VerificationFrequency {
+    case NoVerification
+    case VerifyOnlyLastSolution
+    case VerifyEverySolution
 }
 
 enum VerificationTool {
@@ -40,6 +48,7 @@ final case class ZincTestTask(
     modelName: String = "",
     instanceName: String = "",
     dataAssignments: Map[String, String] = Map[String, String](),
+    optimizationLevel: OptimizationLevel = OptimizationLevel.O1,
     solverConfiguration: FlatZincSolverConfiguration =
         FlatZincSolverConfiguration(
             numberOfSolvers = DefaultNumberOfThreads,

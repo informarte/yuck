@@ -39,8 +39,13 @@ object MiniZincBenchmarks extends MiniZincTestTaskFactory {
 
     override protected val baseTask =
         ZincTestTask(
-            // We disable bound sharing to avoid that thread scheduling affects search trajectories.
-            solverConfiguration = ZincTestTask().solverConfiguration.copy(shareBounds = false))
+            optimizationLevel = OptimizationLevel.O3,
+            solverConfiguration =
+                ZincTestTask().solverConfiguration.copy(
+                    // Bound sharing may affect search trajectories.
+                    shareBounds = false,
+                    // -O3 entails root propagation as part of flattening.
+                    runPresolver = false))
 
     private val numberOfInstancesPerProblem = 5
 

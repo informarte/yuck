@@ -225,8 +225,13 @@ class ZincBasedTest extends IntegrationTest {
             "-v",
             "-c",
             "--solver", "org.minizinc.mzn-fzn",
-            "-I", "resources/mzn/lib/yuck",
-            "--output-fzn-to-file", fznFilePath)
+            "-G", "resources/mzn/lib/yuck")
+        if task.optimizationLevel != OptimizationLevel.O1 then {
+            miniZincCommand ++= List(
+                "-%s".format(task.optimizationLevel),
+                "--allow-unbounded-vars")
+        }
+        miniZincCommand ++= List("--output-fzn-to-file", fznFilePath)
         if task.miniZincCompilerRenamesVariables then {
             miniZincCommand ++= List(
                 "--output-mode", "dzn",
