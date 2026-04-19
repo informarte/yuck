@@ -66,9 +66,6 @@ object FlatZincParser {
     def bool_const[$: P]: P[BoolConst] =
         P("true".map(_ => BoolConst(true)) | "false".map(_ => BoolConst(false)))
 
-    def identifier[$: P]: P[String] =
-        P((CharIn("_").rep ~ CharIn("A-Za-z") ~ CharIn("A-Za-z0-9_").rep).!)
-
     // Throws when the integer literal cannot be represented as a Long.
     def int_const[$: P]: P[IntConst] =
         P((CharIn("+\\-").? ~ CharIn("0-9").rep(1)).!.map(s => IntConst(s.toLong)))
@@ -128,6 +125,12 @@ object FlatZincParser {
     def int_set_const[$: P]: P[IntSetConst] =
         P((int_range.map(r => IntSetConst(r)) | int_set.map(s => IntSetConst(s))))
 
+    def string_const[$: P]: P[StringConst] =
+        P(("\"" ~ CharsWhile(c => c != '"' && c != '\n', 0).! ~ "\"").map(StringConst.apply))
+
+    def identifier[$: P]: P[String] =
+        P((CharIn("_").rep ~ CharIn("A-Za-z") ~ CharIn("A-Za-z0-9_").rep).!)
+
     def array_const[$: P]: P[ArrayConst] =
         P(("[" ~ expr.rep(sep = ",")(using exprVectorBuilder) ~ "]").map(ArrayConst.apply))
 
@@ -136,9 +139,6 @@ object FlatZincParser {
             case (id, idx) => ArrayAccess(id, idx)
         }
     )
-
-    def string_const[$: P]: P[StringConst] =
-        P(("\"" ~ identifier ~ "\"").map(StringConst.apply))
 
     def term[$: P]: P[Term] = P(
         (identifier ~ ("(" ~ expr.rep(1, sep = ",") ~ ")").?).map {

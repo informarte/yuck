@@ -42,7 +42,7 @@ final case class ArrayAccess(id: String, idx: Expr) extends Expr {
     override def toString = "%s[%s]".format(id, idx)
 }
 final case class StringConst(string: String) extends Expr {
-    override def toString = string
+    override def toString = "\"%s\"".format(string)
 }
 // In expressions, parameters and variables are represented as 0-ary terms.
 final case class Term(id: String, params: LinearSeq[Expr]) extends Expr {

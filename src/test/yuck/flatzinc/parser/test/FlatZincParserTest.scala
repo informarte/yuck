@@ -118,7 +118,9 @@ final class FlatZincParserTest extends UnitTest {
 
     @Test
     def testString(): Unit = {
+        expectSuccess(expr, "\"\"", StringConst(""))
         expectSuccess(expr, "\"foo\"", StringConst("foo"))
+        expectSuccess(expr, "\"!@#$%^&*()-_=+[{]};:'\\|,<.>/?\"", StringConst("!@#$%^&*()-_=+[{]};:'\\|,<.>/?"))
     }
 
     @Test
