@@ -299,9 +299,6 @@ final class SimulatedAnnealing(
     private def createResult(): AnnealingResult =
         new AnnealingResult(
             maybeUserData, name, objective, bestProposal,
-            numberOfMonteCarloAttempts, runtimeInMillis,
-            space.numberOfConsultations, space.numberOfCommitments,
-            numberOfPerturbations,
-            roundLogs)
+            numberOfMonteCarloAttempts, runtimeInMillis, numberOfPerturbations, roundLogs)
 
 }

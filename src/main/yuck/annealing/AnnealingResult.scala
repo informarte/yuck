@@ -11,8 +11,10 @@ final class AnnealingResult(
     override val bestProposal: SearchState,
     override val numberOfMoves: Long,
     override val runtimeInMillis: Long,
-    override val numberOfConsultations: Long,
-    override val numberOfCommitments: Long,
     override val numberOfPerturbations: Int,
     val roundLogs: IndexedSeq[RoundLog])
     extends LocalSearchResult
+{
+    override val numberOfConsultations = roundLogs.view.map(_.numberOfConsultations).sum
+    override val numberOfCommitments = roundLogs.view.map(_.numberOfCommitments).sum
+}
