@@ -65,14 +65,14 @@ final class DistributionTest(createDistribution: Int => Distribution) extends Un
     def testExceptionalCases(): Unit = {
         val n = 1
         val d = createDistribution(n)
-        assertThrows(d.setFrequency(-1, 0), classOf[ArrayIndexOutOfBoundsException])
-        assertThrows(d.setFrequency(n, 0), classOf[ArrayIndexOutOfBoundsException])
-        assertThrows(d.addFrequencyDelta(-1, 0), classOf[ArrayIndexOutOfBoundsException])
-        assertThrows(d.addFrequencyDelta(n, 0), classOf[ArrayIndexOutOfBoundsException])
-        assertThrows(d.frequency(-1), classOf[ArrayIndexOutOfBoundsException])
-        assertThrows(d.frequency(n), classOf[ArrayIndexOutOfBoundsException])
-        assertThrows(d.cdf(-1), classOf[ArrayIndexOutOfBoundsException])
-        assertThrows(d.cdf(n), classOf[ArrayIndexOutOfBoundsException])
+        assertThrows(d.setFrequency(-1, 0), classOf[IndexOutOfBoundsException])
+        assertThrows(d.setFrequency(n, 0), classOf[IndexOutOfBoundsException])
+        assertThrows(d.addFrequencyDelta(-1, 0), classOf[IndexOutOfBoundsException])
+        assertThrows(d.addFrequencyDelta(n, 0), classOf[IndexOutOfBoundsException])
+        assertThrows(d.frequency(-1), classOf[IndexOutOfBoundsException])
+        assertThrows(d.frequency(n), classOf[IndexOutOfBoundsException])
+        assertThrows(d.cdf(-1), classOf[IndexOutOfBoundsException])
+        assertThrows(d.cdf(n), classOf[IndexOutOfBoundsException])
         assertThrows(d.inverseCdf(-1))
         assertThrows(d.inverseCdf(d.volume))
     }

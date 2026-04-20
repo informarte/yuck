@@ -2,6 +2,8 @@ package yuck.core
 
 import scala.collection.*
 
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap
+
 /**
  * Provides an interface for random generation of decisions, integers, and probabilities.
  */
@@ -54,38 +56,35 @@ abstract class RandomGenerator {
         bf.newBuilder(source).addAll(buf).result()
     }
 
-    private final class LazyShuffleIterator[T](source: IndexedSeq[T]) extends Iterator[T] {
+    // Inspired by https://drmaciver.com/2018/01/lazy-fisher-yates-shuffling-for-precise-rejection-sampling/
+    private final class FisherYatesRangeIterator(var n: Int) extends Iterator[Int] {
 
-        private var n = source.size
-        private val buf = Array.ofDim[Int](n)
+        require(n >= 0)
 
-        // Array.tabulate together with identity is slow due to boxing
-        {
-            var i = 0
-            while i < n do {
-                buf(i) = i
-                i += 1
-            }
-        }
+        // Sparse representation of the Fisher-Yates array:
+        // If a key k is not present, then it is mapped to itself.
+        private val map = new Int2IntOpenHashMap
 
-        inline override def hasNext = n > 0
+        override def hasNext: Boolean = n > 0
 
-        override def next() = {
+        override def next(): Int = {
             if ! hasNext then {
                 throw new NoSuchElementException
             }
             val i = nextInt(n)
             n -= 1
-            val a = source(buf(i))
+            val j = map.getOrDefault(i, i)
             if i < n then {
-                buf(i) = buf(n)
+                val k = map.getOrDefault(n, n)
+                map.put(i, k)
             }
-            a
+            map.remove(n)
+            j
         }
 
     }
 
-    private final class LazyShuffleInPlaceIterator[T](source: mutable.IndexedSeq[T]) extends Iterator[T] {
+    private final class FisherYatesInPlaceIterator[T](source: mutable.IndexedSeq[T]) extends Iterator[T] {
 
         private var n = source.size
 
@@ -108,9 +107,15 @@ abstract class RandomGenerator {
     }
 
     /**
-     * Shuffles the given collection lazily.
+     * Shuffles [0, n[ lazily.
      *
-     * Time and space complexity for creating the iterator are O(n).
+     * In case not all elements are needed, lazyShuffle is more efficient than
+     * shuffle because less random numbers are generated.
+     */
+    final def lazyShuffle(n: Int): Iterator[Int] = new FisherYatesRangeIterator(n)
+
+    /**
+     * Shuffles the given collection lazily.
      *
      * In case not all elements are needed, lazyShuffle is more efficient than
      * shuffle because less random numbers are generated.
@@ -120,7 +125,7 @@ abstract class RandomGenerator {
         then Iterator.empty
         else if source.size == 1
         then source.iterator
-        else new LazyShuffleIterator[T](source)
+        else lazyShuffle(source.size).map(source.apply)
 
     /**
      * Shuffles the given collection lazily in place.
@@ -133,6 +138,6 @@ abstract class RandomGenerator {
         then Iterator.empty
         else if source.size == 1
         then source.iterator
-        else new LazyShuffleInPlaceIterator[T](source)
+        else new FisherYatesInPlaceIterator[T](source)
 
 }

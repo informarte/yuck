@@ -2,14 +2,12 @@ package yuck.core
 
 import java.lang.Long.*
 
-import yuck.core.SixtyFourBitSet.ValueRange
-
 /**
  * Implements immutable subsets of 0..63.
  */
 final class SixtyFourBitSet(val set: Long) extends IntegerDomain {
 
-    import SixtyFourBitSet.MaxUInt
+    import SixtyFourBitSet.{MaxUInt, get}
 
     inline def ==(that: SixtyFourBitSet): Boolean = this.set == that.set
     inline def !=(that: SixtyFourBitSet): Boolean = this.set != that.set
@@ -64,6 +62,8 @@ final class SixtyFourBitSet(val set: Long) extends IntegerDomain {
     inline private def contains(i: Long) = 0 <= i && i < 64 && (set & (1L << i)) != 0
     inline override def contains(a: IntegerValue) = contains(a.value)
 
+    inline override def apply(i: Int) = get(set, i)
+
     override def distanceTo(a: IntegerValue): IntegerValue = {
         require(! isEmpty)
         val i = a.value
@@ -87,17 +87,17 @@ final class SixtyFourBitSet(val set: Long) extends IntegerDomain {
     }
 
     inline override def randomValue(randomGenerator: RandomGenerator) =
-        IntegerValue(SixtyFourBitSet.randomValue(set, randomGenerator))
+        apply(randomGenerator.nextInt(size))
 
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: IntegerValue) = {
         require(! isEmpty)
         if isSingleton
         then singleValue
         else if size == 2
-        then if currentValue == lb then ub else lb
+        then if currentValue == lb then ub else currentValue
         else {
-            require(ValueRange.contains(currentValue))
-            IntegerValue(SixtyFourBitSet.randomValue(set & ~(1L << currentValue.value), randomGenerator))
+            val setWithoutCurrentValue = set & ~(1L << currentValue.value)
+            get(setWithoutCurrentValue, randomGenerator.nextInt(bitCount(setWithoutCurrentValue)))
         }
     }
 
@@ -156,17 +156,19 @@ object SixtyFourBitSet {
     val MaxUInt = 0xffffffffffffffffL
     val ValueRange = IntegerRange(0, 63)
 
-    private def randomValue(set: Long, randomGenerator: RandomGenerator): Int = {
-        require(set != 0)
-        var i = numberOfTrailingZeros(set)
-        var j = randomGenerator.nextInt(bitCount(set))
-        while j > 0 do {
-            i += 1
-            if (set & (1L << i)) != 0 then {
-                j -= 1
-            }
+    private def get(set0: Long, i0: Int): IntegerValue = {
+        if i0 < 0 || i0 >= bitCount(set0) then {
+            throw new IndexOutOfBoundsException("%d is out of bounds [0, %d[".format(i0, bitCount(set0)))
         }
-        i
+        var i = i0
+        var set = set0
+        // Remove the lowest i set bits.
+        while i > 0 do {
+            set &= set - 1
+            i = i - 1
+        }
+        // Now the lowest set bit is the ith element.
+        IntegerValue(numberOfTrailingZeros(set))
     }
 
     /**
@@ -190,7 +192,9 @@ object SixtyFourBitSet {
      */
     def apply(lb: Long, ub: Long): SixtyFourBitSet = {
         require(lb >= 0 && ub < 64)
-        apply(MaxUInt & (MaxUInt << lb) & (MaxUInt >>> (63 - ub)))
+        if lb <= ub
+        then apply(MaxUInt & (MaxUInt << lb) & (MaxUInt >>> (63 - ub)))
+        else EmptyBitSet
     }
 
     /**

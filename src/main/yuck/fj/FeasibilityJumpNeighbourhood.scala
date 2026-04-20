@@ -4,7 +4,6 @@ import java.util.Arrays
 
 import scala.annotation.tailrec
 import scala.collection.*
-import scala.collection.mutable.ArrayBuffer
 
 import yuck.core.*
 import yuck.util.Collections.*
@@ -282,8 +281,8 @@ final class FeasibilityJumpNeighbourhood
                 case y: IntegerVariable =>
                     if useConvexArgMin
                     then findJumpCandidateUsingConvexArgMin(acc, y, xi)
-                    else findJumpCandidate(acc, y, xi)
-                case y: IntegerSetVariable => findJumpCandidate(acc, y, xi)
+                    else findJumpCandidateUsingRandomSampling(acc, y, xi)
+                case y: IntegerSetVariable => ???
             }
             if useJumpValueCache && jumpCandidate.changes.size == 1 && (useConvexArgMin || cacheJumpValuesFor(x)) then {
                 val xi = jumpCandidate.xis.head
@@ -295,11 +294,13 @@ final class FeasibilityJumpNeighbourhood
         }
     }
 
-    private def findJumpCandidate
-        [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
-        (acc: JumpCandidate, x: X, xi: Int):
-        JumpCandidate =
-    {
+    private def findJumpCandidate(acc: JumpCandidate, x: BooleanVariable, xi: Int): JumpCandidate = {
+        val a = space.searchState.value(x)
+        val b = if a == True then False else True
+        computeScore(acc, x, xi, b)
+    }
+
+    private def findJumpCandidateUsingRandomSampling(acc: JumpCandidate, x: IntegerVariable, xi: Int): JumpCandidate = {
         val a = space.searchState.value(x)
         if cacheJumpValuesFor(x)
         then {
@@ -308,20 +309,14 @@ final class FeasibilityJumpNeighbourhood
                 .map(b => computeScore(acc, x, xi, b))
                 .minBy(_.score)
         } else {
-            val values = new ArrayBuffer[A](x.domain.size - 1)
-            values ++= x.domain.valuesIterator.filter(_ != a)
             randomGenerator
-                .lazyShuffleInPlace(values)
+                .lazyShuffle(x.domain.size)
+                .map(x.domain.apply)
+                .filter(_ != a)
                 .map(b => computeScore(acc, x, xi, b))
                 .take(numberOfValuesToExplore(x.domain.size - 1))
                 .minBy(_.score)
         }
-    }
-
-    private def findJumpCandidate(acc: JumpCandidate, x: BooleanVariable, xi: Int): JumpCandidate = {
-        val a = space.searchState.value(x)
-        val b = if a == True then False else True
-        computeScore(acc, x, xi, b)
     }
 
     // We don't exclude the current value from search because splitting the domain might double the effort.

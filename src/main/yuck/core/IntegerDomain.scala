@@ -87,6 +87,17 @@ abstract class IntegerDomain extends NumericalDomain[IntegerValue, IntegerDomain
         case _ => ensureRangeList(this).diff(ensureRangeList(that))
     }
 
+    override def bisect = {
+        require(! isEmpty)
+        require(isFinite)
+        val mid = lb.value + (safeInc(ub.value - lb.value) / 2)
+        (this.intersect(IntegerRange(lb, IntegerValue(safeDec(mid)))),
+            this.intersect(IntegerRange(IntegerValue(mid), ub)))
+    }
+
+    /** Returns the ith value of the domain. */
+    def apply(i: Int): IntegerValue
+
     /**
      * Computes the size of the intersection of this and that.
      *

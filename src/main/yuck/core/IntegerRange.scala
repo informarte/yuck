@@ -66,13 +66,20 @@ final class IntegerRange
             override def knownSize = IntegerRange.this.size
         }
     }
-
     override def singleValue = {
         require(isSingleton)
         lb
     }
     override def contains(a: IntegerValue) =
         (lb.eq(null) || lb <= a) && (ub.eq(null) || a <= ub)
+
+    override def apply(i: Int) = {
+        require(isFinite)
+        if i < 0 || i >= size then {
+            throw new IndexOutOfBoundsException("%d is out of bounds [0, %d[".format(i, size))
+        }
+        if i == 0 then lb else IntegerValue(safeAdd(lb.value, i))
+    }
 
     override def randomValue(randomGenerator: RandomGenerator) = {
         require(! isEmpty && isFinite)
@@ -94,14 +101,6 @@ final class IntegerRange
     override def boundFromBelow(lb: IntegerValue) = this.intersect(IntegerRange(lb, null))
 
     override def boundFromAbove(ub: IntegerValue) = this.intersect(IntegerRange(null, ub))
-
-    override def bisect = {
-        require(! isEmpty)
-        require(isFinite)
-        val mid = lb.value + (safeInc(ub.value - lb.value) / 2)
-        (this.intersect(IntegerRange(lb, IntegerValue(safeDec(mid)))),
-         this.intersect(IntegerRange(IntegerValue(mid), ub)))
-    }
 
     override def distanceTo(a: IntegerValue): IntegerValue = {
         require(! isEmpty)

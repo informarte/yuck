@@ -11,6 +11,7 @@ import org.junit.platform.suite.api.{SelectClasses, Suite}
         classOf[IntegerDomainTest],
         classOf[IntegerRangeTest],
         classOf[IntegerRangeListTest],
+        classOf[SixtyFourBitSetTest],
         classOf[IntegerDomainPrunerTest],
         classOf[IntegerSetDomainTest],
         classOf[IntegerPowerSetDomainTest],

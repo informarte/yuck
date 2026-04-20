@@ -53,8 +53,8 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
     @Tag(HasAllDifferentConstraint)
     def testAlpha(): Unit = {
         val runtimeLimitInSeconds = maybePreferredSolvingMethod match {
-            case Some(SolvingMethod.FeasibilityJump) => 30
-            case _ => 10
+            case Some(SolvingMethod.FeasibilityJump) => 15
+            case _ => 5
         }
         solve(task.copy(problemName = "alpha", maybeRuntimeLimitInSeconds = Some(runtimeLimitInSeconds)))
     }
@@ -171,7 +171,11 @@ final class MiniZincExamples(maybePreferredSolvingMethod: Option[SolvingMethod])
     @Tag(EasyInstance)
     @Test
     def testMagicSequence5(): Unit = {
-        solve("magicsq_5")
+        val runtimeLimitInSeconds = maybePreferredSolvingMethod match {
+            case Some(SolvingMethod.FeasibilityJump) => 10
+            case _ => 5
+        }
+        solve(task.copy(problemName = "magicsq_5", maybeRuntimeLimitInSeconds = Some(runtimeLimitInSeconds)))
     }
 
     @Test

@@ -17,6 +17,19 @@ trait IntegerDomainTestTooling
 
     protected val logger: LazyLogger
 
+    private def testApply(d: IntegerDomain): Unit = {
+        if d.isFinite then {
+            val as = d.values.toVector
+            for (i <- as.indices) {
+                assertEq(d(i), as(i))
+            }
+        } else {
+            for (i <- -1 to 1) {
+                assertThrows(d(i))
+            }
+        }
+    }
+
     private def testEnsureRangeList(d: IntegerDomain): Unit = {
         val e = IntegerDomain.ensureRangeList(d)
         assert(e.isInstanceOf[IntegerRangeList])
@@ -563,6 +576,7 @@ trait IntegerDomainTestTooling
             }
         }
         for d <- domains do {
+            testApply(d)
             testEnsureRangeList(d)
             testSetSize(d)
             testIteration(d)

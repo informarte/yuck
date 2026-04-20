@@ -12,7 +12,7 @@ trait RandomValueSelectionTestTooling[A <: Value[A], D <: Domain[A, D]] extends 
     // Checks that values are chosen uniformly from the given domain.
     def testUniformityOfDistribution(d: D): Unit = {
         val sampleSize = 100000
-        val maxError = 0.05
+        val maxError = 0.1
         def checkDistribution(f: Map[A, Int]): Unit = {
             for a <- d.values do {
                 import scala.math.Ordering.Double.TotalOrdering

@@ -22,7 +22,7 @@ class FenwickTree(val size: Int) {
     // Throws when the given index is out-of-range.
     private def checkIndex(i: Int): Unit = {
         if i < 1 || i > size then {
-            throw new ArrayIndexOutOfBoundsException
+            throw new IndexOutOfBoundsException("%d is out of bounds [1, %d]".format(i, size))
         }
     }
 

@@ -29,7 +29,7 @@ final class IntegerRangeList
     override def toString = if isEmpty then "{}" else ranges.iterator.map(_.toString).mkString(" ∪ ")
 
     inline override def isEmpty = ranges.isEmpty
-    override lazy val size = ranges.iterator.map(_.size).foldLeft(0)(safeAdd(_, _))
+    override lazy val size = ranges.iterator.map(_.size).foldLeft(0)(safeAdd)
     override def isComplete = ranges.size == 1 && ranges.head.isComplete
     override def isFinite = isEmpty || (ranges.head.lb.ne(null) && ranges.last.ub.ne(null))
     override def hasGaps = ranges.size > 1
@@ -51,19 +51,43 @@ final class IntegerRangeList
     }
     override def contains(a: IntegerValue) = findIndexOfContainingRange(a, 0, ranges.size - 1) >= 0
 
-    private lazy val rangeDistribution: Distribution = {
-        val result = Distribution(ranges.size)
-        for i <- ranges.indices do {
-            result.setFrequency(i, ranges(i).size)
+    private lazy val rangeSizePrefixSums: Array[Int] = {
+        val n = ranges.size
+        val result = new Array[Int](n)
+        var acc = 0
+        var i = 0
+        while i < n do {
+            acc += ranges(i).size
+            result(i) = acc
+            i += 1
         }
         result
+    }
+
+    override def apply(i: Int) = {
+        require(isFinite)
+        if i < 0 || i >= size then {
+            throw new IndexOutOfBoundsException("%d is out of bounds [0, %d[".format(i, size))
+        }
+        var lo = 0
+        var hi = rangeSizePrefixSums.length - 1
+        while lo < hi do {
+            val mid = (lo + hi) >>> 1
+            if rangeSizePrefixSums(mid) > i then {
+                hi = mid
+            } else {
+                lo = mid + 1
+            }
+        }
+        val prefixSumBeforeContainingRange = if lo == 0 then 0 else rangeSizePrefixSums(lo - 1)
+        ranges(lo).apply(i - prefixSumBeforeContainingRange)
     }
 
     override def randomValue(randomGenerator: RandomGenerator) = {
         require(! isEmpty)
         if ranges.size == 1
         then ranges.head.randomValue(randomGenerator)
-        else ranges(rangeDistribution.nextIndex(randomGenerator)).randomValue(randomGenerator)
+        else randomGenerator.lazyShuffle(size).map(apply).next()
     }
 
     override def nextRandomValue(randomGenerator: RandomGenerator, currentValue: IntegerValue) = {
@@ -74,33 +98,12 @@ final class IntegerRangeList
         then if currentValue == lb then ub else lb
         else if ranges.size == 1
         then ranges.head.nextRandomValue(randomGenerator, currentValue)
-        else {
-            val i = findIndexOfContainingRange(currentValue, 0, ranges.size - 1)
-            assert(i >= 0)
-            try {
-                rangeDistribution.addFrequencyDelta(i, -1)
-                val j = rangeDistribution.nextIndex(randomGenerator)
-                val range = ranges(j)
-                if range.contains(currentValue)
-                then range.nextRandomValue(randomGenerator, currentValue)
-                else range.randomValue(randomGenerator)
-            } finally {
-                rangeDistribution.addFrequencyDelta(i, +1)
-            }
-        }
+        else randomGenerator.lazyShuffle(size).map(apply).filter(_ != currentValue).next()
     }
 
     override def boundFromBelow(lb: IntegerValue) = this.intersect(IntegerRange(lb, null))
 
     override def boundFromAbove(ub: IntegerValue) = this.intersect(IntegerRange(null, ub))
-
-    override def bisect = {
-        require(! isEmpty)
-        require(isFinite)
-        val mid = lb.value + (safeInc(ub.value - lb.value) / 2)
-        (this.intersect(IntegerRange(lb, IntegerValue(safeDec(mid)))),
-         this.intersect(IntegerRange(IntegerValue(mid), ub)))
-    }
 
     def isSubsetOf(that: IntegerRangeList): Boolean = {
         val lhs = this
