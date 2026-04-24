@@ -571,7 +571,7 @@ final class ConstraintFactory
                 constraint)
         case Constraint(Count(_, "bool"), _, _) =>
             compileCountConstraint(goals, constraint, maybeCosts)(using BooleanCompilationHelper)
-        case Constraint(Count(_, "int"), _, _) =>
+        case Constraint(Count(_, null), _, _) =>
             compileCountConstraint(goals, constraint, maybeCosts)(using IntegerCompilationHelper)
         case Constraint(Count(_, "set"), _, _) =>
             compileCountConstraint(goals, constraint, maybeCosts)(using IntegerSetCompilationHelper)
@@ -1394,7 +1394,7 @@ final class ConstraintFactory
 
 object ConstraintFactory {
 
-    private val Count = "yuck_count_(.*)_(.*)".r
+    private val Count = "fzn_count_([^_]+)(?:_(.*))?".r
     private val IntLin = "int_lin_(.*)".r
     private val Reif = "(.*)_reif".r
 
