@@ -15,7 +15,7 @@ abstract class TernaryConstraint
     final override def inVariables = List(x, y)
     final override def outVariables = List(z)
     protected def op(a: A, b: B): C
-    private val effect = z.reuseableEffect
+    private val effect = new ReusableMoveEffectWithFixedVariable(z)
     final override def initialize(now: SearchState) = {
         effect.a = op(now.value(x), now.value(y))
         effect

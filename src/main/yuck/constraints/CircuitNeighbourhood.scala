@@ -46,6 +46,8 @@ final class CircuitNeighbourhood
         cycle
     }
 
+    private val succ2Effect = succ.iterator.map(x => (x, new ReusableMoveEffectWithFixedVariable(x))).to(HashMap)
+
     private val effects = new mutable.ArrayBuffer[MoveEffect[IntegerValue, IntegerDomain, IntegerVariable]](3) {
         override def clear() = {
             // No need to clear the underlying array!
@@ -66,7 +68,7 @@ final class CircuitNeighbourhood
     private def link(i: Int, j: Int): Unit = {
         val x = succ(currentCycle((i + n) % n))
         val a = IntegerValue(currentCycle((j + n) % n) + offset)
-        val effect = x.reuseableEffect
+        val effect = succ2Effect(x)
         effect.a = a
         effects += effect
     }

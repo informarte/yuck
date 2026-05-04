@@ -36,7 +36,7 @@ abstract class LinearConstraintLike
 
     protected var currentSum = typeTraits.zero
     protected var futureSum = typeTraits.zero
-    protected val effect = costs.reuseableEffect
+    protected val effect = new ReusableMoveEffectWithFixedVariable(costs)
 
     // Propagates sum a(i) * x(i) = y.
     private def propagate1(effects: PropagationEffects): PropagationEffects = {

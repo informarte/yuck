@@ -104,7 +104,7 @@ final class Cumulative
             .mapValues(_.map(_._2).toVector)
             .to(HashMap)
 
-    private val effect = costs.reuseableEffect
+    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
 
     private var currentCosts = 0L
     private var futureCosts = 0L

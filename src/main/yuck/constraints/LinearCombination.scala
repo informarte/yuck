@@ -20,7 +20,7 @@ final class LinearCombination
 
     private val x2ax: HashMap[AnyVariable, AX[A, D, X]] = axs.view.map(ax => ax.x -> ax).to(HashMap)
     private var sum = typeTraits.zero
-    private val effect = y.reuseableEffect
+    private val effect = new ReusableMoveEffectWithFixedVariable(y)
 
     override def propagate() = {
         val lhs0 = axs.view.map(ax => (ax.a, ax.x.domain))

@@ -45,7 +45,7 @@ final class Disjunction
     private var trueCount = 0
     private var futureSum = 0L
     private var futureTrueCount = 0
-    private val effect = y.reuseableEffect
+    private val effect = new ReusableMoveEffectWithFixedVariable(y)
 
     override def propagate() = {
         val lhs0 = xs.view.map(_.domain)

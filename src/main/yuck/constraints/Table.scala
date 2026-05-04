@@ -48,7 +48,7 @@ final class Table
         then xs.view.zipWithIndex.groupBy(_._1).view.mapValues(_.map(_._2).toVector).to(HashMap)
         else null
 
-    private val effect = costs.reuseableEffect
+    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
 
     private val costModel = typeTraits.costModel
 

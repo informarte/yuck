@@ -47,7 +47,9 @@ final class BinPacking
     private val x2Item = items.view.map(item => (item.bin: AnyVariable) -> item).to(immutable.HashMap)
     private val currentLoads = new mutable.HashMap[IntegerValue, Load] // bin -> load
     private val loadDeltas = new mutable.HashMap[IntegerValue, Load] // bin -> load delta
-    private val effects = loads.view.map((i, load) => i -> load.reuseableEffect).to(immutable.HashMap) // bin -> effect
+    private val effects = loads.view
+        .map((i, load) => i -> new ReusableMoveEffectWithFixedVariable(load))
+        .to(immutable.HashMap) // bin -> effect
 
     override def initialize(now: SearchState) = {
         currentLoads.clear()

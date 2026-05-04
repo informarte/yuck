@@ -21,7 +21,7 @@ final class InDomain
 
     private var currentViolation = 0L
     private var futureViolation = 0L
-    private val effect = costs.reuseableEffect
+    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
 
     override def initialize(now: SearchState) = {
         currentViolation = 0
@@ -46,7 +46,7 @@ final class InDomain
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
         currentViolation = futureViolation
-        costs.reuseableEffect
+        effect
     }
 
 }

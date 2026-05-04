@@ -96,6 +96,10 @@ final class Delivery
     private var currentCosts = 0L
     private var futureCosts = 0L
 
+    private val arrivalTimeEffects = arrivalTimes.map(x => new ReusableMoveEffectWithFixedVariable(x))
+    private val totalTravelTimeEffect = new ReusableMoveEffectWithFixedVariable(totalTravelTime)
+    private val costsEffect = new ReusableMoveEffectWithFixedVariable(costs)
+
     private val effects = new mutable.ArrayBuffer[AnyMoveEffect] {
         override def clear() = {
             // No need to clear the underlying array!
@@ -132,7 +136,7 @@ final class Delivery
                 if withWaiting && dx.hasLb then {
                     time = timeOps.max(dx.lb, time)
                 }
-                val effect = x.reuseableEffect
+                val effect = arrivalTimeEffects(l)
                 effect.a = time
                 effects += effect
                 currentCosts = safeAdd(currentCosts, dx.distanceTo(time).toLong)
@@ -143,14 +147,12 @@ final class Delivery
         }
         currentCosts = safeAdd(currentCosts, totalTravelTime.domain.distanceTo(currentTotalTravelTime).toLong)
         if true then {
-            val effect = totalTravelTime.reuseableEffect
-            effect.a = currentTotalTravelTime
-            effects += effect
+            totalTravelTimeEffect.a = currentTotalTravelTime
+            effects += totalTravelTimeEffect
         }
         if true then {
-            val effect = costs.reuseableEffect
-            effect.a = BooleanValue(currentCosts)
-            effects += effect
+            costsEffect.a = BooleanValue(currentCosts)
+            effects += costsEffect
         }
         effects
     }
@@ -187,7 +189,7 @@ final class Delivery
                 }
                 val previousArrivalTime = before.value(x)
                 if time != previousArrivalTime then {
-                    val effect = x.reuseableEffect
+                    val effect = arrivalTimeEffects(l)
                     effect.a = time
                     effects += effect
                     futureCosts = safeAdd(futureCosts, distanceDelta(dx, previousArrivalTime, time))
@@ -201,14 +203,12 @@ final class Delivery
         futureCosts =
             safeAdd(futureCosts, distanceDelta(totalTravelTime.domain, currentTotalTravelTime, futureTotalTravelTime))
         if futureTotalTravelTime != currentTotalTravelTime then {
-            val effect = totalTravelTime.reuseableEffect
-            effect.a = futureTotalTravelTime
-            effects += effect
+            totalTravelTimeEffect.a = futureTotalTravelTime
+            effects += totalTravelTimeEffect
         }
         if futureCosts != currentCosts then {
-            val effect = costs.reuseableEffect
-            effect.a = BooleanValue(futureCosts)
-            effects += effect
+            costsEffect.a = BooleanValue(futureCosts)
+            effects += costsEffect
         }
         effects
     }

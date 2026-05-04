@@ -50,7 +50,7 @@ abstract class Disjoint
             .mapValues(_.map(_._2).toVector)
             .to(HashMap)
 
-    private val effect = costs.reuseableEffect
+    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
 
     final override def initialize(now: SearchState) = {
         rTree = SpatialSearches.rTree[RTreeEntry](rectBuilder)

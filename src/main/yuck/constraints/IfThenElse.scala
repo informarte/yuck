@@ -27,6 +27,8 @@ final class IfThenElse
     override def inVariables = cs.view ++ xs
     override def outVariables = List(y)
 
+    private val effect = new ReusableMoveEffectWithFixedVariable(y)
+
     // propagate from the x[i] and y to the c[i]
     private def propagate1(effects: PropagationEffects): PropagationEffects = {
         // identify impossible cases
@@ -91,14 +93,14 @@ final class IfThenElse
         while i < n && ! (i == n - 1 || now.value(cs(i)).truthValue) do {
             i += 1
         }
-        y.reuseableEffect.a = now.value(xs(i))
-        y.reuseableEffect
+        effect.a = now.value(xs(i))
+        effect
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) =
         initialize(after)
 
     override def commit(before: SearchState, after: SearchState, move: Move) =
-        y.reuseableEffect
+        effect
 
 }

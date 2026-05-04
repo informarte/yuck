@@ -52,6 +52,8 @@ final class IntegerIncreasingNeighbourhood
 
     private val frequencyRestorer = new FrequencyRestorer(moveSizeDistribution.size - 2)
 
+    private val effects = xs.iterator.map(x => new ReusableMoveEffectWithFixedVariable(x)).toVector
+
     override def nextMove() = {
         val useUniformDistribution =
             maybeHotSpotDistribution.isEmpty ||
@@ -118,7 +120,7 @@ final class IntegerIncreasingNeighbourhood
                 if i > 0 && searchState.value(xs(i - 1)) + offset > rem.ub then {
                     shiftLeft(i - 1, rem.ub - offset)
                 }
-                val effect = xs(i).reuseableEffect
+                val effect = effects(i)
                 effect.a = rem.ub
                 move += effect
             }
@@ -131,7 +133,7 @@ final class IntegerIncreasingNeighbourhood
                 if i < n - 1 && rem.lb + offset > searchState.value(xs(i + 1)) then {
                     shiftRight(i + 1, rem.lb + offset)
                 }
-                val effect = xs(i).reuseableEffect
+                val effect = effects(i)
                 effect.a = rem.lb
                 move += effect
             }

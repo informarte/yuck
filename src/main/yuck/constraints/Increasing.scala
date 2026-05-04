@@ -38,7 +38,7 @@ abstract class Increasing
     private var currentCosts = 0L
     private var futureCosts = 0L
 
-    private val effect = costs.reuseableEffect
+    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
 
     final override def propagate(): PropagationEffects = {
         if costs.domain == TrueDomain then {

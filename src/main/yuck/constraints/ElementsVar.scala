@@ -38,22 +38,26 @@ final class ElementsVar
     override def inVariables = xs.view.appendedAll(is)
     override def outVariables = ys
 
-    private val i2ys: HashMap[AnyVariable, Vector[X]] =
-        is.view.zip(ys).groupBy(_._1).view.mapValues(_.map(_._2).toVector).to(HashMap)
-    private val y2Effect = new mutable.TreeMap[X, AnyMoveEffect]
-    private val effects = y2Effect.values
-    private val x2ys: HashMap[AnyVariable, mutable.TreeSet[X]] =
-        HashMap.newBuilder.addAll(xs.view.map((_, new mutable.TreeSet[X]))).result()
+    private val effects = ys.map(y => new ReusableMoveEffectWithFixedVariable(y))
+
+    // Maps each i to the ys it affects.
+    // Formally, i2Effects(i) = {(i, {effect | (j, effect) <- is zip effects, j = i}) | i <- is}.
+    // (If i occurs n times in is, then i2Effects(i) has size n.)
+    private val i2Effects: HashMap[AnyVariable, Vector[ReusableMoveEffectWithFixedVariable[A, D, X]]] =
+        is.view.zip(effects).groupBy(_._1).view.mapValues(_.map(_._2).toVector).to(HashMap)
+
+    // Maps each x to the ys it currently affects.
+    // (Maintained by initialize and commit, used by consult.)
+    private val x2Effects: HashMap[X, mutable.HashSet[ReusableMoveEffectWithFixedVariable[A, D, X]]] =
+        HashMap.newBuilder
+            .addAll(xs.view.map((_, new mutable.HashSet[ReusableMoveEffectWithFixedVariable[A, D, X]])))
+            .result()
+
+    private val result = new mutable.HashSet[MoveEffect[A, D, X]]
 
     // When i is the value of a channel variable, i may be out-of-bounds!
     // Nevertheless, we have to provide some valid index.
     inline private def safeIndex(i: IntegerValue): Int = min(max(0, safeSub(i.toInt, offset)), n - 1)
-
-    inline private def addEffect(y: X, a: A): Unit = {
-        val effect = y.reuseableEffect
-        effect.a = a
-        y2Effect.addOne(y, effect)
-    }
 
     override def propagate() = {
         if typeTraits.domainCapabilities.union
@@ -76,47 +80,64 @@ final class ElementsVar
     }
 
     override def initialize(now: SearchState) = {
-        x2ys.keysIterator.foreach(x => x2ys(x).clear())
-        y2Effect.clear()
-        for (i, y) <- is.view.zip(ys) do {
+        for (effects <- x2Effects.values) {
+            effects.clear()
+        }
+        for (i, effect) <- is.view.zip(effects) do {
             val x = xs(safeIndex(now.value(i)))
-            addEffect(y, now.value(x))
-            x2ys(x).addOne(y)
+            effect.a = now.value(x)
+            x2Effects(x).addOne(effect)
         }
         effects
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
-        y2Effect.clear()
-        for effect <- move.effectsIterator do {
-            val ys = i2ys.getOrElse(effect.x, Vector.empty)
-            if ys.isEmpty then {
-                for y <- x2ys(effect.x.asInstanceOf[X]) do {
-                    if ! y2Effect.contains(y) then {
-                        addEffect(y, effect.a.asInstanceOf[A])
+        result.clear()
+        for inEffect <- move.effectsIterator do {
+            val outEffects = i2Effects.getOrElse(inEffect.x, Vector.empty)
+            if outEffects.isEmpty then {
+                // inEffect affects some x in xs.
+                val x = inEffect.x.asInstanceOf[X]
+                val a = inEffect.a.asInstanceOf[A]
+                for outEffect <- x2Effects(x) do {
+                    // Now we have to be careful.
+                    // If outEffect was already updated, there is no need to do it again.
+                    // Moreover, such an update can only have happened by processing an index change,
+                    // implying that outEffect is not affected by inEffect in the after state.
+                    if ! result.contains(outEffect) then {
+                        outEffect.a = a
+                        result += outEffect
                     }
                 }
             } else {
-                val a = after.value(xs(safeIndex(effect.a.asInstanceOf[IntegerValue])))
-                var i = ys.size - 1
-                while i >= 0 do {
-                    addEffect(ys(i), a)
-                    i -= 1
+                // inEffect affects some i in is.
+                val a = after.value(xs(safeIndex(inEffect.a.asInstanceOf[IntegerValue])))
+                for outEffect <- outEffects do {
+                    // Notice that outEffect might already have been updated by processing a change
+                    // to some x in xs. However, such an update would have happened under the assumption
+                    // that x2Effects(x) still applies, but this is not the case in the after state due
+                    // to the change to the index variable inEffect.x which we are processing here.
+                    // So we have to update outEffect in any case.
+                    outEffect.a = a
+                    result += outEffect
                 }
             }
         }
-        effects
+        result
     }
 
     override def commit(before: SearchState, after: SearchState, move: Move) = {
-        for effect <- move.effectsIterator do {
-            val ys = i2ys.getOrElse(effect.x, Vector.empty)
-            if ys.nonEmpty then {
-                x2ys(xs(safeIndex(before.value(effect.x.asInstanceOf[IntegerVariable])))).subtractAll(ys)
-                x2ys(xs(safeIndex(effect.a.asInstanceOf[IntegerValue]))).addAll(ys)
+        for inEffect <- move.effectsIterator do {
+            val outEffects = i2Effects.getOrElse(inEffect.x, Vector.empty)
+            if outEffects.nonEmpty then {
+                // inEffect affects some i in is.
+                val i = inEffect.x.asInstanceOf[IntegerVariable]
+                val b = inEffect.a.asInstanceOf[IntegerValue]
+                x2Effects(xs(safeIndex(before.value(i)))).subtractAll(outEffects)
+                x2Effects(xs(safeIndex(b))).addAll(outEffects)
             }
         }
-        effects
+        result
     }
 
 }

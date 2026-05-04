@@ -87,7 +87,7 @@ final class Regular
     private var futureCosts = 0
     private var futureStates: Vector[Int] = null
     private var futureFailurePosition = 0
-    private val effect = costs.reuseableEffect
+    private val effect = new ReusableMoveEffectWithFixedVariable(costs)
 
     override def initialize(now: SearchState) = {
         currentStates = Vector.fill(n)(0)

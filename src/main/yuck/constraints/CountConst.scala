@@ -22,7 +22,7 @@ final class CountConst
         xs.groupBy(identity).view.mapValues(_.size).filter((_, n) => n > 1).to(HashMap)
 
     private var count = 0
-    private val effect = n.reuseableEffect
+    private val effect = new ReusableMoveEffectWithFixedVariable(n)
 
     private def propagate1(effects: PropagationEffects): PropagationEffects = {
         val minCount = xs.count(x => x.domain.isSingleton && x.domain.contains(a))

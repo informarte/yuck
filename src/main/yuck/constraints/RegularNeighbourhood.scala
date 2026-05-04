@@ -53,6 +53,8 @@ class RegularNeighbourhood
     private var currentPath: Array[Transition] = initialPath.toArray
     private var futurePath: Array[Transition] = null
 
+    private val x2Effect = xs.iterator.map(x => (x, new ReusableMoveEffectWithFixedVariable(x))).to(HashMap)
+
     override def searchVariables = xs.iterator.filterNot(_.domain.isSingleton).toSet
 
     override def children = Nil
@@ -98,7 +100,7 @@ class RegularNeighbourhood
             futurePath = graph.computeShortestPath(new PenaltyProvider(proposal, now)).get
             for case Assignment(_, x, d, _) <- futurePath do {
                 val a = now.value(x)
-                val effect = x.reuseableEffect
+                val effect = x2Effect(x)
                 if proposal.contains(x) then {
                     val b = proposal(x)
                     if d.contains(b) then {
@@ -118,7 +120,7 @@ class RegularNeighbourhood
             }
         } else {
             for (x, a) <- proposal do {
-                val effect = x.reuseableEffect
+                val effect = x2Effect(x)
                 effect.a = a
                 move += effect
             }

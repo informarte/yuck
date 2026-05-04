@@ -19,7 +19,7 @@ final class Sum
     override def outVariables = List(y)
 
     private var sum = typeTraits.zero
-    private val effect = y.reuseableEffect
+    private val effect = new ReusableMoveEffectWithFixedVariable(y)
 
     override def propagate() = {
         val lhs0 = xs.view.map(x => (typeTraits.one, x.domain))

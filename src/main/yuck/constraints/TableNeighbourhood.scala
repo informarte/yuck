@@ -20,7 +20,7 @@ final class TableNeighbourhood
     require(rows.size > 1)
     require(rows.forall(_.size == xs.size))
 
-    private val effects = xs.map(_.reuseableEffect)
+    private val effects = xs.map(x => new ReusableMoveEffectWithFixedVariable(x))
 
     override def searchVariables = xs.iterator.filterNot(_.domain.isSingleton).toSet
 

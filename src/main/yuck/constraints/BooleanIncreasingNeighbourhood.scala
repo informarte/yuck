@@ -33,14 +33,15 @@ final class BooleanIncreasingNeighbourhood
     override def children = Nil
 
     // All variables xs(i) with i >= currentBoundary have true assigned, all other variables have false assigned.
-    private var currentBoundary =
-        Range(0, n).view.filter(i => space.searchState.value(xs(i)).truthValue).headOption.getOrElse(n)
+    private var currentBoundary = Range(0, n).find(i => space.searchState.value(xs(i)).truthValue).getOrElse(n)
     private var futureBoundary = 0
+
+    private val effects = xs.iterator.map(x => new ReusableMoveEffectWithFixedVariable(x)).toVector
 
     private def shiftLeft(move: BulkMove, m: Int): BulkMove = {
         var i = 0
         while i < m do {
-            val effect = xs(currentBoundary - i - 1).reuseableEffect
+            val effect = effects(currentBoundary - i - 1)
             effect.a = True
             move += effect
             i += 1
@@ -52,7 +53,7 @@ final class BooleanIncreasingNeighbourhood
     private def shiftRight(move: BulkMove, m: Int): BulkMove = {
         var i = 0
         while i < m do {
-            val effect = xs(currentBoundary + i).reuseableEffect
+            val effect = effects(currentBoundary + i)
             effect.a = False
             move += effect
             i += 1
