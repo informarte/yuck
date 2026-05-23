@@ -33,6 +33,28 @@ final class ElementConstTest(offset: Int) extends UnitTest with ConstraintTestTo
     }
 
     @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val copy = constraint.copy(Map.empty).asInstanceOf[ElementConst[?, ?, ?]]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.as, values)
+        assertEq(copy.i, i)
+        assertEq(copy.y, y)
+        assertEq(copy.offset, offset)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val y1 = IntegerTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((y, y1))).asInstanceOf[ElementConst[?, ?, ?]]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.as, values)
+        assertEq(copy.i, i)
+        assertEq(copy.y, y1)
+        assertEq(copy.offset, offset)
+    }
+
+    @Test
     def testPropagation(): Unit = {
         space.post(constraint)
         runScenario(

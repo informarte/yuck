@@ -1,5 +1,7 @@
 package yuck.constraints.test
 
+import scala.collection.*
+
 import org.junit.jupiter.api.Test
 import org.mockito.AdditionalAnswers.*
 import org.mockito.ArgumentMatchers.*
@@ -27,7 +29,7 @@ abstract class LinearConstraintLikeTest
     protected val relation: OrderingRelation
     protected val costsDomain: BooleanDomain
     protected val baseDomain: D
-    protected val axs: IndexedSeq[AX[A, D, X]]
+    protected val axs: immutable.IndexedSeq[AX[A, D, X]]
     protected final lazy val y = baseTypeTraits.createChannel(space)
     protected final lazy val z = baseTypeTraits.createVariable(space, "z", nonEmptyRandomSubdomain(baseDomain))
     protected final val costs = new BooleanVariable(space.nextVariableId(), "costs", costsDomain)
@@ -35,7 +37,7 @@ abstract class LinearConstraintLikeTest
     private val costModel = mock(classOf[OrderingCostModel[A]])
     private val domainPruner = mock(classOf[NumericalDomainPruner[A, D]])
     protected val typeTraits: NumericalTypeTraits[A, D, X] = mock(classOf[NumericalTypeTraits[A, D, X]])
-    protected lazy val constraint: Constraint
+    protected lazy val constraint: LinearConstraintLike[A, D, X]
 
     private def setupTypeTraits(): Unit = {
         when(typeTraits.costModel).thenReturn(costModel)
@@ -55,6 +57,35 @@ abstract class LinearConstraintLikeTest
         assertEq(constraint.outVariables.size, 1)
         assertEq(constraint.outVariables.head, costs)
     }
+
+    @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val copy = constraint.copy(Map.empty).asInstanceOf[LinearConstraintLike[?, ?, ?]]
+        assert(! copy.eq(constraint))
+        testConfiguration(copy, Map.empty)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val costs1 = BooleanTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((costs, costs1))).asInstanceOf[LinearConstraintLike[?, ?, ?]]
+        testConfiguration(copy, Map((costs, costs1)))
+    }
+
+    private def testConfiguration(
+        constraint: LinearConstraintLike[?, ?, ?],
+        replacements: Map[AnyVariable, AnyVariable]):
+        Unit =
+    {
+        assertEq(constraint.id, constraint.id)
+        testAxs(constraint)
+        assertEq(constraint.y, y)
+        assertEq(constraint.relation, relation)
+        assertEq(constraint.z, z)
+        assertEq(constraint.costs, replacements.getOrElse(costs, costs))
+    }
+
+    protected def testAxs(constraint: LinearConstraintLike[?, ?, ?]): Unit
 
     @Test
     def testPropagation(): Unit = {

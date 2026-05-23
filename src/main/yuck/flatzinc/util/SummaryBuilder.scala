@@ -105,8 +105,7 @@ final class SummaryBuilder {
                 "run-presolver" -> JsBoolean(cfg.runPresolver),
                 "use-implicit-solving" -> JsBoolean(cfg.annealingConfiguration.useImplicitSolving),
                 "use-progressive-tightening" -> JsBoolean(cfg.useProgressiveTightening),
-                "check-assignments-to-non-channel-variables" -> JsBoolean(cfg.checkAssignmentsToNonChannelVariables),
-                "delay-cycle-checking-until-initialization" -> JsBoolean(cfg.delayCycleCheckingUntilInitialization)
+                "check-assignments-to-non-channel-variables" -> JsBoolean(cfg.checkAssignmentsToNonChannelVariables)
             )
         if cfg.annealingConfiguration.maybeRoundLimit.isDefined then {
             cfgNode += "round-limit" -> JsNumber(cfg.annealingConfiguration.maybeRoundLimit.get)
@@ -199,6 +198,7 @@ final class SummaryBuilder {
                 "variable-factory-runtime-in-seconds" -> toSeconds(stageRuntimes.variableFactoryRuntime),
                 "variable-classifier-runtime-in-seconds" -> toSeconds(stageRuntimes.variableClassifierRuntime),
                 "constraint-factory-runtime-in-seconds" -> toSeconds(stageRuntimes.constraintFactoryRuntime),
+                "cycle-breaker-runtime-in-seconds" -> toSeconds(stageRuntimes.cycleBreakerRuntime),
                 "objective-factory-runtime-in-seconds" -> toSeconds(stageRuntimes.objectiveFactoryRuntime),
                 "presolver-runtime-in-seconds" -> toSeconds(stageRuntimes.presolverRuntime),
                 "neighbourhood-factory-runtime-in-seconds" -> toSeconds(stageRuntimes.neighbourhoodFactoryRuntime),

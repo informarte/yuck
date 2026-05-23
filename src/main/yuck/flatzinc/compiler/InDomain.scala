@@ -16,6 +16,9 @@ final class InDomain
 
     override def toString = "domains([%s], %s)".format(xs.mkString(", "), costs)
 
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new InDomain(id, xs, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable])
+
     override def inVariables = xs
     override def outVariables = List(costs)
 

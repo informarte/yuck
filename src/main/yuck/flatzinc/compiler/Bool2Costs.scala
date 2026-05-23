@@ -1,5 +1,7 @@
 package yuck.flatzinc.compiler
 
+import scala.collection.*
+
 import yuck.constraints.{BinaryConstraint, ReifiedBinaryConstraintPropagator, TernaryConstraint}
 import yuck.core.*
 
@@ -8,6 +10,8 @@ final class Bool2Costs1
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "%s = bool2costs(%s)".format(y, x)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Bool2Costs1(id, x, replacements.getOrElse(y, y).asInstanceOf[IntegerVariable])
     override def op(a: BooleanValue) = IntegerValue(safeToInt(a.violation))
     override def propagate() = {
         val (dx, dy) = Bool2CostsPropagator.bool2Costs(x.domain, y.domain)
@@ -21,6 +25,8 @@ final class Bool2Costs2
     with ReifiedBinaryConstraintPropagator[BooleanDomain, IntegerDomain]
 {
     override def toString = "bool2costs(%s, %s, %s)".format(x, y, z)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Bool2Costs2(id, x, y, replacements.getOrElse(z, z).asInstanceOf[BooleanVariable])
     override def op(a: BooleanValue, b: IntegerValue) =
         BooleanValue(abs(safeSub(a.violation, b.value)))
     override def propagate() = {

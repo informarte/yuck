@@ -26,6 +26,26 @@ final class MaximumTest extends UnitTest with ConstraintTestTooling {
         assertEq(constraint.outVariables.head, y)
     }
 
+    @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val constraint = new Maximum(space.nextConstraintId(), xs, y)
+        val copy = constraint.copy(Map.empty).asInstanceOf[Maximum[?, ?, ?]]
+        assert(!copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.result, y)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val constraint = new Maximum(space.nextConstraintId(), xs, y)
+        val y1 = IntegerTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((y, y1))).asInstanceOf[Maximum[?, ?, ?]]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.result, y1)
+    }
+
     private def testPropagation(xs: Seq[IntegerVariable]): Unit = {
         space.post(new Maximum(space.nextConstraintId(), xs, y))
         runScenario(

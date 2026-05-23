@@ -29,13 +29,16 @@ import yuck.core.*
  * @see [[yuck.Notation Notation]]
  */
 final class Disjunction
-    (id: Id[Constraint], xs: immutable.Seq[BooleanVariable], y: BooleanVariable)
+    (id: Id[Constraint], val xs: immutable.Seq[BooleanVariable], val y: BooleanVariable)
     extends Constraint(id)
 {
 
     require(xs.toSet.size == xs.size)
 
     override def toString = "%s = or([%s])".format(y, xs.mkString(", "))
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Disjunction(id, xs, replacements.getOrElse(y, y).asInstanceOf[BooleanVariable])
 
     override def inVariables = xs
     override def outVariables = List(y)

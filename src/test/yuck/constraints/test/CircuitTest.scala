@@ -43,6 +43,28 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
     }
 
     @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint)
+        val copy = constraint.copy(Map.empty).asInstanceOf[Circuit]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.succ, succ)
+        assertEq(copy.offset, offset)
+        assertEq(copy.costs, costs)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint)
+        val costs1 = space.createVariable("costs1", CompleteBooleanDomain)
+        val copy = constraint.copy(Map((costs, costs1))).asInstanceOf[Circuit]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.succ, succ)
+        assertEq(copy.offset, offset)
+        assertEq(copy.costs, costs1)
+    }
+
+    @Test
     def testPropagation(): Unit = {
         space.post(new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint))
         runScenario(
@@ -122,8 +144,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 
     @Test
     def testHandlingOfInvalidNodeReferencesInCostComputation(): Unit = {
-        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint)
-        space.post(constraint)
+        space.post(new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint))
         runScenario(
             TestScenario(
                 space,

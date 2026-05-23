@@ -12,6 +12,7 @@ final class FlatZincCompilerStageRuntimes(
     val variableFactoryRuntime: Duration,
     val variableClassifierRuntime: Duration,
     val constraintFactoryRuntime: Duration,
+    val cycleBreakerRuntime: Duration,
     val objectiveFactoryRuntime: Duration,
     val presolverRuntime: Duration,
     val neighbourhoodFactoryRuntime: Duration,

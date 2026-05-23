@@ -40,6 +40,26 @@ final class RegularTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val constraint = new Regular(space.nextConstraintId(), dfa, costs, logger)
+        val copy = constraint.copy(Map.empty).asInstanceOf[Regular]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.dfa, dfa)
+        assertEq(copy.costs, costs)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val constraint = new Regular(space.nextConstraintId(), dfa, costs, logger)
+        val costs1 = BooleanTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((costs, costs1))).asInstanceOf[Regular]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.dfa, dfa)
+        assertEq(copy.costs, costs1)
+    }
+
+    @Test
     def testCostComputation(): Unit = {
         space.post(new Regular(space.nextConstraintId(), dfa, costs, logger))
         runScenario(

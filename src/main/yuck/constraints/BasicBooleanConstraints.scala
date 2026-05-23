@@ -1,5 +1,7 @@
 package yuck.constraints
 
+import scala.collection.*
+
 import yuck.core.*
 
 /**
@@ -10,6 +12,8 @@ final class And
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s /\\ %s".format(z, x, y)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new And(id, x, y, replacements.getOrElse(z, z).asInstanceOf[BooleanVariable])
     override def op(a: BooleanValue, b: BooleanValue) = BooleanValue(safeAdd(a.violation, b.violation))
     override def propagate() = {
         val lhs0 = Seq(x.domain, y.domain)
@@ -29,6 +33,8 @@ final class Or
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s \\/ %s".format(z, x, y)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Or(id, x, y, replacements.getOrElse(z, z).asInstanceOf[BooleanVariable])
     override def op(a: BooleanValue, b: BooleanValue) =
         if a.truthValue || b.truthValue
         then True
@@ -49,6 +55,8 @@ final class Not
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "%s = not(%s)".format(y, x)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Not(id, x, replacements.getOrElse(y, y).asInstanceOf[BooleanVariable])
     override def op(a: BooleanValue) = if a.truthValue then False else True
     override def propagate() = {
         val dx0 = x.domain

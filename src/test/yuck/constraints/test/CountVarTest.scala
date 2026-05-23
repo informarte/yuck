@@ -28,6 +28,28 @@ final class CountVarTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val constraint = new CountVar(space.nextConstraintId(), xs, y, n)
+        val copy = constraint.copy(Map.empty).asInstanceOf[CountVar[?, ?, ?]]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.y, y)
+        assertEq(copy.result, n)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val constraint = new CountVar(space.nextConstraintId(), xs, y, n)
+        val n1 = IntegerTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((n, n1))).asInstanceOf[CountVar[?, ?, ?]]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.y, y)
+        assertEq(copy.result, n1)
+    }
+
+    @Test
     def testCounting(): Unit = {
         space.post(new CountVar(space.nextConstraintId(), xs, y, n))
         runScenario(

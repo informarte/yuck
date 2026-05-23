@@ -64,7 +64,6 @@ final case class FlatZincSolverConfiguration(
     shareBounds: Boolean = true,
     checkIncrementalCostUpdate: Constraint => Boolean = _ => false,
     checkAssignmentsToNonChannelVariables: Boolean = false,
-    delayCycleCheckingUntilInitialization: Boolean = false,
     maybeSpaceProfilingMode: Option[SpaceProfilingMode] = None,
     annealingConfiguration: AnnealingConfiguration = AnnealingConfiguration(),
     feasibilityJumpConfiguration: FeasibilityJumpConfiguration = FeasibilityJumpConfiguration())

@@ -16,15 +16,16 @@ abstract class LinearConstraintLike
     extends Constraint(id)
 {
 
-    protected val typeTraits: NumericalTypeTraits[A, D, X]
+    val y: X
+    val relation: OrderingRelation
+    val z: X
+    val costs: BooleanVariable
 
     protected val n: Int
-    protected val y: X
-    protected val relation: OrderingRelation
-    protected val z: X
-    protected val costs: BooleanVariable
     protected def a(i: Int): A
     protected def x(i: Int): X
+
+    protected val typeTraits: NumericalTypeTraits[A, D, X]
 
     override def toString =
         "sum([%s], %s, %s, %s)".format(

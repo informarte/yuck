@@ -30,6 +30,26 @@ final class BooleanIncreasingTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val constraint = new BooleanIncreasing(space.nextConstraintId(), xs, costs)
+        val copy = constraint.copy(Map.empty).asInstanceOf[BooleanIncreasing]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.costs, costs)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val constraint = new BooleanIncreasing(space.nextConstraintId(), xs, costs)
+        val costs1 = BooleanTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((costs, costs1))).asInstanceOf[BooleanIncreasing]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.costs, costs1)
+    }
+
+    @Test
     def testPropagation(): Unit = {
         space.post(new BooleanIncreasing(space.nextConstraintId(), xs, costs))
         runScenario(

@@ -15,9 +15,9 @@ abstract class Increasing
     extends Constraint(id)
 {
 
-    protected val xs: immutable.IndexedSeq[X]
-    protected val strict: Boolean
-    protected val costs: BooleanVariable
+    val xs: immutable.IndexedSeq[X]
+    val strict: Boolean
+    val costs: BooleanVariable
 
     protected val n = xs.size
 

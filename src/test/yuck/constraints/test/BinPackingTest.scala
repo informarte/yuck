@@ -26,12 +26,12 @@ final class BinPackingTest extends UnitTest with ConstraintTestTooling {
         binDomain.valuesIterator
             .map(i => i -> new IntegerVariable(space.nextVariableId(), "load%d".format(i.value), CompleteIntegerRange))
             .to(TreeMap)
+    private val constraint = new BinPacking(space.nextConstraintId(), items.values.toVector, loads)
 
     private implicit def intToIntegerValue(a: Int): IntegerValue = IntegerValue(a)
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new BinPacking(space.nextConstraintId(), items.values.toVector, loads)
         assertEq(
             constraint.toString,
             "bin_packing([(bin1, 1), (bin2, 2), (bin3, 3), (bin4, 4), (bin5, 5)], [(1, load1), (2, load2), (3, load3)])")
@@ -42,9 +42,27 @@ final class BinPackingTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val copy = constraint.copy(Map.empty).asInstanceOf[BinPacking[?, ?, ?]]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.items, constraint.items)
+        assertEq(copy.loads, loads)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val load1_1 = IntegerTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((loads(1), load1_1))).asInstanceOf[BinPacking[?, ?, ?]]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.items, constraint.items)
+        assertEq(copy.loads, loads.updated(IntegerValue(1), load1_1))
+    }
+
+    @Test
     def testCostComputation(): Unit = {
         val loads = this.loads.map((bin, load) => (bin.toInt, load))
-        space.post(new BinPacking(space.nextConstraintId(), items.values.toVector, this.loads))
+        space.post(constraint)
         runScenario(
             TestScenario(
                 space,

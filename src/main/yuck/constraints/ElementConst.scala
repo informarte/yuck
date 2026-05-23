@@ -13,7 +13,7 @@ import yuck.core.*
  */
 final class ElementConst
     [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
-    (id: Id[Constraint], as: immutable.IndexedSeq[A], i: IntegerVariable, y: X, offset: Int)
+    (id: Id[Constraint], val as: immutable.IndexedSeq[A], val i: IntegerVariable, val y: X, val offset: Int)
     (using typeTraits: TypeTraits[A, D, X])
     extends Constraint(id)
 {
@@ -21,6 +21,9 @@ final class ElementConst
     require(! as.isEmpty)
 
     override def toString = "%s = element([%s], %s, %d)".format(y, as.mkString(", "), i, offset)
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new ElementConst(id, as, i, replacements.getOrElse(y, y).asInstanceOf[X], offset)
 
     override def inVariables = List(i)
     override def outVariables = List(y)

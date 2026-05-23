@@ -1,5 +1,6 @@
 package yuck.constraints.test
 
+import scala.collection.*
 import scala.language.implicitConversions
 import scala.ref.WeakReference
 
@@ -42,9 +43,11 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
     }
     private val circuitCosts = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
     private val circuit = new Circuit(space.nextConstraintId(), succ, offset, circuitCosts, logger, sigint)
-    private val serviceTimes = nodes.map(_ => IntegerValue(randomGenerator.nextInt(numberOfCities)))
-    private val travelTimes = nodes.map(_ => nodes.map(_ => IntegerValue(randomGenerator.nextInt(numberOfCities) + 1)))
-    private val timeRange = IntegerRange(0, nodes.map(i => nodes.map(j => travelTimes(i)(j).value).max).sum)
+    private val serviceTimes0 = nodes.map(_ => IntegerValue(randomGenerator.nextInt(numberOfCities)))
+    private val serviceTimes = serviceTimes0.apply
+    private val travelTimes0 = nodes.map(_ => nodes.map(_ => IntegerValue(randomGenerator.nextInt(numberOfCities) + 1)))
+    private val travelTimes = (i: Int, j: Int) => travelTimes0(i)(j)
+    private val timeRange = IntegerRange(0, nodes.map(i => nodes.map(j => travelTimes(i, j).value).max).sum)
     private val arrivalTimes =
         for i <- nodes yield
             new IntegerVariable(
@@ -55,7 +58,8 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
     }
     private val totalTravelTime =
         new IntegerVariable(
-            space.nextVariableId(), "totalTravelTime",
+            space.nextVariableId(),
+            "totalTravelTime",
             if randomGenerator.nextDecision()
             then IntegerRange(timeRange.ub, timeRange.ub)
             else IntegerRange(timeRange.lb, timeRange.lb))
@@ -64,7 +68,7 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
     private val delivery =
         new Delivery(
             WeakReference(space), space.nextConstraintId(), startNodes, endNodes, succ, offset,
-            arrivalTimes, serviceTimes.apply, (i, j) => travelTimes(i)(j), withWaiting, totalTravelTime, deliveryCosts)
+            arrivalTimes, serviceTimes, travelTimes, withWaiting, totalTravelTime, deliveryCosts)
 
     private def createNeighbourhood() = {
         space.post(circuit).registerImplicitConstraint(circuit).post(delivery)
@@ -76,7 +80,7 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
             val j = searchState.value(succ(i)).toInt - offset
             val (x, y) = (arrivalTimes(i), arrivalTimes(j))
             val (a, b) = (searchState.value(x), searchState.value(y))
-            val c = a + serviceTimes(i) + travelTimes(i)(j)
+            val c = a + serviceTimes(i) + travelTimes(i, j)
             assertEq(b, if withWaiting then IntegerValue.max(y.domain.lb, c) else c)
         }
     }
@@ -85,7 +89,7 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
         var expectedTotalTravelTime = Zero
         for i <- nodes if ! endNodes.contains(i) do {
             val j = searchState.value(succ(i)).toInt - offset
-            expectedTotalTravelTime += travelTimes(i)(j)
+            expectedTotalTravelTime += travelTimes(i, j)
         }
         assertEq(searchState.value(totalTravelTime), expectedTotalTravelTime)
     }
@@ -102,16 +106,49 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
     def testBasics(): Unit = {
         assertEq(
             delivery.toString,
-            "delivery(%s, %s, [%s], [%s], ..., %s, %s, %s)"
-                .format(
-                    zeroBasedScalaRangeToOffsetBasedIntegerRange(startNodes),
-                    zeroBasedScalaRangeToOffsetBasedIntegerRange(endNodes),
-                    succ.mkString(", "), arrivalTimes.mkString(", "), withWaiting, totalTravelTime, deliveryCosts))
+            "delivery(%s, %s, [%s], [%s], ..., %s, %s, %s)".format(
+                zeroBasedScalaRangeToOffsetBasedIntegerRange(startNodes),
+                zeroBasedScalaRangeToOffsetBasedIntegerRange(endNodes),
+                succ.mkString(", "), arrivalTimes.mkString(", "), withWaiting, totalTravelTime, deliveryCosts))
         val arrivalTimesAtStartNodes = startNodes.map(arrivalTimes(_)).toSet
         assertEq(delivery.inVariables.toSet, succ.toSet ++ arrivalTimesAtStartNodes)
         assertEq(
             delivery.outVariables.toSet,
             arrivalTimes.toSet -- arrivalTimesAtStartNodes ++ Set(totalTravelTime, deliveryCosts))
+    }
+
+    @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val copy = delivery.copy(Map.empty).asInstanceOf[Delivery[?, ?, ?]]
+        assert(! copy.eq(delivery))
+        testConfiguration(copy, Map.empty)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val deliveryCosts1 = BooleanTypeTraits.createChannel(space)
+        val totalTravelTime1 = IntegerTypeTraits.createChannel(space)
+        val replacements: Map[AnyVariable, AnyVariable] =
+            Map(totalTravelTime -> totalTravelTime1, deliveryCosts -> deliveryCosts1)
+        val copy = delivery.copy(replacements).asInstanceOf[Delivery[?, ?, ?]]
+        testConfiguration(copy, replacements)
+    }
+
+    private def testConfiguration(
+        constraint: Delivery[?, ?, ?],
+        replacements: Map[AnyVariable, AnyVariable]):
+        Unit =
+    {
+        assertEq(constraint.startNodes, delivery.startNodes)
+        assertEq(constraint.endNodes, delivery.endNodes)
+        assertEq(constraint.succ, succ)
+        assertEq(constraint.offset, offset)
+        assertEq(constraint.arrivalTimes, arrivalTimes)
+        assertEq(constraint.serviceTimes, serviceTimes)
+        assertEq(constraint.travelTimes, travelTimes)
+        assertEq(constraint.withWaiting, withWaiting)
+        assertEq(constraint.totalTravelTime, replacements.getOrElse(totalTravelTime, totalTravelTime))
+        assertEq(constraint.costs, replacements.getOrElse(deliveryCosts, deliveryCosts))
     }
 
     @Test

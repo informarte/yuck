@@ -12,7 +12,7 @@ import yuck.core.*
  */
 final class IfThenElse
     [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
-    (id: Id[Constraint], cs: immutable.IndexedSeq[BooleanVariable], xs: immutable.IndexedSeq[X], y: X)
+    (id: Id[Constraint], val cs: immutable.IndexedSeq[BooleanVariable], val xs: immutable.IndexedSeq[X], val y: X)
     (using typeTraits: TypeTraits[A, D, X])
     extends Constraint(id)
 {
@@ -23,6 +23,9 @@ final class IfThenElse
     private val n = cs.size
 
     override def toString = "if_then_else([%s], [%s], %s)".format(cs.mkString(", "), xs.mkString(", "), y)
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new IfThenElse(id, cs, xs, replacements.getOrElse(y, y).asInstanceOf[X])
 
     override def inVariables = cs.view ++ xs
     override def outVariables = List(y)

@@ -63,6 +63,7 @@ final class FlatZincCompiler
         randomGenerator.nextGen()
         val constraintFactoryRuntime = run(new ConstraintFactory(cc))
         randomGenerator.nextGen()
+        val cycleBreakerRuntime = run(new CycleBreaker(cc))
         randomGenerator.nextGen()
         val objectiveFactoryRuntime = run(new ObjectiveFactory(cc))
         randomGenerator.nextGen()
@@ -99,8 +100,8 @@ final class FlatZincCompiler
 
         val stageRuntimes = FlatZincCompilerStageRuntimes(
             domainInitializerRuntime, variableFactoryRuntime, variableClassifierRuntime, constraintFactoryRuntime,
-            objectiveFactoryRuntime, presolverRuntime, neighbourhoodFactoryRuntime, constraintNetworkPrunerRuntime,
-            arrayAccessOptimizerRuntime, warmStartAnnotationParserRuntime)
+            cycleBreakerRuntime, objectiveFactoryRuntime, presolverRuntime, neighbourhoodFactoryRuntime,
+            constraintNetworkPrunerRuntime, arrayAccessOptimizerRuntime, warmStartAnnotationParserRuntime)
 
         (cc, stageRuntimes)
 

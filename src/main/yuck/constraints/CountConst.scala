@@ -6,7 +6,7 @@ import yuck.core.*
 
 final class CountConst
     [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
-    (id: Id[Constraint], xs: Seq[X], a: A, n: IntegerVariable)
+    (id: Id[Constraint], val xs: Seq[X], val a: A, val n: IntegerVariable)
     (using typeTraits: TypeTraits[A, D, X])
     extends Constraint(id)
 {
@@ -14,6 +14,9 @@ final class CountConst
     require(typeTraits.normalizedValue(a) == a)
 
     override def toString = "%s = count(%s, [%s])".format(n, a, xs.mkString(", "))
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new CountConst(id, xs, a, replacements.getOrElse(n, n).asInstanceOf[IntegerVariable])
 
     override def inVariables = xs
     override def outVariables = List(n)

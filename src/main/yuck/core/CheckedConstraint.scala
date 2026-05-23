@@ -1,11 +1,16 @@
 package yuck.core
 
+import scala.collection.*
+
 /**
  * Decorator for checking the incremental cost update of constraints.
  */
 final class CheckedConstraint(constraint: Constraint) extends Constraint(constraint.id) {
 
     override def toString = constraint.toString
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new CheckedConstraint(constraint.copy(replacements))
 
     override def inVariables = constraint.inVariables
     override def outVariables = constraint.outVariables

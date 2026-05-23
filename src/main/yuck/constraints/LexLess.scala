@@ -10,12 +10,14 @@ import yuck.core.*
  */
 final class LexLess
     [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
-    (id: Id[Constraint], xs: immutable.IndexedSeq[X], ys: immutable.IndexedSeq[X], costs: BooleanVariable)
+    (id: Id[Constraint], val xs: immutable.IndexedSeq[X], val ys: immutable.IndexedSeq[X], val costs: BooleanVariable)
     (using ord: Ordering[A])
     extends Constraint(id)
 {
 
     override def toString = "lex_less([%s], [%s])".format(xs.mkString(", "), ys.mkString(", "))
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new LexLess(id, xs, ys, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable])(using ord)
 
     override def inVariables = xs.view ++ ys.view
     override def outVariables = List(costs)

@@ -27,6 +27,16 @@ abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
     inline final def ==(that: Constraint): Boolean = this.id.rawId == that.id.rawId
     inline final def !=(that: Constraint): Boolean = this.id.rawId != that.id.rawId
 
+    /**
+     * Creates a copy of this constraint with selected output variables replaced.
+     *
+     * If `replacements` is empty, the constraint is copied as is.
+     *
+     * `replacements` must map only output variables of this constraint.
+     * Behavior is unspecified if any key is not an output variable.
+     */
+    def copy(replacements: Map[AnyVariable, AnyVariable]): Constraint = ???
+
     /** Returns the input variables. */
     def inVariables: Iterable[AnyVariable]
 

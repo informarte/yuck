@@ -19,9 +19,8 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
 
     private val xs = for i <- 1 to 3 yield new IntegerVariable(space.nextVariableId(), "x%d".format(i), IntegerRange(0, 9))
     private val Seq(x1, x2, x3) = xs
-    private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
-
     private val exceptedValues = if withException then Set(Zero) else Set[IntegerValue]()
+    private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
     @Test
     def testBasics(): Unit = {
@@ -35,6 +34,28 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
         assertEq(constraint.inVariables.toSet, xs.toSet)
         assertEq(constraint.outVariables.size, 1)
         assertEq(constraint.outVariables.head, costs)
+    }
+
+    @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val constraint = new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs, logger)
+        val copy = constraint.copy(Map.empty).asInstanceOf[AllDifferent[?, ?, ?]]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.exceptedValues, exceptedValues)
+        assertEq(copy.result, costs)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val constraint = new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs, logger)
+        val costs1 = space.createVariable("costs1", CompleteBooleanDomain)
+        val copy = constraint.copy(Map((costs, costs1))).asInstanceOf[AllDifferent[?, ?, ?]]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.exceptedValues, exceptedValues)
+        assertEq(copy.result, costs1)
     }
 
     @Test

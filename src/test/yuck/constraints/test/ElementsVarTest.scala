@@ -38,6 +38,30 @@ final class ElementsVarTest(offset: Int) extends UnitTest with ConstraintTestToo
     }
 
     @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val constraint = new ElementsVar(space.nextConstraintId(), xs, is, Vector(y1, y2), offset)
+        val copy = constraint.copy(Map.empty).asInstanceOf[ElementsVar[?, ?, ?]]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.is, is)
+        assertEq(copy.ys, Vector(y1, y2))
+        assertEq(copy.offset, offset)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val constraint = new ElementsVar(space.nextConstraintId(), xs, is, Vector(y1, y2), offset)
+        val y1_1 = IntegerTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((y1, y1_1))).asInstanceOf[ElementsVar[?, ?, ?]]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.is, is)
+        assertEq(copy.ys, Vector(y1_1, y2))
+        assertEq(copy.offset, offset)
+    }
+
+    @Test
     def testPropagation(): Unit = {
         val constraint = new ElementsVar(space.nextConstraintId(), xs, is, Vector(y1, y2), offset)
         space.post(constraint)

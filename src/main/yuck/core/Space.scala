@@ -1,11 +1,13 @@
 package yuck.core
 
+import org.jgrapht.Graph
+
 import scala.collection.*
 import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
 
-import org.jgrapht.graph.{DefaultDirectedGraph, DefaultEdge}
-import org.jgrapht.traverse.{BreadthFirstIterator, NotDirectedAcyclicGraphException, TopologicalOrderIterator}
+import org.jgrapht.alg.connectivity.KosarajuStrongConnectivityInspector
+import org.jgrapht.graph.{AsSubgraph, DefaultDirectedGraph, DefaultEdge}
 
 import yuck.core.profiling.*
 import yuck.util.arm.{ManagedResource, Sigint, scoped}
@@ -36,7 +38,6 @@ final class Space(
     logger: LazyLogger,
     sigint: Sigint,
     checkAssignmentsToNonChannelVariables: Boolean = false,
-    delayCycleCheckingUntilInitialization: Boolean = false,
     maybeSpaceProfilingMode: Option[SpaceProfilingMode] = None)
 {
 
@@ -114,36 +115,40 @@ final class Space(
                 flowModel.addEdge(constraint, succ)
             }
         }
-        if ! delayCycleCheckingUntilInitialization then {
-            // BFS seems to be faster than DFS
-            val i = new BreadthFirstIterator[Constraint, DefaultEdge](flowModel, constraint) {
-                override def encounterVertexAgain(vertex: Constraint, edge: DefaultEdge): Unit = {
-                    if vertex == constraint then {
-                        flowModel.removeVertex(constraint)
-                        require(false, "%s would introduce a cycle".format(constraint))
-                    } else {
-                        super.encounterVertexAgain(vertex, edge)
-                    }
-                }
-            }
-            while i.hasNext do {
-                i.next()
-            }
-        }
     }
     private def removeFromFlowModel(constraint: Constraint): Unit = {
         flowModel.removeVertex(constraint)
     }
 
-    private def sortConstraintsTopologically(): Unit = {
-        val constraintOrder = new Array[Int](constraints.iterator.map(_.id).max.rawId + 1)
-        try {
-            for (constraint, i) <- new TopologicalOrderIterator[Constraint, DefaultEdge](flowModel).asScala.zipWithIndex do {
-                constraintOrder.update(constraint.id.rawId, i)
+    /**
+     * Returns true iff the constraint network does not have a cycle.
+     */
+    def isAcyclic: Boolean = {
+        val scAlg = new KosarajuStrongConnectivityInspector(flowModel)
+        val sccs = scAlg.stronglyConnectedSets
+        sccs.stream.noneMatch(scc => scc.size > 1)
+    }
+
+    /**
+     * Removes all cycles from the constraint network.
+     *
+     * @param breakCycle breakCycle is given a cycle and is responsible for rewriting the
+     *                   constraint network to eliminate that cycle.
+     */
+    def breakCycles(breakCycle: Set[Constraint] => Unit): Unit =
+        breakCycles(flowModel, breakCycle)
+
+    private def breakCycles(
+        graph: Graph[Constraint, DefaultEdge],
+        breakCycle: Set[Constraint] => Unit): Unit =
+    {
+        val scAlg = new KosarajuStrongConnectivityInspector(graph)
+        val jsccs = scAlg.stronglyConnectedSets
+        for (jscc <- jsccs.iterator.asScala) {
+            if jscc.size > 1 then {
+                breakCycle(jscc.asScala)
+                breakCycles(new AsSubgraph(flowModel, jscc), breakCycle)
             }
-        } catch {
-            case error: NotDirectedAcyclicGraphException =>
-                throw new CyclicConstraintNetworkException
         }
     }
 
@@ -309,31 +314,6 @@ final class Space(
                 result += constraint
                 constraint.inVariables.foreach(addInvolvedConstraints(_, result, visited))
             }
-        }
-    }
-
-    /**
-     * Decides whether adding the given constraint would add a cycle to the constraint network.
-     *
-     * Notice that this method is quite expensive because it inserts and removes the constraint.
-     * Hence, for cycle avoidance, just try to post the constraint; when an exception occurs,
-     * you can try another approach to modeling your problem, otherwise everything is fine.
-     */
-    def wouldIntroduceCycle(constraint: Constraint): Boolean = {
-        require(! initialized, "Space has already been initialized")
-        if isCyclic(constraint)
-        then true
-        else if constraints.isEmpty
-        then false
-        else if constraints.contains(constraint)
-        then false
-        else try {
-            addToFlowModel(constraint)
-            removeFromFlowModel(constraint)
-            false
-        }
-        catch {
-            case _: IllegalArgumentException => true
         }
     }
 
@@ -588,16 +568,12 @@ final class Space(
 
         } else {
 
-            if delayCycleCheckingUntilInitialization then {
-                sortConstraintsTopologically()
+            val (layers, _) = logger.withTimedLogScope("Computing layers") {
+                computeLayers()
             }
 
             flowModel = null // free memory
             initialized = true
-
-            val (layers, _) = logger.withTimedLogScope("Computing layers") {
-                computeLayers()
-            }
 
             assert(layers.size <= Short.MaxValue)
             for i <- layers.indices; constraint <- layers(i) do {
@@ -638,6 +614,9 @@ final class Space(
      * of each layer could be processed in parallel.
      */
     def computeLayers(): IndexedSeq[Set[Constraint]] = {
+        if ! isAcyclic then {
+            throw new CyclicConstraintNetworkException
+        }
         val layers = new mutable.ArrayBuffer[mutable.HashSet[Constraint]]
         val availableInputs = new mutable.HashSet[AnyVariable]
         availableInputs ++= searchVariables

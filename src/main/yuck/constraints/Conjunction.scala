@@ -8,13 +8,16 @@ import yuck.core.*
  * Implements n-ary conjunction on cost level (where 0 is true).
  */
 final class Conjunction
-    (id: Id[Constraint], val xs: immutable.Seq[BooleanVariable], y: BooleanVariable)
+    (id: Id[Constraint], val xs: immutable.Seq[BooleanVariable], val y: BooleanVariable)
     extends Constraint(id)
 {
 
     require(xs.toSet.size == xs.size)
 
     override def toString = "%s = and([%s])".format(y, xs.mkString(", "))
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Conjunction(id, xs, replacements.getOrElse(y, y).asInstanceOf[BooleanVariable])
 
     override def inVariables = xs
     override def outVariables = List(y)

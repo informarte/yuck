@@ -12,11 +12,11 @@ import yuck.core.*
 final class LinearConstraint
     [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
     (id: Id[Constraint],
-     axs: immutable.IndexedSeq[AX[A, D, X]],
-     override protected val y: X,
-     override protected val relation: OrderingRelation,
-     override protected val z: X,
-     override protected val costs: BooleanVariable)
+     val axs: immutable.IndexedSeq[AX[A, D, X]],
+     override val y: X,
+     override val relation: OrderingRelation,
+     override val z: X,
+     override val costs: BooleanVariable)
     (using override protected val typeTraits: NumericalTypeTraits[A, D, X])
     extends LinearConstraintLike[A, D, X](id)
 {
@@ -28,6 +28,9 @@ final class LinearConstraint
     override protected def x(i: Int) = axs(i).x
 
     private val x2ax: HashMap[AnyVariable, AX[A, D, X]] = axs.view.map(ax => ax.x -> ax).to(HashMap)
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new LinearConstraint(id, axs, y, relation, z, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable])
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
         futureSum = currentSum

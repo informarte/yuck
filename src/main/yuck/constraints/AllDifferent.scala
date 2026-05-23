@@ -21,9 +21,9 @@ import yuck.util.logging.LazyLogger
 final class AllDifferent
     [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
     (id: Id[Constraint],
-     override protected val xs: immutable.IndexedSeq[X],
-     exceptedValues: immutable.Set[A],
-     override protected val result: BooleanVariable,
+     override val xs: immutable.IndexedSeq[X],
+     val exceptedValues: immutable.Set[A],
+     override val result: BooleanVariable,
      logger: LazyLogger)
     (using override protected val typeTraits: TypeTraits[A, D, X])
     extends ValueFrequencyTracker[A, D, X, BooleanValue, BooleanDomain, BooleanVariable](id)
@@ -33,6 +33,9 @@ final class AllDifferent
         if exceptedValues.isEmpty
         then "all_different([%s], %s)".format(xs.mkString(", "), result)
         else "all_different_except([%s], {%s}, %s)".format(xs.mkString(", "), exceptedValues.mkString(", "), result)
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new AllDifferent(id, xs, exceptedValues, replacements.getOrElse(result, result).asInstanceOf[BooleanVariable], logger)
 
     override def propagate() = {
         if result.domain == TrueDomain && typeTraits.domainCapabilities.diff then {

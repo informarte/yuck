@@ -32,6 +32,30 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val rows = createTable(3)(0, 0, 0, 1, 2, 3)
+        val constraint = new Table(space.nextConstraintId(), xs, rows, costs)
+        val copy = constraint.copy(Map.empty).asInstanceOf[Table[?, ?, ?]]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.rows, rows)
+        assertEq(copy.costs, costs)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val rows = createTable(3)(0, 0, 0, 1, 2, 3)
+        val constraint = new Table(space.nextConstraintId(), xs, rows, costs)
+        val costs1 = BooleanTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((costs, costs1))).asInstanceOf[Table[?, ?, ?]]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.rows, rows)
+        assertEq(copy.costs, costs1)
+    }
+
+    @Test
     def testPropagation(): Unit = {
         val rows =
             createTable(2)(
@@ -111,6 +135,26 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
                 ConsultAndCommit("select first row", x2 << 0, costs << True),
                 ConsultAndCommit("approach third row", x1 << 2, x2 << 1, costs << False2),
                 ConsultAndCommit("select third row", x2 << 3, costs << True)))
+    }
+
+    @Test
+    def testCostComputationAfterRootNodePropagation(): Unit = {
+        val rows =
+            createTable(2)(
+                0, 0,
+                1, 0, 1, 1, 1, 4,
+                2, 0, 2, 2,
+                3, 0, 3, 3,
+                4, 0, 4, 4,
+                5, 0, 5, 1, 5, 2, 5, 3, 5, 4)
+        space.post(new Table(space.nextConstraintId(), Vector(x1, x2), rows, costs))
+        runScenario(
+            TestScenario(
+                space,
+                Propagate("root-node propagation", List(costs << TrueDomain, x2 << (1, 9)), List(x1 << (1, 5), x2 << (1, 4))),
+                Initialize("select first row (which was pruned)", x1 << 0, x2 << 0, costs << False2),
+                Consult("select last row", x1 << 5, x2 << 4, costs << True),
+                ConsultAndCommit("select value not in table", x1 << 6, costs << False2)))
     }
 
     @Test

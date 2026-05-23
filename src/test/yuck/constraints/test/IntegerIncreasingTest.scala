@@ -32,6 +32,28 @@ final class IntegerIncreasingTest(strict: Boolean) extends UnitTest with Constra
     }
 
     @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val constraint = new IntegerIncreasing(space.nextConstraintId(), xs, strict, costs)
+        val copy = constraint.copy(Map.empty).asInstanceOf[IntegerIncreasing]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.strict, strict)
+        assertEq(copy.costs, costs)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val constraint = new IntegerIncreasing(space.nextConstraintId(), xs, strict, costs)
+        val costs1 = BooleanTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((costs, costs1))).asInstanceOf[IntegerIncreasing]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.strict, strict)
+        assertEq(copy.costs, costs1)
+    }
+
+    @Test
     def testPropagation(): Unit = {
         space.post(new IntegerIncreasing(space.nextConstraintId(), xs, strict, costs))
         if strict then {

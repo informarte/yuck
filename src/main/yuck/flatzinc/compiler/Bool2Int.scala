@@ -1,5 +1,7 @@
 package yuck.flatzinc.compiler
 
+import scala.collection.*
+
 import yuck.constraints.{BinaryConstraint, ReifiedBinaryConstraintPropagator, TernaryConstraint}
 import yuck.core.*
 
@@ -8,6 +10,8 @@ final class Bool2Int1
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "%s = bool2int(%s)".format(y, x)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Bool2Int1(id, x, replacements.getOrElse(y, y).asInstanceOf[IntegerVariable])
     override def op(a: BooleanValue) = if a.truthValue then One else Zero
     override def propagate() = {
         val (dx, dy) = Bool2IntPropagator.bool2Int(x.domain, y.domain)
@@ -21,6 +25,8 @@ final class Bool2Int2
     with ReifiedBinaryConstraintPropagator[BooleanDomain, IntegerDomain]
 {
     override def toString = "bool2int(%s, %s, %s)".format(x, y, z)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Bool2Int2(id, x, y, replacements.getOrElse(z, z).asInstanceOf[BooleanVariable])
     override def op(a: BooleanValue, b: IntegerValue) =
         if (a.truthValue && b == One) || (! a.truthValue && b == Zero) then True else False
     override def propagate() = {

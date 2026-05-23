@@ -7,13 +7,15 @@ import yuck.core.*
 final class Minimum
     [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
     (id: Id[Constraint],
-     override protected val xs: immutable.Seq[X],
-     override protected val result: X)
+     override val xs: immutable.Seq[X],
+     override val result: X)
     (using override protected val typeTraits: OrderedTypeTraits[A, D, X])
     extends ValueFrequencyTracker[A, D, X, A, D, X](id)
 {
     require(! xs.isEmpty)
     override def toString = "%s = min([%s])".format(result, xs.mkString(", "))
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Minimum(id, xs, replacements.getOrElse(result, result).asInstanceOf[X])
     override protected def createValueRegistry() = TreeMap[A, Int]()
     override protected def computeResult(searchState: SearchState, valueRegistry: ValueRegistry) =
         valueRegistry.head._1

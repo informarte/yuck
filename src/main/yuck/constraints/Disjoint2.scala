@@ -27,13 +27,16 @@ final class Disjoint2Rect
  */
 final class Disjoint2
     (id: Id[Constraint],
-     rects: immutable.IndexedSeq[Disjoint2Rect],
-     strict: Boolean,
-     costs: BooleanVariable)
+     val rects: immutable.IndexedSeq[Disjoint2Rect],
+     val strict: Boolean,
+     val costs: BooleanVariable)
     extends Disjoint(id, rects.size, costs)
 {
 
     override def toString = "disjoint2([%s], %s, %s)".format(rects.mkString(", "), strict, costs)
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Disjoint2(id, rects, strict, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable])
 
     override protected def variablesIterator(i: Int) =
         new Iterator[IntegerVariable] {

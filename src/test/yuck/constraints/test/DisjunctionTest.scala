@@ -26,6 +26,24 @@ final class DisjunctionTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val copy = constraint.copy(Map.empty).asInstanceOf[Disjunction]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.y, y)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val y1 = BooleanTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((y, y1))).asInstanceOf[Disjunction]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.y, y1)
+    }
+
+    @Test
     def testPropagation(): Unit = {
         space.post(constraint)
         runScenario(

@@ -27,6 +27,28 @@ final class CountConstTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val constraint = new CountConst(space.nextConstraintId(), xs, One, n)
+        val copy = constraint.copy(Map.empty).asInstanceOf[CountConst[?, ?, ?]]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.a, One)
+        assertEq(copy.n, n)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val constraint = new CountConst(space.nextConstraintId(), xs, One, n)
+        val n1 = IntegerTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((n, n1))).asInstanceOf[CountConst[?, ?, ?]]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.a, One)
+        assertEq(copy.n, n1)
+    }
+
+    @Test
     def testPropagation(): Unit = {
         space.post(new CountConst(space.nextConstraintId(), xs, One, n))
         runScenario(

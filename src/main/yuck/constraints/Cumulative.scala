@@ -36,14 +36,17 @@ final class CumulativeTask
  */
 final class Cumulative
     (id: Id[Constraint],
-     tasks: immutable.IndexedSeq[CumulativeTask], capacity: IntegerVariable,
-     costs: BooleanVariable)
+     val tasks: immutable.IndexedSeq[CumulativeTask], val capacity: IntegerVariable,
+     val costs: BooleanVariable)
     extends Constraint(id)
 {
 
     private val n = tasks.size
 
     override def toString = "cumulative([%s], %s, %s)".format(tasks.mkString(", "), capacity, costs)
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Cumulative(id, tasks, capacity, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable])
 
     private def variablesIterator(i: Int) =
         new Iterator[IntegerVariable] {

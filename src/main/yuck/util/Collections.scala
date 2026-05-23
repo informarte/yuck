@@ -236,4 +236,11 @@ object Collections {
 
     }
 
+    extension [A](as: Set[A]) {
+
+        def intersects(bs: Set[A]): Boolean =
+            if as.size <= bs.size then as.exists(bs.contains) else bs.exists(as.contains)
+
+    }
+
 }

@@ -23,11 +23,11 @@ final class BinPacking
      LoadDomain <: NumericalDomain[Load, LoadDomain],
      LoadVariable <: NumericalVariable[Load, LoadDomain, LoadVariable]]
     (id: Id[Constraint],
-     items: immutable.Seq[BinPackingItem[Load]],
+     val items: immutable.Seq[BinPackingItem[Load]],
      // In generic code, scalac translates == to BoxesRunTime.equals, which incurs overhead to
      // properly compare numbers of different types.
      // We avoid this overhead by using IntegerValue instead of int.
-     loads: immutable.Map[IntegerValue, LoadVariable]) // bin -> load
+     val loads: immutable.Map[IntegerValue, LoadVariable]) // bin -> load
     (using typeTraits: NumericalTypeTraits[Load, LoadDomain, LoadVariable])
     extends Constraint(id)
 {
@@ -40,6 +40,12 @@ final class BinPacking
         "bin_packing([%s], [%s])".format(
             items.mkString(", "),
             loads.iterator.map(item => "(%s, %s)".format(item._1, item._2)).mkString(", "))
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new BinPacking(
+            id,
+            items,
+            loads.view.mapValues(v => replacements.getOrElse(v, v).asInstanceOf[LoadVariable]).to(immutable.HashMap))
 
     override def inVariables = items.view.filter(_.weight > typeTraits.zero).map(_.bin)
     override def outVariables = loads.view.values

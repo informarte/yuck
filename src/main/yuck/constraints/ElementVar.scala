@@ -22,6 +22,9 @@ final class ElementVar
 
     override def toString = "%s = element([%s], %s, %d)".format(y, xs.mkString(", "), i, offset)
 
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new ElementVar(id, xs, i, replacements.getOrElse(y, y).asInstanceOf[X], offset)
+
     override def inVariables = xs.view :+ i
     override def outVariables = List(y)
 

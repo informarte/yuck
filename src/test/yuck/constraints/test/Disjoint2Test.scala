@@ -38,6 +38,30 @@ final class Disjoint2Test(strict: Boolean) extends UnitTest with ConstraintTestT
     }
 
     @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val rects = (1 to 2).map(createRect)
+        val constraint = new Disjoint2(space.nextConstraintId(), rects, strict, costs)
+        val copy = constraint.copy(Map.empty).asInstanceOf[Disjoint2]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.rects, rects)
+        assertEq(copy.strict, strict)
+        assertEq(copy.costs, costs)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val rects = (1 to 2).map(createRect)
+        val constraint = new Disjoint2(space.nextConstraintId(), rects, strict, costs)
+        val costs1 = BooleanTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((costs, costs1))).asInstanceOf[Disjoint2]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.rects, rects)
+        assertEq(copy.strict, strict)
+        assertEq(copy.costs, costs1)
+    }
+
+    @Test
     def testRectangleMovement(): Unit = {
         if strict then {
             testRectangleMovementWithStrictSemantics()

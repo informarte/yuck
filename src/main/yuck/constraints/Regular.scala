@@ -21,7 +21,7 @@ import yuck.util.logging.LazyLogger
  * To compute d', we look for the latest state u from which an accepting state could presumably be reached.
  */
 final class Regular
-    (id: Id[Constraint], dfa: RegularDfa, costs: BooleanVariable, logger: LazyLogger)
+    (id: Id[Constraint], val dfa: RegularDfa, val costs: BooleanVariable, logger: LazyLogger)
     extends Constraint(id)
 {
 
@@ -67,6 +67,9 @@ final class Regular
         "regular([%s], %d, %d, [%s], %d, %s, %s)".format(
             xs.mkString(", "), Q, S,
             delta.iterator.map(row => "[%s]".format(row.mkString(", "))).mkString(", "), q0, F, costs)
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Regular(id, dfa, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable], logger)
 
     override def inVariables = xs
     override def outVariables = List(costs)

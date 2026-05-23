@@ -10,13 +10,15 @@ import yuck.core.*
  */
 final class IntegerIncreasing
     (id: Id[Constraint],
-     override protected val xs: immutable.IndexedSeq[IntegerVariable],
-     override protected val strict: Boolean,
-     override protected val costs: BooleanVariable)
+     override val xs: immutable.IndexedSeq[IntegerVariable],
+     override val strict: Boolean,
+     override val costs: BooleanVariable)
     extends Increasing(id)(using IntegerTypeTraits)
 {
 
     override def toString = "increasing([%s], %s, %s)".format(xs.mkString(", "), strict, costs)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new IntegerIncreasing(id, xs, strict, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable])
 
     override protected def maybeSmallestFeasibleValue(x: IntegerVariable, maybePreviousValue: Option[IntegerValue]) = {
         if maybePreviousValue.isDefined then {

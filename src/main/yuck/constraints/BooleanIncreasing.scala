@@ -6,18 +6,20 @@ import yuck.constraints.Increasing.deduplicated
 import yuck.core.*
 
 /**
- * Implements Boolean ''increasing'' constraints as specified by MiniZinc..
+ * Implements Boolean ''increasing'' constraints as specified by MiniZinc.
  */
 final class BooleanIncreasing
     (id: Id[Constraint],
-     override protected val xs: immutable.IndexedSeq[BooleanVariable],
-     override protected val costs: BooleanVariable)
+     override val xs: immutable.IndexedSeq[BooleanVariable],
+     override val costs: BooleanVariable)
     extends Increasing(id)(using BooleanTypeTraits)
 {
 
-    override protected val strict = false
+    override val strict = false
 
     override def toString = "increasing([%s], %s)".format(xs.mkString(", "), costs)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new BooleanIncreasing(id, xs, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable])
 
     override protected def maybeSmallestFeasibleValue(x: BooleanVariable, maybePreviousValue: Option[BooleanValue]) = {
         if maybePreviousValue.isDefined then {

@@ -1,5 +1,7 @@
 package yuck.constraints
 
+import scala.collection.*
+
 import yuck.core.*
 
 final class Plus
@@ -9,6 +11,8 @@ final class Plus
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s + %s".format(z, x, y)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Plus(id, x, y, replacements.getOrElse(z, z).asInstanceOf[X])
     override def op(a: A, b: A) = a + b
     override def propagate() = {
         import typeTraits.one
@@ -26,6 +30,8 @@ final class Minus
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s - %s".format(z, x, y)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Minus(id, x, y, replacements.getOrElse(z, z).asInstanceOf[X])
     override def op(a: A, b: A) = a - b
     override def propagate() = {
         import typeTraits.{one, zero}
@@ -43,6 +49,8 @@ final class Times
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s * %s".format(z, x, y)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Times(id, x, y, replacements.getOrElse(z, z).asInstanceOf[X])
     override def op(a: A, b: A) = a * b
     override def propagate() = {
         val (dx1, dy1, dz1) = typeTraits.domainPruner.timesRule(x.domain, y.domain, z.domain)
@@ -57,6 +65,8 @@ final class Div
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s / %s".format(z, x, y)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Div(id, x, y, replacements.getOrElse(z, z).asInstanceOf[X])
     override def propagate() =
         NoPropagationOccurred.pruneDomain(y, y.domain.diff(typeTraits.createDomain(Set(typeTraits.zero))))
     override def op(a: A, b: A) =
@@ -71,6 +81,8 @@ final class Mod
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s %% %s".format(z, x, y)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Mod(id, x, y, replacements.getOrElse(z, z).asInstanceOf[X])
     override def op(a: A, b: A) = a % b
 }
 
@@ -80,6 +92,8 @@ final class Power
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = %s ^ %s".format(z, x, y)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Power(id, x, y, replacements.getOrElse(z, z).asInstanceOf[X])
     override def op(a: A, b: A) = a ^ b
 }
 
@@ -90,6 +104,8 @@ final class Abs
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "%s = abs(%s)".format(y, x)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Abs(id, x, replacements.getOrElse(y, y).asInstanceOf[X])
     override def op(a: A) = a.abs
     override def propagate() = {
         val (dx1, dy1) = typeTraits.domainPruner.absRule(x.domain, y.domain)
@@ -103,6 +119,8 @@ final class Even
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "even(%s, %s)".format(x, y)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Even(id, x, replacements.getOrElse(y, y).asInstanceOf[BooleanVariable])
     override def op(a: A) = if a.isEven then True else False
 }
 
@@ -112,5 +130,7 @@ final class Uneven
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "uneven(%s, %s)".format(x, y)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Uneven(id, x, replacements.getOrElse(y, y).asInstanceOf[BooleanVariable])
     override def op(a: A) = if a.isEven then False else True
 }

@@ -16,6 +16,36 @@ final class NumberOfDistinctValuesTest extends UnitTest with ConstraintTestTooli
     private val n = new IntegerVariable(space.nextVariableId(), "n", CompleteIntegerRange)
 
     @Test
+    def testBasics(): Unit = {
+        val constraint = new NumberOfDistinctValues(space.nextConstraintId(), xs, n)
+        assertEq(constraint.toString, "n = nvalue([x1, x2, x3])")
+        assertEq(constraint.inVariables.size, 3)
+        assertEq(constraint.inVariables.toSet, xs.toSet)
+        assertEq(constraint.outVariables.size, 1)
+        assertEq(constraint.outVariables.head, n)
+    }
+
+    @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val constraint = new NumberOfDistinctValues(space.nextConstraintId(), xs, n)
+        val copy = constraint.copy(Map.empty).asInstanceOf[NumberOfDistinctValues[?, ?, ?]]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.result, n)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val constraint = new NumberOfDistinctValues(space.nextConstraintId(), xs, n)
+        val n1 = IntegerTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((n, n1))).asInstanceOf[NumberOfDistinctValues[?, ?, ?]]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.result, n1)
+    }
+
+    @Test
     def testPropagation(): Unit = {
         space.post(new NumberOfDistinctValues(space.nextConstraintId(), xs, n))
         runScenario(

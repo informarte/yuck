@@ -1,5 +1,7 @@
 package yuck.constraints
 
+import scala.collection.*
+
 import yuck.core.*
 
 final class Eq
@@ -10,6 +12,8 @@ final class Eq
     with ReifiedBinaryConstraintPropagator[D, D]
 {
     override def toString = "eq(%s, %s, %s)".format(x, y, z)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Eq(id, x, y, replacements.getOrElse(z, z).asInstanceOf[BooleanVariable])
     override def op(a: A, b: A) = BooleanValue(typeTraits.costModel.eqViolation(a, b))
     override def propagate() = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
@@ -29,6 +33,8 @@ final class Ne
     with ReifiedBinaryConstraintPropagator[D, D]
 {
     override def toString = "ne(%s, %s, %s)".format(x, y, z)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Ne(id, x, y, replacements.getOrElse(z, z).asInstanceOf[BooleanVariable])
     override def op(a: A, b: A) = BooleanValue(typeTraits.costModel.neViolation(a, b))
     override def propagate() = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
@@ -48,6 +54,8 @@ final class Lt
     with ReifiedBinaryConstraintPropagator[D, D]
 {
     override def toString = "lt(%s, %s, %s)".format(x, y, z)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Lt(id, x, y, replacements.getOrElse(z, z).asInstanceOf[BooleanVariable])
     override def op(a: A, b: A) = BooleanValue(typeTraits.costModel.ltViolation(a, b))
     override def propagate() = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
@@ -69,6 +77,8 @@ final class Le
     with ReifiedBinaryConstraintPropagator[D, D]
 {
     override def toString = "le(%s, %s, %s)".format(x, y, z)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Le(id, x, y, replacements.getOrElse(z, z).asInstanceOf[BooleanVariable])
     override def op(a: A, b: A) = BooleanValue(typeTraits.costModel.leViolation(a, b))
     override def propagate() = {
         val (dx1, dy1, dz1) = propagate(x.domain, y.domain, z.domain)
@@ -89,6 +99,8 @@ final class Min
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = min(%s, %s)".format(z, x, y)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Min(id, x, y, replacements.getOrElse(z, z).asInstanceOf[X])
     override def op(a: A, b: A) = if a < b then a else b
     override def propagate() = {
         val (lhs1, dz1) = typeTraits.domainPruner.minRule(Seq(x.domain, y.domain), z.domain)
@@ -104,6 +116,8 @@ final class Max
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = max(%s, %s)".format(z, x, y)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Max(id, x, y, replacements.getOrElse(z, z).asInstanceOf[X])
     override def op(a: A, b: A) = if a > b then a else b
     override def propagate() = {
         val (lhs1, dz1) = typeTraits.domainPruner.maxRule(Seq(x.domain, y.domain), z.domain)

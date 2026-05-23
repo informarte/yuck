@@ -55,22 +55,13 @@ final class ConstraintFactory
 
     private val fakeConstraintId = new Id[yuck.core.Constraint](-1)
 
-    // Checks whether a constraint from in to out could be posted.
-    // Notice that this method may be quite expensive!
-    private def isViableConstraint(in: Iterable[AnyVariable], out: AnyVariable): Boolean =
-        (! out.domain.isSingleton) &&
-        (! cc.searchVars.contains(out)) &&
-        cc.space.maybeDefiningConstraint(out).isEmpty &&
-        (! cc.space.wouldIntroduceCycle(new DummyConstraint(fakeConstraintId, in, List(out))))
-
     // Checks whether there is a functional dependency that could be exploited without introducing a cycle.
     // Notice that this method may be quite expensive!
-    private def definesVar
-        (constraint: yuck.flatzinc.ast.Constraint, in: Iterable[AnyVariable], out: AnyVariable): Boolean =
-    {
+    private def isDefinableVar(constraint: yuck.flatzinc.ast.Constraint, out: AnyVariable): Boolean = {
         (! out.domain.isSingleton) &&
-        (definesVar(constraint, out) || ! cc.definedVars.contains(out)) &&
-        isViableConstraint(in, out)
+            (! cc.searchVars.contains(out)) &&
+            cc.space.maybeDefiningConstraint(out).isEmpty &&
+            (definesVar(constraint, out) || ! cc.definedVars.contains(out))
     }
 
     private def forcesImplicitSolving(annotation: Annotation): Boolean =
@@ -98,13 +89,7 @@ final class ConstraintFactory
          generalCase: => Iterable[BooleanVariable]):
         Iterable[BooleanVariable] =
     {
-        val definableVars = definedVars(constraint)
-        if out.forall(x =>
-                ! x.domain.isSingleton &&
-                ! cc.searchVars.contains(x) &&
-                cc.space.maybeDefiningConstraint(x).isEmpty &&
-                (definableVars.contains(x) || ! cc.definedVars.contains(x))) then
-        {
+        if out.forall(x => isDefinableVar(constraint, x)) then {
             try {
                 functionalCase
             }
@@ -254,7 +239,7 @@ final class ConstraintFactory
             val xs = compileBoolArray(as)
             val maybeY =
                 xs
-                .filter(y => definesVar(constraint, xs.filter(_ != y), y))
+                .filter(y => isDefinableVar(constraint, y))
                 .sortWith((x, y) => definesVar(constraint, x) && ! definesVar(constraint, y))
                 .headOption
             if maybeY.isDefined then {
@@ -609,7 +594,11 @@ final class ConstraintFactory
             List(costs)
         case Constraint("yuck_table_bool", Seq(as, flatTable), _) =>
             val xs = compileBoolArray(as)
-            val rows = compileBoolArray(flatTable).map(_.domain.singleValue).grouped(xs.size).toVector
+            val rows0 = compileBoolArray(flatTable).map(_.domain.singleValue).grouped(xs.size).toVector
+            val rows =
+                if cc.cfg.runPresolver
+                then rows0
+                else rows0.filter(row => (0 until xs.size).forall(i => xs(i).domain.contains(row(i))))
             val costs = maybeCosts.getOrElse(createBoolChannel())
             val forceImplicitSolving = constraint.annotations.exists(forcesImplicitSolving)
             cc.post(goals, new Table(nextConstraintId(), xs, rows, costs, forceImplicitSolving))
@@ -829,53 +818,46 @@ final class ConstraintFactory
          LoadVariable <: NumericalVariable[Load, LoadDomain, LoadVariable]]
         (goals: immutable.Set[Goal],
          constraint: yuck.flatzinc.ast.Constraint,
-         items: immutable.Seq[BinPackingItem[Load]],
-         loads: immutable.Map[IntegerValue, LoadVariable]) // bin -> load
+         items0: immutable.Seq[BinPackingItem[Load]],
+         loads0: immutable.Map[IntegerValue, LoadVariable]) // bin -> load
         (using loadTraits: NumericalTypeTraits[Load, LoadDomain, LoadVariable]):
         Iterable[BooleanVariable] =
     {
-        require(items.forall(_.weight >= loadTraits.zero))
-        val items1: immutable.IndexedSeq[BinPackingItem[Load]] =
-            items
+        require(items0.forall(_.weight >= loadTraits.zero))
+        val items: immutable.IndexedSeq[BinPackingItem[Load]] =
+            items0
                 .groupBy(_.bin)
                 .view
                 .mapValues(_.foldLeft(loadTraits.zero)((load, item) => load + item.weight))
                 .filter((_, weight) => weight > loadTraits.zero)
                 .map((bin, weight) => new BinPackingItem(bin, weight))
                 .toVector
-        val bins = items1.map(_.bin)
-        val maxLoad = items.map(_.weight).sum(using loadTraits.numericalOperations)
+        val bins = items.map(_.bin)
+        val maxLoad = items0.map(_.weight).sum(using loadTraits.numericalOperations)
         val loadDomainApproximation = loadTraits.createDomain(loadTraits.zero, maxLoad)
         def hasRedundantDomain(load: LoadVariable) =
             loadDomainApproximation.isSubsetOf(load.domain)
-        def functionalCase = {
-            cc.post(goals, new BinPacking(nextConstraintId(), items1, loads)(using loadTraits))
-            loads.values.filterNot(hasRedundantDomain).flatMap(enforceDomain)
+        val loads: immutable.Map[IntegerValue, LoadVariable] = {
+            val definedVars = new mutable.HashSet[LoadVariable]
+            for (bin, load) <- loads0 yield
+                if ! definedVars.contains(load) && isDefinableVar(constraint, loads0(bin)) then {
+                    definedVars += load
+                    bin -> load
+                }
+                else bin -> loadTraits.createChannel(cc.space)
         }
-        def generalCase = {
-            val loads1: immutable.Map[IntegerValue, LoadVariable] = {
-                val definedVars = new mutable.HashSet[LoadVariable]
-                for (bin, load) <- loads yield
-                    if ! definedVars.contains(load) && definesVar(constraint, bins, loads(bin)) then {
-                        definedVars += load
-                        bin -> load
-                    }
-                    else bin -> createNonNegativeChannel()(using loadTraits)
-            }
-            cc.post(goals, new BinPacking(nextConstraintId(), items1, loads1)(using loadTraits))
-            val deltas: Iterable[BooleanVariable] =
-                loads.flatMap((bin, load) =>
-                    if load == loads1(bin)
-                    then if hasRedundantDomain(load) then Nil else enforceDomain(load)
-                    else {
-                        val delta = createBoolChannel()
-                        cc.post(goals, new Eq(nextConstraintId(), load, loads1(bin), delta))
-                        List(delta)
-                    }
-                )
-            deltas
-        }
-        compileConstraint(constraint, loads.values, functionalCase, generalCase)
+        cc.post(goals, new BinPacking(nextConstraintId(), items, loads)(using loadTraits))
+        val deltas: Iterable[BooleanVariable] =
+            loads0.flatMap((bin, load) =>
+                if load == loads(bin)
+                then if hasRedundantDomain(load) then Nil else enforceDomain(load)
+                else {
+                    val delta = createBoolChannel()
+                    cc.post(goals, new Eq(nextConstraintId(), load, loads(bin), delta))
+                    List(delta)
+                }
+            )
+        deltas
     }
 
     private def compileDeliveryConstraint
@@ -894,7 +876,7 @@ final class ConstraintFactory
         val endNodes = compileIntSetExpr(endNodes0).domain.singleValue.set
         val succ = compileIntArray(succ0)
         val nodes = IntegerRange(offset, offset + succ.size - 1)
-        val arrivalTimes = timeHelper.compileArray(arrivalTimes0)
+        val arrivalTimes1 = timeHelper.compileArray(arrivalTimes0)
         val serviceTimes1 = timeHelper.compileArray(serviceTimes0).map(_.domain.singleValue)
         require(serviceTimes1.isEmpty || serviceTimes1.size == nodes.size)
         val serviceTimes: Int => Time =
@@ -902,7 +884,7 @@ final class ConstraintFactory
         val travelTimes1 =
             timeHelper.compileArray(travelTimes0)
                 .map(_.domain.singleValue)
-                .grouped(arrivalTimes.size)
+                .grouped(arrivalTimes1.size)
                 .toVector
         require(travelTimes1.isEmpty || (travelTimes1.size == nodes.size && travelTimes1.forall(_.size == nodes.size)))
         val travelTimesAreSymmetric =
@@ -919,74 +901,53 @@ final class ConstraintFactory
             else if travelTimesAreSymmetric
             then (i, j) => if i <= j then travelTimes2(i)(j - i) else travelTimes2(j)(i - j)
             else (i, j) => travelTimes2(i)(j)
+        val arrivalTimes: immutable.IndexedSeq[TimeVariable] = {
+            val definableVars = this.definedVars(constraint)
+            val definedVars = new mutable.HashSet[TimeVariable]
+            val result0 = for (i <- nodes.values) yield {
+                val arrivalTime = arrivalTimes1(safeToInt(safeSub(i.value, offset)))
+                if startNodes.contains(i) then {
+                    arrivalTime
+                }
+                else if !definedVars.contains(arrivalTime) && isDefinableVar(constraint, arrivalTime) then {
+                    definedVars += arrivalTime
+                    arrivalTime
+                }
+                else timeTraits.createChannel(cc.space)
+            }
+            result0.toVector
+        }
         val totalTravelTime1 = timeHelper.compileExpr(totalTravelTime0)
-        val totalTravelTime = {
+        val totalTravelTime2 =
             if travelTimes2.isEmpty then {
                 // avoid an Eq constraint
                 totalTravelTime1.pruneDomain(timeTraits.createDomain(Set(timeTraits.zero)))
                 timeHelper.createChannel()
-            } else {
-                totalTravelTime1
             }
-        }
+            else totalTravelTime1
+        val totalTravelTime: TimeVariable =
+            if isDefinableVar(constraint, totalTravelTime2) then totalTravelTime2
+            else timeTraits.createChannel(cc.space)
         val costs = createBoolChannel()
-        def functionalCase = {
-            val delivery =
-                new Delivery
-                    [Time, TimeDomain, TimeVariable]
-                    (WeakReference(cc.space), nextConstraintId(),
-                     startNodes, endNodes, succ, safeToInt(offset), arrivalTimes, serviceTimes, travelTimes,
-                     withWaiting, totalTravelTime, costs)
-            cc.post(goals, delivery)
-            List(costs)
-        }
-        def generalCase = {
-            val nodes = IntegerRange(offset, offset + succ.size - 1)
-            val arrivalTimes1: immutable.IndexedSeq[TimeVariable] = {
-                val definableVars = this.definedVars(constraint)
-                val definedVars = new mutable.HashSet[TimeVariable]
-                nodes.valuesIterator.map(i =>
-                    val arrivalTime = arrivalTimes(safeToInt(safeSub(i.value, offset)))
-                    if startNodes.contains(i) then {
-                        arrivalTime
-                    }
-                    else if definableVars.contains(arrivalTime) && ! definedVars.contains(arrivalTime) &&
-                             isViableConstraint(succ, arrivalTime) then
-                    {
-                        definedVars += arrivalTime
-                        arrivalTime
-                    }
-                    else timeTraits.createVariable(cc.space, "", arrivalTime.domain)
-                ).toVector
-            }
-            val totalTravelTime1: TimeVariable =
-                if isViableConstraint(succ, totalTravelTime)
-                then totalTravelTime
-                else timeTraits.createVariable(cc.space, "", totalTravelTime.domain)
-            val delivery =
-                new Delivery
-                    [Time, TimeDomain, TimeVariable]
-                    (WeakReference(cc.space), nextConstraintId(),
-                     startNodes, endNodes, succ, safeToInt(offset), arrivalTimes1, serviceTimes, travelTimes,
-                     withWaiting, totalTravelTime1, costs)
-            cc.space.post(delivery)
-            val pairs = (arrivalTimes :+ totalTravelTime).zip(arrivalTimes1 :+ totalTravelTime1)
-            val deltas: Iterable[BooleanVariable] =
-                pairs.flatMap((x, x1) =>
-                    if x == x1 then {
-                        enforceDomain(x)
-                    } else {
-                        val delta = createBoolChannel()
-                        cc.post(goals, new Eq(nextConstraintId(), x, x1, delta))
-                        List(delta)
-                    }
-                )
-            deltas.view.concat(List(costs))
-        }
-        compileConstraint(
-            constraint,
-            nodes.diff(startNodes).values.view.map(i => arrivalTimes(safeToInt(safeSub(i.value, offset)))) ++ Seq(totalTravelTime),
-            functionalCase, generalCase)
+        val delivery =
+            new Delivery
+                [Time, TimeDomain, TimeVariable]
+                (WeakReference(cc.space), nextConstraintId(),
+                 startNodes, endNodes, succ, safeToInt(offset), arrivalTimes, serviceTimes, travelTimes,
+                 withWaiting, totalTravelTime, costs)
+        cc.space.post(delivery)
+        val pairs = (arrivalTimes1 :+ totalTravelTime2).zip(arrivalTimes :+ totalTravelTime)
+        val deltas: Iterable[BooleanVariable] =
+            pairs.flatMap((x1, x) =>
+                if x1 == x then {
+                    enforceDomain(x1)
+                } else {
+                    val delta = createBoolChannel()
+                    cc.post(goals, new Eq(nextConstraintId(), x1, x, delta))
+                    List(delta)
+                }
+            )
+        deltas.view.concat(List(costs))
     }
 
     private def compileLinearCombination

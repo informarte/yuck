@@ -18,7 +18,7 @@ import yuck.util.logging.LazyLogger
  */
 final class Circuit
     (id: Id[Constraint],
-     succ: immutable.IndexedSeq[IntegerVariable], offset: Int, costs: BooleanVariable,
+     val succ: immutable.IndexedSeq[IntegerVariable], val offset: Int, val costs: BooleanVariable,
      logger: LazyLogger, sigint: Sigint)
     extends CircuitTracker(id, succ, offset, costs)
 {
@@ -29,6 +29,9 @@ final class Circuit
     inline private val maxNumberOfGreedyHeuristicRuns = 100
 
     override def toString = "circuit([%s], %d, %s)".format(succ.mkString(", "), offset, costs)
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Circuit(id, succ, offset, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable], logger, sigint)
 
     override protected def computeCosts(cycleLengths: Iterable[Int]) =
         BooleanValue(succ.size - (if cycleLengths.isEmpty then 0 else cycleLengths.max))

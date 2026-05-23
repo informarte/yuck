@@ -1,6 +1,6 @@
 include "all_different.mzn";
 
-int: N = 9;
+int: N = 10;
 
 set of int: STAGES = 1..N;
 
@@ -8,6 +8,7 @@ var STAGES: DomainInitializer;
 var STAGES: VariableFactory;
 var STAGES: VariableClassifier;
 var STAGES: ConstraintFactory;
+var STAGES: CycleBreaker;
 var STAGES: ObjectiveFactory;
 var STAGES: ConstraintNetworkPruner;
 var STAGES: Presolver;
@@ -19,17 +20,18 @@ constraint all_different([
    ObjectiveFactory, ConstraintNetworkPruner, Presolver, NeighbourhoodFactory,
    ArrayAccessOptimizer]);
 
-/* Sequence of stages to produce a complete model */
+/* Sequence of stages to produce a complete model without cycles */
 constraint DomainInitializer < VariableFactory;
 constraint VariableFactory < VariableClassifier;
 constraint VariableClassifier < ConstraintFactory;
+constraint ConstraintFactory < CycleBreaker;
 
-/* All remaining stages require a complete model */
-constraint ConstraintFactory < ObjectiveFactory;
-constraint ConstraintFactory < ConstraintNetworkPruner;
-constraint ConstraintFactory < Presolver;
-constraint ConstraintFactory < NeighbourhoodFactory;
-constraint ConstraintFactory < ArrayAccessOptimizer;
+/* All remaining stages require a complete model without cycles */
+constraint CycleBreaker < ObjectiveFactory;
+constraint CycleBreaker < ConstraintNetworkPruner;
+constraint CycleBreaker < Presolver;
+constraint CycleBreaker < NeighbourhoodFactory;
+constraint CycleBreaker < ArrayAccessOptimizer;
 
 /* ObjectiveFactory generates and registers the objective variables */
 constraint ObjectiveFactory < ConstraintNetworkPruner;

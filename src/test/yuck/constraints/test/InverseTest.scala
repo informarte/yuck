@@ -24,11 +24,11 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
     private val ys = for i <- 1 to 3 yield new IntegerVariable(space.nextVariableId(), "y%d".format(i), baseDomain)
     private val Seq(y1, y2, y3) = ys
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
-    private val f = new InverseFunction(xs, fOffset)
-    private val g = new InverseFunction(ys, gOffset)
 
     @Test
     def testBasics(): Unit = {
+        val f = new InverseFunction(xs, fOffset)
+        val g = new InverseFunction(ys, gOffset)
         val constraint = new Inverse(space.nextConstraintId(), f, g, costs, logger)
         assertEq(constraint.toString, "inverse([x1, x2, x3], %d, [y1, y2, y3], %d, costs)".format(fOffset, gOffset))
         assertEq(constraint.inVariables.size, 6)
@@ -38,7 +38,35 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
     }
 
     @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val f = new InverseFunction(xs, fOffset)
+        val g = new InverseFunction(ys, gOffset)
+        val constraint = new Inverse(space.nextConstraintId(), f, g, costs, logger)
+        val copy = constraint.copy(Map.empty).asInstanceOf[Inverse]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.f, f)
+        assertEq(copy.g, g)
+        assertEq(copy.costs, costs)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val f = new InverseFunction(xs, fOffset)
+        val g = new InverseFunction(ys, gOffset)
+        val constraint = new Inverse(space.nextConstraintId(), f, g, costs, logger)
+        val costs1 = BooleanTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((costs, costs1))).asInstanceOf[Inverse]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.f, f)
+        assertEq(copy.g, g)
+        assertEq(copy.costs, costs1)
+    }
+
+    @Test
     def testPropagation(): Unit = {
+        val f = new InverseFunction(xs, fOffset)
+        val g = new InverseFunction(ys, gOffset)
         space.post(new Inverse(space.nextConstraintId(), f, g, costs, logger))
         runScenario(
             TestScenario(
@@ -89,6 +117,8 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 
     @Test
     def testCostComputation(): Unit = {
+        val f = new InverseFunction(xs, fOffset)
+        val g = new InverseFunction(ys, gOffset)
         space.post(new Inverse(space.nextConstraintId(), f, g, costs, logger))
         runScenario(
             TestScenario(
@@ -164,6 +194,8 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 
     @Test
     def testInverseFunctionTest(): Unit = {
+        val f = new InverseFunction(xs, fOffset)
+        val g = new InverseFunction(ys, gOffset)
         for i <- xs.indices do {
             space.setValue(xs(i), IntegerValue(gOffset + i))
             space.setValue(ys(i), IntegerValue(fOffset + i))
@@ -183,6 +215,8 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 
     @Test
     def testNeighbourhoodGenerationWithUnrestrictedPairing(): Unit = {
+        val f = new InverseFunction(xs, fOffset)
+        val g = new InverseFunction(ys, gOffset)
         xs.foreach(_.pruneDomain(g.indexDomain))
         ys.foreach(_.pruneDomain(f.indexDomain))
         assertNeighbourhood(f, g, classOf[SimpleInverseNeighbourhood])
@@ -190,6 +224,8 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 
     @Test
     def testNeighbourhoodGenerationWithRestrictedPairing(): Unit = {
+        val f = new InverseFunction(xs, fOffset)
+        val g = new InverseFunction(ys, gOffset)
         xs.foreach(_.pruneDomain(g.indexDomain))
         ys.foreach(_.pruneDomain(f.indexDomain))
         x1.pruneDomain(IntegerDomain(List(gOffset)))
@@ -206,6 +242,8 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 
     @Test
     def testHandlingOfDuplicateVariablesInNeighbourhoodGeneration(): Unit = {
+        val f = new InverseFunction(xs, fOffset)
+        val g = new InverseFunction(ys, gOffset)
         xs.foreach(_.pruneDomain(g.indexDomain))
         ys.foreach(_.pruneDomain(f.indexDomain))
         assertNoNeighbourhood(new InverseFunction(Vector(x1, x1, x3), fOffset), g)
@@ -214,6 +252,8 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 
     @Test
     def testHandlingOfChannelVariablesInNeighbourhoodGeneration(): Unit = {
+        val f = new InverseFunction(xs, fOffset)
+        val g = new InverseFunction(ys, gOffset)
         xs.foreach(_.pruneDomain(g.indexDomain))
         ys.foreach(_.pruneDomain(f.indexDomain))
         import yuck.constraints.Plus
@@ -223,19 +263,25 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 
     @Test
     def testHandlingOfInfiniteDomainsInNeighbourhoodGeneration1(): Unit = {
+        val f = new InverseFunction(xs, fOffset)
+        val g = new InverseFunction(ys, gOffset)
         xs.foreach(_.pruneDomain(g.indexDomain))
         assertNoNeighbourhood(f, g)
     }
 
     @Test
     def testHandlingOfInfiniteDomainsInNeighbourhoodGeneration2(): Unit = {
+        val f = new InverseFunction(xs, fOffset)
+        val g = new InverseFunction(ys, gOffset)
         ys.foreach(_.pruneDomain(f.indexDomain))
         assertNoNeighbourhood(f, g)
     }
 
     @Test
     def testHandlingOfInvalidIndicesInNeighbourhoodGeneration1(): Unit = {
-        if f.offset != g.offset then {
+        if fOffset != gOffset then {
+            val f = new InverseFunction(xs, fOffset)
+            val g = new InverseFunction(ys, gOffset)
             xs.foreach(_.pruneDomain(f.indexDomain))
             ys.foreach(_.pruneDomain(f.indexDomain))
             assertNoNeighbourhood(f, g)
@@ -244,7 +290,9 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
 
     @Test
     def testHandlingOfInvalidIndicesInNeighbourhoodGeneration2(): Unit = {
-        if f.offset != g.offset then {
+        if fOffset != gOffset then {
+            val f = new InverseFunction(xs, fOffset)
+            val g = new InverseFunction(ys, gOffset)
             xs.foreach(_.pruneDomain(g.indexDomain))
             ys.foreach(_.pruneDomain(g.indexDomain))
             assertNoNeighbourhood(f, g)

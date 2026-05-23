@@ -121,7 +121,7 @@ final class FeasibilityJumpNeighbourhood
     private var remainingNumberOfJumpValueCacheEvaluationQueries = 1000
     private var numberOfJumpValueCacheQueries = 0L
     private var numberOfJumpValueCacheHits = 0L
-    // Value caching only make sense when the involvement matrix is "sparse".
+    // Value caching only makes sense when the involvement matrix is "sparse".
     // (Otherwise moves just invalidate the entire cache, so it's all overhead and no benefit.)
     private var useJumpValueCache = ci2xis.forall(_.size < n)
 

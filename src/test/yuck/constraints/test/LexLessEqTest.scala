@@ -29,6 +29,28 @@ final class LexLessEqTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val constraint = new LexLessEq(space.nextConstraintId(), xs, ys, costs)
+        val copy = constraint.copy(Map.empty).asInstanceOf[LexLessEq[?, ?, ?]]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.ys, ys)
+        assertEq(copy.costs, costs)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val constraint = new LexLessEq(space.nextConstraintId(), xs, ys, costs)
+        val costs1 = BooleanTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((costs, costs1))).asInstanceOf[LexLessEq[?, ?, ?]]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.xs, xs)
+        assertEq(copy.ys, ys)
+        assertEq(copy.costs, costs1)
+    }
+
+    @Test
     def testCostComputation23(): Unit = {
         space.post(new LexLessEq(space.nextConstraintId(), Vector(x1, x2), ys, costs))
         runScenario(

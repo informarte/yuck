@@ -34,6 +34,30 @@ final class CumulativeTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val tasks = (1 to 2).map(createTask)
+        val constraint = new Cumulative(space.nextConstraintId(), tasks, ub, costs)
+        val copy = constraint.copy(Map.empty).asInstanceOf[Cumulative]
+        assert(! copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.tasks, tasks)
+        assertEq(copy.capacity, ub)
+        assertEq(copy.costs, costs)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val tasks = (1 to 2).map(createTask)
+        val constraint = new Cumulative(space.nextConstraintId(), tasks, ub, costs)
+        val costs1 = BooleanTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((costs, costs1))).asInstanceOf[Cumulative]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.tasks, tasks)
+        assertEq(copy.capacity, ub)
+        assertEq(copy.costs, costs1)
+    }
+
+    @Test
     def testTaskMovement(): Unit = {
         val tasks = (1 to 2).map(createTask)
         val Seq(t1, t2) = tasks

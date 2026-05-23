@@ -1,5 +1,7 @@
 package yuck.constraints
 
+import scala.collection.*
+
 import yuck.core.*
 
 final class SetCardinality
@@ -7,6 +9,8 @@ final class SetCardinality
     extends BinaryConstraint(id, x, y)
 {
     override def toString = "%s = set_cardinality(%s)".format(y, x)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new SetCardinality(id, x, replacements.getOrElse(y, y).asInstanceOf[IntegerVariable])
     override def op(a: IntegerSetValue) = IntegerValue(a.set.size)
 }
 
@@ -15,6 +19,8 @@ final class Contains
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "contains(%s, %s, %s)".format(x, y, z)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Contains(id, x, y, replacements.getOrElse(z, z).asInstanceOf[BooleanVariable])
     override def op(a: IntegerValue, b: IntegerSetValue) =
         if b.set.isEmpty then False else BooleanValue(b.set.distanceTo(a).toLong)
     override def propagate() = {
@@ -29,6 +35,8 @@ final class Subset
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "subset(%s, %s, %s)".format(x, y, z)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Subset(id, x, y, replacements.getOrElse(z, z).asInstanceOf[BooleanVariable])
     override def op(a: IntegerSetValue, b: IntegerSetValue) =
         BooleanValue(a.set.maybeResidueSize(b.set).getOrElse(1))
 }
@@ -38,6 +46,8 @@ final class SetIntersection
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = set_intersection(%s, %s)".format(z, x, y)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new SetIntersection(id, x, y, replacements.getOrElse(z, z).asInstanceOf[IntegerSetVariable])
     override def op(a: IntegerSetValue, b: IntegerSetValue) = new IntegerSetValue(a.set.intersect(b.set))
 }
 
@@ -46,6 +56,8 @@ final class SetUnion
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = set_union(%s, %s)".format(z, x, y)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new SetUnion(id, x, y, replacements.getOrElse(z, z).asInstanceOf[IntegerSetVariable])
     override def op(a: IntegerSetValue, b: IntegerSetValue) = new IntegerSetValue(a.set.union(b.set))
 }
 
@@ -54,6 +66,8 @@ final class SetDifference
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = set_difference(%s, %s)".format(z, x, y)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new SetDifference(id, x, y, replacements.getOrElse(z, z).asInstanceOf[IntegerSetVariable])
     override def op(a: IntegerSetValue, b: IntegerSetValue) = new IntegerSetValue(a.set.diff(b.set))
 }
 
@@ -62,6 +76,8 @@ final class SymmetricalSetDifference
     extends TernaryConstraint(id, x, y, z)
 {
     override def toString = "%s = symmetrical_set_difference(%s, %s)".format(z, x, y)
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new SymmetricalSetDifference(id, x, y, replacements.getOrElse(z, z).asInstanceOf[IntegerSetVariable])
     override def op(a: IntegerSetValue, b: IntegerSetValue) =
         new IntegerSetValue(a.set.union(b.set).diff(a.set.intersect(b.set)))
 }

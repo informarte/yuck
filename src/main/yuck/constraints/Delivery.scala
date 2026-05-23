@@ -32,15 +32,16 @@ final class Delivery
      TimeVariable <: NumericalVariable[Time, TimeDomain, TimeVariable]]
     (space: WeakReference[Space],
      id: Id[Constraint],
-     startNodes: IntegerDomain,
-     endNodes: IntegerDomain,
-     succ: immutable.IndexedSeq[IntegerVariable], offset: Int,
-     arrivalTimes: immutable.IndexedSeq[TimeVariable],
-     serviceTimes: Int => Time,
-     travelTimes: (Int, Int) => Time,
-     withWaiting: Boolean,
-     totalTravelTime: TimeVariable,
-     costs: BooleanVariable)
+     val startNodes: IntegerDomain,
+     val endNodes: IntegerDomain,
+     val succ: immutable.IndexedSeq[IntegerVariable],
+     val offset: Int,
+     val arrivalTimes: immutable.IndexedSeq[TimeVariable],
+     val serviceTimes: Int => Time,
+     val travelTimes: (Int, Int) => Time,
+     val withWaiting: Boolean,
+     val totalTravelTime: TimeVariable,
+     val costs: BooleanVariable)
     (using timeTraits: NumericalTypeTraits[Time, TimeDomain, TimeVariable])
     extends Constraint(id)
 {
@@ -68,6 +69,12 @@ final class Delivery
             .format(
                 startNodes, endNodes, succ.mkString(", "), arrivalTimes.mkString(", "),
                 withWaiting, totalTravelTime, costs)
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Delivery(
+            space, id, startNodes, endNodes, succ, offset, arrivalTimes, serviceTimes, travelTimes, withWaiting,
+            replacements.getOrElse(totalTravelTime, totalTravelTime).asInstanceOf[TimeVariable],
+            replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable])
 
     override def inVariables =
         startNodes.values.view.map(i => arrivalTimes(i.toInt - offset)) ++ succ
@@ -146,14 +153,10 @@ final class Delivery
             currentTourTravelTimes.update(i, tourTravelTime)
         }
         currentCosts = safeAdd(currentCosts, totalTravelTime.domain.distanceTo(currentTotalTravelTime).toLong)
-        if true then {
-            totalTravelTimeEffect.a = currentTotalTravelTime
-            effects += totalTravelTimeEffect
-        }
-        if true then {
-            costsEffect.a = BooleanValue(currentCosts)
-            effects += costsEffect
-        }
+        totalTravelTimeEffect.a = currentTotalTravelTime
+        effects += totalTravelTimeEffect
+        costsEffect.a = BooleanValue(currentCosts)
+        effects += costsEffect
         effects
     }
 

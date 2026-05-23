@@ -44,6 +44,7 @@ def createDb(cursor):
         'variable_factory_runtime_in_seconds DOUBLE CONSTRAINT result_variable_factory_runtime_in_seconds_constraint CHECK (variable_factory_runtime_in_seconds >= 0), '\
         'variable_classifier_runtime_in_seconds DOUBLE CONSTRAINT result_variable_classifier_runtime_in_seconds_constraint CHECK (variable_classifier_runtime_in_seconds >= 0), '\
         'constraint_factory_runtime_in_seconds DOUBLE CONSTRAINT result_constraint_factory_runtime_in_seconds_constraint CHECK (constraint_factory_runtime_in_seconds >= 0), '\
+        'cycle_breaker_runtime_in_seconds DOUBLE CONSTRAINT result_cycle_breaker_runtime_in_seconds_constraint CHECK (cycle_breaker_runtime_in_seconds >= 0), '\
         'objective_factory_runtime_in_seconds DOUBLE CONSTRAINT result_objective_factory_runtime_in_seconds_constraint CHECK (objective_factory_runtime_in_seconds >= 0), '\
         'presolver_runtime_in_seconds DOUBLE CONSTRAINT result_presolver_runtime_in_seconds_constraint CHECK (presolver_runtime_in_seconds >= 0), '\
         'neighbourhood_factory_runtime_in_seconds DOUBLE CONSTRAINT result_neighbourhood_factory_runtime_in_seconds_constraint CHECK (neighbourhood_factory_runtime_in_seconds >= 0), '\
@@ -88,7 +89,7 @@ def importResults(args, file, cursor):
         print("No model metrics (FlatZinc compiler error?)")
     else:
         cursor.execute(
-            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             (args.run,
              solver['name'] if solver else None,
              solver['version'] if solver else None,
@@ -107,6 +108,7 @@ def importResults(args, file, cursor):
              compilerMetrics.get('variable-factory-runtime-in-seconds') if compilerMetrics else None,
              compilerMetrics.get('variable-classifier-runtime-in-seconds') if compilerMetrics else None,
              compilerMetrics.get('constraint-factory-runtime-in-seconds') if compilerMetrics else None,
+             compilerMetrics.get('cycle-breaker-runtime-in-seconds') if compilerMetrics else None,
              compilerMetrics.get('objective-factory-runtime-in-seconds') if compilerMetrics else None,
              compilerMetrics.get('presolver-runtime-in-seconds') if compilerMetrics else None,
              compilerMetrics.get('neighbourhood-factory-runtime-in-seconds') if compilerMetrics else None,

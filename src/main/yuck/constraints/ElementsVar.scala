@@ -14,10 +14,10 @@ import yuck.core.*
 final class ElementsVar
     [A <: Value[A], D <: Domain[A, D], X <: Variable[A, D, X]]
     (id: Id[Constraint],
-     xs: immutable.IndexedSeq[X],
-     is: immutable.IndexedSeq[IntegerVariable],
-     ys: immutable.IndexedSeq[X],
-     offset: Int)
+     val xs: immutable.IndexedSeq[X],
+     val is: immutable.IndexedSeq[IntegerVariable],
+     val ys: immutable.IndexedSeq[X],
+     val offset: Int)
     (using typeTraits: TypeTraits[A, D, X])
     extends Constraint(id)
 {
@@ -34,6 +34,12 @@ final class ElementsVar
 
     override def toString =
         "[%s] = elements([%s], [%s], %d)".format(ys.mkString(", "), xs.mkString(", "), is.mkString(", "), offset)
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new ElementsVar(
+            id, xs, is,
+            ys.view.map(v => replacements.getOrElse(v, v).asInstanceOf[X]).to(immutable.Vector),
+            offset)
 
     override def inVariables = xs.view.appendedAll(is)
     override def outVariables = ys

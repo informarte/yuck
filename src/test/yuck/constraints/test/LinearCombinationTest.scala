@@ -28,6 +28,24 @@ final class LinearCombinationTest extends UnitTest with ConstraintTestTooling {
     }
 
     @Test
+    def testCopyingWithoutReplacement(): Unit = {
+        val copy = constraint.copy(Map.empty).asInstanceOf[LinearCombination[?, ?, ?]]
+        assert(!copy.eq(constraint))
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.axs, axs)
+        assertEq(copy.y, y)
+    }
+
+    @Test
+    def testCopyingWithReplacement(): Unit = {
+        val y1 = IntegerTypeTraits.createChannel(space)
+        val copy = constraint.copy(Map((y, y1))).asInstanceOf[LinearCombination[?, ?, ?]]
+        assertEq(copy.id, constraint.id)
+        assertEq(copy.axs, axs)
+        assertEq(copy.y, y1)
+    }
+
+    @Test
     def testPropagation(): Unit = {
         space.post(constraint)
         runScenario(

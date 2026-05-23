@@ -6,7 +6,7 @@ import yuck.core.*
 
 final class Sum
     [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
-    (id: Id[Constraint], val xs: immutable.Seq[X], y: X)
+    (id: Id[Constraint], val xs: immutable.Seq[X], val y: X)
     (using typeTraits: NumericalTypeTraits[A, D, X])
     extends Constraint(id)
 {
@@ -14,6 +14,9 @@ final class Sum
     require(xs.toSet.size == xs.size)
 
     override def toString = "%s = sum([%s])".format(y, xs.mkString(", "))
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Sum(id, xs, replacements.getOrElse(y, y).asInstanceOf[X])
 
     override def inVariables = xs
     override def outVariables = List(y)

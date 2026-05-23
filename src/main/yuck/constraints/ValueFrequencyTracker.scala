@@ -19,8 +19,9 @@ abstract class ValueFrequencyTracker
     extends Constraint(id)
 {
 
-    protected val xs: immutable.Seq[X]
-    protected val result: ResultVariable
+    val xs: immutable.Seq[X]
+    val result: ResultVariable
+
     protected val typeTraits: TypeTraits[A, D, X]
 
     override def inVariables = xs

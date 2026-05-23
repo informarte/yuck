@@ -47,7 +47,9 @@ final class InverseFunction
  * @see [[yuck.Notation Notation]]
  */
 final class Inverse
-    (id: Id[Constraint], f: InverseFunction, g: InverseFunction, costs: BooleanVariable, logger: LazyLogger)
+    (id: Id[Constraint],
+     val f: InverseFunction, val g: InverseFunction, val costs: BooleanVariable,
+     logger: LazyLogger)
     extends Constraint(id)
 {
 
@@ -56,6 +58,9 @@ final class Inverse
     override def toString =
         "inverse([%s], %d, [%s], %d, %s)".format(
             f.xs.mkString(", "), f.offset, g.xs.mkString(", "), g.offset, costs)
+
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Inverse(id, f, g, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable], logger)
 
     override def inVariables = f.xs.view ++ g.xs.view
     override def outVariables = List(costs)

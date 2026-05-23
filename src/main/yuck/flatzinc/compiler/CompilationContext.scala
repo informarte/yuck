@@ -19,7 +19,7 @@ final class CompilationContext(
     val declaredVars = new mutable.HashSet[Expr]
     val equalVars = new mutable.HashMap[Expr, mutable.TreeSet[Expr] /* head = representative */]
     val impliedConstraints = new mutable.HashSet[yuck.flatzinc.ast.Constraint]
-    val space = new Space(logger, sigint, cfg.checkAssignmentsToNonChannelVariables, cfg.delayCycleCheckingUntilInitialization, cfg.maybeSpaceProfilingMode)
+    val space = new Space(logger, sigint, cfg.checkAssignmentsToNonChannelVariables, cfg.maybeSpaceProfilingMode)
     val consts = new mutable.HashMap[Expr, AnyVariable] // holds unnamed inline constants
     val vars = new mutable.HashMap[Expr, AnyVariable] // holds named variables and parameters
     val arrayConsts = new mutable.HashMap[Expr, immutable.IndexedSeq[AnyVariable]] // holds unnamed inline arrays
@@ -34,17 +34,6 @@ final class CompilationContext(
     var objective: AnyObjective = null
     var maybeNeighbourhood: Option[Neighbourhood] = null
 
-/*
-    def post(constraint: yuck.core.Constraint): CompilationContext = {
-        if cfg.checkIncrementalCostUpdate(constraint) then {
-            space.post(new CheckedConstraint(constraint))
-        } else {
-            space.post(constraint)
-        }
-        this
-    }
-
-*/
     def post(goals: immutable.Set[Goal], constraint: yuck.core.Constraint): CompilationContext = {
         if cfg.checkIncrementalCostUpdate(constraint) then {
             space.post(new CheckedConstraint(constraint))

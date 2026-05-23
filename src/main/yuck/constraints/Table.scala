@@ -7,16 +7,16 @@ import yuck.core.*
 /**
  * Given variables x[1], ..., x[n] and an m-by-n value matrix, the constraint
  * computes the distance of (s(x[1]), ..., s(x[n])) to each row of the matrix
- * and provides the minimum distance as measure of constraint violation.
+ * and provides the minimum distance as a measure of constraint violation.
  *
  * @see [[yuck.Notation Notation]]
  */
 final class Table
     [A <: OrderedValue[A], D <: OrderedDomain[A, D], X <: OrderedVariable[A, D, X]]
     (id: Id[Constraint],
-     xs: immutable.IndexedSeq[X],
-     private var rows: immutable.IndexedSeq[immutable.IndexedSeq[A]],
-     costs: BooleanVariable,
+     val xs: immutable.IndexedSeq[X],
+     val rows: immutable.IndexedSeq[immutable.IndexedSeq[A]],
+     val costs: BooleanVariable,
      forceImplicitSolving: Boolean = false)
     (using typeTraits: OrderedTypeTraits[A, D, X])
     extends Constraint(id)
@@ -33,9 +33,13 @@ final class Table
             rows.iterator.map(row => "[%s]".format(row.mkString(", "))).mkString(", "),
             costs)
 
+    override def copy(replacements: Map[AnyVariable, AnyVariable]) =
+        new Table(id, xs, rows, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable], forceImplicitSolving)
+
     override def inVariables = xs
     override def outVariables = List(costs)
 
+    private var prunedRows: immutable.IndexedSeq[immutable.IndexedSeq[A]] = null
     private var cols: Vector[Vector[A]] = null // columns improve data locality
 
     private var currentDistances: Array[Long] = null // for each row
@@ -57,11 +61,14 @@ final class Table
 
     override def propagate() = {
         if costs.domain == TrueDomain && typeTraits.domainCapabilities.createDomain then {
-            rows = rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(row(i))))
+            if prunedRows == null then {
+                prunedRows = rows
+            }
+            prunedRows = prunedRows.filter(row => (0 until n).forall(i => xs(i).domain.contains(row(i))))
             val effects =
                 NoPropagationOccurred.pruneDomains(
                     (0 until n).iterator.map(i =>
-                        val feasibleValues = rows.iterator.map(row => row(i)).toSet
+                        val feasibleValues = prunedRows.iterator.map(row => row(i)).toSet
                         val x = xs(i)
                         (x, x.domain.intersect(typeTraits.createDomain(feasibleValues)))))
             if ! effects.affectedVariables.isEmpty then {
@@ -74,6 +81,7 @@ final class Table
     }
 
     override def initialize(now: SearchState) = {
+        val rows = if prunedRows == null then this.rows else prunedRows
         val m = rows.size
         cols = rows.toVector.map(_.toVector).transpose
         currentDistances = new Array[Long](m)
@@ -90,9 +98,7 @@ final class Table
     }
 
     override def consult(before: SearchState, after: SearchState, move: Move) = {
-        if cols.eq(null) then {
-            initialize(before)
-        }
+        val rows = if prunedRows == null then this.rows else prunedRows
         Array.copy(currentDistances, 0, futureDistances, 0, rows.size)
         if hasDuplicateVariables then {
             if move.size == 1 then {
@@ -141,6 +147,7 @@ final class Table
     }
 
     private def computeMinDistance(distances: Array[Long]): Long = {
+        val rows = if prunedRows == null then this.rows else prunedRows
         var result = distances(0)
         var j = 1
         val m = rows.size
@@ -151,12 +158,14 @@ final class Table
         result
     }
 
-    final override def isCandidateForImplicitSolving(space: Space) =
+    final override def isCandidateForImplicitSolving(space: Space) = {
+        val rows = if prunedRows == null then this.rows else prunedRows
         rows.size > 1 &&
         xs.toSet.size == xs.size &&
         xs.forall(! space.isChannelVariable(_)) &&
         xs.forall(_.domain.isFinite) &&
         (forceImplicitSolving || xs.size <= 3)
+    }
 
     final override def createNeighbourhood(
         space: Space,
@@ -168,7 +177,10 @@ final class Table
     {
         if isCandidateForImplicitSolving(space) then {
             val xs1 = xs
-            val rows1 = rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(row(i))))
+            val rows1 =
+                if prunedRows == null
+                then rows.filter(row => (0 until n).forall(i => xs(i).domain.contains(row(i))))
+                else prunedRows
             if rows1.size > 1 then {
                 val xs2 = xs.filterNot(_.domain.isSingleton)
                 val rows2 =
