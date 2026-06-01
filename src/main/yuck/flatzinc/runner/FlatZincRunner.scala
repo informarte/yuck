@@ -2,7 +2,7 @@ package yuck.flatzinc.runner
 
 import java.io.IOException
 import java.util.concurrent.CancellationException
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.atomic.{AtomicLong, AtomicReference}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -20,7 +20,7 @@ import yuck.flatzinc.parser.*
 import yuck.flatzinc.util.*
 import yuck.flatzinc.{AnnealingConfiguration, FlatZincSolverConfiguration}
 import yuck.util.arm.*
-import yuck.util.logging.{TransientThreadRenaming, YuckLogging}
+import yuck.util.logging.YuckLogging
 import yuck.{BuildInfo, SolvingMethod}
 
 object FlatZincRunner extends YuckLogging {
@@ -153,6 +153,7 @@ object FlatZincRunner extends YuckLogging {
     private val summaryBuilder = new SummaryBuilder
 
     def main(args: Array[String]): Unit = {
+        Thread.currentThread.setName("Yuck")
         val parser = new CommandLineParser
         val maybeCl = parser.parse(args, new CommandLine)
         if maybeCl.isEmpty then {
@@ -165,7 +166,9 @@ object FlatZincRunner extends YuckLogging {
         summaryBuilder.addYuckVersion()
         summaryBuilder.addSolverConfiguration(cl.cfg)
         val exitCode = scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set()})) {
-            val exitCode = maybeTimeboxed(cl.cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
+            val maybeRuntimeLimitInMillis =
+                cl.cfg.maybeRuntimeLimitInSeconds.map(seconds => new AtomicLong(seconds * 1000))
+            val exitCode = maybeTimeboxed(maybeRuntimeLimitInMillis, sigint, logger) {
                 solve(cl)
             }
             logger.log("Shutdown complete, exiting")
@@ -240,7 +243,6 @@ object FlatZincRunner extends YuckLogging {
         val metricsCollector = new LocalSearchMetricsCollector(logger)
         monitors += metricsCollector
         val resultPrinter = new FlatZincResultPrinter(ast, cl.outputThrottlingIntervalInMillis)
-        val resultPrinterThread = new Thread(resultPrinter)
         if cl.printIntermediateSolutions then {
             monitors += resultPrinter
         }
@@ -249,13 +251,12 @@ object FlatZincRunner extends YuckLogging {
             monitors += new SharedBoundMaintainer(sharedBoundHolder)
         }
         val monitor = new PortfolioSolverMonitor(monitors.toVector)
-        val (result, _) = scoped(new TransientThreadRenaming(resultPrinterThread, "result-printer")) {
+        val (result, _) = logger.withTimedLogScope("Solving problem") {
+            val resultPrinterThread = new Thread(resultPrinter, resultPrinter.getClass.getSimpleName)
             scoped(new ManagedThread(resultPrinterThread, logger)) {
-                logger.withTimedLogScope("Solving problem") {
-                    scoped(monitor) {
-                        val sharedBound = new SharedBound(sharedBoundHolder)
-                        new FlatZincSolverGenerator(ast, cl.cfg, sharedBound, monitor, logger, sigint).call().call()
-                    }
+                scoped(monitor) {
+                    val sharedBound = new SharedBound(sharedBoundHolder)
+                    new FlatZincSolverGenerator(ast, cl.cfg, sharedBound, monitor, logger, sigint).call().call()
                 }
             }
         }
@@ -275,7 +276,7 @@ object FlatZincRunner extends YuckLogging {
         val space = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult].space
         summaryBuilder.addYuckModelMetrics(space)
         summaryBuilder.addResult(result)
-        summaryBuilder.addSearchMetrics(metricsCollector)
+        summaryBuilder.addSearchMetrics(metricsCollector, None)
         if cl.cfg.maybeSpaceProfilingMode.isDefined then {
             summaryBuilder.addSpacePerformanceMetrics(space.performanceMetricsBuilder.build())
         }

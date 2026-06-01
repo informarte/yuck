@@ -10,6 +10,7 @@ import com.goyeau.mill.scalafix.ScalafixModule
 import mill.*
 import mill.contrib.buildinfo.BuildInfo
 import mill.scalalib.*
+import scala.util.Using
 
 object yuck extends ScalaModule with BuildInfo with ScalafixModule {
 
@@ -43,7 +44,8 @@ object yuck extends ScalaModule with BuildInfo with ScalafixModule {
         mvn"com.github.scopt::scopt:4.1.0",
         mvn"com.lihaoyi::fastparse:3.1.1",
         mvn"it.unimi.dsi:fastutil-core:8.5.15",
-        mvn"org.jgrapht:jgrapht-core:1.5.2"
+        mvn"org.jgrapht:jgrapht-core:1.5.2",
+        mvn"org.openjdk.jol:jol-core:0.17"
     )
 
     val basicJvmConfiguration = Seq(
@@ -55,9 +57,8 @@ object yuck extends ScalaModule with BuildInfo with ScalafixModule {
         "-XX:+UseCompactObjectHeaders")
 
     val jvmHeapSize = Option(System.getenv("YUCK_HEAP_SIZE")).getOrElse("2G")
-    val jvmConfiguration = Seq("-Xmx%s".format(jvmHeapSize)) ++ basicJvmConfiguration ++ jvm25Configuration
 
-    override def forkArgs = jvmConfiguration
+    override def forkArgs = Seq("-Xmx%s".format(jvmHeapSize)) ++ basicJvmConfiguration ++ jvm25Configuration
 
     override def mainClass = Some("yuck.flatzinc.runner.FlatZincRunner")
 
@@ -83,11 +84,22 @@ object yuck extends ScalaModule with BuildInfo with ScalafixModule {
             mvn"org.mockito:mockito-core:3.12.4"
         )
 
+        def jolManifest = Task.Source {moduleDir / "resources" / "jol" / "MANIFEST.MF"}
+        def jolAgentJar = Task {
+            val agentJar = Task.dest / "jol-agent.jar"
+            val manifest = Using.resource(new java.io.FileInputStream(jolManifest().path.toIO))(new java.util.jar.Manifest(_))
+            Using.resource(new java.util.jar.JarOutputStream(new java.io.FileOutputStream(agentJar.toIO), manifest))(_ => ())
+            PathRef(agentJar)
+        }
+
         override def testFramework = "com.novocode.junit.JUnitFramework"
 
         val jvmHeapSize = Option(System.getenv("YUCK_TEST_HEAP_SIZE")).getOrElse("2G")
-        val jvmConfiguration =
+
+        override def forkArgs = Task {
             Seq(
+                "-javaagent:%s".format(jolAgentJar().path),
+                "-Djol.magicFieldOffset=true",
                 "-Xmx%s".format(jvmHeapSize),
                 "-XX:+AggressiveHeap",
                 "-Djunit.jupiter.testinstance.lifecycle.default=per_method",
@@ -102,8 +114,7 @@ object yuck extends ScalaModule with BuildInfo with ScalafixModule {
             ) ++
             basicJvmConfiguration ++
             jvm25Configuration
-
-        override def forkArgs = jvmConfiguration
+        }
 
         override def mainClass = Some("yuck.test.util.YuckTestRunner")
 

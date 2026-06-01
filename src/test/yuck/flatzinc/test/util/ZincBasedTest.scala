@@ -1,6 +1,7 @@
 package yuck.flatzinc.test.util
 
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.{AtomicLong, AtomicReference}
 
 import scala.annotation.tailrec
 import scala.collection.*
@@ -148,9 +149,15 @@ class ZincBasedTest extends IntegrationTest {
         if cfg.shareBounds then {
             monitors += new SharedBoundMaintainer(sharedBoundHolder)
         }
+        val maybeMemoryFootprintInBytes = new CompletableFuture[Option[Long]]
+        val maybeRuntimeLimitInMillis =
+            cfg.maybeRuntimeLimitInSeconds.map(seconds => new AtomicLong(seconds * 1000))
+        val memoryFootprintMonitor =
+            new MemoryFootprintMonitor(cfg, maybeMemoryFootprintInBytes, maybeRuntimeLimitInMillis, logger, sigint)
+        monitors += memoryFootprintMonitor
         monitors ++= task.additionalMonitors
         val monitor = new PortfolioSolverMonitor(monitors.toVector)
-        val ((ast, result), _) = maybeTimeboxed(cfg.maybeRuntimeLimitInSeconds, sigint, "solver", logger) {
+        val ((ast, result), _) = maybeTimeboxed(maybeRuntimeLimitInMillis, sigint, logger) {
             val (ast, parserRuntime) =
                 logger.withTimedLogScope("Parsing FlatZinc file") {
                     new FlatZincParser(fznFilePath, logger).call()
@@ -160,9 +167,15 @@ class ZincBasedTest extends IntegrationTest {
             val md5Sum = SummaryBuilder.computeMd5Sum(fznFilePath)
             summaryBuilder.addFlatZincModelMetrics(ast, md5Sum)
             logger.withTimedLogScope("Solving problem") {
-                scoped(monitor) {
-                    val sharedBound = new SharedBound(sharedBoundHolder)
-                    (ast, new FlatZincSolverGenerator(ast, cfg, sharedBound, monitor, logger, sigint).call().call())
+                val memoryFootprintMonitoringThread =
+                    new Thread(memoryFootprintMonitor, memoryFootprintMonitor.getClass.getSimpleName)
+                scoped(new ManagedThread(memoryFootprintMonitoringThread, logger)) {
+                    scoped(monitor) {
+                        val sharedBound = new SharedBound(sharedBoundHolder)
+                        val solver = new FlatZincSolverGenerator(ast, cfg, sharedBound, monitor, logger, sigint).call()
+                        memoryFootprintMonitor.setSolver(solver)
+                        (ast, solver.call())
+                    }
                 }
             }
         }
@@ -173,7 +186,7 @@ class ZincBasedTest extends IntegrationTest {
         }
         summaryBuilder.addYuckModelMetrics(result.space)
         summaryBuilder.addResult(result)
-        summaryBuilder.addSearchMetrics(metricsCollector)
+        summaryBuilder.addSearchMetrics(metricsCollector, maybeMemoryFootprintInBytes.get())
         if cfg.maybeSpaceProfilingMode.isDefined then {
             summaryBuilder.addSpacePerformanceMetrics(result.space.performanceMetricsBuilder.build())
         }

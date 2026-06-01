@@ -65,6 +65,7 @@ def createDb(cursor):
         'commitments_per_move DOUBLE CONSTRAINT result_commitments_per_move_constraint CHECK (commitments_per_move >= 0), '\
         'number_of_perturbations DOUBLE CONSTRAINT result_number_of_perturbations_constraint CHECK (number_of_perturbations >= 0), '\
         'area DOUBLE CONSTRAINT result_area_constraint CHECK (area >= 0), '\
+        'memory_footprint_in_mb DOUBLE CONSTRAINT result_memory_footprint_in_mb_constraint CHECK (memory_footprint_in_mb >= 0), '\
         'solved INT NOT NULL CONSTRAINT result_solved_constraint CHECK (solved in (0, 1)), '\
         'violation INT CONSTRAINT result_violation_constraint CHECK (violation >= 0), '\
         'objective_value INT, '\
@@ -88,7 +89,7 @@ def importResults(args, file, cursor):
         print("No model metrics (FlatZinc compiler error?)")
     else:
         cursor.execute(
-            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO result VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             (args.run,
              solver['name'] if solver else None,
              solver['version'] if solver else None,
@@ -129,6 +130,8 @@ def importResults(args, file, cursor):
              searchMetrics.get('commitments-per-move') if searchMetrics else None,
              searchMetrics.get('number-of-perturbations') if searchMetrics else None,
              searchMetrics.get('area') if searchMetrics else None,
+             searchMetrics['memory-footprint-in-bytes'] / 1024 / 1024
+                 if searchMetrics and searchMetrics.get('memory-footprint-in-bytes') else None,
              result['solved'] if result and 'solved' in result else False,
              result.get('violation') if result else None,
              result.get('objective-value', result.get('quality')) if result else None))

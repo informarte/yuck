@@ -8,15 +8,17 @@ import yuck.util.logging.LazyLogger
 final class ManagedThread(thread: Thread, logger: LazyLogger) extends ManagedResource {
 
     override def open() = {
-        logger.logg("Starting thread %s".format(thread.getName))
+        logger.log("Starting thread %s".format(thread.getName))
         thread.start()
     }
 
     override def close() = {
-        logger.logg("Asking thread %s to stop".format(thread.getName))
-        thread.interrupt()
-        thread.join()
-        logger.logg("Thread %s terminated".format(thread.getName))
+        if thread.isAlive then {
+            logger.log("Asking thread %s to terminate".format(thread.getName))
+            thread.interrupt()
+            thread.join()
+            logger.log("Thread %s terminated".format(thread.getName))
+        }
     }
 
 }

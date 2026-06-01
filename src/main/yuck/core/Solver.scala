@@ -1,6 +1,7 @@
 package yuck.core
 
 import java.util.concurrent.*
+import java.util.concurrent.atomic.AtomicLong
 
 import scala.collection.*
 
@@ -63,11 +64,15 @@ final class TimeboxedSolver(
     sigint: SettableSigint)
     extends Solver
 {
-    private def solve() = solver.call()
-    private val timebox = new TimeboxedOperation(solve(), runtimeLimitInSeconds, sigint, solver.name, logger)
+    private val timebox = new Timebox(new AtomicLong(runtimeLimitInSeconds * 1000), sigint, solver.name, logger)
     override def name = solver.name
     override def hasFinished = solver.hasFinished || timebox.isOutOfTime
-    override def call() = timebox.call()
+    override def call() = {
+        val timeboxThread = new Thread(timebox, "%s-Timebox".format(solver.name))
+        scoped(new ManagedThread(timeboxThread, logger)) {
+            solver.call()
+        }
+    }
 }
 
 /**
@@ -147,7 +152,7 @@ final class ParallelSolver(
     require(! solvers.isEmpty)
     assert(threadPoolSize > 0)
 
-    private var maybeBestResult: Option[Result] = None
+    @volatile private var maybeBestResult: Option[Result] = None
     private val lock = new locks.ReentrantLock
     private val indentation = logger.currentIndentation
 

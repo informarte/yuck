@@ -1,6 +1,7 @@
 package yuck.util
 
 import java.time.Duration
+import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.locks.Lock
 
 import yuck.util.logging.LazyLogger
@@ -65,15 +66,17 @@ package object arm {
      */
     inline def maybeTimeboxed
         [Result]
-        (maybeRuntimeLimitInSeconds: Option[Int],
-         sigint: SettableSigint,
-         operationName: String,
-         logger: LazyLogger)
+        (maybeRuntimeLimitInMillis: Option[AtomicLong], sigint: SettableSigint, logger: LazyLogger)
         (operation: => Result):
         Result =
     {
-        if maybeRuntimeLimitInSeconds.isDefined
-        then new TimeboxedOperation(operation, maybeRuntimeLimitInSeconds.get, sigint, operationName, logger).call()
+        if maybeRuntimeLimitInMillis.isDefined then {
+            val timebox = new Timebox(maybeRuntimeLimitInMillis.get, sigint, Thread.currentThread.getName, logger)
+            val timeboxThread = new Thread(timebox, "%sTimebox".format(Thread.currentThread.getName))
+            scoped(new ManagedThread(timeboxThread, logger)) {
+                operation
+            }
+        }
         else operation
     }
 

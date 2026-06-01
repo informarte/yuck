@@ -1,5 +1,7 @@
 package yuck.util.arm
 
+import scala.collection.*
+
 /**
  * Provides a read-only channel for interrupt signals.
  *
@@ -9,17 +11,34 @@ package yuck.util.arm
  * Therefore we have to provide and use our own interruption mechanism.)
  */
 abstract class Sigint {
-    protected var interrupted = false
+    @volatile protected var interrupted = false
     inline final def isSet: Boolean = interrupted
+    def registerListener(listener: Thread): Unit
 }
 
 /**
  * Provides a means to interrupt a computation (by sending a signal).
  */
 class SettableSigint extends Sigint {
-    final def set(): Unit = {
-        interrupted = true
+
+    private val listeners = new mutable.ArrayBuffer[Thread]
+
+    override def registerListener(listener: Thread): Unit = synchronized {
+        if interrupted then {
+            listener.interrupt()
+        } else {
+            listeners += listener
+        }
     }
+
+    final def set(): Unit = synchronized {
+        interrupted = true
+        for listener <- listeners do {
+            listener.interrupt()
+        }
+        listeners.clear()
+    }
+
 }
 
 /**
@@ -27,7 +46,7 @@ class SettableSigint extends Sigint {
  * and to later resume the computation (by revoking the signal).
  */
 final class RevocableSigint extends SettableSigint {
-    def revoke(): Unit = {
+    def revoke(): Unit = synchronized {
         interrupted = false
     }
 }

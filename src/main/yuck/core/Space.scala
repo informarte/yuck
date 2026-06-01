@@ -1,11 +1,10 @@
 package yuck.core
 
-import org.jgrapht.Graph
-
 import scala.collection.*
 import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
 
+import org.jgrapht.Graph
 import org.jgrapht.alg.connectivity.KosarajuStrongConnectivityInspector
 import org.jgrapht.graph.{AsSubgraph, DefaultDirectedGraph, DefaultEdge}
 

@@ -209,7 +209,7 @@ final class SummaryBuilder {
         this
     }
 
-    def addSearchMetrics(monitor: LocalSearchMetricsCollector): SummaryBuilder = {
+    def addSearchMetrics(monitor: LocalSearchMetricsCollector, maybeMemoryFootprintInBytes: Option[Long]): SummaryBuilder = {
         val statsNode =
             if monitor.wasSearchRequired then {
                 JsObjectBuilder(
@@ -239,6 +239,9 @@ final class SummaryBuilder {
                     step => Vector(JsNumber(step.runtimeInMillis),
                         JsNumber(step.objectiveValue.asInstanceOf[IntegerValue].value)))
             statsNode += "objective-step-function" -> JsArray(array.toVector)
+        }
+        if maybeMemoryFootprintInBytes.isDefined then {
+            statsNode += "memory-footprint-in-bytes" -> JsNumber(maybeMemoryFootprintInBytes.get)
         }
         rootNode += "search-metrics" -> statsNode
         this

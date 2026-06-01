@@ -48,6 +48,12 @@ abstract class YuckTest extends YuckAssert with YuckLogging {
     // will ignore interrupts.
     @RegisterExtension
     @Order(4)
-    private val shutdownHook = new ManagedResourceAsExtension(_ => new yuck.util.arm.ManagedShutdownHook({}))
+    val shutdownHook = new ManagedResourceAsExtension(_ => new yuck.util.arm.ManagedShutdownHook({}))
+
+    @RegisterExtension
+    @Order(5)
+    val threadRenaming =
+        new ManagedResourceAsExtension(
+            _ => new yuck.util.logging.TransientThreadRenaming(Thread.currentThread, getClass.getSimpleName))
 
 }
