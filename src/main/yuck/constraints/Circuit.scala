@@ -18,8 +18,7 @@ import yuck.util.logging.LazyLogger
  */
 final class Circuit
     (id: Id[Constraint],
-     val succ: immutable.IndexedSeq[IntegerVariable], val offset: Int, val costs: BooleanVariable,
-     logger: LazyLogger, sigint: Sigint)
+     val succ: immutable.IndexedSeq[IntegerVariable], val offset: Int, val costs: BooleanVariable)
     extends CircuitTracker(id, succ, offset, costs)
 {
 
@@ -31,7 +30,7 @@ final class Circuit
     override def toString = "circuit([%s], %d, %s)".format(succ.mkString(", "), offset, costs)
 
     override def copy(replacements: Map[AnyVariable, AnyVariable]) =
-        new Circuit(id, succ, offset, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable], logger, sigint)
+        new Circuit(id, succ, offset, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable])
 
     override protected def computeCosts(cycleLengths: Iterable[Int]) =
         BooleanValue(succ.size - (if cycleLengths.isEmpty then 0 else cycleLengths.max))
@@ -45,6 +44,8 @@ final class Circuit
     override def createNeighbourhood(
         space: Space,
         randomGenerator: RandomGenerator,
+        logger: LazyLogger,
+        sigint: Sigint,
         moveSizeDistribution: Distribution,
         createHotSpotDistribution: IndexedSeq[AnyVariable] => Option[Distribution] = _ => None,
         maybeFairVariableChoiceRate: Option[Probability] = None):
@@ -54,11 +55,12 @@ final class Circuit
             solve(
                 maxNumberOfGreedyHeuristicRuns - 1,
                 logger.withTimedLogScope("Trying deterministic greedy heuristic") {
-                    greedyHeuristic(space, randomGenerator, FirstFailStrategy)
+                    greedyHeuristic(space, randomGenerator, FirstFailStrategy, logger)
                 }._1,
                 () => logger.withTimedLogScope("Trying randomized greedy heuristic") {
-                    greedyHeuristic(space, randomGenerator, RandomizedStrategy)
-                }._1
+                    greedyHeuristic(space, randomGenerator, RandomizedStrategy, logger)
+                }._1,
+                logger, sigint
             )
         } else {
             None
@@ -67,7 +69,8 @@ final class Circuit
 
     @tailrec
     private def solve
-        (n: Int, result: HeuristicResult, heuristic: () => HeuristicResult):
+        (n: Int, result: HeuristicResult, heuristic: () => HeuristicResult,
+         logger: LazyLogger, sigint: Sigint):
         Option[Neighbourhood] =
         if n == 0
         then None
@@ -77,12 +80,13 @@ final class Circuit
                 if sigint.isSet then {
                     logger.log("Interrupted")
                     None
-                } else solve(n - 1, heuristic(), heuristic)
+                } else solve(n - 1, heuristic(), heuristic, logger, sigint)
             case HeuristicSucceeded(neighbourhood) => Some(neighbourhood)
         }
 
     private def greedyHeuristic(
-        space: Space, randomGenerator: RandomGenerator, strategy: GreedyStrategy):
+        space: Space, randomGenerator: RandomGenerator, strategy: GreedyStrategy,
+        logger: LazyLogger):
         HeuristicResult =
     {
         val n = succ.size

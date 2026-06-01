@@ -24,7 +24,7 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs, logger)
+        val constraint = new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs)
         if withException then {
             assertEq(constraint.toString, "all_different_except([x1, x2, x3], {0}, costs)")
         } else {
@@ -38,7 +38,7 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
 
     @Test
     def testCopyingWithoutReplacement(): Unit = {
-        val constraint = new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs, logger)
+        val constraint = new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs)
         val copy = constraint.copy(Map.empty).asInstanceOf[AllDifferent[?, ?, ?]]
         assert(! copy.eq(constraint))
         assertEq(copy.id, constraint.id)
@@ -49,7 +49,7 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
 
     @Test
     def testCopyingWithReplacement(): Unit = {
-        val constraint = new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs, logger)
+        val constraint = new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs)
         val costs1 = space.createVariable("costs1", CompleteBooleanDomain)
         val copy = constraint.copy(Map((costs, costs1))).asInstanceOf[AllDifferent[?, ?, ?]]
         assertEq(copy.id, constraint.id)
@@ -60,7 +60,7 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
 
     @Test
     def testPropagation(): Unit = {
-        space.post(new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs, logger))
+        space.post(new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs))
         runScenario(
             TestScenario(
                 space,
@@ -79,7 +79,7 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
 
     @Test
     def testHandlingOfDuplicateVariablesInPropagation(): Unit = {
-        space.post(new AllDifferent(space.nextConstraintId(), Vector(x1, x2, x2), exceptedValues, costs, logger))
+        space.post(new AllDifferent(space.nextConstraintId(), Vector(x1, x2, x2), exceptedValues, costs))
         runScenario(
             TestScenario(
                 space,
@@ -96,7 +96,7 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
 
     @Test
     def testCostComputation(): Unit = {
-        space.post(new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs, logger))
+        space.post(new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs))
         if withException then {
             runScenario(
                 TestScenario(
@@ -126,7 +126,7 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
 
     @Test
     def testHandlingOfDuplicateVariablesInCostComputation(): Unit = {
-        space.post(new AllDifferent(space.nextConstraintId(), Vector(x1, x2, x2), exceptedValues, costs, logger))
+        space.post(new AllDifferent(space.nextConstraintId(), Vector(x1, x2, x2), exceptedValues, costs))
         if withException then {
             runScenario(
                 TestScenario(
@@ -199,10 +199,10 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
     }
 
     private def assertNeighbourhood(xs: IndexedSeq[IntegerVariable]): Unit = {
-        val constraint = new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs, logger)
+        val constraint = new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs)
         space.post(constraint)
         assert(constraint.isCandidateForImplicitSolving(space))
-        val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution).get
+        val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, logger, sigint, DefaultMoveSizeDistribution).get
         assertEq(neighbourhood.getClass, classOf[AllDifferentNeighbourhood[?, ?, ?]])
         val now = space.searchState
         assert(xs.forall(x => x.domain.contains(now.value(x))))
@@ -219,10 +219,10 @@ final class AllDifferentTest(withException: Boolean) extends UnitTest with Const
     }
 
     private def assertNoNeighbourhood(xs: IndexedSeq[IntegerVariable], isCandidate: Boolean = false): Unit = {
-        val constraint = new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs, logger)
+        val constraint = new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs)
         space.post(constraint)
         assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
-        assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution), None)
+        assertEq(constraint.createNeighbourhood(space, randomGenerator, logger, sigint, DefaultMoveSizeDistribution), None)
     }
 
 }

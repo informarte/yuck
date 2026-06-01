@@ -3,6 +3,8 @@ package yuck.constraints
 import scala.collection.*
 
 import yuck.core.*
+import yuck.util.arm.Sigint
+import yuck.util.logging.LazyLogger
 
 /**
  * Given variables x[1], ..., x[n] and an m-by-n value matrix, the constraint
@@ -170,6 +172,8 @@ final class Table
     final override def createNeighbourhood(
         space: Space,
         randomGenerator: RandomGenerator,
+        logger: LazyLogger,
+        sigint: Sigint,
         moveSizeDistribution: Distribution,
         createHotSpotDistribution: IndexedSeq[AnyVariable] => Option[Distribution],
         maybeFairVariableChoiceRate: Option[Probability]):

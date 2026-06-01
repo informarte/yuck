@@ -7,6 +7,7 @@ import org.jgrapht.alg.matching.{HopcroftKarpMaximumCardinalityBipartiteMatching
 import org.jgrapht.graph.{DefaultUndirectedGraph, DefaultUndirectedWeightedGraph}
 
 import yuck.core.*
+import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 
 /**
@@ -23,8 +24,7 @@ final class AllDifferent
     (id: Id[Constraint],
      override val xs: immutable.IndexedSeq[X],
      val exceptedValues: immutable.Set[A],
-     override val result: BooleanVariable,
-     logger: LazyLogger)
+     override val result: BooleanVariable)
     (using override protected val typeTraits: TypeTraits[A, D, X])
     extends ValueFrequencyTracker[A, D, X, BooleanValue, BooleanDomain, BooleanVariable](id)
 {
@@ -35,7 +35,7 @@ final class AllDifferent
         else "all_different_except([%s], {%s}, %s)".format(xs.mkString(", "), exceptedValues.mkString(", "), result)
 
     override def copy(replacements: Map[AnyVariable, AnyVariable]) =
-        new AllDifferent(id, xs, exceptedValues, replacements.getOrElse(result, result).asInstanceOf[BooleanVariable], logger)
+        new AllDifferent(id, xs, exceptedValues, replacements.getOrElse(result, result).asInstanceOf[BooleanVariable])
 
     override def propagate() = {
         if result.domain == TrueDomain && typeTraits.domainCapabilities.diff then {
@@ -78,6 +78,8 @@ final class AllDifferent
     override def createNeighbourhood(
         space: Space,
         randomGenerator: RandomGenerator,
+        logger: LazyLogger,
+        sigint: Sigint,
         moveSizeDistribution: Distribution,
         createHotSpotDistribution: IndexedSeq[AnyVariable] => Option[Distribution],
         maybeFairVariableChoiceRate: Option[Probability]):

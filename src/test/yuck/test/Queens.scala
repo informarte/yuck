@@ -38,12 +38,12 @@ final class Queens(val n: Int, solvingMethod: SolvingMethod) extends HelloWorldT
                 space.post(new Plus(space.nextConstraintId(), rows(col), iVar, rowsPlusI(col)))
             }
             val rowConflicts = new BooleanVariable(space.nextVariableId(), "rowConflicts", CompleteBooleanDomain)
-            val rowConstraint = new AllDifferent(space.nextConstraintId(), rows.toVector, Set(), rowConflicts, logger)
+            val rowConstraint = new AllDifferent(space.nextConstraintId(), rows.toVector, Set(), rowConflicts)
             space.post(rowConstraint)
             val diagonalConflicts1 = new BooleanVariable(space.nextVariableId(), "diagonalConflicts1", CompleteBooleanDomain)
-            space.post(new AllDifferent(space.nextConstraintId(), rowsMinusI.toVector, Set(), diagonalConflicts1, logger))
+            space.post(new AllDifferent(space.nextConstraintId(), rowsMinusI.toVector, Set(), diagonalConflicts1))
             val diagonalConflicts2 = new BooleanVariable(space.nextVariableId(), "diagonalConflicts2", CompleteBooleanDomain)
-            space.post(new AllDifferent(space.nextConstraintId(), rowsPlusI.toVector, Set(), diagonalConflicts2, logger))
+            space.post(new AllDifferent(space.nextConstraintId(), rowsPlusI.toVector, Set(), diagonalConflicts2))
             val conflicts = new BooleanVariable(space.nextVariableId(), "conflicts", CompleteBooleanDomain)
             space.post(
                 new Conjunction(
@@ -59,7 +59,7 @@ final class Queens(val n: Int, solvingMethod: SolvingMethod) extends HelloWorldT
                 case SolvingMethod.SimulatedAnnealing =>
                     val Some(neighbourhood) =
                         rowConstraint.createNeighbourhood(
-                            space, randomGenerator, annealing.DefaultMoveSizeDistribution): @unchecked
+                            space, randomGenerator, logger, sigint, annealing.DefaultMoveSizeDistribution): @unchecked
                     space.registerImplicitConstraint(rowConstraint)
                     createSimulatedAnnealingSolver(
                         solverName, space, objective, neighbourhood, randomGenerator.nextGen(), None)

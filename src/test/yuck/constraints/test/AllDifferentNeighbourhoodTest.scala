@@ -22,7 +22,7 @@ final class AllDifferentNeighbourhoodTest
     private val exceptedValues = if withException then Set(Zero) else Set()
 
     override protected lazy val constraint =
-        new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs, logger)
+        new AllDifferent(space.nextConstraintId(), xs, exceptedValues, costs)
 
     override protected val expectedNeighbourhoodClass = classOf[AllDifferentNeighbourhood[?, ?, ?]]
 

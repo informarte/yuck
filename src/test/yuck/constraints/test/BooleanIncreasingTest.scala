@@ -177,7 +177,7 @@ final class BooleanIncreasingTest extends UnitTest with ConstraintTestTooling {
         val constraint = new BooleanIncreasing(space.nextConstraintId(), xs, costs)
         space.post(constraint)
         assert(constraint.isCandidateForImplicitSolving(space))
-        val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution).get
+        val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, logger, sigint, DefaultMoveSizeDistribution).get
         assertEq(neighbourhood.getClass, classOf[BooleanIncreasingNeighbourhood])
         val now = space.searchState
         assert(xs.forall(_.hasValidValue(now)))
@@ -192,7 +192,7 @@ final class BooleanIncreasingTest extends UnitTest with ConstraintTestTooling {
         val constraint = new BooleanIncreasing(space.nextConstraintId(), xs, costs)
         space.post(constraint)
         assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
-        assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution), None)
+        assertEq(constraint.createNeighbourhood(space, randomGenerator, logger, sigint, DefaultMoveSizeDistribution), None)
     }
 
 }

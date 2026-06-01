@@ -109,7 +109,7 @@ final class AnnealingNeighbourhoodFactory
             if (xs & cc.implicitlyConstrainedVars).isEmpty then {
                 val (maybeNeighbourhood, _) = cc.logger.withTimedLogScope("Solving %s".format(constraint)) {
                     constraint.createNeighbourhood(
-                        cc.space, randomGenerator, moveSizeDistribution,
+                        cc.space, randomGenerator, cc.logger, cc.sigint, moveSizeDistribution,
                         createHotSpotDistribution = xs => Some(createHotSpotDistribution(xs, cc.costVars)),
                         maybeFairVariableChoiceRate = levelCfg.maybeFairVariableChoiceRate)
                 }

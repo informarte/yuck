@@ -518,22 +518,22 @@ final class ConstraintFactory
         case Constraint("fzn_all_different_int", Seq(as), _) =>
             val xs = compileIntArray(as)
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(goals, new AllDifferent(nextConstraintId(), xs, immutable.Set(), costs, cc.logger)(using IntegerTypeTraits))
+            cc.post(goals, new AllDifferent(nextConstraintId(), xs, immutable.Set(), costs)(using IntegerTypeTraits))
             List(costs)
         case Constraint("fzn_all_different_set", Seq(as), _) =>
             val xs = compileIntSetArray(as)
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(goals, new AllDifferent(nextConstraintId(), xs, immutable.Set(), costs, cc.logger)(using IntegerSetTypeTraits))
+            cc.post(goals, new AllDifferent(nextConstraintId(), xs, immutable.Set(), costs)(using IntegerSetTypeTraits))
             List(costs)
         case Constraint("fzn_alldifferent_except", Seq(as, s), _) =>
             val xs = compileIntArray(as)
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(goals, new AllDifferent(nextConstraintId(), xs, s.set.values.toSet, costs, cc.logger)(using IntegerTypeTraits))
+            cc.post(goals, new AllDifferent(nextConstraintId(), xs, s.set.values.toSet, costs)(using IntegerTypeTraits))
             List(costs)
         case Constraint("fzn_alldifferent_except_0", Seq(as), _) =>
             val xs = compileIntArray(as)
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(goals, new AllDifferent(nextConstraintId(), xs, immutable.Set(Zero), costs, cc.logger)(using IntegerTypeTraits))
+            cc.post(goals, new AllDifferent(nextConstraintId(), xs, immutable.Set(Zero), costs)(using IntegerTypeTraits))
             List(costs)
         case Constraint("fzn_increasing_bool", Seq(as), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
@@ -614,18 +614,18 @@ final class ConstraintFactory
             val delta = compileIntArray(flatDelta).map(_.domain.singleValue.toInt).grouped(s.toInt).toVector
             val costs = maybeCosts.getOrElse(createBoolChannel())
             val dfa = new RegularDfa(xs, q.toInt, s.toInt, delta, q0.toInt, f.set)
-            cc.post(goals, new Regular(nextConstraintId(), dfa, costs, cc.logger))
+            cc.post(goals, new Regular(nextConstraintId(), dfa, costs))
             List(costs)
         case Constraint("yuck_circuit", Seq(succ, IntConst(offset)), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            cc.post(goals, new Circuit(nextConstraintId(), succ, safeToInt(offset), costs, cc.logger, cc.sigint))
+            cc.post(goals, new Circuit(nextConstraintId(), succ, safeToInt(offset), costs))
             List(costs)
         case Constraint("yuck_delivery", _, _) =>
             compileDeliveryConstraint(goals, constraint)(using IntegerCompilationHelper)
         case Constraint("yuck_inverse", Seq(f, IntConst(fOffset), g, IntConst(gOffset)), _) =>
             val costs = maybeCosts.getOrElse(createBoolChannel())
-            val constraint = new Inverse(nextConstraintId(), new InverseFunction(f, safeToInt(fOffset)), new InverseFunction(g, safeToInt(gOffset)), costs, cc.logger)
-            val constraints = constraint.decompose(cc.space)
+            val constraint = new Inverse(nextConstraintId(), new InverseFunction(f, safeToInt(fOffset)), new InverseFunction(g, safeToInt(gOffset)), costs)
+            val constraints = constraint.decompose(cc.space, cc.logger)
             for (constraint <- constraints) {
                 cc.post(goals, constraint)
             }

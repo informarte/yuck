@@ -7,6 +7,7 @@ import org.jgrapht.alg.matching.HopcroftKarpMaximumCardinalityBipartiteMatching
 import org.jgrapht.graph.DefaultUndirectedGraph
 
 import yuck.core.*
+import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 
 /**
@@ -48,8 +49,7 @@ final class InverseFunction
  */
 final class Inverse
     (id: Id[Constraint],
-     val f: InverseFunction, val g: InverseFunction, val costs: BooleanVariable,
-     logger: LazyLogger)
+     val f: InverseFunction, val g: InverseFunction, val costs: BooleanVariable)
     extends Constraint(id)
 {
 
@@ -60,7 +60,7 @@ final class Inverse
             f.xs.mkString(", "), f.offset, g.xs.mkString(", "), g.offset, costs)
 
     override def copy(replacements: Map[AnyVariable, AnyVariable]) =
-        new Inverse(id, f, g, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable], logger)
+        new Inverse(id, f, g, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable])
 
     override def inVariables = f.xs.view ++ g.xs.view
     override def outVariables = List(costs)
@@ -225,6 +225,8 @@ final class Inverse
     override def createNeighbourhood(
         space: Space,
         randomGenerator: RandomGenerator,
+        logger: LazyLogger,
+        sigint: Sigint,
         moveSizeDistribution: Distribution,
         createHotSpotDistribution: IndexedSeq[AnyVariable] => Option[Distribution],
         maybeFairVariableChoiceRate: Option[Probability]):
@@ -307,7 +309,7 @@ final class Inverse
     }
 
     // Sometimes inverse constraints are decomposable (see elitserien, for example).
-    def decompose(space: Space): Seq[Inverse] = {
+    def decompose(space: Space, logger: LazyLogger): Seq[Inverse] = {
         lazy val fPartitionByDomain = f.xs.groupBy(_.domain)
         lazy val gPartitionByDomain = g.xs.groupBy(_.domain)
         def domainLt(lhs: IntegerDomain, rhs: IntegerDomain) =
@@ -332,8 +334,7 @@ final class Inverse
                     space.nextConstraintId(),
                     new InverseFunction(fPartitionByDomain(domain).toVector, offset),
                     new InverseFunction(gPartitionByDomain(domain).toVector, offset),
-                    costs,
-                    logger)
+                    costs)
             }).toList
         } else {
             List(this)

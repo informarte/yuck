@@ -4,6 +4,8 @@ import scala.collection.*
 
 import yuck.constraints.Increasing.deduplicated
 import yuck.core.*
+import yuck.util.arm.Sigint
+import yuck.util.logging.LazyLogger
 
 /**
  * Implements Boolean ''increasing'' constraints as specified by MiniZinc.
@@ -34,6 +36,8 @@ final class BooleanIncreasing
     override def createNeighbourhood(
         space: Space,
         randomGenerator: RandomGenerator,
+        logger: LazyLogger,
+        sigint: Sigint,
         moveSizeDistribution: Distribution,
         createHotSpotDistribution: IndexedSeq[AnyVariable] => Option[Distribution],
         maybeFairVariableChoiceRate: Option[Probability]) =

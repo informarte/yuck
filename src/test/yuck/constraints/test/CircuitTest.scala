@@ -34,7 +34,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 
     @Test
     def testBasics(): Unit = {
-        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint)
+        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs)
         assertEq(constraint.toString, "circuit([%s], %d, %s)".format(succ.mkString(", "), offset, costs))
         assertEq(constraint.inVariables.size, succ.size)
         assertEq(constraint.inVariables.toSet, succ.toSet)
@@ -44,7 +44,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 
     @Test
     def testCopyingWithoutReplacement(): Unit = {
-        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint)
+        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs)
         val copy = constraint.copy(Map.empty).asInstanceOf[Circuit]
         assert(! copy.eq(constraint))
         assertEq(copy.id, constraint.id)
@@ -55,7 +55,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 
     @Test
     def testCopyingWithReplacement(): Unit = {
-        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint)
+        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs)
         val costs1 = space.createVariable("costs1", CompleteBooleanDomain)
         val copy = constraint.copy(Map((costs, costs1))).asInstanceOf[Circuit]
         assertEq(copy.id, constraint.id)
@@ -66,7 +66,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 
     @Test
     def testPropagation(): Unit = {
-        space.post(new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint))
+        space.post(new Circuit(space.nextConstraintId(), succ, offset, costs))
         runScenario(
             TestScenario(
                 space,
@@ -88,7 +88,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 
     @Test
     def testHandlingOfDuplicateVariablesInPropagation(): Unit = {
-        space.post(new Circuit(space.nextConstraintId(), Vector(x1, x2, x3, x4, x1), offset, costs, logger, sigint))
+        space.post(new Circuit(space.nextConstraintId(), Vector(x1, x2, x3, x4, x1), offset, costs))
         runScenario(
             TestScenario(
                 space,
@@ -103,7 +103,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 
     @Test
     def testCostComputation(): Unit = {
-        space.post(new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint))
+        space.post(new Circuit(space.nextConstraintId(), succ, offset, costs))
         runScenario(
             TestScenario(
                 space,
@@ -130,7 +130,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 
     @Test
     def testHandlingOfDuplicateVariablesInCostComputation(): Unit = {
-        space.post(new Circuit(space.nextConstraintId(), Vector(x1, x2, x3, x4, x1), offset, costs, logger, sigint))
+        space.post(new Circuit(space.nextConstraintId(), Vector(x1, x2, x3, x4, x1), offset, costs))
         runScenario(
             TestScenario(
                 space,
@@ -144,7 +144,7 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
 
     @Test
     def testHandlingOfInvalidNodeReferencesInCostComputation(): Unit = {
-        space.post(new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint))
+        space.post(new Circuit(space.nextConstraintId(), succ, offset, costs))
         runScenario(
             TestScenario(
                 space,
@@ -209,10 +209,10 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
     }
 
     private def assertNeighbourhood(succ: IndexedSeq[IntegerVariable]): Unit = {
-        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint)
+        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs)
         space.post(constraint)
         assert(constraint.isCandidateForImplicitSolving(space))
-        val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution).get
+        val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, logger, sigint, DefaultMoveSizeDistribution).get
         assertEq(neighbourhood.getClass, classOf[CircuitNeighbourhood])
         assert(succ.forall(x => x.domain.contains(now.value(x))))
         assert(Circuit.isHamiltonianCircuit(succ, offset, now))
@@ -221,10 +221,10 @@ final class CircuitTest(offset: Int) extends UnitTest with ConstraintTestTooling
     }
 
     private def assertNoNeighbourhood(succ: IndexedSeq[IntegerVariable], isCandidate: Boolean = false): Unit = {
-        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint)
+        val constraint = new Circuit(space.nextConstraintId(), succ, offset, costs)
         space.post(constraint)
         assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
-        assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution), None)
+        assertEq(constraint.createNeighbourhood(space, randomGenerator, logger, sigint, DefaultMoveSizeDistribution), None)
     }
 
 }

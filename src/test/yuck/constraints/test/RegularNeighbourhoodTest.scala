@@ -16,7 +16,7 @@ final class RegularNeighbourhoodTest extends SpecificNeighbourhoodTest {
     private val costs = new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
 
     override protected lazy val constraint =
-        new Regular(space.nextConstraintId(), new RegularDfa(xs, Q, S, delta, q0, F), costs, logger)
+        new Regular(space.nextConstraintId(), new RegularDfa(xs, Q, S, delta, q0, F), costs)
 
     override protected def checkSearchState(searchState: SearchState) = {
         assert(xs.forall(_.hasValidValue(searchState)))

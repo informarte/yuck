@@ -3,6 +3,7 @@ package yuck.constraints
 import scala.collection.*
 
 import yuck.core.*
+import yuck.util.arm.Sigint
 import yuck.util.logging.LazyLogger
 
 /**
@@ -21,7 +22,7 @@ import yuck.util.logging.LazyLogger
  * To compute d', we look for the latest state u from which an accepting state could presumably be reached.
  */
 final class Regular
-    (id: Id[Constraint], val dfa: RegularDfa, val costs: BooleanVariable, logger: LazyLogger)
+    (id: Id[Constraint], val dfa: RegularDfa, val costs: BooleanVariable)
     extends Constraint(id)
 {
 
@@ -37,7 +38,7 @@ final class Regular
     private val n = xs.size
     private val hasDuplicateVariables = xs.toSet.size < n
 
-    private val (distancesToAcceptingState: Vector[Int], _) = logger.withTimedLogScope("Computing distances") {
+    private val distancesToAcceptingState: Vector[Int] = {
         // We use the Floyd-Warshall algorithm to compute, for each q in Q, the minimum number of
         // transitions that are required to reach an accepting state from q.
         val d = Array.ofDim[Int](Q, Q)
@@ -69,7 +70,7 @@ final class Regular
             delta.iterator.map(row => "[%s]".format(row.mkString(", "))).mkString(", "), q0, F, costs)
 
     override def copy(replacements: Map[AnyVariable, AnyVariable]) =
-        new Regular(id, dfa, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable], logger)
+        new Regular(id, dfa, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable])
 
     override def inVariables = xs
     override def outVariables = List(costs)
@@ -197,6 +198,8 @@ final class Regular
     override def createNeighbourhood(
         space: Space,
         randomGenerator: RandomGenerator,
+        logger: LazyLogger,
+        sigint: Sigint,
         moveSizeDistribution: Distribution,
         createHotSpotDistribution: IndexedSeq[AnyVariable] => Option[Distribution],
         maybeFairVariableChoiceRate: Option[Probability]) =

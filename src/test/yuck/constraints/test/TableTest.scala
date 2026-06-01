@@ -188,7 +188,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
         val constraint = new Table(space.nextConstraintId(), xs, rows, costs)
         space.post(constraint)
         assert(constraint.isCandidateForImplicitSolving(space))
-        val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution).get
+        val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, logger, sigint, DefaultMoveSizeDistribution).get
         assertEq(neighbourhood.getClass, classOf[TableNeighbourhood[?, ?, ?]])
         val now = space.searchState
         assert(xs.forall(_.hasValidValue(now)))
@@ -206,7 +206,7 @@ final class TableTest extends UnitTest with ConstraintTestTooling {
         val constraint = new Table(space.nextConstraintId(), xs, rows, costs)
         space.post(constraint)
         assertEq(constraint.isCandidateForImplicitSolving(space), isCandidate)
-        assertEq(constraint.createNeighbourhood(space, randomGenerator, DefaultMoveSizeDistribution), None)
+        assertEq(constraint.createNeighbourhood(space, randomGenerator, logger, sigint, DefaultMoveSizeDistribution), None)
     }
 
 }

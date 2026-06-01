@@ -66,7 +66,7 @@ abstract class SpecificNeighbourhoodTest extends UnitTest {
         val xs = space.searchVariables
         xs.foreach(space.registerObjectiveVariable)
         space.registerObjectiveVariable(costs)
-        val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, moveSizeDistribution).get
+        val neighbourhood = constraint.createNeighbourhood(space, randomGenerator, logger, sigint, moveSizeDistribution).get
         assertEq(neighbourhood.getClass, expectedNeighbourhoodClass)
         assertEq(neighbourhood.searchVariables, xs)
         checkSearchState(now)

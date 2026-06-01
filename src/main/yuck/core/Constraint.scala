@@ -2,6 +2,9 @@ package yuck.core
 
 import scala.collection.*
 
+import yuck.util.arm.Sigint
+import yuck.util.logging.LazyLogger
+
 /**
  * Provides the constraint interface for local search.
  *
@@ -106,6 +109,8 @@ abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
     def createNeighbourhood(
         space: Space,
         randomGenerator: RandomGenerator,
+        logger: LazyLogger,
+        sigint: Sigint,
         moveSizeDistribution: Distribution = Distribution(1, List(1)),
         createHotSpotDistribution: IndexedSeq[AnyVariable] => Option[Distribution] = _ => None,
         maybeFairVariableChoiceRate: Option[Probability] = None):

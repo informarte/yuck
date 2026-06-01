@@ -17,7 +17,7 @@ final class CircuitNeighbourhoodTest(offset: Int) extends SpecificNeighbourhoodT
             new IntegerVariable(space.nextVariableId(), "x%d".format(i), baseDomain.randomSubdomain(randomGenerator))
 
     override protected lazy val constraint =
-        new Circuit(space.nextConstraintId(), succ, offset, costs, logger, sigint)
+        new Circuit(space.nextConstraintId(), succ, offset, costs)
 
     override protected val expectedNeighbourhoodClass = classOf[CircuitNeighbourhood]
 
