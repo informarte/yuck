@@ -31,13 +31,12 @@ import time
 
 from pathlib import Path
 
-
 def currentTimeInMillis():
     return int(round(time.time() * 1000))
 
 def checkExistence(path):
     if not path.exists():
-        raise ValueError('{} does not exist'.format(path))
+        raise ValueError(f'{path} does not exist')
 
 def identifyOs():
     return {'arch': platform.machine(), 'name': platform.system(), 'version': platform.release()}
@@ -58,33 +57,33 @@ def identifySolver(args):
         version = match.group(2).strip().lower()
         candidates = [item for item in data if item['name'].lower() == name and item['version'].lower() == version]
         if len(candidates) == 0:
-            raise ValueError('Solver id {} is unknown'.format(args.solver))
+            raise ValueError(f'Solver id {args.solver} is unknown')
         if len(candidates) > 1:
-            raise ValueError('Solver id {} is ambigious'.format(args.solver))
+            raise ValueError(f'Solver id {args.solver} is ambigious')
     else:
         name = args.solver.strip().lower()
         candidates = [item for item in data if item['name'].lower() == name]
         if len(candidates) == 0:
-            raise ValueError('Solver id {} is unknown'.format(args.solver))
+            raise ValueError(f'Solver id {args.solver} is unknown')
         if len(candidates) > 1:
-            raise ValueError('Solver id {} is ambigious'.format(args.solver))
+            raise ValueError(f'Solver id {args.solver} is ambigious')
         version = candidates[0]['version']
     return {'name': name, 'version': version}
 
 def run(args):
-    print('Running {} on {}'.format(args.solver, args.instance))
+    print(f'Running {args.solver} on {args.instance}')
     suitePath = Path(args.suite)
     checkExistence(suitePath)
     suiteName = suitePath.stem
     if not suiteName:
         raise ValueError('No suite name given')
-    modelPath = suitePath / args.problem / '{}.mzn'.format(args.model)
+    modelPath = suitePath / args.problem / f'{args.model}.mzn'
     checkExistence(modelPath)
-    instancePath = suitePath / args.problem / '{}.dzn'.format(args.instance)
+    instancePath = suitePath / args.problem / f'{args.instance}.dzn'
     checkExistence(instancePath)
     outputPath = Path.cwd() / suiteName / args.problem / args.model / args.instance
-    logFilePath = outputPath / '{}.log'.format(args.solver)
-    summaryFilePath = outputPath / '{}.json'.format(args.solver)
+    logFilePath = outputPath / f'{args.solver}.log'
+    summaryFilePath = outputPath / f'{args.solver}.json'
     outputPath.mkdir(parents = True, exist_ok = True)
     data = {
         'env': {
@@ -196,7 +195,7 @@ def main():
         args.extraSolverArgs = []
     if not args.includeDirs:
         args.includeDirs = []
-    problemPath = Path('{}/{}/'.format(args.suite, args.problem))
+    problemPath = Path(f'{args.suite}/{args.problem}/')
     try:
         checkExistence(problemPath)
         if args.instance:
@@ -205,7 +204,7 @@ def main():
             instances = [str(path).replace(str(problemPath) + '/', '').replace('.dzn', '')
                          for path in problemPath.glob('**/*.dzn')]
             if not instances:
-                raise ValueError('No instances found in {}'.format(problemPath))
+                raise ValueError(f'No instances found in {problemPath}')
             for instance in sorted(instances):
                 args.instance = instance
                 run(args)

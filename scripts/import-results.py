@@ -22,7 +22,6 @@ import json
 import sqlite3
 from urllib.request import pathname2url
 
-
 def createDb(cursor):
     cursor.execute(
         'CREATE TABLE IF NOT EXISTS result ('\
@@ -143,7 +142,7 @@ def main():
     parser.add_argument('run', metavar = 'run')
     parser.add_argument('filenames', metavar = 'json-result-file', nargs = '+')
     args = parser.parse_args()
-    dburi = 'file:{}?mode=rwc'.format(pathname2url(args.database))
+    dburi = f'file:{pathname2url(args.database)}?mode=rwc'
     with sqlite3.connect(dburi, uri = True) as conn:
         cursor = conn.cursor()
         createDb(cursor)

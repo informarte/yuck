@@ -34,10 +34,10 @@ def readProblem(source):
                 problem['n'] = int(value)
             elif key == 'EDGE_WEIGHT_FORMAT':
                 if value != 'FULL_MATRIX':
-                    raise ValueError('Unsupported edge-weight format {}'.format(key))
+                    raise ValueError(f'Unsupported edge-weight format {key}')
             elif key == 'EDGE_WEIGHT_TYPE':
                 if not value in ['EUC_2D', 'EXACT_2D', 'EXPLICIT', 'FLOOR_2D']:
-                    raise ValueError('Unsupported edge-weight type {}'.format(value))
+                    raise ValueError(f'Unsupported edge-weight type {value}')
                 problem['edge-weight-type'] = value
                 if value == 'EXACT_2D':
                     problem['scale'] = 1000
@@ -47,12 +47,12 @@ def readProblem(source):
                 problem['service-time'] = int(value)
             elif key == 'TYPE':
                 if not value in ['CVRP', 'TSPTW', 'CVRPTW']:
-                    raise ValueError('Unsupported problem type {}'.format(value))
+                    raise ValueError(f'Unsupported problem type {value}')
                 problem['type'] = value
             elif key == 'VEHICLES':
                 problem['k'] = int(value)
             else:
-                raise ValueError('Unsupported key {}'.format(key))
+                raise ValueError(f'Unsupported key {key}')
         elif line == 'DEPOT_SECTION':
             depots = []
             while True:
@@ -118,7 +118,7 @@ def readProblem(source):
                 timeWindows.append([start, end])
             problem['time-windows'] = timeWindows
         else:
-            raise ValueError('Unsupported keyword {}'.format(line))
+            raise ValueError(f'Unsupported keyword {line}')
         i += 1
     return problem
 

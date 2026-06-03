@@ -40,9 +40,9 @@ def plot(args, results):
     p2 = plt.bar(categories, commitmentEfforts, bottom = consultationEfforts)
     p3 = plt.bar(categories, consultationOverheads, bottom = [sum(t) for t in zip(consultationEfforts, commitmentEfforts)])
     p4 = plt.bar(categories, commitmentOverheads, bottom = [sum(t) for t in zip(consultationEfforts, commitmentEfforts, consultationOverheads)])
-    plt.ylabel('% of {} seconds'.format(round(totalEffort, 2)))
+    plt.ylabel(f'% of {round(totalEffort, 2)} seconds')
     if args.subcommand == 'drill':
-        plt.title('Performance metrics ({})'.format(args.goal))
+        plt.title(f'Performance metrics ({args.goal})')
     else:
         plt.title('Performance metrics')
     plt.xticks(categories, categories, rotation = 90)

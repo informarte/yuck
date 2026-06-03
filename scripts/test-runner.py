@@ -7,7 +7,6 @@ import subprocess
 
 from datetime import datetime
 
-
 def git(args):
     result = subprocess.run(['git'] + args, check = True, capture_output = True, text = True)
     return result.stdout.splitlines()
@@ -48,15 +47,15 @@ def main():
     if args.archive:
         commitDate = git(['log', '-1', '--pretty=format:%cd', '--date=format:%Y-%m-%d'])[0]
         commitHash = git(['rev-parse', '--short=8', 'HEAD'])[0]
-        branch = git(['rev-parse', '--abbrev-ref', 'HEAD'])[0]
+        branch = git(['rev-parse', '--abbrev-ref', 'HEAD'])[0].replace('/', '-')
         now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        tag = 'run-{}-{}-{}-{}'.format(now, branch.replace('/', '-'), commitHash, args.testClasses[0])
+        tag = f'run-{now}-{branch}-{commitHash}-{args.testClasses[0]}'
         os.chdir('logs')
         os.mkdir(tag)
         for item in os.listdir('../tmp'):
             if item != '.gitkeep':
-                shutil.move('../tmp/{}'.format(item), '{}/{}'.format(tag, item))
-        subprocess.run(['tar', 'cjf', '{}.tar.bz2'.format(tag), tag], check = True)
+                shutil.move(f'../tmp/{item}', f'{tag}/{item}')
+        subprocess.run(['tar', 'cjf', f'{tag}.tar.bz2', tag], check = True)
         shutil.rmtree(tag)
         git(['tag', '-f', '-m', tag, tag])
 

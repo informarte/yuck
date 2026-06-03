@@ -30,8 +30,7 @@ def createSummary(row):
                 summary['solved-to-optimality'] = not not complete
             else:
                 # In the 2012 results, some objective values are missing.
-                print('Warning: Optimization result without objective value for {}'
-                      .format((year, problem, instance)),
+                print(f'Warning: Optimization result without objective value for {(year, problem, instance)}',
                       file = sys.stderr)
     elif complete:
         summary['satisfiable'] = False
@@ -52,7 +51,7 @@ def main():
         formatter_class = argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--db', '--database', dest = 'database', default = 'results.db', help = 'Define results database')
     args = parser.parse_args()
-    dburi = 'file:{}?mode=ro'.format(pathname2url(args.database))
+    dburi = f'file:{pathname2url(args.database)}?mode=ro'
     with sqlite3.connect(dburi, uri = True) as conn:
         cursor = conn.cursor()
         results = readResults(cursor)

@@ -30,7 +30,7 @@ def main():
     parser.add_argument('referenceRun', metavar = 'reference-run')
     parser.add_argument('newRun', metavar = 'new-run')
     args = parser.parse_args()
-    dburi = 'file:{}?mode=ro'.format(pathname2url(args.database))
+    dburi = f'file:{pathname2url(args.database)}?mode=ro'
     with sqlite3.connect(dburi, uri = True) as conn:
         cursor = conn.cursor()
         results = diffResults(cursor, args)

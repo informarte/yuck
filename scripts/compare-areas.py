@@ -27,21 +27,19 @@ import common
 
 def computeAreaRatios(cursor, args):
     runs = [args.referenceRun] + args.runs
-    query = 'SELECT run, problem, model, instance, problem_type, area, search_runtime_in_seconds FROM result WHERE run IN (%s) AND solved = 1' % ','.join('?' for run in runs)
+    query = \
+        f'''SELECT run, problem, model, instance, problem_type, area, search_runtime_in_seconds
+            FROM result
+            WHERE run IN ({','.join('?' for _ in runs)}) AND solved = 1 AND {args.filter}'''
     tasks = set()
     data = {}
-    problemPattern = re.compile(args.problemFilter)
-    modelPattern = re.compile(args.modelFilter)
-    instancePattern = re.compile(args.instanceFilter)
-    for (run, problem, model, instance, problemType, area, runtimeInSeconds) in cursor.execute(query, runs):
-        if problemPattern.match(problem) and modelPattern.match(model) and instancePattern.match(instance):
-            task = (problem, model, instance)
-            tasks.add(task)
-            data[(run, task)] = {'problemType': problemType, 'area': area, 'rts': runtimeInSeconds}
+    for (run, problem, model, instance, problemType, area, runtimeInSeconds) in cursor.execute(query, (runs)):
+        task = (problem, model, instance)
+        tasks.add(task)
+        data[(run, task)] = {'problemType': problemType, 'area': area, 'rts': runtimeInSeconds}
     for task in tasks:
         if not (args.referenceRun, task) in data:
-            (problem, model, instance) = task
-            print('Warning: No reference result found for instance {}/{}/{}'.format(problem, model, instance), file = sys.stderr)
+            print(f'Warning: No reference result found for {task}', file = sys.stderr)
     return {
         run: {
             task:
@@ -70,12 +68,8 @@ def computeAreaRatios(cursor, args):
 
 def plotDiagrams(args, results):
     title = 'Area ratios'
-    filters = \
-        ([args.problemFilter] if args.problemFilter else []) + \
-        ([args.modelFilter] if args.modelFilter else []) + \
-        ([args.instanceFilter] if args.instanceFilter else [])
-    if filters:
-        title += ' ({})'.format(', '.join(filters))
+    if args.filter != 'true':
+        title += f' (where {args.filter})'
     common.plotDiagrams(
         [run for run in results],
         lambda run: (lambda result: [result[task] for task in result])(results[run]),
@@ -89,22 +83,20 @@ def main():
         formatter_class = argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--db', '--database', dest = 'database', default = 'results.db', help = 'Define results database')
     parser.add_argument('-p', '--plot', dest = 'plotDiagrams', action = 'store_true', help = 'Plot diagrams')
-    parser.add_argument('--problem-filter', dest = 'problemFilter', default = '', help = 'Consider only problems that match the given regexp')
-    parser.add_argument('--model-filter', dest = 'modelFilter', default = '', help = 'Consider only models that match the given regexp')
-    parser.add_argument('--instance-filter', dest = 'instanceFilter', default = '', help = 'Consider only instances that match the given regexp')
+    parser.add_argument('--filter', dest = 'filter', default = 'true', help = 'SQL filter expression')
     parser.add_argument('--min-runtime', dest = 'minRuntime', type = int, default = 1, help = 'Ignore quicker runs')
     parser.add_argument('--runtime-tolerance', dest = 'runtimeTolerance', type = float, default = 0.05, help = 'Ignore result of run when it was considerably quicker or slower than the reference run (applies to maximization only)')
     parser.add_argument('referenceRun', metavar = 'reference-run')
     parser.add_argument('runs', metavar = 'run', nargs = '+')
     args = parser.parse_args()
-    dburi = 'file:{}?mode=ro'.format(pathname2url(args.database))
+    dburi = f'file:{pathname2url(args.database)}?mode=ro'
     with sqlite3.connect(dburi, uri = True) as conn:
         cursor = conn.cursor()
         results = computeAreaRatios(cursor, args)
         if results:
             for run in results:
                 if not results[run]:
-                    print('Warning: No data for run {}'.format(run), file = sys.stderr)
+                    print(f'Warning: No data for run {run}', file = sys.stderr)
             postprocessedResults = {run: common.analyzeResult(results[run]) for run in results}
             print(json.dumps(postprocessedResults, sort_keys = True, indent = 4))
             if args.plotDiagrams:
