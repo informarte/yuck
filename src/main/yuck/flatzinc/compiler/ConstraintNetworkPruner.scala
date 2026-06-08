@@ -4,7 +4,6 @@ import scala.collection.{Set, mutable}
 
 import yuck.constraints.{OptimizationGoalTracker, SatisfactionGoalTracker}
 import yuck.core.{AnyVariable, Constraint}
-import yuck.flatzinc.ast.{Annotation, Term}
 
 /**
  * Retracts useless constraints from the constraint network.
@@ -15,24 +14,6 @@ final class ConstraintNetworkPruner
     (override protected val cc: CompilationContext)
     extends CompilationPhase
 {
-
-    private def findOutputVariables: Set[AnyVariable] = {
-        val result = new mutable.HashSet[AnyVariable]
-        for decl <- cc.ast.varDecls do {
-            for annotation <- decl.annotations do {
-                annotation match {
-                    case Annotation(Term("output_var", _)) =>
-                        result.add(compileAnyExpr(Term(decl.id, Nil)))
-                    case Annotation(Term("output_array", _)) =>
-                        for x <- compileAnyArray(Term(decl.id, Nil)) do {
-                            result.add(x)
-                        }
-                    case _ =>
-                }
-            }
-        }
-        result
-    }
 
     private def findObjectiveVariables: Set[AnyVariable] =
         cc.space.channelVariables.filter(cc.space.isObjectiveVariable)
@@ -54,9 +35,15 @@ final class ConstraintNetworkPruner
         val importantVars = new mutable.HashSet[AnyVariable]
         importantVars
             .addAll(cc.costVars)
-            .addAll(findOutputVariables)
+            .addAll(cc.outputVars.values)
+            .addAll(cc.outputArrays.values.flatten)
             .addAll(findObjectiveVariables)
-        cc.space.retractUselessConstraints(isUseless(importantVars.contains, _))
+        cc.danglingVars.addAll(
+            cc.space
+                .retractUselessConstraints(isUseless(importantVars.contains, _))
+                .iterator
+                .flatMap(_.inVariables)
+                .filter(cc.space.isDanglingVariable))
     }
 
 }

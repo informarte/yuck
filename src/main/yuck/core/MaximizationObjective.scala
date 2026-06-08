@@ -13,6 +13,8 @@ final class MaximizationObjective
 {
     override def toString =
         "maximize %s".format(x)
+    override def copy =
+        new MaximizationObjective(x, maybeTargetCosts, maybeY)
     override def targetCosts: A = {
         val dx = x.domain
         if dx.hasUb && maybeTargetCosts.isDefined

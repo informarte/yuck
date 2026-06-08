@@ -21,8 +21,8 @@ import yuck.util.logging.LazyLogger
  * We guarantee that d' = 0 iff the sequence is acceptable.
  * To compute d', we look for the latest state u from which an accepting state could presumably be reached.
  */
-final class Regular
-    (id: Id[Constraint], val dfa: RegularDfa, val costs: BooleanVariable)
+final class Regular private
+    (id: Id[Constraint], val dfa: RegularDfa, distancesToAcceptingState: Vector[Int], val costs: BooleanVariable)
     extends Constraint(id)
 {
 
@@ -38,31 +38,8 @@ final class Regular
     private val n = xs.size
     private val hasDuplicateVariables = xs.toSet.size < n
 
-    private val distancesToAcceptingState: Vector[Int] = {
-        // We use the Floyd-Warshall algorithm to compute, for each q in Q, the minimum number of
-        // transitions that are required to reach an accepting state from q.
-        val d = Array.ofDim[Int](Q, Q)
-        for u <- 0 until Q do
-            for v <- 0 until Q do
-                d(u)(v) = if u == v then 0 else Int.MaxValue
-        for u <- 0 until Q do
-            for a <- 0 until S do {
-                val v = delta(u)(a) - 1
-                if v > -1 /* ignore failed state */ && u != v then {
-                    d(u)(v) = 1
-                }
-            }
-        for w <- 0 until Q do
-            for u <- 0 until Q do
-                for v <- 0 until Q do
-                    if d(u)(w) < Int.MaxValue && d(w)(v) < Int.MaxValue then {
-                        val duwv = d(u)(w) + d(w)(v)
-                        if d(u)(v) > duwv then {
-                            d(u)(v) = duwv
-                        }
-                    }
-        Vector.tabulate(Q)(i => F.valuesIterator.map(f => d(i)(f.toInt - 1)).min)
-    }
+    def this(id: Id[Constraint], dfa: RegularDfa, costs: BooleanVariable) =
+        this(id, dfa, Regular.computeDistancesToAcceptingState(dfa), costs)
 
     override def toString =
         "regular([%s], %d, %d, [%s], %d, %s, %s)".format(
@@ -70,7 +47,7 @@ final class Regular
             delta.iterator.map(row => "[%s]".format(row.mkString(", "))).mkString(", "), q0, F, costs)
 
     override def copy(replacements: Map[AnyVariable, AnyVariable]) =
-        new Regular(id, dfa, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable])
+        new Regular(id, dfa, distancesToAcceptingState, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable])
 
     override def inVariables = xs
     override def outVariables = List(costs)
@@ -225,6 +202,40 @@ final class Regular
         } else {
             None
         }
+    }
+
+}
+
+object Regular {
+
+    private def computeDistancesToAcceptingState(dfa: RegularDfa): Vector[Int] = {
+        // We use the Floyd-Warshall algorithm to compute, for each q in Q, the minimum number of
+        // transitions that are required to reach an accepting state from q.
+        val Q = dfa.Q
+        val S = dfa.S
+        val delta = dfa.delta
+        val F = dfa.F
+        val d = Array.ofDim[Int](Q, Q)
+        for u <- 0 until Q do
+            for v <- 0 until Q do
+                d(u)(v) = if u == v then 0 else Int.MaxValue
+        for u <- 0 until Q do
+            for a <- 0 until S do {
+                val v = delta(u)(a) - 1
+                if v > -1 /* ignore failed state */ && u != v then {
+                    d(u)(v) = 1
+                }
+            }
+        for w <- 0 until Q do
+            for u <- 0 until Q do
+                for v <- 0 until Q do
+                    if d(u)(w) < Int.MaxValue && d(w)(v) < Int.MaxValue then {
+                        val duwv = d(u)(w) + d(w)(v)
+                        if d(u)(v) > duwv then {
+                            d(u)(v) = duwv
+                        }
+                    }
+        Vector.tabulate(Q)(i => F.valuesIterator.map(f => d(i)(f.toInt - 1)).min)
     }
 
 }

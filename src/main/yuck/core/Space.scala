@@ -439,15 +439,17 @@ final class Space(
     def numberOfImplicitConstraints: Int = implicitConstraints.size
 
     /** Finds and retracts useless constraints. */
-    def retractUselessConstraints(isUseless: Constraint => Boolean): Space = {
+    def retractUselessConstraints(isUseless: Constraint => Boolean): Set[Constraint] = {
+        val retractedConstraints = new mutable.HashSet[Constraint]
         val uselessConstraints = new mutable.HashSet[Constraint]
         while {
             uselessConstraints.clear()
             constraints.view.filter(isUseless).foreach(uselessConstraints.add)
             uselessConstraints.foreach(retract)
+            retractedConstraints.addAll(uselessConstraints)
             !uselessConstraints.isEmpty
         } do ()
-        this
+        retractedConstraints
     }
 
     /** Counts how often Constraint.propagate was called. */
@@ -579,6 +581,7 @@ final class Space(
                 constraint.layer = i.toShort
                 constraint.after = null
                 if ! isImplicitConstraint(constraint) then {
+                    constraint.checkSetup(this)
                     for effect <- constraint.initialize(assignment) do {
                         effect.affect(this)
                     }
@@ -794,6 +797,30 @@ final class Space(
         if flowModel.ne(null) then {
             assert(flowModel.vertexSet().size() == constraints.size)
         }
+    }
+
+    def copy(): Space = {
+        val copy = new Space(logger, sigint, checkAssignmentsToNonChannelVariables, maybeSpaceProfilingMode)
+        for (constraint <- constraints) {
+            val constraintCopy = constraint.copy(Map.empty)
+            copy.post(constraintCopy)
+            if isImplicitConstraint(constraint) then {
+                copy.registerImplicitConstraint(constraintCopy)
+            }
+            copy.registerGoals(constraintCopy, goals(constraint))
+            constraintCopy.layer = constraint.layer
+        }
+        copy.objectiveVariables.addAll(objectiveVariables)
+        copy.assignment.setValues(assignment)
+        copy.variableIdFactory.setNextId(variableIdFactory)
+        copy.constraintIdFactory.setNextId(constraintIdFactory)
+        copy.initialized = initialized
+        copy.numberOfRetractions = numberOfRetractions
+        copy.numberOfPropagations = numberOfPropagations
+        copy.numberOfInitializations = numberOfInitializations
+        copy.numberOfConsultations = numberOfConsultations
+        copy.numberOfCommitments = numberOfCommitments
+        copy
     }
 
 }

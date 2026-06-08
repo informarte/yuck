@@ -58,7 +58,6 @@ final class DomainInitializer
                         throw new FlatZincCompilerInterruptedException
                     }
                     val a = ArrayAccess(decl.id, IntConst(idx))
-                    cc.declaredVars += a
                     cc.domains += a -> domain
                 }
             case _ =>
@@ -67,7 +66,6 @@ final class DomainInitializer
                 }
                 val domain = createDomain(decl.valueType)
                 val a = Term(decl.id, Nil)
-                cc.declaredVars += a
                 cc.domains += a -> domain
         }
     }

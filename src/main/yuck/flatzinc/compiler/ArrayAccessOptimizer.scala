@@ -30,6 +30,7 @@ final class ArrayAccessOptimizer
     }
 
     private def optimizeVarArrayAccess(layer: Set[yuck.core.Constraint]): Unit = {
+        val droppedVars = new mutable.HashSet[AnyVariable]
         val elementVarConstraints: Map[(immutable.IndexedSeq[Variable[?, ?, ?]], Int), Vector[ElementVar[?, ?, ?]]] =
             layer.view
                 .filter(_.isInstanceOf[ElementVar[?, ?, ?]])
@@ -82,6 +83,7 @@ final class ArrayAccessOptimizer
                             is,
                             ys.asInstanceOf[immutable.IndexedSeq[X]],
                             offset1))
+                    droppedVars.addAll(xs.diff(xs1))
                 }
                 xs.head.match {
                     case _: BooleanVariable => postConstraint()(using BooleanTypeTraits)
@@ -114,8 +116,10 @@ final class ArrayAccessOptimizer
                         case _: IntegerVariable => postConstraint()(using IntegerTypeTraits)
                         case _: IntegerSetVariable => postConstraint()(using IntegerSetTypeTraits)
                     }
+                    droppedVars.addAll(xs.diff(xs1))
                 }
             }
+            cc.danglingVars.addAll(droppedVars.view.filter(cc.space.isDanglingVariable))
         }
     }
 

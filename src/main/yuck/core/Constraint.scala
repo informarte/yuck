@@ -56,6 +56,17 @@ abstract class Constraint(val id: Id[Constraint]) extends Ordered[Constraint] {
     def propagate(): PropagationEffects = NoPropagationOccurred
 
     /**
+     * Checks the constraint against its environment and throws if something is not right.
+     *
+     * Called before initialize.
+     *
+     * The default implementation does nothing.
+     */
+    @Deprecated
+    def checkSetup(space: Space): Unit = {
+    }
+
+    /**
      * Initializes the constraint's internal state according to the given search state
      * and returns values for all output variables by means of effects.
      */

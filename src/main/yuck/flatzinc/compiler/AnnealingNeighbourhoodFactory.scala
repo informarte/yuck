@@ -53,7 +53,7 @@ final class AnnealingNeighbourhoodFactory
         cc.maybeNeighbourhood = createNeighbourhood
     }
 
-    private final def createNeighbourhood: Option[Neighbourhood] = {
+    private def createNeighbourhood: Option[Neighbourhood] = {
         val buf = new mutable.ArrayBuffer[(PrimitiveObjective, Option[Neighbourhood])]
         for (objective, i) <- cc.objective.primitiveObjectives.zipWithIndex do {
             val levelCfg =
@@ -85,7 +85,7 @@ final class AnnealingNeighbourhoodFactory
         else Some(stackNeighbourhoods(objectives.toVector, neighbourhoods.toVector))
     }
 
-    protected def createSatisfactionNeighbourhood
+    private def createSatisfactionNeighbourhood
         (levelCfg: FlatZincLevelConfiguration, x: BooleanVariable):
         Option[Neighbourhood] =
     {
@@ -170,7 +170,7 @@ final class AnnealingNeighbourhoodFactory
         }
     }
 
-    protected def createMinimizationNeighbourhood
+    private def createMinimizationNeighbourhood
         [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
         (levelCfg: FlatZincLevelConfiguration, x: X)
         (using typeTraits: NumericalTypeTraits[A, D, X]):
@@ -181,7 +181,7 @@ final class AnnealingNeighbourhoodFactory
         else createNeighbourhoodOnInvolvedSearchVariables(levelCfg, x)
     }
 
-    protected def createMaximizationNeighbourhood
+    private def createMaximizationNeighbourhood
         [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
         (levelCfg: FlatZincLevelConfiguration, x: X)
         (using typeTraits: NumericalTypeTraits[A, D, X]):

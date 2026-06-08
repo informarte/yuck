@@ -62,7 +62,8 @@ final class VariableClassifier
         annotation match {
             case Term(search, ArrayConst(elems) :: _)
             if List("bool_search", "int_search", "set_search").contains(search) =>
-                for elem <- elems if cc.declaredVars.contains(elem) do {
+                val declaredVars = cc.domains.keySet
+                for elem <- elems if declaredVars.contains(elem) do {
                     cc.searchVars += compileAnyExpr(elem)
                 }
             case Term(search, Term(id, Nil) :: _)

@@ -10,6 +10,8 @@ abstract class PrimitiveObjective extends AnyObjective {
     /** The objective variable. */
     val x: AnyVariable
 
+    override def copy: PrimitiveObjective
+
     final override def primitiveObjectives = Seq(this)
     final override def objectiveVariables = Seq(x)
 

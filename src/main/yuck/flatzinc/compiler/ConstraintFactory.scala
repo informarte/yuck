@@ -1,7 +1,6 @@
 package yuck.flatzinc.compiler
 
 import scala.collection.*
-import scala.ref.WeakReference
 
 import yuck.constraints.*
 import yuck.constraints.OrderingRelation.*
@@ -932,7 +931,7 @@ final class ConstraintFactory
         val delivery =
             new Delivery
                 [Time, TimeDomain, TimeVariable]
-                (WeakReference(cc.space), nextConstraintId(),
+                (nextConstraintId(),
                  startNodes, endNodes, succ, safeToInt(offset), arrivalTimes, serviceTimes, travelTimes,
                  withWaiting, totalTravelTime, costs)
         cc.space.post(delivery)

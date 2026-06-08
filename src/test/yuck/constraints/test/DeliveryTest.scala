@@ -2,7 +2,6 @@ package yuck.constraints.test
 
 import scala.collection.*
 import scala.language.implicitConversions
-import scala.ref.WeakReference
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedClass
@@ -67,7 +66,7 @@ final class DeliveryTest(offset: Int, withTimeWindows: Boolean, withWaiting: Boo
         new BooleanVariable(space.nextVariableId(), "costs", CompleteBooleanDomain)
     private val delivery =
         new Delivery(
-            WeakReference(space), space.nextConstraintId(), startNodes, endNodes, succ, offset,
+            space.nextConstraintId(), startNodes, endNodes, succ, offset,
             arrivalTimes, serviceTimes, travelTimes, withWaiting, totalTravelTime, deliveryCosts)
 
     private def createNeighbourhood() = {

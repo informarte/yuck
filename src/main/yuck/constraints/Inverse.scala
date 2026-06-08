@@ -20,7 +20,7 @@ final class InverseFunction
     require(! xs.isEmpty)
     val indexRange = offset until safeAdd(offset, xs.size)
     val indexDomain = IntegerRange(offset, offset + xs.size - 1)
-    val x2i = new HashMap[AnyVariable, Int] ++ xs.zip(indexRange)
+    val x2i = immutable.HashMap.from[AnyVariable, Int](xs.view.zip(indexRange))
     val refs = new Array[mutable.HashSet[Int]](xs.size)
     val visited = new Array[Int](xs.size)
     def isSuitableForImplicitSolving(space: Space) =
@@ -60,7 +60,11 @@ final class Inverse
             f.xs.mkString(", "), f.offset, g.xs.mkString(", "), g.offset, costs)
 
     override def copy(replacements: Map[AnyVariable, AnyVariable]) =
-        new Inverse(id, f, g, replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable])
+        new Inverse(
+            id,
+            new InverseFunction(f.xs, f.offset),
+            new InverseFunction(g.xs, g.offset),
+            replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable])
 
     override def inVariables = f.xs.view ++ g.xs.view
     override def outVariables = List(costs)

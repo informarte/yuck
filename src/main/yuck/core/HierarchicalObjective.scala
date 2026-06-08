@@ -14,6 +14,8 @@ final class HierarchicalObjective
     require(! primitiveObjectives.isEmpty)
     override def toString =
         primitiveObjectives.toString
+    override def copy =
+        new HierarchicalObjective(primitiveObjectives.map(_.copy), focusOnTopObjective, firstSolutionIsGoodEnough)
     override def objectiveVariables =
         primitiveObjectives.iterator.flatMap(_.objectiveVariables).toSeq
     override def targetCosts =

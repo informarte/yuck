@@ -196,11 +196,12 @@ final class SpaceTest extends UnitTest {
             ! space.isImplicitConstraint(constraint) &&
             constraint.outVariables.forall(x =>
                 ! space.isObjectiveVariable(x) && space.directlyAffectedConstraints(x).isEmpty)
-        space
+        val uselessConstraints = space
             .registerObjectiveVariable(v)
             .post(c).post(d).post(e).post(f).post(g).post(h)
             .registerImplicitConstraint(h)
             .retractUselessConstraints(isUseless)
+        assertEq(uselessConstraints, Set(d, f, g))
         assertEq(space.numberOfConstraints, 3)
         assertEq(space.numberOfConstraints(_.id == c.id), 1)
         assertEq(space.numberOfConstraints(_.id == d.id), 0)

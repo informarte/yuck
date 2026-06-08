@@ -46,7 +46,7 @@ final class FeasibilityJumpEventLogger(logger: LazyLogger) extends FeasibilityJu
     }
 
     override def onObjectiveTightened(result: FeasibilityJumpResult, x: AnyVariable) = {
-        logger.logg("Reduced domain of objective variable %s to %s".format(x, x.domain))
+        logger.logg("Tightened objective variable %s".format(x))
     }
 
     override def onNextRound(result: FeasibilityJumpResult) = {

@@ -5,23 +5,31 @@ import scala.collection.*
 import yuck.core.*
 
 final class LinearCombination
-    [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]]
-    (id: Id[Constraint], val axs: immutable.Seq[AX[A, D, X]], val y: X)
+    [A <: NumericalValue[A], D <: NumericalDomain[A, D], X <: NumericalVariable[A, D, X]] private
+    (id: Id[Constraint],
+     val axs: immutable.Seq[AX[A, D, X]], val y: X,
+     x2ax: HashMap[AnyVariable, AX[A, D, X]])
     (using typeTraits: NumericalTypeTraits[A, D, X])
     extends Constraint(id)
 {
 
     require(axs.iterator.map(_.x).toSet.size == axs.size)
 
+    def this
+        (id: Id[Constraint], axs: immutable.Seq[AX[A, D, X]], y: X)
+        (using typeTraits: NumericalTypeTraits[A, D, X]) =
+    {
+        this(id, axs, y, axs.view.map(ax => ax.x -> ax).to(HashMap))
+    }
+
     override def toString = "%s = sum([%s])".format(y, axs.mkString(", "))
 
     override def copy(replacements: Map[AnyVariable, AnyVariable]) =
-        new LinearCombination(id, axs, replacements.getOrElse(y, y).asInstanceOf[X])
+        new LinearCombination(id, axs, replacements.getOrElse(y, y).asInstanceOf[X], x2ax)
 
     override def inVariables = axs.view.map(_.x)
     override def outVariables = List(y)
 
-    private val x2ax: HashMap[AnyVariable, AX[A, D, X]] = axs.view.map(ax => ax.x -> ax).to(HashMap)
     private var sum = typeTraits.zero
     private val effect = new ReusableMoveEffectWithFixedVariable(y)
 

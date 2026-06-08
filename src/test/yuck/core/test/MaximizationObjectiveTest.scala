@@ -85,9 +85,8 @@ final class MaximizationObjectiveTest extends UnitTest {
             assertEq(now.value(x), a)
             assertEq(now.value(y), a)
             assertEq(x.domain, baseDomain)
-            assertEq(y.domain, IntegerRange(a, baseDomain.ub))
-            assertEq(tightenedVariables.isEmpty, y.domain == baseDomain)
-            y.relaxDomain(baseDomain)
+            assertEq(y.domain, baseDomain)
+            assertEq(tightenedVariables, Set(x))
         }
     }
 

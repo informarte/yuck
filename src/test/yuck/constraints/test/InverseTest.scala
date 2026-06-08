@@ -45,8 +45,8 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
         val copy = constraint.copy(Map.empty).asInstanceOf[Inverse]
         assert(! copy.eq(constraint))
         assertEq(copy.id, constraint.id)
-        assertEq(copy.f, f)
-        assertEq(copy.g, g)
+        assertNe(copy.f, f)
+        assertNe(copy.g, g)
         assertEq(copy.costs, costs)
     }
 
@@ -58,8 +58,8 @@ final class InverseTest(fOffset: Int, gOffset: Int) extends UnitTest with Constr
         val costs1 = BooleanTypeTraits.createChannel(space)
         val copy = constraint.copy(Map((costs, costs1))).asInstanceOf[Inverse]
         assertEq(copy.id, constraint.id)
-        assertEq(copy.f, f)
-        assertEq(copy.g, g)
+        assertNe(copy.f, f)
+        assertNe(copy.g, g)
         assertEq(copy.costs, costs1)
     }
 

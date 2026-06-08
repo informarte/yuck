@@ -75,12 +75,7 @@ abstract class NumericalObjective
                 val move = new ChangeValue(space.nextMoveId(), y, bound)
                 space.consult(move)
                 space.commit(move)
-                val dy0 = y.domain
-                val dy1 = optimizationMode match {
-                    case OptimizationMode.Min => dy0.boundFromAbove(bound)
-                    case OptimizationMode.Max => dy0.boundFromBelow(bound)
-                }
-                if y.pruneDomain(dy1) then Set(y) else Set.empty
+                Set(x)
             } else {
                 Set.empty
             }

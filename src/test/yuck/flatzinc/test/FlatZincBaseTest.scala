@@ -58,7 +58,12 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Tag(SatisfiabilityProblem)
     def testVarArrayAccessWithoutOptimization(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "var_array_access_test", solverConfiguration = task.solverConfiguration.copy(optimizeArrayAccess = false)))
+        val result = solveWithResult(
+            task.copy(
+                problemName = "var_array_access_test",
+                solverConfiguration = task.solverConfiguration.copy(
+                    name = "without-optimization",
+                    optimizeArrayAccess = false)))
         assertEq(result.space.numberOfConstraints[ElementVar[?, ?, ?]], 10)
         assertEq(result.space.searchVariables.size, 40)
     }
@@ -66,7 +71,10 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Tag(SatisfiabilityProblem)
     def testVarArrayAccessWithOptimization(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "var_array_access_test"))
+        val result = solveWithResult(
+            task.copy(
+                problemName = "var_array_access_test",
+                solverConfiguration = task.solverConfiguration.copy(name = "with-optimization")))
         assertEq(result.space.numberOfConstraints[ElementsVar[?, ?, ?]], 1)
         assertEq(result.space.searchVariables.size, 25)
     }
@@ -519,7 +527,7 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[Ne[?, ?, ?]], 3)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
-        assertEq(result.space.numberOfPropagations, 6)
+        assertEq(result.space.numberOfPropagations, 4)
         assertEq(result.space.numberOfRetractions, 0)
         assert(result.neighbourhood.isInstanceOf[AllDifferentNeighbourhood[?, ?, ?]])
     }
@@ -539,7 +547,7 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.numberOfConstraints[Ne[?, ?, ?]], 6)
         assertEq(result.space.numberOfConstraints[Or], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
-        assertEq(result.space.numberOfPropagations, 11)
+        assertEq(result.space.numberOfPropagations, 9)
         assertEq(result.space.numberOfRetractions, 0)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }
@@ -559,7 +567,7 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.numberOfConstraints[Eq[?, ?, ?]], 18)
         assertEq(result.space.numberOfConstraints[LinearConstraint[?, ?, ?]], 3)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
-        assertEq(result.space.numberOfPropagations, 54)
+        assertEq(result.space.numberOfPropagations, 52)
         assertEq(result.space.numberOfRetractions, 5)
     }
 
@@ -579,7 +587,7 @@ final class FlatZincBaseTest extends FrontEndTest {
         assertEq(result.space.numberOfConstraints[AllDifferent[?, ?, ?]], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
-        assertEq(result.space.numberOfPropagations, 23)
+        assertEq(result.space.numberOfPropagations, 21)
         assertEq(result.space.numberOfRetractions, 13)
     }
 

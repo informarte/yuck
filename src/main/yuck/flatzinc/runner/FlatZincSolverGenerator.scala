@@ -1,15 +1,18 @@
 package yuck.flatzinc.runner
 
+import java.time.Duration
+
 import yuck.SolvingMethod
 import yuck.annealing.*
 import yuck.core.*
 import yuck.fj.{FeasibilityJump, FeasibilityJumpNeighbourhood}
 import yuck.flatzinc.FlatZincSolverConfiguration
 import yuck.flatzinc.ast.FlatZincAst
-import yuck.flatzinc.compiler.{FlatZincCompiler, FlatZincCompilerResult}
+import yuck.flatzinc.compiler.{CompilationContext, FlatZincCompiler1, FlatZincCompiler2, FlatZincCompilerResult}
 import yuck.flatzinc.util.{AnnealingMonitorFromPortfolioSolverMonitor, FeasibilityJumpMonitorFromPortfolioSolverMonitor, PortfolioSolverMonitor}
 import yuck.util.arm.SettableSigint
 import yuck.util.logging.LazyLogger
+import yuck.util.logging.LogLevel.FineLogLevel
 
 private final class SolverForProblemWithoutNeighbourhood
     (override val name: String, compilerResult: FlatZincCompilerResult, monitor: PortfolioSolverMonitor)
@@ -33,8 +36,7 @@ private final class SolverForProblemWithoutNeighbourhood
 }
 
 private final class FlatZincWorkerGenerator
-    (ast: FlatZincAst,
-     cfg: FlatZincSolverConfiguration,
+    (private var cc: CompilationContext,
      solverIndex: Int,
      sharedBound: SharedBound,
      randomGenerator: RandomGenerator,
@@ -47,15 +49,25 @@ private final class FlatZincWorkerGenerator
     override def solverName = "FZS-%d".format(solverIndex)
     override def call() = {
         val cfg =
-            if this.cfg.maybePreferredSolvingMethod.isDefined
-            then this.cfg
-            else this.cfg.copy(
+            if cc.cfg.maybePreferredSolvingMethod.isDefined
+            then cc.cfg
+            else cc.cfg.copy(
                 maybePreferredSolvingMethod =
                     if solverIndex % 2 == 1
                     then Some(SolvingMethod.SimulatedAnnealing)
                     else Some(SolvingMethod.FeasibilityJump))
-        val compiler = new FlatZincCompiler(ast, cfg, randomGenerator.nextGen(), sharedBound, logger, sigint)
-        val compilerResult = compiler.call()
+        val (cc1, copyingOverhead) =
+            if cc.cfg.numberOfSolvers == 1
+            then (cc.clone(cfg), Duration.ZERO)
+            else cc.logger.withTimedLogScope("Copying compilation context") {
+                cc.logger.withRootLogLevel(FineLogLevel) {
+                    cc.copy(cfg)
+                }
+            }
+        cc = null
+        cc1.compilerRuntime = cc1.compilerRuntime.plus(copyingOverhead)
+        val compiler2 = new FlatZincCompiler2(cc1, randomGenerator.nextGen())
+        val compilerResult = compiler2.call()
         val space = compilerResult.space
         val initializer = new RandomInitializer(space, randomGenerator.nextGen())
         logger.withTimedLogScope("Running initializer") {
@@ -124,10 +136,12 @@ final class FlatZincSolverGenerator
 
     override def call() = {
         val randomGenerator = new JavaRandomGenerator(cfg.seed)
+        val compiler1 = new FlatZincCompiler1(ast, cfg, sharedBound, logger, sigint)
+        val cc = compiler1.call()
         val solvers =
             for i <- 1 to cfg.numberOfSolvers yield
                 new OnDemandGeneratedSolver(
-                    new FlatZincWorkerGenerator(ast, cfg, i, sharedBound, randomGenerator.nextGen(), monitor, logger, sigint),
+                    new FlatZincWorkerGenerator(cc, i, sharedBound, randomGenerator.nextGen(), monitor, logger, sigint),
                     logger,
                     sigint)
         val solver =

@@ -5,6 +5,9 @@ package yuck.core
  */
 abstract class AnyObjective {
 
+    /** Deep copies this objective. */
+    def copy: AnyObjective
+
     /** Returns the primitive objectives this objective is composed of. */
     def primitiveObjectives: Seq[PrimitiveObjective]
 

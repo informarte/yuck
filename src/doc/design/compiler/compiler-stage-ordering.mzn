@@ -42,5 +42,8 @@ constraint ObjectiveFactory < NeighbourhoodFactory;
 /* Domains must not shrink after identification of implicit constraints */
 constraint Presolver < NeighbourhoodFactory;
 
+/* Enable generation of implicit from redundant constraints */
+constraint NeighbourhoodFactory < ConstraintNetworkPruner;
+
 /* Remove useless constraints before optimizing array access */
 constraint ConstraintNetworkPruner < ArrayAccessOptimizer;

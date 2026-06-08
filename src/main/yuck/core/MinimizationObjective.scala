@@ -13,6 +13,8 @@ final class MinimizationObjective
 {
     override def toString =
         "minimize %s".format(x)
+    override def copy =
+        new MinimizationObjective(x, maybeTargetCosts, maybeY)
     override def targetCosts: A = {
         val dx = x.domain
         if dx.hasLb && maybeTargetCosts.isDefined

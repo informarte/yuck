@@ -130,10 +130,9 @@ final class HierarchicalObjectiveTest extends UnitTest {
             assertEq(now.value(y), b)
             assertEq(y.domain, baseDomain)
             if objective.isSolution(now) && b > y.domain.lb then {
-                assertEq(tightenedVariables, Set(z))
+                assertEq(tightenedVariables, Set(y))
                 assertEq(now.value(z), b)
-                assertEq(z.domain, IntegerRange(zd.lb, b))
-                z.relaxDomain(zd)
+                assertEq(z.domain, zd)
                 space.setValue(z, z.domain.ub)
             } else {
                 assert(tightenedVariables.isEmpty)
@@ -183,10 +182,9 @@ final class HierarchicalObjectiveTest extends UnitTest {
             assertEq(now.value(y), b)
             assertEq(y.domain, baseDomain)
             if objective.isSolution(now) && b < y.domain.ub then {
-                assertEq(tightenedVariables, Set(z))
+                assertEq(tightenedVariables, Set(y))
                 assertEq(now.value(z), b)
-                assertEq(z.domain, IntegerRange(b, zd.ub))
-                z.relaxDomain(zd)
+                assertEq(z.domain, zd)
                 space.setValue(z, z.domain.lb)
             } else {
                 assert(tightenedVariables.isEmpty)

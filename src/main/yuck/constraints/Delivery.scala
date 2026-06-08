@@ -1,7 +1,6 @@
 package yuck.constraints
 
 import scala.collection.*
-import scala.ref.WeakReference
 import scala.reflect.ClassTag
 
 import yuck.core.*
@@ -30,8 +29,7 @@ final class Delivery
     [Time <: NumericalValue[Time],
      TimeDomain <: NumericalDomain[Time, TimeDomain],
      TimeVariable <: NumericalVariable[Time, TimeDomain, TimeVariable]]
-    (space: WeakReference[Space],
-     id: Id[Constraint],
+    (id: Id[Constraint],
      val startNodes: IntegerDomain,
      val endNodes: IntegerDomain,
      val succ: immutable.IndexedSeq[IntegerVariable],
@@ -72,7 +70,8 @@ final class Delivery
 
     override def copy(replacements: Map[AnyVariable, AnyVariable]) =
         new Delivery(
-            space, id, startNodes, endNodes, succ, offset, arrivalTimes, serviceTimes, travelTimes, withWaiting,
+            id,
+            startNodes, endNodes, succ, offset, arrivalTimes, serviceTimes, travelTimes, withWaiting,
             replacements.getOrElse(totalTravelTime, totalTravelTime).asInstanceOf[TimeVariable],
             replacements.getOrElse(costs, costs).asInstanceOf[BooleanVariable])
 
@@ -80,16 +79,6 @@ final class Delivery
         startNodes.values.view.map(i => arrivalTimes(i.toInt - offset)) ++ succ
     override def outVariables =
         nodes.diff(startNodes).values.view.map(i => arrivalTimes(i.toInt - offset)) ++ Seq(totalTravelTime, costs)
-
-    private def checkSetup(): Unit = {
-        val space = this.space.get.get
-        val maybeCircuit =
-            space.directlyAffectedConstraints(succ(0)).iterator
-                 .filter(_.isInstanceOf[Circuit]).filter(space.isImplicitConstraint(_)).nextOption()
-        require(maybeCircuit.isDefined)
-        val circuit = maybeCircuit.get
-        require(circuit.inVariables.toSet == succ.toSet)
-    }
 
     // variable -> tour (in terms of 0-based tour index)
     private val x2Tour = new mutable.HashMap[AnyVariable, Int]
@@ -114,8 +103,16 @@ final class Delivery
         }
     }
 
+    override def checkSetup(space: Space): Unit = {
+        val maybeCircuit =
+            space.directlyAffectedConstraints(succ(0)).iterator
+                .filter(_.isInstanceOf[Circuit]).filter(space.isImplicitConstraint).nextOption()
+        require(maybeCircuit.isDefined)
+        val circuit = maybeCircuit.get
+        require(circuit.inVariables.toSet == succ.toSet)
+    }
+
     override def initialize(now: SearchState) = {
-        checkSetup()
         x2Tour.clear()
         effects.clear()
         val numberOfTours = startNodes.size
