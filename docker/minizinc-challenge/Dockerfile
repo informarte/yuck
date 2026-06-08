@@ -1,4 +1,4 @@
-FROM minizinc/mznc2025:latest
+FROM minizinc/mznc2026:latest
 
 LABEL maintainer="informarte@freenet.de"
 LABEL description="Yuck is a local-search constraint solver with FlatZinc interface"
@@ -7,7 +7,7 @@ LABEL homepage="https://github.com/informarte/yuck"
 RUN apt update
 
 # Install Java runtime
-RUN apt install -y openjdk-17-jre-headless && \
+RUN apt install -y openjdk-25-jre-headless && \
     java -version
 
 # Tell the JVM to use UTF-8
@@ -24,13 +24,13 @@ RUN apt-get install -y wget && \
     rm -f yuck.deb
 
 # Register Yuck as solver to test
-RUN echo '{"tagDefaults": [["", "yuck"]]}' > $HOME/.minizinc/Preferences.json
+RUN echo '{"tagDefaults": [["", "yuck"]], "solverDefaults": [["yuck", "-O3", ""], ["yuck", "--allow-unbounded-vars", ""], ["yuck", "--fzn-flags", "--run-presolver=false"]]}' > $HOME/.minizinc/Preferences.json
 
 # Define entrypoint
 RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'TOTAL_MEMORY=${MEMORY_LIMIT:-16384}' >> /entrypoint.sh && \
     echo 'HEAP_SIZE=$((TOTAL_MEMORY < 16384 ? TOTAL_MEMORY * 3 / 4 : TOTAL_MEMORY - 4096))' >> /entrypoint.sh && \
-    echo 'export JAVA_OPTS="-server -Xmx${HEAP_SIZE}m -XX:+AggressiveHeap"' >> /entrypoint.sh && \
+    echo 'export JAVA_OPTS="-server -Xmx${HEAP_SIZE}m -XX:+AggressiveHeap -XX:+UseCompactObjectHeaders --sun-misc-unsafe-memory-access=allow"' >> /entrypoint.sh && \
     echo 'exec "$@"' >> /entrypoint.sh && \
     chmod +x /entrypoint.sh
 ENTRYPOINT [ "/entrypoint.sh" ]
