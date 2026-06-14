@@ -77,10 +77,13 @@ object SatisfactionGoalTracker {
     {
         val x2i = xs.indices.stream.toMapUsingKeyGenerator(xs.apply)
         val ys = xs.toSet
-        def involvedSearchVariables(c: BooleanVariable) =
-            space.involvedSearchVariables(c).stream
+        val cache = new mutable.HashMap[IntArraySeq, IntArraySeq]
+        def involvedSearchVariables(c: BooleanVariable) = {
+            val is = space.involvedSearchVariables(c).stream
                 .filter(ys.contains).mapToInt(x2i.applyAsInt).toArray.sortInPlace().toArraySeq
-        cs.iterator.map(c => (c, involvedSearchVariables(c))).toMap
+            cache.getOrElseUpdate(is, is)
+        }
+        cs.view.map(c => (c, involvedSearchVariables(c))).filterNot(_._2.isEmpty).toMap
     }
 
 }

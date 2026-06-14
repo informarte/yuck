@@ -362,7 +362,7 @@ final class AnnealingNeighbourhoodFactory
             def isInvolved(i: Int) = xs.exists(neighbourhoodScopes(i).contains)
             neighbourhoods.indices.stream.filter(isInvolved).toArraySeq
         }
-        val involvementMap = cc.costVars.iterator.map(x => (x, involvedNeighbourhoods(x))).toMap
+        val involvementMap = cc.costVars.iterator.map(x => (x, involvedNeighbourhoods(x))).filterNot(_._2.isEmpty).toMap
         val hotSpotDistribution = Distribution(neighbourhoods.size)
         cc.post(Nil, new SatisfactionGoalTracker(cc.space.nextConstraintId(), involvementMap, hotSpotDistribution))
         hotSpotDistribution

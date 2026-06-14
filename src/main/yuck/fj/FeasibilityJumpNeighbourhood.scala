@@ -24,7 +24,6 @@ import yuck.util.arm.scoped
 final class FeasibilityJumpNeighbourhood
     (override protected val space: Space,
      xs: immutable.Vector[AnyVariable],
-     cs: immutable.Vector[BooleanVariable],
      involvementMap: immutable.Map[BooleanVariable, IntArraySeq],
      hotSpotDistribution: Distribution,
      randomGenerator: RandomGenerator,
@@ -47,6 +46,8 @@ final class FeasibilityJumpNeighbourhood
 
     require(xs.forall(space.isSearchVariable))
     require(xs.forall(_.domain.isFinite))
+
+    private val cs = involvementMap.keySet.toVector
 
     require(cs.forall(space.isObjectiveVariable))
 

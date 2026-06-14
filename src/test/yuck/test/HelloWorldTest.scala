@@ -56,7 +56,6 @@ abstract class HelloWorldTest extends IntegrationTest {
         val neighbourhood = new FeasibilityJumpNeighbourhood(
             space,
             xs,
-            cs,
             involvementMap,
             hotSpotDistribution,
             randomGenerator.nextGen(),

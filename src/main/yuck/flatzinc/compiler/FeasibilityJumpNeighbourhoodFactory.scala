@@ -49,7 +49,6 @@ final class FeasibilityJumpNeighbourhoodFactory
             Some(new FeasibilityJumpNeighbourhood(
                 cc.space,
                 xs,
-                cs,
                 involvementMap,
                 hotSpotDistribution,
                 randomGenerator,
