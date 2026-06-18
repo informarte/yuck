@@ -45,7 +45,8 @@ object MiniZincBenchmarks extends MiniZincTestTaskFactory {
                     // Bound sharing may affect search trajectories.
                     shareBounds = false,
                     // -O3 entails root propagation as part of flattening.
-                    runPresolver = false))
+                    runPresolver = false),
+            reusePreviousTestResult = true)
 
     private val numberOfInstancesPerProblem = 5
 
