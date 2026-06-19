@@ -165,7 +165,7 @@ object FlatZincRunner extends YuckLogging {
         summaryBuilder.addJavaEnv()
         summaryBuilder.addYuckVersion()
         summaryBuilder.addSolverConfiguration(cl.cfg)
-        val exitCode = scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set()})) {
+        val exitCode = scoped(new ManagedShutdownHook("SigintPropagator", {logger.log("Received SIGINT"); sigint.set()})) {
             val maybeRuntimeLimitInMillis =
                 cl.cfg.maybeRuntimeLimitInSeconds.map(seconds => new AtomicLong(seconds * 1000))
             val exitCode = maybeTimeboxed(maybeRuntimeLimitInMillis, sigint, logger) {
@@ -229,7 +229,7 @@ object FlatZincRunner extends YuckLogging {
         logger.log("Processing %s".format(cl.fznFilePath))
         val (ast, parserRuntime) =
             logger.withTimedLogScope("Parsing FlatZinc file") {
-                new FlatZincParser(cl.fznFilePath, logger).call()
+                new FlatZincParser(cl.fznFilePath, logger, sigint).call()
             }
         summaryBuilder.addParserMetrics(parserRuntime)
         val md5Sum = SummaryBuilder.computeMd5Sum(cl.fznFilePath)
@@ -303,7 +303,7 @@ object FlatZincRunner extends YuckLogging {
             logger.log(throwable.getMessage)
             System.err.println(throwable.getMessage)
             1
-        case _: UnsupportedFlatZincTypeException | _: VariableWithInfiniteDomainException =>
+        case _: (UnsupportedFlatZincTypeException | VariableWithInfiniteDomainException) =>
             summaryBuilder.addWarning(throwable)
             logger.log(throwable.getMessage)
             System.err.println(throwable.getMessage)

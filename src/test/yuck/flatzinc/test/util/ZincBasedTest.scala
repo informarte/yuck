@@ -1,7 +1,7 @@
 package yuck.flatzinc.test.util
 
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.{AtomicLong, AtomicReference}
+import java.util.concurrent.{CancellationException, CompletableFuture}
 
 import scala.annotation.tailrec
 import scala.collection.*
@@ -96,7 +96,7 @@ class ZincBasedTest extends IntegrationTest {
         val summaryFilePath = "%s/yuck.json".format(outputDirectoryPath)
         if task.reusePreviousTestResult && new java.io.File(summaryFilePath).exists() && ! task.throwWhenUnsolved then {
             None
-        } else scoped(new ManagedShutdownHook({logger.log("Received SIGINT"); sigint.set()})) {
+        } else scoped(new ManagedShutdownHook("SigintPropagator", {logger.log("Received SIGINT"); sigint.set()})) {
             val logFileHandler = new java.util.logging.FileHandler(logFilePath)
             logFileHandler.setFormatter(formatter)
             scoped(new ManagedLogHandler(nativeLogger, logFileHandler)) {
@@ -160,7 +160,7 @@ class ZincBasedTest extends IntegrationTest {
         val ((ast, result), _) = maybeTimeboxed(maybeRuntimeLimitInMillis, sigint, logger) {
             val (ast, parserRuntime) =
                 logger.withTimedLogScope("Parsing FlatZinc file") {
-                    new FlatZincParser(fznFilePath, logger).call()
+                    new FlatZincParser(fznFilePath, logger, sigint).call()
                 }
             summaryBuilder.addTask(task, ast)
             summaryBuilder.addParserMetrics(parserRuntime)
@@ -381,11 +381,11 @@ class ZincBasedTest extends IntegrationTest {
 
     private def handleException(task: ZincTestTask, throwable: Throwable): Unit = {
         throwable match {
-            case _: FlatZincParserException | _: SolutionNotVerifiedException =>
+            case _: (FlatZincParserException | SolutionNotVerifiedException) =>
                 summaryBuilder.addError(throwable)
                 logger.log(throwable.getMessage)
                 throw throwable
-            case _: UnsupportedFlatZincTypeException | _: VariableWithInfiniteDomainException =>
+            case _: (UnsupportedFlatZincTypeException | VariableWithInfiniteDomainException) =>
                 summaryBuilder.addWarning(throwable)
                 logger.log(throwable.getMessage)
                 throw throwable
@@ -394,7 +394,7 @@ class ZincBasedTest extends IntegrationTest {
                 logger.log(throwable.getMessage)
                 logger.log(FlatZincInconsistentProblemIndicator)
                 throw throwable
-            case _: InterruptedException =>
+            case _: (InterruptedException | CancellationException) =>
                 summaryBuilder.addWarning(throwable)
                 logger.log(throwable.getMessage)
                 logger.log(FlatZincNoSolutionFoundIndicator)
@@ -404,7 +404,17 @@ class ZincBasedTest extends IntegrationTest {
                 logger.withLogScope(throwable.getMessage) {
                     throwable.getStackTrace.foreach(frame => logger.log(frame.toString))
                 }
-                throw throwable
+                if throwable.isInstanceOf[OutOfMemoryError] then {
+                    // After an OOM error, JUnit is not guaranteed to run AfterEachCallback.afterEach
+                    // methods. (In consequence, it might not close ManagedShutdownHook instances
+                    // registered as extensions, preventing the JVM from terminating.)
+                    // In Yuck, however, it is safe to shut down properly because here, at top level,
+                    // all structures built by the compiler are already out of scope and the memory
+                    // occupied by them can be reclaimed by garbage collection.
+                    throw new RuntimeException(throwable)
+                } else {
+                    throw throwable
+                }
         }
     }
 

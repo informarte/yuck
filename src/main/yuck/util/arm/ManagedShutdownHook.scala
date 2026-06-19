@@ -1,6 +1,6 @@
 package yuck.util.arm
 
-import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.CountDownLatch
 
 /**
  * Thrown when adding a JVM shutdown hook failed because a JVM shutdown is already in progress.
@@ -19,21 +19,27 @@ final class ShutdownInProgressException(error: IllegalStateException) extends Ru
  *
  * @param shutdownAction is the action to run upon SIGINT.
  */
-final class ManagedShutdownHook(shutdownAction: => Unit) extends ManagedResource {
+final class ManagedShutdownHook(name: String, shutdownAction: => Unit) extends ManagedResource {
 
-    private val stop = new LinkedBlockingQueue[Boolean]
+    override def toString = name
+
+    private val stop = new CountDownLatch(1)
 
     private val shutdownHook =
         new Thread(
-            new Runnable {
-                override def run() = {
-                    shutdownAction
-                    // The JVM will terminate right after running all shutdown hooks and finalizers.
-                    // Hence we have to keep this thread running until close tells us that
-                    // it is time to exit.
-                    stop.take()
+            () => {
+                shutdownAction
+                // The JVM will terminate right after running all shutdown hooks and finalizers.
+                // Hence, we have to keep this thread running until close tells us that
+                // it is time to exit.
+                try {
+                    stop.await()
                 }
-            }
+                catch {
+                    case _: InterruptedException =>
+                }
+            },
+            name
         )
 
     override def open() = {
@@ -54,10 +60,10 @@ final class ManagedShutdownHook(shutdownAction: => Unit) extends ManagedResource
             Runtime.getRuntime.removeShutdownHook(shutdownHook)
         }
         catch {
-            case error: IllegalStateException =>
+            case _: Throwable =>
         }
         // Second we tell our shutdown hook that it is time to exit.
-        stop.put(true)
+        stop.countDown()
         // There are three cases:
         // 1. If the hook was not and will not be called, the signal will do no harm.
         // 2. If the hook is already waiting for this signal, it will exit right away.

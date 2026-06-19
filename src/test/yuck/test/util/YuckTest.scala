@@ -19,9 +19,14 @@ abstract class YuckTest extends YuckAssert with YuckLogging {
 
     protected val sigint = new yuck.util.arm.SettableSigint
 
+    // For the case that the test method under execution initiates a shutdown upon interrupt,
+    // we deploy an empty, managed shutdown hook to enforce the completion of the shutdown.
+    // (Without it, the JVM would already exit after running the test method's JVM shutdown hook(s).)
+    // However, as a side effect, test methods without interrupt handling (e.g. typical unit tests)
+    // will ignore interrupts.
     @RegisterExtension
     @Order(1)
-    val logScope = new ManagedResourceAsExtension(_ => new yuck.util.logging.LogScope(logger))
+    val shutdownHook = new ManagedResourceAsExtension(_ => new yuck.util.arm.ManagedShutdownHook("YuckTestShutdownHook", {}))
 
     @RegisterExtension
     @Order(2)
@@ -33,6 +38,10 @@ abstract class YuckTest extends YuckAssert with YuckLogging {
 
     @RegisterExtension
     @Order(3)
+    val logScope = new ManagedResourceAsExtension(_ => new yuck.util.logging.LogScope(logger))
+
+    @RegisterExtension
+    @Order(4)
     val durationLogger = new ManagedResourceAsExtension(context =>
         new yuck.util.logging.DurationLogger(
             logger,
@@ -40,15 +49,6 @@ abstract class YuckTest extends YuckAssert with YuckLogging {
                 context.getTestClass.map(_.getSimpleName).orElse("unknown"),
                 context.getTestMethod.map(_.getName).orElse("unknown")))
     )
-
-    // For the case that the test method under execution initiates a shutdown upon interrupt,
-    // we deploy an empty, managed shutdown hook to enforce the completion of the shutdown.
-    // (Without it, the JVM would already exit after running the test method's JVM shutdown hook(s).)
-    // However, as a side effect, test methods without interrupt handling (e.g. typical unit tests)
-    // will ignore interrupts.
-    @RegisterExtension
-    @Order(4)
-    val shutdownHook = new ManagedResourceAsExtension(_ => new yuck.util.arm.ManagedShutdownHook({}))
 
     @RegisterExtension
     @Order(5)
