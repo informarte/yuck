@@ -4,7 +4,7 @@ import scala.collection.mutable
 
 import yuck.core.*
 import yuck.flatzinc.compiler.FlatZincCompilerResult
-import yuck.util.DescriptiveStatistics.median
+import yuck.util.DescriptiveStatistics.geometricMean
 import yuck.util.logging.LazyLogger
 
 /**
@@ -164,11 +164,11 @@ final class LocalSearchMetricsCollector(logger: LazyLogger) extends LocalSearchM
     def wasSearchRequired: Boolean = ! solverMetrics.isEmpty
 
     // Do not use the following methods when there was no search!
-    def movesPerSecond: Double = solverMetrics.map(_.movesPerSecond).median
-    def consultationsPerSecond: Double = solverMetrics.map(_.consultationsPerSecond).median
-    def consultationsPerMove: Double = solverMetrics.map(_.consultationsPerMove).median
-    def commitmentsPerSecond: Double = solverMetrics.map(_.commitmentsPerSecond).median
-    def commitmentsPerMove: Double = solverMetrics.map(_.commitmentsPerMove).median
-    def numberOfPerturbations: Double = solverMetrics.map(_.numberOfPerturbations.toDouble).median
+    def movesPerSecond: Double = solverMetrics.map(_.movesPerSecond).geometricMean
+    def consultationsPerSecond: Double = solverMetrics.map(_.consultationsPerSecond).geometricMean
+    def consultationsPerMove: Double = solverMetrics.map(_.consultationsPerMove).geometricMean
+    def commitmentsPerSecond: Double = solverMetrics.map(_.commitmentsPerSecond).geometricMean
+    def commitmentsPerMove: Double = solverMetrics.map(_.commitmentsPerMove).geometricMean
+    def numberOfPerturbations: Double = solverMetrics.map(_.numberOfPerturbations.toDouble).geometricMean
 
 }

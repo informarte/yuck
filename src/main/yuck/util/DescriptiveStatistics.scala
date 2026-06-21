@@ -1,17 +1,21 @@
 package yuck.util
 
 import scala.collection.*
+import scala.math.{exp, log}
 
 object DescriptiveStatistics {
 
-    extension(xs0: IndexedSeq[Double]) {
+    extension(xs: IndexedSeq[Double]) {
 
         def median: Double = {
-            val xs = xs0.sorted
-            val n = xs.size
+            val xs1 = xs.sorted
+            val n = xs1.size
             val m = n / 2
-            if n % 2 == 0 then (xs(m) + xs(m - 1)) / 2.0 else xs(m)
+            if n % 2 == 0 then (xs1(m) + xs1(m - 1)) / 2.0 else xs1(m)
         }
+
+        def geometricMean: Double =
+            exp(xs.view.map(log).sum / xs.size)
 
     }
 
