@@ -1,9 +1,12 @@
 package yuck.flatzinc.util
 
+import java.lang.management.ManagementFactory
+import java.nio.file.{Files, Paths}
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.{CompletableFuture, CountDownLatch}
 
+import com.sun.management.HotSpotDiagnosticMXBean
 import org.openjdk.jol.info.GraphLayout
 
 import yuck.core.{Result, Solver, SolverMonitor, min}
@@ -43,6 +46,7 @@ final class MemoryFootprintMonitor
     (cfg: FlatZincSolverConfiguration,
      maybeMemoryFootprintInBytes: CompletableFuture[Option[Long]],
      maybeRuntimeLimitInMillis: Option[AtomicLong],
+     maybeHeapDumpFilePath: Option[String],
      logger: LazyLogger,
      sigint: Sigint)
     extends SolverMonitor
@@ -81,6 +85,14 @@ final class MemoryFootprintMonitor
         workersRemaining.await()
         if solver == null then {
             throw new IllegalStateException("No solver was set")
+        }
+        if maybeHeapDumpFilePath.isDefined then {
+            val path = maybeHeapDumpFilePath.get
+            logger.withTimedLogScope("Dumping live objects into %s".format(path)) {
+                Files.deleteIfExists(Paths.get(path))
+                val mxBean = ManagementFactory.getPlatformMXBean(classOf[HotSpotDiagnosticMXBean])
+                mxBean.dumpHeap(path, true)
+            }
         }
         val (memoryFootprintInBytes, overhead) =
             logger.withTimedLogScope("Computing memory footprint using JOL") {

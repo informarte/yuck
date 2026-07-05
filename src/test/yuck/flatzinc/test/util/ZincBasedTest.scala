@@ -159,8 +159,12 @@ class ZincBasedTest extends IntegrationTest {
         val maybeMemoryFootprintInBytes = new CompletableFuture[Option[Long]]
         val maybeRuntimeLimitInMillis =
             cfg.maybeRuntimeLimitInSeconds.map(seconds => new AtomicLong(seconds * 1000))
-        val memoryFootprintMonitor =
-            new MemoryFootprintMonitor(cfg, maybeMemoryFootprintInBytes, maybeRuntimeLimitInMillis, logger, sigint)
+        val maybeHeapDumpFilePath =
+            if task.dumpHeap
+            then Some("%s/heap.hprof".format(outputDirectoryPath))
+            else None
+        val memoryFootprintMonitor = new MemoryFootprintMonitor(
+            cfg, maybeMemoryFootprintInBytes, maybeRuntimeLimitInMillis, maybeHeapDumpFilePath, logger, sigint)
         monitors += memoryFootprintMonitor
         monitors ++= task.additionalMonitors
         val monitor = new PortfolioSolverMonitor(monitors.toVector)

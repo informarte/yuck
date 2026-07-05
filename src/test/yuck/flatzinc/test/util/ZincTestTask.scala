@@ -69,7 +69,8 @@ final case class ZincTestTask(
     miniZincCompilerRenamesVariables: Boolean = true,
     keepFlatZincFile: Boolean = true,
     createDotFile: Boolean = false,
-    additionalMonitors: Seq[SolverMonitoring[?]] = Nil)
+    additionalMonitors: Seq[SolverMonitoring[?]] = Nil,
+    dumpHeap: Boolean = false)
 {
     require(sourceFormat != SourceFormat.FlatZinc || directoryLayout == TestDataDirectoryLayout.MiniZincExamplesLayout)
     def effectiveInstanceName: String = if instanceName.isEmpty then problemName else instanceName
