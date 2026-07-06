@@ -27,6 +27,8 @@ final class CompilationContext(
     val domains = new mutable.HashMap[Expr, AnyDomain]
     val searchVars = new mutable.HashSet[AnyVariable] // variables that occur in a search annotation
     val definedVars = new mutable.HashSet[AnyVariable] // variables that occur in a defines_var annotation
+    val outputVars: mutable.HashMap[VarDecl, AnyVariable] = mutable.HashMap.empty // variables that have an output_var annotation
+    val outputArrays: mutable.HashMap[VarDecl, immutable.IndexedSeq[AnyVariable]] = mutable.HashMap.empty // variables that have an output_array annotation
     val implicitlyConstrainedVars = new mutable.HashSet[AnyVariable]
     val costVars = new mutable.HashSet[BooleanVariable]
     val costVarsFromRedundantConstraints = new mutable.HashSet[BooleanVariable]

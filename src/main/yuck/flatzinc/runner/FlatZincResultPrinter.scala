@@ -3,20 +3,15 @@ package yuck.flatzinc.runner
 import java.util.concurrent.atomic.AtomicReference
 
 import yuck.core.{Costs, Result, SolverMonitor}
-import yuck.flatzinc.ast.FlatZincAst
 
 /**
  * Prints solutions in FlatZinc format.
  *
  * Designed to work in its own thread.
  */
-final class FlatZincResultPrinter
-    (ast: FlatZincAst, throttlingIntervalInMillis: Int)
-    extends SolverMonitor
-    with Runnable
-{
+final class FlatZincResultPrinter(throttlingIntervalInMillis: Int) extends SolverMonitor with Runnable {
 
-    private val solutionFormatter = new FlatZincResultFormatter(ast)
+    private val solutionFormatter = FlatZincResultFormatter
 
     private var costsOfBestSolution: Costs = null
 

@@ -5,7 +5,7 @@ import java.time.Duration
 import scala.collection.*
 
 import yuck.core.*
-import yuck.flatzinc.ast.FlatZincAst
+import yuck.flatzinc.ast.VarDecl
 
 final class FlatZincCompilerStageRuntimes(
     val domainInitializerRuntime: Duration,
@@ -22,10 +22,9 @@ final class FlatZincCompilerStageRuntimes(
 )
 
 final class FlatZincCompilerResult(
-    val ast: FlatZincAst,
     val space: Space,
-    val vars: immutable.Map[String, AnyVariable], // also holds named parameters
-    val arrays: immutable.Map[String, immutable.IndexedSeq[AnyVariable]],
+    val outputVars: immutable.Map[VarDecl, AnyVariable], // also holds named parameters
+    val outputArrays: immutable.Map[VarDecl, immutable.IndexedSeq[AnyVariable]],
     val objective: AnyObjective,
     val maybeNeighbourhood: Option[Neighbourhood],
     val performWarmStart: Boolean,

@@ -405,7 +405,7 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Tag(SatisfiabilityProblem)
     def testProblemWithBoundedDanglingVariable(): Unit = {
         val result = solveWithResult(task.copy(problemName = "bounded_dangling_variable_test"))
-        val x = result.compilerResult.arrays("x")
+        val x = result.outputArray("x")
         assertEq(x.size, 4)
         assertEq(result.space.searchVariables, Set(x(0), x(1)))
         assertEq(result.space.channelVariables.filter(isUserDefined), Set(x(2)))
@@ -455,9 +455,10 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Tag(SatisfiabilityProblem)
     def testBitSetCompilation(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "bitset_compilation_test"))
-        val l = result.compilerResult.arrays("l")
+        val result = solveWithResult(task.copy(sourceFormat = SourceFormat.FlatZinc, problemName = "bitset_compilation_test"))
+        val l = result.outputArray("l")
         assertEq(l.size, 4)
+        assertEq(l.view.map(x => result.assignment.value(x)).toSet.size, 4)
         assert(l(0).domain.isInstanceOf[SingletonIntegerSetDomain])
         assertEq(l(0).domain.asInstanceOf[SingletonIntegerSetDomain].base.getClass, classOf[SixtyFourBitSet])
         assertEq(l(0).domain.asInstanceOf[SingletonIntegerSetDomain].base, IntegerRange(1, 62))
@@ -475,9 +476,10 @@ final class FlatZincBaseTest extends FrontEndTest {
     @Test
     @Tag(SatisfiabilityProblem)
     def testBitSetConversion(): Unit = {
-        val result = solveWithResult(task.copy(problemName = "bitset_conversion_test"))
-        val l = result.compilerResult.arrays("l")
+        val result = solveWithResult(task.copy(sourceFormat = SourceFormat.FlatZinc, problemName = "bitset_conversion_test"))
+        val l = result.outputArray("l")
         assertEq(l.size, 4)
+        assertEq(l.view.map(x => result.assignment.value(x)).toSet.size, 4)
         assert(l(0).domain.isInstanceOf[SingletonIntegerSetDomain])
         assertEq(l(0).domain.asInstanceOf[SingletonIntegerSetDomain].base.getClass, classOf[IntegerRange])
         assertEq(l(0).domain.asInstanceOf[SingletonIntegerSetDomain].base, IntegerRange(1, 62))

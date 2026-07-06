@@ -58,6 +58,12 @@ class ZincBasedTest extends IntegrationTest {
         protected def compilerResult: FlatZincCompilerResult =
             result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
 
+        protected def outputVar(id: String): AnyVariable =
+            compilerResult.outputVars.find((decl, _) => decl.id == id).get._2
+
+        protected def outputArray(id: String): immutable.IndexedSeq[AnyVariable] =
+            compilerResult.outputArrays.find((decl, _) => decl.id == id).get._2
+
     }
 
     private val summaryBuilder = new SummaryBuilder
@@ -133,6 +139,7 @@ class ZincBasedTest extends IntegrationTest {
             case MiniZinc => flatten(task, outputDirectoryPath)
         }
         logger.log("Processing %s".format(fznFilePath))
+        val md5Sum = SummaryBuilder.computeMd5Sum(fznFilePath)
         val cfg = createSolverConfiguration(task)
         summaryBuilder.addSolverConfiguration(cfg)
         val monitors = new ArrayBuffer[SolverMonitoring[?]]
@@ -157,24 +164,25 @@ class ZincBasedTest extends IntegrationTest {
         monitors += memoryFootprintMonitor
         monitors ++= task.additionalMonitors
         val monitor = new PortfolioSolverMonitor(monitors.toVector)
-        val ((ast, result), _) = maybeTimeboxed(maybeRuntimeLimitInMillis, sigint, logger) {
-            val (ast, parserRuntime) =
-                logger.withTimedLogScope("Parsing FlatZinc file") {
-                    new FlatZincParser(fznFilePath, logger, sigint).call()
-                }
-            summaryBuilder.addTask(task, ast)
-            summaryBuilder.addParserMetrics(parserRuntime)
-            val md5Sum = SummaryBuilder.computeMd5Sum(fznFilePath)
-            summaryBuilder.addFlatZincModelMetrics(ast, md5Sum)
+        val (result, _) = maybeTimeboxed(maybeRuntimeLimitInMillis, sigint, logger) {
+            val solver = {
+                val (ast, parserRuntime) =
+                    logger.withTimedLogScope("Parsing FlatZinc file") {
+                        new FlatZincParser(fznFilePath, logger, sigint).call()
+                    }
+                summaryBuilder.addTask(task, ast)
+                summaryBuilder.addParserMetrics(parserRuntime)
+                summaryBuilder.addFlatZincModelMetrics(ast, md5Sum)
+                val sharedBound = new SharedBound(sharedBoundHolder)
+                new FlatZincSolverGenerator(ast, cfg, sharedBound, monitor, logger, sigint).call()
+            }
+            memoryFootprintMonitor.setSolver(solver)
             logger.withTimedLogScope("Solving problem") {
                 val memoryFootprintMonitoringThread =
                     new Thread(memoryFootprintMonitor, memoryFootprintMonitor.getClass.getSimpleName)
                 scoped(new ManagedThread(memoryFootprintMonitoringThread, logger)) {
                     scoped(monitor) {
-                        val sharedBound = new SharedBound(sharedBoundHolder)
-                        val solver = new FlatZincSolverGenerator(ast, cfg, sharedBound, monitor, logger, sigint).call()
-                        memoryFootprintMonitor.setSolver(solver)
-                        (ast, solver.call())
+                        solver.call()
                     }
                 }
             }
@@ -182,7 +190,7 @@ class ZincBasedTest extends IntegrationTest {
         logger.log("Quality of best proposal: %s".format(result.costsOfBestProposal))
         logger.log("Best proposal was produced by: %s".format(result.solverName))
         logger.withLogScope("Best proposal") {
-            new FlatZincResultFormatter(ast)(new FlatZincResult(result)).foreach(logger.log(_))
+            FlatZincResultFormatter(new FlatZincResult(result)).foreach(logger.log(_))
         }
         summaryBuilder.addYuckModelMetrics(result.space)
         summaryBuilder.addResult(result)

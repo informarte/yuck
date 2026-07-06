@@ -83,7 +83,7 @@ final class TimeboxedSolver(
  * When the solver has finished, it gets replaced by a mock to free memory.
  */
 final class OnDemandGeneratedSolver(
-    solverGenerator: SolverGenerator,
+    private var solverGenerator: SolverGenerator,
     logger: LazyLogger,
     sigint: Sigint)
     extends Solver
@@ -91,7 +91,9 @@ final class OnDemandGeneratedSolver(
 
     private var solver: Solver = null
 
-    override def name = solverGenerator.solverName
+    private val solverName = solverGenerator.solverName
+
+    override def name = solverName
 
     override def hasFinished = solver.ne(null) && solver.hasFinished
 
@@ -104,6 +106,7 @@ final class OnDemandGeneratedSolver(
                 logger.withTimedLogScope("Generating solver") {
                     try {
                         solver = solverGenerator.call()
+                        solverGenerator = null
                     }
                     catch {
                         case error: InterruptedException =>

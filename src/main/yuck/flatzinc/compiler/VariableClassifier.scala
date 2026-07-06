@@ -13,10 +13,11 @@ final class VariableClassifier
 {
 
     override def run() = {
-        classifyVars()
+        findSearchVariables()
+        findOutputVariables()
     }
 
-    private def classifyVars(): Unit = {
+    private def findSearchVariables(): Unit = {
         for constraint <- cc.ast.constraints do {
             for annotation <- constraint.annotations do {
                 annotation match {
@@ -28,7 +29,7 @@ final class VariableClassifier
             }
         }
         for Annotation(expr) <- cc.ast.solveGoal.annotations do {
-            findSearchVars(expr)
+            findSearchVariables(expr)
         }
         // Sometimes the objective variable is declared as a search variable.
         // We ignore this definition to facilitate the computation of the objective value
@@ -57,7 +58,7 @@ final class VariableClassifier
         }
     }
 
-    private def findSearchVars(annotation: Expr): Unit = {
+    private def findSearchVariables(annotation: Expr): Unit = {
         annotation match {
             case Term(search, ArrayConst(elems) :: _)
             if List("bool_search", "int_search", "set_search").contains(search) =>
@@ -77,8 +78,26 @@ final class VariableClassifier
                     assert(cc.ast.paramDeclsByName.contains(id))
                 }
             case Term("seq_search", ArrayConst(searches) :: _) =>
-                searches.foreach(findSearchVars)
+                searches.foreach(findSearchVariables)
             case _ =>
+        }
+    }
+
+    private def findOutputVariables(): Unit = {
+        for decl <- cc.ast.varDecls do {
+            for annotation <- decl.annotations do {
+                annotation match {
+                    case Annotation(Term("output_var", _)) =>
+                        val key = decl.copy(optionalValue = None, annotations = Nil)
+                        val x = compileAnyExpr(Term(decl.id, Nil))
+                        cc.outputVars += key -> x
+                    case Annotation(Term("output_array", _)) =>
+                        val key = decl.copy(optionalValue = None, annotations = List(annotation))
+                        val xs = compileAnyArray(Term(decl.id, Nil))
+                        cc.outputArrays += key -> xs
+                    case _ =>
+                }
+            }
         }
     }
 

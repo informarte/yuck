@@ -227,13 +227,7 @@ object FlatZincRunner extends YuckLogging {
 
     private def trySolve(cl: CommandLine): Unit = {
         logger.log("Processing %s".format(cl.fznFilePath))
-        val (ast, parserRuntime) =
-            logger.withTimedLogScope("Parsing FlatZinc file") {
-                new FlatZincParser(cl.fznFilePath, logger, sigint).call()
-            }
-        summaryBuilder.addParserMetrics(parserRuntime)
         val md5Sum = SummaryBuilder.computeMd5Sum(cl.fznFilePath)
-        summaryBuilder.addFlatZincModelMetrics(ast, md5Sum)
         val monitors = new ArrayBuffer[SolverMonitoring[?]]
         if cl.logLevel != yuck.util.logging.LogLevel.NoLogging then {
             monitors += new AnnealingEventLogger(logger)
@@ -242,7 +236,7 @@ object FlatZincRunner extends YuckLogging {
         }
         val metricsCollector = new LocalSearchMetricsCollector(logger)
         monitors += metricsCollector
-        val resultPrinter = new FlatZincResultPrinter(ast, cl.outputThrottlingIntervalInMillis)
+        val resultPrinter = new FlatZincResultPrinter(cl.outputThrottlingIntervalInMillis)
         if cl.printIntermediateSolutions then {
             monitors += resultPrinter
         }
@@ -252,16 +246,25 @@ object FlatZincRunner extends YuckLogging {
         }
         val monitor = new PortfolioSolverMonitor(monitors.toVector)
         val (result, _) = logger.withTimedLogScope("Solving problem") {
+            val solver = {
+                val (ast, parserRuntime) =
+                    logger.withTimedLogScope("Parsing FlatZinc file") {
+                        new FlatZincParser(cl.fznFilePath, logger, sigint).call()
+                    }
+                summaryBuilder.addParserMetrics(parserRuntime)
+                summaryBuilder.addFlatZincModelMetrics(ast, md5Sum)
+                val sharedBound = new SharedBound(sharedBoundHolder)
+                new FlatZincSolverGenerator(ast, cl.cfg, sharedBound, monitor, logger, sigint).call()
+            }
             val resultPrinterThread = new Thread(resultPrinter, resultPrinter.getClass.getSimpleName)
             scoped(new ManagedThread(resultPrinterThread, logger)) {
                 scoped(monitor) {
-                    val sharedBound = new SharedBound(sharedBoundHolder)
-                    new FlatZincSolverGenerator(ast, cl.cfg, sharedBound, monitor, logger, sigint).call().call()
+                    solver.call()
                 }
             }
         }
         if result.isSolution then {
-            val outputLines = new FlatZincResultFormatter(ast)(new FlatZincResult(result))
+            val outputLines = FlatZincResultFormatter(new FlatZincResult(result))
             if cl.printIntermediateSolutions then {
                 resultPrinter.flush()
             } else {

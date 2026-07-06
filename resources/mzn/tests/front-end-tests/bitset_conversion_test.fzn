@@ -1,0 +1,5 @@
+var set of 0..64: x;
+var set of {10,11,12,27,28,29}: y;
+array [1..4] of var set of int: l :: output_array([1..4]) = [1..62,x,y,{1,2,3,7,8,9}];
+constraint fzn_all_different_set(l);
+solve satisfy;

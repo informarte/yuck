@@ -6,7 +6,6 @@ import scala.collection.*
 import scala.jdk.CollectionConverters.*
 
 import yuck.core.*
-import yuck.flatzinc.ast.*
 import yuck.flatzinc.compiler.FlatZincCompilerResult
 import yuck.flatzinc.runner.*
 import yuck.flatzinc.test.util.SourceFormat.MiniZinc
@@ -24,7 +23,7 @@ class MiniZincSolutionVerifier(
     require(task.sourceFormat == MiniZinc)
 
     private val compilerResult = result.maybeUserData.get.asInstanceOf[FlatZincCompilerResult]
-    private val solutionFormatter = new FlatZincResultFormatter(compilerResult.ast)
+    private val solutionFormatter = FlatZincResultFormatter
 
     override def call() =
         logger.withTimedLogScope("Checking expectations")(checkExpectations)._1 ||
@@ -185,25 +184,12 @@ class MiniZincSolutionVerifier(
     }
 
     private def checkObjective(outputLines: Seq[String]): Boolean = {
-        compilerResult.ast.solveGoal match {
-            case Satisfy(_) => true
-            case Minimize(Term(id, _), _) =>
-                // trucking:
-                // var 0..600: obj :: output_var = INT____00001;
-                // solve minimize INT____00001;
-                checkObjective(outputLines, compilerResult.vars(id))
-            case Minimize(ArrayAccess(id, IntConst(idx)), _) =>
-                // ghoulomb:
-                // var 0..81: objective :: output_var = mark2[9];
-                // solve  :: int_search(...) minimize mark2[9];
-                checkObjective(outputLines, compilerResult.arrays(id)(idx.toInt - 1))
-            case Maximize(Term(id, _), _) =>
-                // photo:
-                // var 0..17: satisfies :: output_var = INT____00018;
-                // solve :: int_search(...) maximize INT____00018;
-                checkObjective(outputLines, compilerResult.vars(id))
-            case Maximize(ArrayAccess(id, IntConst(idx)), _) =>
-                checkObjective(outputLines, compilerResult.arrays(id)(idx.toInt - 1))
+        compilerResult.objective match {
+            case _: SatisfactionObjective => true
+            case ho: HierarchicalObjective =>
+                assert(ho.objectiveVariables.size == 2)
+                checkObjective(outputLines, ho.primitiveObjectives(1).x)
+
         }
     }
 
