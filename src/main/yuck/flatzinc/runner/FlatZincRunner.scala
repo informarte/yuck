@@ -325,6 +325,8 @@ object FlatZincRunner extends YuckLogging {
             logger.withLogScope(throwable.getMessage) {
                 throwable.getStackTrace.foreach(frame => logger.log(frame.toString))
             }
+            System.err.println(throwable.getMessage)
+            throwable.getStackTrace.foreach(System.err.println)
             1
     }
 
