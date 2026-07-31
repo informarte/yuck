@@ -20,7 +20,6 @@ import yuck.flatzinc.test.util.VerificationFrequency.*
  * Rules for choosing instances for a given problem:
  * <ul>
  *   <li>From the solvable instances, choose a long-running and big instance which was used in a challenge.</li>
- *   <li>If all solvable instances are very easy to solve, add a solvable and an unsolvable instance.</li>
  *   <li>If there is no solvable instance, choose an easy one - easy according to the official challenge results.</li>
  * </ul>
  */
@@ -83,6 +82,15 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Tag(HasCountConstraint)
     def arithmetic_target_6872_with_1_2_3_3_4_4_5_6_7_9_10(): Unit = {
         solve(task.copy(problemName = "arithmetic-target", modelName = "model", instanceName = "6872_with_1_2_3_3_4_4_5_6_7_9_10", maybeOptimum = Some(7)))
+    }
+
+    @Test
+    @Tag(MinimizationProblem)
+    @Tag(HasArgSortConstraint)
+    @Tag(HasCircuitConstraint)
+    @Tag(HasDisjunctiveConstraint)
+    def atp_stage2_instance6(): Unit = {
+        solve(task.copy(problemName = "atp-stage2", modelName = "stage2_disjunctive_search", instanceName = "instance6-stage2", maybeOptimum = Some(726404)))
     }
 
     @Test
@@ -353,6 +361,13 @@ final class MiniZincChallenges extends ZincBasedTest {
         solve(task.copy(problemName = "gbac", instanceName = "UD2-gbac", maybeOptimum = Some(146)))
     }
 
+    @Test
+    @Tag(SatisfiabilityProblem)
+    @Tag(HasGlobalCardinalityConstraint)
+    def gcc_benchmark_i24(): Unit = {
+        solve(task.copy(problemName = "gcc-benchmark", modelName = "roomsgcc", instanceName = "instance-i24"))
+    }
+
     // The objective variable is dangling.
     @Test
     @Tag(MinimizationProblem)
@@ -488,10 +503,16 @@ final class MiniZincChallenges extends ZincBasedTest {
     }
 
     @Test
+    @Tag(MaximizationProblem)
+    def kitchen_tall_complex(): Unit = {
+        solve(task.copy(problemName = "kitchen", instanceName = "tall_complex.instance", maybeOptimum = Some(409)))
+    }
+
+    @Test
     @Tag(MinimizationProblem)
     @Tag(HasCumulativeConstraint)
     def largescheduling_0100_1(): Unit = {
-        solve(task.copy(problemName = "largescheduling", modelName = "largecumulative", instanceName = "instance-0100-1", maybeHighScore = Some(230502)))
+        solve(task.copy(problemName = "largescheduling", modelName = "largecumulative", instanceName = "instance-0100-1", maybeOptimum = Some(230502)))
     }
 
     @Test
@@ -632,6 +653,17 @@ final class MiniZincChallenges extends ZincBasedTest {
     }
 
     @Test
+    @Tag(MinimizationProblem)
+    @Tag(HasAllDifferentExceptConstraint)
+    @Tag(HasCountConstraint)
+    @Tag(HasMemberConstraint)
+    def multiple_constant_multiplication_HIGHPASS_15(): Unit = {
+        solve(task.copy(problemName = "multiple-constant-multiplication", modelName = "mcm_min", instanceName = "HIGHPASS_15", maybeHighScore = Some(12)))
+    }
+
+
+
+    @Test
     @Tag(MaximizationProblem)
     def neighbours_5(): Unit = {
         solve(task.copy(problemName = "neighbours", modelName = "neighbours-rect", instanceName = "neighbours5", maybeHighScore = Some(149)))
@@ -661,13 +693,6 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Tag(HasRegularConstraint)
     def nonogram_dom_06(): Unit = {
         solve(task.copy(problemName = "nonogram", modelName = "non", instanceName = "dom_06"))
-    }
-
-    @Test
-    @Tag(SatisfiabilityProblem)
-    @Tag(HasRegularConstraint)
-    def nonogram_non_med_4(): Unit = {
-        solve(task.copy(problemName = "nonogram", modelName = "non", instanceName = "non_med_4"))
     }
 
     @Test
@@ -718,6 +743,15 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Tag(HasTableConstraint)
     def opt_cryptanalysis_r11(): Unit = {
         solve(task.copy(problemName = "opt-cryptanalysis", modelName = "mznc2017_aes_opt", instanceName = "r11", maybeOptimum = Some(46)))
+    }
+
+    @Test
+    @Tag(MinimizationProblem)
+    @Tag(HasAllDifferentConstraint)
+    @Tag(HasSubcircuitConstraint)
+    @Tag(HasTableConstraint)
+    def orthorio_challenge_01(): Unit = {
+        solve(task.copy(problemName = "orthorio", instanceName = "challenge_01", maybeOptimum = Some(43)))
     }
 
     @Test
@@ -774,13 +808,6 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Tag(HasRegularConstraint)
     def pentominoes_zayenz_size_5_tiles_20_seed_17_strategy_close(): Unit = {
         solve(task.copy(problemName = "pentominoes-zayenz", modelName = "pentominoes", instanceName = "size_5_tiles_20_seed_17_strategy_close"))
-    }
-
-    @Test
-    @Tag(SatisfiabilityProblem)
-    @Tag(HasRegularConstraint)
-    def pentominoes_zayenz_size_10_tiles_10_seed_17_strategy_target(): Unit = {
-        solve(task.copy(problemName = "pentominoes-zayenz", modelName = "pentominoes", instanceName = "size_10_tiles_10_seed_17_strategy_target"))
     }
 
     @Test
@@ -878,6 +905,13 @@ final class MiniZincChallenges extends ZincBasedTest {
     }
 
     @Test
+    @Tag(MinimizationProblem)
+    @Tag(HasDiffnConstraint)
+    def rect_euler_british_isles_combined_model_input(): Unit = {
+        solve(task.copy(problemName = "rect-euler", modelName = "RectEuler_max_clique", instanceName = "british_isles_combined_model_input", maybeOptimum = Some(2702)))
+    }
+
+    @Test
     @Tag(SatisfiabilityProblem)
     @Tag(HasCumulativeConstraint)
     @Tag(HasDiffnConstraint)
@@ -933,14 +967,6 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Tag(SatisfiabilityProblem)
     @Tag(HasGlobalCardinalityConstraint)
     @Tag(HasRegularConstraint)
-    def rotating_workforce_Example789(): Unit = {
-        solve(task.copy(problemName = "rotating-workforce", instanceName = "Example789"))
-    }
-
-    @Test
-    @Tag(SatisfiabilityProblem)
-    @Tag(HasGlobalCardinalityConstraint)
-    @Tag(HasRegularConstraint)
     @Tag(HasSlidingSumConstraint)
     def rotating_workforce_scheduling_rws_instance_e_100_s_2(): Unit = {
         solve(task.copy(problemName = "rotating-workforce-scheduling", instanceName = "rws-instance-e-100-s-2"))
@@ -956,6 +982,13 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Tag(SatisfiabilityProblem)
     def rubik_4_cube(): Unit = {
         solve(task.copy(directoryLayout = NonStandardMiniZincBenchmarksLayout, problemName = "rubik", instanceName = "4-cube"))
+    }
+
+    @Test
+    @Tag(MinimizationProblem)
+    @Tag(HasDisjunctiveConstraint)
+    def saeling_j0005_m001_w01_g2x2_s018(): Unit = {
+        solve(task.copy(problemName = "saeling", modelName = "encoding_challenge_v2_0", instanceName = "instance__j0005_m001_w01_g2x2_s018", maybeOptimum = Some(143)))
     }
 
     @Test
@@ -1095,6 +1128,13 @@ final class MiniZincChallenges extends ZincBasedTest {
 
     @Test
     @Tag(MinimizationProblem)
+    @Tag(HasTreeConstraint)
+    def surface_based_tsp_burma14(): Unit = {
+        solve(task.copy(problemName = "surface-based-tsp", modelName = "dual_surface_tsp_cp_combined", instanceName = "burma14", maybeOptimum = Some(3323)))
+    }
+
+    @Test
+    @Tag(MinimizationProblem)
     def table_layout_p1000_m3_r100_c10(): Unit = {
         solve(task.copy(problemName = "table-layout", modelName = "TableLayout", instanceName = "p1000_m3_r100_c10", maybeOptimum = Some(8137)))
     }
@@ -1215,6 +1255,16 @@ final class MiniZincChallenges extends ZincBasedTest {
         solve(task.copy(problemName = "vrplc", modelName = "vrplc_service", instanceName = "vrplc9_5_10_s1", maybeOptimum = Some(351)))
     }
 
+
+    @Test
+    @Tag(MinimizationProblem)
+    @Tag(HasDisjointConstraint)
+    @Tag(HasGlobalCardinalityConstraint)
+    @Tag(HasIncreasingConstraint)
+    def warehouse_olal41(): Unit = {
+        solve(task.copy(problemName = "warehouse", modelName = "ms-cflp-ci", instanceName = "olal41", maybeOptimum = Some(42466)))
+    }
+
     @Test
     @Tag(SatisfiabilityProblem)
     @Tag(HasAllDifferentConstraint)
@@ -1226,6 +1276,15 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Tag(MinimizationProblem)
     def wmsmc_int_batch_0_case_115_instance_0_small_subset_elements_3_sumreqs_1295_candidates_41(): Unit = {
         solve(task.copy(problemName = "wmsmc-int", modelName = "multisetcover", instanceName = "batch_0_case_115_instance_0_small_subset_elements_3_sumreqs_1295_candidates_41", maybeOptimum = Some(509704)))
+    }
+
+    @Test
+    @Tag(MinimizationProblem)
+    @Tag(HasAllEqualConstraint)
+    @Tag(HasDisjunctiveConstraint)
+    @Tag(HasNValueConstraint)
+    def workforce_alloc_174(): Unit = {
+        solve(task.copy(problemName = "workforce-alloc", modelName = "scheduling_model", instanceName = "instance_174", maybeOptimum = Some(45)))
     }
 
     // increasing and value_precede constraints might be redundant.

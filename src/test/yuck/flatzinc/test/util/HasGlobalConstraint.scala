@@ -3,6 +3,8 @@ package yuck.flatzinc.test.util
 object HasGlobalConstraint {
     final val HasAllDifferentConstraint = "HasAllDifferentConstraint"
     final val HasAllDifferentExceptConstraint = "HasAllDifferentExceptConstraint"
+    final val HasAllEqualConstraint = "HasAllEqualConstraint"
+    final val HasArgSortConstraint = "HasArgSortConstraint"
     final val HasAtLeastConstraint = "HasAtLeastConstraint"
     final val HasAtMostConstraint = "HasAtMostConstraint"
     final val HasBinPackingConstraint = "HasBinPackingConstraint"
@@ -13,6 +15,7 @@ object HasGlobalConstraint {
     final val HasDecreasingConstraint = "HasDecreasingConstraint"
     final val HasDeliveryConstraint = "HasDeliveryConstraint"
     final val HasDiffnConstraint = "HasDiffnConstraint"
+    final val HasDisjointConstraint = "HasDisjointConstraint"
     final val HasDisjunctiveConstraint = "HasDisjunctiveConstraint"
     final val HasElementConstraint = "HasElementConstraint"
     final val HasExactlyConstraint = "HasExactlyConstraint"
@@ -31,6 +34,7 @@ object HasGlobalConstraint {
     final val HasSlidingSumConstraint = "HasSlidingSumConstraint"
     final val HasSubcircuitConstraint = "HasSubcircuitConstraint"
     final val HasTableConstraint = "HasTableConstraint"
+    final val HasTreeConstraint = "HasTreeConstraint"
     final val HasValuePrecedeConstraint = "HasValuePrecedeConstraint"
     final val HasValuePrecedeChainConstraint = "HasValuePrecedeChainConstraint"
 }
