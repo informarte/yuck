@@ -557,89 +557,88 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(SatisfiabilityProblem)
     @Tag(HasCountConstraint)
     def testCountGeqBool(): Unit = {
-        testCount("count_geq_bool_test", LeRelation, true)
+        testCount("count_geq_bool_test", LeRelation)
     }
 
     @Test
     @Tag(SatisfiabilityProblem)
     @Tag(HasCountConstraint)
     def testCountGeqBoolReif(): Unit = {
-        testCountReif("count_geq_bool_reif_test", LeRelation, true)
+        testCountReif("count_geq_bool_reif_test", LeRelation)
     }
 
     @Test
     @Tag(SatisfiabilityProblem)
     @Tag(HasCountConstraint)
     def testCountGeqInt(): Unit = {
-        testCount("count_geq_int_test", LeRelation, true)
+        testCount("count_geq_int_test", LeRelation)
     }
 
     @Test
     @Tag(SatisfiabilityProblem)
     @Tag(HasCountConstraint)
     def testCountGeqIntReif(): Unit = {
-        testCountReif("count_geq_int_reif_test", LeRelation, true)
+        testCountReif("count_geq_int_reif_test", LeRelation)
     }
 
     @Test
     @Tag(SatisfiabilityProblem)
     @Tag(HasCountConstraint)
     def testCountGeqSet(): Unit = {
-        testCount("count_geq_set_test", LeRelation, true)
+        testCount("count_geq_set_test", LeRelation)
     }
 
     @Test
     @Tag(SatisfiabilityProblem)
     @Tag(HasCountConstraint)
     def testCountGeqSetReif(): Unit = {
-        testCountReif("count_geq_set_reif_test", LeRelation, true)
+        testCountReif("count_geq_set_reif_test", LeRelation)
     }
 
     @Test
     @Tag(SatisfiabilityProblem)
     @Tag(HasCountConstraint)
     def testCountGtBool(): Unit = {
-        testCount("count_gt_bool_test", LtRelation, true)
+        testCount("count_gt_bool_test", LtRelation)
     }
 
     @Test
     @Tag(SatisfiabilityProblem)
     @Tag(HasCountConstraint)
     def testCountGtBoolReif(): Unit = {
-        testCountReif("count_gt_bool_reif_test", LtRelation, true)
+        testCountReif("count_gt_bool_reif_test", LtRelation)
     }
 
     @Test
     @Tag(SatisfiabilityProblem)
     @Tag(HasCountConstraint)
     def testCountGtInt(): Unit = {
-        testCount("count_gt_int_test", LtRelation, true)
+        testCount("count_gt_int_test", LtRelation)
     }
 
     @Test
     @Tag(SatisfiabilityProblem)
     @Tag(HasCountConstraint)
     def testCountGtIntReif(): Unit = {
-        testCountReif("count_gt_int_reif_test", LtRelation, true)
+        testCountReif("count_gt_int_reif_test", LtRelation)
     }
 
     @Test
     @Tag(SatisfiabilityProblem)
     @Tag(HasCountConstraint)
     def testCountGtSet(): Unit = {
-        testCount("count_gt_set_test", LtRelation, true)
+        testCount("count_gt_set_test", LtRelation)
     }
 
     @Test
     @Tag(SatisfiabilityProblem)
     @Tag(HasCountConstraint)
     def testCountGtSetReif(): Unit = {
-        testCountReif("count_gt_set_reif_test", LtRelation, true)
+        testCountReif("count_gt_set_reif_test", LtRelation)
     }
 
-    private def testCount(problemName: String, relation: OrderingRelation, inverseRelation: Boolean = false): Unit = {
-        // The MiniZinc library does not support set counting.
-        val result = solveWithResult(task.copy(problemName = problemName, verificationFrequency = NoVerification))
+    private def testCount(problemName: String, relation: OrderingRelation): Unit = {
+        val result = solveWithResult(task.copy(problemName = problemName))
         assertEq(result.space.channelVariables.size, 5)
         if relation == EqRelation then {
             assertEq(result.space.searchVariables.size, 11)
@@ -663,24 +662,10 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         }
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
-        val xs = result.outputArray("x")
-        val ys = result.outputVar("y")
-        val c = result.outputVar("c")
-        val as = xs.map(result.assignment.value)
-        val b = result.assignment.value(ys)
-        val n = as.count(_ == b)
-        val m = result.assignment.value(c.asInstanceOf[IntegerVariable]).toInt
-        relation match {
-            case EqRelation => assertEq(n, m)
-            case NeRelation => assertNe(n, m)
-            case LeRelation => if inverseRelation then assertGe(m, n) else assertLe(m, n)
-            case LtRelation => if inverseRelation then assertGt(m, n) else assertLt(m, n)
-        }
     }
 
-    private def testCountReif(problemName: String, relation: OrderingRelation, inverseRelation: Boolean = false): Unit = {
-        // The MiniZinc library does not support set counting.
-        val result = solveWithResult(task.copy(problemName = problemName, verificationFrequency = NoVerification))
+    private def testCountReif(problemName: String, relation: OrderingRelation): Unit = {
+        val result = solveWithResult(task.copy(problemName = problemName))
         assertEq(result.space.searchVariables.size, 12)
         assertEq(result.space.searchVariables.map(_.name).filterNot(_.startsWith("x")), Set("c[2]", "y[2]"))
         assertEq(result.space.channelVariables.size, 6)
@@ -698,35 +683,10 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
         assertEq(result.space.numberOfConstraints[Or], 1)
         assertEq(result.space.numberOfConstraints[Conjunction], 1)
         assertEq(result.space.numberOfConstraints[SatisfactionGoalTracker], 1)
-        val xs = result.outputArray("x")
-        val ys = result.outputArray("y")
-        val cs = result.outputArray("c")
-        assertEq(ys.size, 2)
-        assertEq(cs.size, 2)
-        val as = xs.map(result.assignment.value)
-        val bs = ys.map(result.assignment.value)
-        val ns = bs.map(b => as.count(_ == b))
-        val ms = cs.map(c => result.assignment.value(c.asInstanceOf[IntegerVariable]).toInt)
-        relation match {
-            case EqRelation =>
-                assert(ns(0) == ms(0) || ns(1) == ms(1))
-            case NeRelation =>
-                assert(ns(0) != ms(0) || ns(1) != ms(1))
-            case LeRelation =>
-                assert(
-                    if inverseRelation
-                    then ms(0) >= ns(0) || ms(1) >= ns(1)
-                    else ms(0) <= ns(0) || ms(1) <= ns(1))
-            case LtRelation =>
-                assert(
-                    if inverseRelation
-                    then ms(0) > ns(0) || ms(1) > ns(1)
-                    else ms(0) < ns(0) || ms(1) < ns(1))
-        }
     }
 
     private def testCountFn(problemName: String): Unit = {
-        // The MiniZinc library does not support set counting.
+        // The MiniZinc library does not fully support set counting.
         val result = solveWithResult(task.copy(problemName = problemName, verificationFrequency = NoVerification))
         assertEq(result.space.channelVariables.count(wasIntroducedByMiniZincCompiler), 0)
         assertEq(result.space.numberOfConstraints, 9)
@@ -1346,8 +1306,7 @@ final class GlobalConstraintCompilationTest extends FrontEndTest {
     @Tag(SatisfiabilityProblem)
     @Tag(HasRegularConstraint)
     def testRegularReif(): Unit = {
-        // Gecode does not provide a decomposition for regular_reif, so we cannot verify the solution.
-        val result = solveWithResult(task.copy(problemName = "regular_reif_test", verificationFrequency = NoVerification))
+        val result = solveWithResult(task.copy(problemName = "regular_reif_test"))
         assertEq(result.space.numberOfConstraints[Regular], 1)
         assert(result.neighbourhood.isInstanceOf[RandomReassignmentGenerator])
     }

@@ -792,8 +792,7 @@ final class MiniZincChallenges extends ZincBasedTest {
     @Tag(MaximizationProblem)
     @Tag(HasAllDifferentConstraint)
     def pennies_opt_n5(): Unit = {
-        // The solution cannot be verified because the model uses opt variables.
-        solve(task.copy(problemName = "pennies-opt", modelName = "pennies", instanceName = "n5", maybeOptimum = Some(5), verificationFrequency = NoVerification))
+        solve(task.copy(problemName = "pennies-opt", modelName = "pennies", instanceName = "n5", maybeOptimum = Some(5)))
     }
 
     @Test
